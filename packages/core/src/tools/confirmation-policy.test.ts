@@ -30,10 +30,7 @@ vi.mock('../telemetry/loggers.js', () => ({
 describe('Tool Confirmation Policy Updates', () => {
   let mockConfig: any;
   let mockMessageBus: MessageBus;
-  const rootDir = path.join(
-    os.tmpdir(),
-    `gemini-cli-policy-test-${Date.now()}`,
-  );
+  const rootDir = path.join(os.tmpdir(), `gemini-cli-policy-test-${Date.now()}`);
 
   beforeEach(() => {
     if (!fs.existsSync(rootDir)) {
@@ -115,8 +112,7 @@ describe('Tool Confirmation Policy Updates', () => {
     },
     {
       name: 'WriteFileTool',
-      create: (config: Config, bus: MessageBus) =>
-        new WriteFileTool(config, bus),
+      create: (config: Config, bus: MessageBus) => new WriteFileTool(config, bus),
       params: {
         file_path: path.join(rootDir, 'test.txt'),
         content: 'new content',
@@ -124,8 +120,7 @@ describe('Tool Confirmation Policy Updates', () => {
     },
     {
       name: 'WebFetchTool',
-      create: (config: Config, bus: MessageBus) =>
-        new WebFetchTool(config, bus),
+      create: (config: Config, bus: MessageBus) => new WebFetchTool(config, bus),
       params: {
         prompt: 'fetch https://example.com',
       },
@@ -144,57 +139,44 @@ describe('Tool Confirmation Policy Updates', () => {
         shouldPublish: true,
         persist: true,
       },
-    ])(
-      'should handle $outcome correctly',
-      async ({ outcome, shouldPublish, persist, expectedApprovalMode }) => {
-        const tool = create(mockConfig, mockMessageBus);
+    ])('should handle $outcome correctly', async ({ outcome, shouldPublish, persist, expectedApprovalMode }) => {
+      const tool = create(mockConfig, mockMessageBus);
 
-        // For file-based tools, ensure the file exists if needed
-        if (params.file_path) {
-          const fullPath = path.isAbsolute(params.file_path)
-            ? params.file_path
-            : path.join(rootDir, params.file_path);
-          fs.writeFileSync(fullPath, 'existing content');
+      // For file-based tools, ensure the file exists if needed
+      if (params.file_path) {
+        const fullPath = path.isAbsolute(params.file_path) ? params.file_path : path.join(rootDir, params.file_path);
+        fs.writeFileSync(fullPath, 'existing content');
+      }
+
+      const invocation = tool.build(params as any);
+
+      // Mock getMessageBusDecision to trigger ASK_USER flow
+      vi.spyOn(invocation as any, 'getMessageBusDecision').mockResolvedValue('ASK_USER');
+
+      const confirmation = await invocation.shouldConfirmExecute(new AbortController().signal);
+      expect(confirmation).not.toBe(false);
+
+      if (confirmation) {
+        await confirmation.onConfirm(outcome);
+
+        if (shouldPublish) {
+          expect(mockMessageBus.publish).toHaveBeenCalledWith(
+            expect.objectContaining({
+              type: MessageBusType.UPDATE_POLICY,
+              persist,
+            })
+          );
+        } else {
+          // Should not publish UPDATE_POLICY message for ProceedAlways
+          const publishCalls = (mockMessageBus.publish as any).mock.calls;
+          const hasUpdatePolicy = publishCalls.some((call: any) => call[0].type === MessageBusType.UPDATE_POLICY);
+          expect(hasUpdatePolicy).toBe(false);
         }
 
-        const invocation = tool.build(params as any);
-
-        // Mock getMessageBusDecision to trigger ASK_USER flow
-        vi.spyOn(invocation as any, 'getMessageBusDecision').mockResolvedValue(
-          'ASK_USER',
-        );
-
-        const confirmation = await invocation.shouldConfirmExecute(
-          new AbortController().signal,
-        );
-        expect(confirmation).not.toBe(false);
-
-        if (confirmation) {
-          await confirmation.onConfirm(outcome);
-
-          if (shouldPublish) {
-            expect(mockMessageBus.publish).toHaveBeenCalledWith(
-              expect.objectContaining({
-                type: MessageBusType.UPDATE_POLICY,
-                persist,
-              }),
-            );
-          } else {
-            // Should not publish UPDATE_POLICY message for ProceedAlways
-            const publishCalls = (mockMessageBus.publish as any).mock.calls;
-            const hasUpdatePolicy = publishCalls.some(
-              (call: any) => call[0].type === MessageBusType.UPDATE_POLICY,
-            );
-            expect(hasUpdatePolicy).toBe(false);
-          }
-
-          if (expectedApprovalMode !== undefined) {
-            expect(mockConfig.setApprovalMode).toHaveBeenCalledWith(
-              expectedApprovalMode,
-            );
-          }
+        if (expectedApprovalMode !== undefined) {
+          expect(mockConfig.setApprovalMode).toHaveBeenCalledWith(expectedApprovalMode);
         }
-      },
-    );
+      }
+    });
   });
 });

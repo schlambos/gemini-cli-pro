@@ -10,10 +10,7 @@ import { execStreaming } from './shell-utils.js';
 describe('execStreaming (Integration)', () => {
   it('should yield lines from stdout', async () => {
     // Use node to echo for cross-platform support
-    const generator = execStreaming(process.execPath, [
-      '-e',
-      'console.log("line 1\\nline 2")',
-    ]);
+    const generator = execStreaming(process.execPath, ['-e', 'console.log("line 1\\nline 2")']);
     const lines = [];
     for await (const line of generator) {
       lines.push(line);
@@ -23,10 +20,7 @@ describe('execStreaming (Integration)', () => {
 
   it('should throw error on non-zero exit code', async () => {
     // exit 2 via node
-    const generator = execStreaming(process.execPath, [
-      '-e',
-      'process.exit(2)',
-    ]);
+    const generator = execStreaming(process.execPath, ['-e', 'process.exit(2)']);
 
     await expect(async () => {
       for await (const _ of generator) {
@@ -38,11 +32,9 @@ describe('execStreaming (Integration)', () => {
   it('should abort cleanly when signal is aborted', async () => {
     const controller = new AbortController();
     // sleep for 2s via node
-    const generator = execStreaming(
-      process.execPath,
-      ['-e', 'setTimeout(() => {}, 2000)'],
-      { signal: controller.signal },
-    );
+    const generator = execStreaming(process.execPath, ['-e', 'setTimeout(() => {}, 2000)'], {
+      signal: controller.signal,
+    });
 
     // Start reading
     const readPromise = (async () => {

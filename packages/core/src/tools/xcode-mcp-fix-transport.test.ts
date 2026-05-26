@@ -63,9 +63,7 @@ describe('Xcode MCP Bridge Fix', () => {
     const fixedMsg = messages.find((m) => m.id === 1);
     expect(fixedMsg).toBeDefined();
     expect(fixedMsg.result.structuredContent).toBeDefined();
-    expect(fixedMsg.result.structuredContent.windows[0].title).toBe(
-      'HelloWorld',
-    );
+    expect(fixedMsg.result.structuredContent.windows[0].title).toBe('HelloWorld');
 
     // SCENARIO 2: Good response (should be untouched)
     const goodPayload = {
@@ -113,8 +111,6 @@ describe('Xcode MCP Bridge Fix', () => {
     const msg = messages.find((m) => m.id === 3);
     expect(msg).toBeDefined();
     expect(msg.result.structuredContent).toBeUndefined();
-    expect(msg.result.content[0].text).toBe(
-      "Just some plain text that isn't JSON",
-    );
+    expect(msg.result.content[0].text).toBe("Just some plain text that isn't JSON");
   });
 });

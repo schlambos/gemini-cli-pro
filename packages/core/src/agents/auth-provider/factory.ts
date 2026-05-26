@@ -5,11 +5,7 @@
  */
 
 import type { AgentCard, SecurityScheme } from '@a2a-js/sdk';
-import type {
-  A2AAuthConfig,
-  A2AAuthProvider,
-  AuthValidationResult,
-} from './types.js';
+import type { A2AAuthConfig, A2AAuthProvider, AuthValidationResult } from './types.js';
 
 export interface CreateAuthProviderOptions {
   /** Required for OAuth/OIDC token storage. */
@@ -23,16 +19,11 @@ export interface CreateAuthProviderOptions {
  * @see https://a2a-protocol.org/latest/specification/#451-securityscheme
  */
 export class A2AAuthProviderFactory {
-  static async create(
-    options: CreateAuthProviderOptions,
-  ): Promise<A2AAuthProvider | undefined> {
+  static async create(options: CreateAuthProviderOptions): Promise<A2AAuthProvider | undefined> {
     const { agentName: _agentName, authConfig, agentCard } = options;
 
     if (!authConfig) {
-      if (
-        agentCard?.securitySchemes &&
-        Object.keys(agentCard.securitySchemes).length > 0
-      ) {
+      if (agentCard?.securitySchemes && Object.keys(agentCard.securitySchemes).length > 0) {
         return undefined; // Caller should prompt user to configure auth
       }
       return undefined;
@@ -61,18 +52,13 @@ export class A2AAuthProviderFactory {
 
       default: {
         const _exhaustive: never = authConfig;
-        throw new Error(
-          `Unknown auth type: ${(_exhaustive as A2AAuthConfig).type}`,
-        );
+        throw new Error(`Unknown auth type: ${(_exhaustive as A2AAuthConfig).type}`);
       }
     }
   }
 
   /** Create provider directly from config, bypassing AgentCard validation. */
-  static async createFromConfig(
-    authConfig: A2AAuthConfig,
-    agentName?: string,
-  ): Promise<A2AAuthProvider> {
+  static async createFromConfig(authConfig: A2AAuthConfig, agentName?: string): Promise<A2AAuthProvider> {
     const provider = await A2AAuthProviderFactory.create({
       authConfig,
       agentName,
@@ -87,7 +73,7 @@ export class A2AAuthProviderFactory {
   /** Validate auth config against AgentCard's security requirements. */
   static validateAuthConfig(
     authConfig: A2AAuthConfig | undefined,
-    securitySchemes: Record<string, SecurityScheme> | undefined,
+    securitySchemes: Record<string, SecurityScheme> | undefined
   ): AuthValidationResult {
     if (!securitySchemes || Object.keys(securitySchemes).length === 0) {
       return { valid: true };
@@ -106,10 +92,7 @@ export class A2AAuthProviderFactory {
       };
     }
 
-    const matchResult = A2AAuthProviderFactory.findMatchingScheme(
-      authConfig,
-      securitySchemes,
-    );
+    const matchResult = A2AAuthProviderFactory.findMatchingScheme(authConfig, securitySchemes);
 
     if (matchResult.matched) {
       return { valid: true };
@@ -128,7 +111,7 @@ export class A2AAuthProviderFactory {
   // Security schemes have OR semantics per A2A spec - matching any single scheme is sufficient
   private static findMatchingScheme(
     authConfig: A2AAuthConfig,
-    securitySchemes: Record<string, SecurityScheme>,
+    securitySchemes: Record<string, SecurityScheme>
   ): { matched: boolean; missingConfig: string[] } {
     const missingConfig: string[] = [];
 
@@ -138,30 +121,21 @@ export class A2AAuthProviderFactory {
           if (authConfig.type === 'apiKey') {
             return { matched: true, missingConfig: [] };
           }
-          missingConfig.push(
-            `Scheme '${schemeName}' requires apiKey authentication`,
-          );
+          missingConfig.push(`Scheme '${schemeName}' requires apiKey authentication`);
           break;
 
         case 'http':
           if (authConfig.type === 'http') {
-            if (
-              authConfig.scheme.toLowerCase() === scheme.scheme.toLowerCase()
-            ) {
+            if (authConfig.scheme.toLowerCase() === scheme.scheme.toLowerCase()) {
               return { matched: true, missingConfig: [] };
             }
             missingConfig.push(
-              `Scheme '${schemeName}' requires HTTP ${scheme.scheme} authentication, but ${authConfig.scheme} was configured`,
+              `Scheme '${schemeName}' requires HTTP ${scheme.scheme} authentication, but ${authConfig.scheme} was configured`
             );
-          } else if (
-            authConfig.type === 'google-credentials' &&
-            scheme.scheme.toLowerCase() === 'bearer'
-          ) {
+          } else if (authConfig.type === 'google-credentials' && scheme.scheme.toLowerCase() === 'bearer') {
             return { matched: true, missingConfig: [] };
           } else {
-            missingConfig.push(
-              `Scheme '${schemeName}' requires HTTP ${scheme.scheme} authentication`,
-            );
+            missingConfig.push(`Scheme '${schemeName}' requires HTTP ${scheme.scheme} authentication`);
           }
           break;
 
@@ -169,31 +143,23 @@ export class A2AAuthProviderFactory {
           if (authConfig.type === 'oauth2') {
             return { matched: true, missingConfig: [] };
           }
-          missingConfig.push(
-            `Scheme '${schemeName}' requires OAuth 2.0 authentication`,
-          );
+          missingConfig.push(`Scheme '${schemeName}' requires OAuth 2.0 authentication`);
           break;
 
         case 'openIdConnect':
           if (authConfig.type === 'openIdConnect') {
             return { matched: true, missingConfig: [] };
           }
-          missingConfig.push(
-            `Scheme '${schemeName}' requires OpenID Connect authentication`,
-          );
+          missingConfig.push(`Scheme '${schemeName}' requires OpenID Connect authentication`);
           break;
 
         case 'mutualTLS':
-          missingConfig.push(
-            `Scheme '${schemeName}' requires mTLS authentication (not yet supported)`,
-          );
+          missingConfig.push(`Scheme '${schemeName}' requires mTLS authentication (not yet supported)`);
           break;
 
         default: {
           const _exhaustive: never = scheme;
-          missingConfig.push(
-            `Unknown security scheme type: ${(_exhaustive as SecurityScheme).type}`,
-          );
+          missingConfig.push(`Unknown security scheme type: ${(_exhaustive as SecurityScheme).type}`);
         }
       }
     }
@@ -202,17 +168,13 @@ export class A2AAuthProviderFactory {
   }
 
   /** Get human-readable description of required auth for error messages. */
-  static describeRequiredAuth(
-    securitySchemes: Record<string, SecurityScheme>,
-  ): string {
+  static describeRequiredAuth(securitySchemes: Record<string, SecurityScheme>): string {
     const descriptions: string[] = [];
 
     for (const [name, scheme] of Object.entries(securitySchemes)) {
       switch (scheme.type) {
         case 'apiKey':
-          descriptions.push(
-            `API Key (${name}): Send ${scheme.name} in ${scheme.in}`,
-          );
+          descriptions.push(`API Key (${name}): Send ${scheme.name} in ${scheme.in}`);
           break;
         case 'http':
           descriptions.push(`HTTP ${scheme.scheme} (${name})`);
@@ -229,9 +191,7 @@ export class A2AAuthProviderFactory {
         default: {
           const _exhaustive: never = scheme;
           // This ensures TypeScript errors if a new SecurityScheme type is added
-          descriptions.push(
-            `Unknown (${name}): ${(_exhaustive as SecurityScheme).type}`,
-          );
+          descriptions.push(`Unknown (${name}): ${(_exhaustive as SecurityScheme).type}`);
         }
       }
     }

@@ -17,9 +17,7 @@ const GeneralistAgentSchema = z.object({
  * A general-purpose AI agent with access to all tools.
  * It uses the same core system prompt as the main agent but in a non-interactive mode.
  */
-export const GeneralistAgent = (
-  config: Config,
-): LocalAgentDefinition<typeof GeneralistAgentSchema> => ({
+export const GeneralistAgent = (config: Config): LocalAgentDefinition<typeof GeneralistAgentSchema> => ({
   kind: 'local',
   name: 'generalist',
   displayName: 'Generalist Agent',
@@ -54,11 +52,7 @@ export const GeneralistAgent = (
   },
   get promptConfig() {
     return {
-      systemPrompt: getCoreSystemPrompt(
-        config,
-        /*useMemory=*/ undefined,
-        /*interactiveOverride=*/ false,
-      ),
+      systemPrompt: getCoreSystemPrompt(config, /*useMemory=*/ undefined, /*interactiveOverride=*/ false),
       query: '${request}',
     };
   },

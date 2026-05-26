@@ -5,13 +5,7 @@
  */
 
 import type React from 'react';
-import {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  useMemo,
-} from 'react';
+import { createContext, useContext, useState, useCallback, useMemo } from 'react';
 
 interface OverflowState {
   overflowingIds: ReadonlySet<string>;
@@ -22,23 +16,15 @@ interface OverflowActions {
   removeOverflowingId: (id: string) => void;
 }
 
-const OverflowStateContext = createContext<OverflowState | undefined>(
-  undefined,
-);
+const OverflowStateContext = createContext<OverflowState | undefined>(undefined);
 
-const OverflowActionsContext = createContext<OverflowActions | undefined>(
-  undefined,
-);
+const OverflowActionsContext = createContext<OverflowActions | undefined>(undefined);
 
-export const useOverflowState = (): OverflowState | undefined =>
-  useContext(OverflowStateContext);
+export const useOverflowState = (): OverflowState | undefined => useContext(OverflowStateContext);
 
-export const useOverflowActions = (): OverflowActions | undefined =>
-  useContext(OverflowActionsContext);
+export const useOverflowActions = (): OverflowActions | undefined => useContext(OverflowActionsContext);
 
-export const OverflowProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const OverflowProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [overflowingIds, setOverflowingIds] = useState(new Set<string>());
 
   const addOverflowingId = useCallback((id: string) => {
@@ -67,7 +53,7 @@ export const OverflowProvider: React.FC<{ children: React.ReactNode }> = ({
     () => ({
       overflowingIds,
     }),
-    [overflowingIds],
+    [overflowingIds]
   );
 
   const actionsValue = useMemo(
@@ -75,14 +61,12 @@ export const OverflowProvider: React.FC<{ children: React.ReactNode }> = ({
       addOverflowingId,
       removeOverflowingId,
     }),
-    [addOverflowingId, removeOverflowingId],
+    [addOverflowingId, removeOverflowingId]
   );
 
   return (
     <OverflowStateContext.Provider value={stateValue}>
-      <OverflowActionsContext.Provider value={actionsValue}>
-        {children}
-      </OverflowActionsContext.Provider>
+      <OverflowActionsContext.Provider value={actionsValue}>{children}</OverflowActionsContext.Provider>
     </OverflowStateContext.Provider>
   );
 };

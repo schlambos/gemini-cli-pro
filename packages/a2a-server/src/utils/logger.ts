@@ -20,7 +20,7 @@ const logger = winston.createLogger({
         `[${level.toUpperCase()}] ${timestamp} -- ${message}` +
         `${Object.keys(rest).length > 0 ? `\n${JSON.stringify(rest, null, 2)}` : ''}`
       ); // Only print ...rest if present
-    }),
+    })
   ),
   transports: [new winston.transports.Console()],
 });

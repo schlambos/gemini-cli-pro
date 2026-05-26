@@ -29,21 +29,10 @@ vi.mock('./settings.js', async (importActual) => {
 
 // Mock trustedFolders
 vi.mock('./trustedFolders.js', () => ({
-  isWorkspaceTrusted: vi
-    .fn()
-    .mockReturnValue({ isTrusted: true, source: 'file' }),
+  isWorkspaceTrusted: vi.fn().mockReturnValue({ isTrusted: true, source: 'file' }),
 }));
 
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  afterEach,
-  type Mocked,
-  type Mock,
-} from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mocked, type Mock } from 'vitest';
 import * as fs from 'node:fs';
 import stripJsonComments from 'strip-json-comments';
 import { isWorkspaceTrusted } from './trustedFolders.js';
@@ -72,8 +61,7 @@ const mockCoreEvents = vi.hoisted(() => ({
 }));
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     coreEvents: mockCoreEvents,
@@ -101,9 +89,7 @@ describe('Settings Repro', () => {
     mockStripJsonComments = vi.mocked(stripJsonComments);
 
     vi.mocked(osActual.homedir).mockReturnValue('/mock/home/user');
-    (mockStripJsonComments as unknown as Mock).mockImplementation(
-      (jsonString: string) => jsonString,
-    );
+    (mockStripJsonComments as unknown as Mock).mockImplementation((jsonString: string) => jsonString);
     (mockFsExistsSync as Mock).mockReturnValue(false);
     (fs.readFileSync as Mock).mockReturnValue('{}');
     (mockFsMkdirSync as Mock).mockImplementation(() => undefined);
@@ -118,9 +104,7 @@ describe('Settings Repro', () => {
   });
 
   it('should handle the problematic settings.json without crashing', () => {
-    (mockFsExistsSync as Mock).mockImplementation(
-      (p: fs.PathLike) => p === USER_SETTINGS_PATH,
-    );
+    (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) => p === USER_SETTINGS_PATH);
     const problemSettingsContent = {
       accessibility: {
         screenReader: true,
@@ -183,13 +167,10 @@ describe('Settings Repro', () => {
       },
     };
 
-    (fs.readFileSync as Mock).mockImplementation(
-      (p: fs.PathOrFileDescriptor) => {
-        if (p === USER_SETTINGS_PATH)
-          return JSON.stringify(problemSettingsContent);
-        return '{}';
-      },
-    );
+    (fs.readFileSync as Mock).mockImplementation((p: fs.PathOrFileDescriptor) => {
+      if (p === USER_SETTINGS_PATH) return JSON.stringify(problemSettingsContent);
+      return '{}';
+    });
 
     const settings = loadSettings(MOCK_WORKSPACE_DIR);
 

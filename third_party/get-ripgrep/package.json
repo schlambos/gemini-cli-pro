@@ -2,25 +2,25 @@
   "name": "@lvce-editor/ripgrep",
   "version": "0.0.0-dev",
   "description": "A module for using ripgrep in a Node project",
-  "main": "src/index.js",
-  "typings": "src/index.d.ts",
-  "type": "module",
+  "keywords": [
+    "lvce-editor",
+    "ripgrep"
+  ],
+  "license": "MIT",
+  "author": "Lvce Editor",
   "repository": {
     "type": "git",
     "url": "https://github.com/lvce-editor/ripgrep"
   },
+  "type": "module",
+  "main": "src/index.js",
+  "typings": "src/index.d.ts",
   "scripts": {
     "postinstall": "node ./src/postinstall.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
     "format": "prettier --write ."
   },
-  "keywords": [
-    "lvce-editor",
-    "ripgrep"
-  ],
-  "author": "Lvce Editor",
-  "license": "MIT",
   "dependencies": {
     "@lvce-editor/verror": "^1.6.0",
     "execa": "^9.5.2",

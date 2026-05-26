@@ -29,7 +29,7 @@ export function getErrorMessage(error: unknown): string {
 export class FatalError extends Error {
   constructor(
     message: string,
-    readonly exitCode: number,
+    readonly exitCode: number
   ) {
     super(message);
   }
@@ -151,10 +151,7 @@ export function isAuthenticationError(error: unknown): boolean {
   }
 
   // Check for UnauthorizedError class (from MCP SDK or our own)
-  if (
-    error instanceof Error &&
-    error.constructor.name === 'UnauthorizedError'
-  ) {
+  if (error instanceof Error && error.constructor.name === 'UnauthorizedError') {
     return true;
   }
 

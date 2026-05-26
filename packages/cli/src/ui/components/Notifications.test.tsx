@@ -55,8 +55,7 @@ vi.mock('node:path', async () => {
 });
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     GEMINI_DIR: '.gemini',
@@ -104,20 +103,17 @@ describe('Notifications', () => {
     expect(lastFrame()).toBe('');
   });
 
-  it.each([[['Warning 1']], [['Warning 1', 'Warning 2']]])(
-    'renders startup warnings: %s',
-    (warnings) => {
-      mockUseAppContext.mockReturnValue({
-        startupWarnings: warnings,
-        version: '1.0.0',
-      } as AppState);
-      const { lastFrame } = render(<Notifications />);
-      const output = lastFrame();
-      warnings.forEach((warning) => {
-        expect(output).toContain(warning);
-      });
-    },
-  );
+  it.each([[['Warning 1']], [['Warning 1', 'Warning 2']]])('renders startup warnings: %s', (warnings) => {
+    mockUseAppContext.mockReturnValue({
+      startupWarnings: warnings,
+      version: '1.0.0',
+    } as AppState);
+    const { lastFrame } = render(<Notifications />);
+    const output = lastFrame();
+    warnings.forEach((warning) => {
+      expect(output).toContain(warning);
+    });
+  });
 
   it('renders init error', () => {
     mockUseUIState.mockReturnValue({
@@ -157,10 +153,7 @@ describe('Notifications', () => {
     const { lastFrame } = render(<Notifications />);
 
     expect(lastFrame()).toContain('screen reader-friendly view');
-    expect(persistentStateMock.set).toHaveBeenCalledWith(
-      'hasSeenScreenReaderNudge',
-      true,
-    );
+    expect(persistentStateMock.set).toHaveBeenCalledWith('hasSeenScreenReaderNudge', true);
 
     expect(lastFrame()).toMatchSnapshot();
   });
@@ -174,10 +167,7 @@ describe('Notifications', () => {
 
     await act(async () => {
       await waitFor(() => {
-        expect(persistentStateMock.set).toHaveBeenCalledWith(
-          'hasSeenScreenReaderNudge',
-          true,
-        );
+        expect(persistentStateMock.set).toHaveBeenCalledWith('hasSeenScreenReaderNudge', true);
         expect(mockFsUnlink).toHaveBeenCalled();
       });
     });

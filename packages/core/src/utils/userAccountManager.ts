@@ -41,8 +41,7 @@ export class UserAccountManager {
     const { active, old } = parsed as Partial<UserAccounts>;
     const isValid =
       (active === undefined || active === null || typeof active === 'string') &&
-      (old === undefined ||
-        (Array.isArray(old) && old.every((i) => typeof i === 'string')));
+      (old === undefined || (Array.isArray(old) && old.every((i) => typeof i === 'string')));
 
     if (!isValid) {
       debugLogger.log('Invalid accounts file schema, starting fresh.');
@@ -61,17 +60,10 @@ export class UserAccountManager {
       const content = readFileSync(filePath, 'utf-8');
       return this.parseAndValidateAccounts(content);
     } catch (error) {
-      if (
-        error instanceof Error &&
-        'code' in error &&
-        error.code === 'ENOENT'
-      ) {
+      if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
         return defaultState;
       }
-      debugLogger.log(
-        'Error during sync read of accounts, starting fresh.',
-        error,
-      );
+      debugLogger.log('Error during sync read of accounts, starting fresh.', error);
       return defaultState;
     }
   }
@@ -82,11 +74,7 @@ export class UserAccountManager {
       const content = await fsp.readFile(filePath, 'utf-8');
       return this.parseAndValidateAccounts(content);
     } catch (error) {
-      if (
-        error instanceof Error &&
-        'code' in error &&
-        error.code === 'ENOENT'
-      ) {
+      if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
         return defaultState;
       }
       debugLogger.log('Could not parse accounts file, starting fresh.', error);

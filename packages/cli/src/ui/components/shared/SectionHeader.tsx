@@ -9,8 +9,8 @@ import { Box, Text } from 'ink';
 import { theme } from '../../semantic-colors.js';
 
 export const SectionHeader: React.FC<{ title: string }> = ({ title }) => (
-  <Box width="100%" flexDirection="row" overflow="hidden">
-    <Text color={theme.text.secondary} wrap="truncate-end">
+  <Box width='100%' flexDirection='row' overflow='hidden'>
+    <Text color={theme.text.secondary} wrap='truncate-end'>
       {`── ${title}`}
     </Text>
     <Box
@@ -18,7 +18,7 @@ export const SectionHeader: React.FC<{ title: string }> = ({ title }) => (
       flexShrink={0}
       minWidth={2}
       marginLeft={1}
-      borderStyle="single"
+      borderStyle='single'
       borderTop
       borderBottom={false}
       borderLeft={false}

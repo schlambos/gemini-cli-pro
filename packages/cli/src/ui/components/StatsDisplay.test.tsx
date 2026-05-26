@@ -9,10 +9,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { StatsDisplay } from './StatsDisplay.js';
 import * as SessionContext from '../contexts/SessionContext.js';
 import type { SessionMetrics } from '../contexts/SessionContext.js';
-import {
-  ToolCallDecision,
-  type RetrieveUserQuotaResponse,
-} from '@google/gemini-cli-core';
+import { ToolCallDecision, type RetrieveUserQuotaResponse } from '@google/gemini-cli-core';
 
 // Mock the context to provide controlled data for testing
 vi.mock('../contexts/SessionContext.js', async (importOriginal) => {
@@ -39,13 +36,11 @@ const renderWithMockedStats = (metrics: SessionMetrics) => {
     startNewPrompt: vi.fn(),
   });
 
-  return renderWithProviders(<StatsDisplay duration="1s" />, { width: 100 });
+  return renderWithProviders(<StatsDisplay duration='1s' />, { width: 100 });
 };
 
 // Helper to create metrics with default zero values
-const createTestMetrics = (
-  overrides: Partial<SessionMetrics> = {},
-): SessionMetrics => ({
+const createTestMetrics = (overrides: Partial<SessionMetrics> = {}): SessionMetrics => ({
   models: {},
   tools: {
     totalCalls: 0,
@@ -385,10 +380,9 @@ describe('<StatsDisplay />', () => {
         startNewPrompt: vi.fn(),
       });
 
-      const { lastFrame } = renderWithProviders(
-        <StatsDisplay duration="1s" title="Agent powering down. Goodbye!" />,
-        { width: 100 },
-      );
+      const { lastFrame } = renderWithProviders(<StatsDisplay duration='1s' title='Agent powering down. Goodbye!' />, {
+        width: 100,
+      });
       const output = lastFrame();
       expect(output).toContain('Agent powering down. Goodbye!');
       expect(output).not.toContain('Session Stats');
@@ -446,10 +440,7 @@ describe('<StatsDisplay />', () => {
         startNewPrompt: vi.fn(),
       });
 
-      const { lastFrame } = renderWithProviders(
-        <StatsDisplay duration="1s" quotas={quotas} />,
-        { width: 100 },
-      );
+      const { lastFrame } = renderWithProviders(<StatsDisplay duration='1s' quotas={quotas} />, { width: 100 });
       const output = lastFrame();
 
       expect(output).toContain('Usage remaining');
@@ -495,15 +486,15 @@ describe('<StatsDisplay />', () => {
 
       const { lastFrame } = renderWithProviders(
         <StatsDisplay
-          duration="1s"
+          duration='1s'
           quotas={quotas}
-          currentModel="auto"
+          currentModel='auto'
           quotaStats={{
             remaining: 710,
             limit: 1100,
           }}
         />,
-        { width: 100 },
+        { width: 100 }
       );
       const output = lastFrame();
 
@@ -548,10 +539,7 @@ describe('<StatsDisplay />', () => {
         startNewPrompt: vi.fn(),
       });
 
-      const { lastFrame } = renderWithProviders(
-        <StatsDisplay duration="1s" quotas={quotas} />,
-        { width: 100 },
-      );
+      const { lastFrame } = renderWithProviders(<StatsDisplay duration='1s' quotas={quotas} />, { width: 100 });
       const output = lastFrame();
 
       expect(output).toContain('gemini-2.5-flash');
@@ -581,13 +569,8 @@ describe('<StatsDisplay />', () => {
       });
 
       const { lastFrame } = renderWithProviders(
-        <StatsDisplay
-          duration="1s"
-          selectedAuthType="oauth"
-          userEmail="test@example.com"
-          tier="Pro"
-        />,
-        { width: 100 },
+        <StatsDisplay duration='1s' selectedAuthType='oauth' userEmail='test@example.com' tier='Pro' />,
+        { width: 100 }
       );
       const output = lastFrame();
 
@@ -612,10 +595,9 @@ describe('<StatsDisplay />', () => {
         startNewPrompt: vi.fn(),
       });
 
-      const { lastFrame } = renderWithProviders(
-        <StatsDisplay duration="1s" selectedAuthType="Google API Key" />,
-        { width: 100 },
-      );
+      const { lastFrame } = renderWithProviders(<StatsDisplay duration='1s' selectedAuthType='Google API Key' />, {
+        width: 100,
+      });
       const output = lastFrame();
 
       expect(output).toContain('Auth Method:');

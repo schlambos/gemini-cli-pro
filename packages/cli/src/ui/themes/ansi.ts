@@ -156,5 +156,5 @@ export const ANSI: Theme = new Theme(
     },
   },
   ansiColors,
-  darkSemanticColors,
+  darkSemanticColors
 );

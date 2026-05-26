@@ -348,5 +348,5 @@ export const ShadesOfPurple = new Theme(
       width: '100%',
     },
   },
-  shadesOfPurpleColors,
+  shadesOfPurpleColors
 );

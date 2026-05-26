@@ -65,10 +65,7 @@ type TabbedNavigationAction =
     }
   | { type: 'CLEAR_PENDING' };
 
-function tabbedNavigationReducer(
-  state: TabbedNavigationState,
-  action: TabbedNavigationAction,
-): TabbedNavigationState {
+function tabbedNavigationReducer(state: TabbedNavigationState, action: TabbedNavigationAction): TabbedNavigationState {
   switch (action.type) {
     case 'NEXT_TAB': {
       const { tabCount, wrapAround, currentIndex } = state;
@@ -196,7 +193,7 @@ export function useTabbedNavigation({
       if (isNavigationBlocked?.()) return;
       dispatch({ type: 'SET_INDEX', payload: { index } });
     },
-    [isNavigationBlocked],
+    [isNavigationBlocked]
   );
 
   const handleKeypress = useCallback(
@@ -225,13 +222,7 @@ export function useTabbedNavigation({
         }
       }
     },
-    [
-      enableArrowNavigation,
-      enableTabKey,
-      goToNextTab,
-      goToPrevTab,
-      isNavigationBlocked,
-    ],
+    [enableArrowNavigation, enableTabKey, goToNextTab, goToPrevTab, isNavigationBlocked]
   );
 
   useKeypress(handleKeypress, { isActive: isActive && tabCount > 1 });

@@ -5,13 +5,7 @@
  */
 
 import type React from 'react';
-import {
-  createContext,
-  useContext,
-  useCallback,
-  useState,
-  useEffect,
-} from 'react';
+import { createContext, useContext, useCallback, useState, useEffect } from 'react';
 import {
   IdeClient,
   ToolConfirmationOutcome,
@@ -24,28 +18,15 @@ import {
 import type { IndividualToolCallDisplay } from '../types.js';
 
 type LegacyConfirmationDetails = SerializableConfirmationDetails & {
-  onConfirm: (
-    outcome: ToolConfirmationOutcome,
-    payload?: ToolConfirmationPayload,
-  ) => Promise<void>;
+  onConfirm: (outcome: ToolConfirmationOutcome, payload?: ToolConfirmationPayload) => Promise<void>;
 };
 
-function hasLegacyCallback(
-  details: SerializableConfirmationDetails | undefined,
-): details is LegacyConfirmationDetails {
-  return (
-    !!details &&
-    'onConfirm' in details &&
-    typeof details.onConfirm === 'function'
-  );
+function hasLegacyCallback(details: SerializableConfirmationDetails | undefined): details is LegacyConfirmationDetails {
+  return !!details && 'onConfirm' in details && typeof details.onConfirm === 'function';
 }
 
 interface ToolActionsContextValue {
-  confirm: (
-    callId: string,
-    outcome: ToolConfirmationOutcome,
-    payload?: ToolConfirmationPayload,
-  ) => Promise<void>;
+  confirm: (callId: string, outcome: ToolConfirmationOutcome, payload?: ToolConfirmationPayload) => Promise<void>;
   cancel: (callId: string) => Promise<void>;
   isDiffingEnabled: boolean;
 }
@@ -66,9 +47,7 @@ interface ToolActionsProviderProps {
   toolCalls: IndividualToolCallDisplay[];
 }
 
-export const ToolActionsProvider: React.FC<ToolActionsProviderProps> = (
-  props: ToolActionsProviderProps,
-) => {
+export const ToolActionsProvider: React.FC<ToolActionsProviderProps> = (props: ToolActionsProviderProps) => {
   const { children, config, toolCalls } = props;
 
   // Hoist IdeClient logic here to keep UI pure
@@ -106,11 +85,7 @@ export const ToolActionsProvider: React.FC<ToolActionsProviderProps> = (
   }, [config]);
 
   const confirm = useCallback(
-    async (
-      callId: string,
-      outcome: ToolConfirmationOutcome,
-      payload?: ToolConfirmationPayload,
-    ) => {
+    async (callId: string, outcome: ToolConfirmationOutcome, payload?: ToolConfirmationPayload) => {
       const tool = toolCalls.find((t) => t.callId === callId);
       if (!tool) {
         debugLogger.warn(`ToolActions: Tool ${callId} not found`);
@@ -125,8 +100,7 @@ export const ToolActionsProvider: React.FC<ToolActionsProviderProps> = (
         isDiffingEnabled &&
         'filePath' in details // Check for safety
       ) {
-        const cliOutcome =
-          outcome === ToolConfirmationOutcome.Cancel ? 'rejected' : 'accepted';
+        const cliOutcome = outcome === ToolConfirmationOutcome.Cancel ? 'rejected' : 'accepted';
         await ideClient?.resolveDiffFromCli(details.filePath, cliOutcome);
       }
 
@@ -149,23 +123,19 @@ export const ToolActionsProvider: React.FC<ToolActionsProviderProps> = (
         return;
       }
 
-      debugLogger.warn(
-        `ToolActions: No correlationId or callback for ${callId}`,
-      );
+      debugLogger.warn(`ToolActions: No correlationId or callback for ${callId}`);
     },
-    [config, ideClient, toolCalls, isDiffingEnabled],
+    [config, ideClient, toolCalls, isDiffingEnabled]
   );
 
   const cancel = useCallback(
     async (callId: string) => {
       await confirm(callId, ToolConfirmationOutcome.Cancel);
     },
-    [confirm],
+    [confirm]
   );
 
   return (
-    <ToolActionsContext.Provider value={{ confirm, cancel, isDiffingEnabled }}>
-      {children}
-    </ToolActionsContext.Provider>
+    <ToolActionsContext.Provider value={{ confirm, cancel, isDiffingEnabled }}>{children}</ToolActionsContext.Provider>
   );
 };

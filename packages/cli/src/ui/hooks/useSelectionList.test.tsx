@@ -8,10 +8,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { act } from 'react';
 import { render } from '../../test-utils/render.js';
 import { waitFor } from '../../test-utils/async.js';
-import {
-  useSelectionList,
-  type SelectionListItem,
-} from './useSelectionList.js';
+import { useSelectionList, type SelectionListItem } from './useSelectionList.js';
 import { useKeypress } from './useKeypress.js';
 
 import type { KeypressHandler, Key } from '../contexts/KeypressContext.js';
@@ -35,24 +32,18 @@ describe('useSelectionList', () => {
 
   beforeEach(() => {
     activeKeypressHandler = null;
-    vi.mocked(useKeypress).mockImplementation(
-      (handler: KeypressHandler, options?: UseKeypressMockOptions) => {
-        if (options?.isActive) {
-          activeKeypressHandler = handler;
-        } else {
-          activeKeypressHandler = null;
-        }
-      },
-    );
+    vi.mocked(useKeypress).mockImplementation((handler: KeypressHandler, options?: UseKeypressMockOptions) => {
+      if (options?.isActive) {
+        activeKeypressHandler = handler;
+      } else {
+        activeKeypressHandler = null;
+      }
+    });
     mockOnSelect.mockClear();
     mockOnHighlight.mockClear();
   });
 
-  const pressKey = (
-    name: string,
-    sequence: string = name,
-    options: { shift?: boolean; ctrl?: boolean } = {},
-  ) => {
+  const pressKey = (name: string, sequence: string = name, options: { shift?: boolean; ctrl?: boolean } = {}) => {
     act(() => {
       if (activeKeypressHandler) {
         const key: Key = {
@@ -67,7 +58,7 @@ describe('useSelectionList', () => {
         activeKeypressHandler(key);
       } else {
         throw new Error(
-          `Test attempted to press key (${name}) but the keypress handler is not active. Ensure the hook is focused (isFocused=true) and the list is not empty.`,
+          `Test attempted to press key (${name}) but the keypress handler is not active. Ensure the hook is focused (isFocused=true) and the list is not empty.`
         );
       }
     });
@@ -496,10 +487,10 @@ describe('useSelectionList', () => {
     });
 
     const shortList = items;
-    const longList: Array<SelectionListItem<string>> = Array.from(
-      { length: 15 },
-      (_, i) => ({ value: `Item ${i + 1}`, key: `Item ${i + 1}` }),
-    );
+    const longList: Array<SelectionListItem<string>> = Array.from({ length: 15 }, (_, i) => ({
+      value: `Item ${i + 1}`,
+      key: `Item ${i + 1}`,
+    }));
 
     const pressNumber = (num: string) => pressKey(num, num);
 
@@ -962,9 +953,7 @@ describe('useSelectionList', () => {
 
       let renderCount = 0;
 
-      const renderHookWithCount = async (initialProps: {
-        items: Array<SelectionListItem<string>>;
-      }) => {
+      const renderHookWithCount = async (initialProps: { items: Array<SelectionListItem<string>> }) => {
         function TestComponent(props: typeof initialProps) {
           renderCount++;
           useSelectionList({
@@ -1008,10 +997,10 @@ describe('useSelectionList', () => {
     });
 
     it('should clear timeout on unmount when timer is active', async () => {
-      const longList: Array<SelectionListItem<string>> = Array.from(
-        { length: 15 },
-        (_, i) => ({ value: `Item ${i + 1}`, key: `Item ${i + 1}` }),
-      );
+      const longList: Array<SelectionListItem<string>> = Array.from({ length: 15 }, (_, i) => ({
+        value: `Item ${i + 1}`,
+        key: `Item ${i + 1}`,
+      }));
 
       const { unmount } = await renderSelectionListHook({
         items: longList,

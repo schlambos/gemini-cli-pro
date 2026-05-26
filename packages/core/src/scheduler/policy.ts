@@ -5,23 +5,11 @@
  */
 
 import { ToolErrorType } from '../tools/tool-error.js';
-import {
-  ApprovalMode,
-  PolicyDecision,
-  type CheckResult,
-  type PolicyRule,
-} from '../policy/types.js';
+import { ApprovalMode, PolicyDecision, type CheckResult, type PolicyRule } from '../policy/types.js';
 import type { Config } from '../config/config.js';
 import type { MessageBus } from '../confirmation-bus/message-bus.js';
-import {
-  MessageBusType,
-  type SerializableConfirmationDetails,
-} from '../confirmation-bus/types.js';
-import {
-  ToolConfirmationOutcome,
-  type AnyDeclarativeTool,
-  type PolicyUpdateOptions,
-} from '../tools/tools.js';
+import { MessageBusType, type SerializableConfirmationDetails } from '../confirmation-bus/types.js';
+import { ToolConfirmationOutcome, type AnyDeclarativeTool, type PolicyUpdateOptions } from '../tools/tools.js';
 import { DiscoveredMCPTool } from '../tools/mcp-tool.js';
 import { EDIT_TOOL_NAMES } from '../tools/tool-names.js';
 import type { ValidatingToolCall } from './types.js';
@@ -31,7 +19,7 @@ import type { ValidatingToolCall } from './types.js';
  */
 export function getPolicyDenialError(
   config: Config,
-  rule?: PolicyRule,
+  rule?: PolicyRule
 ): { errorMessage: string; errorType: ToolErrorType } {
   const denyMessage = rule?.denyMessage ? ` ${rule.denyMessage}` : '';
   return {
@@ -45,21 +33,12 @@ export function getPolicyDenialError(
  * @returns The PolicyDecision.
  * @throws Error if policy requires ASK_USER but the CLI is non-interactive.
  */
-export async function checkPolicy(
-  toolCall: ValidatingToolCall,
-  config: Config,
-): Promise<CheckResult> {
-  const serverName =
-    toolCall.tool instanceof DiscoveredMCPTool
-      ? toolCall.tool.serverName
-      : undefined;
+export async function checkPolicy(toolCall: ValidatingToolCall, config: Config): Promise<CheckResult> {
+  const serverName = toolCall.tool instanceof DiscoveredMCPTool ? toolCall.tool.serverName : undefined;
 
   const result = await config
     .getPolicyEngine()
-    .check(
-      { name: toolCall.request.name, args: toolCall.request.args },
-      serverName,
-    );
+    .check({ name: toolCall.request.name, args: toolCall.request.args }, serverName);
 
   const { decision } = result;
 
@@ -72,7 +51,7 @@ export async function checkPolicy(
       throw new Error(
         `Tool execution for "${
           toolCall.tool.displayName || toolCall.tool.name
-        }" requires user confirmation, which is not supported in non-interactive mode.`,
+        }" requires user confirmation, which is not supported in non-interactive mode.`
       );
     }
   }
@@ -88,7 +67,7 @@ export async function updatePolicy(
   tool: AnyDeclarativeTool,
   outcome: ToolConfirmationOutcome,
   confirmationDetails: SerializableConfirmationDetails | undefined,
-  deps: { config: Config; messageBus: MessageBus },
+  deps: { config: Config; messageBus: MessageBus }
 ): Promise<void> {
   // Mode Transitions (AUTO_EDIT)
   if (isAutoEditTransition(tool, outcome)) {
@@ -98,39 +77,23 @@ export async function updatePolicy(
 
   // Specialized Tools (MCP)
   if (confirmationDetails?.type === 'mcp') {
-    await handleMcpPolicyUpdate(
-      tool,
-      outcome,
-      confirmationDetails,
-      deps.messageBus,
-    );
+    await handleMcpPolicyUpdate(tool, outcome, confirmationDetails, deps.messageBus);
     return;
   }
 
   // Generic Fallback (Shell, Info, etc.)
-  await handleStandardPolicyUpdate(
-    tool,
-    outcome,
-    confirmationDetails,
-    deps.messageBus,
-  );
+  await handleStandardPolicyUpdate(tool, outcome, confirmationDetails, deps.messageBus);
 }
 
 /**
  * Returns true if the user's 'Always Allow' selection for a specific tool
  * should trigger a session-wide transition to AUTO_EDIT mode.
  */
-function isAutoEditTransition(
-  tool: AnyDeclarativeTool,
-  outcome: ToolConfirmationOutcome,
-): boolean {
+function isAutoEditTransition(tool: AnyDeclarativeTool, outcome: ToolConfirmationOutcome): boolean {
   // TODO: This is a temporary fix to enable AUTO_EDIT mode for specific
   // tools. We should refactor this so that callbacks can be removed from
   // tools.
-  return (
-    outcome === ToolConfirmationOutcome.ProceedAlways &&
-    EDIT_TOOL_NAMES.has(tool.name)
-  );
+  return outcome === ToolConfirmationOutcome.ProceedAlways && EDIT_TOOL_NAMES.has(tool.name);
 }
 
 /**
@@ -141,12 +104,9 @@ async function handleStandardPolicyUpdate(
   tool: AnyDeclarativeTool,
   outcome: ToolConfirmationOutcome,
   confirmationDetails: SerializableConfirmationDetails | undefined,
-  messageBus: MessageBus,
+  messageBus: MessageBus
 ): Promise<void> {
-  if (
-    outcome === ToolConfirmationOutcome.ProceedAlways ||
-    outcome === ToolConfirmationOutcome.ProceedAlwaysAndSave
-  ) {
+  if (outcome === ToolConfirmationOutcome.ProceedAlways || outcome === ToolConfirmationOutcome.ProceedAlwaysAndSave) {
     const options: PolicyUpdateOptions = {};
 
     if (confirmationDetails?.type === 'exec') {
@@ -169,11 +129,8 @@ async function handleStandardPolicyUpdate(
 async function handleMcpPolicyUpdate(
   tool: AnyDeclarativeTool,
   outcome: ToolConfirmationOutcome,
-  confirmationDetails: Extract<
-    SerializableConfirmationDetails,
-    { type: 'mcp' }
-  >,
-  messageBus: MessageBus,
+  confirmationDetails: Extract<SerializableConfirmationDetails, { type: 'mcp' }>,
+  messageBus: MessageBus
 ): Promise<void> {
   const isMcpAlways =
     outcome === ToolConfirmationOutcome.ProceedAlways ||

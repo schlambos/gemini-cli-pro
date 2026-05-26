@@ -56,9 +56,7 @@ describe('useTabbedNavigation', () => {
 
   describe('keyboard navigation', () => {
     it('moves to next tab on Right arrow', () => {
-      const { result } = renderHook(() =>
-        useTabbedNavigation({ tabCount: 3, enableArrowNavigation: true }),
-      );
+      const { result } = renderHook(() => useTabbedNavigation({ tabCount: 3, enableArrowNavigation: true }));
 
       act(() => {
         capturedHandler(createKey({ name: 'right' }));
@@ -73,7 +71,7 @@ describe('useTabbedNavigation', () => {
           tabCount: 3,
           initialIndex: 1,
           enableArrowNavigation: true,
-        }),
+        })
       );
 
       act(() => {
@@ -84,9 +82,7 @@ describe('useTabbedNavigation', () => {
     });
 
     it('moves to next tab on Tab key', () => {
-      const { result } = renderHook(() =>
-        useTabbedNavigation({ tabCount: 3, enableTabKey: true }),
-      );
+      const { result } = renderHook(() => useTabbedNavigation({ tabCount: 3, enableTabKey: true }));
 
       act(() => {
         capturedHandler(createKey({ name: 'tab', shift: false }));
@@ -101,7 +97,7 @@ describe('useTabbedNavigation', () => {
           tabCount: 3,
           initialIndex: 1,
           enableTabKey: true,
-        }),
+        })
       );
 
       act(() => {
@@ -117,7 +113,7 @@ describe('useTabbedNavigation', () => {
           tabCount: 3,
           enableArrowNavigation: true,
           isNavigationBlocked: () => true,
-        }),
+        })
       );
 
       act(() => {
@@ -135,21 +131,15 @@ describe('useTabbedNavigation', () => {
     });
 
     it('returns specified initial index', () => {
-      const { result } = renderHook(() =>
-        useTabbedNavigation({ tabCount: 3, initialIndex: 2 }),
-      );
+      const { result } = renderHook(() => useTabbedNavigation({ tabCount: 3, initialIndex: 2 }));
       expect(result.current.currentIndex).toBe(2);
     });
 
     it('clamps initial index to valid range', () => {
-      const { result: high } = renderHook(() =>
-        useTabbedNavigation({ tabCount: 3, initialIndex: 10 }),
-      );
+      const { result: high } = renderHook(() => useTabbedNavigation({ tabCount: 3, initialIndex: 10 }));
       expect(high.current.currentIndex).toBe(2);
 
-      const { result: negative } = renderHook(() =>
-        useTabbedNavigation({ tabCount: 3, initialIndex: -1 }),
-      );
+      const { result: negative } = renderHook(() => useTabbedNavigation({ tabCount: 3, initialIndex: -1 }));
       expect(negative.current.currentIndex).toBe(0);
     });
   });
@@ -171,7 +161,7 @@ describe('useTabbedNavigation', () => {
           tabCount: 3,
           initialIndex: 2,
           wrapAround: false,
-        }),
+        })
       );
 
       act(() => {
@@ -182,9 +172,7 @@ describe('useTabbedNavigation', () => {
     });
 
     it('wraps to first tab when wrapAround is true', () => {
-      const { result } = renderHook(() =>
-        useTabbedNavigation({ tabCount: 3, initialIndex: 2, wrapAround: true }),
-      );
+      const { result } = renderHook(() => useTabbedNavigation({ tabCount: 3, initialIndex: 2, wrapAround: true }));
 
       act(() => {
         result.current.goToNextTab();
@@ -196,9 +184,7 @@ describe('useTabbedNavigation', () => {
 
   describe('goToPrevTab', () => {
     it('moves to previous tab', () => {
-      const { result } = renderHook(() =>
-        useTabbedNavigation({ tabCount: 3, initialIndex: 2 }),
-      );
+      const { result } = renderHook(() => useTabbedNavigation({ tabCount: 3, initialIndex: 2 }));
 
       act(() => {
         result.current.goToPrevTab();
@@ -213,7 +199,7 @@ describe('useTabbedNavigation', () => {
           tabCount: 3,
           initialIndex: 0,
           wrapAround: false,
-        }),
+        })
       );
 
       act(() => {
@@ -224,9 +210,7 @@ describe('useTabbedNavigation', () => {
     });
 
     it('wraps to last tab when wrapAround is true', () => {
-      const { result } = renderHook(() =>
-        useTabbedNavigation({ tabCount: 3, initialIndex: 0, wrapAround: true }),
-      );
+      const { result } = renderHook(() => useTabbedNavigation({ tabCount: 3, initialIndex: 0, wrapAround: true }));
 
       act(() => {
         result.current.goToPrevTab();
@@ -248,9 +232,7 @@ describe('useTabbedNavigation', () => {
     });
 
     it('ignores out-of-bounds index', () => {
-      const { result } = renderHook(() =>
-        useTabbedNavigation({ tabCount: 3, initialIndex: 1 }),
-      );
+      const { result } = renderHook(() => useTabbedNavigation({ tabCount: 3, initialIndex: 1 }));
 
       act(() => {
         result.current.setCurrentIndex(10);
@@ -267,9 +249,7 @@ describe('useTabbedNavigation', () => {
   describe('isNavigationBlocked', () => {
     it('blocks navigation when callback returns true', () => {
       const isNavigationBlocked = vi.fn(() => true);
-      const { result } = renderHook(() =>
-        useTabbedNavigation({ tabCount: 3, isNavigationBlocked }),
-      );
+      const { result } = renderHook(() => useTabbedNavigation({ tabCount: 3, isNavigationBlocked }));
 
       act(() => {
         result.current.goToNextTab();
@@ -281,9 +261,7 @@ describe('useTabbedNavigation', () => {
 
     it('allows navigation when callback returns false', () => {
       const isNavigationBlocked = vi.fn(() => false);
-      const { result } = renderHook(() =>
-        useTabbedNavigation({ tabCount: 3, isNavigationBlocked }),
-      );
+      const { result } = renderHook(() => useTabbedNavigation({ tabCount: 3, isNavigationBlocked }));
 
       act(() => {
         result.current.goToNextTab();
@@ -296,9 +274,7 @@ describe('useTabbedNavigation', () => {
   describe('onTabChange callback', () => {
     it('calls onTabChange when tab changes via goToNextTab', () => {
       const onTabChange = vi.fn();
-      const { result } = renderHook(() =>
-        useTabbedNavigation({ tabCount: 3, onTabChange }),
-      );
+      const { result } = renderHook(() => useTabbedNavigation({ tabCount: 3, onTabChange }));
 
       act(() => {
         result.current.goToNextTab();
@@ -309,9 +285,7 @@ describe('useTabbedNavigation', () => {
 
     it('calls onTabChange when tab changes via setCurrentIndex', () => {
       const onTabChange = vi.fn();
-      const { result } = renderHook(() =>
-        useTabbedNavigation({ tabCount: 3, onTabChange }),
-      );
+      const { result } = renderHook(() => useTabbedNavigation({ tabCount: 3, onTabChange }));
 
       act(() => {
         result.current.setCurrentIndex(2);
@@ -322,9 +296,7 @@ describe('useTabbedNavigation', () => {
 
     it('does not call onTabChange when tab does not change', () => {
       const onTabChange = vi.fn();
-      const { result } = renderHook(() =>
-        useTabbedNavigation({ tabCount: 3, onTabChange }),
-      );
+      const { result } = renderHook(() => useTabbedNavigation({ tabCount: 3, onTabChange }));
 
       act(() => {
         result.current.setCurrentIndex(0);
@@ -336,21 +308,15 @@ describe('useTabbedNavigation', () => {
 
   describe('isFirstTab and isLastTab', () => {
     it('returns correct boundary flags based on position', () => {
-      const { result: first } = renderHook(() =>
-        useTabbedNavigation({ tabCount: 3, initialIndex: 0 }),
-      );
+      const { result: first } = renderHook(() => useTabbedNavigation({ tabCount: 3, initialIndex: 0 }));
       expect(first.current.isFirstTab).toBe(true);
       expect(first.current.isLastTab).toBe(false);
 
-      const { result: last } = renderHook(() =>
-        useTabbedNavigation({ tabCount: 3, initialIndex: 2 }),
-      );
+      const { result: last } = renderHook(() => useTabbedNavigation({ tabCount: 3, initialIndex: 2 }));
       expect(last.current.isFirstTab).toBe(false);
       expect(last.current.isLastTab).toBe(true);
 
-      const { result: middle } = renderHook(() =>
-        useTabbedNavigation({ tabCount: 3, initialIndex: 1 }),
-      );
+      const { result: middle } = renderHook(() => useTabbedNavigation({ tabCount: 3, initialIndex: 1 }));
       expect(middle.current.isFirstTab).toBe(false);
       expect(middle.current.isLastTab).toBe(false);
     });
@@ -359,9 +325,7 @@ describe('useTabbedNavigation', () => {
   describe('tabCount changes', () => {
     it('reinitializes when tabCount changes', () => {
       let tabCount = 5;
-      const { result, rerender } = renderHook(() =>
-        useTabbedNavigation({ tabCount, initialIndex: 4 }),
-      );
+      const { result, rerender } = renderHook(() => useTabbedNavigation({ tabCount, initialIndex: 4 }));
 
       expect(result.current.currentIndex).toBe(4);
 

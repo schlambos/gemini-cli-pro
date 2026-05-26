@@ -22,7 +22,7 @@ import { ValidationRequiredError } from '../utils/googleQuotaErrors.js';
 export class ProjectIdRequiredError extends Error {
   constructor() {
     super(
-      'This account requires setting the GOOGLE_CLOUD_PROJECT or GOOGLE_CLOUD_PROJECT_ID env var. See https://goo.gle/gemini-cli-auth-docs#workspace-gca',
+      'This account requires setting the GOOGLE_CLOUD_PROJECT or GOOGLE_CLOUD_PROJECT_ID env var. See https://goo.gle/gemini-cli-auth-docs#workspace-gca'
     );
   }
 }
@@ -78,20 +78,10 @@ export interface UserData {
 export async function setupUser(
   client: AuthClient,
   validationHandler?: ValidationHandler,
-  httpOptions: HttpOptions = {},
+  httpOptions: HttpOptions = {}
 ): Promise<UserData> {
-  const projectId =
-    process.env['GOOGLE_CLOUD_PROJECT'] ||
-    process.env['GOOGLE_CLOUD_PROJECT_ID'] ||
-    undefined;
-  const caServer = new CodeAssistServer(
-    client,
-    projectId,
-    httpOptions,
-    '',
-    undefined,
-    undefined,
-  );
+  const projectId = process.env['GOOGLE_CLOUD_PROJECT'] || process.env['GOOGLE_CLOUD_PROJECT_ID'] || undefined;
+  const caServer = new CodeAssistServer(client, projectId, httpOptions, '', undefined, undefined);
   const coreClientMetadata: ClientMetadata = {
     ideType: 'IDE_UNSPECIFIED',
     platform: 'PLATFORM_UNSPECIFIED',
@@ -113,10 +103,7 @@ export async function setupUser(
       break;
     } catch (e) {
       if (e instanceof ValidationRequiredError && validationHandler) {
-        const intent = await validationHandler(
-          e.validationLink,
-          e.validationDescription,
-        );
+        const intent = await validationHandler(e.validationLink, e.validationDescription);
         if (intent === 'verify') {
           continue;
         }
@@ -223,15 +210,9 @@ function validateLoadCodeAssistResponse(res: LoadCodeAssistResponse): void {
   if (!res) {
     throw new Error('LoadCodeAssist returned empty response');
   }
-  if (
-    !res.currentTier &&
-    res.ineligibleTiers &&
-    res.ineligibleTiers.length > 0
-  ) {
+  if (!res.currentTier && res.ineligibleTiers && res.ineligibleTiers.length > 0) {
     const validationTier = res.ineligibleTiers.find(
-      (t) =>
-        t.validationUrl &&
-        t.reasonCode === IneligibleTierReasonCode.VALIDATION_REQUIRED,
+      (t) => t.validationUrl && t.reasonCode === IneligibleTierReasonCode.VALIDATION_REQUIRED
     );
     const validationUrl = validationTier?.validationUrl;
     if (validationTier && validationUrl) {
@@ -239,7 +220,7 @@ function validateLoadCodeAssistResponse(res: LoadCodeAssistResponse): void {
         `Account validation required: ${validationTier.reasonMessage}`,
         undefined,
         validationUrl,
-        validationTier.reasonMessage,
+        validationTier.reasonMessage
       );
     }
   }

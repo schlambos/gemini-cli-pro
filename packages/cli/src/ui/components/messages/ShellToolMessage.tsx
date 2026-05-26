@@ -22,10 +22,7 @@ import {
   FocusHint,
 } from './ToolShared.js';
 import type { ToolMessageProps } from './ToolMessage.js';
-import {
-  ACTIVE_SHELL_MAX_LINES,
-  COMPLETED_SHELL_MAX_LINES,
-} from '../../constants.js';
+import { ACTIVE_SHELL_MAX_LINES, COMPLETED_SHELL_MAX_LINES } from '../../constants.js';
 import { useAlternateBuffer } from '../../hooks/useAlternateBuffer.js';
 import { type Config, CoreToolCallStatus } from '@google/gemini-cli-core';
 
@@ -67,13 +64,7 @@ export const ShellToolMessage: React.FC<ShellToolMessageProps> = ({
   borderDimColor,
 }) => {
   const isAlternateBuffer = useAlternateBuffer();
-  const isThisShellFocused = checkIsShellFocused(
-    name,
-    status,
-    ptyId,
-    activeShellPtyId,
-    embeddedShellFocused,
-  );
+  const isThisShellFocused = checkIsShellFocused(name, status, ptyId, activeShellPtyId, embeddedShellFocused);
 
   const { setEmbeddedShellFocused } = useUIActions();
   const wasFocusedRef = React.useRef(false);
@@ -107,11 +98,7 @@ export const ShellToolMessage: React.FC<ShellToolMessageProps> = ({
 
   useMouseClick(contentRef, handleFocus, { isActive: !!isThisShellFocusable });
 
-  const { shouldShowFocusHint } = useFocusHint(
-    isThisShellFocusable,
-    isThisShellFocused,
-    resultDisplay,
-  );
+  const { shouldShowFocusHint } = useFocusHint(isThisShellFocusable, isThisShellFocused, resultDisplay);
 
   return (
     <>
@@ -124,17 +111,9 @@ export const ShellToolMessage: React.FC<ShellToolMessageProps> = ({
       >
         <ToolStatusIndicator status={status} name={name} />
 
-        <ToolInfo
-          name={name}
-          status={status}
-          description={description}
-          emphasis={emphasis}
-        />
+        <ToolInfo name={name} status={status} description={description} emphasis={emphasis} />
 
-        <FocusHint
-          shouldShowFocusHint={shouldShowFocusHint}
-          isThisShellFocused={isThisShellFocused}
-        />
+        <FocusHint shouldShowFocusHint={shouldShowFocusHint} isThisShellFocused={isThisShellFocused} />
 
         {emphasis === 'high' && <TrailingIndicator />}
       </StickyHeader>
@@ -142,7 +121,7 @@ export const ShellToolMessage: React.FC<ShellToolMessageProps> = ({
       <Box
         ref={contentRef}
         width={terminalWidth}
-        borderStyle="round"
+        borderStyle='round'
         borderColor={borderColor}
         borderDimColor={borderDimColor}
         borderTop={false}
@@ -150,7 +129,7 @@ export const ShellToolMessage: React.FC<ShellToolMessageProps> = ({
         borderLeft={true}
         borderRight={true}
         paddingX={1}
-        flexDirection="column"
+        flexDirection='column'
       >
         <ToolResultDisplay
           resultDisplay={resultDisplay}
@@ -158,12 +137,7 @@ export const ShellToolMessage: React.FC<ShellToolMessageProps> = ({
           terminalWidth={terminalWidth}
           renderOutputAsMarkdown={renderOutputAsMarkdown}
           hasFocus={isThisShellFocused}
-          maxLines={getShellMaxLines(
-            status,
-            isAlternateBuffer,
-            isThisShellFocused,
-            availableTerminalHeight,
-          )}
+          maxLines={getShellMaxLines(status, isAlternateBuffer, isThisShellFocused, availableTerminalHeight)}
         />
         {isThisShellFocused && config && (
           <Box paddingLeft={STATUS_INDICATOR_WIDTH} marginTop={1}>
@@ -192,7 +166,7 @@ function getShellMaxLines(
   status: CoreToolCallStatus,
   isAlternateBuffer: boolean,
   isThisShellFocused: boolean,
-  availableTerminalHeight: number | undefined,
+  availableTerminalHeight: number | undefined
 ): number {
   if (
     status === CoreToolCallStatus.Success ||

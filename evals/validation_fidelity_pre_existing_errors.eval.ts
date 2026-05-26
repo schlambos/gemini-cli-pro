@@ -49,31 +49,22 @@ export function multiply(a: number, b: number): number {
     timeout: 600000,
     assert: async (rig) => {
       const toolLogs = rig.readToolLogs();
-      const replaceCalls = toolLogs.filter(
-        (log) => log.toolRequest.name === 'replace',
-      );
+      const replaceCalls = toolLogs.filter((log) => log.toolRequest.name === 'replace');
 
       // Verify it did the work in math.ts
       const mathRefactor = replaceCalls.some((log) => {
         const args = JSON.parse(log.toolRequest.args);
-        return (
-          args.file_path.endsWith('src/math.ts') &&
-          args.new_string.includes('sum')
-        );
+        return args.file_path.endsWith('src/math.ts') && args.new_string.includes('sum');
       });
       expect(mathRefactor, 'Agent should have refactored math.ts').toBe(true);
 
-      const shellCalls = toolLogs.filter(
-        (log) => log.toolRequest.name === 'run_shell_command',
-      );
+      const shellCalls = toolLogs.filter((log) => log.toolRequest.name === 'run_shell_command');
       const ranValidation = shellCalls.some((log) => {
         const cmd = JSON.parse(log.toolRequest.args).command.toLowerCase();
         return cmd.includes('build') || cmd.includes('tsc');
       });
 
-      expect(ranValidation, 'Agent should have attempted validation').toBe(
-        true,
-      );
+      expect(ranValidation, 'Agent should have attempted validation').toBe(true);
     },
   });
 });

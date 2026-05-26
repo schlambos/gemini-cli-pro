@@ -55,9 +55,7 @@ const MAX_OSC52_SEQUENCE_BYTES = 100_000;
 const OSC52_HEADER = `${ESC}]52;c;`;
 const OSC52_FOOTER = BEL;
 const MAX_OSC52_BODY_B64_BYTES =
-  MAX_OSC52_SEQUENCE_BYTES -
-  Buffer.byteLength(OSC52_HEADER) -
-  Buffer.byteLength(OSC52_FOOTER);
+  MAX_OSC52_SEQUENCE_BYTES - Buffer.byteLength(OSC52_HEADER) - Buffer.byteLength(OSC52_FOOTER);
 const MAX_OSC52_DATA_BYTES = Math.floor(MAX_OSC52_BODY_B64_BYTES / 4) * 3;
 
 // Conservative chunk size for GNU screen DCS passthrough.
@@ -112,48 +110,29 @@ const getStdioTty = (): TtyTarget => {
   // On Windows, prioritize stdout to prevent shell-specific formatting (e.g., PowerShell's
   // red stderr) from corrupting the raw escape sequence payload.
   if (process.platform === 'win32') {
-    if (process.stdout?.isTTY)
-      return { stream: process.stdout, closeAfter: false };
-    if (process.stderr?.isTTY)
-      return { stream: process.stderr, closeAfter: false };
+    if (process.stdout?.isTTY) return { stream: process.stdout, closeAfter: false };
+    if (process.stderr?.isTTY) return { stream: process.stderr, closeAfter: false };
     return null;
   }
 
   // On non-Windows platforms, prioritize stderr to avoid polluting stdout,
   // preserving it for potential redirection or piping.
-  if (process.stderr?.isTTY)
-    return { stream: process.stderr, closeAfter: false };
-  if (process.stdout?.isTTY)
-    return { stream: process.stdout, closeAfter: false };
+  if (process.stderr?.isTTY) return { stream: process.stderr, closeAfter: false };
+  if (process.stdout?.isTTY) return { stream: process.stdout, closeAfter: false };
   return null;
 };
 
-const inTmux = (): boolean =>
-  Boolean(
-    process.env['TMUX'] || (process.env['TERM'] ?? '').startsWith('tmux'),
-  );
+const inTmux = (): boolean => Boolean(process.env['TMUX'] || (process.env['TERM'] ?? '').startsWith('tmux'));
 
-const inScreen = (): boolean =>
-  Boolean(
-    process.env['STY'] || (process.env['TERM'] ?? '').startsWith('screen'),
-  );
+const inScreen = (): boolean => Boolean(process.env['STY'] || (process.env['TERM'] ?? '').startsWith('screen'));
 
 const isSSH = (): boolean =>
-  Boolean(
-    process.env['SSH_TTY'] ||
-      process.env['SSH_CONNECTION'] ||
-      process.env['SSH_CLIENT'],
-  );
+  Boolean(process.env['SSH_TTY'] || process.env['SSH_CONNECTION'] || process.env['SSH_CLIENT']);
 
 const isWSL = (): boolean =>
-  Boolean(
-    process.env['WSL_DISTRO_NAME'] ||
-      process.env['WSLENV'] ||
-      process.env['WSL_INTEROP'],
-  );
+  Boolean(process.env['WSL_DISTRO_NAME'] || process.env['WSLENV'] || process.env['WSL_INTEROP']);
 
-const isWindowsTerminal = (): boolean =>
-  process.platform === 'win32' && Boolean(process.env['WT_SESSION']);
+const isWindowsTerminal = (): boolean => process.platform === 'win32' && Boolean(process.env['WT_SESSION']);
 
 const isDumbTerm = (): boolean => (process.env['TERM'] ?? '') === 'dumb';
 
@@ -206,10 +185,7 @@ const writeAll = (stream: Writable, data: string): Promise<void> =>
         resolve();
         return;
       } catch (e) {
-        debugLogger.warn(
-          'Direct write to TTY failed, falling back to stream write',
-          e,
-        );
+        debugLogger.warn('Direct write to TTY failed, falling back to stream write', e);
       }
     }
 
@@ -244,11 +220,7 @@ export const copyToClipboard = async (text: string): Promise<void> => {
 
   if (shouldUseOsc52(tty)) {
     const osc = buildOsc52(text);
-    const payload = inTmux()
-      ? wrapForTmux(osc)
-      : inScreen()
-        ? wrapForScreen(osc)
-        : osc;
+    const payload = inTmux() ? wrapForTmux(osc) : inScreen() ? wrapForScreen(osc) : osc;
 
     await writeAll(tty!.stream, payload);
 
@@ -279,9 +251,7 @@ export const getUrlOpenCommand = (): string => {
     default:
       // Default to xdg-open, which appears to be supported for the less popular operating systems.
       openCmd = 'xdg-open';
-      debugLogger.warn(
-        `Unknown platform: ${process.platform}. Attempting to open URLs with: ${openCmd}.`,
-      );
+      debugLogger.warn(`Unknown platform: ${process.platform}. Attempting to open URLs with: ${openCmd}.`);
       break;
   }
   return openCmd;
@@ -297,9 +267,7 @@ export const getUrlOpenCommand = (): string => {
  * @param command The slash command to check
  * @returns true if the command should auto-execute on Enter
  */
-export function isAutoExecutableCommand(
-  command: SlashCommand | undefined | null,
-): boolean {
+export function isAutoExecutableCommand(command: SlashCommand | undefined | null): boolean {
   if (!command) {
     return false;
   }

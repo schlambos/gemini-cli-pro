@@ -37,9 +37,7 @@ describe('<HookStatusDisplay />', () => {
 
   it('should render sequential hook progress', () => {
     const props = {
-      activeHooks: [
-        { name: 'step', eventName: 'BeforeAgent', index: 1, total: 3 },
-      ],
+      activeHooks: [{ name: 'step', eventName: 'BeforeAgent', index: 1, total: 3 }],
     };
     const { lastFrame, unmount } = render(<HookStatusDisplay {...props} />);
     expect(lastFrame()).toMatchSnapshot();

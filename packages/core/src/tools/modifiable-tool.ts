@@ -12,18 +12,13 @@ import fs from 'node:fs';
 import * as Diff from 'diff';
 import { DEFAULT_DIFF_OPTIONS } from './diffOptions.js';
 import { isNodeError } from '../utils/errors.js';
-import type {
-  AnyDeclarativeTool,
-  DeclarativeTool,
-  ToolResult,
-} from './tools.js';
+import type { AnyDeclarativeTool, DeclarativeTool, ToolResult } from './tools.js';
 import { debugLogger } from '../utils/debugLogger.js';
 
 /**
  * A declarative tool that supports a modify operation.
  */
-export interface ModifiableDeclarativeTool<TParams extends object>
-  extends DeclarativeTool<TParams, ToolResult> {
+export interface ModifiableDeclarativeTool<TParams extends object> extends DeclarativeTool<TParams, ToolResult> {
   getModifyContext(abortSignal: AbortSignal): ModifyContext<TParams>;
 }
 
@@ -34,11 +29,7 @@ export interface ModifyContext<ToolParams> {
 
   getProposedContent: (params: ToolParams) => Promise<string>;
 
-  createUpdatedParams: (
-    oldContent: string,
-    modifiedProposedContent: string,
-    originalParams: ToolParams,
-  ) => ToolParams;
+  createUpdatedParams: (oldContent: string, modifiedProposedContent: string, originalParams: ToolParams) => ToolParams;
 }
 
 export interface ModifyResult<ToolParams> {
@@ -54,42 +45,29 @@ export interface ModifyContentOverrides {
 /**
  * Type guard to check if a declarative tool is modifiable.
  */
-export function isModifiableDeclarativeTool(
-  tool: AnyDeclarativeTool,
-): tool is ModifiableDeclarativeTool<object> {
+export function isModifiableDeclarativeTool(tool: AnyDeclarativeTool): tool is ModifiableDeclarativeTool<object> {
   return 'getModifyContext' in tool;
 }
 
 function createTempFilesForModify(
   currentContent: string,
   proposedContent: string,
-  file_path: string,
+  file_path: string
 ): { oldPath: string; newPath: string; dirPath: string } {
-  const diffDir = fs.mkdtempSync(
-    path.join(os.tmpdir(), 'gemini-cli-tool-modify-'),
-  );
+  const diffDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gemini-cli-tool-modify-'));
 
   try {
     fs.chmodSync(diffDir, 0o700);
   } catch (e) {
-    debugLogger.error(
-      `Error setting permissions on temp diff directory: ${diffDir}`,
-      e,
-    );
+    debugLogger.error(`Error setting permissions on temp diff directory: ${diffDir}`, e);
     throw e;
   }
 
   const ext = path.extname(file_path);
   const fileName = path.basename(file_path, ext);
   const timestamp = Date.now();
-  const tempOldPath = path.join(
-    diffDir,
-    `gemini-cli-modify-${fileName}-old-${timestamp}${ext}`,
-  );
-  const tempNewPath = path.join(
-    diffDir,
-    `gemini-cli-modify-${fileName}-new-${timestamp}${ext}`,
-  );
+  const tempOldPath = path.join(diffDir, `gemini-cli-modify-${fileName}-old-${timestamp}${ext}`);
+  const tempNewPath = path.join(diffDir, `gemini-cli-modify-${fileName}-new-${timestamp}${ext}`);
 
   fs.writeFileSync(tempOldPath, currentContent, {
     encoding: 'utf8',
@@ -107,7 +85,7 @@ function getUpdatedParams<ToolParams>(
   tmpOldPath: string,
   tempNewPath: string,
   originalParams: ToolParams,
-  modifyContext: ModifyContext<ToolParams>,
+  modifyContext: ModifyContext<ToolParams>
 ): { updatedParams: ToolParams; updatedDiff: string } {
   let oldContent = '';
   let newContent = '';
@@ -126,28 +104,20 @@ function getUpdatedParams<ToolParams>(
     newContent = '';
   }
 
-  const updatedParams = modifyContext.createUpdatedParams(
-    oldContent,
-    newContent,
-    originalParams,
-  );
+  const updatedParams = modifyContext.createUpdatedParams(oldContent, newContent, originalParams);
   const updatedDiff = Diff.createPatch(
     path.basename(modifyContext.getFilePath(originalParams)),
     oldContent,
     newContent,
     'Current',
     'Proposed',
-    DEFAULT_DIFF_OPTIONS,
+    DEFAULT_DIFF_OPTIONS
   );
 
   return { updatedParams, updatedDiff };
 }
 
-function deleteTempFiles(
-  oldPath: string,
-  newPath: string,
-  dirPath: string,
-): void {
+function deleteTempFiles(oldPath: string, newPath: string, dirPath: string): void {
   try {
     fs.unlinkSync(oldPath);
   } catch {
@@ -176,12 +146,10 @@ export async function modifyWithEditor<ToolParams>(
   modifyContext: ModifyContext<ToolParams>,
   editorType: EditorType,
   _abortSignal: AbortSignal,
-  overrides?: ModifyContentOverrides,
+  overrides?: ModifyContentOverrides
 ): Promise<ModifyResult<ToolParams>> {
-  const hasCurrentOverride =
-    overrides !== undefined && 'currentContent' in overrides;
-  const hasProposedOverride =
-    overrides !== undefined && 'proposedContent' in overrides;
+  const hasCurrentOverride = overrides !== undefined && 'currentContent' in overrides;
+  const hasProposedOverride = overrides !== undefined && 'proposedContent' in overrides;
 
   const currentContent = hasCurrentOverride
     ? (overrides.currentContent ?? '')
@@ -194,17 +162,12 @@ export async function modifyWithEditor<ToolParams>(
   const { oldPath, newPath, dirPath } = createTempFilesForModify(
     currentContent ?? '',
     proposedContent ?? '',
-    modifyContext.getFilePath(originalParams),
+    modifyContext.getFilePath(originalParams)
   );
 
   try {
     await openDiff(oldPath, newPath, editorType);
-    const result = getUpdatedParams(
-      oldPath,
-      newPath,
-      originalParams,
-      modifyContext,
-    );
+    const result = getUpdatedParams(oldPath, newPath, originalParams, modifyContext);
 
     return result;
   } finally {

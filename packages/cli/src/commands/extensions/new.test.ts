@@ -32,9 +32,7 @@ describe('extensions new command', () => {
 
   it('should fail if no path is provided', async () => {
     const parser = yargs([]).command(newCommand).fail(false).locale('en');
-    await expect(parser.parseAsync('new')).rejects.toThrow(
-      'Not enough non-option arguments: got 0, need at least 1',
-    );
+    await expect(parser.parseAsync('new')).rejects.toThrow('Not enough non-option arguments: got 0, need at least 1');
   });
 
   it('should create directory when no template is provided', async () => {
@@ -66,17 +64,17 @@ describe('extensions new command', () => {
     expect(mockedFs.cp).toHaveBeenCalledWith(
       expect.stringContaining(path.normalize('context/context')),
       path.normalize('/some/path/context'),
-      { recursive: true },
+      { recursive: true }
     );
     expect(mockedFs.cp).toHaveBeenCalledWith(
       expect.stringContaining(path.normalize('context/custom-commands')),
       path.normalize('/some/path/custom-commands'),
-      { recursive: true },
+      { recursive: true }
     );
     expect(mockedFs.cp).toHaveBeenCalledWith(
       expect.stringContaining(path.normalize('context/mcp-server')),
       path.normalize('/some/path/mcp-server'),
-      { recursive: true },
+      { recursive: true }
     );
   });
 
@@ -84,9 +82,7 @@ describe('extensions new command', () => {
     mockedFs.access.mockResolvedValue(undefined);
     const parser = yargs([]).command(newCommand).fail(false);
 
-    await expect(parser.parseAsync('new /some/path context')).rejects.toThrow(
-      'Path already exists: /some/path',
-    );
+    await expect(parser.parseAsync('new /some/path context')).rejects.toThrow('Path already exists: /some/path');
 
     expect(mockedFs.mkdir).not.toHaveBeenCalled();
     expect(mockedFs.cp).not.toHaveBeenCalled();

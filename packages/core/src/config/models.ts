@@ -6,8 +6,7 @@
 
 export const PREVIEW_GEMINI_MODEL = 'gemini-3-pro-preview';
 export const PREVIEW_GEMINI_3_1_MODEL = 'gemini-3.1-pro-preview';
-export const PREVIEW_GEMINI_3_1_CUSTOM_TOOLS_MODEL =
-  'gemini-3.1-pro-preview-customtools';
+export const PREVIEW_GEMINI_3_1_CUSTOM_TOOLS_MODEL = 'gemini-3.1-pro-preview-customtools';
 export const PREVIEW_GEMINI_FLASH_MODEL = 'gemini-3-flash-preview';
 export const DEFAULT_GEMINI_MODEL = 'gemini-2.5-pro';
 export const DEFAULT_GEMINI_FLASH_MODEL = 'gemini-2.5-flash';
@@ -48,7 +47,7 @@ export const DEFAULT_THINKING_MODE = 8192;
 export function resolveModel(
   requestedModel: string,
   useGemini3_1: boolean = false,
-  useCustomToolModel: boolean = false,
+  useCustomToolModel: boolean = false
 ): string {
   switch (requestedModel) {
     case PREVIEW_GEMINI_MODEL:
@@ -56,9 +55,7 @@ export function resolveModel(
     case GEMINI_MODEL_ALIAS_AUTO:
     case GEMINI_MODEL_ALIAS_PRO: {
       if (useGemini3_1) {
-        return useCustomToolModel
-          ? PREVIEW_GEMINI_3_1_CUSTOM_TOOLS_MODEL
-          : PREVIEW_GEMINI_3_1_MODEL;
+        return useCustomToolModel ? PREVIEW_GEMINI_3_1_CUSTOM_TOOLS_MODEL : PREVIEW_GEMINI_3_1_MODEL;
       }
       return PREVIEW_GEMINI_MODEL;
     }
@@ -88,19 +85,13 @@ export function resolveClassifierModel(
   requestedModel: string,
   modelAlias: string,
   useGemini3_1: boolean = false,
-  useCustomToolModel: boolean = false,
+  useCustomToolModel: boolean = false
 ): string {
   if (modelAlias === GEMINI_MODEL_ALIAS_FLASH) {
-    if (
-      requestedModel === DEFAULT_GEMINI_MODEL_AUTO ||
-      requestedModel === DEFAULT_GEMINI_MODEL
-    ) {
+    if (requestedModel === DEFAULT_GEMINI_MODEL_AUTO || requestedModel === DEFAULT_GEMINI_MODEL) {
       return DEFAULT_GEMINI_FLASH_MODEL;
     }
-    if (
-      requestedModel === PREVIEW_GEMINI_MODEL_AUTO ||
-      requestedModel === PREVIEW_GEMINI_MODEL
-    ) {
+    if (requestedModel === PREVIEW_GEMINI_MODEL_AUTO || requestedModel === PREVIEW_GEMINI_MODEL) {
       return PREVIEW_GEMINI_FLASH_MODEL;
     }
     return resolveModel(GEMINI_MODEL_ALIAS_FLASH);
@@ -202,9 +193,7 @@ export function supportsModernFeatures(model: string): boolean {
  */
 export function isAutoModel(model: string): boolean {
   return (
-    model === GEMINI_MODEL_ALIAS_AUTO ||
-    model === PREVIEW_GEMINI_MODEL_AUTO ||
-    model === DEFAULT_GEMINI_MODEL_AUTO
+    model === GEMINI_MODEL_ALIAS_AUTO || model === PREVIEW_GEMINI_MODEL_AUTO || model === DEFAULT_GEMINI_MODEL_AUTO
   );
 }
 
@@ -224,8 +213,7 @@ export function supportsMultimodalFunctionResponse(model: string): boolean {
 /**
  * Default Bedrock model - Claude Sonnet 4.5
  */
-export const DEFAULT_BEDROCK_MODEL =
-  'anthropic.claude-sonnet-4-5-20250929-v1:0';
+export const DEFAULT_BEDROCK_MODEL = 'anthropic.claude-sonnet-4-5-20250929-v1:0';
 
 /**
  * Bedrock model availability by region.
@@ -260,20 +248,10 @@ export const BEDROCK_MODEL_REGIONS: Record<string, string[]> = {
   ],
 
   // Claude 4 models
-  'anthropic.claude-sonnet-4-20250514-v1:0': [
-    'us-east-1',
-    'us-west-2',
-    'eu-west-1',
-    'ap-southeast-1',
-  ],
+  'anthropic.claude-sonnet-4-20250514-v1:0': ['us-east-1', 'us-west-2', 'eu-west-1', 'ap-southeast-1'],
 
   // Claude 3.7 models
-  'anthropic.claude-3-7-sonnet-20250219-v1:0': [
-    'us-east-1',
-    'us-west-2',
-    'eu-west-1',
-    'ap-southeast-1',
-  ],
+  'anthropic.claude-3-7-sonnet-20250219-v1:0': ['us-east-1', 'us-west-2', 'eu-west-1', 'ap-southeast-1'],
 
   // Claude 3.5 models
   'anthropic.claude-3-5-sonnet-20241022-v2:0': [
@@ -284,38 +262,14 @@ export const BEDROCK_MODEL_REGIONS: Record<string, string[]> = {
     'ap-southeast-1',
     'ap-northeast-1',
   ],
-  'anthropic.claude-3-5-sonnet-20240620-v1:0': [
-    'us-east-1',
-    'us-west-2',
-    'eu-west-1',
-    'ap-southeast-1',
-  ],
+  'anthropic.claude-3-5-sonnet-20240620-v1:0': ['us-east-1', 'us-west-2', 'eu-west-1', 'ap-southeast-1'],
 
   // Claude 3 models
   'anthropic.claude-3-opus-20240229-v1:0': ['us-east-1', 'us-west-2'],
-  'anthropic.claude-3-sonnet-20240229-v1:0': [
-    'us-east-1',
-    'us-west-2',
-    'eu-west-1',
-    'ap-southeast-1',
-  ],
-  'anthropic.claude-3-sonnet-20240229-v1:0:28k': [
-    'us-east-1',
-    'us-west-2',
-    'ap-southeast-1',
-  ],
-  'anthropic.claude-3-sonnet-20240229-v1:0:200k': [
-    'us-east-1',
-    'us-west-2',
-    'ap-southeast-1',
-  ],
-  'anthropic.claude-3-haiku-20240307-v1:0': [
-    'us-east-1',
-    'us-west-2',
-    'eu-west-1',
-    'ap-southeast-1',
-    'ap-northeast-1',
-  ],
+  'anthropic.claude-3-sonnet-20240229-v1:0': ['us-east-1', 'us-west-2', 'eu-west-1', 'ap-southeast-1'],
+  'anthropic.claude-3-sonnet-20240229-v1:0:28k': ['us-east-1', 'us-west-2', 'ap-southeast-1'],
+  'anthropic.claude-3-sonnet-20240229-v1:0:200k': ['us-east-1', 'us-west-2', 'ap-southeast-1'],
+  'anthropic.claude-3-haiku-20240307-v1:0': ['us-east-1', 'us-west-2', 'eu-west-1', 'ap-southeast-1', 'ap-northeast-1'],
 };
 
 /**
@@ -327,7 +281,7 @@ export const BEDROCK_MODEL_REGIONS: Record<string, string[]> = {
  */
 export function validateBedrockModelRegion(
   model: string,
-  region: string,
+  region: string
 ): { valid: boolean; message?: string; suggestions?: string[] } {
   const modelRegions = BEDROCK_MODEL_REGIONS[model];
 
@@ -335,9 +289,7 @@ export function validateBedrockModelRegion(
     // Unknown model - allow but warn
     return {
       valid: true,
-      message:
-        `Warning: Model ${model} not in known model list. ` +
-        `It may work if it's a newly released model.`,
+      message: `Warning: Model ${model} not in known model list. ` + `It may work if it's a newly released model.`,
     };
   }
 
@@ -383,7 +335,7 @@ export function isBedrockModel(model: string): boolean {
 export function isActiveModel(
   model: string,
   useGemini3_1: boolean = false,
-  useCustomToolModel: boolean = false,
+  useCustomToolModel: boolean = false
 ): boolean {
   if (!VALID_GEMINI_MODELS.has(model)) {
     return false;
@@ -398,9 +350,6 @@ export function isActiveModel(
       return model !== PREVIEW_GEMINI_3_1_CUSTOM_TOOLS_MODEL;
     }
   } else {
-    return (
-      model !== PREVIEW_GEMINI_3_1_MODEL &&
-      model !== PREVIEW_GEMINI_3_1_CUSTOM_TOOLS_MODEL
-    );
+    return model !== PREVIEW_GEMINI_3_1_MODEL && model !== PREVIEW_GEMINI_3_1_CUSTOM_TOOLS_MODEL;
   }
 }

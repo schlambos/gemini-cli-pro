@@ -8,28 +8,17 @@ import { Box, Text } from 'ink';
 import { useEffect, useState, useRef } from 'react';
 import { useUIActions } from '../contexts/UIActionsContext.js';
 import { theme } from '../semantic-colors.js';
-import {
-  ShellExecutionService,
-  type AnsiOutput,
-  type AnsiLine,
-  type AnsiToken,
-} from '@google/gemini-cli-core';
+import { ShellExecutionService, type AnsiOutput, type AnsiLine, type AnsiToken } from '@google/gemini-cli-core';
 import { cpLen, cpSlice, getCachedStringWidth } from '../utils/textUtils.js';
 import { type BackgroundShell } from '../hooks/shellCommandProcessor.js';
 import { Command, keyMatchers } from '../keyMatchers.js';
 import { useKeypress } from '../hooks/useKeypress.js';
 import { formatCommand } from '../utils/keybindingUtils.js';
-import {
-  ScrollableList,
-  type ScrollableListRef,
-} from './shared/ScrollableList.js';
+import { ScrollableList, type ScrollableListRef } from './shared/ScrollableList.js';
 
 import { SCROLL_TO_ITEM_END } from './shared/VirtualizedList.js';
 
-import {
-  RadioButtonSelect,
-  type RadioSelectItem,
-} from './shared/RadioButtonSelect.js';
+import { RadioButtonSelect, type RadioSelectItem } from './shared/RadioButtonSelect.js';
 
 interface BackgroundShellDisplayProps {
   shells: Map<number, BackgroundShell>;
@@ -47,9 +36,7 @@ const TAB_DISPLAY_HORIZONTAL_PADDING = 4;
 
 const formatShellCommandForDisplay = (command: string, maxWidth: number) => {
   const commandFirstLine = command.split('\n')[0];
-  return cpLen(commandFirstLine) > maxWidth
-    ? `${cpSlice(commandFirstLine, 0, maxWidth - 3)}...`
-    : commandFirstLine;
+  return cpLen(commandFirstLine) > maxWidth ? `${cpSlice(commandFirstLine, 0, maxWidth - 3)}...` : commandFirstLine;
 };
 
 export const BackgroundShellDisplay = ({
@@ -60,18 +47,10 @@ export const BackgroundShellDisplay = ({
   isFocused,
   isListOpenProp,
 }: BackgroundShellDisplayProps) => {
-  const {
-    dismissBackgroundShell,
-    setActiveBackgroundShellPid,
-    setIsBackgroundShellListOpen,
-  } = useUIActions();
+  const { dismissBackgroundShell, setActiveBackgroundShellPid, setIsBackgroundShellListOpen } = useUIActions();
   const activeShell = shells.get(activePid);
-  const [output, setOutput] = useState<string | AnsiOutput>(
-    activeShell?.output || '',
-  );
-  const [highlightedPid, setHighlightedPid] = useState<number | null>(
-    activePid,
-  );
+  const [output, setOutput] = useState<string | AnsiOutput>(activeShell?.output || '');
+  const [highlightedPid, setHighlightedPid] = useState<number | null>(activePid);
   const outputRef = useRef<ScrollableListRef<AnsiLine | string>>(null);
   const subscribedRef = useRef(false);
 
@@ -106,9 +85,7 @@ export const BackgroundShellDisplay = ({
             setOutput(event.chunk);
           } else {
             // Subsequent updates are deltas for child_process
-            setOutput((prev) =>
-              typeof prev === 'string' ? prev + event.chunk : event.chunk,
-            );
+            setOutput((prev) => (typeof prev === 'string' ? prev + event.chunk : event.chunk));
           }
         } else {
           // PTY always sends full AnsiOutput
@@ -190,7 +167,7 @@ export const BackgroundShellDisplay = ({
       }
       return false;
     },
-    { isActive: isFocused && !!activeShell },
+    { isActive: isFocused && !!activeShell }
   );
 
   const helpTextParts = [
@@ -199,36 +176,25 @@ export const BackgroundShellDisplay = ({
     { label: 'List', command: Command.TOGGLE_BACKGROUND_SHELL_LIST },
   ];
 
-  const helpTextStr = helpTextParts
-    .map((p) => `${p.label} (${formatCommand(p.command)})`)
-    .join(' | ');
+  const helpTextStr = helpTextParts.map((p) => `${p.label} (${formatCommand(p.command)})`).join(' | ');
 
   const renderHelpText = () => (
     <Text>
       {helpTextParts.map((p, i) => (
         <Text key={p.label}>
           {i > 0 ? ' | ' : ''}
-          {p.label} (
-          <Text color={theme.text.accent}>{formatCommand(p.command)}</Text>)
+          {p.label} (<Text color={theme.text.accent}>{formatCommand(p.command)}</Text>)
         </Text>
       ))}
     </Text>
   );
 
   const renderTabs = () => {
-    const shellList = Array.from(shells.values()).filter(
-      (s) => s.status === 'running',
-    );
+    const shellList = Array.from(shells.values()).filter((s) => s.status === 'running');
 
-    const pidInfoWidth = getCachedStringWidth(
-      ` (PID: ${activePid}) ${isFocused ? '(Focused)' : ''}`,
-    );
+    const pidInfoWidth = getCachedStringWidth(` (PID: ${activePid}) ${isFocused ? '(Focused)' : ''}`);
 
-    const availableWidth =
-      width -
-      TAB_DISPLAY_HORIZONTAL_PADDING -
-      getCachedStringWidth(helpTextStr) -
-      pidInfoWidth;
+    const availableWidth = width - TAB_DISPLAY_HORIZONTAL_PADDING - getCachedStringWidth(helpTextStr) - pidInfoWidth;
 
     let currentWidth = 0;
     const tabs = [];
@@ -237,14 +203,8 @@ export const BackgroundShellDisplay = ({
       const shell = shellList[i];
       // Account for " i: " (length 4 if i < 9) and spaces (length 2)
       const labelOverhead = 4 + (i + 1).toString().length;
-      const maxTabLabelLength = Math.max(
-        1,
-        Math.floor(availableWidth / shellList.length) - labelOverhead,
-      );
-      const truncatedCommand = formatShellCommandForDisplay(
-        shell.command,
-        maxTabLabelLength,
-      );
+      const maxTabLabelLength = Math.max(1, Math.floor(availableWidth / shellList.length) - labelOverhead);
+      const truncatedCommand = formatShellCommandForDisplay(shell.command, maxTabLabelLength);
       const label = ` ${i + 1}: ${truncatedCommand} `;
       const labelWidth = getCachedStringWidth(label);
 
@@ -257,13 +217,9 @@ export const BackgroundShellDisplay = ({
       const isActive = shell.pid === activePid;
 
       tabs.push(
-        <Text
-          key={shell.pid}
-          color={isActive ? theme.text.primary : theme.text.secondary}
-          bold={isActive}
-        >
+        <Text key={shell.pid} color={isActive ? theme.text.primary : theme.text.secondary} bold={isActive}>
           {label}
-        </Text>,
+        </Text>
       );
       currentWidth += labelWidth;
     }
@@ -274,14 +230,13 @@ export const BackgroundShellDisplay = ({
 
       // If we only have one tab, ensure we don't show the overflow if it's too cramped
       // We want at least 10 chars for the overflow or we favor the first tab.
-      const shouldShowOverflow =
-        tabs.length > 1 || availableWidth - currentWidth >= overflowWidth;
+      const shouldShowOverflow = tabs.length > 1 || availableWidth - currentWidth >= overflowWidth;
 
       if (shouldShowOverflow) {
         tabs.push(
-          <Text key="overflow" color={theme.status.warning} bold>
+          <Text key='overflow' color={theme.status.warning} bold>
             {overflowLabel}
-          </Text>,
+          </Text>
         );
       }
     }
@@ -290,18 +245,10 @@ export const BackgroundShellDisplay = ({
   };
 
   const renderProcessList = () => {
-    const maxCommandLength = Math.max(
-      0,
-      width - BORDER_WIDTH - CONTENT_PADDING_X * 2 - 10,
-    );
+    const maxCommandLength = Math.max(0, width - BORDER_WIDTH - CONTENT_PADDING_X * 2 - 10);
 
-    const items: Array<RadioSelectItem<number>> = Array.from(
-      shells.values(),
-    ).map((shell, index) => {
-      const truncatedCommand = formatShellCommandForDisplay(
-        shell.command,
-        maxCommandLength,
-      );
+    const items: Array<RadioSelectItem<number>> = Array.from(shells.values()).map((shell, index) => {
+      const truncatedCommand = formatShellCommandForDisplay(shell.command, maxCommandLength);
 
       let label = `${index + 1}: ${truncatedCommand} (PID: ${shell.pid})`;
       if (shell.status === 'exited') {
@@ -318,13 +265,13 @@ export const BackgroundShellDisplay = ({
     const initialIndex = items.findIndex((item) => item.value === activePid);
 
     return (
-      <Box flexDirection="column" height="100%" width="100%">
+      <Box flexDirection='column' height='100%' width='100%'>
         <Box flexShrink={0} marginBottom={1} paddingTop={1}>
           <Text bold>
             {`Select Process (${formatCommand(Command.BACKGROUND_SHELL_SELECT)} to select, ${formatCommand(Command.KILL_BACKGROUND_SHELL)} to kill, ${formatCommand(Command.BACKGROUND_SHELL_ESCAPE)} to cancel):`}
           </Text>
         </Box>
-        <Box flexGrow={1} width="100%">
+        <Box flexGrow={1} width='100%'>
           <RadioButtonSelect
             items={items}
             initialIndex={initialIndex >= 0 ? initialIndex : 0}
@@ -335,10 +282,7 @@ export const BackgroundShellDisplay = ({
             onHighlight={(pid) => setHighlightedPid(pid)}
             isFocused={isFocused}
             maxItemsToShow={Math.max(1, height - HEADER_HEIGHT - 3)} // Adjust for header
-            renderItem={(
-              item,
-              { isSelected: _isSelected, titleColor: _titleColor },
-            ) => {
+            renderItem={(item, { isSelected: _isSelected, titleColor: _titleColor }) => {
               // Custom render to handle exit code coloring if needed,
               // or just use default. The default RadioButtonSelect renderer
               // handles standard label.
@@ -352,22 +296,13 @@ export const BackgroundShellDisplay = ({
               const shell = shells.get(item.value);
               if (!shell) return <Text>{item.label}</Text>;
 
-              const truncatedCommand = formatShellCommandForDisplay(
-                shell.command,
-                maxCommandLength,
-              );
+              const truncatedCommand = formatShellCommandForDisplay(shell.command, maxCommandLength);
 
               return (
                 <Text>
                   {truncatedCommand} (PID: {shell.pid})
                   {shell.status === 'exited' ? (
-                    <Text
-                      color={
-                        shell.exitCode === 0
-                          ? theme.status.success
-                          : theme.status.error
-                      }
-                    >
+                    <Text color={shell.exitCode === 0 ? theme.status.success : theme.status.error}>
                       {' '}
                       (Exit Code: {shell.exitCode})
                     </Text>
@@ -393,7 +328,7 @@ export const BackgroundShellDisplay = ({
             return <Text key={index}>{line}</Text>;
           }
           return (
-            <Text key={index} wrap="truncate">
+            <Text key={index} wrap='truncate'>
               {line.length > 0
                 ? line.map((token: AnsiToken, tokenIndex: number) => (
                     <Text
@@ -423,16 +358,16 @@ export const BackgroundShellDisplay = ({
 
   return (
     <Box
-      flexDirection="column"
-      height="100%"
-      width="100%"
-      borderStyle="single"
+      flexDirection='column'
+      height='100%'
+      width='100%'
+      borderStyle='single'
       borderColor={isFocused ? theme.border.focused : undefined}
     >
       <Box
-        flexDirection="row"
-        justifyContent="space-between"
-        borderStyle="single"
+        flexDirection='row'
+        justifyContent='space-between'
+        borderStyle='single'
         borderBottom={false}
         borderLeft={false}
         borderRight={false}
@@ -440,7 +375,7 @@ export const BackgroundShellDisplay = ({
         paddingX={1}
         borderColor={isFocused ? theme.border.focused : undefined}
       >
-        <Box flexDirection="row">
+        <Box flexDirection='row'>
           {renderTabs()}
           <Text bold>
             {' '}
@@ -449,7 +384,7 @@ export const BackgroundShellDisplay = ({
         </Box>
         {renderHelpText()}
       </Box>
-      <Box flexGrow={1} overflow="hidden" paddingX={CONTENT_PADDING_X}>
+      <Box flexGrow={1} overflow='hidden' paddingX={CONTENT_PADDING_X}>
         {isListOpenProp ? renderProcessList() : renderOutput()}
       </Box>
     </Box>

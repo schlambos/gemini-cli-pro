@@ -24,16 +24,7 @@ import {
 } from '@google/gemini-cli-core';
 import type { Part } from '@google/genai';
 import { runNonInteractive } from './nonInteractiveCli.js';
-import {
-  describe,
-  it,
-  expect,
-  beforeEach,
-  afterEach,
-  vi,
-  type Mock,
-  type MockInstance,
-} from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi, type Mock, type MockInstance } from 'vitest';
 import type { LoadedSettings } from './config/settings.js';
 
 // Mock core modules
@@ -56,8 +47,7 @@ const mockCoreEvents = vi.hoisted(() => ({
 const mockSchedulerSchedule = vi.hoisted(() => vi.fn());
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const original =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const original = await importOriginal<typeof import('@google/gemini-cli-core')>();
 
   class MockChatRecordingService {
     initialize = vi.fn();
@@ -138,13 +128,9 @@ describe('runNonInteractive', () => {
     });
 
     consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    processStdoutSpy = vi
-      .spyOn(process.stdout, 'write')
-      .mockImplementation(() => true);
+    processStdoutSpy = vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
     vi.spyOn(process.stdout, 'on').mockImplementation(() => process.stdout);
-    processStderrSpy = vi
-      .spyOn(process.stderr, 'write')
-      .mockImplementation(() => true);
+    processStderrSpy = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     vi.spyOn(process, 'exit').mockImplementation((code) => {
       throw new Error(`process.exit(${code}) called`);
     });
@@ -212,9 +198,7 @@ describe('runNonInteractive', () => {
       computeMergedSettings: vi.fn(),
     } as unknown as LoadedSettings;
 
-    const { handleAtCommand } = await import(
-      './ui/hooks/atCommandProcessor.js'
-    );
+    const { handleAtCommand } = await import('./ui/hooks/atCommandProcessor.js');
     vi.mocked(handleAtCommand).mockImplementation(async ({ query }) => ({
       processedQuery: [{ text: query }],
     }));
@@ -224,16 +208,13 @@ describe('runNonInteractive', () => {
     vi.restoreAllMocks();
   });
 
-  async function* createStreamFromEvents(
-    events: ServerGeminiStreamEvent[],
-  ): AsyncGenerator<ServerGeminiStreamEvent> {
+  async function* createStreamFromEvents(events: ServerGeminiStreamEvent[]): AsyncGenerator<ServerGeminiStreamEvent> {
     for (const event of events) {
       yield event;
     }
   }
 
-  const getWrittenOutput = () =>
-    processStdoutSpy.mock.calls.map((c) => c[0]).join('');
+  const getWrittenOutput = () => processStdoutSpy.mock.calls.map((c) => c[0]).join('');
 
   it('should process input and write text output', async () => {
     const events: ServerGeminiStreamEvent[] = [
@@ -244,9 +225,7 @@ describe('runNonInteractive', () => {
         value: { reason: undefined, usageMetadata: { totalTokenCount: 10 } },
       },
     ];
-    mockGeminiClient.sendMessageStream.mockReturnValue(
-      createStreamFromEvents(events),
-    );
+    mockGeminiClient.sendMessageStream.mockReturnValue(createStreamFromEvents(events));
 
     await runNonInteractive({
       config: mockConfig,
@@ -261,7 +240,7 @@ describe('runNonInteractive', () => {
       'prompt-id-1',
       undefined,
       false,
-      'Test input',
+      'Test input'
     );
     expect(getWrittenOutput()).toBe('Hello World\n');
     // Note: Telemetry shutdown is now handled in runExitCleanup() in cleanup.ts
@@ -276,9 +255,7 @@ describe('runNonInteractive', () => {
         value: { reason: undefined, usageMetadata: { totalTokenCount: 0 } },
       },
     ];
-    mockGeminiClient.sendMessageStream.mockReturnValue(
-      createStreamFromEvents(events),
-    );
+    mockGeminiClient.sendMessageStream.mockReturnValue(createStreamFromEvents(events));
 
     await runNonInteractive({
       config: mockConfig,
@@ -299,9 +276,7 @@ describe('runNonInteractive', () => {
         value: { reason: undefined, usageMetadata: { totalTokenCount: 0 } },
       },
     ];
-    mockGeminiClient.sendMessageStream.mockReturnValue(
-      createStreamFromEvents(events),
-    );
+    mockGeminiClient.sendMessageStream.mockReturnValue(createStreamFromEvents(events));
 
     await runNonInteractive({
       config: mockConfig,
@@ -371,7 +346,7 @@ describe('runNonInteractive', () => {
     expect(mockGeminiClient.sendMessageStream).toHaveBeenCalledTimes(2);
     expect(mockSchedulerSchedule).toHaveBeenCalledWith(
       [expect.objectContaining({ name: 'testTool' })],
-      expect.any(AbortSignal),
+      expect.any(AbortSignal)
     );
     expect(mockGeminiClient.sendMessageStream).toHaveBeenNthCalledWith(
       2,
@@ -380,7 +355,7 @@ describe('runNonInteractive', () => {
       'prompt-id-2',
       undefined,
       false,
-      undefined,
+      undefined
     );
     expect(getWrittenOutput()).toBe('Final answer\n');
   });
@@ -520,9 +495,7 @@ describe('runNonInteractive', () => {
     });
 
     expect(mockSchedulerSchedule).toHaveBeenCalled();
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      'Error executing tool errorTool: Execution failed',
-    );
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Error executing tool errorTool: Execution failed');
     expect(mockGeminiClient.sendMessageStream).toHaveBeenCalledTimes(2);
     expect(mockGeminiClient.sendMessageStream).toHaveBeenNthCalledWith(
       2,
@@ -540,7 +513,7 @@ describe('runNonInteractive', () => {
       'prompt-id-3',
       undefined,
       false,
-      undefined,
+      undefined
     );
     expect(getWrittenOutput()).toBe('Sorry, let me try again.\n');
   });
@@ -557,7 +530,7 @@ describe('runNonInteractive', () => {
         settings: mockSettings,
         input: 'Initial fail',
         prompt_id: 'prompt-id-4',
-      }),
+      })
     ).rejects.toThrow(apiError);
   });
 
@@ -616,7 +589,7 @@ describe('runNonInteractive', () => {
 
     expect(mockSchedulerSchedule).toHaveBeenCalled();
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      'Error executing tool nonexistentTool: Tool "nonexistentTool" not found in registry.',
+      'Error executing tool nonexistentTool: Tool "nonexistentTool" not found in registry.'
     );
     expect(mockGeminiClient.sendMessageStream).toHaveBeenCalledTimes(2);
     expect(getWrittenOutput()).toBe("Sorry, I can't find that tool.\n");
@@ -630,15 +603,13 @@ describe('runNonInteractive', () => {
         settings: mockSettings,
         input: 'Trigger loop',
         prompt_id: 'prompt-id-6',
-      }),
+      })
     ).rejects.toThrow('process.exit(53) called');
   });
 
   it('should preprocess @include commands before sending to the model', async () => {
     // 1. Mock the imported atCommandProcessor
-    const { handleAtCommand } = await import(
-      './ui/hooks/atCommandProcessor.js'
-    );
+    const { handleAtCommand } = await import('./ui/hooks/atCommandProcessor.js');
     const mockHandleAtCommand = vi.mocked(handleAtCommand);
 
     // 2. Define the raw input and the expected processed output
@@ -663,9 +634,7 @@ describe('runNonInteractive', () => {
         value: { reason: undefined, usageMetadata: { totalTokenCount: 10 } },
       },
     ];
-    mockGeminiClient.sendMessageStream.mockReturnValue(
-      createStreamFromEvents(events),
-    );
+    mockGeminiClient.sendMessageStream.mockReturnValue(createStreamFromEvents(events));
 
     // 4. Run the non-interactive mode with the raw input
     await runNonInteractive({
@@ -682,7 +651,7 @@ describe('runNonInteractive', () => {
       'prompt-id-7',
       undefined,
       false,
-      rawInput,
+      rawInput
     );
 
     // 6. Assert the final output is correct
@@ -697,13 +666,9 @@ describe('runNonInteractive', () => {
         value: { reason: undefined, usageMetadata: { totalTokenCount: 10 } },
       },
     ];
-    mockGeminiClient.sendMessageStream.mockReturnValue(
-      createStreamFromEvents(events),
-    );
+    mockGeminiClient.sendMessageStream.mockReturnValue(createStreamFromEvents(events));
     vi.mocked(mockConfig.getOutputFormat).mockReturnValue(OutputFormat.JSON);
-    vi.mocked(uiTelemetryService.getMetrics).mockReturnValue(
-      MOCK_SESSION_METRICS,
-    );
+    vi.mocked(uiTelemetryService.getMetrics).mockReturnValue(MOCK_SESSION_METRICS);
 
     await runNonInteractive({
       config: mockConfig,
@@ -718,7 +683,7 @@ describe('runNonInteractive', () => {
       'prompt-id-1',
       undefined,
       false,
-      'Test input',
+      'Test input'
     );
     expect(processStdoutSpy).toHaveBeenCalledWith(
       JSON.stringify(
@@ -728,8 +693,8 @@ describe('runNonInteractive', () => {
           stats: MOCK_SESSION_METRICS,
         },
         null,
-        2,
-      ),
+        2
+      )
     );
   });
 
@@ -791,9 +756,7 @@ describe('runNonInteractive', () => {
       .mockReturnValueOnce(createStreamFromEvents(secondCallEvents));
 
     vi.mocked(mockConfig.getOutputFormat).mockReturnValue(OutputFormat.JSON);
-    vi.mocked(uiTelemetryService.getMetrics).mockReturnValue(
-      MOCK_SESSION_METRICS,
-    );
+    vi.mocked(uiTelemetryService.getMetrics).mockReturnValue(MOCK_SESSION_METRICS);
 
     await runNonInteractive({
       config: mockConfig,
@@ -805,7 +768,7 @@ describe('runNonInteractive', () => {
     expect(mockGeminiClient.sendMessageStream).toHaveBeenCalledTimes(2);
     expect(mockSchedulerSchedule).toHaveBeenCalledWith(
       [expect.objectContaining({ name: 'testTool' })],
-      expect.any(AbortSignal),
+      expect.any(AbortSignal)
     );
 
     // This should output JSON with empty response but include stats
@@ -817,8 +780,8 @@ describe('runNonInteractive', () => {
           stats: MOCK_SESSION_METRICS,
         },
         null,
-        2,
-      ),
+        2
+      )
     );
   });
 
@@ -830,13 +793,9 @@ describe('runNonInteractive', () => {
         value: { reason: undefined, usageMetadata: { totalTokenCount: 1 } },
       },
     ];
-    mockGeminiClient.sendMessageStream.mockReturnValue(
-      createStreamFromEvents(events),
-    );
+    mockGeminiClient.sendMessageStream.mockReturnValue(createStreamFromEvents(events));
     vi.mocked(mockConfig.getOutputFormat).mockReturnValue(OutputFormat.JSON);
-    vi.mocked(uiTelemetryService.getMetrics).mockReturnValue(
-      MOCK_SESSION_METRICS,
-    );
+    vi.mocked(uiTelemetryService.getMetrics).mockReturnValue(MOCK_SESSION_METRICS);
 
     await runNonInteractive({
       config: mockConfig,
@@ -851,7 +810,7 @@ describe('runNonInteractive', () => {
       'prompt-id-empty',
       undefined,
       false,
-      'Empty response test',
+      'Empty response test'
     );
 
     // This should output JSON with empty response but include stats
@@ -863,8 +822,8 @@ describe('runNonInteractive', () => {
           stats: MOCK_SESSION_METRICS,
         },
         null,
-        2,
-      ),
+        2
+      )
     );
   });
 
@@ -905,8 +864,8 @@ describe('runNonInteractive', () => {
           },
         },
         null,
-        2,
-      ),
+        2
+      )
     );
   });
 
@@ -947,8 +906,8 @@ describe('runNonInteractive', () => {
           },
         },
         null,
-        2,
-      ),
+        2
+      )
     );
   });
 
@@ -970,9 +929,7 @@ describe('runNonInteractive', () => {
         value: { reason: undefined, usageMetadata: { totalTokenCount: 5 } },
       },
     ];
-    mockGeminiClient.sendMessageStream.mockReturnValue(
-      createStreamFromEvents(events),
-    );
+    mockGeminiClient.sendMessageStream.mockReturnValue(createStreamFromEvents(events));
 
     await runNonInteractive({
       config: mockConfig,
@@ -988,20 +945,15 @@ describe('runNonInteractive', () => {
       'prompt-id-slash',
       undefined,
       false,
-      '/testcommand',
+      '/testcommand'
     );
 
     expect(getWrittenOutput()).toBe('Response from command\n');
   });
 
   it('should handle slash commands', async () => {
-    const nonInteractiveCliCommands = await import(
-      './nonInteractiveCliCommands.js'
-    );
-    const handleSlashCommandSpy = vi.spyOn(
-      nonInteractiveCliCommands,
-      'handleSlashCommand',
-    );
+    const nonInteractiveCliCommands = await import('./nonInteractiveCliCommands.js');
+    const handleSlashCommandSpy = vi.spyOn(nonInteractiveCliCommands, 'handleSlashCommand');
     handleSlashCommandSpy.mockResolvedValue([{ text: 'Slash command output' }]);
 
     const events: ServerGeminiStreamEvent[] = [
@@ -1011,9 +963,7 @@ describe('runNonInteractive', () => {
         value: { reason: undefined, usageMetadata: { totalTokenCount: 10 } },
       },
     ];
-    mockGeminiClient.sendMessageStream.mockReturnValue(
-      createStreamFromEvents(events),
-    );
+    mockGeminiClient.sendMessageStream.mockReturnValue(createStreamFromEvents(events));
 
     await runNonInteractive({
       config: mockConfig,
@@ -1022,19 +972,14 @@ describe('runNonInteractive', () => {
       prompt_id: 'prompt-id-slash',
     });
 
-    expect(handleSlashCommandSpy).toHaveBeenCalledWith(
-      '/help',
-      expect.any(AbortController),
-      mockConfig,
-      mockSettings,
-    );
+    expect(handleSlashCommandSpy).toHaveBeenCalledWith('/help', expect.any(AbortController), mockConfig, mockSettings);
     expect(mockGeminiClient.sendMessageStream).toHaveBeenCalledWith(
       [{ text: 'Slash command output' }],
       expect.any(AbortSignal),
       'prompt-id-slash',
       undefined,
       false,
-      '/help',
+      '/help'
     );
     expect(getWrittenOutput()).toBe('Response to slash command\n');
     handleSlashCommandSpy.mockRestore();
@@ -1055,43 +1000,34 @@ describe('runNonInteractive', () => {
       (process.stdin as any).setRawMode = vi.fn();
     }
 
-    const stdinOnSpy = vi
-      .spyOn(process.stdin, 'on')
-      .mockImplementation(() => process.stdin);
+    const stdinOnSpy = vi.spyOn(process.stdin, 'on').mockImplementation(() => process.stdin);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     vi.spyOn(process.stdin as any, 'setRawMode').mockImplementation(() => true);
     vi.spyOn(process.stdin, 'resume').mockImplementation(() => process.stdin);
     vi.spyOn(process.stdin, 'pause').mockImplementation(() => process.stdin);
-    vi.spyOn(process.stdin, 'removeAllListeners').mockImplementation(
-      () => process.stdin,
-    );
+    vi.spyOn(process.stdin, 'removeAllListeners').mockImplementation(() => process.stdin);
 
     // Spy on handleCancellationError to verify it's called
     const errors = await import('./utils/errors.js');
-    const handleCancellationErrorSpy = vi
-      .spyOn(errors, 'handleCancellationError')
-      .mockImplementation(() => {
-        throw new Error('Cancelled');
-      });
+    const handleCancellationErrorSpy = vi.spyOn(errors, 'handleCancellationError').mockImplementation(() => {
+      throw new Error('Cancelled');
+    });
 
-    const events: ServerGeminiStreamEvent[] = [
-      { type: GeminiEventType.Content, value: 'Thinking...' },
-    ];
+    const events: ServerGeminiStreamEvent[] = [{ type: GeminiEventType.Content, value: 'Thinking...' }];
     // Create a stream that responds to abortion
-    mockGeminiClient.sendMessageStream.mockImplementation(
-      (_messages, signal: AbortSignal) =>
-        (async function* () {
-          yield events[0];
-          await new Promise((resolve, reject) => {
-            const timeout = setTimeout(resolve, 1000);
-            signal.addEventListener('abort', () => {
-              clearTimeout(timeout);
-              setTimeout(() => {
-                reject(new Error('Aborted')); // This will be caught by nonInteractiveCli and passed to handleError
-              }, 300);
-            });
+    mockGeminiClient.sendMessageStream.mockImplementation((_messages, signal: AbortSignal) =>
+      (async function* () {
+        yield events[0];
+        await new Promise((resolve, reject) => {
+          const timeout = setTimeout(resolve, 1000);
+          signal.addEventListener('abort', () => {
+            clearTimeout(timeout);
+            setTimeout(() => {
+              reject(new Error('Aborted')); // This will be caught by nonInteractiveCli and passed to handleError
+            }, 300);
           });
-        })(),
+        });
+      })()
     );
 
     const runPromise = runNonInteractive({
@@ -1107,13 +1043,10 @@ describe('runNonInteractive', () => {
     // Find the keypress handler registered by runNonInteractive
     const keypressCall = stdinOnSpy.mock.calls.find(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (call) => (call[0] as any) === 'keypress',
+      (call) => (call[0] as any) === 'keypress'
     );
     expect(keypressCall).toBeDefined();
-    const keypressHandler = keypressCall?.[1] as (
-      str: string,
-      key: { name?: string; ctrl?: boolean },
-    ) => void;
+    const keypressHandler = keypressCall?.[1] as (str: string, key: { name?: string; ctrl?: boolean }) => void;
 
     if (keypressHandler) {
       // Simulate Ctrl+C
@@ -1136,9 +1069,7 @@ describe('runNonInteractive', () => {
     await expect(runPromise).rejects.toThrow('Aborted');
 
     expect(
-      processStderrSpy.mock.calls.some(
-        (call) => typeof call[0] === 'string' && call[0].includes('Cancelling'),
-      ),
+      processStderrSpy.mock.calls.some((call) => typeof call[0] === 'string' && call[0].includes('Cancelling'))
     ).toBe(true);
 
     handleCancellationErrorSpy.mockRestore();
@@ -1176,10 +1107,8 @@ describe('runNonInteractive', () => {
         settings: mockSettings,
         input: '/confirm',
         prompt_id: 'prompt-id-confirm',
-      }),
-    ).rejects.toThrow(
-      'Exiting due to a confirmation prompt requested by the command.',
-    );
+      })
+    ).rejects.toThrow('Exiting due to a confirmation prompt requested by the command.');
   });
 
   it('should treat an unknown slash command as a regular prompt', async () => {
@@ -1193,9 +1122,7 @@ describe('runNonInteractive', () => {
         value: { reason: undefined, usageMetadata: { totalTokenCount: 5 } },
       },
     ];
-    mockGeminiClient.sendMessageStream.mockReturnValue(
-      createStreamFromEvents(events),
-    );
+    mockGeminiClient.sendMessageStream.mockReturnValue(createStreamFromEvents(events));
 
     await runNonInteractive({
       config: mockConfig,
@@ -1211,7 +1138,7 @@ describe('runNonInteractive', () => {
       'prompt-id-unknown',
       undefined,
       false,
-      '/unknowncommand',
+      '/unknowncommand'
     );
 
     expect(getWrittenOutput()).toBe('Response to unknown\n');
@@ -1233,10 +1160,8 @@ describe('runNonInteractive', () => {
         settings: mockSettings,
         input: '/noaction',
         prompt_id: 'prompt-id-unhandled',
-      }),
-    ).rejects.toThrow(
-      'Exiting due to command result that is not supported in non-interactive mode.',
-    );
+      })
+    ).rejects.toThrow('Exiting due to command result that is not supported in non-interactive mode.');
   });
 
   it('should pass arguments to the slash command action', async () => {
@@ -1258,9 +1183,7 @@ describe('runNonInteractive', () => {
         value: { reason: undefined, usageMetadata: { totalTokenCount: 1 } },
       },
     ];
-    mockGeminiClient.sendMessageStream.mockReturnValue(
-      createStreamFromEvents(events),
-    );
+    mockGeminiClient.sendMessageStream.mockReturnValue(createStreamFromEvents(events));
 
     await runNonInteractive({
       config: mockConfig,
@@ -1276,13 +1199,9 @@ describe('runNonInteractive', () => {
 
   it('should instantiate CommandService with correct loaders for slash commands', async () => {
     // This test indirectly checks that handleSlashCommand is using the right loaders.
-    const { FileCommandLoader } = await import(
-      './services/FileCommandLoader.js'
-    );
+    const { FileCommandLoader } = await import('./services/FileCommandLoader.js');
     const { McpPromptLoader } = await import('./services/McpPromptLoader.js');
-    const { BuiltinCommandLoader } = await import(
-      './services/BuiltinCommandLoader.js'
-    );
+    const { BuiltinCommandLoader } = await import('./services/BuiltinCommandLoader.js');
     mockGetCommands.mockReturnValue([]); // No commands found, so it will fall through
     const events: ServerGeminiStreamEvent[] = [
       { type: GeminiEventType.Content, value: 'Acknowledged' },
@@ -1291,9 +1210,7 @@ describe('runNonInteractive', () => {
         value: { reason: undefined, usageMetadata: { totalTokenCount: 1 } },
       },
     ];
-    mockGeminiClient.sendMessageStream.mockReturnValue(
-      createStreamFromEvents(events),
-    );
+    mockGeminiClient.sendMessageStream.mockReturnValue(createStreamFromEvents(events));
 
     await runNonInteractive({
       config: mockConfig,
@@ -1313,9 +1230,7 @@ describe('runNonInteractive', () => {
     expect(mockCommandServiceCreate).toHaveBeenCalledTimes(1);
     const loadersArg = mockCommandServiceCreate.mock.calls[0][0];
     expect(loadersArg).toHaveLength(3);
-    expect(loadersArg[0]).toBe(
-      vi.mocked(BuiltinCommandLoader).mock.instances[0],
-    );
+    expect(loadersArg[0]).toBe(vi.mocked(BuiltinCommandLoader).mock.instances[0]);
     expect(loadersArg[1]).toBe(vi.mocked(McpPromptLoader).mock.instances[0]);
     expect(loadersArg[2]).toBe(vi.mocked(FileCommandLoader).mock.instances[0]);
   });
@@ -1387,7 +1302,7 @@ describe('runNonInteractive', () => {
 
     expect(mockSchedulerSchedule).toHaveBeenCalledWith(
       [expect.objectContaining({ name: 'ShellTool' })],
-      expect.any(AbortSignal),
+      expect.any(AbortSignal)
     );
     expect(getWrittenOutput()).toBe('file.txt\n');
   });
@@ -1400,9 +1315,7 @@ describe('runNonInteractive', () => {
           value: { reason: undefined, usageMetadata: { totalTokenCount: 0 } },
         },
       ];
-      mockGeminiClient.sendMessageStream.mockReturnValue(
-        createStreamFromEvents(events),
-      );
+      mockGeminiClient.sendMessageStream.mockReturnValue(createStreamFromEvents(events));
 
       await runNonInteractive({
         config: mockConfig,
@@ -1411,10 +1324,7 @@ describe('runNonInteractive', () => {
         prompt_id: 'prompt-id-events',
       });
 
-      expect(mockCoreEvents.on).toHaveBeenCalledWith(
-        CoreEvent.UserFeedback,
-        expect.any(Function),
-      );
+      expect(mockCoreEvents.on).toHaveBeenCalledWith(CoreEvent.UserFeedback, expect.any(Function));
       expect(mockCoreEvents.drainBacklogs).toHaveBeenCalledTimes(1);
     });
 
@@ -1425,9 +1335,7 @@ describe('runNonInteractive', () => {
           value: { reason: undefined, usageMetadata: { totalTokenCount: 0 } },
         },
       ];
-      mockGeminiClient.sendMessageStream.mockReturnValue(
-        createStreamFromEvents(events),
-      );
+      mockGeminiClient.sendMessageStream.mockReturnValue(createStreamFromEvents(events));
 
       await runNonInteractive({
         config: mockConfig,
@@ -1436,10 +1344,7 @@ describe('runNonInteractive', () => {
         prompt_id: 'prompt-id-events',
       });
 
-      expect(mockCoreEvents.off).toHaveBeenCalledWith(
-        CoreEvent.UserFeedback,
-        expect.any(Function),
-      );
+      expect(mockCoreEvents.off).toHaveBeenCalledWith(CoreEvent.UserFeedback, expect.any(Function));
     });
 
     it('logs to process.stderr when UserFeedback event is received', async () => {
@@ -1449,9 +1354,7 @@ describe('runNonInteractive', () => {
           value: { reason: undefined, usageMetadata: { totalTokenCount: 0 } },
         },
       ];
-      mockGeminiClient.sendMessageStream.mockReturnValue(
-        createStreamFromEvents(events),
-      );
+      mockGeminiClient.sendMessageStream.mockReturnValue(createStreamFromEvents(events));
 
       await runNonInteractive({
         config: mockConfig,
@@ -1461,9 +1364,7 @@ describe('runNonInteractive', () => {
       });
 
       // Get the registered handler
-      const handler = mockCoreEvents.on.mock.calls.find(
-        (call: unknown[]) => call[0] === CoreEvent.UserFeedback,
-      )?.[1];
+      const handler = mockCoreEvents.on.mock.calls.find((call: unknown[]) => call[0] === CoreEvent.UserFeedback)?.[1];
       expect(handler).toBeDefined();
 
       // Simulate an event
@@ -1473,9 +1374,7 @@ describe('runNonInteractive', () => {
       };
       handler(payload);
 
-      expect(processStderrSpy).toHaveBeenCalledWith(
-        '[ERROR] Test error message\n',
-      );
+      expect(processStderrSpy).toHaveBeenCalledWith('[ERROR] Test error message\n');
     });
 
     it('logs optional error object to process.stderr in debug mode', async () => {
@@ -1486,9 +1385,7 @@ describe('runNonInteractive', () => {
           value: { reason: undefined, usageMetadata: { totalTokenCount: 0 } },
         },
       ];
-      mockGeminiClient.sendMessageStream.mockReturnValue(
-        createStreamFromEvents(events),
-      );
+      mockGeminiClient.sendMessageStream.mockReturnValue(createStreamFromEvents(events));
 
       await runNonInteractive({
         config: mockConfig,
@@ -1498,9 +1395,7 @@ describe('runNonInteractive', () => {
       });
 
       // Get the registered handler
-      const handler = mockCoreEvents.on.mock.calls.find(
-        (call: unknown[]) => call[0] === CoreEvent.UserFeedback,
-      )?.[1];
+      const handler = mockCoreEvents.on.mock.calls.find((call: unknown[]) => call[0] === CoreEvent.UserFeedback)?.[1];
       expect(handler).toBeDefined();
 
       // Simulate an event with error object
@@ -1514,22 +1409,14 @@ describe('runNonInteractive', () => {
       };
       handler(payload);
 
-      expect(processStderrSpy).toHaveBeenCalledWith(
-        '[WARNING] Test warning message\n',
-      );
-      expect(processStderrSpy).toHaveBeenCalledWith(
-        'Error: Original error\n    at test\n',
-      );
+      expect(processStderrSpy).toHaveBeenCalledWith('[WARNING] Test warning message\n');
+      expect(processStderrSpy).toHaveBeenCalledWith('Error: Original error\n    at test\n');
     });
   });
 
   it('should emit appropriate events for streaming JSON output', async () => {
-    vi.mocked(mockConfig.getOutputFormat).mockReturnValue(
-      OutputFormat.STREAM_JSON,
-    );
-    vi.mocked(uiTelemetryService.getMetrics).mockReturnValue(
-      MOCK_SESSION_METRICS,
-    );
+    vi.mocked(mockConfig.getOutputFormat).mockReturnValue(OutputFormat.STREAM_JSON);
+    vi.mocked(uiTelemetryService.getMetrics).mockReturnValue(MOCK_SESSION_METRICS);
 
     const toolCallEvent: ServerGeminiStreamEvent = {
       type: GeminiEventType.ToolCallRequest,
@@ -1594,17 +1481,13 @@ describe('runNonInteractive', () => {
       { type: GeminiEventType.Content, value: 'Hello' },
       { type: GeminiEventType.Content, value: ' World' },
     ];
-    mockGeminiClient.sendMessageStream.mockReturnValue(
-      createStreamFromEvents(events),
-    );
+    mockGeminiClient.sendMessageStream.mockReturnValue(createStreamFromEvents(events));
 
     // Mock process.exit to track calls without throwing
     vi.spyOn(process, 'exit').mockImplementation((_code) => undefined as never);
 
     // Simulate EPIPE error on stdout
-    const stdoutErrorCallback = (process.stdout.on as Mock).mock.calls.find(
-      (call) => call[0] === 'error',
-    )?.[1];
+    const stdoutErrorCallback = (process.stdout.on as Mock).mock.calls.find((call) => call[0] === 'error')?.[1];
 
     if (stdoutErrorCallback) {
       stdoutErrorCallback({ code: 'EPIPE' });
@@ -1619,10 +1502,7 @@ describe('runNonInteractive', () => {
 
     // Since EPIPE is simulated, it might exit early or continue depending on timing,
     // but our main goal is to verify the handler is registered and handles EPIPE.
-    expect(process.stdout.on).toHaveBeenCalledWith(
-      'error',
-      expect.any(Function),
-    );
+    expect(process.stdout.on).toHaveBeenCalledWith('error', expect.any(Function));
   });
 
   it('should resume chat when resumedSessionData is provided', async () => {
@@ -1633,16 +1513,12 @@ describe('runNonInteractive', () => {
         value: { reason: undefined, usageMetadata: { totalTokenCount: 5 } },
       },
     ];
-    mockGeminiClient.sendMessageStream.mockReturnValue(
-      createStreamFromEvents(events),
-    );
+    mockGeminiClient.sendMessageStream.mockReturnValue(createStreamFromEvents(events));
 
     const resumedSessionData = {
       conversation: {
         sessionId: 'resumed-session-id',
-        messages: [
-          { role: 'user', parts: [{ text: 'Previous message' }] },
-        ] as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        messages: [{ role: 'user', parts: [{ text: 'Previous message' }] }] as any, // eslint-disable-line @typescript-eslint/no-explicit-any
         startTime: new Date().toISOString(),
         lastUpdated: new Date().toISOString(),
         firstUserMessage: 'Previous message',
@@ -1659,69 +1535,53 @@ describe('runNonInteractive', () => {
       resumedSessionData,
     });
 
-    expect(mockGeminiClient.resumeChat).toHaveBeenCalledWith(
-      expect.any(Array),
-      resumedSessionData,
-    );
+    expect(mockGeminiClient.resumeChat).toHaveBeenCalledWith(expect.any(Array), resumedSessionData);
     expect(getWrittenOutput()).toBe('Resumed\n');
   });
 
   it.each([
     {
       name: 'loop detected',
-      events: [
-        { type: GeminiEventType.LoopDetected },
-      ] as ServerGeminiStreamEvent[],
+      events: [{ type: GeminiEventType.LoopDetected }] as ServerGeminiStreamEvent[],
       input: 'Loop test',
       promptId: 'prompt-id-loop',
     },
     {
       name: 'max session turns',
-      events: [
-        { type: GeminiEventType.MaxSessionTurns },
-      ] as ServerGeminiStreamEvent[],
+      events: [{ type: GeminiEventType.MaxSessionTurns }] as ServerGeminiStreamEvent[],
       input: 'Max turns test',
       promptId: 'prompt-id-max-turns',
     },
-  ])(
-    'should emit appropriate error event in streaming JSON mode: $name',
-    async ({ events, input, promptId }) => {
-      vi.mocked(mockConfig.getOutputFormat).mockReturnValue(
-        OutputFormat.STREAM_JSON,
-      );
-      vi.mocked(uiTelemetryService.getMetrics).mockReturnValue(
-        MOCK_SESSION_METRICS,
-      );
+  ])('should emit appropriate error event in streaming JSON mode: $name', async ({ events, input, promptId }) => {
+    vi.mocked(mockConfig.getOutputFormat).mockReturnValue(OutputFormat.STREAM_JSON);
+    vi.mocked(uiTelemetryService.getMetrics).mockReturnValue(MOCK_SESSION_METRICS);
 
-      const streamEvents: ServerGeminiStreamEvent[] = [
-        ...events,
-        {
-          type: GeminiEventType.Finished,
-          value: { reason: undefined, usageMetadata: { totalTokenCount: 0 } },
-        },
-      ];
-      mockGeminiClient.sendMessageStream.mockReturnValue(
-        createStreamFromEvents(streamEvents),
-      );
+    const streamEvents: ServerGeminiStreamEvent[] = [
+      ...events,
+      {
+        type: GeminiEventType.Finished,
+        value: { reason: undefined, usageMetadata: { totalTokenCount: 0 } },
+      },
+    ];
+    mockGeminiClient.sendMessageStream.mockReturnValue(createStreamFromEvents(streamEvents));
 
-      try {
-        await runNonInteractive({
-          config: mockConfig,
-          settings: mockSettings,
-          input,
-          prompt_id: promptId,
-        });
-      } catch (_error) {
-        // Expected exit
-      }
+    try {
+      await runNonInteractive({
+        config: mockConfig,
+        settings: mockSettings,
+        input,
+        prompt_id: promptId,
+      });
+    } catch (_error) {
+      // Expected exit
+    }
 
-      const output = getWrittenOutput();
-      const sanitizedOutput = output
-        .replace(/"timestamp":"[^"]+"/g, '"timestamp":"<TIMESTAMP>"')
-        .replace(/"duration_ms":\d+/g, '"duration_ms":<DURATION>');
-      expect(sanitizedOutput).toMatchSnapshot();
-    },
-  );
+    const output = getWrittenOutput();
+    const sanitizedOutput = output
+      .replace(/"timestamp":"[^"]+"/g, '"timestamp":"<TIMESTAMP>"')
+      .replace(/"duration_ms":\d+/g, '"duration_ms":<DURATION>');
+    expect(sanitizedOutput).toMatchSnapshot();
+  });
 
   it('should log error when tool recording fails', async () => {
     const toolCallEvent: ServerGeminiStreamEvent = {
@@ -1758,17 +1618,15 @@ describe('runNonInteractive', () => {
         value: { reason: undefined, usageMetadata: { totalTokenCount: 5 } },
       },
     ];
-    mockGeminiClient.sendMessageStream
-      .mockReturnValueOnce(createStreamFromEvents(events))
-      .mockReturnValueOnce(
-        createStreamFromEvents([
-          { type: GeminiEventType.Content, value: 'Done' },
-          {
-            type: GeminiEventType.Finished,
-            value: { reason: undefined, usageMetadata: { totalTokenCount: 5 } },
-          },
-        ]),
-      );
+    mockGeminiClient.sendMessageStream.mockReturnValueOnce(createStreamFromEvents(events)).mockReturnValueOnce(
+      createStreamFromEvents([
+        { type: GeminiEventType.Content, value: 'Done' },
+        {
+          type: GeminiEventType.Finished,
+          value: { reason: undefined, usageMetadata: { totalTokenCount: 5 } },
+        },
+      ])
+    );
 
     // Mock getChat to throw when recording tool calls
     const mockChat = {
@@ -1779,15 +1637,11 @@ describe('runNonInteractive', () => {
     // @ts-expect-error - Mocking internal structure
     mockGeminiClient.getChat = vi.fn().mockReturnValue(mockChat);
     // @ts-expect-error - Mocking internal structure
-    mockGeminiClient.getCurrentSequenceModel = vi
-      .fn()
-      .mockReturnValue('model-1');
+    mockGeminiClient.getCurrentSequenceModel = vi.fn().mockReturnValue('model-1');
 
     // Mock debugLogger.error
     const { debugLogger } = await import('@google/gemini-cli-core');
-    const debugLoggerErrorSpy = vi
-      .spyOn(debugLogger, 'error')
-      .mockImplementation(() => {});
+    const debugLoggerErrorSpy = vi.spyOn(debugLogger, 'error').mockImplementation(() => {});
 
     await runNonInteractive({
       config: mockConfig,
@@ -1797,9 +1651,7 @@ describe('runNonInteractive', () => {
     });
 
     expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
-      expect.stringContaining(
-        'Error recording completed tool call information: Error: Recording failed',
-      ),
+      expect.stringContaining('Error recording completed tool call information: Error: Recording failed')
     );
     expect(getWrittenOutput()).toContain('Done');
   });
@@ -1857,16 +1709,12 @@ describe('runNonInteractive', () => {
     // The key assertion: sendMessageStream should have been called ONLY ONCE (initial user input).
     expect(mockGeminiClient.sendMessageStream).toHaveBeenCalledTimes(1);
 
-    expect(processStderrSpy).toHaveBeenCalledWith(
-      'Agent execution stopped: Stop reason from hook\n',
-    );
+    expect(processStderrSpy).toHaveBeenCalledWith('Agent execution stopped: Stop reason from hook\n');
   });
 
   it('should write JSON output when a tool call returns STOP_EXECUTION error', async () => {
     vi.mocked(mockConfig.getOutputFormat).mockReturnValue(OutputFormat.JSON);
-    vi.mocked(uiTelemetryService.getMetrics).mockReturnValue(
-      MOCK_SESSION_METRICS,
-    );
+    vi.mocked(uiTelemetryService.getMetrics).mockReturnValue(MOCK_SESSION_METRICS);
 
     const toolCallEvent: ServerGeminiStreamEvent = {
       type: GeminiEventType.ToolCallRequest,
@@ -1900,9 +1748,7 @@ describe('runNonInteractive', () => {
       toolCallEvent,
     ];
 
-    mockGeminiClient.sendMessageStream.mockReturnValue(
-      createStreamFromEvents(firstCallEvents),
-    );
+    mockGeminiClient.sendMessageStream.mockReturnValue(createStreamFromEvents(firstCallEvents));
 
     await runNonInteractive({
       config: mockConfig,
@@ -1919,18 +1765,14 @@ describe('runNonInteractive', () => {
           stats: MOCK_SESSION_METRICS,
         },
         null,
-        2,
-      ),
+        2
+      )
     );
   });
 
   it('should emit result event when a tool call returns STOP_EXECUTION error in streaming JSON mode', async () => {
-    vi.mocked(mockConfig.getOutputFormat).mockReturnValue(
-      OutputFormat.STREAM_JSON,
-    );
-    vi.mocked(uiTelemetryService.getMetrics).mockReturnValue(
-      MOCK_SESSION_METRICS,
-    );
+    vi.mocked(mockConfig.getOutputFormat).mockReturnValue(OutputFormat.STREAM_JSON);
+    vi.mocked(uiTelemetryService.getMetrics).mockReturnValue(MOCK_SESSION_METRICS);
 
     const toolCallEvent: ServerGeminiStreamEvent = {
       type: GeminiEventType.ToolCallRequest,
@@ -1961,9 +1803,7 @@ describe('runNonInteractive', () => {
 
     const firstCallEvents: ServerGeminiStreamEvent[] = [toolCallEvent];
 
-    mockGeminiClient.sendMessageStream.mockReturnValue(
-      createStreamFromEvents(firstCallEvents),
-    );
+    mockGeminiClient.sendMessageStream.mockReturnValue(createStreamFromEvents(firstCallEvents));
 
     await runNonInteractive({
       config: mockConfig,
@@ -1985,9 +1825,7 @@ describe('runNonInteractive', () => {
           value: { reason: 'Stopped by hook' },
         },
       ];
-      mockGeminiClient.sendMessageStream.mockReturnValue(
-        createStreamFromEvents(events),
-      );
+      mockGeminiClient.sendMessageStream.mockReturnValue(createStreamFromEvents(events));
 
       await runNonInteractive({
         config: mockConfig,
@@ -1996,9 +1834,7 @@ describe('runNonInteractive', () => {
         prompt_id: 'prompt-id-stop',
       });
 
-      expect(processStderrSpy).toHaveBeenCalledWith(
-        'Agent execution stopped: Stopped by hook\n',
-      );
+      expect(processStderrSpy).toHaveBeenCalledWith('Agent execution stopped: Stopped by hook\n');
       // Should exit without calling sendMessageStream again
       expect(mockGeminiClient.sendMessageStream).toHaveBeenCalledTimes(1);
     });
@@ -2016,9 +1852,7 @@ describe('runNonInteractive', () => {
         },
       ];
 
-      mockGeminiClient.sendMessageStream.mockReturnValue(
-        createStreamFromEvents(allEvents),
-      );
+      mockGeminiClient.sendMessageStream.mockReturnValue(createStreamFromEvents(allEvents));
 
       await runNonInteractive({
         config: mockConfig,
@@ -2027,9 +1861,7 @@ describe('runNonInteractive', () => {
         prompt_id: 'prompt-id-block',
       });
 
-      expect(processStderrSpy).toHaveBeenCalledWith(
-        '[WARNING] Agent execution blocked: Blocked by hook\n',
-      );
+      expect(processStderrSpy).toHaveBeenCalledWith('[WARNING] Agent execution blocked: Blocked by hook\n');
       // sendMessageStream is called once, recursion is internal to it and transparent to the caller
       expect(mockGeminiClient.sendMessageStream).toHaveBeenCalledTimes(1);
       expect(getWrittenOutput()).toBe('Final answer\n');
@@ -2038,8 +1870,7 @@ describe('runNonInteractive', () => {
 
   describe('Output Sanitization', () => {
     const ANSI_SEQUENCE = '\u001B[31mRed Text\u001B[0m';
-    const OSC_HYPERLINK =
-      '\u001B]8;;http://example.com\u001B\\Link\u001B]8;;\u001B\\';
+    const OSC_HYPERLINK = '\u001B]8;;http://example.com\u001B\\Link\u001B]8;;\u001B\\';
     const PLAIN_TEXT_RED = 'Red Text';
     const PLAIN_TEXT_LINK = 'Link';
 
@@ -2053,9 +1884,7 @@ describe('runNonInteractive', () => {
           value: { reason: undefined, usageMetadata: { totalTokenCount: 10 } },
         },
       ];
-      mockGeminiClient.sendMessageStream.mockReturnValue(
-        createStreamFromEvents(events),
-      );
+      mockGeminiClient.sendMessageStream.mockReturnValue(createStreamFromEvents(events));
 
       vi.mocked(mockConfig.getRawOutput).mockReturnValue(false);
 
@@ -2079,9 +1908,7 @@ describe('runNonInteractive', () => {
           value: { reason: undefined, usageMetadata: { totalTokenCount: 10 } },
         },
       ];
-      mockGeminiClient.sendMessageStream.mockReturnValue(
-        createStreamFromEvents(events),
-      );
+      mockGeminiClient.sendMessageStream.mockReturnValue(createStreamFromEvents(events));
 
       vi.mocked(mockConfig.getRawOutput).mockReturnValue(true);
       vi.mocked(mockConfig.getAcceptRawOutputRisk).mockReturnValue(true);
@@ -2104,9 +1931,7 @@ describe('runNonInteractive', () => {
           value: { reason: undefined, usageMetadata: { totalTokenCount: 5 } },
         },
       ];
-      mockGeminiClient.sendMessageStream.mockReturnValue(
-        createStreamFromEvents(events),
-      );
+      mockGeminiClient.sendMessageStream.mockReturnValue(createStreamFromEvents(events));
 
       vi.mocked(mockConfig.getRawOutput).mockReturnValue(false);
       vi.mocked(mockConfig.getAcceptRawOutputRisk).mockReturnValue(true);
@@ -2128,9 +1953,7 @@ describe('runNonInteractive', () => {
           value: { reason: undefined, usageMetadata: { totalTokenCount: 0 } },
         },
       ];
-      mockGeminiClient.sendMessageStream.mockReturnValue(
-        createStreamFromEvents(events),
-      );
+      mockGeminiClient.sendMessageStream.mockReturnValue(createStreamFromEvents(events));
 
       vi.mocked(mockConfig.getRawOutput).mockReturnValue(true);
       vi.mocked(mockConfig.getAcceptRawOutputRisk).mockReturnValue(false);
@@ -2142,9 +1965,7 @@ describe('runNonInteractive', () => {
         prompt_id: 'prompt-id-warn',
       });
 
-      expect(processStderrSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[WARNING] --raw-output is enabled'),
-      );
+      expect(processStderrSpy).toHaveBeenCalledWith(expect.stringContaining('[WARNING] --raw-output is enabled'));
     });
 
     it('should not warn when rawOutput is true and acceptRisk is true', async () => {
@@ -2154,9 +1975,7 @@ describe('runNonInteractive', () => {
           value: { reason: undefined, usageMetadata: { totalTokenCount: 0 } },
         },
       ];
-      mockGeminiClient.sendMessageStream.mockReturnValue(
-        createStreamFromEvents(events),
-      );
+      mockGeminiClient.sendMessageStream.mockReturnValue(createStreamFromEvents(events));
 
       vi.mocked(mockConfig.getRawOutput).mockReturnValue(true);
       vi.mocked(mockConfig.getAcceptRawOutputRisk).mockReturnValue(true);
@@ -2168,9 +1987,7 @@ describe('runNonInteractive', () => {
         prompt_id: 'prompt-id-no-warn',
       });
 
-      expect(processStderrSpy).not.toHaveBeenCalledWith(
-        expect.stringContaining('[WARNING] --raw-output is enabled'),
-      );
+      expect(processStderrSpy).not.toHaveBeenCalledWith(expect.stringContaining('[WARNING] --raw-output is enabled'));
     });
 
     it('should report cancelled tool calls as success in stream-json mode (legacy parity)', async () => {
@@ -2208,16 +2025,10 @@ describe('runNonInteractive', () => {
         },
       ];
 
-      mockGeminiClient.sendMessageStream.mockReturnValue(
-        createStreamFromEvents(events),
-      );
+      mockGeminiClient.sendMessageStream.mockReturnValue(createStreamFromEvents(events));
 
-      vi.mocked(mockConfig.getOutputFormat).mockReturnValue(
-        OutputFormat.STREAM_JSON,
-      );
-      vi.mocked(uiTelemetryService.getMetrics).mockReturnValue(
-        MOCK_SESSION_METRICS,
-      );
+      vi.mocked(mockConfig.getOutputFormat).mockReturnValue(OutputFormat.STREAM_JSON);
+      vi.mocked(uiTelemetryService.getMetrics).mockReturnValue(MOCK_SESSION_METRICS);
 
       await runNonInteractive({
         config: mockConfig,

@@ -4,14 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  DiagLogLevel,
-  diag,
-  trace,
-  context,
-  metrics,
-  propagation,
-} from '@opentelemetry/api';
+import { DiagLogLevel, diag, trace, context, metrics, propagation } from '@opentelemetry/api';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
 import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-grpc';
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-grpc';
@@ -22,46 +15,23 @@ import { CompressionAlgorithm } from '@opentelemetry/otlp-exporter-base';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import { resourceFromAttributes } from '@opentelemetry/resources';
-import {
-  BatchSpanProcessor,
-  ConsoleSpanExporter,
-} from '@opentelemetry/sdk-trace-node';
-import {
-  BatchLogRecordProcessor,
-  ConsoleLogRecordExporter,
-} from '@opentelemetry/sdk-logs';
-import {
-  ConsoleMetricExporter,
-  PeriodicExportingMetricReader,
-} from '@opentelemetry/sdk-metrics';
+import { BatchSpanProcessor, ConsoleSpanExporter } from '@opentelemetry/sdk-trace-node';
+import { BatchLogRecordProcessor, ConsoleLogRecordExporter } from '@opentelemetry/sdk-logs';
+import { ConsoleMetricExporter, PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 import type { JWTInput } from 'google-auth-library';
 import type { Config } from '../config/config.js';
 import { SERVICE_NAME } from './constants.js';
 import { initializeMetrics } from './metrics.js';
 import { ClearcutLogger } from './clearcut-logger/clearcut-logger.js';
-import {
-  FileLogExporter,
-  FileMetricExporter,
-  FileSpanExporter,
-} from './file-exporters.js';
-import {
-  GcpTraceExporter,
-  GcpMetricExporter,
-  GcpLogExporter,
-} from './gcp-exporters.js';
+import { FileLogExporter, FileMetricExporter, FileSpanExporter } from './file-exporters.js';
+import { GcpTraceExporter, GcpMetricExporter, GcpLogExporter } from './gcp-exporters.js';
 import { TelemetryTarget } from './index.js';
 import { debugLogger } from '../utils/debugLogger.js';
 import { authEvents } from '../code_assist/oauth2.js';
 import { coreEvents, CoreEvent } from '../utils/events.js';
-import {
-  logKeychainAvailability,
-  logTokenStorageInitialization,
-} from './loggers.js';
-import type {
-  KeychainAvailabilityEvent,
-  TokenStorageInitializationEvent,
-} from './types.js';
+import { logKeychainAvailability, logTokenStorageInitialization } from './loggers.js';
+import type { KeychainAvailabilityEvent, TokenStorageInitializationEvent } from './types.js';
 
 // For troubleshooting, set the log level to DiagLogLevel.DEBUG
 class DiagLoggerAdapter {
@@ -93,14 +63,9 @@ let spanProcessor: BatchSpanProcessor | undefined;
 let logRecordProcessor: BatchLogRecordProcessor | undefined;
 let telemetryInitialized = false;
 let callbackRegistered = false;
-let authListener: ((newCredentials: JWTInput) => Promise<void>) | undefined =
-  undefined;
-let keychainAvailabilityListener:
-  | ((event: KeychainAvailabilityEvent) => void)
-  | undefined = undefined;
-let tokenStorageTypeListener:
-  | ((event: TokenStorageInitializationEvent) => void)
-  | undefined = undefined;
+let authListener: ((newCredentials: JWTInput) => Promise<void>) | undefined = undefined;
+let keychainAvailabilityListener: ((event: KeychainAvailabilityEvent) => void) | undefined = undefined;
+let tokenStorageTypeListener: ((event: TokenStorageInitializationEvent) => void) | undefined = undefined;
 const telemetryBuffer: Array<() => void | Promise<void>> = [];
 let activeTelemetryEmail: string | undefined;
 
@@ -131,10 +96,7 @@ async function flushTelemetryBuffer(): Promise<void> {
   }
 }
 
-function parseOtlpEndpoint(
-  otlpEndpointSetting: string | undefined,
-  protocol: 'grpc' | 'http',
-): string | undefined {
+function parseOtlpEndpoint(otlpEndpointSetting: string | undefined, protocol: 'grpc' | 'http'): string | undefined {
   if (!otlpEndpointSetting) {
     return undefined;
   }
@@ -156,20 +118,13 @@ function parseOtlpEndpoint(
   }
 }
 
-export async function initializeTelemetry(
-  config: Config,
-  credentials?: JWTInput,
-): Promise<void> {
+export async function initializeTelemetry(config: Config, credentials?: JWTInput): Promise<void> {
   if (!config.getTelemetryEnabled()) {
     return;
   }
 
   if (telemetryInitialized) {
-    if (
-      credentials?.client_email &&
-      activeTelemetryEmail &&
-      credentials.client_email !== activeTelemetryEmail
-    ) {
+    if (credentials?.client_email && activeTelemetryEmail && credentials.client_email !== activeTelemetryEmail) {
       const message = `Telemetry credentials have changed (from ${activeTelemetryEmail} to ${credentials.client_email}), but telemetry cannot be re-initialized in this process. Please restart the CLI to use the new account for telemetry.`;
       debugLogger.error(message);
     }
@@ -180,7 +135,7 @@ export async function initializeTelemetry(
     debugLogger.error(
       'Telemetry configuration error: "useCollector" and "useCliAuth" cannot both be true. ' +
         'CLI authentication is only supported with in-process exporters. ' +
-        'Disabling telemetry.',
+        'Disabling telemetry.'
     );
     return;
   }
@@ -199,9 +154,7 @@ export async function initializeTelemetry(
       };
       authEvents.on('post_auth', authListener);
     }
-    debugLogger.log(
-      'CLI auth is requested but no credentials, deferring telemetry initialization.',
-    );
+    debugLogger.log('CLI auth is requested but no credentials, deferring telemetry initialization.');
     return;
   }
 
@@ -215,20 +168,14 @@ export async function initializeTelemetry(
     keychainAvailabilityListener = (event: KeychainAvailabilityEvent) => {
       logKeychainAvailability(config, event);
     };
-    coreEvents.on(
-      CoreEvent.TelemetryKeychainAvailability,
-      keychainAvailabilityListener,
-    );
+    coreEvents.on(CoreEvent.TelemetryKeychainAvailability, keychainAvailabilityListener);
   }
 
   if (!tokenStorageTypeListener) {
     tokenStorageTypeListener = (event: TokenStorageInitializationEvent) => {
       logTokenStorageInitialization(config, event);
     };
-    coreEvents.on(
-      CoreEvent.TelemetryTokenStorageType,
-      tokenStorageTypeListener,
-    );
+    coreEvents.on(CoreEvent.TelemetryTokenStorageType, tokenStorageTypeListener);
   }
 
   const otlpEndpoint = config.getTelemetryOtlpEndpoint();
@@ -240,11 +187,8 @@ export async function initializeTelemetry(
   const telemetryOutfile = config.getTelemetryOutfile();
   const useOtlp = !!parsedEndpoint && !telemetryOutfile;
 
-  const gcpProjectId =
-    process.env['OTLP_GOOGLE_CLOUD_PROJECT'] ||
-    process.env['GOOGLE_CLOUD_PROJECT'];
-  const useDirectGcpExport =
-    telemetryTarget === TelemetryTarget.GCP && !useCollector;
+  const gcpProjectId = process.env['OTLP_GOOGLE_CLOUD_PROJECT'] || process.env['GOOGLE_CLOUD_PROJECT'];
+  const useDirectGcpExport = telemetryTarget === TelemetryTarget.GCP && !useCollector;
 
   let spanExporter:
     | OTLPTraceExporter
@@ -252,12 +196,7 @@ export async function initializeTelemetry(
     | GcpTraceExporter
     | FileSpanExporter
     | ConsoleSpanExporter;
-  let logExporter:
-    | OTLPLogExporter
-    | OTLPLogExporterHttp
-    | GcpLogExporter
-    | FileLogExporter
-    | ConsoleLogRecordExporter;
+  let logExporter: OTLPLogExporter | OTLPLogExporterHttp | GcpLogExporter | FileLogExporter | ConsoleLogRecordExporter;
   let metricReader: PeriodicExportingMetricReader;
 
   if (useDirectGcpExport) {
@@ -265,7 +204,7 @@ export async function initializeTelemetry(
       'Creating GCP exporters with projectId:',
       gcpProjectId,
       'using',
-      credentials ? 'provided credentials' : 'ADC',
+      credentials ? 'provided credentials' : 'ADC'
     );
     spanExporter = new GcpTraceExporter(gcpProjectId, credentials);
     logExporter = new GcpLogExporter(gcpProjectId, credentials);
@@ -369,10 +308,7 @@ export async function flushTelemetry(config: Config): Promise<void> {
   }
   try {
     // Force flush all pending telemetry to disk
-    await Promise.all([
-      spanProcessor.forceFlush(),
-      logRecordProcessor.forceFlush(),
-    ]);
+    await Promise.all([spanProcessor.forceFlush(), logRecordProcessor.forceFlush()]);
     if (config.getDebugMode()) {
       debugLogger.log('OpenTelemetry SDK flushed successfully.');
     }
@@ -381,10 +317,7 @@ export async function flushTelemetry(config: Config): Promise<void> {
   }
 }
 
-export async function shutdownTelemetry(
-  config: Config,
-  fromProcessExit = true,
-): Promise<void> {
+export async function shutdownTelemetry(config: Config, fromProcessExit = true): Promise<void> {
   if (!telemetryInitialized || !sdk) {
     return;
   }
@@ -412,17 +345,11 @@ export async function shutdownTelemetry(
       authListener = undefined;
     }
     if (keychainAvailabilityListener) {
-      coreEvents.off(
-        CoreEvent.TelemetryKeychainAvailability,
-        keychainAvailabilityListener,
-      );
+      coreEvents.off(CoreEvent.TelemetryKeychainAvailability, keychainAvailabilityListener);
       keychainAvailabilityListener = undefined;
     }
     if (tokenStorageTypeListener) {
-      coreEvents.off(
-        CoreEvent.TelemetryTokenStorageType,
-        tokenStorageTypeListener,
-      );
+      coreEvents.off(CoreEvent.TelemetryTokenStorageType, tokenStorageTypeListener);
       tokenStorageTypeListener = undefined;
     }
     callbackRegistered = false;

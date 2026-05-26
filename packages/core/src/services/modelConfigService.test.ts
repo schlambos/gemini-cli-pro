@@ -5,10 +5,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import type {
-  ModelConfigAlias,
-  ModelConfigServiceConfig,
-} from './modelConfigService.js';
+import type { ModelConfigAlias, ModelConfigServiceConfig } from './modelConfigService.js';
 import { ModelConfigService } from './modelConfigService.js';
 
 describe('ModelConfigService', () => {
@@ -374,9 +371,7 @@ describe('ModelConfigService', () => {
         },
       };
       const service = new ModelConfigService(config);
-      expect(() => service.getResolvedConfig({ model: 'a' })).toThrow(
-        'Circular alias dependency: a -> b -> a',
-      );
+      expect(() => service.getResolvedConfig({ model: 'a' })).toThrow('Circular alias dependency: a -> b -> a');
     });
 
     describe('abstract aliases', () => {
@@ -422,10 +417,8 @@ describe('ModelConfigService', () => {
           },
         };
         const service = new ModelConfigService(config);
-        expect(() =>
-          service.getResolvedConfig({ model: 'abstract-base' }),
-        ).toThrow(
-          'Could not resolve a model name for alias "abstract-base". Please ensure the alias chain or a matching override specifies a model.',
+        expect(() => service.getResolvedConfig({ model: 'abstract-base' })).toThrow(
+          'Could not resolve a model name for alias "abstract-base". Please ensure the alias chain or a matching override specifies a model.'
         );
       });
 
@@ -469,9 +462,7 @@ describe('ModelConfigService', () => {
         },
       };
       const service = new ModelConfigService(config);
-      expect(() => service.getResolvedConfig({ model: 'bad-alias' })).toThrow(
-        'Alias "non-existent" not found.',
-      );
+      expect(() => service.getResolvedConfig({ model: 'bad-alias' })).toThrow('Alias "non-existent" not found.');
     });
 
     it('should throw an error if the alias chain is too deep', () => {
@@ -485,7 +476,7 @@ describe('ModelConfigService', () => {
       const config: ModelConfigServiceConfig = { aliases };
       const service = new ModelConfigService(config);
       expect(() => service.getResolvedConfig({ model: 'alias-0' })).toThrow(
-        'Alias inheritance chain exceeded maximum depth of 100.',
+        'Alias inheritance chain exceeded maximum depth of 100.'
       );
     });
   });
@@ -563,9 +554,7 @@ describe('ModelConfigService', () => {
       const resolved = service.getResolvedConfig({ model: 'base' });
 
       expect(resolved.model).toBe('gemini-pro');
-      expect(resolved.generateContentConfig.stopSequences).toEqual([
-        'overrideFoo',
-      ]);
+      expect(resolved.generateContentConfig.stopSequences).toEqual(['overrideFoo']);
     });
   });
 

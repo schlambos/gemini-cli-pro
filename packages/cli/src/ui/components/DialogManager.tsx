@@ -44,10 +44,7 @@ interface DialogManagerProps {
 }
 
 // Props for DialogManager
-export const DialogManager = ({
-  addItem,
-  terminalWidth,
-}: DialogManagerProps) => {
+export const DialogManager = ({ addItem, terminalWidth }: DialogManagerProps) => {
   const config = useConfig();
   const settings = useSettings();
 
@@ -63,39 +60,15 @@ export const DialogManager = ({
   } = uiState;
 
   const handleKeep120Days = useCallback(() => {
-    settings.setValue(
-      SettingScope.User,
-      'general.sessionRetention.warningAcknowledged',
-      true,
-    );
-    settings.setValue(
-      SettingScope.User,
-      'general.sessionRetention.enabled',
-      true,
-    );
-    settings.setValue(
-      SettingScope.User,
-      'general.sessionRetention.maxAge',
-      '120d',
-    );
+    settings.setValue(SettingScope.User, 'general.sessionRetention.warningAcknowledged', true);
+    settings.setValue(SettingScope.User, 'general.sessionRetention.enabled', true);
+    settings.setValue(SettingScope.User, 'general.sessionRetention.maxAge', '120d');
   }, [settings]);
 
   const handleKeep30Days = useCallback(() => {
-    settings.setValue(
-      SettingScope.User,
-      'general.sessionRetention.warningAcknowledged',
-      true,
-    );
-    settings.setValue(
-      SettingScope.User,
-      'general.sessionRetention.enabled',
-      true,
-    );
-    settings.setValue(
-      SettingScope.User,
-      'general.sessionRetention.maxAge',
-      '30d',
-    );
+    settings.setValue(SettingScope.User, 'general.sessionRetention.warningAcknowledged', true);
+    settings.setValue(SettingScope.User, 'general.sessionRetention.enabled', true);
+    settings.setValue(SettingScope.User, 'general.sessionRetention.maxAge', '30d');
   }, [settings]);
 
   if (shouldShowRetentionWarning && sessionsToDeleteCount !== undefined) {
@@ -115,12 +88,7 @@ export const DialogManager = ({
     return <IdeTrustChangeDialog reason={uiState.ideTrustRestartReason} />;
   }
   if (uiState.newAgents) {
-    return (
-      <NewAgentsNotification
-        agents={uiState.newAgents}
-        onSelect={uiActions.handleNewAgentsSelect}
-      />
-    );
+    return <NewAgentsNotification agents={uiState.newAgents} onSelect={uiActions.handleNewAgentsSelect} />;
   }
   if (uiState.quota.proQuotaRequest) {
     return (
@@ -128,12 +96,8 @@ export const DialogManager = ({
         failedModel={uiState.quota.proQuotaRequest.failedModel}
         fallbackModel={uiState.quota.proQuotaRequest.fallbackModel}
         message={uiState.quota.proQuotaRequest.message}
-        isTerminalQuotaError={
-          uiState.quota.proQuotaRequest.isTerminalQuotaError
-        }
-        isModelNotFoundError={
-          !!uiState.quota.proQuotaRequest.isModelNotFoundError
-        }
+        isTerminalQuotaError={uiState.quota.proQuotaRequest.isTerminalQuotaError}
+        isModelNotFoundError={!!uiState.quota.proQuotaRequest.isModelNotFoundError}
         onChoice={uiActions.handleProQuotaChoice}
       />
     );
@@ -142,36 +106,20 @@ export const DialogManager = ({
     return (
       <ValidationDialog
         validationLink={uiState.quota.validationRequest.validationLink}
-        validationDescription={
-          uiState.quota.validationRequest.validationDescription
-        }
+        validationDescription={uiState.quota.validationRequest.validationDescription}
         learnMoreUrl={uiState.quota.validationRequest.learnMoreUrl}
         onChoice={uiActions.handleValidationChoice}
       />
     );
   }
   if (uiState.shouldShowIdePrompt) {
-    return (
-      <IdeIntegrationNudge
-        ide={uiState.currentIDE!}
-        onComplete={uiActions.handleIdePromptComplete}
-      />
-    );
+    return <IdeIntegrationNudge ide={uiState.currentIDE!} onComplete={uiActions.handleIdePromptComplete} />;
   }
   if (uiState.isFolderTrustDialogOpen) {
-    return (
-      <FolderTrustDialog
-        onSelect={uiActions.handleFolderTrustSelect}
-        isRestarting={uiState.isRestarting}
-      />
-    );
+    return <FolderTrustDialog onSelect={uiActions.handleFolderTrustSelect} isRestarting={uiState.isRestarting} />;
   }
   if (uiState.loopDetectionConfirmationRequest) {
-    return (
-      <LoopDetectionConfirmation
-        onComplete={uiState.loopDetectionConfirmationRequest.onComplete}
-      />
-    );
+    return <LoopDetectionConfirmation onComplete={uiState.loopDetectionConfirmationRequest.onComplete} />;
   }
 
   if (uiState.permissionConfirmationRequest) {
@@ -211,17 +159,11 @@ export const DialogManager = ({
   }
   if (uiState.confirmUpdateExtensionRequests.length > 0) {
     const request = uiState.confirmUpdateExtensionRequests[0];
-    return (
-      <ConsentPrompt
-        prompt={request.prompt}
-        onConfirm={request.onConfirm}
-        terminalWidth={terminalWidth}
-      />
-    );
+    return <ConsentPrompt prompt={request.prompt} onConfirm={request.onConfirm} terminalWidth={terminalWidth} />;
   }
   if (uiState.isThemeDialogOpen) {
     return (
-      <Box flexDirection="column">
+      <Box flexDirection='column'>
         {uiState.themeError && (
           <Box marginBottom={1}>
             <Text color={theme.status.error}>{uiState.themeError}</Text>
@@ -232,9 +174,7 @@ export const DialogManager = ({
           onCancel={uiActions.closeThemeDialog}
           onHighlight={uiActions.handleThemeHighlight}
           settings={settings}
-          availableTerminalHeight={
-            constrainHeight ? terminalHeight - staticExtraHeight : undefined
-          }
+          availableTerminalHeight={constrainHeight ? terminalHeight - staticExtraHeight : undefined}
           terminalWidth={uiTerminalWidth}
         />
       </Box>
@@ -242,7 +182,7 @@ export const DialogManager = ({
   }
   if (uiState.isSettingsDialogOpen) {
     return (
-      <Box flexDirection="column">
+      <Box flexDirection='column'>
         <SettingsDialog
           settings={settings}
           onSelect={() => uiActions.closeSettingsDialog()}
@@ -266,7 +206,7 @@ export const DialogManager = ({
     uiState.selectedAgentDefinition
   ) {
     return (
-      <Box flexDirection="column">
+      <Box flexDirection='column'>
         <AgentConfigDialog
           agentName={uiState.selectedAgentName}
           displayName={uiState.selectedAgentDisplayName}
@@ -295,7 +235,7 @@ export const DialogManager = ({
   }
   if (uiState.isAwaitingApiKeyInput) {
     return (
-      <Box flexDirection="column">
+      <Box flexDirection='column'>
         <ApiAuthDialog
           key={uiState.apiKeyDefaultValue}
           onSubmit={uiActions.handleApiKeySubmit}
@@ -308,7 +248,7 @@ export const DialogManager = ({
   }
   if (uiState.isAuthDialogOpen) {
     return (
-      <Box flexDirection="column">
+      <Box flexDirection='column'>
         <AuthDialog
           config={config}
           settings={settings}
@@ -322,7 +262,7 @@ export const DialogManager = ({
   }
   if (uiState.isEditorDialogOpen) {
     return (
-      <Box flexDirection="column">
+      <Box flexDirection='column'>
         {uiState.editorError && (
           <Box marginBottom={1}>
             <Text color={theme.status.error}>{uiState.editorError}</Text>
@@ -337,12 +277,7 @@ export const DialogManager = ({
     );
   }
   if (uiState.showPrivacyNotice) {
-    return (
-      <PrivacyNotice
-        onExit={() => uiActions.exitPrivacyNotice()}
-        config={config}
-      />
-    );
+    return <PrivacyNotice onExit={() => uiActions.exitPrivacyNotice()} config={config} />;
   }
   if (uiState.isSessionBrowserOpen) {
     return (

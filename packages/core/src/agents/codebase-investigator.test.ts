@@ -6,12 +6,7 @@
 
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { CodebaseInvestigatorAgent } from './codebase-investigator.js';
-import {
-  GLOB_TOOL_NAME,
-  GREP_TOOL_NAME,
-  LS_TOOL_NAME,
-  READ_FILE_TOOL_NAME,
-} from '../tools/tool-names.js';
+import { GLOB_TOOL_NAME, GREP_TOOL_NAME, LS_TOOL_NAME, READ_FILE_TOOL_NAME } from '../tools/tool-names.js';
 import { DEFAULT_GEMINI_MODEL } from '../config/models.js';
 import { makeFakeConfig } from '../test-utils/config.js';
 
@@ -29,7 +24,7 @@ describe('CodebaseInvestigatorAgent', () => {
         platform: {
           get: () => platform,
         },
-      }),
+      })
     );
   };
 
@@ -45,12 +40,7 @@ describe('CodebaseInvestigatorAgent', () => {
     expect(inputSchema.required).toContain('objective');
     expect(agent.outputConfig?.outputName).toBe('report');
     expect(agent.modelConfig?.model).toBe(DEFAULT_GEMINI_MODEL);
-    expect(agent.toolConfig?.tools).toEqual([
-      LS_TOOL_NAME,
-      READ_FILE_TOOL_NAME,
-      GLOB_TOOL_NAME,
-      GREP_TOOL_NAME,
-    ]);
+    expect(agent.toolConfig?.tools).toEqual([LS_TOOL_NAME, READ_FILE_TOOL_NAME, GLOB_TOOL_NAME, GREP_TOOL_NAME]);
   });
 
   it('should process output to a formatted JSON string', () => {
@@ -67,9 +57,7 @@ describe('CodebaseInvestigatorAgent', () => {
   it('should include Windows-specific list command in system prompt when on Windows', () => {
     mockPlatform('win32');
     const agent = CodebaseInvestigatorAgent(config);
-    expect(agent.promptConfig.systemPrompt).toContain(
-      '`dir /s` (CMD) or `Get-ChildItem -Recurse` (PowerShell)',
-    );
+    expect(agent.promptConfig.systemPrompt).toContain('`dir /s` (CMD) or `Get-ChildItem -Recurse` (PowerShell)');
   });
 
   it('should include generic list command in system prompt when on non-Windows', () => {

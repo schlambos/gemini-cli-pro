@@ -14,10 +14,7 @@ import { ShellToolMessage } from './ShellToolMessage.js';
 import { theme } from '../../semantic-colors.js';
 import { useConfig } from '../../contexts/ConfigContext.js';
 import { isShellTool, isThisShellFocused } from './ToolShared.js';
-import {
-  CoreToolCallStatus,
-  shouldHideToolCall,
-} from '@google/gemini-cli-core';
+import { CoreToolCallStatus, shouldHideToolCall } from '@google/gemini-cli-core';
 import { ShowMoreLines } from '../ShowMoreLines.js';
 import { useUIState } from '../../contexts/UIStateContext.js';
 
@@ -55,9 +52,9 @@ export const ToolGroupMessage: React.FC<ToolGroupMessageProps> = ({
             status: t.status,
             approvalMode: t.approvalMode,
             hasResultDisplay: !!t.resultDisplay,
-          }),
+          })
       ),
-    [allToolCalls],
+    [allToolCalls]
   );
 
   const config = useConfig();
@@ -72,27 +69,16 @@ export const ToolGroupMessage: React.FC<ToolGroupMessageProps> = ({
     () =>
       toolCalls.filter((t) => {
         const displayStatus = mapCoreStatusToDisplayStatus(t.status);
-        return (
-          displayStatus !== ToolCallStatus.Pending &&
-          displayStatus !== ToolCallStatus.Confirming
-        );
+        return displayStatus !== ToolCallStatus.Pending && displayStatus !== ToolCallStatus.Confirming;
       }),
-    [toolCalls],
+    [toolCalls]
   );
 
   const isEmbeddedShellFocused = visibleToolCalls.some((t) =>
-    isThisShellFocused(
-      t.name,
-      t.status,
-      t.ptyId,
-      activeShellPtyId,
-      embeddedShellFocused,
-    ),
+    isThisShellFocused(t.name, t.status, t.ptyId, activeShellPtyId, embeddedShellFocused)
   );
 
-  const hasPending = !visibleToolCalls.every(
-    (t) => t.status === CoreToolCallStatus.Success,
-  );
+  const hasPending = !visibleToolCalls.every((t) => t.status === CoreToolCallStatus.Success);
 
   const isShellCommand = toolCalls.some((t) => isShellTool(t.name));
   const borderColor =
@@ -102,8 +88,7 @@ export const ToolGroupMessage: React.FC<ToolGroupMessageProps> = ({
         ? theme.status.warning
         : theme.border.default;
 
-  const borderDimColor =
-    hasPending && (!isShellCommand || !isEmbeddedShellFocused);
+  const borderDimColor = hasPending && (!isShellCommand || !isEmbeddedShellFocused);
 
   const staticHeight = /* border */ 2 + /* marginBottom */ 1;
 
@@ -121,15 +106,13 @@ export const ToolGroupMessage: React.FC<ToolGroupMessageProps> = ({
       countToolCallsWithResults++;
     }
   }
-  const countOneLineToolCalls =
-    visibleToolCalls.length - countToolCallsWithResults;
+  const countOneLineToolCalls = visibleToolCalls.length - countToolCallsWithResults;
   const availableTerminalHeightPerToolMessage = availableTerminalHeight
     ? Math.max(
         Math.floor(
-          (availableTerminalHeight - staticHeight - countOneLineToolCalls) /
-            Math.max(1, countToolCallsWithResults),
+          (availableTerminalHeight - staticHeight - countOneLineToolCalls) / Math.max(1, countToolCallsWithResults)
         ),
-        1,
+        1
       )
     : undefined;
 
@@ -140,7 +123,7 @@ export const ToolGroupMessage: React.FC<ToolGroupMessageProps> = ({
     // we need to allow the sticky headers to render the borders themselves so
     // that the top border can be sticky.
     <Box
-      flexDirection="column"
+      flexDirection='column'
       /*
         This width constraint is highly important and protects us from an Ink rendering bug.
         Since the ToolGroup can typically change rendering states frequently, it can cause
@@ -159,21 +142,13 @@ export const ToolGroupMessage: React.FC<ToolGroupMessageProps> = ({
           availableTerminalHeight: availableTerminalHeightPerToolMessage,
           terminalWidth: contentWidth,
           emphasis: 'medium' as const,
-          isFirst:
-            borderTopOverride !== undefined
-              ? borderTopOverride && isFirst
-              : isFirst,
+          isFirst: borderTopOverride !== undefined ? borderTopOverride && isFirst : isFirst,
           borderColor,
           borderDimColor,
         };
 
         return (
-          <Box
-            key={tool.callId}
-            flexDirection="column"
-            minHeight={1}
-            width={contentWidth}
-          >
+          <Box key={tool.callId} flexDirection='column' minHeight={1} width={contentWidth}>
             {isShellToolCall ? (
               <ShellToolMessage
                 {...commonProps}
@@ -191,16 +166,14 @@ export const ToolGroupMessage: React.FC<ToolGroupMessageProps> = ({
               borderBottom={false}
               borderColor={borderColor}
               borderDimColor={borderDimColor}
-              flexDirection="column"
-              borderStyle="round"
+              flexDirection='column'
+              borderStyle='round'
               paddingLeft={1}
               paddingRight={1}
             >
               {tool.outputFile && (
                 <Box>
-                  <Text color={theme.text.primary}>
-                    Output too long and was saved to: {tool.outputFile}
-                  </Text>
+                  <Text color={theme.text.primary}>Output too long and was saved to: {tool.outputFile}</Text>
                 </Box>
               )}
             </Box>
@@ -222,7 +195,7 @@ export const ToolGroupMessage: React.FC<ToolGroupMessageProps> = ({
             borderBottom={borderBottomOverride ?? true}
             borderColor={borderColor}
             borderDimColor={borderDimColor}
-            borderStyle="round"
+            borderStyle='round'
           />
         )
       }

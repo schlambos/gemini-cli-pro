@@ -1941,11 +1941,7 @@
         "authProviderType": {
           "type": "string",
           "description": "Authentication provider used for acquiring credentials (for example `dynamic_discovery`).",
-          "enum": [
-            "dynamic_discovery",
-            "google_credentials",
-            "service_account_impersonation"
-          ]
+          "enum": ["dynamic_discovery", "google_credentials", "service_account_impersonation"]
         },
         "targetAudience": {
           "type": "string",

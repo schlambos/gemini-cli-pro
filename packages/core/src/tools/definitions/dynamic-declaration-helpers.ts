@@ -13,19 +13,12 @@ import { type FunctionDeclaration } from '@google/genai';
 import * as os from 'node:os';
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
-import {
-  SHELL_TOOL_NAME,
-  EXIT_PLAN_MODE_TOOL_NAME,
-  ACTIVATE_SKILL_TOOL_NAME,
-} from './base-declarations.js';
+import { SHELL_TOOL_NAME, EXIT_PLAN_MODE_TOOL_NAME, ACTIVATE_SKILL_TOOL_NAME } from './base-declarations.js';
 
 /**
  * Generates the platform-specific description for the shell tool.
  */
-export function getShellToolDescription(
-  enableInteractiveShell: boolean,
-  enableEfficiency: boolean,
-): string {
+export function getShellToolDescription(enableInteractiveShell: boolean, enableEfficiency: boolean): string {
   const efficiencyGuidelines = enableEfficiency
     ? `
 
@@ -71,16 +64,10 @@ export function getCommandDescription(): string {
 /**
  * Returns the FunctionDeclaration for the shell tool.
  */
-export function getShellDeclaration(
-  enableInteractiveShell: boolean,
-  enableEfficiency: boolean,
-): FunctionDeclaration {
+export function getShellDeclaration(enableInteractiveShell: boolean, enableEfficiency: boolean): FunctionDeclaration {
   return {
     name: SHELL_TOOL_NAME,
-    description: getShellToolDescription(
-      enableInteractiveShell,
-      enableEfficiency,
-    ),
+    description: getShellToolDescription(enableInteractiveShell, enableEfficiency),
     parametersJsonSchema: {
       type: 'object',
       properties: {
@@ -112,13 +99,10 @@ export function getShellDeclaration(
 /**
  * Returns the FunctionDeclaration for exiting plan mode.
  */
-export function getExitPlanModeDeclaration(
-  plansDir: string,
-): FunctionDeclaration {
+export function getExitPlanModeDeclaration(plansDir: string): FunctionDeclaration {
   return {
     name: EXIT_PLAN_MODE_TOOL_NAME,
-    description:
-      'Signals that the planning phase is complete and requests user approval to start implementation.',
+    description: 'Signals that the planning phase is complete and requests user approval to start implementation.',
     parametersJsonSchema: {
       type: 'object',
       required: ['plan_path'],
@@ -135,13 +119,9 @@ export function getExitPlanModeDeclaration(
 /**
  * Returns the FunctionDeclaration for activating a skill.
  */
-export function getActivateSkillDeclaration(
-  skillNames: string[],
-): FunctionDeclaration {
+export function getActivateSkillDeclaration(skillNames: string[]): FunctionDeclaration {
   const availableSkillsHint =
-    skillNames.length > 0
-      ? ` (Available: ${skillNames.map((n) => `'${n}'`).join(', ')})`
-      : '';
+    skillNames.length > 0 ? ` (Available: ${skillNames.map((n) => `'${n}'`).join(', ')})` : '';
 
   let schema: z.ZodTypeAny;
   if (skillNames.length === 0) {

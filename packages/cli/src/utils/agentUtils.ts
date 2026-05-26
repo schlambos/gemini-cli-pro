@@ -17,15 +17,12 @@ import type { AgentActionResult } from './agentSettings.js';
  */
 export function renderAgentActionFeedback(
   result: AgentActionResult,
-  formatScope: (label: string, path: string) => string,
+  formatScope: (label: string, path: string) => string
 ): string {
   const { agentName, action, status, error } = result;
 
   if (status === 'error') {
-    return (
-      error ||
-      `An error occurred while attempting to ${action} agent "${agentName}".`
-    );
+    return error || `An error occurred while attempting to ${action} agent "${agentName}".`;
   }
 
   if (status === 'no-op') {
@@ -34,20 +31,14 @@ export function renderAgentActionFeedback(
 
   const isEnable = action === 'enable';
   const actionVerb = isEnable ? 'enabled' : 'disabled';
-  const preposition = isEnable
-    ? 'by setting it to enabled in'
-    : 'by setting it to disabled in';
+  const preposition = isEnable ? 'by setting it to enabled in' : 'by setting it to disabled in';
 
   const formatScopeItem = (s: { scope: SettingScope; path: string }) => {
-    const label =
-      s.scope === SettingScope.Workspace ? 'project' : s.scope.toLowerCase();
+    const label = s.scope === SettingScope.Workspace ? 'project' : s.scope.toLowerCase();
     return formatScope(label, s.path);
   };
 
-  const totalAffectedScopes = [
-    ...result.modifiedScopes,
-    ...result.alreadyInStateScopes,
-  ];
+  const totalAffectedScopes = [...result.modifiedScopes, ...result.alreadyInStateScopes];
 
   if (totalAffectedScopes.length === 2) {
     const s1 = formatScopeItem(totalAffectedScopes[0]);

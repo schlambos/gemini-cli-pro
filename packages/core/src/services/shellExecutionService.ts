@@ -12,21 +12,11 @@ import { TextDecoder } from 'node:util';
 import os from 'node:os';
 import type { IPty } from '@lydell/node-pty';
 import { getCachedEncodingForBuffer } from '../utils/systemEncoding.js';
-import {
-  getShellConfiguration,
-  resolveExecutable,
-  type ShellType,
-} from '../utils/shell-utils.js';
+import { getShellConfiguration, resolveExecutable, type ShellType } from '../utils/shell-utils.js';
 import { isBinary } from '../utils/textUtils.js';
 import pkg from '@xterm/headless';
-import {
-  serializeTerminalToObject,
-  type AnsiOutput,
-} from '../utils/terminalSerializer.js';
-import {
-  sanitizeEnvironment,
-  type EnvironmentSanitizationConfig,
-} from './environmentSanitization.js';
+import { serializeTerminalToObject, type AnsiOutput } from '../utils/terminalSerializer.js';
+import { sanitizeEnvironment, type EnvironmentSanitizationConfig } from './environmentSanitization.js';
 import { killProcessGroup } from '../utils/process-utils.js';
 const { Terminal } = pkg;
 
@@ -205,18 +195,9 @@ const getFullBufferText = (terminal: pkg.Terminal): string => {
 export class ShellExecutionService {
   private static activePtys = new Map<number, ActivePty>();
   private static activeChildProcesses = new Map<number, ActiveChildProcess>();
-  private static exitedPtyInfo = new Map<
-    number,
-    { exitCode: number; signal?: number }
-  >();
-  private static activeResolvers = new Map<
-    number,
-    (res: ShellExecutionResult) => void
-  >();
-  private static activeListeners = new Map<
-    number,
-    Set<(event: ShellOutputEvent) => void>
-  >();
+  private static exitedPtyInfo = new Map<number, { exitCode: number; signal?: number }>();
+  private static activeResolvers = new Map<number, (res: ShellExecutionResult) => void>();
+  private static activeListeners = new Map<number, Set<(event: ShellOutputEvent) => void>>();
   /**
    * Executes a shell command using `node-pty`, capturing all output and lifecycle events.
    *
@@ -233,7 +214,7 @@ export class ShellExecutionService {
     onOutputEvent: (event: ShellOutputEvent) => void,
     abortSignal: AbortSignal,
     shouldUseNodePty: boolean,
-    shellExecutionConfig: ShellExecutionConfig,
+    shellExecutionConfig: ShellExecutionConfig
   ): Promise<ShellExecutionHandle> {
     if (shouldUseNodePty) {
       const ptyInfo = await getPty();
@@ -245,7 +226,7 @@ export class ShellExecutionService {
             onOutputEvent,
             abortSignal,
             shellExecutionConfig,
-            ptyInfo,
+            ptyInfo
           );
         } catch (_e) {
           // Fallback to child_process
@@ -258,14 +239,14 @@ export class ShellExecutionService {
       cwd,
       onOutputEvent,
       abortSignal,
-      shellExecutionConfig.sanitizationConfig,
+      shellExecutionConfig.sanitizationConfig
     );
   }
 
   private static appendAndTruncate(
     currentBuffer: string,
     chunk: string,
-    maxSize: number,
+    maxSize: number
   ): { newBuffer: string; truncated: boolean } {
     const chunkLength = chunk.length;
     const currentLength = currentBuffer.length;
@@ -304,7 +285,7 @@ export class ShellExecutionService {
     cwd: string,
     onOutputEvent: (event: ShellOutputEvent) => void,
     abortSignal: AbortSignal,
-    sanitizationConfig: EnvironmentSanitizationConfig,
+    sanitizationConfig: EnvironmentSanitizationConfig
   ): ShellExecutionHandle {
     try {
       const isWindows = os.platform() === 'win32';
@@ -320,8 +301,7 @@ export class ShellExecutionService {
         detached: !isWindows,
         env: {
           ...sanitizeEnvironment(process.env, sanitizationConfig),
-          [GEMINI_CLI_IDENTIFICATION_ENV_VAR]:
-            GEMINI_CLI_IDENTIFICATION_ENV_VAR_VALUE,
+          [GEMINI_CLI_IDENTIFICATION_ENV_VAR]: GEMINI_CLI_IDENTIFICATION_ENV_VAR_VALUE,
           TERM: 'xterm-256color',
           PAGER: 'cat',
           GIT_PAGER: 'cat',
@@ -388,10 +368,7 @@ export class ShellExecutionService {
           if (isStreamingRawContent) {
             const now = Date.now();
             if (now - lastProcessEventTime >= PROCESS_EVENT_INTERVAL_MS) {
-              const totalBytes = state.outputChunks.reduce(
-                (sum: number, chunk: Buffer) => sum + chunk.length,
-                0,
-              );
+              const totalBytes = state.outputChunks.reduce((sum: number, chunk: Buffer) => sum + chunk.length, 0);
               onOutputEvent({ type: 'process', bytesReceived: totalBytes });
               lastProcessEventTime = now;
             }
@@ -404,7 +381,7 @@ export class ShellExecutionService {
             const { newBuffer, truncated } = this.appendAndTruncate(
               state.output,
               decodedChunk,
-              MAX_CHILD_PROCESS_BUFFER_SIZE,
+              MAX_CHILD_PROCESS_BUFFER_SIZE
             );
             state.output = newBuffer;
             if (truncated) {
@@ -420,10 +397,7 @@ export class ShellExecutionService {
               if (child.pid) ShellExecutionService.emitEvent(child.pid, event);
             }
           } else {
-            const totalBytes = state.outputChunks.reduce(
-              (sum, chunk) => sum + chunk.length,
-              0,
-            );
+            const totalBytes = state.outputChunks.reduce((sum, chunk) => sum + chunk.length, 0);
             const event: ShellOutputEvent = {
               type: 'binary_progress',
               bytesReceived: totalBytes,
@@ -433,10 +407,7 @@ export class ShellExecutionService {
           }
         };
 
-        const handleExit = (
-          code: number | null,
-          signal: NodeJS.Signals | null,
-        ) => {
+        const handleExit = (code: number | null, signal: NodeJS.Signals | null) => {
           const { finalBuffer } = cleanup();
 
           let combinedOutput = state.output;
@@ -516,8 +487,7 @@ export class ShellExecutionService {
                   chunk: remaining,
                 };
                 onOutputEvent(event);
-                if (child.pid)
-                  ShellExecutionService.emitEvent(child.pid, event);
+                if (child.pid) ShellExecutionService.emitEvent(child.pid, event);
               }
             }
           }
@@ -531,8 +501,7 @@ export class ShellExecutionService {
                   chunk: remaining,
                 };
                 onOutputEvent(event);
-                if (child.pid)
-                  ShellExecutionService.emitEvent(child.pid, event);
+                if (child.pid) ShellExecutionService.emitEvent(child.pid, event);
               }
             }
           }
@@ -569,7 +538,7 @@ export class ShellExecutionService {
     onOutputEvent: (event: ShellOutputEvent) => void,
     abortSignal: AbortSignal,
     shellExecutionConfig: ShellExecutionConfig,
-    ptyInfo: PtyImplementation,
+    ptyInfo: PtyImplementation
   ): Promise<ShellExecutionHandle> {
     if (!ptyInfo) {
       // This should not happen, but as a safeguard...
@@ -583,7 +552,7 @@ export class ShellExecutionService {
       const resolvedExecutable = await resolveExecutable(executable);
       if (!resolvedExecutable) {
         throw new Error(
-          `Shell executable "${executable}" not found in PATH or at absolute location. Please ensure the shell is installed and available in your environment.`,
+          `Shell executable "${executable}" not found in PATH or at absolute location. Please ensure the shell is installed and available in your environment.`
         );
       }
 
@@ -596,10 +565,7 @@ export class ShellExecutionService {
         cols,
         rows,
         env: {
-          ...sanitizeEnvironment(
-            process.env,
-            shellExecutionConfig.sanitizationConfig,
-          ),
+          ...sanitizeEnvironment(process.env, shellExecutionConfig.sanitizationConfig),
           GEMINI_CLI: '1',
           TERM: 'xterm-256color',
           PAGER: shellExecutionConfig.pager ?? 'cat',
@@ -658,28 +624,18 @@ export class ShellExecutionService {
 
           const buffer = headlessTerminal.buffer.active;
           const endLine = buffer.length;
-          const startLine = Math.max(
-            0,
-            endLine - (shellExecutionConfig.maxSerializedLines ?? 2000),
-          );
+          const startLine = Math.max(0, endLine - (shellExecutionConfig.maxSerializedLines ?? 2000));
 
           let newOutput: AnsiOutput;
           if (shellExecutionConfig.showColor) {
-            newOutput = serializeTerminalToObject(
-              headlessTerminal,
-              startLine,
-              endLine,
-            );
+            newOutput = serializeTerminalToObject(headlessTerminal, startLine, endLine);
           } else {
-            newOutput = (
-              serializeTerminalToObject(headlessTerminal, startLine, endLine) ||
-              []
-            ).map((line) =>
+            newOutput = (serializeTerminalToObject(headlessTerminal, startLine, endLine) || []).map((line) =>
               line.map((token) => {
                 token.fg = '';
                 token.bg = '';
                 return token;
-              }),
+              })
             );
           }
 
@@ -706,9 +662,7 @@ export class ShellExecutionService {
 
           const trimmedOutput = newOutput.slice(0, lastNonEmptyLine + 1);
 
-          const finalOutput = shellExecutionConfig.disableDynamicLineTrimming
-            ? newOutput
-            : trimmedOutput;
+          const finalOutput = shellExecutionConfig.disableDynamicLineTrimming ? newOutput : trimmedOutput;
 
           if (output !== finalOutput) {
             output = finalOutput;
@@ -786,10 +740,7 @@ export class ShellExecutionService {
                     resolve();
                   });
                 } else {
-                  const totalBytes = outputChunks.reduce(
-                    (sum, chunk) => sum + chunk.length,
-                    0,
-                  );
+                  const totalBytes = outputChunks.reduce((sum, chunk) => sum + chunk.length, 0);
                   const event: ShellOutputEvent = {
                     type: 'binary_progress',
                     bytesReceived: totalBytes,
@@ -798,7 +749,7 @@ export class ShellExecutionService {
                   ShellExecutionService.emitEvent(ptyProcess.pid, event);
                   resolve();
                 }
-              }),
+              })
           );
         };
 
@@ -807,79 +758,77 @@ export class ShellExecutionService {
           handleOutput(bufferData);
         });
 
-        ptyProcess.onExit(
-          ({ exitCode, signal }: { exitCode: number; signal?: number }) => {
-            exited = true;
-            abortSignal.removeEventListener('abort', abortHandler);
+        ptyProcess.onExit(({ exitCode, signal }: { exitCode: number; signal?: number }) => {
+          exited = true;
+          abortSignal.removeEventListener('abort', abortHandler);
+          this.activePtys.delete(ptyProcess.pid);
+          // Attempt to destroy the PTY to ensure FD is closed
+          try {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+            (ptyProcess as IPty & { destroy?: () => void }).destroy?.();
+          } catch {
+            // Ignore errors during cleanup
+          }
+
+          const finalize = () => {
+            render(true);
+
+            // Store exit info for late subscribers (e.g. backgrounding race condition)
+            this.exitedPtyInfo.set(ptyProcess.pid, { exitCode, signal });
+            setTimeout(
+              () => {
+                this.exitedPtyInfo.delete(ptyProcess.pid);
+              },
+              5 * 60 * 1000
+            ).unref();
+
             this.activePtys.delete(ptyProcess.pid);
-            // Attempt to destroy the PTY to ensure FD is closed
-            try {
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-              (ptyProcess as IPty & { destroy?: () => void }).destroy?.();
-            } catch {
-              // Ignore errors during cleanup
-            }
+            this.activeResolvers.delete(ptyProcess.pid);
 
-            const finalize = () => {
-              render(true);
-
-              // Store exit info for late subscribers (e.g. backgrounding race condition)
-              this.exitedPtyInfo.set(ptyProcess.pid, { exitCode, signal });
-              setTimeout(
-                () => {
-                  this.exitedPtyInfo.delete(ptyProcess.pid);
-                },
-                5 * 60 * 1000,
-              ).unref();
-
-              this.activePtys.delete(ptyProcess.pid);
-              this.activeResolvers.delete(ptyProcess.pid);
-
-              const event: ShellOutputEvent = {
-                type: 'exit',
-                exitCode,
-                signal: signal ?? null,
-              };
-              onOutputEvent(event);
-              ShellExecutionService.emitEvent(ptyProcess.pid, event);
-              this.activeListeners.delete(ptyProcess.pid);
-
-              const finalBuffer = Buffer.concat(outputChunks);
-
-              resolve({
-                rawOutput: finalBuffer,
-                output: getFullBufferText(headlessTerminal),
-                exitCode,
-                signal: signal ?? null,
-                error,
-                aborted: abortSignal.aborted,
-                pid: ptyProcess.pid,
-                executionMethod: ptyInfo?.name ?? 'node-pty',
-              });
+            const event: ShellOutputEvent = {
+              type: 'exit',
+              exitCode,
+              signal: signal ?? null,
             };
+            onOutputEvent(event);
+            ShellExecutionService.emitEvent(ptyProcess.pid, event);
+            this.activeListeners.delete(ptyProcess.pid);
 
+            const finalBuffer = Buffer.concat(outputChunks);
+
+            resolve({
+              rawOutput: finalBuffer,
+              output: getFullBufferText(headlessTerminal),
+              exitCode,
+              signal: signal ?? null,
+              error,
+              aborted: abortSignal.aborted,
+              pid: ptyProcess.pid,
+              executionMethod: ptyInfo?.name ?? 'node-pty',
+            });
+          };
+
+          if (abortSignal.aborted) {
+            finalize();
+            return;
+          }
+
+          const processingComplete = processingChain.then(() => 'processed');
+          const abortFired = new Promise<'aborted'>((res) => {
             if (abortSignal.aborted) {
-              finalize();
+              res('aborted');
               return;
             }
-
-            const processingComplete = processingChain.then(() => 'processed');
-            const abortFired = new Promise<'aborted'>((res) => {
-              if (abortSignal.aborted) {
-                res('aborted');
-                return;
-              }
-              abortSignal.addEventListener('abort', () => res('aborted'), {
-                once: true,
-              });
+            abortSignal.addEventListener('abort', () => res('aborted'), {
+              once: true,
             });
+          });
 
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            Promise.race([processingComplete, abortFired]).then(() => {
-              finalize();
-            });
-          },
-        );
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+          Promise.race([processingComplete, abortFired]).then(() => {
+            finalize();
+          });
+        });
 
         const abortHandler = async () => {
           if (ptyProcess.pid && !exited) {
@@ -975,18 +924,13 @@ export class ShellExecutionService {
    * @param callback The function to call on exit.
    * @returns An unsubscribe function.
    */
-  static onExit(
-    pid: number,
-    callback: (exitCode: number, signal?: number) => void,
-  ): () => void {
+  static onExit(pid: number, callback: (exitCode: number, signal?: number) => void): () => void {
     const activePty = this.activePtys.get(pid);
     if (activePty) {
-      const disposable = activePty.ptyProcess.onExit(
-        ({ exitCode, signal }: { exitCode: number; signal?: number }) => {
-          callback(exitCode, signal);
-          disposable.dispose();
-        },
-      );
+      const disposable = activePty.ptyProcess.onExit(({ exitCode, signal }: { exitCode: number; signal?: number }) => {
+        callback(exitCode, signal);
+        disposable.dispose();
+      });
       return () => disposable.dispose();
     } else if (this.activeChildProcesses.has(pid)) {
       const activeChild = this.activeChildProcesses.get(pid);
@@ -1080,10 +1024,7 @@ export class ShellExecutionService {
     }
   }
 
-  static subscribe(
-    pid: number,
-    listener: (event: ShellOutputEvent) => void,
-  ): () => void {
+  static subscribe(pid: number, listener: (event: ShellOutputEvent) => void): () => void {
     if (!this.activeListeners.has(pid)) {
       this.activeListeners.set(pid, new Set());
     }
@@ -1096,15 +1037,8 @@ export class ShellExecutionService {
     if (activePty) {
       // Use serializeTerminalToObject to preserve colors and structure
       const endLine = activePty.headlessTerminal.buffer.active.length;
-      const startLine = Math.max(
-        0,
-        endLine - (activePty.maxSerializedLines ?? 2000),
-      );
-      const bufferData = serializeTerminalToObject(
-        activePty.headlessTerminal,
-        startLine,
-        endLine,
-      );
+      const startLine = Math.max(0, endLine - (activePty.maxSerializedLines ?? 2000));
+      const bufferData = serializeTerminalToObject(activePty.headlessTerminal, startLine, endLine);
       if (bufferData && bufferData.length > 0) {
         listener({ type: 'data', chunk: bufferData });
       }
@@ -1146,9 +1080,7 @@ export class ShellExecutionService {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
         const err = e as { code?: string; message?: string };
         const isEsrch = err.code === 'ESRCH';
-        const isWindowsPtyError = err.message?.includes(
-          'Cannot resize a pty that has already exited',
-        );
+        const isWindowsPtyError = err.message?.includes('Cannot resize a pty that has already exited');
 
         if (isEsrch || isWindowsPtyError) {
           // On Unix, we get an ESRCH error.
@@ -1163,15 +1095,8 @@ export class ShellExecutionService {
     // Force emit the new state after resize
     if (activePty) {
       const endLine = activePty.headlessTerminal.buffer.active.length;
-      const startLine = Math.max(
-        0,
-        endLine - (activePty.maxSerializedLines ?? 2000),
-      );
-      const bufferData = serializeTerminalToObject(
-        activePty.headlessTerminal,
-        startLine,
-        endLine,
-      );
+      const startLine = Math.max(0, endLine - (activePty.maxSerializedLines ?? 2000));
+      const bufferData = serializeTerminalToObject(activePty.headlessTerminal, startLine, endLine);
       const event: ShellOutputEvent = { type: 'data', chunk: bufferData };
       const listeners = ShellExecutionService.activeListeners.get(pid);
       if (listeners) {

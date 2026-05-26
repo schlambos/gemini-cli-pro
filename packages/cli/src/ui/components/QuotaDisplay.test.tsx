@@ -10,16 +10,12 @@ import { QuotaDisplay } from './QuotaDisplay.js';
 
 describe('QuotaDisplay', () => {
   it('should not render when remaining is undefined', () => {
-    const { lastFrame } = render(
-      <QuotaDisplay remaining={undefined} limit={100} />,
-    );
+    const { lastFrame } = render(<QuotaDisplay remaining={undefined} limit={100} />);
     expect(lastFrame()).toBe('');
   });
 
   it('should not render when limit is undefined', () => {
-    const { lastFrame } = render(
-      <QuotaDisplay remaining={100} limit={undefined} />,
-    );
+    const { lastFrame } = render(<QuotaDisplay remaining={100} limit={undefined} />);
     expect(lastFrame()).toBe('');
   });
 
@@ -45,29 +41,18 @@ describe('QuotaDisplay', () => {
 
   it('should render with reset time when provided', () => {
     const resetTime = new Date(Date.now() + 3600000).toISOString(); // 1 hour from now
-    const { lastFrame } = render(
-      <QuotaDisplay remaining={15} limit={100} resetTime={resetTime} />,
-    );
+    const { lastFrame } = render(<QuotaDisplay remaining={15} limit={100} resetTime={resetTime} />);
     expect(lastFrame()).toMatchSnapshot();
   });
 
   it('should NOT render reset time when terse is true', () => {
     const resetTime = new Date(Date.now() + 3600000).toISOString();
-    const { lastFrame } = render(
-      <QuotaDisplay
-        remaining={15}
-        limit={100}
-        resetTime={resetTime}
-        terse={true}
-      />,
-    );
+    const { lastFrame } = render(<QuotaDisplay remaining={15} limit={100} resetTime={resetTime} terse={true} />);
     expect(lastFrame()).toMatchSnapshot();
   });
 
   it('should render terse limit reached message', () => {
-    const { lastFrame } = render(
-      <QuotaDisplay remaining={0} limit={100} terse={true} />,
-    );
+    const { lastFrame } = render(<QuotaDisplay remaining={0} limit={100} terse={true} />);
     expect(lastFrame()).toMatchSnapshot();
   });
 });

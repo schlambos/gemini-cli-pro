@@ -34,14 +34,11 @@ describe('ui-sizing', () => {
       [100, 100, false],
       [79, 80, true],
       [99, 100, true],
-    ])(
-      'should return %i when width=%i and altBuffer=%s',
-      (expected, width, altBuffer) => {
-        mocks.isAlternateBufferEnabled.mockReturnValue(altBuffer);
-        const settings = createSettings();
+    ])('should return %i when width=%i and altBuffer=%s', (expected, width, altBuffer) => {
+      mocks.isAlternateBufferEnabled.mockReturnValue(altBuffer);
+      const settings = createSettings();
 
-        expect(calculateMainAreaWidth(width, settings)).toBe(expected);
-      },
-    );
+      expect(calculateMainAreaWidth(width, settings)).toBe(expected);
+    });
   });
 });

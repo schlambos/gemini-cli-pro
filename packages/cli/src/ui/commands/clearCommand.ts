@@ -4,12 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  uiTelemetryService,
-  SessionEndReason,
-  SessionStartSource,
-  flushTelemetry,
-} from '@google/gemini-cli-core';
+import { uiTelemetryService, SessionEndReason, SessionStartSource, flushTelemetry } from '@google/gemini-cli-core';
 import type { SlashCommand } from './types.js';
 import { CommandKind } from './types.js';
 import { MessageType } from '../types.js';
@@ -23,10 +18,7 @@ export const clearCommand: SlashCommand = {
   action: async (context, _args) => {
     const geminiClient = context.services.config?.getGeminiClient();
     const config = context.services.config;
-    const chatRecordingService = context.services.config
-      ?.getGeminiClient()
-      ?.getChat()
-      .getChatRecordingService();
+    const chatRecordingService = context.services.config?.getGeminiClient()?.getChat().getChatRecordingService();
 
     // Fire SessionEnd hook before clearing
     const hookSystem = config?.getHookSystem();
@@ -75,7 +67,7 @@ export const clearCommand: SlashCommand = {
           type: MessageType.INFO,
           text: result.systemMessage,
         },
-        Date.now(),
+        Date.now()
       );
     }
   },

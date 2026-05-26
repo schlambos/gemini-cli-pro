@@ -107,15 +107,9 @@ const TEST_METADATA_KEY = METADATA_KEY || '__persistedState';
 
 type MockWriteStream = {
   emit: Mock<(event: string, ...args: unknown[]) => boolean>;
-  removeListener: Mock<
-    (event: string, cb: (error?: Error | null) => void) => MockWriteStream
-  >;
-  once: Mock<
-    (event: string, cb: (error?: Error | null) => void) => MockWriteStream
-  >;
-  on: Mock<
-    (event: string, cb: (error?: Error | null) => void) => MockWriteStream
-  >;
+  removeListener: Mock<(event: string, cb: (error?: Error | null) => void) => MockWriteStream>;
+  once: Mock<(event: string, cb: (error?: Error | null) => void) => MockWriteStream>;
+  on: Mock<(event: string, cb: (error?: Error | null) => void) => MockWriteStream>;
   destroy: Mock<() => void>;
   write: Mock<(chunk: unknown, encoding?: unknown, cb?: unknown) => boolean>;
   end: Mock<(cb?: unknown) => void>;
@@ -213,9 +207,7 @@ describe('GCSTaskStore', () => {
       await store['ensureBucketInitialized']();
       expect(mockStorage).toHaveBeenCalledTimes(1);
       expect(mockStorageInstance.getBuckets).toHaveBeenCalled();
-      expect(logger.info).toHaveBeenCalledWith(
-        expect.stringContaining('Bucket test-bucket exists'),
-      );
+      expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('Bucket test-bucket exists'));
     });
 
     it('should create bucket if it does not exist', async () => {
@@ -223,19 +215,15 @@ describe('GCSTaskStore', () => {
       const store = new GCSTaskStore(bucketName);
       await store['ensureBucketInitialized']();
       expect(mockStorageInstance.createBucket).toHaveBeenCalledWith(bucketName);
-      expect(logger.info).toHaveBeenCalledWith(
-        expect.stringContaining('Bucket test-bucket created successfully'),
-      );
+      expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('Bucket test-bucket created successfully'));
     });
 
     it('should throw if bucket creation fails', async () => {
       mockStorageInstance.getBuckets.mockResolvedValue([[]]);
-      mockStorageInstance.createBucket.mockRejectedValue(
-        new Error('Create failed'),
-      );
+      mockStorageInstance.createBucket.mockRejectedValue(new Error('Create failed'));
       const store = new GCSTaskStore(bucketName);
       await expect(store['ensureBucketInitialized']()).rejects.toThrow(
-        'Failed to create GCS bucket test-bucket: Error: Create failed',
+        'Failed to create GCS bucket test-bucket: Error: Create failed'
       );
     });
   });
@@ -256,23 +244,16 @@ describe('GCSTaskStore', () => {
       expect(mockFile.save).toHaveBeenCalledTimes(1);
       expect(mockTar.c).toHaveBeenCalledTimes(1);
       expect(mockFse.remove).toHaveBeenCalledTimes(1);
-      expect(logger.info).toHaveBeenCalledWith(
-        expect.stringContaining('metadata saved to GCS'),
-      );
-      expect(logger.info).toHaveBeenCalledWith(
-        expect.stringContaining('workspace saved to GCS'),
-      );
+      expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('metadata saved to GCS'));
+      expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('workspace saved to GCS'));
     });
 
     it('should handle tar creation failure', async () => {
       mockFse.pathExists.mockImplementation(
-        async (path) =>
-          !path.toString().includes('task-task1-workspace-test-uuid.tar.gz'),
+        async (path) => !path.toString().includes('task-task1-workspace-test-uuid.tar.gz')
       );
       const store = new GCSTaskStore(bucketName);
-      await expect(store.save(mockTask)).rejects.toThrow(
-        'tar.c command failed to create',
-      );
+      await expect(store.save(mockTask)).rejects.toThrow('tar.c command failed to create');
     });
 
     it('should throw an error if taskId contains path traversal sequences', async () => {
@@ -299,9 +280,7 @@ describe('GCSTaskStore', () => {
         history: [],
         artifacts: [],
       };
-      await expect(store.save(maliciousTask)).rejects.toThrow(
-        'Invalid taskId: ../../../malicious-task',
-      );
+      await expect(store.save(maliciousTask)).rejects.toThrow('Invalid taskId: ../../../malicious-task');
     });
   });
 
@@ -315,24 +294,18 @@ describe('GCSTaskStore', () => {
               _taskState: 'submitted',
             },
             _contextId: 'ctx1',
-          }),
-        ),
+          })
+        )
       );
       mockFile.download.mockResolvedValue([Buffer.from('compressed metadata')]);
-      mockFile.download.mockResolvedValueOnce([
-        Buffer.from('compressed metadata'),
-      ]);
+      mockFile.download.mockResolvedValueOnce([Buffer.from('compressed metadata')]);
       mockBucket.file = vi.fn((path) => {
         const newMockFile = { ...mockFile };
         if (path.includes('metadata')) {
-          newMockFile.download = vi
-            .fn()
-            .mockResolvedValue([Buffer.from('compressed metadata')]);
+          newMockFile.download = vi.fn().mockResolvedValue([Buffer.from('compressed metadata')]);
           newMockFile.exists = vi.fn().mockResolvedValue([true]);
         } else {
-          newMockFile.download = vi
-            .fn()
-            .mockResolvedValue([Buffer.from('compressed workspace')]);
+          newMockFile.download = vi.fn().mockResolvedValue([Buffer.from('compressed workspace')]);
           newMockFile.exists = vi.fn().mockResolvedValue([true]);
         }
         return newMockFile;
@@ -343,12 +316,8 @@ describe('GCSTaskStore', () => {
 
       expect(task).toBeDefined();
       expect(task?.id).toBe('task1');
-      expect(mockBucket.file).toHaveBeenCalledWith(
-        'tasks/task1/metadata.tar.gz',
-      );
-      expect(mockBucket.file).toHaveBeenCalledWith(
-        'tasks/task1/workspace.tar.gz',
-      );
+      expect(mockBucket.file).toHaveBeenCalledWith('tasks/task1/metadata.tar.gz');
+      expect(mockBucket.file).toHaveBeenCalledWith('tasks/task1/workspace.tar.gz');
       expect(mockTar.x).toHaveBeenCalledTimes(1);
       expect(mockFse.remove).toHaveBeenCalledTimes(1);
     });
@@ -358,9 +327,7 @@ describe('GCSTaskStore', () => {
       const store = new GCSTaskStore(bucketName);
       const task = await store.load('task1');
       expect(task).toBeUndefined();
-      expect(mockBucket.file).toHaveBeenCalledWith(
-        'tasks/task1/metadata.tar.gz',
-      );
+      expect(mockBucket.file).toHaveBeenCalledWith('tasks/task1/metadata.tar.gz');
     });
 
     it('should load metadata even if workspace not found', async () => {
@@ -372,8 +339,8 @@ describe('GCSTaskStore', () => {
               _taskState: 'submitted',
             },
             _contextId: 'ctx1',
-          }),
-        ),
+          })
+        )
       );
 
       mockBucket.file = vi.fn((path) => {
@@ -382,9 +349,7 @@ describe('GCSTaskStore', () => {
           newMockFile.exists = vi.fn().mockResolvedValue([false]);
         } else {
           newMockFile.exists = vi.fn().mockResolvedValue([true]);
-          newMockFile.download = vi
-            .fn()
-            .mockResolvedValue([Buffer.from('compressed metadata')]);
+          newMockFile.download = vi.fn().mockResolvedValue([Buffer.from('compressed metadata')]);
         }
         return newMockFile;
       });
@@ -394,18 +359,14 @@ describe('GCSTaskStore', () => {
 
       expect(task).toBeDefined();
       expect(mockTar.x).not.toHaveBeenCalled();
-      expect(logger.info).toHaveBeenCalledWith(
-        expect.stringContaining('workspace archive not found'),
-      );
+      expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('workspace archive not found'));
     });
   });
 
   it('should throw an error if taskId contains path traversal sequences', async () => {
     const store = new GCSTaskStore('test-bucket');
     const maliciousTaskId = '../../../malicious-task';
-    await expect(store.load(maliciousTaskId)).rejects.toThrow(
-      `Invalid taskId: ${maliciousTaskId}`,
-    );
+    await expect(store.load(maliciousTaskId)).rejects.toThrow(`Invalid taskId: ${maliciousTaskId}`);
   });
 });
 

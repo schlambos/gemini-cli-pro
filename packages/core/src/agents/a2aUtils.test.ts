@@ -5,11 +5,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import {
-  extractMessageText,
-  extractTaskText,
-  extractIdsFromResponse,
-} from './a2aUtils.js';
+import { extractMessageText, extractTaskText, extractIdsFromResponse } from './a2aUtils.js';
 import type { Message, Task, TextPart, DataPart, FilePart } from '@a2a-js/sdk';
 
 describe('a2aUtils', () => {
@@ -47,10 +43,7 @@ describe('a2aUtils', () => {
         kind: 'message',
         role: 'user',
         messageId: '1',
-        parts: [
-          { kind: 'text', text: 'Hello' } as TextPart,
-          { kind: 'text', text: 'World' } as TextPart,
-        ],
+        parts: [{ kind: 'text', text: 'Hello' } as TextPart, { kind: 'text', text: 'World' } as TextPart],
       };
       expect(extractMessageText(message)).toBe('Hello\nWorld');
     });
@@ -90,9 +83,7 @@ describe('a2aUtils', () => {
       };
       // The formatting logic in a2aUtils prefers name over uri
       expect(extractMessageText(message)).toContain('File: test.txt');
-      expect(extractMessageText(message)).toContain(
-        'File: http://example.com/doc',
-      );
+      expect(extractMessageText(message)).toContain('File: http://example.com/doc');
     });
 
     it('should handle mixed parts', () => {
@@ -105,9 +96,7 @@ describe('a2aUtils', () => {
           { kind: 'data', data: { value: 123 } } as DataPart,
         ],
       };
-      expect(extractMessageText(message)).toBe(
-        'Here is data:\nData: {"value":123}',
-      );
+      expect(extractMessageText(message)).toBe('Here is data:\nData: {"value":123}');
     });
 
     it('should return empty string for undefined or empty message', () => {
@@ -118,7 +107,7 @@ describe('a2aUtils', () => {
           role: 'user',
           messageId: '1',
           parts: [],
-        } as Message),
+        } as Message)
       ).toBe('');
     });
   });

@@ -28,9 +28,7 @@ const ALLOWED_PORT = '443';
 
 const server = http.createServer((req, res) => {
   // Deny all requests other than CONNECT for HTTPS
-  console.log(
-    `[PROXY] Denying non-CONNECT request for: ${req.method} ${req.url}`,
-  );
+  console.log(`[PROXY] Denying non-CONNECT request for: ${req.method} ${req.url}`);
   res.writeHead(405, { 'Content-Type': 'text/plain' });
   res.end('Method Not Allowed');
 });
@@ -42,9 +40,7 @@ server.on('connect', (req, clientSocket, head) => {
   console.log(`[PROXY] Intercepted CONNECT request for: ${hostname}:${port}`);
 
   if (
-    ALLOWED_DOMAINS.some(
-      (domain) => hostname == domain || hostname.endsWith(`.${domain}`),
-    ) &&
+    ALLOWED_DOMAINS.some((domain) => hostname == domain || hostname.endsWith(`.${domain}`)) &&
     port === ALLOWED_PORT
   ) {
     console.log(`[PROXY] Allowing connection to ${hostname}:${port}`);
@@ -76,8 +72,6 @@ server.on('connect', (req, clientSocket, head) => {
 server.listen(PROXY_PORT, () => {
   const address = server.address();
   console.log(`[PROXY] Proxy listening on ${address.address}:${address.port}`);
-  console.log(
-    `[PROXY] Allowing HTTPS connections to domains: ${ALLOWED_DOMAINS.join(', ')}`,
-  );
+  console.log(`[PROXY] Allowing HTTPS connections to domains: ${ALLOWED_DOMAINS.join(', ')}`);
 });
 ```

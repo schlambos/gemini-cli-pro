@@ -10,9 +10,7 @@ import { describe, it, expect } from 'vitest';
 
 describe('UpdateNotification', () => {
   it('renders message', () => {
-    const { lastFrame } = render(
-      <UpdateNotification message="Update available!" />,
-    );
+    const { lastFrame } = render(<UpdateNotification message='Update available!' />);
     expect(lastFrame()).toContain('Update available!');
   });
 });

@@ -11,8 +11,7 @@ import { getErrorMessage } from '@google/gemini-cli-core';
 
 vi.mock('node:fs/promises', { spy: true });
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     getErrorMessage: vi.fn(),
@@ -55,9 +54,7 @@ describe('startupWarnings', () => {
 
     const warnings = await getStartupWarnings();
 
-    expect(warnings).toEqual([
-      'Error checking/reading warnings file: Permission denied',
-    ]);
+    expect(warnings).toEqual(['Error checking/reading warnings file: Permission denied']);
   });
 
   it('should return a warning if deleting the file fails', async () => {
@@ -68,9 +65,6 @@ describe('startupWarnings', () => {
 
     const warnings = await getStartupWarnings();
 
-    expect(warnings).toEqual([
-      'Warning 1',
-      'Warning: Could not delete temporary warnings file.',
-    ]);
+    expect(warnings).toEqual(['Warning 1', 'Warning: Could not delete temporary warnings file.']);
   });
 });

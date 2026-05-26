@@ -5,11 +5,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import {
-  ProjectIdRequiredError,
-  setupUser,
-  ValidationCancelledError,
-} from './setup.js';
+import { ProjectIdRequiredError, setupUser, ValidationCancelledError } from './setup.js';
 import { ValidationRequiredError } from '../utils/googleQuotaErrors.js';
 import { ChangeAuthRequestedError } from '../utils/errors.js';
 import { CodeAssistServer } from '../code_assist/server.js';
@@ -53,7 +49,7 @@ describe('setupUser for existing user', () => {
         ({
           loadCodeAssist: mockLoad,
           onboardUser: mockOnboardUser,
-        }) as unknown as CodeAssistServer,
+        }) as unknown as CodeAssistServer
     );
   });
 
@@ -67,14 +63,7 @@ describe('setupUser for existing user', () => {
       currentTier: mockPaidTier,
     });
     await setupUser({} as OAuth2Client);
-    expect(CodeAssistServer).toHaveBeenCalledWith(
-      {},
-      'test-project',
-      {},
-      '',
-      undefined,
-      undefined,
-    );
+    expect(CodeAssistServer).toHaveBeenCalledWith({}, 'test-project', {}, '', undefined, undefined);
   });
 
   it('should pass httpOptions to CodeAssistServer when provided', async () => {
@@ -88,14 +77,7 @@ describe('setupUser for existing user', () => {
       },
     };
     await setupUser({} as OAuth2Client, undefined, httpOptions);
-    expect(CodeAssistServer).toHaveBeenCalledWith(
-      {},
-      'test-project',
-      httpOptions,
-      '',
-      undefined,
-      undefined,
-    );
+    expect(CodeAssistServer).toHaveBeenCalledWith({}, 'test-project', httpOptions, '', undefined, undefined);
   });
 
   it('should ignore GOOGLE_CLOUD_PROJECT when project from server is set', async () => {
@@ -105,14 +87,7 @@ describe('setupUser for existing user', () => {
       currentTier: mockPaidTier,
     });
     const projectId = await setupUser({} as OAuth2Client);
-    expect(CodeAssistServer).toHaveBeenCalledWith(
-      {},
-      'test-project',
-      {},
-      '',
-      undefined,
-      undefined,
-    );
+    expect(CodeAssistServer).toHaveBeenCalledWith({}, 'test-project', {}, '', undefined, undefined);
     expect(projectId).toEqual({
       projectId: 'server-project',
       userTier: 'standard-tier',
@@ -127,9 +102,7 @@ describe('setupUser for existing user', () => {
       throw new ProjectIdRequiredError();
     });
 
-    await expect(setupUser({} as OAuth2Client)).rejects.toThrow(
-      ProjectIdRequiredError,
-    );
+    await expect(setupUser({} as OAuth2Client)).rejects.toThrow(ProjectIdRequiredError);
   });
 });
 
@@ -157,7 +130,7 @@ describe('setupUser for new user', () => {
           loadCodeAssist: mockLoad,
           onboardUser: mockOnboardUser,
           getOperation: mockGetOperation,
-        }) as unknown as CodeAssistServer,
+        }) as unknown as CodeAssistServer
     );
   });
 
@@ -172,14 +145,7 @@ describe('setupUser for new user', () => {
       allowedTiers: [mockPaidTier],
     });
     const userData = await setupUser({} as OAuth2Client);
-    expect(CodeAssistServer).toHaveBeenCalledWith(
-      {},
-      'test-project',
-      {},
-      '',
-      undefined,
-      undefined,
-    );
+    expect(CodeAssistServer).toHaveBeenCalledWith({}, 'test-project', {}, '', undefined, undefined);
     expect(mockLoad).toHaveBeenCalled();
     expect(mockOnboardUser).toHaveBeenCalledWith({
       tierId: 'standard-tier',
@@ -204,14 +170,7 @@ describe('setupUser for new user', () => {
       allowedTiers: [mockFreeTier],
     });
     const userData = await setupUser({} as OAuth2Client);
-    expect(CodeAssistServer).toHaveBeenCalledWith(
-      {},
-      undefined,
-      {},
-      '',
-      undefined,
-      undefined,
-    );
+    expect(CodeAssistServer).toHaveBeenCalledWith({}, undefined, {}, '', undefined, undefined);
     expect(mockLoad).toHaveBeenCalled();
     expect(mockOnboardUser).toHaveBeenCalledWith({
       tierId: 'free-tier',
@@ -257,9 +216,7 @@ describe('setupUser for new user', () => {
       done: true,
       response: {},
     });
-    await expect(setupUser({} as OAuth2Client)).rejects.toThrow(
-      ProjectIdRequiredError,
-    );
+    await expect(setupUser({} as OAuth2Client)).rejects.toThrow(ProjectIdRequiredError);
   });
 
   it('should poll getOperation when onboardUser returns done=false', async () => {
@@ -356,7 +313,7 @@ describe('setupUser for new user', () => {
     });
 
     await expect(setupUser({} as OAuth2Client)).rejects.toThrow(
-      'Your current account is not eligible for Gemini Code Assist for individuals because it is not currently available in your location.',
+      'Your current account is not eligible for Gemini Code Assist for individuals because it is not currently available in your location.'
     );
   });
 });
@@ -371,7 +328,7 @@ describe('setupUser validation', () => {
       () =>
         ({
           loadCodeAssist: mockLoad,
-        }) as unknown as CodeAssistServer,
+        }) as unknown as CodeAssistServer
     );
   });
 
@@ -394,9 +351,7 @@ describe('setupUser validation', () => {
       ],
     });
 
-    await expect(setupUser({} as OAuth2Client)).rejects.toThrow(
-      'User is not eligible',
-    );
+    await expect(setupUser({} as OAuth2Client)).rejects.toThrow('User is not eligible');
   });
 
   it('should continue if LoadCodeAssist returns ineligible tiers but has allowed tiers', async () => {
@@ -413,7 +368,7 @@ describe('setupUser validation', () => {
         ({
           loadCodeAssist: mockLoad,
           onboardUser: mockOnboardUser,
-        }) as unknown as CodeAssistServer,
+        }) as unknown as CodeAssistServer
     );
 
     mockLoad.mockResolvedValue({
@@ -453,7 +408,7 @@ describe('setupUser validation', () => {
         ({
           loadCodeAssist: mockLoad,
           onboardUser: mockOnboardUser,
-        }) as unknown as CodeAssistServer,
+        }) as unknown as CodeAssistServer
     );
 
     mockLoad.mockResolvedValue({
@@ -479,7 +434,7 @@ describe('setupUser validation', () => {
     expect(mockOnboardUser).toHaveBeenCalledWith(
       expect.objectContaining({
         tierId: 'legacy-tier',
-      }),
+      })
     );
   });
 
@@ -498,9 +453,7 @@ describe('setupUser validation', () => {
       ],
     });
 
-    await expect(setupUser({} as OAuth2Client)).rejects.toThrow(
-      ValidationRequiredError,
-    );
+    await expect(setupUser({} as OAuth2Client)).rejects.toThrow(ValidationRequiredError);
   });
 
   it('should combine multiple ineligible tier messages when currentTier exists but no project ID', async () => {
@@ -524,9 +477,7 @@ describe('setupUser validation', () => {
       ],
     });
 
-    await expect(setupUser({} as OAuth2Client)).rejects.toThrow(
-      'Not eligible for standard, Not eligible for free',
-    );
+    await expect(setupUser({} as OAuth2Client)).rejects.toThrow('Not eligible for standard, Not eligible for free');
   });
 
   it('should retry if validation handler returns verify', async () => {
@@ -554,10 +505,7 @@ describe('setupUser validation', () => {
 
     const result = await setupUser({} as OAuth2Client, mockValidationHandler);
 
-    expect(mockValidationHandler).toHaveBeenCalledWith(
-      'https://example.com/verify',
-      'User is not eligible',
-    );
+    expect(mockValidationHandler).toHaveBeenCalledWith('https://example.com/verify', 'User is not eligible');
     expect(mockLoad).toHaveBeenCalledTimes(2);
     expect(result).toEqual({
       projectId: 'test-project',
@@ -582,9 +530,7 @@ describe('setupUser validation', () => {
 
     const mockValidationHandler = vi.fn().mockResolvedValue('cancel');
 
-    await expect(
-      setupUser({} as OAuth2Client, mockValidationHandler),
-    ).rejects.toThrow(ValidationCancelledError);
+    await expect(setupUser({} as OAuth2Client, mockValidationHandler)).rejects.toThrow(ValidationCancelledError);
     expect(mockValidationHandler).toHaveBeenCalled();
     expect(mockLoad).toHaveBeenCalledTimes(1);
   });
@@ -605,9 +551,7 @@ describe('setupUser validation', () => {
 
     const mockValidationHandler = vi.fn().mockResolvedValue('change_auth');
 
-    await expect(
-      setupUser({} as OAuth2Client, mockValidationHandler),
-    ).rejects.toThrow(ChangeAuthRequestedError);
+    await expect(setupUser({} as OAuth2Client, mockValidationHandler)).rejects.toThrow(ChangeAuthRequestedError);
     expect(mockValidationHandler).toHaveBeenCalled();
     expect(mockLoad).toHaveBeenCalledTimes(1);
   });
@@ -626,18 +570,14 @@ describe('setupUser validation', () => {
       ],
     });
 
-    await expect(setupUser({} as OAuth2Client)).rejects.toThrow(
-      ValidationRequiredError,
-    );
+    await expect(setupUser({} as OAuth2Client)).rejects.toThrow(ValidationRequiredError);
     expect(mockLoad).toHaveBeenCalledTimes(1);
   });
 
   it('should throw error if LoadCodeAssist returns empty response', async () => {
     mockLoad.mockResolvedValue(null);
 
-    await expect(setupUser({} as OAuth2Client)).rejects.toThrow(
-      'LoadCodeAssist returned empty response',
-    );
+    await expect(setupUser({} as OAuth2Client)).rejects.toThrow('LoadCodeAssist returned empty response');
   });
 
   it('should retry multiple times when validation handler keeps returning verify', async () => {
@@ -691,7 +631,7 @@ describe('ValidationRequiredError', () => {
     'Account validation required: Please verify',
     undefined,
     'https://example.com/verify',
-    'Please verify',
+    'Please verify'
   );
 
   it('should be an instance of Error', () => {

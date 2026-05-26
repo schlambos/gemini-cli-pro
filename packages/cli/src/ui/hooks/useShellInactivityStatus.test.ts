@@ -50,9 +50,7 @@ describe('useShellInactivityStatus', () => {
   });
 
   it('should show silent_working status after 60s when no output has been produced (silent)', async () => {
-    const { result } = renderHook(() =>
-      useShellInactivityStatus({ ...defaultProps, lastOutputTime: 500 }),
-    );
+    const { result } = renderHook(() => useShellInactivityStatus({ ...defaultProps, lastOutputTime: 500 }));
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(30000);

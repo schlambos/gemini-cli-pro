@@ -4,11 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type {
-  MCPServerConfig,
-  ExtensionInstallMetadata,
-  CustomTheme,
-} from '@google/gemini-cli-core';
+import type { MCPServerConfig, ExtensionInstallMetadata, CustomTheme } from '@google/gemini-cli-core';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { INSTALL_METADATA_FILENAME } from './extensions/variables.js';
@@ -41,9 +37,7 @@ export interface ExtensionUpdateInfo {
   updatedVersion: string;
 }
 
-export function loadInstallMetadata(
-  extensionDir: string,
-): ExtensionInstallMetadata | undefined {
+export function loadInstallMetadata(extensionDir: string): ExtensionInstallMetadata | undefined {
   const metadataFilePath = path.join(extensionDir, INSTALL_METADATA_FILENAME);
   try {
     const configContent = fs.readFileSync(metadataFilePath, 'utf-8');

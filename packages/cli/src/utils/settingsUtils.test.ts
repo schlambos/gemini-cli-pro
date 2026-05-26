@@ -44,8 +44,7 @@ import {
 } from '../config/settingsSchema.js';
 
 vi.mock('../config/settingsSchema.js', async (importOriginal) => {
-  const original =
-    await importOriginal<typeof import('../config/settingsSchema.js')>();
+  const original = await importOriginal<typeof import('../config/settingsSchema.js')>();
   return {
     ...original,
     getSettingsSchema: vi.fn(),
@@ -177,9 +176,7 @@ describe('SettingsUtils', () => {
       },
     } as const satisfies SettingsSchema;
 
-    vi.mocked(getSettingsSchema).mockReturnValue(
-      SETTINGS_SCHEMA as unknown as SettingsSchemaType,
-    );
+    vi.mocked(getSettingsSchema).mockReturnValue(SETTINGS_SCHEMA as unknown as SettingsSchemaType);
   });
   afterEach(() => {
     TEST_ONLY.clearFlattenedSchema();
@@ -259,11 +256,7 @@ describe('SettingsUtils', () => {
           ui: { requiresRestart: false },
         });
 
-        const value = getEffectiveValue(
-          'ui.requiresRestart',
-          settings,
-          mergedSettings,
-        );
+        const value = getEffectiveValue('ui.requiresRestart', settings, mergedSettings);
         expect(value).toBe(true);
       });
 
@@ -273,11 +266,7 @@ describe('SettingsUtils', () => {
           ui: { requiresRestart: true },
         });
 
-        const value = getEffectiveValue(
-          'ui.requiresRestart',
-          settings,
-          mergedSettings,
-        );
+        const value = getEffectiveValue('ui.requiresRestart', settings, mergedSettings);
         expect(value).toBe(true);
       });
 
@@ -285,11 +274,7 @@ describe('SettingsUtils', () => {
         const settings = makeMockSettings({});
         const mergedSettings = makeMockSettings({});
 
-        const value = getEffectiveValue(
-          'ui.requiresRestart',
-          settings,
-          mergedSettings,
-        );
+        const value = getEffectiveValue('ui.requiresRestart', settings, mergedSettings);
         expect(value).toBe(false); // default value
       });
 
@@ -301,11 +286,7 @@ describe('SettingsUtils', () => {
           ui: { accessibility: { enableLoadingPhrases: true } },
         });
 
-        const value = getEffectiveValue(
-          'ui.accessibility.enableLoadingPhrases',
-          settings,
-          mergedSettings,
-        );
+        const value = getEffectiveValue('ui.accessibility.enableLoadingPhrases', settings, mergedSettings);
         expect(value).toBe(false);
       });
 
@@ -313,11 +294,7 @@ describe('SettingsUtils', () => {
         const settings = makeMockSettings({});
         const mergedSettings = makeMockSettings({});
 
-        const value = getEffectiveValue(
-          'invalidSetting',
-          settings,
-          mergedSettings,
-        );
+        const value = getEffectiveValue('invalidSetting', settings, mergedSettings);
         expect(value).toBeUndefined();
       });
     });
@@ -353,9 +330,7 @@ describe('SettingsUtils', () => {
     describe('isValidSettingKey', () => {
       it('should return true for valid setting keys', () => {
         expect(isValidSettingKey('ui.requiresRestart')).toBe(true);
-        expect(isValidSettingKey('ui.accessibility.enableLoadingPhrases')).toBe(
-          true,
-        );
+        expect(isValidSettingKey('ui.accessibility.enableLoadingPhrases')).toBe(true);
       });
 
       it('should return false for invalid setting keys', () => {
@@ -367,9 +342,7 @@ describe('SettingsUtils', () => {
     describe('getSettingCategory', () => {
       it('should return correct category for valid settings', () => {
         expect(getSettingCategory('ui.requiresRestart')).toBe('UI');
-        expect(
-          getSettingCategory('ui.accessibility.enableLoadingPhrases'),
-        ).toBe('UI');
+        expect(getSettingCategory('ui.accessibility.enableLoadingPhrases')).toBe('UI');
       });
 
       it('should return undefined for invalid settings', () => {
@@ -412,9 +385,7 @@ describe('SettingsUtils', () => {
         // Advanced settings should now be included because of autoConfigureMemory
         expect(categories['Advanced']).toBeDefined();
         const advancedSettings = categories['Advanced'];
-        expect(advancedSettings.map((s) => s.key)).toContain(
-          'advanced.autoConfigureMemory',
-        );
+        expect(advancedSettings.map((s) => s.key)).toContain('advanced.autoConfigureMemory');
       });
 
       it('should include settings with showInDialog=true', () => {
@@ -524,46 +495,23 @@ describe('SettingsUtils', () => {
         const pendingSettings = makeMockSettings({});
 
         // Set the nested setting to true
-        const updatedPendingSettings = setPendingSettingValue(
-          key,
-          true,
-          pendingSettings,
-        );
+        const updatedPendingSettings = setPendingSettingValue(key, true, pendingSettings);
 
         // Check if the setting exists in pending settings
-        const existsInPending = settingExistsInScope(
-          key,
-          updatedPendingSettings,
-        );
+        const existsInPending = settingExistsInScope(key, updatedPendingSettings);
         expect(existsInPending).toBe(true);
 
         // Get the value from pending settings
-        const valueFromPending = getSettingValue(
-          key,
-          updatedPendingSettings,
-          {},
-        );
+        const valueFromPending = getSettingValue(key, updatedPendingSettings, {});
         expect(valueFromPending).toBe(true);
 
         // Test getDisplayValue should show the pending change
-        const displayValue = getDisplayValue(
-          key,
-          initialSettings,
-          {},
-          new Set(),
-          updatedPendingSettings,
-        );
+        const displayValue = getDisplayValue(key, initialSettings, {}, new Set(), updatedPendingSettings);
         expect(displayValue).toBe('true'); // Should show true (no * since value matches default)
 
         // Test that modified settings also show the * indicator
         const modifiedSettings = new Set([key]);
-        const displayValueWithModified = getDisplayValue(
-          key,
-          initialSettings,
-          {},
-          modifiedSettings,
-          {},
-        );
+        const displayValueWithModified = getDisplayValue(key, initialSettings, {}, modifiedSettings, {});
         expect(displayValueWithModified).toBe('true*'); // Should show true* because it's in modified settings and default is true
       });
     });
@@ -577,11 +525,7 @@ describe('SettingsUtils', () => {
           ui: { requiresRestart: false },
         });
 
-        const value = getSettingValue(
-          'ui.requiresRestart',
-          settings,
-          mergedSettings,
-        );
+        const value = getSettingValue('ui.requiresRestart', settings, mergedSettings);
         expect(value).toBe(true);
       });
 
@@ -591,11 +535,7 @@ describe('SettingsUtils', () => {
           ui: { requiresRestart: true },
         });
 
-        const value = getSettingValue(
-          'ui.requiresRestart',
-          settings,
-          mergedSettings,
-        );
+        const value = getSettingValue('ui.requiresRestart', settings, mergedSettings);
         expect(value).toBe(true);
       });
 
@@ -603,11 +543,7 @@ describe('SettingsUtils', () => {
         const settings = makeMockSettings({});
         const mergedSettings = makeMockSettings({});
 
-        const value = getSettingValue(
-          'invalidSetting',
-          settings,
-          mergedSettings,
-        );
+        const value = getSettingValue('invalidSetting', settings, mergedSettings);
         expect(value).toBe(false); // Default fallback
       });
     });
@@ -615,16 +551,12 @@ describe('SettingsUtils', () => {
     describe('isSettingModified', () => {
       it('should return true when value differs from default', () => {
         expect(isSettingModified('ui.requiresRestart', true)).toBe(true);
-        expect(
-          isSettingModified('ui.accessibility.enableLoadingPhrases', false),
-        ).toBe(true);
+        expect(isSettingModified('ui.accessibility.enableLoadingPhrases', false)).toBe(true);
       });
 
       it('should return false when value matches default', () => {
         expect(isSettingModified('ui.requiresRestart', false)).toBe(false);
-        expect(
-          isSettingModified('ui.accessibility.enableLoadingPhrases', true),
-        ).toBe(false);
+        expect(isSettingModified('ui.accessibility.enableLoadingPhrases', true)).toBe(false);
       });
     });
 
@@ -636,63 +568,38 @@ describe('SettingsUtils', () => {
 
       it('should return false for top-level settings that do not exist', () => {
         const settings = makeMockSettings({});
-        expect(settingExistsInScope('ui.requiresRestart', settings)).toBe(
-          false,
-        );
+        expect(settingExistsInScope('ui.requiresRestart', settings)).toBe(false);
       });
 
       it('should return true for nested settings that exist', () => {
         const settings = makeMockSettings({
           ui: { accessibility: { enableLoadingPhrases: true } },
         });
-        expect(
-          settingExistsInScope(
-            'ui.accessibility.enableLoadingPhrases',
-            settings,
-          ),
-        ).toBe(true);
+        expect(settingExistsInScope('ui.accessibility.enableLoadingPhrases', settings)).toBe(true);
       });
 
       it('should return false for nested settings that do not exist', () => {
         const settings = makeMockSettings({});
-        expect(
-          settingExistsInScope(
-            'ui.accessibility.enableLoadingPhrases',
-            settings,
-          ),
-        ).toBe(false);
+        expect(settingExistsInScope('ui.accessibility.enableLoadingPhrases', settings)).toBe(false);
       });
 
       it('should return false when parent exists but child does not', () => {
         const settings = makeMockSettings({ ui: { accessibility: {} } });
-        expect(
-          settingExistsInScope(
-            'ui.accessibility.enableLoadingPhrases',
-            settings,
-          ),
-        ).toBe(false);
+        expect(settingExistsInScope('ui.accessibility.enableLoadingPhrases', settings)).toBe(false);
       });
     });
 
     describe('setPendingSettingValue', () => {
       it('should set top-level setting value', () => {
         const pendingSettings = makeMockSettings({});
-        const result = setPendingSettingValue(
-          'ui.hideWindowTitle',
-          true,
-          pendingSettings,
-        );
+        const result = setPendingSettingValue('ui.hideWindowTitle', true, pendingSettings);
 
         expect(result.ui?.hideWindowTitle).toBe(true);
       });
 
       it('should set nested setting value', () => {
         const pendingSettings = makeMockSettings({});
-        const result = setPendingSettingValue(
-          'ui.accessibility.enableLoadingPhrases',
-          true,
-          pendingSettings,
-        );
+        const result = setPendingSettingValue('ui.accessibility.enableLoadingPhrases', true, pendingSettings);
 
         expect(result.ui?.accessibility?.enableLoadingPhrases).toBe(true);
       });
@@ -701,11 +608,7 @@ describe('SettingsUtils', () => {
         const pendingSettings = makeMockSettings({
           ui: { accessibility: { enableLoadingPhrases: false } },
         });
-        const result = setPendingSettingValue(
-          'ui.accessibility.enableLoadingPhrases',
-          true,
-          pendingSettings,
-        );
+        const result = setPendingSettingValue('ui.accessibility.enableLoadingPhrases', true, pendingSettings);
 
         expect(result.ui?.accessibility?.enableLoadingPhrases).toBe(true);
       });
@@ -720,10 +623,7 @@ describe('SettingsUtils', () => {
 
     describe('hasRestartRequiredSettings', () => {
       it('should return true when modified settings require restart', () => {
-        const modifiedSettings = new Set<string>([
-          'advanced.autoConfigureMemory',
-          'ui.requiresRestart',
-        ]);
+        const modifiedSettings = new Set<string>(['advanced.autoConfigureMemory', 'ui.requiresRestart']);
         expect(hasRestartRequiredSettings(modifiedSettings)).toBe(true);
       });
 
@@ -740,10 +640,7 @@ describe('SettingsUtils', () => {
 
     describe('getRestartRequiredFromModified', () => {
       it('should return only settings that require restart', () => {
-        const modifiedSettings = new Set<string>([
-          'ui.requiresRestart',
-          'test',
-        ]);
+        const modifiedSettings = new Set<string>(['ui.requiresRestart', 'test']);
         const result = getRestartRequiredFromModified(modifiedSettings);
 
         expect(result).toContain('ui.requiresRestart');
@@ -751,10 +648,7 @@ describe('SettingsUtils', () => {
       });
 
       it('should return empty array when no settings require restart', () => {
-        const modifiedSettings = new Set<string>([
-          'requiresRestart',
-          'hideTips',
-        ]);
+        const modifiedSettings = new Set<string>(['requiresRestart', 'hideTips']);
         const result = getRestartRequiredFromModified(modifiedSettings);
 
         expect(result).toEqual([]);
@@ -832,12 +726,7 @@ describe('SettingsUtils', () => {
           });
           const modifiedSettings = new Set<string>();
 
-          const result = getDisplayValue(
-            'ui.theme',
-            settings,
-            mergedSettings,
-            modifiedSettings,
-          );
+          const result = getDisplayValue('ui.theme', settings, mergedSettings, modifiedSettings);
 
           expect(result).toBe('Three*');
         });
@@ -869,12 +758,7 @@ describe('SettingsUtils', () => {
           } as unknown as SettingsSchemaType);
           const modifiedSettings = new Set<string>();
 
-          const result = getDisplayValue(
-            'ui.theme',
-            makeMockSettings({}),
-            makeMockSettings({}),
-            modifiedSettings,
-          );
+          const result = getDisplayValue('ui.theme', makeMockSettings({}), makeMockSettings({}), modifiedSettings);
           expect(result).toBe('Three');
         });
 
@@ -888,12 +772,7 @@ describe('SettingsUtils', () => {
           });
           const modifiedSettings = new Set<string>();
 
-          const result = getDisplayValue(
-            'ui.theme',
-            settings,
-            mergedSettings,
-            modifiedSettings,
-          );
+          const result = getDisplayValue('ui.theme', settings, mergedSettings, modifiedSettings);
           expect(result).toBe('Bar*');
         });
 
@@ -909,12 +788,7 @@ describe('SettingsUtils', () => {
           const mergedSettings = makeMockSettings({ ui: { theme: 'xyz' } });
           const modifiedSettings = new Set<string>();
 
-          const result = getDisplayValue(
-            'ui.theme',
-            settings,
-            mergedSettings,
-            modifiedSettings,
-          );
+          const result = getDisplayValue('ui.theme', settings, mergedSettings, modifiedSettings);
           expect(result).toBe('xyz*');
         });
 
@@ -928,12 +802,7 @@ describe('SettingsUtils', () => {
           } as unknown as SettingsSchemaType);
           const modifiedSettings = new Set<string>();
 
-          const result = getDisplayValue(
-            'ui.theme',
-            makeMockSettings({}),
-            makeMockSettings({}),
-            modifiedSettings,
-          );
+          const result = getDisplayValue('ui.theme', makeMockSettings({}), makeMockSettings({}), modifiedSettings);
           expect(result).toBe('Bar');
         });
       });
@@ -947,12 +816,7 @@ describe('SettingsUtils', () => {
         });
         const modifiedSettings = new Set<string>();
 
-        const result = getDisplayValue(
-          'ui.requiresRestart',
-          settings,
-          mergedSettings,
-          modifiedSettings,
-        );
+        const result = getDisplayValue('ui.requiresRestart', settings, mergedSettings, modifiedSettings);
         expect(result).toBe('false*');
       });
 
@@ -963,12 +827,7 @@ describe('SettingsUtils', () => {
         });
         const modifiedSettings = new Set<string>();
 
-        const result = getDisplayValue(
-          'ui.requiresRestart',
-          settings,
-          mergedSettings,
-          modifiedSettings,
-        );
+        const result = getDisplayValue('ui.requiresRestart', settings, mergedSettings, modifiedSettings);
         expect(result).toBe('false'); // shows default value
       });
 
@@ -979,12 +838,7 @@ describe('SettingsUtils', () => {
         });
         const modifiedSettings = new Set<string>();
 
-        const result = getDisplayValue(
-          'ui.requiresRestart',
-          settings,
-          mergedSettings,
-          modifiedSettings,
-        );
+        const result = getDisplayValue('ui.requiresRestart', settings, mergedSettings, modifiedSettings);
         expect(result).toBe('true*');
       });
 
@@ -995,12 +849,7 @@ describe('SettingsUtils', () => {
         });
         const modifiedSettings = new Set<string>();
 
-        const result = getDisplayValue(
-          'ui.requiresRestart',
-          settings,
-          mergedSettings,
-          modifiedSettings,
-        );
+        const result = getDisplayValue('ui.requiresRestart', settings, mergedSettings, modifiedSettings);
         expect(result).toBe('false'); // default value (false) without *
       });
 
@@ -1019,7 +868,7 @@ describe('SettingsUtils', () => {
           settings,
           mergedSettings,
           modifiedSettings,
-          pendingSettings,
+          pendingSettings
         );
         expect(result).toBe('true*'); // changed from default (false) to true
       });
@@ -1043,10 +892,7 @@ describe('SettingsUtils', () => {
       it('should return true when nested setting does not exist in scope', () => {
         const settings = makeMockSettings({}); // nested setting doesn't exist
 
-        const result = isDefaultValue(
-          'ui.accessibility.enableLoadingPhrases',
-          settings,
-        );
+        const result = isDefaultValue('ui.accessibility.enableLoadingPhrases', settings);
         expect(result).toBe(true);
       });
 
@@ -1055,10 +901,7 @@ describe('SettingsUtils', () => {
           ui: { accessibility: { enableLoadingPhrases: true } },
         }); // nested setting exists
 
-        const result = isDefaultValue(
-          'ui.accessibility.enableLoadingPhrases',
-          settings,
-        );
+        const result = isDefaultValue('ui.accessibility.enableLoadingPhrases', settings);
         expect(result).toBe(false);
       });
     });
@@ -1070,11 +913,7 @@ describe('SettingsUtils', () => {
           ui: { requiresRestart: true },
         });
 
-        const result = isValueInherited(
-          'ui.requiresRestart',
-          settings,
-          mergedSettings,
-        );
+        const result = isValueInherited('ui.requiresRestart', settings, mergedSettings);
         expect(result).toBe(false);
       });
 
@@ -1084,11 +923,7 @@ describe('SettingsUtils', () => {
           ui: { requiresRestart: true },
         });
 
-        const result = isValueInherited(
-          'ui.requiresRestart',
-          settings,
-          mergedSettings,
-        );
+        const result = isValueInherited('ui.requiresRestart', settings, mergedSettings);
         expect(result).toBe(true);
       });
 
@@ -1100,11 +935,7 @@ describe('SettingsUtils', () => {
           ui: { accessibility: { enableLoadingPhrases: true } },
         });
 
-        const result = isValueInherited(
-          'ui.accessibility.enableLoadingPhrases',
-          settings,
-          mergedSettings,
-        );
+        const result = isValueInherited('ui.accessibility.enableLoadingPhrases', settings, mergedSettings);
         expect(result).toBe(false);
       });
 
@@ -1114,11 +945,7 @@ describe('SettingsUtils', () => {
           ui: { accessibility: { enableLoadingPhrases: true } },
         });
 
-        const result = isValueInherited(
-          'ui.accessibility.enableLoadingPhrases',
-          settings,
-          mergedSettings,
-        );
+        const result = isValueInherited('ui.accessibility.enableLoadingPhrases', settings, mergedSettings);
         expect(result).toBe(true);
       });
     });
@@ -1130,11 +957,7 @@ describe('SettingsUtils', () => {
           ui: { requiresRestart: false },
         });
 
-        const result = getEffectiveDisplayValue(
-          'ui.requiresRestart',
-          settings,
-          mergedSettings,
-        );
+        const result = getEffectiveDisplayValue('ui.requiresRestart', settings, mergedSettings);
         expect(result).toBe(true);
       });
 
@@ -1144,11 +967,7 @@ describe('SettingsUtils', () => {
           ui: { requiresRestart: true },
         });
 
-        const result = getEffectiveDisplayValue(
-          'ui.requiresRestart',
-          settings,
-          mergedSettings,
-        );
+        const result = getEffectiveDisplayValue('ui.requiresRestart', settings, mergedSettings);
         expect(result).toBe(true);
       });
 
@@ -1156,11 +975,7 @@ describe('SettingsUtils', () => {
         const settings = makeMockSettings({});
         const mergedSettings = makeMockSettings({});
 
-        const result = getEffectiveDisplayValue(
-          'ui.requiresRestart',
-          settings,
-          mergedSettings,
-        );
+        const result = getEffectiveDisplayValue('ui.requiresRestart', settings, mergedSettings);
         expect(result).toBe(false); // Default value
       });
     });

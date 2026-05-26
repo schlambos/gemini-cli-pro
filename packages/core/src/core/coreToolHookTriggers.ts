@@ -23,17 +23,14 @@ import { DiscoveredMCPToolInvocation } from '../tools/mcp-tool.js';
  */
 function extractMcpContext(
   invocation: ShellToolInvocation | AnyToolInvocation,
-  config: Config,
+  config: Config
 ): McpToolContext | undefined {
   if (!(invocation instanceof DiscoveredMCPToolInvocation)) {
     return undefined;
   }
 
   // Get the server config
-  const mcpServers =
-    config.getMcpClientManager()?.getMcpServers() ??
-    config.getMcpServers() ??
-    {};
+  const mcpServers = config.getMcpClientManager()?.getMcpServers() ?? config.getMcpServers() ?? {};
   const serverConfig = mcpServers[invocation.serverName];
   if (!serverConfig) {
     return undefined;
@@ -71,7 +68,7 @@ export async function executeToolWithHooks(
   liveOutputCallback?: (outputChunk: string | AnsiOutput) => void,
   shellExecutionConfig?: ShellExecutionConfig,
   setPidCallback?: (pid: number) => void,
-  config?: Config,
+  config?: Config
 ): Promise<ToolResult> {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
   const toolInput = (invocation.params || {}) as Record<string, unknown>;
@@ -83,11 +80,7 @@ export async function executeToolWithHooks(
 
   const hookSystem = config?.getHookSystem();
   if (hookSystem) {
-    const beforeOutput = await hookSystem.fireBeforeToolEvent(
-      toolName,
-      toolInput,
-      mcpContext,
-    );
+    const beforeOutput = await hookSystem.fireBeforeToolEvent(toolName, toolInput, mcpContext);
 
     // Check if hook requested to stop entire agent execution
     if (beforeOutput?.shouldStopExecution()) {
@@ -151,24 +144,15 @@ export async function executeToolWithHooks(
   // Execute the actual tool
   let toolResult: ToolResult;
   if (setPidCallback && invocation instanceof ShellToolInvocation) {
-    toolResult = await invocation.execute(
-      signal,
-      liveOutputCallback,
-      shellExecutionConfig,
-      setPidCallback,
-    );
+    toolResult = await invocation.execute(signal, liveOutputCallback, shellExecutionConfig, setPidCallback);
   } else {
-    toolResult = await invocation.execute(
-      signal,
-      liveOutputCallback,
-      shellExecutionConfig,
-    );
+    toolResult = await invocation.execute(signal, liveOutputCallback, shellExecutionConfig);
   }
 
   // Append notification if parameters were modified
   if (inputWasModified) {
     const modificationMsg = `\n\n[System] Tool input parameters (${modifiedKeys.join(
-      ', ',
+      ', '
     )}) were modified by a hook before execution.`;
     if (typeof toolResult.llmContent === 'string') {
       toolResult.llmContent += modificationMsg;
@@ -176,10 +160,7 @@ export async function executeToolWithHooks(
       toolResult.llmContent.push({ text: modificationMsg });
     } else if (toolResult.llmContent) {
       // Handle single Part case by converting to an array
-      toolResult.llmContent = [
-        toolResult.llmContent,
-        { text: modificationMsg },
-      ];
+      toolResult.llmContent = [toolResult.llmContent, { text: modificationMsg }];
     }
   }
 
@@ -192,7 +173,7 @@ export async function executeToolWithHooks(
         returnDisplay: toolResult.returnDisplay,
         error: toolResult.error,
       },
-      mcpContext,
+      mcpContext
     );
 
     // Check if hook requested to stop entire agent execution
@@ -231,10 +212,7 @@ export async function executeToolWithHooks(
         toolResult.llmContent.push({ text: wrappedContext });
       } else if (toolResult.llmContent) {
         // Handle single Part case by converting to an array
-        toolResult.llmContent = [
-          toolResult.llmContent,
-          { text: wrappedContext },
-        ];
+        toolResult.llmContent = [toolResult.llmContent, { text: wrappedContext }];
       } else {
         toolResult.llmContent = wrappedContext;
       }

@@ -4,20 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type {
-  ModifiableDeclarativeTool,
-  ModifyContext,
-} from '../tools/modifiable-tool.js';
-import type {
-  ToolCallConfirmationDetails,
-  ToolInvocation,
-  ToolResult,
-} from '../tools/tools.js';
-import {
-  BaseDeclarativeTool,
-  BaseToolInvocation,
-  Kind,
-} from '../tools/tools.js';
+import type { ModifiableDeclarativeTool, ModifyContext } from '../tools/modifiable-tool.js';
+import type { ToolCallConfirmationDetails, ToolInvocation, ToolResult } from '../tools/tools.js';
+import { BaseDeclarativeTool, BaseToolInvocation, Kind } from '../tools/tools.js';
 import { createMockMessageBus } from './mock-message-bus.js';
 import type { MessageBus } from '../confirmation-bus/message-bus.js';
 
@@ -29,33 +18,27 @@ interface MockToolOptions {
   isOutputMarkdown?: boolean;
   shouldConfirmExecute?: (
     params: { [key: string]: unknown },
-    signal: AbortSignal,
+    signal: AbortSignal
   ) => Promise<ToolCallConfirmationDetails | false>;
   execute?: (
     params: { [key: string]: unknown },
     signal?: AbortSignal,
-    updateOutput?: (output: string) => void,
+    updateOutput?: (output: string) => void
   ) => Promise<ToolResult>;
   params?: object;
   messageBus?: MessageBus;
 }
 
-class MockToolInvocation extends BaseToolInvocation<
-  { [key: string]: unknown },
-  ToolResult
-> {
+class MockToolInvocation extends BaseToolInvocation<{ [key: string]: unknown }, ToolResult> {
   constructor(
     private readonly tool: MockTool,
     params: { [key: string]: unknown },
-    messageBus: MessageBus,
+    messageBus: MessageBus
   ) {
     super(params, messageBus, tool.name, tool.displayName);
   }
 
-  execute(
-    signal: AbortSignal,
-    updateOutput?: (output: string) => void,
-  ): Promise<ToolResult> {
+  execute(signal: AbortSignal, updateOutput?: (output: string) => void): Promise<ToolResult> {
     if (updateOutput) {
       return this.tool.execute(this.params, signal, updateOutput);
     } else {
@@ -63,9 +46,7 @@ class MockToolInvocation extends BaseToolInvocation<
     }
   }
 
-  override shouldConfirmExecute(
-    abortSignal: AbortSignal,
-  ): Promise<ToolCallConfirmationDetails | false> {
+  override shouldConfirmExecute(abortSignal: AbortSignal): Promise<ToolCallConfirmationDetails | false> {
     return this.tool.shouldConfirmExecute(this.params, abortSignal);
   }
 
@@ -77,18 +58,15 @@ class MockToolInvocation extends BaseToolInvocation<
 /**
  * A highly configurable mock tool for testing purposes.
  */
-export class MockTool extends BaseDeclarativeTool<
-  { [key: string]: unknown },
-  ToolResult
-> {
+export class MockTool extends BaseDeclarativeTool<{ [key: string]: unknown }, ToolResult> {
   shouldConfirmExecute: (
     params: { [key: string]: unknown },
-    signal: AbortSignal,
+    signal: AbortSignal
   ) => Promise<ToolCallConfirmationDetails | false>;
   execute: (
     params: { [key: string]: unknown },
     signal?: AbortSignal,
-    updateOutput?: (output: string) => void,
+    updateOutput?: (output: string) => void
   ) => Promise<ToolResult>;
 
   constructor(options: MockToolOptions) {
@@ -100,7 +78,7 @@ export class MockTool extends BaseDeclarativeTool<
       options.params,
       options.messageBus ?? createMockMessageBus(),
       options.isOutputMarkdown ?? false,
-      options.canUpdateOutput ?? false,
+      options.canUpdateOutput ?? false
     );
 
     if (options.shouldConfirmExecute) {
@@ -124,7 +102,7 @@ export class MockTool extends BaseDeclarativeTool<
     params: { [key: string]: unknown },
     messageBus: MessageBus,
     _toolName?: string,
-    _toolDisplayName?: string,
+    _toolDisplayName?: string
   ): ToolInvocation<{ [key: string]: unknown }, ToolResult> {
     return new MockToolInvocation(this, params, messageBus);
   }
@@ -140,14 +118,11 @@ export const MOCK_TOOL_SHOULD_CONFIRM_EXECUTE = () =>
     onConfirm: async () => {},
   });
 
-export class MockModifiableToolInvocation extends BaseToolInvocation<
-  Record<string, unknown>,
-  ToolResult
-> {
+export class MockModifiableToolInvocation extends BaseToolInvocation<Record<string, unknown>, ToolResult> {
   constructor(
     private readonly tool: MockModifiableTool,
     params: Record<string, unknown>,
-    messageBus: MessageBus,
+    messageBus: MessageBus
   ) {
     super(params, messageBus, tool.name, tool.displayName);
   }
@@ -162,9 +137,7 @@ export class MockModifiableToolInvocation extends BaseToolInvocation<
     );
   }
 
-  override async shouldConfirmExecute(
-    _abortSignal: AbortSignal,
-  ): Promise<ToolCallConfirmationDetails | false> {
+  override async shouldConfirmExecute(_abortSignal: AbortSignal): Promise<ToolCallConfirmationDetails | false> {
     if (this.tool.shouldConfirm) {
       return {
         type: 'edit',
@@ -194,8 +167,7 @@ export class MockModifiableTool
 {
   // Should be overridden in test file. Functionality will be updated in follow
   // up PR which has MockModifiableTool expect MockTool
-  executeFn: (params: Record<string, unknown>) => ToolResult | undefined = () =>
-    undefined;
+  executeFn: (params: Record<string, unknown>) => ToolResult | undefined = () => undefined;
   shouldConfirm = true;
 
   constructor(name = 'mockModifiableTool') {
@@ -210,13 +182,11 @@ export class MockModifiableTool
       },
       createMockMessageBus(),
       true,
-      false,
+      false
     );
   }
 
-  getModifyContext(
-    _abortSignal: AbortSignal,
-  ): ModifyContext<Record<string, unknown>> {
+  getModifyContext(_abortSignal: AbortSignal): ModifyContext<Record<string, unknown>> {
     return {
       getFilePath: () => 'test.txt',
       getCurrentContent: async () => 'old content',
@@ -224,7 +194,7 @@ export class MockModifiableTool
       createUpdatedParams: (
         _oldContent: string,
         modifiedProposedContent: string,
-        _originalParams: Record<string, unknown>,
+        _originalParams: Record<string, unknown>
       ) => ({ newContent: modifiedProposedContent }),
     };
   }
@@ -233,7 +203,7 @@ export class MockModifiableTool
     params: Record<string, unknown>,
     messageBus: MessageBus,
     _toolName?: string,
-    _toolDisplayName?: string,
+    _toolDisplayName?: string
   ): ToolInvocation<Record<string, unknown>, ToolResult> {
     return new MockModifiableToolInvocation(this, params, messageBus);
   }

@@ -26,17 +26,11 @@ describe('SessionRetentionWarningDialog', () => {
 
   it('renders correctly with warning message and session count', () => {
     const { lastFrame } = renderWithProviders(
-      <SessionRetentionWarningDialog
-        onKeep120Days={vi.fn()}
-        onKeep30Days={vi.fn()}
-        sessionsToDeleteCount={42}
-      />,
+      <SessionRetentionWarningDialog onKeep120Days={vi.fn()} onKeep30Days={vi.fn()} sessionsToDeleteCount={42} />
     );
 
     expect(lastFrame()).toContain('Keep chat history');
-    expect(lastFrame()).toContain(
-      'introducing a limit on how long chat sessions are stored',
-    );
+    expect(lastFrame()).toContain('introducing a limit on how long chat sessions are stored');
     expect(lastFrame()).toContain('Keep for 30 days (Recommended)');
     expect(lastFrame()).toContain('42 sessions will be deleted');
     expect(lastFrame()).toContain('Keep for 120 days');
@@ -45,11 +39,7 @@ describe('SessionRetentionWarningDialog', () => {
 
   it('handles pluralization correctly for 1 session', () => {
     const { lastFrame } = renderWithProviders(
-      <SessionRetentionWarningDialog
-        onKeep120Days={vi.fn()}
-        onKeep30Days={vi.fn()}
-        sessionsToDeleteCount={1}
-      />,
+      <SessionRetentionWarningDialog onKeep120Days={vi.fn()} onKeep30Days={vi.fn()} sessionsToDeleteCount={1} />
     );
 
     expect(lastFrame()).toContain('1 session will be deleted');
@@ -64,7 +54,7 @@ describe('SessionRetentionWarningDialog', () => {
         onKeep120Days={onKeep120Days}
         onKeep30Days={onKeep30Days}
         sessionsToDeleteCount={10}
-      />,
+      />
     );
 
     // Initial selection should be "Keep for 120 days" (index 1) because count > 0
@@ -86,7 +76,7 @@ describe('SessionRetentionWarningDialog', () => {
         onKeep120Days={onKeep120Days}
         onKeep30Days={onKeep30Days}
         sessionsToDeleteCount={10}
-      />,
+      />
     );
 
     // Default is index 1 (120 days). Move UP to index 0 (30 days).
@@ -101,11 +91,7 @@ describe('SessionRetentionWarningDialog', () => {
 
   it('should match snapshot', async () => {
     const { lastFrame } = renderWithProviders(
-      <SessionRetentionWarningDialog
-        onKeep120Days={vi.fn()}
-        onKeep30Days={vi.fn()}
-        sessionsToDeleteCount={123}
-      />,
+      <SessionRetentionWarningDialog onKeep120Days={vi.fn()} onKeep30Days={vi.fn()} sessionsToDeleteCount={123} />
     );
 
     // Initial render

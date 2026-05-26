@@ -28,11 +28,7 @@ export interface Injection {
  * @returns An array of extracted Injection objects.
  * @throws Error if an unclosed injection is found.
  */
-export function extractInjections(
-  prompt: string,
-  trigger: string,
-  contextName?: string,
-): Injection[] {
+export function extractInjections(prompt: string, trigger: string, contextName?: string): Injection[] {
   const injections: Injection[] = [];
   let index = 0;
 
@@ -55,10 +51,7 @@ export function extractInjections(
       } else if (char === '}') {
         braceCount--;
         if (braceCount === 0) {
-          const injectionContent = prompt.substring(
-            startIndex + trigger.length,
-            currentIndex,
-          );
+          const injectionContent = prompt.substring(startIndex + trigger.length, currentIndex);
           const endIndex = currentIndex + 1;
 
           injections.push({
@@ -80,7 +73,7 @@ export function extractInjections(
       const contextInfo = contextName ? ` in command '${contextName}'` : '';
       // Enforce strict parsing (Comment 1) and clarify limitations (Comment 2).
       throw new Error(
-        `Invalid syntax${contextInfo}: Unclosed injection starting at index ${startIndex} ('${trigger}'). Ensure braces are balanced. Paths or commands with unbalanced braces are not supported directly.`,
+        `Invalid syntax${contextInfo}: Unclosed injection starting at index ${startIndex} ('${trigger}'). Ensure braces are balanced. Paths or commands with unbalanced braces are not supported directly.`
       );
     }
   }

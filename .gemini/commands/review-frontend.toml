@@ -1,4 +1,4 @@
-description="Reviews a pull request based on issue number."
+description = "Reviews a pull request based on issue number."
 prompt = """
 Please provide a detailed pull request review on GitHub issue: {{args}}.
 

@@ -22,9 +22,7 @@ class EditorSettingsManager {
 
   constructor() {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-    const editorTypes = Object.keys(
-      EDITOR_DISPLAY_NAMES,
-    ).sort() as EditorType[];
+    const editorTypes = Object.keys(EDITOR_DISPLAY_NAMES).sort() as EditorType[];
     this.availableEditors = [
       {
         name: 'None',
@@ -35,9 +33,7 @@ class EditorSettingsManager {
         const hasEditor = hasValidEditorCommand(type);
         const isAllowedInSandbox = allowEditorTypeInSandbox(type);
 
-        let labelSuffix = !isAllowedInSandbox
-          ? ' (Not available in sandbox)'
-          : '';
+        let labelSuffix = !isAllowedInSandbox ? ' (Not available in sandbox)' : '';
         labelSuffix = !hasEditor ? ' (Not installed)' : labelSuffix;
 
         return {

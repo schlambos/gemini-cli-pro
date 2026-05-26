@@ -86,9 +86,7 @@ describe('tool-names', () => {
 
       // Invalid wildcards
       expect(isValidToolName('__*', { allowWildcards: true })).toBe(false);
-      expect(isValidToolName('server__tool*', { allowWildcards: true })).toBe(
-        false,
-      );
+      expect(isValidToolName('server__tool*', { allowWildcards: true })).toBe(false);
     });
   });
 

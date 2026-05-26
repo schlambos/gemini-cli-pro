@@ -19,7 +19,7 @@ async function main() {
     async ({ a, b }) => {
       console.log(`Tool 'add' called with a=${a}, b=${b}`);
       return { result: a + b };
-    },
+    }
   );
 
   const agent = new GeminiCliAgent({
@@ -28,9 +28,7 @@ async function main() {
   });
 
   console.log("Sending prompt: 'add 5 + 6'");
-  for await (const chunk of agent.sendStream(
-    'add 5 + 6 and tell me a story involving the result',
-  )) {
+  for await (const chunk of agent.sendStream('add 5 + 6 and tell me a story involving the result')) {
     console.log(JSON.stringify(chunk, null, 2));
   }
 }

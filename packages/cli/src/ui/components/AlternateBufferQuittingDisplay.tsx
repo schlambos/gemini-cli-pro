@@ -28,13 +28,8 @@ export const AlternateBufferQuittingDisplay = () => {
   // Our version of Ink is clever and will render a final frame outside of
   // the alternate buffer on app exit.
   return (
-    <Box
-      flexDirection="column"
-      flexShrink={0}
-      flexGrow={0}
-      width={uiState.terminalWidth}
-    >
-      <AppHeader key="app-header" version={version} />
+    <Box flexDirection='column' flexShrink={0} flexGrow={0} width={uiState.terminalWidth}>
+      <AppHeader key='app-header' version={version} />
       {uiState.history.map((h) => (
         <HistoryItemDisplay
           terminalWidth={uiState.mainAreaWidth}
@@ -58,20 +53,17 @@ export const AlternateBufferQuittingDisplay = () => {
         />
       ))}
       {showPromptedTool && (
-        <Box flexDirection="column" marginTop={1} marginBottom={1}>
+        <Box flexDirection='column' marginTop={1} marginBottom={1}>
           <Text color={theme.status.warning} bold>
             Action Required (was prompted):
           </Text>
           <Box marginTop={1}>
-            <ToolStatusIndicator
-              status={confirmingTool.tool.status}
-              name={confirmingTool.tool.name}
-            />
+            <ToolStatusIndicator status={confirmingTool.tool.status} name={confirmingTool.tool.name} />
             <ToolInfo
               name={confirmingTool.tool.name}
               status={confirmingTool.tool.status}
               description={confirmingTool.tool.description}
-              emphasis="high"
+              emphasis='high'
             />
           </Box>
         </Box>

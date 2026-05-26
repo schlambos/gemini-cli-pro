@@ -5,18 +5,12 @@
  */
 
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-import {
-  A2AClientManager,
-  type SendMessageResult,
-} from './a2a-client-manager.js';
+import { A2AClientManager, type SendMessageResult } from './a2a-client-manager.js';
 import type { AgentCard, Task } from '@a2a-js/sdk';
 import type { AuthenticationHandler, Client } from '@a2a-js/sdk/client';
 import { ClientFactory, DefaultAgentCardResolver } from '@a2a-js/sdk/client';
 import { debugLogger } from '../utils/debugLogger.js';
-import {
-  createAuthenticatingFetchWithRetry,
-  ClientFactoryOptions,
-} from '@a2a-js/sdk/client';
+import { createAuthenticatingFetchWithRetry, ClientFactoryOptions } from '@a2a-js/sdk/client';
 
 vi.mock('../utils/debugLogger.js', () => ({
   debugLogger: {
@@ -78,9 +72,7 @@ describe('A2AClientManager', () => {
       url: 'http://test.agent/real/endpoint',
     } as AgentCard);
 
-    vi.mocked(ClientFactory.prototype.createFromUrl).mockResolvedValue(
-      mockClient,
-    );
+    vi.mocked(ClientFactory.prototype.createFromUrl).mockResolvedValue(mockClient);
 
     vi.mocked(DefaultAgentCardResolver.prototype.resolve).mockResolvedValue({
       ...mockAgentCard,
@@ -88,19 +80,17 @@ describe('A2AClientManager', () => {
     } as AgentCard);
 
     vi.mocked(ClientFactoryOptions.createFrom).mockImplementation(
-      (_defaults, overrides) => overrides as ClientFactoryOptions,
+      (_defaults, overrides) => overrides as ClientFactoryOptions
     );
 
-    vi.mocked(createAuthenticatingFetchWithRetry).mockReturnValue(
-      authFetchMock,
-    );
+    vi.mocked(createAuthenticatingFetchWithRetry).mockReturnValue(authFetchMock);
 
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValue({
         ok: true,
         json: async () => ({}),
-      } as Response),
+      } as Response)
     );
   });
 
@@ -117,10 +107,7 @@ describe('A2AClientManager', () => {
 
   describe('loadAgent', () => {
     it('should create and cache an A2AClient', async () => {
-      const agentCard = await manager.loadAgent(
-        'TestAgent',
-        'http://test.agent/card',
-      );
+      const agentCard = await manager.loadAgent('TestAgent', 'http://test.agent/card');
       expect(agentCard).toMatchObject(mockAgentCard);
       expect(manager.getAgentCard('TestAgent')).toBe(agentCard);
       expect(manager.getClient('TestAgent')).toBeDefined();
@@ -128,9 +115,9 @@ describe('A2AClientManager', () => {
 
     it('should throw an error if an agent with the same name is already loaded', async () => {
       await manager.loadAgent('TestAgent', 'http://test.agent/card');
-      await expect(
-        manager.loadAgent('TestAgent', 'http://another.agent/card'),
-      ).rejects.toThrow("Agent with name 'TestAgent' is already loaded.");
+      await expect(manager.loadAgent('TestAgent', 'http://another.agent/card')).rejects.toThrow(
+        "Agent with name 'TestAgent' is already loaded."
+      );
     });
 
     it('should use native fetch by default', async () => {
@@ -146,19 +133,16 @@ describe('A2AClientManager', () => {
       await manager.loadAgent(
         'CustomAuthAgent',
         'http://custom.agent/card',
-        customAuthHandler as unknown as AuthenticationHandler,
+        customAuthHandler as unknown as AuthenticationHandler
       );
 
-      expect(createAuthenticatingFetchWithRetry).toHaveBeenCalledWith(
-        expect.anything(),
-        customAuthHandler,
-      );
+      expect(createAuthenticatingFetchWithRetry).toHaveBeenCalledWith(expect.anything(), customAuthHandler);
     });
 
     it('should log a debug message upon loading an agent', async () => {
       await manager.loadAgent('TestAgent', 'http://test.agent/card');
       expect(debugLogger.debug).toHaveBeenCalledWith(
-        "[A2AClientManager] Loaded agent 'TestAgent' from http://test.agent/card",
+        "[A2AClientManager] Loaded agent 'TestAgent' from http://test.agent/card"
       );
     });
 
@@ -171,9 +155,7 @@ describe('A2AClientManager', () => {
 
       expect(manager.getAgentCard('TestAgent')).toBeUndefined();
       expect(manager.getClient('TestAgent')).toBeUndefined();
-      expect(debugLogger.debug).toHaveBeenCalledWith(
-        '[A2AClientManager] Cache cleared.',
-      );
+      expect(debugLogger.debug).toHaveBeenCalledWith('[A2AClientManager] Cache cleared.');
     });
   });
 
@@ -194,7 +176,7 @@ describe('A2AClientManager', () => {
       expect(sendMessageMock).toHaveBeenCalledWith(
         expect.objectContaining({
           message: expect.anything(),
-        }),
+        })
       );
     });
 
@@ -238,14 +220,14 @@ describe('A2AClientManager', () => {
       sendMessageMock.mockRejectedValueOnce(new Error('Network error'));
 
       await expect(manager.sendMessage('TestAgent', 'Hello')).rejects.toThrow(
-        'A2AClient SendMessage Error [TestAgent]: Network error',
+        'A2AClient SendMessage Error [TestAgent]: Network error'
       );
     });
 
     it('should throw an error if the agent is not found', async () => {
-      await expect(
-        manager.sendMessage('NonExistentAgent', 'Hello'),
-      ).rejects.toThrow("Agent 'NonExistentAgent' not found.");
+      await expect(manager.sendMessage('NonExistentAgent', 'Hello')).rejects.toThrow(
+        "Agent 'NonExistentAgent' not found."
+      );
     });
   });
 
@@ -272,14 +254,14 @@ describe('A2AClientManager', () => {
       getTaskMock.mockRejectedValueOnce(new Error('Network error'));
 
       await expect(manager.getTask('TestAgent', 'task123')).rejects.toThrow(
-        'A2AClient getTask Error [TestAgent]: Network error',
+        'A2AClient getTask Error [TestAgent]: Network error'
       );
     });
 
     it('should throw an error if the agent is not found', async () => {
-      await expect(
-        manager.getTask('NonExistentAgent', 'task123'),
-      ).rejects.toThrow("Agent 'NonExistentAgent' not found.");
+      await expect(manager.getTask('NonExistentAgent', 'task123')).rejects.toThrow(
+        "Agent 'NonExistentAgent' not found."
+      );
     });
   });
 
@@ -306,14 +288,14 @@ describe('A2AClientManager', () => {
       cancelTaskMock.mockRejectedValueOnce(new Error('Network error'));
 
       await expect(manager.cancelTask('TestAgent', 'task123')).rejects.toThrow(
-        'A2AClient cancelTask Error [TestAgent]: Network error',
+        'A2AClient cancelTask Error [TestAgent]: Network error'
       );
     });
 
     it('should throw an error if the agent is not found', async () => {
-      await expect(
-        manager.cancelTask('NonExistentAgent', 'task123'),
-      ).rejects.toThrow("Agent 'NonExistentAgent' not found.");
+      await expect(manager.cancelTask('NonExistentAgent', 'task123')).rejects.toThrow(
+        "Agent 'NonExistentAgent' not found."
+      );
     });
   });
 });

@@ -24,10 +24,7 @@ export const TodoTray: React.FC = () => {
       }
       const toolGroup = entry as HistoryItemToolGroup;
       for (const tool of toolGroup.tools) {
-        if (
-          typeof tool.resultDisplay !== 'object' ||
-          !('todos' in tool.resultDisplay)
-        ) {
+        if (typeof tool.resultDisplay !== 'object' || !('todos' in tool.resultDisplay)) {
           continue;
         }
         return tool.resultDisplay;
@@ -51,11 +48,6 @@ export const TodoTray: React.FC = () => {
   }
 
   return (
-    <Checklist
-      title="Todo"
-      items={checklistItems}
-      isExpanded={uiState.showFullTodos}
-      toggleHint="ctrl+t to toggle"
-    />
+    <Checklist title='Todo' items={checklistItems} isExpanded={uiState.showFullTodos} toggleHint='ctrl+t to toggle' />
   );
 };

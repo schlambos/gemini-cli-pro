@@ -17,19 +17,11 @@ import type {
   GenerateContentResponse,
 } from '@google/genai';
 import type { ServerDetails } from '../telemetry/types.js';
-import {
-  ApiRequestEvent,
-  ApiResponseEvent,
-  ApiErrorEvent,
-} from '../telemetry/types.js';
+import { ApiRequestEvent, ApiResponseEvent, ApiErrorEvent } from '../telemetry/types.js';
 import type { LlmRole } from '../telemetry/llmRole.js';
 import type { Config } from '../config/config.js';
 import type { UserTierId } from '../code_assist/types.js';
-import {
-  logApiError,
-  logApiRequest,
-  logApiResponse,
-} from '../telemetry/loggers.js';
+import { logApiError, logApiRequest, logApiResponse } from '../telemetry/loggers.js';
 import type { ContentGenerator } from './contentGenerator.js';
 import { CodeAssistServer } from '../code_assist/server.js';
 import { toContents } from '../code_assist/converter.js';
@@ -47,7 +39,7 @@ interface StructuredError {
 export class LoggingContentGenerator implements ContentGenerator {
   constructor(
     private readonly wrapped: ContentGenerator,
-    private readonly config: Config,
+    private readonly config: Config
   ) {}
 
   getWrapped(): ContentGenerator {
@@ -68,7 +60,7 @@ export class LoggingContentGenerator implements ContentGenerator {
     promptId: string,
     role: LlmRole,
     generationConfig?: GenerateContentConfig,
-    serverDetails?: ServerDetails,
+    serverDetails?: ServerDetails
   ): void {
     const requestText = JSON.stringify(contents);
     logApiRequest(
@@ -82,24 +74,20 @@ export class LoggingContentGenerator implements ContentGenerator {
           server: serverDetails,
         },
         requestText,
-        role,
-      ),
+        role
+      )
     );
   }
 
   private _getEndpointUrl(
     req: GenerateContentParameters,
-    method: 'generateContent' | 'generateContentStream',
+    method: 'generateContent' | 'generateContentStream'
   ): ServerDetails {
     // Case 1: Authenticated with a Google account (`gcloud auth login`).
     // Requests are routed through the internal CodeAssistServer.
     if (this.wrapped instanceof CodeAssistServer) {
       const url = new URL(this.wrapped.getMethodUrl(method));
-      const port = url.port
-        ? parseInt(url.port, 10)
-        : url.protocol === 'https:'
-          ? 443
-          : 80;
+      const port = url.port ? parseInt(url.port, 10) : url.protocol === 'https:' ? 443 : 80;
       return { address: url.hostname, port };
     }
 
@@ -131,7 +119,7 @@ export class LoggingContentGenerator implements ContentGenerator {
     usageMetadata?: GenerateContentResponseUsageMetadata,
     responseText?: string,
     generationConfig?: GenerateContentConfig,
-    serverDetails?: ServerDetails,
+    serverDetails?: ServerDetails
   ): void {
     logApiResponse(
       this.config,
@@ -151,8 +139,8 @@ export class LoggingContentGenerator implements ContentGenerator {
         this.config.getContentGeneratorConfig()?.authType,
         usageMetadata,
         responseText,
-        role,
-      ),
+        role
+      )
     );
   }
 
@@ -164,7 +152,7 @@ export class LoggingContentGenerator implements ContentGenerator {
     requestContents: Content[],
     role: LlmRole,
     generationConfig?: GenerateContentConfig,
-    serverDetails?: ServerDetails,
+    serverDetails?: ServerDetails
   ): void {
     const errorMessage = error instanceof Error ? error.message : String(error);
     const errorType = error instanceof Error ? error.name : 'unknown';
@@ -187,15 +175,15 @@ export class LoggingContentGenerator implements ContentGenerator {
           ? // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
             (error as StructuredError).status
           : undefined,
-        role,
-      ),
+        role
+      )
     );
   }
 
   async generateContent(
     req: GenerateContentParameters,
     userPromptId: string,
-    role: LlmRole,
+    role: LlmRole
   ): Promise<GenerateContentResponse> {
     return runInDevTraceSpan(
       {
@@ -207,21 +195,10 @@ export class LoggingContentGenerator implements ContentGenerator {
         const startTime = Date.now();
         const contents: Content[] = toContents(req.contents);
         const serverDetails = this._getEndpointUrl(req, 'generateContent');
-        this.logApiRequest(
-          contents,
-          req.model,
-          userPromptId,
-          role,
-          req.config,
-          serverDetails,
-        );
+        this.logApiRequest(contents, req.model, userPromptId, role, req.config, serverDetails);
 
         try {
-          const response = await this.wrapped.generateContent(
-            req,
-            userPromptId,
-            role,
-          );
+          const response = await this.wrapped.generateContent(req, userPromptId, role);
           spanMetadata.output = {
             response,
             usageMetadata: response.usageMetadata,
@@ -244,34 +221,23 @@ export class LoggingContentGenerator implements ContentGenerator {
               promptFeedback: response.promptFeedback,
             }),
             req.config,
-            serverDetails,
+            serverDetails
           );
-          this.config
-            .refreshUserQuotaIfStale()
-            .catch((e) => debugLogger.debug('quota refresh failed', e));
+          this.config.refreshUserQuotaIfStale().catch((e) => debugLogger.debug('quota refresh failed', e));
           return response;
         } catch (error) {
           const durationMs = Date.now() - startTime;
-          this._logApiError(
-            durationMs,
-            error,
-            req.model,
-            userPromptId,
-            contents,
-            role,
-            req.config,
-            serverDetails,
-          );
+          this._logApiError(durationMs, error, req.model, userPromptId, contents, role, req.config, serverDetails);
           throw error;
         }
-      },
+      }
     );
   }
 
   async generateContentStream(
     req: GenerateContentParameters,
     userPromptId: string,
-    role: LlmRole,
+    role: LlmRole
   ): Promise<AsyncGenerator<GenerateContentResponse>> {
     return runInDevTraceSpan(
       {
@@ -281,10 +247,7 @@ export class LoggingContentGenerator implements ContentGenerator {
       async ({ metadata: spanMetadata, endSpan }) => {
         spanMetadata.input = { request: req, userPromptId, model: req.model };
         const startTime = Date.now();
-        const serverDetails = this._getEndpointUrl(
-          req,
-          'generateContentStream',
-        );
+        const serverDetails = this._getEndpointUrl(req, 'generateContentStream');
 
         // For debugging: Capture the latest main agent request payload.
         // Main agent prompt IDs end with exactly 8 hashes and a turn counter (e.g. "...########1")
@@ -292,22 +255,11 @@ export class LoggingContentGenerator implements ContentGenerator {
           this.config.setLatestApiRequest(req);
         }
 
-        this.logApiRequest(
-          toContents(req.contents),
-          req.model,
-          userPromptId,
-          role,
-          req.config,
-          serverDetails,
-        );
+        this.logApiRequest(toContents(req.contents), req.model, userPromptId, role, req.config, serverDetails);
 
         let stream: AsyncGenerator<GenerateContentResponse>;
         try {
-          stream = await this.wrapped.generateContentStream(
-            req,
-            userPromptId,
-            role,
-          );
+          stream = await this.wrapped.generateContentStream(req, userPromptId, role);
         } catch (error) {
           const durationMs = Date.now() - startTime;
           this._logApiError(
@@ -318,21 +270,13 @@ export class LoggingContentGenerator implements ContentGenerator {
             toContents(req.contents),
             role,
             req.config,
-            serverDetails,
+            serverDetails
           );
           throw error;
         }
 
-        return this.loggingStreamWrapper(
-          req,
-          stream,
-          startTime,
-          userPromptId,
-          role,
-          spanMetadata,
-          endSpan,
-        );
-      },
+        return this.loggingStreamWrapper(req, stream, startTime, userPromptId, role, spanMetadata, endSpan);
+      }
     );
   }
 
@@ -343,7 +287,7 @@ export class LoggingContentGenerator implements ContentGenerator {
     userPromptId: string,
     role: LlmRole,
     spanMetadata: SpanMetadata,
-    endSpan: () => void,
+    endSpan: () => void
   ): AsyncGenerator<GenerateContentResponse> {
     const responses: GenerateContentResponse[] = [];
 
@@ -376,14 +320,12 @@ export class LoggingContentGenerator implements ContentGenerator {
             responseId: r.responseId,
             modelVersion: r.modelVersion,
             promptFeedback: r.promptFeedback,
-          })),
+          }))
         ),
         req.config,
-        serverDetails,
+        serverDetails
       );
-      this.config
-        .refreshUserQuotaIfStale()
-        .catch((e) => debugLogger.debug('quota refresh failed', e));
+      this.config.refreshUserQuotaIfStale().catch((e) => debugLogger.debug('quota refresh failed', e));
       spanMetadata.output = {
         streamChunks: responses.map((r) => ({
           content: r.candidates?.[0]?.content ?? null,
@@ -402,7 +344,7 @@ export class LoggingContentGenerator implements ContentGenerator {
         requestContents,
         role,
         req.config,
-        serverDetails,
+        serverDetails
       );
       throw error;
     } finally {
@@ -414,9 +356,7 @@ export class LoggingContentGenerator implements ContentGenerator {
     return this.wrapped.countTokens(req);
   }
 
-  async embedContent(
-    req: EmbedContentParameters,
-  ): Promise<EmbedContentResponse> {
+  async embedContent(req: EmbedContentParameters): Promise<EmbedContentResponse> {
     return runInDevTraceSpan(
       {
         name: 'embedContent',
@@ -426,7 +366,7 @@ export class LoggingContentGenerator implements ContentGenerator {
         const output = await this.wrapped.embedContent(req);
         spanMetadata.output = output;
         return output;
-      },
+      }
     );
   }
 }

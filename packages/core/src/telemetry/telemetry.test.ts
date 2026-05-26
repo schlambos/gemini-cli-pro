@@ -5,11 +5,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import {
-  initializeTelemetry,
-  shutdownTelemetry,
-  isTelemetrySdkInitialized,
-} from './sdk.js';
+import { initializeTelemetry, shutdownTelemetry, isTelemetrySdkInitialized } from './sdk.js';
 import { Config } from '../config/config.js';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { GoogleAuth } from 'google-auth-library';
@@ -29,7 +25,7 @@ describe('telemetry', () => {
       () =>
         ({
           getApplicationDefault: mockGetApplicationDefault,
-        }) as unknown as GoogleAuth,
+        }) as unknown as GoogleAuth
     );
     mockGetApplicationDefault.mockResolvedValue(undefined); // Simulate ADC available
 
@@ -41,9 +37,7 @@ describe('telemetry', () => {
       cwd: '/test/dir',
     });
     vi.spyOn(mockConfig, 'getTelemetryEnabled').mockReturnValue(true);
-    vi.spyOn(mockConfig, 'getTelemetryOtlpEndpoint').mockReturnValue(
-      'http://localhost:4317',
-    );
+    vi.spyOn(mockConfig, 'getTelemetryOtlpEndpoint').mockReturnValue('http://localhost:4317');
     vi.spyOn(mockConfig, 'getSessionId').mockReturnValue('test-session-id');
     mockNodeSdk = {
       start: vi.fn(),

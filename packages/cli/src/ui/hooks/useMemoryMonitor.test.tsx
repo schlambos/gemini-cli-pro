@@ -6,11 +6,7 @@
 
 import { render } from '../../test-utils/render.js';
 import { vi } from 'vitest';
-import {
-  useMemoryMonitor,
-  MEMORY_CHECK_INTERVAL,
-  MEMORY_WARNING_THRESHOLD,
-} from './useMemoryMonitor.js';
+import { useMemoryMonitor, MEMORY_CHECK_INTERVAL, MEMORY_WARNING_THRESHOLD } from './useMemoryMonitor.js';
 import process from 'node:process';
 import { MessageType } from '../types.js';
 
@@ -53,7 +49,7 @@ describe('useMemoryMonitor', () => {
         type: MessageType.WARNING,
         text: 'High memory usage detected: 10.50 GB. If you experience a crash, please file a bug report by running `/bug`',
       },
-      expect.any(Number),
+      expect.any(Number)
     );
   });
 

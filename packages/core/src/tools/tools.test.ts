@@ -13,7 +13,7 @@ import { createMockMessageBus } from '../test-utils/mock-message-bus.js';
 class TestToolInvocation implements ToolInvocation<object, ToolResult> {
   constructor(
     readonly params: object,
-    private readonly executeFn: () => Promise<ToolResult>,
+    private readonly executeFn: () => Promise<ToolResult>
   ) {}
 
   getDescription(): string {
@@ -45,7 +45,7 @@ class TestTool extends DeclarativeTool<object, ToolResult> {
       {},
       createMockMessageBus(),
       true, // isOutputMarkdown
-      false, // canUpdateOutput
+      false // canUpdateOutput
     );
     this.buildFn = buildFn;
   }

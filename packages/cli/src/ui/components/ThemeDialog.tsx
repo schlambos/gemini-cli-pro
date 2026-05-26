@@ -13,10 +13,7 @@ import { pickDefaultThemeName, type Theme } from '../themes/theme.js';
 import { RadioButtonSelect } from './shared/RadioButtonSelect.js';
 import { DiffRenderer } from './messages/DiffRenderer.js';
 import { colorizeCode } from '../utils/CodeColorizer.js';
-import type {
-  LoadableSettingScope,
-  LoadedSettings,
-} from '../../config/settings.js';
+import type { LoadableSettingScope, LoadedSettings } from '../../config/settings.js';
 import { SettingScope } from '../../config/settings.js';
 import { getScopeMessageForSetting } from '../../utils/dialogScopeUtils.js';
 import { useKeypress } from '../hooks/useKeypress.js';
@@ -26,10 +23,7 @@ import { useUIState } from '../contexts/UIStateContext.js';
 
 interface ThemeDialogProps {
   /** Callback function when a theme is selected */
-  onSelect: (
-    themeName: string,
-    scope: LoadableSettingScope,
-  ) => void | Promise<void>;
+  onSelect: (themeName: string, scope: LoadableSettingScope) => void | Promise<void>;
 
   /** Callback function when the dialog is cancelled */
   onCancel: () => void;
@@ -48,15 +42,11 @@ function generateThemeItem(
   name: string,
   typeDisplay: string,
   fullTheme: Theme | undefined,
-  terminalBackgroundColor: string | undefined,
+  terminalBackgroundColor: string | undefined
 ) {
-  const isCompatible = fullTheme
-    ? themeManager.isThemeCompatible(fullTheme, terminalBackgroundColor)
-    : true;
+  const isCompatible = fullTheme ? themeManager.isThemeCompatible(fullTheme, terminalBackgroundColor) : true;
 
-  const themeBackground = fullTheme
-    ? resolveColor(fullTheme.colors.Background)
-    : undefined;
+  const themeBackground = fullTheme ? resolveColor(fullTheme.colors.Background) : undefined;
 
   const isBackgroundMatch =
     terminalBackgroundColor &&
@@ -85,27 +75,23 @@ export function ThemeDialog({
 }: ThemeDialogProps): React.JSX.Element {
   const isAlternateBuffer = useAlternateBuffer();
   const { terminalBackgroundColor } = useUIState();
-  const [selectedScope, setSelectedScope] = useState<LoadableSettingScope>(
-    SettingScope.User,
-  );
+  const [selectedScope, setSelectedScope] = useState<LoadableSettingScope>(SettingScope.User);
 
   // Track the currently highlighted theme name
-  const [highlightedThemeName, setHighlightedThemeName] = useState<string>(
-    () => {
-      // If a theme is already set, use it.
-      if (settings.merged.ui.theme) {
-        return settings.merged.ui.theme;
-      }
+  const [highlightedThemeName, setHighlightedThemeName] = useState<string>(() => {
+    // If a theme is already set, use it.
+    if (settings.merged.ui.theme) {
+      return settings.merged.ui.theme;
+    }
 
-      // Otherwise, try to pick a theme that matches the terminal background.
-      return pickDefaultThemeName(
-        terminalBackgroundColor,
-        themeManager.getAllThemes(),
-        DEFAULT_THEME.name,
-        'Default Light',
-      );
-    },
-  );
+    // Otherwise, try to pick a theme that matches the terminal background.
+    return pickDefaultThemeName(
+      terminalBackgroundColor,
+      themeManager.getAllThemes(),
+      DEFAULT_THEME.name,
+      'Default Light'
+    );
+  });
 
   const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -115,16 +101,9 @@ export function ThemeDialog({
     .map((theme) => {
       const fullTheme = themeManager.getTheme(theme.name);
       const capitalizedType = capitalize(theme.type);
-      const typeDisplay = theme.name.endsWith(capitalizedType)
-        ? ''
-        : capitalizedType;
+      const typeDisplay = theme.name.endsWith(capitalizedType) ? '' : capitalizedType;
 
-      return generateThemeItem(
-        theme.name,
-        typeDisplay,
-        fullTheme,
-        terminalBackgroundColor,
-      );
+      return generateThemeItem(theme.name, typeDisplay, fullTheme, terminalBackgroundColor);
     })
     .sort((a, b) => {
       // Show compatible themes first
@@ -135,9 +114,7 @@ export function ThemeDialog({
     });
 
   // Find the index of the selected theme, but only if it exists in the list
-  const initialThemeIndex = themeItems.findIndex(
-    (item) => item.value === highlightedThemeName,
-  );
+  const initialThemeIndex = themeItems.findIndex((item) => item.value === highlightedThemeName);
   // If not found, fall back to the first theme
   const safeInitialThemeIndex = initialThemeIndex >= 0 ? initialThemeIndex : 0;
 
@@ -145,7 +122,7 @@ export function ThemeDialog({
     async (themeName: string) => {
       await onSelect(themeName, selectedScope);
     },
-    [onSelect, selectedScope],
+    [onSelect, selectedScope]
   );
 
   const handleThemeHighlight = (themeName: string) => {
@@ -161,7 +138,7 @@ export function ThemeDialog({
     async (scope: LoadableSettingScope) => {
       await onSelect(highlightedThemeName, scope);
     },
-    [onSelect, highlightedThemeName],
+    [onSelect, highlightedThemeName]
   );
 
   const [mode, setMode] = useState<'theme' | 'scope'>('theme');
@@ -178,15 +155,11 @@ export function ThemeDialog({
       }
       return false;
     },
-    { isActive: true },
+    { isActive: true }
   );
 
   // Generate scope message for theme setting
-  const otherScopeModifiedMessage = getScopeMessageForSetting(
-    'ui.theme',
-    selectedScope,
-    settings,
-  );
+  const otherScopeModifiedMessage = getScopeMessageForSetting('ui.theme', selectedScope, settings);
 
   // Constants for calculating preview pane layout.
   // These values are based on the JSX structure below.
@@ -198,11 +171,9 @@ export function ThemeDialog({
   const TOTAL_HORIZONTAL_PADDING = 4;
   const colorizeCodeWidth = Math.max(
     Math.floor(
-      (terminalWidth - TOTAL_HORIZONTAL_PADDING) *
-        PREVIEW_PANE_WIDTH_PERCENTAGE *
-        PREVIEW_PANE_WIDTH_SAFETY_MARGIN,
+      (terminalWidth - TOTAL_HORIZONTAL_PADDING) * PREVIEW_PANE_WIDTH_PERCENTAGE * PREVIEW_PANE_WIDTH_SAFETY_MARGIN
     ),
-    1,
+    1
   );
 
   const DIALOG_PADDING = 2;
@@ -227,44 +198,34 @@ export function ThemeDialog({
   const PREVIEW_PANE_FIXED_VERTICAL_SPACE = 8;
 
   // The right column doesn't need to ever be shorter than the left column.
-  availableTerminalHeight = Math.max(
-    availableTerminalHeight,
-    totalLeftHandSideHeight,
-  );
+  availableTerminalHeight = Math.max(availableTerminalHeight, totalLeftHandSideHeight);
   const availableTerminalHeightCodeBlock =
-    availableTerminalHeight -
-    PREVIEW_PANE_FIXED_VERTICAL_SPACE -
-    (includePadding ? 2 : 0) * 2;
+    availableTerminalHeight - PREVIEW_PANE_FIXED_VERTICAL_SPACE - (includePadding ? 2 : 0) * 2;
 
   // Subtract margin between code blocks from available height.
-  const availableHeightForPanes = Math.max(
-    0,
-    availableTerminalHeightCodeBlock - 1,
-  );
+  const availableHeightForPanes = Math.max(0, availableTerminalHeightCodeBlock - 1);
 
   // The code block is slightly longer than the diff, so give it more space.
   const codeBlockHeight = Math.ceil(availableHeightForPanes * 0.6);
   const diffHeight = Math.floor(availableHeightForPanes * 0.4);
   return (
     <Box
-      borderStyle="round"
+      borderStyle='round'
       borderColor={theme.border.default}
-      flexDirection="column"
+      flexDirection='column'
       paddingTop={includePadding ? 1 : 0}
       paddingBottom={includePadding ? 1 : 0}
       paddingLeft={1}
       paddingRight={1}
-      width="100%"
+      width='100%'
     >
       {mode === 'theme' ? (
-        <Box flexDirection="row">
+        <Box flexDirection='row'>
           {/* Left Column: Selection */}
-          <Box flexDirection="column" width="45%" paddingRight={2}>
-            <Text bold={mode === 'theme'} wrap="truncate">
+          <Box flexDirection='column' width='45%' paddingRight={2}>
+            <Text bold={mode === 'theme'} wrap='truncate'>
               {mode === 'theme' ? '> ' : '  '}Select Theme{' '}
-              <Text color={theme.text.secondary}>
-                {otherScopeModifiedMessage}
-              </Text>
+              <Text color={theme.text.secondary}>{otherScopeModifiedMessage}</Text>
             </Text>
             <RadioButtonSelect
               items={themeItems}
@@ -288,34 +249,26 @@ export function ThemeDialog({
                   if (match) {
                     themeNamePart = (
                       <>
-                        {match[1]}{' '}
-                        <Text color={theme.text.secondary}>({match[2]})</Text>
+                        {match[1]} <Text color={theme.text.secondary}>({match[2]})</Text>
                       </>
                     );
                   }
 
                   return (
-                    <Text color={titleColor} wrap="truncate" key={item.key}>
-                      {themeNamePart}{' '}
-                      <Text color={theme.text.secondary}>
-                        {item.themeTypeDisplay}
-                      </Text>
+                    <Text color={titleColor} wrap='truncate' key={item.key}>
+                      {themeNamePart} <Text color={theme.text.secondary}>{item.themeTypeDisplay}</Text>
                       {itemWithExtras.themeMatch && (
-                        <Text color={theme.status.success}>
-                          {itemWithExtras.themeMatch}
-                        </Text>
+                        <Text color={theme.status.success}>{itemWithExtras.themeMatch}</Text>
                       )}
                       {itemWithExtras.themeWarning && (
-                        <Text color={theme.status.warning}>
-                          {itemWithExtras.themeWarning}
-                        </Text>
+                        <Text color={theme.status.warning}>{itemWithExtras.themeWarning}</Text>
                       )}
                     </Text>
                   );
                 }
                 // Regular label display
                 return (
-                  <Text color={titleColor} wrap="truncate">
+                  <Text color={titleColor} wrap='truncate'>
                     {item.label}
                   </Text>
                 );
@@ -324,26 +277,23 @@ export function ThemeDialog({
           </Box>
 
           {/* Right Column: Preview */}
-          <Box flexDirection="column" width="55%" paddingLeft={2}>
+          <Box flexDirection='column' width='55%' paddingLeft={2}>
             <Text bold color={theme.text.primary}>
               Preview
             </Text>
             {/* Get the Theme object for the highlighted theme, fall back to default if not found */}
             {(() => {
-              const previewTheme =
-                themeManager.getTheme(
-                  highlightedThemeName || DEFAULT_THEME.name,
-                ) || DEFAULT_THEME;
+              const previewTheme = themeManager.getTheme(highlightedThemeName || DEFAULT_THEME.name) || DEFAULT_THEME;
 
               return (
                 <Box
-                  borderStyle="single"
+                  borderStyle='single'
                   borderColor={theme.border.default}
                   paddingTop={includePadding ? 1 : 0}
                   paddingBottom={includePadding ? 1 : 0}
                   paddingLeft={1}
                   paddingRight={1}
-                  flexDirection="column"
+                  flexDirection='column'
                 >
                   {colorizeCode({
                     code: `# function
@@ -353,8 +303,7 @@ def fibonacci(n):
         a, b = b, a + b
     return a`,
                     language: 'python',
-                    availableHeight:
-                      isAlternateBuffer === false ? codeBlockHeight : undefined,
+                    availableHeight: isAlternateBuffer === false ? codeBlockHeight : undefined,
                     maxWidth: colorizeCodeWidth,
                     settings,
                   })}
@@ -366,9 +315,7 @@ def fibonacci(n):
 - print("Hello, " + name)
 + print(f"Hello, {name}!")
 `}
-                    availableTerminalHeight={
-                      isAlternateBuffer === false ? diffHeight : undefined
-                    }
+                    availableTerminalHeight={isAlternateBuffer === false ? diffHeight : undefined}
                     terminalWidth={colorizeCodeWidth}
                     theme={previewTheme}
                   />
@@ -386,7 +333,7 @@ def fibonacci(n):
         />
       )}
       <Box marginTop={1}>
-        <Text color={theme.text.secondary} wrap="truncate">
+        <Text color={theme.text.secondary} wrap='truncate'>
           (Use Enter to {mode === 'theme' ? 'select' : 'apply scope'}, Tab to{' '}
           {mode === 'theme' ? 'configure scope' : 'select theme'}, Esc to close)
         </Text>

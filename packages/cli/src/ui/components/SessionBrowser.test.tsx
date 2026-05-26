@@ -24,10 +24,7 @@ vi.mock('../hooks/useTerminalSize.js', () => ({
 vi.mock('../hooks/useKeypress.js', () => ({
   // The real hook subscribes to the KeypressContext. Here we just
   // capture the handler so tests can call it directly.
-  useKeypress: (
-    handler: (key: unknown) => void,
-    options: { isActive: boolean },
-  ) => {
+  useKeypress: (handler: (key: unknown) => void, options: { isActive: boolean }) => {
     if (options?.isActive) {
       keypressHandlers.push(handler);
     }
@@ -43,12 +40,12 @@ vi.mock('./SessionBrowser.js', async (importOriginal) => {
     props: SessionBrowserProps & {
       testSessions?: SessionInfo[];
       testError?: string | null;
-    },
+    }
   ) => {
     const state = original.useSessionBrowserState(
       props.testSessions || [],
       false, // Not loading
-      props.testError || null,
+      props.testError || null
     );
     const moveSelection = original.useMoveSelection(state);
     const cycleSortOrder = original.useCycleSortOrder(state);
@@ -61,7 +58,7 @@ vi.mock('./SessionBrowser.js', async (importOriginal) => {
         (async () => {
           // no-op delete handler for tests that don't care about deletion
         }),
-      props.onExit,
+      props.onExit
     );
 
     return React.createElement(original.SessionBrowserView, { state });
@@ -99,7 +96,7 @@ const triggerKey = (
     cmd: boolean;
     insertable: boolean;
     sequence: string;
-  }>,
+  }>
 ) => {
   const handler = keypressHandlers[keypressHandlers.length - 1];
   if (!handler) {
@@ -162,7 +159,7 @@ describe('SessionBrowser component', () => {
         onDeleteSession={onDeleteSession}
         onExit={onExit}
         testSessions={[]}
-      />,
+      />
     );
 
     expect(lastFrame()).toMatchSnapshot();
@@ -199,7 +196,7 @@ describe('SessionBrowser component', () => {
         onDeleteSession={onDeleteSession}
         onExit={onExit}
         testSessions={[session1, session2]}
-      />,
+      />
     );
 
     expect(lastFrame()).toMatchSnapshot();
@@ -250,7 +247,7 @@ describe('SessionBrowser component', () => {
         onDeleteSession={onDeleteSession}
         onExit={onExit}
         testSessions={[searchSession, otherSession]}
-      />,
+      />
     );
 
     expect(lastFrame()).toContain('Chat Sessions (2 total');
@@ -307,7 +304,7 @@ describe('SessionBrowser component', () => {
         onDeleteSession={onDeleteSession}
         onExit={onExit}
         testSessions={[session1, session2]}
-      />,
+      />
     );
 
     expect(lastFrame()).toContain('Chat Sessions (2 total');
@@ -353,7 +350,7 @@ describe('SessionBrowser component', () => {
         onDeleteSession={onDeleteSession}
         onExit={onExit}
         testSessions={[currentSession, otherSession]}
-      />,
+      />
     );
 
     // Active selection is at 0 (current session).
@@ -377,8 +374,8 @@ describe('SessionBrowser component', () => {
         onResumeSession={onResumeSession}
         onDeleteSession={onDeleteSession}
         onExit={onExit}
-        testError="storage failure"
-      />,
+        testError='storage failure'
+      />
     );
 
     expect(lastFrame()).toMatchSnapshot();

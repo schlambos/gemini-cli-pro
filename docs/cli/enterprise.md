@@ -540,13 +540,7 @@ CLI.
 {
   "tools": {
     "sandbox": "docker",
-    "core": [
-      "ReadFileTool",
-      "GlobTool",
-      "ShellTool(ls)",
-      "ShellTool(cat)",
-      "ShellTool(grep)"
-    ]
+    "core": ["ReadFileTool", "GlobTool", "ShellTool(ls)", "ShellTool(cat)", "ShellTool(grep)"]
   },
   "mcp": {
     "allowed": ["corp-tools"]

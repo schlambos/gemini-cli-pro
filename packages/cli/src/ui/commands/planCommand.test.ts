@@ -17,8 +17,7 @@ import {
 } from '@google/gemini-cli-core';
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     coreEvents: {
@@ -69,35 +68,24 @@ describe('planCommand', () => {
 
   it('should have the correct name and description', () => {
     expect(planCommand.name).toBe('plan');
-    expect(planCommand.description).toBe(
-      'Switch to Plan Mode and view current plan',
-    );
+    expect(planCommand.description).toBe('Switch to Plan Mode and view current plan');
   });
 
   it('should switch to plan mode if enabled', async () => {
     vi.mocked(mockContext.services.config!.isPlanEnabled).mockReturnValue(true);
-    vi.mocked(mockContext.services.config!.getApprovedPlanPath).mockReturnValue(
-      undefined,
-    );
+    vi.mocked(mockContext.services.config!.getApprovedPlanPath).mockReturnValue(undefined);
 
     if (!planCommand.action) throw new Error('Action missing');
     await planCommand.action(mockContext, '');
 
-    expect(mockContext.services.config!.setApprovalMode).toHaveBeenCalledWith(
-      ApprovalMode.PLAN,
-    );
-    expect(coreEvents.emitFeedback).toHaveBeenCalledWith(
-      'info',
-      'Switched to Plan Mode.',
-    );
+    expect(mockContext.services.config!.setApprovalMode).toHaveBeenCalledWith(ApprovalMode.PLAN);
+    expect(coreEvents.emitFeedback).toHaveBeenCalledWith('info', 'Switched to Plan Mode.');
   });
 
   it('should display the approved plan from config', async () => {
     const mockPlanPath = '/mock/plans/dir/approved-plan.md';
     vi.mocked(mockContext.services.config!.isPlanEnabled).mockReturnValue(true);
-    vi.mocked(mockContext.services.config!.getApprovedPlanPath).mockReturnValue(
-      mockPlanPath,
-    );
+    vi.mocked(mockContext.services.config!.getApprovedPlanPath).mockReturnValue(mockPlanPath);
     vi.mocked(processSingleFileContent).mockResolvedValue({
       llmContent: '# Approved Plan Content',
       returnDisplay: '# Approved Plan Content',
@@ -106,10 +94,7 @@ describe('planCommand', () => {
     if (!planCommand.action) throw new Error('Action missing');
     await planCommand.action(mockContext, '');
 
-    expect(coreEvents.emitFeedback).toHaveBeenCalledWith(
-      'info',
-      'Approved Plan: approved-plan.md',
-    );
+    expect(coreEvents.emitFeedback).toHaveBeenCalledWith('info', 'Approved Plan: approved-plan.md');
     expect(mockContext.ui.addItem).toHaveBeenCalledWith({
       type: MessageType.GEMINI,
       text: '# Approved Plan Content',

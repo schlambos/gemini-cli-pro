@@ -12,14 +12,9 @@ import { renderWithProviders } from '../../test-utils/render.js';
 describe('StickyHeader', () => {
   it.each([true, false])('renders children with isFirst=%s', (isFirst) => {
     const { lastFrame } = renderWithProviders(
-      <StickyHeader
-        isFirst={isFirst}
-        width={80}
-        borderColor="green"
-        borderDimColor={false}
-      >
+      <StickyHeader isFirst={isFirst} width={80} borderColor='green' borderDimColor={false}>
         <Text>Hello Sticky</Text>
-      </StickyHeader>,
+      </StickyHeader>
     );
     expect(lastFrame()).toContain('Hello Sticky');
   });

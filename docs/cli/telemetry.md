@@ -856,7 +856,5 @@ standardized observability across GenAI applications:
     - `server.port` (int, optional): GenAI server port
     - `error.type` (string, optional): Error type if the operation failed
 
-[OpenTelemetry GenAI semantic conventions]:
-  https://github.com/open-telemetry/semantic-conventions/blob/main/docs/gen-ai/gen-ai-metrics.md
-[OpenTelemetry GenAI semantic conventions for events]:
-  https://github.com/open-telemetry/semantic-conventions/blob/8b4f210f43136e57c1f6f47292eb6d38e3bf30bb/docs/gen-ai/gen-ai-events.md
+[OpenTelemetry GenAI semantic conventions]: https://github.com/open-telemetry/semantic-conventions/blob/main/docs/gen-ai/gen-ai-metrics.md
+[OpenTelemetry GenAI semantic conventions for events]: https://github.com/open-telemetry/semantic-conventions/blob/8b4f210f43136e57c1f6f47292eb6d38e3bf30bb/docs/gen-ai/gen-ai-events.md

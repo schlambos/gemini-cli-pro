@@ -12,11 +12,7 @@ import { Box, Text } from 'ink';
 import { act, useState, type JSX } from 'react';
 import { useAlternateBuffer } from '../hooks/useAlternateBuffer.js';
 import { SHELL_COMMAND_NAME } from '../constants.js';
-import {
-  UIStateContext,
-  useUIState,
-  type UIState,
-} from '../contexts/UIStateContext.js';
+import { UIStateContext, useUIState, type UIState } from '../contexts/UIStateContext.js';
 import { CoreToolCallStatus } from '@google/gemini-cli-core';
 
 // Mock dependencies
@@ -66,7 +62,7 @@ vi.mock('./shared/ScrollableList.js', () => ({
     data: unknown[];
     renderItem: (props: { item: unknown }) => JSX.Element;
   }) => (
-    <Box flexDirection="column">
+    <Box flexDirection='column'>
       <Text>ScrollableList</Text>
       {data.map((item: unknown, index: number) => (
         <Box key={index}>{renderItem({ item })}</Box>
@@ -151,15 +147,11 @@ describe('MainContent', () => {
     let setShowDetails: ((visible: boolean) => void) | undefined;
     const ToggleHarness = () => {
       const outerState = useUIState();
-      const [showDetails, setShowDetailsState] = useState(
-        outerState.cleanUiDetailsVisible,
-      );
+      const [showDetails, setShowDetailsState] = useState(outerState.cleanUiDetailsVisible);
       setShowDetails = setShowDetailsState;
 
       return (
-        <UIStateContext.Provider
-          value={{ ...outerState, cleanUiDetailsVisible: showDetails }}
-        >
+        <UIStateContext.Provider value={{ ...outerState, cleanUiDetailsVisible: showDetails }}>
           <MainContent />
         </UIStateContext.Provider>
       );
@@ -245,12 +237,7 @@ describe('MainContent', () => {
 
     it.each(testCases)(
       '$name',
-      async ({
-        isAlternateBuffer,
-        embeddedShellFocused,
-        constrainHeight,
-        shouldShowLine1,
-      }) => {
+      async ({ isAlternateBuffer, embeddedShellFocused, constrainHeight, shouldShowLine1 }) => {
         vi.mocked(useAlternateBuffer).mockReturnValue(isAlternateBuffer);
         const ptyId = 123;
         const uiState = {
@@ -268,10 +255,7 @@ describe('MainContent', () => {
                   description: 'Running a long command...',
                   // 20 lines of output.
                   // Default max is 15, so Line 1-5 will be truncated/scrolled out if not expanded.
-                  resultDisplay: Array.from(
-                    { length: 20 },
-                    (_, i) => `Line ${i + 1}`,
-                  ).join('\n'),
+                  resultDisplay: Array.from({ length: 20 }, (_, i) => `Line ${i + 1}`).join('\n'),
                   ptyId,
                   confirmationDetails: undefined,
                 },
@@ -317,7 +301,7 @@ describe('MainContent', () => {
 
         // Snapshots for visual verification
         expect(output).toMatchSnapshot();
-      },
+      }
     );
   });
 });

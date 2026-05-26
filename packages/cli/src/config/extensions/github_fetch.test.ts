@@ -99,9 +99,7 @@ describe('fetchJson', () => {
       return new EventEmitter() as ClientRequest;
     });
 
-    await expect(
-      fetchJson('https://example.com/redirect-perm'),
-    ).resolves.toEqual({ permanent: true });
+    await expect(fetchJson('https://example.com/redirect-perm')).resolves.toEqual({ permanent: true });
   });
 
   it('should reject on non-200/30x status code', async () => {
@@ -113,9 +111,7 @@ describe('fetchJson', () => {
       return new EventEmitter() as ClientRequest;
     });
 
-    await expect(fetchJson('https://example.com/error')).rejects.toThrow(
-      'Request failed with status code 404',
-    );
+    await expect(fetchJson('https://example.com/error')).rejects.toThrow('Request failed with status code 404');
   });
 
   it('should reject on request error', async () => {
@@ -126,9 +122,7 @@ describe('fetchJson', () => {
       return req;
     });
 
-    await expect(fetchJson('https://example.com/error')).rejects.toThrow(
-      'Network error',
-    );
+    await expect(fetchJson('https://example.com/error')).rejects.toThrow('Network error');
   });
 
   describe('with GITHUB_TOKEN', () => {

@@ -7,14 +7,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { StreamJsonFormatter } from './stream-json-formatter.js';
 import { JsonStreamEventType } from './types.js';
-import type {
-  InitEvent,
-  MessageEvent,
-  ToolUseEvent,
-  ToolResultEvent,
-  ErrorEvent,
-  ResultEvent,
-} from './types.js';
+import type { InitEvent, MessageEvent, ToolUseEvent, ToolResultEvent, ErrorEvent, ResultEvent } from './types.js';
 import type { SessionMetrics } from '../telemetry/uiTelemetry.js';
 import { ToolCallDecision } from '../telemetry/tool-call-decision.js';
 
@@ -25,9 +18,7 @@ describe('StreamJsonFormatter', () => {
 
   beforeEach(() => {
     formatter = new StreamJsonFormatter();
-    stdoutWriteSpy = vi
-      .spyOn(process.stdout, 'write')
-      .mockImplementation(() => true);
+    stdoutWriteSpy = vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
   });
 
   afterEach(() => {
@@ -239,14 +230,8 @@ describe('StreamJsonFormatter', () => {
       formatter.emitEvent(event2);
 
       expect(stdoutWriteSpy).toHaveBeenCalledTimes(2);
-      expect(stdoutWriteSpy).toHaveBeenNthCalledWith(
-        1,
-        JSON.stringify(event1) + '\n',
-      );
-      expect(stdoutWriteSpy).toHaveBeenNthCalledWith(
-        2,
-        JSON.stringify(event2) + '\n',
-      );
+      expect(stdoutWriteSpy).toHaveBeenNthCalledWith(1, JSON.stringify(event1) + '\n');
+      expect(stdoutWriteSpy).toHaveBeenNthCalledWith(2, JSON.stringify(event2) + '\n');
     });
   });
 

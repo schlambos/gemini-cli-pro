@@ -21,7 +21,7 @@ export class Override {
   constructor(
     public baseRule: string,
     public isDisable: boolean,
-    public includeSubdirs: boolean,
+    public includeSubdirs: boolean
   ) {}
 
   static fromInput(inputRule: string, includeSubdirs: boolean): Override {
@@ -35,18 +35,13 @@ export class Override {
     const isDisable = fileRule.startsWith('!');
     let baseRule = isDisable ? fileRule.substring(1) : fileRule;
     const includeSubdirs = baseRule.endsWith('*');
-    baseRule = includeSubdirs
-      ? baseRule.substring(0, baseRule.length - 1)
-      : baseRule;
+    baseRule = includeSubdirs ? baseRule.substring(0, baseRule.length - 1) : baseRule;
     return new Override(baseRule, isDisable, includeSubdirs);
   }
 
   conflictsWith(other: Override): boolean {
     if (this.baseRule === other.baseRule) {
-      return (
-        this.includeSubdirs !== other.includeSubdirs ||
-        this.isDisable !== other.isDisable
-      );
+      return this.includeSubdirs !== other.includeSubdirs || this.isDisable !== other.isDisable;
     }
     return false;
   }
@@ -115,20 +110,14 @@ export class ExtensionEnablementManager {
 
   constructor(enabledExtensionNames?: string[]) {
     this.configDir = ExtensionStorage.getUserExtensionsDir();
-    this.configFilePath = path.join(
-      this.configDir,
-      'extension-enablement.json',
-    );
-    this.enabledExtensionNamesOverride =
-      enabledExtensionNames?.map((name) => name.toLowerCase()) ?? [];
+    this.configFilePath = path.join(this.configDir, 'extension-enablement.json');
+    this.enabledExtensionNamesOverride = enabledExtensionNames?.map((name) => name.toLowerCase()) ?? [];
   }
 
   validateExtensionOverrides(extensions: GeminiCLIExtension[]) {
     for (const name of this.enabledExtensionNamesOverride) {
       if (name === 'none') continue;
-      if (
-        !extensions.some((ext) => ext.name.toLowerCase() === name.toLowerCase())
-      ) {
+      if (!extensions.some((ext) => ext.name.toLowerCase() === name.toLowerCase())) {
         coreEvents.emitFeedback('error', `Extension not found: ${name}`);
       }
     }
@@ -145,10 +134,7 @@ export class ExtensionEnablementManager {
   isEnabled(extensionName: string, currentPath: string): boolean {
     // If we have a single override called 'none', this disables all extensions.
     // Typically, this comes from the user passing `-e none`.
-    if (
-      this.enabledExtensionNamesOverride.length === 1 &&
-      this.enabledExtensionNamesOverride[0] === 'none'
-    ) {
+    if (this.enabledExtensionNamesOverride.length === 1 && this.enabledExtensionNamesOverride[0] === 'none') {
       return false;
     }
 
@@ -156,9 +142,7 @@ export class ExtensionEnablementManager {
     if (this.enabledExtensionNamesOverride.length > 0) {
       // When checking against overrides ONLY, we use a case insensitive match.
       // The override names are already lowercased in the constructor.
-      return this.enabledExtensionNamesOverride.includes(
-        extensionName.toLocaleLowerCase(),
-      );
+      return this.enabledExtensionNamesOverride.includes(extensionName.toLocaleLowerCase());
     }
 
     // Otherwise, we use the configuration settings
@@ -181,18 +165,10 @@ export class ExtensionEnablementManager {
       const content = fs.readFileSync(this.configFilePath, 'utf-8');
       return JSON.parse(content);
     } catch (error) {
-      if (
-        error instanceof Error &&
-        'code' in error &&
-        error.code === 'ENOENT'
-      ) {
+      if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
         return {};
       }
-      coreEvents.emitFeedback(
-        'error',
-        'Failed to read extension enablement config.',
-        error,
-      );
+      coreEvents.emitFeedback('error', 'Failed to read extension enablement config.', error);
       return {};
     }
   }
@@ -202,11 +178,7 @@ export class ExtensionEnablementManager {
     fs.writeFileSync(this.configFilePath, JSON.stringify(config, null, 2));
   }
 
-  enable(
-    extensionName: string,
-    includeSubdirs: boolean,
-    scopePath: string,
-  ): void {
+  enable(extensionName: string, includeSubdirs: boolean, scopePath: string): void {
     const config = this.readConfig();
     if (!config[extensionName]) {
       config[extensionName] = { overrides: [] };
@@ -214,10 +186,7 @@ export class ExtensionEnablementManager {
     const override = Override.fromInput(scopePath, includeSubdirs);
     const overrides = config[extensionName].overrides.filter((rule) => {
       const fileOverride = Override.fromFileRule(rule);
-      if (
-        fileOverride.conflictsWith(override) ||
-        fileOverride.isEqualTo(override)
-      ) {
+      if (fileOverride.conflictsWith(override) || fileOverride.isEqualTo(override)) {
         return false; // Remove conflicts and equivalent values.
       }
       return !fileOverride.isChildOf(override);
@@ -227,11 +196,7 @@ export class ExtensionEnablementManager {
     this.writeConfig(config);
   }
 
-  disable(
-    extensionName: string,
-    includeSubdirs: boolean,
-    scopePath: string,
-  ): void {
+  disable(extensionName: string, includeSubdirs: boolean, scopePath: string): void {
     this.enable(extensionName, includeSubdirs, `!${scopePath}`);
   }
 

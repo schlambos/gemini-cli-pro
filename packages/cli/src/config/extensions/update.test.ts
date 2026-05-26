@@ -5,15 +5,8 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import {
-  updateExtension,
-  updateAllUpdatableExtensions,
-  checkForAllExtensionUpdates,
-} from './update.js';
-import {
-  ExtensionUpdateState,
-  type ExtensionUpdateStatus,
-} from '../../ui/state/extensions.js';
+import { updateExtension, updateAllUpdatableExtensions, checkForAllExtensionUpdates } from './update.js';
+import { ExtensionUpdateState, type ExtensionUpdateStatus } from '../../ui/state/extensions.js';
 import { ExtensionStorage } from './storage.js';
 import { copyExtension } from '../extension-manager.js';
 import { checkForExtensionUpdate } from './github.js';
@@ -84,7 +77,7 @@ describe('Extension Update Logic', () => {
         mockExtension,
         mockExtensionManager,
         ExtensionUpdateState.UPDATING,
-        mockDispatch,
+        mockDispatch
       );
       expect(result).toBeUndefined();
       expect(mockDispatch).not.toHaveBeenCalled();
@@ -96,12 +89,7 @@ describe('Extension Update Logic', () => {
       } as unknown as import('@google/gemini-cli-core').ExtensionInstallMetadata);
 
       await expect(
-        updateExtension(
-          mockExtension,
-          mockExtensionManager,
-          ExtensionUpdateState.UPDATE_AVAILABLE,
-          mockDispatch,
-        ),
+        updateExtension(mockExtension, mockExtensionManager, ExtensionUpdateState.UPDATE_AVAILABLE, mockDispatch)
       ).rejects.toThrow('type is unknown');
 
       expect(mockDispatch).toHaveBeenCalledWith({
@@ -127,12 +115,7 @@ describe('Extension Update Logic', () => {
       });
 
       await expect(
-        updateExtension(
-          mockExtension,
-          mockExtensionManager,
-          ExtensionUpdateState.UPDATE_AVAILABLE,
-          mockDispatch,
-        ),
+        updateExtension(mockExtension, mockExtensionManager, ExtensionUpdateState.UPDATE_AVAILABLE, mockDispatch)
       ).rejects.toThrow('Extension is linked');
 
       expect(mockDispatch).toHaveBeenCalledWith({
@@ -149,11 +132,9 @@ describe('Extension Update Logic', () => {
         Promise.resolve({
           name: 'test-extension',
           version: '1.0.0',
-        }),
+        })
       );
-      vi.mocked(
-        mockExtensionManager.installOrUpdateExtension,
-      ).mockResolvedValue({
+      vi.mocked(mockExtensionManager.installOrUpdateExtension).mockResolvedValue({
         ...mockExtension,
         version: '1.1.0',
       });
@@ -162,7 +143,7 @@ describe('Extension Update Logic', () => {
         mockExtension,
         mockExtensionManager,
         ExtensionUpdateState.UPDATE_AVAILABLE,
-        mockDispatch,
+        mockDispatch
       );
 
       expect(mockExtensionManager.installOrUpdateExtension).toHaveBeenCalled();
@@ -189,11 +170,9 @@ describe('Extension Update Logic', () => {
         Promise.resolve({
           name: 'test-extension',
           version: '1.0.0',
-        }),
+        })
       );
-      vi.mocked(
-        mockExtensionManager.installOrUpdateExtension,
-      ).mockResolvedValue({
+      vi.mocked(mockExtensionManager.installOrUpdateExtension).mockResolvedValue({
         ...mockExtension,
         version: '1.1.0',
       });
@@ -203,7 +182,7 @@ describe('Extension Update Logic', () => {
         mockExtensionManager,
         ExtensionUpdateState.UPDATE_AVAILABLE,
         mockDispatch,
-        true, // enableExtensionReloading
+        true // enableExtensionReloading
       );
 
       expect(mockDispatch).toHaveBeenCalledWith({
@@ -220,25 +199,15 @@ describe('Extension Update Logic', () => {
         Promise.resolve({
           name: 'test-extension',
           version: '1.0.0',
-        }),
+        })
       );
-      vi.mocked(
-        mockExtensionManager.installOrUpdateExtension,
-      ).mockRejectedValue(new Error('Install failed'));
+      vi.mocked(mockExtensionManager.installOrUpdateExtension).mockRejectedValue(new Error('Install failed'));
 
       await expect(
-        updateExtension(
-          mockExtension,
-          mockExtensionManager,
-          ExtensionUpdateState.UPDATE_AVAILABLE,
-          mockDispatch,
-        ),
+        updateExtension(mockExtension, mockExtensionManager, ExtensionUpdateState.UPDATE_AVAILABLE, mockDispatch)
       ).rejects.toThrow('Updated extension not found after installation');
 
-      expect(copyExtension).toHaveBeenCalledWith(
-        '/tmp/mock-dir',
-        mockExtension.path,
-      );
+      expect(copyExtension).toHaveBeenCalledWith('/tmp/mock-dir', mockExtension.path);
       expect(mockDispatch).toHaveBeenCalledWith({
         type: 'SET_STATE',
         payload: {
@@ -267,24 +236,23 @@ describe('Extension Update Logic', () => {
         Promise.resolve({
           name: 'ext',
           version: '1.0.0',
-        }),
+        })
       );
-      vi.mocked(
-        mockExtensionManager.installOrUpdateExtension,
-      ).mockResolvedValue({ ...mockExtension, version: '1.1.0' });
+      vi.mocked(mockExtensionManager.installOrUpdateExtension).mockResolvedValue({
+        ...mockExtension,
+        version: '1.1.0',
+      });
 
       const results = await updateAllUpdatableExtensions(
         extensions,
         extensionsState as Map<string, ExtensionUpdateStatus>,
         mockExtensionManager,
-        mockDispatch,
+        mockDispatch
       );
 
       expect(results).toHaveLength(2);
       expect(results.map((r) => r.name)).toEqual(['ext1', 'ext3']);
-      expect(
-        mockExtensionManager.installOrUpdateExtension,
-      ).toHaveBeenCalledTimes(2);
+      expect(mockExtensionManager.installOrUpdateExtension).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -297,15 +265,9 @@ describe('Extension Update Logic', () => {
     });
 
     it('should set state to NOT_UPDATABLE if no install metadata', async () => {
-      const extensions: GeminiCLIExtension[] = [
-        { ...mockExtension, installMetadata: undefined },
-      ];
+      const extensions: GeminiCLIExtension[] = [{ ...mockExtension, installMetadata: undefined }];
 
-      await checkForAllExtensionUpdates(
-        extensions,
-        mockExtensionManager,
-        mockDispatch,
-      );
+      await checkForAllExtensionUpdates(extensions, mockExtensionManager, mockDispatch);
 
       expect(mockDispatch).toHaveBeenCalledWith({
         type: 'SET_STATE',
@@ -317,18 +279,10 @@ describe('Extension Update Logic', () => {
     });
 
     it('should check for updates and update state', async () => {
-      const extensions: GeminiCLIExtension[] = [
-        { ...mockExtension, installMetadata: { type: 'git', source: '...' } },
-      ];
-      vi.mocked(checkForExtensionUpdate).mockResolvedValue(
-        ExtensionUpdateState.UPDATE_AVAILABLE,
-      );
+      const extensions: GeminiCLIExtension[] = [{ ...mockExtension, installMetadata: { type: 'git', source: '...' } }];
+      vi.mocked(checkForExtensionUpdate).mockResolvedValue(ExtensionUpdateState.UPDATE_AVAILABLE);
 
-      await checkForAllExtensionUpdates(
-        extensions,
-        mockExtensionManager,
-        mockDispatch,
-      );
+      await checkForAllExtensionUpdates(extensions, mockExtensionManager, mockDispatch);
 
       expect(mockDispatch).toHaveBeenCalledWith({
         type: 'SET_STATE',

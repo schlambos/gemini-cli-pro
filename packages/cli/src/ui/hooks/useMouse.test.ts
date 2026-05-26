@@ -10,8 +10,7 @@ import { useMouse } from './useMouse.js';
 import { MouseProvider, useMouseContext } from '../contexts/MouseContext.js';
 
 vi.mock('../contexts/MouseContext.js', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('../contexts/MouseContext.js')>();
+  const actual = await importOriginal<typeof import('../contexts/MouseContext.js')>();
   const subscribe = vi.fn();
   const unsubscribe = vi.fn();
   return {
@@ -49,10 +48,7 @@ describe('useMouse', () => {
   });
 
   it('should unsubscribe on unmount', () => {
-    const { unmount } = renderHook(
-      () => useMouse(mockOnMouseEvent, { isActive: true }),
-      { wrapper: MouseProvider },
-    );
+    const { unmount } = renderHook(() => useMouse(mockOnMouseEvent, { isActive: true }), { wrapper: MouseProvider });
 
     const { unsubscribe } = useMouseContext();
     unmount();
@@ -60,14 +56,10 @@ describe('useMouse', () => {
   });
 
   it('should unsubscribe when isActive becomes false', () => {
-    const { rerender } = renderHook(
-      ({ isActive }: { isActive: boolean }) =>
-        useMouse(mockOnMouseEvent, { isActive }),
-      {
-        initialProps: { isActive: true },
-        wrapper: MouseProvider,
-      },
-    );
+    const { rerender } = renderHook(({ isActive }: { isActive: boolean }) => useMouse(mockOnMouseEvent, { isActive }), {
+      initialProps: { isActive: true },
+      wrapper: MouseProvider,
+    });
 
     const { unsubscribe } = useMouseContext();
     rerender({ isActive: false });

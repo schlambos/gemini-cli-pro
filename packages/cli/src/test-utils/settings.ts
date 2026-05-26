@@ -6,11 +6,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import {
-  LoadedSettings,
-  createTestMergedSettings,
-  type SettingsError,
-} from '../config/settings.js';
+import { LoadedSettings, createTestMergedSettings, type SettingsError } from '../config/settings.js';
 
 export interface MockSettingsFile {
   settings: any;
@@ -36,9 +32,7 @@ interface CreateMockSettingsOptions {
  *                   If 'merged' is provided, it overrides the computed merged settings.
  *                   Any functions in overrides are assigned directly to the LoadedSettings instance.
  */
-export const createMockSettings = (
-  overrides: CreateMockSettingsOptions = {},
-): LoadedSettings => {
+export const createMockSettings = (overrides: CreateMockSettingsOptions = {}): LoadedSettings => {
   const {
     system,
     systemDefaults,
@@ -64,7 +58,7 @@ export const createMockSettings = (
     // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
     (workspace as any) || { path: '', settings: {}, originalSettings: {} },
     isTrusted ?? true,
-    errors || [],
+    errors || []
   );
 
   if (mergedOverride) {

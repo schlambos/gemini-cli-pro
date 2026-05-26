@@ -8,22 +8,14 @@ import * as fs from 'node:fs/promises';
 import type { Dirent } from 'node:fs';
 import * as path from 'node:path';
 import { getErrorMessage, isNodeError } from './errors.js';
-import type {
-  FileDiscoveryService,
-  FilterFilesOptions,
-} from '../services/fileDiscoveryService.js';
+import type { FileDiscoveryService, FilterFilesOptions } from '../services/fileDiscoveryService.js';
 import type { FileFilteringOptions } from '../config/constants.js';
 import { DEFAULT_FILE_FILTERING_OPTIONS } from '../config/constants.js';
 import { debugLogger } from './debugLogger.js';
 
 const MAX_ITEMS = 200;
 const TRUNCATION_INDICATOR = '...';
-const DEFAULT_IGNORED_FOLDERS = new Set([
-  'node_modules',
-  '.git',
-  'dist',
-  '__pycache__',
-]);
+const DEFAULT_IGNORED_FOLDERS = new Set(['node_modules', '.git', 'dist', '__pycache__']);
 
 // --- Interfaces ---
 
@@ -41,9 +33,7 @@ interface FolderStructureOptions {
   fileFilteringOptions?: FileFilteringOptions;
 }
 // Define a type for the merged options where fileIncludePattern remains optional
-type MergedFolderStructureOptions = Required<
-  Omit<FolderStructureOptions, 'fileIncludePattern' | 'fileService'>
-> & {
+type MergedFolderStructureOptions = Required<Omit<FolderStructureOptions, 'fileIncludePattern' | 'fileService'>> & {
   fileIncludePattern?: RegExp;
   fileService?: FileDiscoveryService;
   fileFilteringOptions?: FileFilteringOptions;
@@ -68,7 +58,7 @@ interface FullFolderInfo {
 
 async function readFullStructure(
   rootPath: string,
-  options: MergedFolderStructureOptions,
+  options: MergedFolderStructureOptions
 ): Promise<FullFolderInfo | null> {
   const rootName = path.basename(rootPath);
   const rootNode: FullFolderInfo = {
@@ -109,13 +99,8 @@ async function readFullStructure(
       // Sort entries alphabetically by name for consistent processing order
       entries = rawEntries.sort((a, b) => a.name.localeCompare(b.name));
     } catch (error: unknown) {
-      if (
-        isNodeError(error) &&
-        (error.code === 'EACCES' || error.code === 'ENOENT')
-      ) {
-        debugLogger.warn(
-          `Warning: Could not read directory ${currentPath}: ${error.message}`,
-        );
+      if (isNodeError(error) && (error.code === 'EACCES' || error.code === 'ENOENT')) {
+        debugLogger.warn(`Warning: Could not read directory ${currentPath}: ${error.message}`);
         if (currentPath === rootPath && error.code === 'ENOENT') {
           return null; // Root directory itself not found
         }
@@ -141,15 +126,10 @@ async function readFullStructure(
         }
         const fileName = entry.name;
         const filePath = path.join(currentPath, fileName);
-        if (
-          options.fileService?.shouldIgnoreFile(filePath, filterFileOptions)
-        ) {
+        if (options.fileService?.shouldIgnoreFile(filePath, filterFileOptions)) {
           continue;
         }
-        if (
-          !options.fileIncludePattern ||
-          options.fileIncludePattern.test(fileName)
-        ) {
+        if (!options.fileIncludePattern || options.fileIncludePattern.test(fileName)) {
           filesInCurrentDir.push(fileName);
           currentItemCount++;
           folderInfo.totalFiles++;
@@ -175,11 +155,7 @@ async function readFullStructure(
         const subFolderName = entry.name;
         const subFolderPath = path.join(currentPath, subFolderName);
 
-        const isIgnored =
-          options.fileService?.shouldIgnoreFile(
-            subFolderPath,
-            filterFileOptions,
-          ) ?? false;
+        const isIgnored = options.fileService?.shouldIgnoreFile(subFolderPath, filterFileOptions) ?? false;
 
         if (options.ignoredFolders.has(subFolderName) || isIgnored) {
           const ignoredSubFolder: FullFolderInfo = {
@@ -231,7 +207,7 @@ function formatStructure(
   currentIndent: string,
   isLastChildOfParent: boolean,
   isProcessingRootNode: boolean,
-  builder: string[],
+  builder: string[]
 ): void {
   const connector = isLastChildOfParent ? '└───' : '├───';
 
@@ -240,31 +216,23 @@ function formatStructure(
   // Its children are printed relative to that conceptual root.
   // Ignored root nodes ARE printed with a connector.
   if (!isProcessingRootNode || node.isIgnored) {
-    builder.push(
-      `${currentIndent}${connector}${node.name}${path.sep}${node.isIgnored ? TRUNCATION_INDICATOR : ''}`,
-    );
+    builder.push(`${currentIndent}${connector}${node.name}${path.sep}${node.isIgnored ? TRUNCATION_INDICATOR : ''}`);
   }
 
   // Determine the indent for the children of *this* node.
   // If *this* node was the root of the whole structure, its children start with no indent before their connectors.
   // Otherwise, children's indent extends from the current node's indent.
-  const indentForChildren = isProcessingRootNode
-    ? ''
-    : currentIndent + (isLastChildOfParent ? '    ' : '│   ');
+  const indentForChildren = isProcessingRootNode ? '' : currentIndent + (isLastChildOfParent ? '    ' : '│   ');
 
   // Render files of the current node
   const fileCount = node.files.length;
   for (let i = 0; i < fileCount; i++) {
-    const isLastFileAmongSiblings =
-      i === fileCount - 1 &&
-      node.subFolders.length === 0 &&
-      !node.hasMoreSubfolders;
+    const isLastFileAmongSiblings = i === fileCount - 1 && node.subFolders.length === 0 && !node.hasMoreSubfolders;
     const fileConnector = isLastFileAmongSiblings ? '└───' : '├───';
     builder.push(`${indentForChildren}${fileConnector}${node.files[i]}`);
   }
   if (node.hasMoreFiles) {
-    const isLastIndicatorAmongSiblings =
-      node.subFolders.length === 0 && !node.hasMoreSubfolders;
+    const isLastIndicatorAmongSiblings = node.subFolders.length === 0 && !node.hasMoreSubfolders;
     const fileConnector = isLastIndicatorAmongSiblings ? '└───' : '├───';
     builder.push(`${indentForChildren}${fileConnector}${TRUNCATION_INDICATOR}`);
   }
@@ -272,16 +240,9 @@ function formatStructure(
   // Render subfolders of the current node
   const subFolderCount = node.subFolders.length;
   for (let i = 0; i < subFolderCount; i++) {
-    const isLastSubfolderAmongSiblings =
-      i === subFolderCount - 1 && !node.hasMoreSubfolders;
+    const isLastSubfolderAmongSiblings = i === subFolderCount - 1 && !node.hasMoreSubfolders;
     // Children are never the root node being processed initially.
-    formatStructure(
-      node.subFolders[i],
-      indentForChildren,
-      isLastSubfolderAmongSiblings,
-      false,
-      builder,
-    );
+    formatStructure(node.subFolders[i], indentForChildren, isLastSubfolderAmongSiblings, false, builder);
   }
   if (node.hasMoreSubfolders) {
     builder.push(`${indentForChildren}└───${TRUNCATION_INDICATOR}`);
@@ -299,18 +260,14 @@ function formatStructure(
  * @param options Optional configuration settings.
  * @returns A promise resolving to the formatted folder structure string.
  */
-export async function getFolderStructure(
-  directory: string,
-  options?: FolderStructureOptions,
-): Promise<string> {
+export async function getFolderStructure(directory: string, options?: FolderStructureOptions): Promise<string> {
   const resolvedPath = path.resolve(directory);
   const mergedOptions: MergedFolderStructureOptions = {
     maxItems: options?.maxItems ?? MAX_ITEMS,
     ignoredFolders: options?.ignoredFolders ?? DEFAULT_IGNORED_FOLDERS,
     fileIncludePattern: options?.fileIncludePattern,
     fileService: options?.fileService,
-    fileFilteringOptions:
-      options?.fileFilteringOptions ?? DEFAULT_FILE_FILTERING_OPTIONS,
+    fileFilteringOptions: options?.fileFilteringOptions ?? DEFAULT_FILE_FILTERING_OPTIONS,
   };
 
   try {
@@ -347,10 +304,7 @@ export async function getFolderStructure(
 
     return `${summary}\n\n${resolvedPath}${path.sep}\n${structureLines.join('\n')}`;
   } catch (error: unknown) {
-    debugLogger.warn(
-      `Error getting folder structure for ${resolvedPath}:`,
-      error,
-    );
+    debugLogger.warn(`Error getting folder structure for ${resolvedPath}:`, error);
     return `Error processing directory "${resolvedPath}": ${getErrorMessage(error)}`;
   }
 }

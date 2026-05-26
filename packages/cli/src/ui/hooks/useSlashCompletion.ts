@@ -7,11 +7,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { AsyncFzf } from 'fzf';
 import type { Suggestion } from '../components/SuggestionsDisplay.js';
-import {
-  CommandKind,
-  type CommandContext,
-  type SlashCommand,
-} from '../commands/types.js';
+import { CommandKind, type CommandContext, type SlashCommand } from '../commands/types.js';
 import { debugLogger } from '@google/gemini-cli-core';
 
 // Type alias for improved type safety based on actual fzf result structure
@@ -58,10 +54,7 @@ interface CommandParserResult {
   isArgumentCompletion: boolean;
 }
 
-function useCommandParser(
-  query: string | null,
-  slashCommands: readonly SlashCommand[],
-): CommandParserResult {
+function useCommandParser(query: string | null, slashCommands: readonly SlashCommand[]): CommandParserResult {
   return useMemo(() => {
     if (!query) {
       return {
@@ -95,9 +88,7 @@ function useCommandParser(
         currentLevel = [];
         break;
       }
-      const found: SlashCommand | undefined = currentLevel.find((cmd) =>
-        matchesCommand(cmd, part),
-      );
+      const found: SlashCommand | undefined = currentLevel.find((cmd) => matchesCommand(cmd, part));
 
       if (found) {
         leafCommand = found;
@@ -114,9 +105,7 @@ function useCommandParser(
 
     let exactMatchAsParent: SlashCommand | undefined;
     if (!hasTrailingSpace && currentLevel) {
-      exactMatchAsParent = currentLevel.find(
-        (cmd) => matchesCommand(cmd, partial) && cmd.subCommands,
-      );
+      exactMatchAsParent = currentLevel.find((cmd) => matchesCommand(cmd, partial) && cmd.subCommands);
 
       if (exactMatchAsParent) {
         // Only descend if there are NO other matches for the partial at this level.
@@ -125,16 +114,12 @@ function useCommandParser(
           (cmd) =>
             cmd !== exactMatchAsParent &&
             (cmd.name.toLowerCase().startsWith(partial.toLowerCase()) ||
-              cmd.altNames?.some((alt) =>
-                alt.toLowerCase().startsWith(partial.toLowerCase()),
-              )),
+              cmd.altNames?.some((alt) => alt.toLowerCase().startsWith(partial.toLowerCase())))
         );
 
         if (otherMatches.length === 0) {
           leafCommand = exactMatchAsParent;
-          currentLevel = exactMatchAsParent.subCommands as
-            | readonly SlashCommand[]
-            | undefined;
+          currentLevel = exactMatchAsParent.subCommands as readonly SlashCommand[] | undefined;
           partial = '';
         }
       }
@@ -143,8 +128,7 @@ function useCommandParser(
     const depth = commandPathParts.length;
     const isArgumentCompletion = !!(
       leafCommand?.completion &&
-      (hasTrailingSpace ||
-        (rawParts.length > depth && depth > 0 && partial !== ''))
+      (hasTrailingSpace || (rawParts.length > depth && depth > 0 && partial !== ''))
     );
 
     return {
@@ -177,13 +161,8 @@ function useCommandSuggestions(
   query: string | null,
   parserResult: CommandParserResult,
   commandContext: CommandContext,
-  getFzfForCommands: (
-    commands: readonly SlashCommand[],
-  ) => FzfCommandCacheEntry | null,
-  getPrefixSuggestions: (
-    commands: readonly SlashCommand[],
-    partial: string,
-  ) => SlashCommand[],
+  getFzfForCommands: (commands: readonly SlashCommand[]) => FzfCommandCacheEntry | null,
+  getPrefixSuggestions: (commands: readonly SlashCommand[], partial: string) => SlashCommand[]
 ): SuggestionsResult {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -192,13 +171,7 @@ function useCommandSuggestions(
     const abortController = new AbortController();
     const { signal } = abortController;
 
-    const {
-      isArgumentCompletion,
-      leafCommand,
-      commandPathParts,
-      partial,
-      currentLevel,
-    } = parserResult;
+    const { isArgumentCompletion, leafCommand, commandPathParts, partial, currentLevel } = parserResult;
 
     if (isArgumentCompletion) {
       const fetchAndSetSuggestions = async () => {
@@ -206,9 +179,7 @@ function useCommandSuggestions(
 
         // Safety check: ensure leafCommand and completion exist
         if (!leafCommand?.completion) {
-          debugLogger.warn(
-            'Attempted argument completion without completion function',
-          );
+          debugLogger.warn('Attempted argument completion without completion function');
           return;
         }
 
@@ -231,7 +202,7 @@ function useCommandSuggestions(
                   args: argString,
                 },
               },
-              argString,
+              argString
             )) || [];
 
           if (!signal.aborted) {
@@ -263,9 +234,7 @@ function useCommandSuggestions(
 
         if (partial === '') {
           // If no partial query, show all available commands
-          potentialSuggestions = commandsToSearch.filter(
-            (cmd) => cmd.description && !cmd.hidden,
-          );
+          potentialSuggestions = commandsToSearch.filter((cmd) => cmd.description && !cmd.hidden);
         } else {
           // Use fuzzy search for non-empty partial queries with fallback
           const fzfInstance = getFzfForCommands(commandsToSearch);
@@ -282,22 +251,13 @@ function useCommandSuggestions(
               });
               potentialSuggestions = Array.from(uniqueCommands);
             } catch (error) {
-              logErrorSafely(
-                error,
-                'Fuzzy search - falling back to prefix matching',
-              );
+              logErrorSafely(error, 'Fuzzy search - falling back to prefix matching');
               // Fallback to prefix-based filtering
-              potentialSuggestions = getPrefixSuggestions(
-                commandsToSearch,
-                partial,
-              );
+              potentialSuggestions = getPrefixSuggestions(commandsToSearch, partial);
             }
           } else {
             // Fallback to prefix-based filtering when fzf instance creation fails
-            potentialSuggestions = getPrefixSuggestions(
-              commandsToSearch,
-              partial,
-            );
+            potentialSuggestions = getPrefixSuggestions(commandsToSearch, partial);
           }
         }
 
@@ -335,21 +295,12 @@ function useCommandSuggestions(
 
     setSuggestions([]);
     return () => abortController.abort();
-  }, [
-    query,
-    parserResult,
-    commandContext,
-    getFzfForCommands,
-    getPrefixSuggestions,
-  ]);
+  }, [query, parserResult, commandContext, getFzfForCommands, getPrefixSuggestions]);
 
   return { suggestions, isLoading };
 }
 
-function useCompletionPositions(
-  query: string | null,
-  parserResult: CommandParserResult,
-): CompletionPositions {
+function useCompletionPositions(query: string | null, parserResult: CommandParserResult): CompletionPositions {
   return useMemo(() => {
     if (!query) {
       return { start: -1, end: -1 };
@@ -363,9 +314,7 @@ function useCompletionPositions(
     } else if (partial) {
       if (parserResult.isArgumentCompletion) {
         const commandSoFar = `/${parserResult.commandPathParts.join(' ')}`;
-        const argStartIndex =
-          commandSoFar.length +
-          (parserResult.commandPathParts.length > 0 ? 1 : 0);
+        const argStartIndex = commandSoFar.length + (parserResult.commandPathParts.length > 0 ? 1 : 0);
         return { start: argStartIndex, end: query.length };
       } else {
         return { start: query.length - partial.length, end: query.length };
@@ -376,12 +325,9 @@ function useCompletionPositions(
   }, [query, parserResult]);
 }
 
-function usePerfectMatch(
-  parserResult: CommandParserResult,
-): PerfectMatchResult {
+function usePerfectMatch(parserResult: CommandParserResult): PerfectMatchResult {
   return useMemo(() => {
-    const { hasTrailingSpace, partial, leafCommand, currentLevel } =
-      parserResult;
+    const { hasTrailingSpace, partial, leafCommand, currentLevel } = parserResult;
 
     if (hasTrailingSpace) {
       return { isPerfectMatch: false };
@@ -392,9 +338,7 @@ function usePerfectMatch(
     }
 
     if (currentLevel) {
-      const perfectMatch = currentLevel.find(
-        (cmd) => matchesCommand(cmd, partial) && cmd.action,
-      );
+      const perfectMatch = currentLevel.find((cmd) => matchesCommand(cmd, partial) && cmd.action);
       if (perfectMatch) {
         return { isPerfectMatch: true };
       }
@@ -411,10 +355,7 @@ function usePerfectMatch(
  * @param parserResult The current parser result with hierarchy information
  * @returns The matching SlashCommand or undefined
  */
-function getCommandFromSuggestion(
-  suggestion: Suggestion,
-  parserResult: CommandParserResult,
-): SlashCommand | undefined {
+function getCommandFromSuggestion(suggestion: Suggestion, parserResult: CommandParserResult): SlashCommand | undefined {
   const { currentLevel } = parserResult;
 
   if (!currentLevel) {
@@ -423,9 +364,7 @@ function getCommandFromSuggestion(
 
   // suggestion.value is just the command name at the current level (e.g., "list")
   // Find it in the current level's commands
-  const command = currentLevel.find((cmd) =>
-    matchesCommand(cmd, suggestion.value),
-  );
+  const command = currentLevel.find((cmd) => matchesCommand(cmd, suggestion.value));
 
   return command;
 }
@@ -443,29 +382,17 @@ export interface UseSlashCompletionProps {
 export function useSlashCompletion(props: UseSlashCompletionProps): {
   completionStart: number;
   completionEnd: number;
-  getCommandFromSuggestion: (
-    suggestion: Suggestion,
-  ) => SlashCommand | undefined;
+  getCommandFromSuggestion: (suggestion: Suggestion) => SlashCommand | undefined;
   isArgumentCompletion: boolean;
   leafCommand: SlashCommand | null;
 } {
-  const {
-    enabled,
-    query,
-    slashCommands,
-    commandContext,
-    setSuggestions,
-    setIsLoadingSuggestions,
-    setIsPerfectMatch,
-  } = props;
+  const { enabled, query, slashCommands, commandContext, setSuggestions, setIsLoadingSuggestions, setIsPerfectMatch } =
+    props;
   const [completionStart, setCompletionStart] = useState(-1);
   const [completionEnd, setCompletionEnd] = useState(-1);
 
   // Simplified cache for AsyncFzf instances - WeakMap handles automatic cleanup
-  const fzfInstanceCache = useMemo(
-    () => new WeakMap<readonly SlashCommand[], FzfCommandCacheEntry>(),
-    [],
-  );
+  const fzfInstanceCache = useMemo(() => new WeakMap<readonly SlashCommand[], FzfCommandCacheEntry>(), []);
 
   // Helper function to create or retrieve cached AsyncFzf instance for a command level
   const getFzfForCommands = useMemo(
@@ -520,7 +447,7 @@ export function useSlashCompletion(props: UseSlashCompletionProps): {
         return null;
       }
     },
-    [fzfInstanceCache],
+    [fzfInstanceCache]
   );
 
   // Memoized helper function for prefix-based filtering to improve performance
@@ -531,11 +458,9 @@ export function useSlashCompletion(props: UseSlashCompletionProps): {
           cmd.description &&
           !cmd.hidden &&
           (cmd.name.toLowerCase().startsWith(partial.toLowerCase()) ||
-            cmd.altNames?.some((alt) =>
-              alt.toLowerCase().startsWith(partial.toLowerCase()),
-            )),
+            cmd.altNames?.some((alt) => alt.toLowerCase().startsWith(partial.toLowerCase())))
       ),
-    [],
+    []
   );
 
   // Use extracted hooks for better separation of concerns
@@ -545,12 +470,9 @@ export function useSlashCompletion(props: UseSlashCompletionProps): {
     parserResult,
     commandContext,
     getFzfForCommands,
-    getPrefixSuggestions,
+    getPrefixSuggestions
   );
-  const { start: calculatedStart, end: calculatedEnd } = useCompletionPositions(
-    query,
-    parserResult,
-  );
+  const { start: calculatedStart, end: calculatedEnd } = useCompletionPositions(query, parserResult);
   const { isPerfectMatch } = usePerfectMatch(parserResult);
 
   // Clear internal state when disabled
@@ -591,8 +513,7 @@ export function useSlashCompletion(props: UseSlashCompletionProps): {
   return {
     completionStart,
     completionEnd,
-    getCommandFromSuggestion: (suggestion: Suggestion) =>
-      getCommandFromSuggestion(suggestion, parserResult),
+    getCommandFromSuggestion: (suggestion: Suggestion) => getCommandFromSuggestion(suggestion, parserResult),
     isArgumentCompletion: parserResult.isArgumentCompletion,
     leafCommand: parserResult.leafCommand,
   };

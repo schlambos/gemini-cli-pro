@@ -35,9 +35,7 @@ describe('Flash Model Fallback Configuration', () => {
     });
 
     // Initialize contentGeneratorConfig for testing
-    (
-      config as unknown as { contentGeneratorConfig: unknown }
-    ).contentGeneratorConfig = {
+    (config as unknown as { contentGeneratorConfig: unknown }).contentGeneratorConfig = {
       model: DEFAULT_GEMINI_MODEL,
       authType: 'oauth-personal',
     };
@@ -68,10 +66,7 @@ describe('Flash Model Fallback Configuration', () => {
     it('should set model to fallback and log event', () => {
       config.activateFallbackMode(DEFAULT_GEMINI_FLASH_MODEL);
       expect(config.getModel()).toBe(DEFAULT_GEMINI_FLASH_MODEL);
-      expect(logFlashFallback).toHaveBeenCalledWith(
-        config,
-        expect.any(FlashFallbackEvent),
-      );
+      expect(logFlashFallback).toHaveBeenCalledWith(config, expect.any(FlashFallbackEvent));
     });
   });
 });

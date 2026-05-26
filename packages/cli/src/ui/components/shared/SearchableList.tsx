@@ -11,10 +11,7 @@ import { theme } from '../../semantic-colors.js';
 import { TextInput } from './TextInput.js';
 import { useKeypress, type Key } from '../../hooks/useKeypress.js';
 import { keyMatchers, Command } from '../../keyMatchers.js';
-import {
-  useFuzzyList,
-  type GenericListItem,
-} from '../../hooks/useFuzzyList.js';
+import { useFuzzyList, type GenericListItem } from '../../hooks/useFuzzyList.js';
 
 export interface SearchableListProps<T extends GenericListItem> {
   /** List title */
@@ -60,10 +57,7 @@ export function SearchableList<T extends GenericListItem>({
   }, [filteredItems]);
 
   // Calculate visible items
-  const visibleItems = filteredItems.slice(
-    scrollOffset,
-    scrollOffset + maxItemsToShow,
-  );
+  const visibleItems = filteredItems.slice(scrollOffset, scrollOffset + maxItemsToShow);
   const showScrollUp = scrollOffset > 0;
   const showScrollDown = scrollOffset + maxItemsToShow < filteredItems.length;
 
@@ -71,8 +65,7 @@ export function SearchableList<T extends GenericListItem>({
     (key: Key) => {
       // Navigation
       if (keyMatchers[Command.DIALOG_NAVIGATION_UP](key)) {
-        const newIndex =
-          activeIndex > 0 ? activeIndex - 1 : filteredItems.length - 1;
+        const newIndex = activeIndex > 0 ? activeIndex - 1 : filteredItems.length - 1;
         setActiveIndex(newIndex);
         if (newIndex === filteredItems.length - 1) {
           setScrollOffset(Math.max(0, filteredItems.length - maxItemsToShow));
@@ -82,8 +75,7 @@ export function SearchableList<T extends GenericListItem>({
         return;
       }
       if (keyMatchers[Command.DIALOG_NAVIGATION_DOWN](key)) {
-        const newIndex =
-          activeIndex < filteredItems.length - 1 ? activeIndex + 1 : 0;
+        const newIndex = activeIndex < filteredItems.length - 1 ? activeIndex + 1 : 0;
         setActiveIndex(newIndex);
         if (newIndex === 0) {
           setScrollOffset(0);
@@ -108,17 +100,11 @@ export function SearchableList<T extends GenericListItem>({
         return;
       }
     },
-    { isActive: true },
+    { isActive: true }
   );
 
   return (
-    <Box
-      borderStyle="round"
-      borderColor={theme.border.default}
-      flexDirection="column"
-      padding={1}
-      width="100%"
-    >
+    <Box borderStyle='round' borderColor={theme.border.default} flexDirection='column' padding={1} width='100%'>
       {/* Header */}
       {title && (
         <Box marginBottom={1}>
@@ -128,22 +114,13 @@ export function SearchableList<T extends GenericListItem>({
 
       {/* Search Input */}
       {searchBuffer && (
-        <Box
-          borderStyle="round"
-          borderColor={theme.border.focused}
-          paddingX={1}
-          marginBottom={1}
-        >
-          <TextInput
-            buffer={searchBuffer}
-            placeholder={searchPlaceholder}
-            focus={true}
-          />
+        <Box borderStyle='round' borderColor={theme.border.focused} paddingX={1} marginBottom={1}>
+          <TextInput buffer={searchBuffer} placeholder={searchPlaceholder} focus={true} />
         </Box>
       )}
 
       {/* List */}
-      <Box flexDirection="column">
+      <Box flexDirection='column'>
         {visibleItems.length === 0 ? (
           <Text color={theme.text.secondary}>No items found.</Text>
         ) : (
@@ -152,22 +129,12 @@ export function SearchableList<T extends GenericListItem>({
             const isActive = index === activeIndex;
 
             return (
-              <Box key={item.key} flexDirection="row">
-                <Text
-                  color={isActive ? theme.status.success : theme.text.secondary}
-                >
-                  {isActive ? '> ' : '  '}
-                </Text>
+              <Box key={item.key} flexDirection='row'>
+                <Text color={isActive ? theme.status.success : theme.text.secondary}>{isActive ? '> ' : '  '}</Text>
                 <Box width={maxLabelWidth + 2}>
-                  <Text
-                    color={isActive ? theme.status.success : theme.text.primary}
-                  >
-                    {item.label}
-                  </Text>
+                  <Text color={isActive ? theme.status.success : theme.text.primary}>{item.label}</Text>
                 </Box>
-                {item.description && (
-                  <Text color={theme.text.secondary}>{item.description}</Text>
-                )}
+                {item.description && <Text color={theme.text.secondary}>{item.description}</Text>}
               </Box>
             );
           })
@@ -176,7 +143,7 @@ export function SearchableList<T extends GenericListItem>({
 
       {/* Footer/Scroll Indicators */}
       {(showScrollUp || showScrollDown) && (
-        <Box marginTop={1} justifyContent="center">
+        <Box marginTop={1} justifyContent='center'>
           <Text color={theme.text.secondary}>
             {showScrollUp ? '▲ ' : '  '}
             {filteredItems.length} items

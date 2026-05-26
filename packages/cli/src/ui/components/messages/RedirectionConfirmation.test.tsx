@@ -6,10 +6,7 @@
 
 import { describe, it, expect, beforeAll } from 'vitest';
 import { ToolConfirmationMessage } from './ToolConfirmationMessage.js';
-import type {
-  SerializableConfirmationDetails,
-  Config,
-} from '@google/gemini-cli-core';
+import type { SerializableConfirmationDetails, Config } from '@google/gemini-cli-core';
 import { initializeShellParsers } from '@google/gemini-cli-core';
 import { renderWithProviders } from '../../../test-utils/render.js';
 
@@ -34,12 +31,12 @@ describe('ToolConfirmationMessage Redirection', () => {
 
     const { lastFrame } = renderWithProviders(
       <ToolConfirmationMessage
-        callId="test-call-id"
+        callId='test-call-id'
         confirmationDetails={confirmationDetails}
         config={mockConfig}
         availableTerminalHeight={30}
         terminalWidth={100}
-      />,
+      />
     );
 
     const output = lastFrame();

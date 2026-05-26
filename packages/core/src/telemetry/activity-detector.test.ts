@@ -5,12 +5,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import {
-  ActivityDetector,
-  getActivityDetector,
-  recordUserActivity,
-  isUserActive,
-} from './activity-detector.js';
+import { ActivityDetector, getActivityDetector, recordUserActivity, isUserActive } from './activity-detector.js';
 
 describe('ActivityDetector', () => {
   let detector: ActivityDetector;

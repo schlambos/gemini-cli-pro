@@ -18,11 +18,7 @@ interface HeaderProps {
   nightly: boolean;
 }
 
-export const Header: React.FC<HeaderProps> = ({
-  customAsciiArt,
-  version,
-  nightly,
-}) => {
+export const Header: React.FC<HeaderProps> = ({ customAsciiArt, version, nightly }) => {
   const { columns: terminalWidth } = useTerminalSize();
   let displayTitle;
   const widthOfLongLogo = getAsciiArtWidth(longAsciiLogo);
@@ -42,15 +38,10 @@ export const Header: React.FC<HeaderProps> = ({
   const title = useSnowfall(displayTitle);
 
   return (
-    <Box
-      alignItems="flex-start"
-      width={artWidth}
-      flexShrink={0}
-      flexDirection="column"
-    >
+    <Box alignItems='flex-start' width={artWidth} flexShrink={0} flexDirection='column'>
       <ThemedGradient>{title}</ThemedGradient>
       {nightly && (
-        <Box width="100%" flexDirection="row" justifyContent="flex-end">
+        <Box width='100%' flexDirection='row' justifyContent='flex-end'>
           <ThemedGradient>v{version}</ThemedGradient>
         </Box>
       )}

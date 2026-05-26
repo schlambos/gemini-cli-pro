@@ -15,9 +15,7 @@ describe('planUtils', () => {
   let plansDir: string;
 
   beforeEach(() => {
-    tempRootDir = fs.realpathSync(
-      fs.mkdtempSync(path.join(os.tmpdir(), 'planUtils-test-')),
-    );
+    tempRootDir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'planUtils-test-')));
     const plansDirRaw = path.join(tempRootDir, 'plans');
     fs.mkdirSync(plansDirRaw, { recursive: true });
     plansDir = fs.realpathSync(plansDirRaw);
@@ -60,11 +58,7 @@ describe('planUtils', () => {
       // Create a symbolic link pointing outside the plans directory
       fs.symlinkSync(outsideFile, fullMaliciousPath);
 
-      const result = await validatePlanPath(
-        maliciousPath,
-        plansDir,
-        tempRootDir,
-      );
+      const result = await validatePlanPath(maliciousPath, plansDir, tempRootDir);
       expect(result).toContain('Access denied');
     });
   });

@@ -1,4 +1,4 @@
-description="Injects context of all relevant cli files"
+description = "Injects context of all relevant cli files"
 prompt = """
 The following output contains the complete
 source code of the gemini cli library (`packages/cli`), and {packages/core} and representative test files

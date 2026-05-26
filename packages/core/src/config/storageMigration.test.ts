@@ -35,9 +35,7 @@ describe('StorageMigration', () => {
 
     expect(fs.existsSync(newPath)).toBe(true);
     expect(fs.existsSync(oldPath)).toBe(true); // Should still exist
-    expect(fs.readFileSync(path.join(newPath, 'test.txt'), 'utf8')).toBe(
-      'hello',
-    );
+    expect(fs.readFileSync(path.join(newPath, 'test.txt'), 'utf8')).toBe('hello');
   });
 
   it('does nothing if old path does not exist', async () => {
@@ -75,12 +73,8 @@ describe('StorageMigration', () => {
     await StorageMigration.migrateDirectory(oldPath, newPath);
 
     expect(fs.existsSync(path.join(newPath, 'history.db'))).toBe(true);
-    expect(fs.readFileSync(path.join(newPath, 'history.db'), 'utf8')).toBe(
-      'data',
-    );
-    expect(fs.readFileSync(path.join(newPath, '.project_root'), 'utf8')).toBe(
-      'path',
-    );
+    expect(fs.readFileSync(path.join(newPath, 'history.db'), 'utf8')).toBe('data');
+    expect(fs.readFileSync(path.join(newPath, '.project_root'), 'utf8')).toBe('path');
   });
 
   it('creates parent directory for new path if it does not exist', async () => {

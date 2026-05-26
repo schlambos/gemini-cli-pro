@@ -6,16 +6,10 @@
 
 import * as vscode from 'vscode';
 
-export function createLogger(
-  context: vscode.ExtensionContext,
-  logger: vscode.OutputChannel,
-) {
+export function createLogger(context: vscode.ExtensionContext, logger: vscode.OutputChannel) {
   return (message: string) => {
-    const isDevMode =
-      context.extensionMode === vscode.ExtensionMode.Development;
-    const isLoggingEnabled = vscode.workspace
-      .getConfiguration('gemini-cli.debug')
-      .get('logging.enabled');
+    const isDevMode = context.extensionMode === vscode.ExtensionMode.Development;
+    const isLoggingEnabled = vscode.workspace.getConfiguration('gemini-cli.debug').get('logging.enabled');
 
     if (isDevMode || isLoggingEnabled) {
       logger.appendLine(message);

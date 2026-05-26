@@ -17,12 +17,7 @@ export const DEFAULT_DIFF_OPTIONS: Diff.CreatePatchOptionsNonabortable = {
   ignoreWhitespace: false,
 };
 
-export function getDiffStat(
-  fileName: string,
-  oldStr: string,
-  aiStr: string,
-  userStr: string,
-): DiffStat {
+export function getDiffStat(fileName: string, oldStr: string, aiStr: string, userStr: string): DiffStat {
   const getStats = (patch: Diff.StructuredPatch) => {
     let addedLines = 0;
     let removedLines = 0;
@@ -50,7 +45,7 @@ export function getDiffStat(
     aiStr,
     'Current',
     'Proposed',
-    DEFAULT_STRUCTURED_PATCH_OPTS,
+    DEFAULT_STRUCTURED_PATCH_OPTS
   );
   const modelStats = getStats(modelPatch);
 
@@ -61,7 +56,7 @@ export function getDiffStat(
     userStr,
     'Proposed',
     'User',
-    DEFAULT_STRUCTURED_PATCH_OPTS,
+    DEFAULT_STRUCTURED_PATCH_OPTS
   );
   const userStats = getStats(userPatch);
 

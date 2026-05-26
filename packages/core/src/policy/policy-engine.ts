@@ -18,12 +18,7 @@ import { stableStringify } from './stable-stringify.js';
 import { debugLogger } from '../utils/debugLogger.js';
 import type { CheckerRunner } from '../safety/checker-runner.js';
 import { SafetyCheckDecision } from '../safety/protocol.js';
-import {
-  SHELL_TOOL_NAMES,
-  initializeShellParsers,
-  splitCommands,
-  hasRedirection,
-} from '../utils/shell-utils.js';
+import { SHELL_TOOL_NAMES, initializeShellParsers, splitCommands, hasRedirection } from '../utils/shell-utils.js';
 import { getToolAliases } from '../tools/tool-names.js';
 
 function isWildcardPattern(name: string): boolean {
@@ -47,7 +42,7 @@ function ruleMatches(
   toolCall: FunctionCall,
   stringifiedArgs: string | undefined,
   serverName: string | undefined,
-  currentApprovalMode: ApprovalMode,
+  currentApprovalMode: ApprovalMode
 ): boolean {
   // Check if rule applies to current approval mode
   if (rule.modes && rule.modes.length > 0) {
@@ -84,10 +79,7 @@ function ruleMatches(
       return false;
     }
     // Use stable JSON stringification with sorted keys to ensure consistent matching
-    if (
-      stringifiedArgs === undefined ||
-      !rule.argsPattern.test(stringifiedArgs)
-    ) {
+    if (stringifiedArgs === undefined || !rule.argsPattern.test(stringifiedArgs)) {
       return false;
     }
   }
@@ -105,15 +97,9 @@ export class PolicyEngine {
   private approvalMode: ApprovalMode;
 
   constructor(config: PolicyEngineConfig = {}, checkerRunner?: CheckerRunner) {
-    this.rules = (config.rules ?? []).sort(
-      (a, b) => (b.priority ?? 0) - (a.priority ?? 0),
-    );
-    this.checkers = (config.checkers ?? []).sort(
-      (a, b) => (b.priority ?? 0) - (a.priority ?? 0),
-    );
-    this.hookCheckers = (config.hookCheckers ?? []).sort(
-      (a, b) => (b.priority ?? 0) - (a.priority ?? 0),
-    );
+    this.rules = (config.rules ?? []).sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+    this.checkers = (config.checkers ?? []).sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+    this.hookCheckers = (config.hookCheckers ?? []).sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
     this.defaultDecision = config.defaultDecision ?? PolicyDecision.ASK_USER;
     this.nonInteractive = config.nonInteractive ?? false;
     this.checkerRunner = checkerRunner;
@@ -134,10 +120,7 @@ export class PolicyEngine {
     return this.approvalMode;
   }
 
-  private shouldDowngradeForRedirection(
-    command: string,
-    allowRedirection?: boolean,
-  ): boolean {
+  private shouldDowngradeForRedirection(command: string, allowRedirection?: boolean): boolean {
     return (
       !allowRedirection &&
       hasRedirection(command) &&
@@ -156,7 +139,7 @@ export class PolicyEngine {
     serverName: string | undefined,
     dir_path: string | undefined,
     allowRedirection?: boolean,
-    rule?: PolicyRule,
+    rule?: PolicyRule
   ): Promise<CheckResult> {
     if (!command) {
       return {
@@ -182,9 +165,7 @@ export class PolicyEngine {
         };
       }
 
-      debugLogger.debug(
-        `[PolicyEngine.check] Command parsing failed for: ${command}. Falling back to ASK_USER.`,
-      );
+      debugLogger.debug(`[PolicyEngine.check] Command parsing failed for: ${command}. Falling back to ASK_USER.`);
 
       // Parsing logic failed, we can't trust it. Force ASK_USER (or DENY).
       // We return the rule that matched so the evaluation loop terminates.
@@ -196,9 +177,7 @@ export class PolicyEngine {
 
     // If there are multiple parts, or if we just want to validate the single part against DENY rules
     if (subCommands.length > 0) {
-      debugLogger.debug(
-        `[PolicyEngine.check] Validating shell command: ${subCommands.length} parts`,
-      );
+      debugLogger.debug(`[PolicyEngine.check] Validating shell command: ${subCommands.length} parts`);
 
       if (ruleDecision === PolicyDecision.DENY) {
         return { decision: PolicyDecision.DENY, rule };
@@ -211,9 +190,7 @@ export class PolicyEngine {
 
       // Check for redirection on the full command string
       if (this.shouldDowngradeForRedirection(command, allowRedirection)) {
-        debugLogger.debug(
-          `[PolicyEngine.check] Downgrading ALLOW to ASK_USER for redirected command: ${command}`,
-        );
+        debugLogger.debug(`[PolicyEngine.check] Downgrading ALLOW to ASK_USER for redirected command: ${command}`);
         aggregateDecision = PolicyDecision.ASK_USER;
         responsibleRule = undefined; // Inherent policy
       }
@@ -223,9 +200,7 @@ export class PolicyEngine {
         // Prevent infinite recursion for the root command
         if (subCmd === command) {
           if (this.shouldDowngradeForRedirection(subCmd, allowRedirection)) {
-            debugLogger.debug(
-              `[PolicyEngine.check] Downgrading ALLOW to ASK_USER for redirected command: ${subCmd}`,
-            );
+            debugLogger.debug(`[PolicyEngine.check] Downgrading ALLOW to ASK_USER for redirected command: ${subCmd}`);
             // Redirection always downgrades ALLOW to ASK_USER
             if (aggregateDecision === PolicyDecision.ALLOW) {
               aggregateDecision = PolicyDecision.ASK_USER;
@@ -233,10 +208,7 @@ export class PolicyEngine {
             }
           } else {
             // Atomic command matching the rule.
-            if (
-              ruleDecision === PolicyDecision.ASK_USER &&
-              aggregateDecision === PolicyDecision.ALLOW
-            ) {
+            if (ruleDecision === PolicyDecision.ASK_USER && aggregateDecision === PolicyDecision.ALLOW) {
               aggregateDecision = PolicyDecision.ASK_USER;
               responsibleRule = rule;
             }
@@ -244,10 +216,7 @@ export class PolicyEngine {
           continue;
         }
 
-        const subResult = await this.check(
-          { name: toolName, args: { command: subCmd, dir_path } },
-          serverName,
-        );
+        const subResult = await this.check({ name: toolName, args: { command: subCmd, dir_path } }, serverName);
 
         // subResult.decision is already filtered through applyNonInteractiveMode by this.check()
         const subDecision = subResult.decision;
@@ -269,13 +238,8 @@ export class PolicyEngine {
         }
 
         // Check for redirection in allowed sub-commands
-        if (
-          subDecision === PolicyDecision.ALLOW &&
-          this.shouldDowngradeForRedirection(subCmd, allowRedirection)
-        ) {
-          debugLogger.debug(
-            `[PolicyEngine.check] Downgrading ALLOW to ASK_USER for redirected command: ${subCmd}`,
-          );
+        if (subDecision === PolicyDecision.ALLOW && this.shouldDowngradeForRedirection(subCmd, allowRedirection)) {
+          debugLogger.debug(`[PolicyEngine.check] Downgrading ALLOW to ASK_USER for redirected command: ${subCmd}`);
           if (aggregateDecision === PolicyDecision.ALLOW) {
             aggregateDecision = PolicyDecision.ASK_USER;
             responsibleRule = undefined;
@@ -301,23 +265,17 @@ export class PolicyEngine {
    * Check if a tool call is allowed based on the configured policies.
    * Returns the decision and the matching rule (if any).
    */
-  async check(
-    toolCall: FunctionCall,
-    serverName: string | undefined,
-  ): Promise<CheckResult> {
+  async check(toolCall: FunctionCall, serverName: string | undefined): Promise<CheckResult> {
     let stringifiedArgs: string | undefined;
     // Compute stringified args once before the loop
     if (
       toolCall.args &&
-      (this.rules.some((rule) => rule.argsPattern) ||
-        this.checkers.some((checker) => checker.argsPattern))
+      (this.rules.some((rule) => rule.argsPattern) || this.checkers.some((checker) => checker.argsPattern))
     ) {
       stringifiedArgs = stableStringify(toolCall.args);
     }
 
-    debugLogger.debug(
-      `[PolicyEngine.check] toolCall.name: ${toolCall.name}, stringifiedArgs: ${stringifiedArgs}`,
-    );
+    debugLogger.debug(`[PolicyEngine.check] toolCall.name: ${toolCall.name}, stringifiedArgs: ${stringifiedArgs}`);
 
     // Check for shell commands upfront to handle splitting
     let isShellCommand = false;
@@ -355,13 +313,11 @@ export class PolicyEngine {
     }
 
     for (const rule of this.rules) {
-      const match = toolCallsToTry.some((tc) =>
-        ruleMatches(rule, tc, stringifiedArgs, serverName, this.approvalMode),
-      );
+      const match = toolCallsToTry.some((tc) => ruleMatches(rule, tc, stringifiedArgs, serverName, this.approvalMode));
 
       if (match) {
         debugLogger.debug(
-          `[PolicyEngine.check] MATCHED rule: toolName=${rule.toolName}, decision=${rule.decision}, priority=${rule.priority}, argsPattern=${rule.argsPattern?.source || 'none'}`,
+          `[PolicyEngine.check] MATCHED rule: toolName=${rule.toolName}, decision=${rule.decision}, priority=${rule.priority}, argsPattern=${rule.argsPattern?.source || 'none'}`
         );
 
         if (isShellCommand && toolName) {
@@ -372,7 +328,7 @@ export class PolicyEngine {
             serverName,
             shellDirPath,
             rule.allowRedirection,
-            rule,
+            rule
           );
           decision = shellResult.decision;
           if (shellResult.rule) {
@@ -389,16 +345,14 @@ export class PolicyEngine {
 
     // Default if no rule matched
     if (decision === undefined) {
-      debugLogger.debug(
-        `[PolicyEngine.check] NO MATCH - using default decision: ${this.defaultDecision}`,
-      );
+      debugLogger.debug(`[PolicyEngine.check] NO MATCH - using default decision: ${this.defaultDecision}`);
       if (toolName && SHELL_TOOL_NAMES.includes(toolName)) {
         const shellResult = await this.checkShellCommand(
           toolName,
           command,
           this.defaultDecision,
           serverName,
-          shellDirPath,
+          shellDirPath
         );
         decision = shellResult.decision;
         matchedRule = shellResult.rule;
@@ -410,41 +364,26 @@ export class PolicyEngine {
     // Safety checks
     if (decision !== PolicyDecision.DENY && this.checkerRunner) {
       for (const checkerRule of this.checkers) {
-        if (
-          ruleMatches(
-            checkerRule,
-            toolCall,
-            stringifiedArgs,
-            serverName,
-            this.approvalMode,
-          )
-        ) {
-          debugLogger.debug(
-            `[PolicyEngine.check] Running safety checker: ${checkerRule.checker.name}`,
-          );
+        if (ruleMatches(checkerRule, toolCall, stringifiedArgs, serverName, this.approvalMode)) {
+          debugLogger.debug(`[PolicyEngine.check] Running safety checker: ${checkerRule.checker.name}`);
           try {
-            const result = await this.checkerRunner.runChecker(
-              toolCall,
-              checkerRule.checker,
-            );
+            const result = await this.checkerRunner.runChecker(toolCall, checkerRule.checker);
             if (result.decision === SafetyCheckDecision.DENY) {
               debugLogger.debug(
-                `[PolicyEngine.check] Safety checker '${checkerRule.checker.name}' denied execution: ${result.reason}`,
+                `[PolicyEngine.check] Safety checker '${checkerRule.checker.name}' denied execution: ${result.reason}`
               );
               return {
                 decision: PolicyDecision.DENY,
                 rule: matchedRule,
               };
             } else if (result.decision === SafetyCheckDecision.ASK_USER) {
-              debugLogger.debug(
-                `[PolicyEngine.check] Safety checker requested ASK_USER: ${result.reason}`,
-              );
+              debugLogger.debug(`[PolicyEngine.check] Safety checker requested ASK_USER: ${result.reason}`);
               decision = PolicyDecision.ASK_USER;
             }
           } catch (error) {
             debugLogger.debug(
               `[PolicyEngine.check] Safety checker '${checkerRule.checker.name}' threw an error:`,
-              error,
+              error
             );
             return {
               decision: PolicyDecision.DENY,
@@ -481,9 +420,7 @@ export class PolicyEngine {
    */
   removeRulesForTool(toolName: string, source?: string): void {
     this.rules = this.rules.filter(
-      (rule) =>
-        rule.toolName !== toolName ||
-        (source !== undefined && rule.source !== source),
+      (rule) => rule.toolName !== toolName || (source !== undefined && rule.source !== source)
     );
   }
 
@@ -500,9 +437,7 @@ export class PolicyEngine {
    */
   hasRuleForTool(toolName: string, ignoreDynamic = false): boolean {
     return this.rules.some(
-      (rule) =>
-        rule.toolName === toolName &&
-        (!ignoreDynamic || rule.source !== 'AgentRegistry (Dynamic)'),
+      (rule) => rule.toolName === toolName && (!ignoreDynamic || rule.source !== 'AgentRegistry (Dynamic)')
     );
   }
 
@@ -577,10 +512,7 @@ export class PolicyEngine {
       // Check if covered by a processed wildcard
       let coveredByWildcard = false;
       for (const processed of processedTools) {
-        if (
-          isWildcardPattern(processed) &&
-          matchesWildcard(processed, toolName)
-        ) {
+        if (isWildcardPattern(processed) && matchesWildcard(processed, toolName)) {
           // It's covered by a higher-priority wildcard rule.
           // If that wildcard rule resulted in exclusion, this tool should also be excluded.
           if (excludedTools.has(processed)) {

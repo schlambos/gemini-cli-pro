@@ -9,16 +9,8 @@ import { UiTelemetryService } from './uiTelemetry.js';
 import { ToolCallDecision } from './tool-call-decision.js';
 import type { ApiErrorEvent, ApiResponseEvent } from './types.js';
 import { ToolCallEvent } from './types.js';
-import {
-  EVENT_API_ERROR,
-  EVENT_API_RESPONSE,
-  EVENT_TOOL_CALL,
-} from './types.js';
-import type {
-  CompletedToolCall,
-  ErroredToolCall,
-  SuccessfulToolCall,
-} from '../core/coreToolScheduler.js';
+import { EVENT_API_ERROR, EVENT_API_RESPONSE, EVENT_TOOL_CALL } from './types.js';
+import type { CompletedToolCall, ErroredToolCall, SuccessfulToolCall } from '../core/coreToolScheduler.js';
 import { ToolErrorType } from '../tools/tool-error.js';
 import { ToolConfirmationOutcome } from '../tools/tools.js';
 import { MockTool } from '../test-utils/mock-tool.js';
@@ -28,7 +20,7 @@ const createFakeCompletedToolCall = (
   success: boolean,
   duration = 100,
   outcome?: ToolConfirmationOutcome,
-  error?: Error,
+  error?: Error
 ): CompletedToolCall => {
   const request = {
     callId: `call_${name}_${Date.now()}`,
@@ -394,12 +386,7 @@ describe('UiTelemetryService', () => {
 
   describe('Tool Call Event Processing', () => {
     it('should process a single successful ToolCallEvent', () => {
-      const toolCall = createFakeCompletedToolCall(
-        'test_tool',
-        true,
-        150,
-        ToolConfirmationOutcome.ProceedOnce,
-      );
+      const toolCall = createFakeCompletedToolCall('test_tool', true, 150, ToolConfirmationOutcome.ProceedOnce);
       service.addEvent({
         ...structuredClone(new ToolCallEvent(toolCall)),
         'event.name': EVENT_TOOL_CALL,
@@ -428,12 +415,7 @@ describe('UiTelemetryService', () => {
     });
 
     it('should process a single failed ToolCallEvent', () => {
-      const toolCall = createFakeCompletedToolCall(
-        'test_tool',
-        false,
-        200,
-        ToolConfirmationOutcome.Cancel,
-      );
+      const toolCall = createFakeCompletedToolCall('test_tool', false, 200, ToolConfirmationOutcome.Cancel);
       service.addEvent({
         ...structuredClone(new ToolCallEvent(toolCall)),
         'event.name': EVENT_TOOL_CALL,
@@ -462,12 +444,7 @@ describe('UiTelemetryService', () => {
     });
 
     it('should process a ToolCallEvent with modify decision', () => {
-      const toolCall = createFakeCompletedToolCall(
-        'test_tool',
-        true,
-        250,
-        ToolConfirmationOutcome.ModifyWithEditor,
-      );
+      const toolCall = createFakeCompletedToolCall('test_tool', true, 250, ToolConfirmationOutcome.ModifyWithEditor);
       service.addEvent({
         ...structuredClone(new ToolCallEvent(toolCall)),
         'event.name': EVENT_TOOL_CALL,
@@ -477,9 +454,7 @@ describe('UiTelemetryService', () => {
       const { tools } = metrics;
 
       expect(tools.totalDecisions[ToolCallDecision.MODIFY]).toBe(1);
-      expect(tools.byName['test_tool'].decisions[ToolCallDecision.MODIFY]).toBe(
-        1,
-      );
+      expect(tools.byName['test_tool'].decisions[ToolCallDecision.MODIFY]).toBe(1);
     });
 
     it('should process a ToolCallEvent without a decision', () => {
@@ -507,18 +482,8 @@ describe('UiTelemetryService', () => {
     });
 
     it('should aggregate multiple ToolCallEvents for the same tool', () => {
-      const toolCall1 = createFakeCompletedToolCall(
-        'test_tool',
-        true,
-        100,
-        ToolConfirmationOutcome.ProceedOnce,
-      );
-      const toolCall2 = createFakeCompletedToolCall(
-        'test_tool',
-        false,
-        150,
-        ToolConfirmationOutcome.Cancel,
-      );
+      const toolCall1 = createFakeCompletedToolCall('test_tool', true, 100, ToolConfirmationOutcome.ProceedOnce);
+      const toolCall2 = createFakeCompletedToolCall('test_tool', false, 150, ToolConfirmationOutcome.Cancel);
 
       service.addEvent({
         ...structuredClone(new ToolCallEvent(toolCall1)),

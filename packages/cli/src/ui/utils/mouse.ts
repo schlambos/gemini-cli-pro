@@ -42,10 +42,7 @@ export interface MouseEvent {
 
 export type MouseHandler = (event: MouseEvent) => void | boolean;
 
-export function getMouseEventName(
-  buttonCode: number,
-  isRelease: boolean,
-): MouseEventName | null {
+export function getMouseEventName(buttonCode: number, isRelease: boolean): MouseEventName | null {
   const isMove = (buttonCode & 32) !== 0;
 
   if (buttonCode === 66) {
@@ -90,9 +87,7 @@ function getButtonFromCode(code: number): MouseEvent['button'] {
   }
 }
 
-export function parseSGRMouseEvent(
-  buffer: string,
-): { event: MouseEvent; length: number } | null {
+export function parseSGRMouseEvent(buffer: string): { event: MouseEvent; length: number } | null {
   const match = buffer.match(SGR_MOUSE_REGEX);
 
   if (match) {
@@ -128,9 +123,7 @@ export function parseSGRMouseEvent(
   return null;
 }
 
-export function parseX11MouseEvent(
-  buffer: string,
-): { event: MouseEvent; length: number } | null {
+export function parseX11MouseEvent(buffer: string): { event: MouseEvent; length: number } | null {
   const match = buffer.match(X11_MOUSE_REGEX);
   if (!match) return null;
 
@@ -206,9 +199,7 @@ export function parseX11MouseEvent(
   return null;
 }
 
-export function parseMouseEvent(
-  buffer: string,
-): { event: MouseEvent; length: number } | null {
+export function parseMouseEvent(buffer: string): { event: MouseEvent; length: number } | null {
   return parseSGRMouseEvent(buffer) || parseX11MouseEvent(buffer);
 }
 

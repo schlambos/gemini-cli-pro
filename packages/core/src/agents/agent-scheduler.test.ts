@@ -52,11 +52,7 @@ describe('agent-scheduler', () => {
       signal: new AbortController().signal,
     };
 
-    const results = await scheduleAgentTools(
-      mockConfig as unknown as Config,
-      requests,
-      options,
-    );
+    const results = await scheduleAgentTools(mockConfig as unknown as Config, requests, options);
 
     expect(results).toEqual([{ status: 'success' }]);
     expect(Scheduler).toHaveBeenCalledWith(
@@ -64,7 +60,7 @@ describe('agent-scheduler', () => {
         schedulerId: 'subagent-1',
         parentCallId: 'parent-1',
         messageBus: mockMessageBus,
-      }),
+      })
     );
 
     // Verify that the scheduler's config has the overridden tool registry

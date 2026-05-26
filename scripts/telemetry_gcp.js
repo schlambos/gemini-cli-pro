@@ -67,25 +67,17 @@ async function main() {
   let collectorProcess;
   let collectorLogFd;
 
-  const originalSandboxSetting = manageTelemetrySettings(
-    true,
-    'http://localhost:4317',
-    'gcp',
-  );
+  const originalSandboxSetting = manageTelemetrySettings(true, 'http://localhost:4317', 'gcp');
   registerCleanup(
     () => [collectorProcess].filter((p) => p), // Function to get processes
     () => [collectorLogFd].filter((fd) => fd), // Function to get FDs
-    originalSandboxSetting,
+    originalSandboxSetting
   );
 
   const projectId = process.env.OTLP_GOOGLE_CLOUD_PROJECT;
   if (!projectId) {
-    console.error(
-      '🛑 Error: OTLP_GOOGLE_CLOUD_PROJECT environment variable is not exported.',
-    );
-    console.log(
-      '   Please set it to your Google Cloud Project ID and try again.',
-    );
+    console.error('🛑 Error: OTLP_GOOGLE_CLOUD_PROJECT environment variable is not exported.');
+    console.log('   Please set it to your Google Cloud Project ID and try again.');
     console.log('   `export OTLP_GOOGLE_CLOUD_PROJECT=your-project-id`');
     process.exit(1);
   }
@@ -93,21 +85,18 @@ async function main() {
 
   console.log('\n🔑 Please ensure you are authenticated with Google Cloud:');
   console.log(
-    '  - Run `gcloud auth application-default login` OR ensure `GOOGLE_APPLICATION_CREDENTIALS` environment variable points to a valid service account key.',
+    '  - Run `gcloud auth application-default login` OR ensure `GOOGLE_APPLICATION_CREDENTIALS` environment variable points to a valid service account key.'
   );
-  console.log(
-    '  - The account needs "Cloud Trace Agent", "Monitoring Metric Writer", and "Logs Writer" roles.',
-  );
+  console.log('  - The account needs "Cloud Trace Agent", "Monitoring Metric Writer", and "Logs Writer" roles.');
 
   if (!fileExists(BIN_DIR)) fs.mkdirSync(BIN_DIR, { recursive: true });
 
   const otelcolPath = await ensureBinary(
     'otelcol-contrib',
     'open-telemetry/opentelemetry-collector-releases',
-    (version, platform, arch, ext) =>
-      `otelcol-contrib_${version}_${platform}_${arch}.${ext}`,
+    (version, platform, arch, ext) => `otelcol-contrib_${version}_${platform}_${arch}.${ext}`,
     'otelcol-contrib',
-    false, // isJaeger = false
+    false // isJaeger = false
   ).catch((e) => {
     console.error(`🛑 Error getting otelcol-contrib: ${e.message}`);
     return null;
@@ -141,9 +130,7 @@ async function main() {
     env: spawnEnv,
   });
 
-  console.log(
-    `⏳ Waiting for OTEL collector to start (PID: ${collectorProcess.pid})...`,
-  );
+  console.log(`⏳ Waiting for OTEL collector to start (PID: ${collectorProcess.pid})...`);
 
   try {
     await waitForPort(4317);
@@ -167,23 +154,15 @@ async function main() {
   });
 
   console.log(`\n✨ Local OTEL collector for GCP is running.`);
-  console.log(
-    '\n🚀 To send telemetry, run the Gemini CLI in a separate terminal window.',
-  );
+  console.log('\n🚀 To send telemetry, run the Gemini CLI in a separate terminal window.');
   console.log(`\n📄 Collector logs are being written to: ${OTEL_LOG_FILE}`);
-  console.log(
-    `📄 Tail collector logs in another terminal: tail -f ${OTEL_LOG_FILE}`,
-  );
+  console.log(`📄 Tail collector logs in another terminal: tail -f ${OTEL_LOG_FILE}`);
   console.log(`\n📊 View your telemetry data in Google Cloud Console:`);
   console.log(
-    `   - Logs: https://console.cloud.google.com/logs/query;query=logName%3D%22projects%2F${projectId}%2Flogs%2Fgemini_cli%22?project=${projectId}`,
+    `   - Logs: https://console.cloud.google.com/logs/query;query=logName%3D%22projects%2F${projectId}%2Flogs%2Fgemini_cli%22?project=${projectId}`
   );
-  console.log(
-    `   - Metrics: https://console.cloud.google.com/monitoring/metrics-explorer?project=${projectId}`,
-  );
-  console.log(
-    `   - Traces: https://console.cloud.google.com/traces/list?project=${projectId}`,
-  );
+  console.log(`   - Metrics: https://console.cloud.google.com/monitoring/metrics-explorer?project=${projectId}`);
+  console.log(`   - Traces: https://console.cloud.google.com/traces/list?project=${projectId}`);
   console.log(`\nPress Ctrl+C to exit.`);
 }
 

@@ -68,7 +68,7 @@ describe('Core System Prompt (prompts.ts)', () => {
         platform: {
           get: () => platform,
         },
-      }),
+      })
     );
   };
 
@@ -89,9 +89,7 @@ describe('Core System Prompt (prompts.ts)', () => {
       getEnableShellOutputEfficiency: vi.fn().mockReturnValue(true),
       storage: {
         getProjectTempDir: vi.fn().mockReturnValue('/tmp/project-temp'),
-        getProjectTempPlansDir: vi
-          .fn()
-          .mockReturnValue('/tmp/project-temp/plans'),
+        getProjectTempPlansDir: vi.fn().mockReturnValue('/tmp/project-temp/plans'),
       },
       isInteractive: vi.fn().mockReturnValue(true),
       isInteractiveShellEnabled: vi.fn().mockReturnValue(true),
@@ -135,18 +133,14 @@ describe('Core System Prompt (prompts.ts)', () => {
 
     expect(prompt).toContain('# Available Agent Skills');
     expect(prompt).toContain(
-      "To activate a skill and receive its detailed instructions, you can call the `activate_skill` tool with the skill's name.",
+      "To activate a skill and receive its detailed instructions, you can call the `activate_skill` tool with the skill's name."
     );
     expect(prompt).toContain('Skill Guidance');
     expect(prompt).toContain('<available_skills>');
     expect(prompt).toContain('<skill>');
     expect(prompt).toContain('<name>test-skill</name>');
-    expect(prompt).toContain(
-      '<description>A test skill description</description>',
-    );
-    expect(prompt).toContain(
-      '<location>/path/to/test-skill/SKILL.md</location>',
-    );
+    expect(prompt).toContain('<description>A test skill description</description>');
+    expect(prompt).toContain('<location>/path/to/test-skill/SKILL.md</location>');
     expect(prompt).toContain('</skill>');
     expect(prompt).toContain('</available_skills>');
     expect(prompt).toMatchSnapshot();
@@ -167,7 +161,7 @@ describe('Core System Prompt (prompts.ts)', () => {
 
     expect(prompt).toContain('# Available Agent Skills');
     expect(prompt).toContain(
-      "To activate a skill and receive its detailed instructions, call the `activate_skill` tool with the skill's name.",
+      "To activate a skill and receive its detailed instructions, call the `activate_skill` tool with the skill's name."
     );
     expect(prompt).toMatchSnapshot();
   });
@@ -190,31 +184,23 @@ describe('Core System Prompt (prompts.ts)', () => {
         description: 'A test agent description',
       },
     ];
-    vi.mocked(mockConfig.getAgentRegistry().getAllDefinitions).mockReturnValue(
-      agents as unknown as AgentDefinition[],
-    );
+    vi.mocked(mockConfig.getAgentRegistry().getAllDefinitions).mockReturnValue(agents as unknown as AgentDefinition[]);
     const prompt = getCoreSystemPrompt(mockConfig);
 
     expect(prompt).toContain('# Available Sub-Agents');
     expect(prompt).toContain('<available_subagents>');
     expect(prompt).toContain('<subagent>');
     expect(prompt).toContain('<name>test-agent</name>');
-    expect(prompt).toContain(
-      '<description>A test agent description</description>',
-    );
+    expect(prompt).toContain('<description>A test agent description</description>');
     expect(prompt).toContain('</subagent>');
     expect(prompt).toContain('</available_subagents>');
     expect(prompt).toMatchSnapshot();
   });
 
   it('should use legacy system prompt for non-preview model', () => {
-    vi.mocked(mockConfig.getActiveModel).mockReturnValue(
-      DEFAULT_GEMINI_FLASH_LITE_MODEL,
-    );
+    vi.mocked(mockConfig.getActiveModel).mockReturnValue(DEFAULT_GEMINI_FLASH_LITE_MODEL);
     const prompt = getCoreSystemPrompt(mockConfig);
-    expect(prompt).toContain(
-      'You are an interactive CLI agent specializing in software engineering tasks.',
-    );
+    expect(prompt).toContain('You are an interactive CLI agent specializing in software engineering tasks.');
     expect(prompt).not.toContain('No sub-agents are currently available.');
     expect(prompt).toContain('# Core Mandates');
     expect(prompt).toContain('- **Conventions:**');
@@ -232,9 +218,7 @@ describe('Core System Prompt (prompts.ts)', () => {
   });
 
   it('should use chatty system prompt for preview flash model', () => {
-    vi.mocked(mockConfig.getActiveModel).mockReturnValue(
-      PREVIEW_GEMINI_FLASH_MODEL,
-    );
+    vi.mocked(mockConfig.getActiveModel).mockReturnValue(PREVIEW_GEMINI_FLASH_MODEL);
     const prompt = getCoreSystemPrompt(mockConfig);
     expect(prompt).toContain('You are Gemini CLI, an interactive CLI agent'); // Check for core content
     expect(prompt).toContain('No Chitchat:');
@@ -248,7 +232,7 @@ describe('Core System Prompt (prompts.ts)', () => {
     expect(prompt).toContain('Distinguish between **Directives**');
     expect(prompt).toContain('and **Inquiries**');
     expect(prompt).toContain(
-      'Assume all requests are Inquiries unless they contain an explicit instruction to perform a task.',
+      'Assume all requests are Inquiries unless they contain an explicit instruction to perform a task.'
     );
     expect(prompt).toMatchSnapshot();
   });
@@ -288,15 +272,9 @@ describe('Core System Prompt (prompts.ts)', () => {
     };
     const prompt = getCoreSystemPrompt(mockConfig, memory);
 
-    expect(prompt).toContain(
-      '<global_context>\nglobal context\n</global_context>',
-    );
-    expect(prompt).toContain(
-      '<extension_context>\nextension context\n</extension_context>',
-    );
-    expect(prompt).toContain(
-      '<project_context>\nproject context\n</project_context>',
-    );
+    expect(prompt).toContain('<global_context>\nglobal context\n</global_context>');
+    expect(prompt).toContain('<extension_context>\nextension context\n</extension_context>');
+    expect(prompt).toContain('<project_context>\nproject context\n</project_context>');
     expect(prompt).toMatchSnapshot();
     // Should also include conflict resolution rules when hierarchical memory is present
     expect(prompt).toContain('Conflict Resolution:');
@@ -312,18 +290,12 @@ describe('Core System Prompt (prompts.ts)', () => {
   it.each([
     ['true', '# Sandbox', ['# macOS Seatbelt', '# Outside of Sandbox']],
     ['sandbox-exec', '# macOS Seatbelt', ['# Sandbox', '# Outside of Sandbox']],
-    [
-      undefined,
-      'You are Gemini CLI, an interactive CLI agent',
-      ['# Sandbox', '# macOS Seatbelt'],
-    ],
+    [undefined, 'You are Gemini CLI, an interactive CLI agent', ['# Sandbox', '# macOS Seatbelt']],
   ])(
     'should include correct sandbox instructions for SANDBOX=%s',
     (sandboxValue, expectedContains, expectedNotContains) => {
       vi.stubEnv('SANDBOX', sandboxValue);
-      vi.mocked(mockConfig.getActiveModel).mockReturnValue(
-        PREVIEW_GEMINI_MODEL,
-      );
+      vi.mocked(mockConfig.getActiveModel).mockReturnValue(PREVIEW_GEMINI_MODEL);
       const prompt = getCoreSystemPrompt(mockConfig);
       expect(prompt).toContain(expectedContains);
 
@@ -332,24 +304,19 @@ describe('Core System Prompt (prompts.ts)', () => {
 
       expectedNotContains.forEach((text) => expect(prompt).not.toContain(text));
       expect(prompt).toMatchSnapshot();
-    },
+    }
   );
 
   it.each([
     [true, true],
     [false, false],
-  ])(
-    'should handle git instructions when isGitRepository=%s',
-    (isGitRepo, shouldContainGit) => {
-      vi.stubEnv('SANDBOX', undefined);
-      vi.mocked(isGitRepository).mockReturnValue(isGitRepo);
-      const prompt = getCoreSystemPrompt(mockConfig);
-      shouldContainGit
-        ? expect(prompt).toContain('# Git Repository')
-        : expect(prompt).not.toContain('# Git Repository');
-      expect(prompt).toMatchSnapshot();
-    },
-  );
+  ])('should handle git instructions when isGitRepository=%s', (isGitRepo, shouldContainGit) => {
+    vi.stubEnv('SANDBOX', undefined);
+    vi.mocked(isGitRepository).mockReturnValue(isGitRepo);
+    const prompt = getCoreSystemPrompt(mockConfig);
+    shouldContainGit ? expect(prompt).toContain('# Git Repository') : expect(prompt).not.toContain('# Git Repository');
+    expect(prompt).toMatchSnapshot();
+  });
 
   it('should return the interactive avoidance prompt when in non-interactive mode', () => {
     vi.stubEnv('SANDBOX', undefined);
@@ -367,59 +334,52 @@ describe('Core System Prompt (prompts.ts)', () => {
     expect(prompt).not.toContain('`grep_search`');
     expect(prompt).not.toContain('`glob`');
     expect(prompt).toContain(
-      'Use search tools extensively to understand file structures, existing code patterns, and conventions.',
+      'Use search tools extensively to understand file structures, existing code patterns, and conventions.'
     );
   });
 
   it.each([
     [[CodebaseInvestigatorAgent.name, 'grep_search', 'glob'], true],
     [['grep_search', 'glob'], false],
-  ])(
-    'should handle CodebaseInvestigator with tools=%s',
-    (toolNames, expectCodebaseInvestigator) => {
-      const testConfig = {
-        getToolRegistry: vi.fn().mockReturnValue({
-          getAllToolNames: vi.fn().mockReturnValue(toolNames),
-        }),
-        getEnableShellOutputEfficiency: vi.fn().mockReturnValue(true),
-        storage: {
-          getProjectTempDir: vi.fn().mockReturnValue('/tmp/project-temp'),
-        },
-        isInteractive: vi.fn().mockReturnValue(false),
-        isInteractiveShellEnabled: vi.fn().mockReturnValue(false),
-        isAgentsEnabled: vi.fn().mockReturnValue(false),
-        getModel: vi.fn().mockReturnValue('auto'),
-        getActiveModel: vi.fn().mockReturnValue(PREVIEW_GEMINI_MODEL),
-        getPreviewFeatures: vi.fn().mockReturnValue(true),
-        getAgentRegistry: vi.fn().mockReturnValue({
-          getDirectoryContext: vi.fn().mockReturnValue('Mock Agent Directory'),
-          getAllDefinitions: vi.fn().mockReturnValue([]),
-        }),
-        getSkillManager: vi.fn().mockReturnValue({
-          getSkills: vi.fn().mockReturnValue([]),
-        }),
-        getApprovedPlanPath: vi.fn().mockReturnValue(undefined),
-      } as unknown as Config;
+  ])('should handle CodebaseInvestigator with tools=%s', (toolNames, expectCodebaseInvestigator) => {
+    const testConfig = {
+      getToolRegistry: vi.fn().mockReturnValue({
+        getAllToolNames: vi.fn().mockReturnValue(toolNames),
+      }),
+      getEnableShellOutputEfficiency: vi.fn().mockReturnValue(true),
+      storage: {
+        getProjectTempDir: vi.fn().mockReturnValue('/tmp/project-temp'),
+      },
+      isInteractive: vi.fn().mockReturnValue(false),
+      isInteractiveShellEnabled: vi.fn().mockReturnValue(false),
+      isAgentsEnabled: vi.fn().mockReturnValue(false),
+      getModel: vi.fn().mockReturnValue('auto'),
+      getActiveModel: vi.fn().mockReturnValue(PREVIEW_GEMINI_MODEL),
+      getPreviewFeatures: vi.fn().mockReturnValue(true),
+      getAgentRegistry: vi.fn().mockReturnValue({
+        getDirectoryContext: vi.fn().mockReturnValue('Mock Agent Directory'),
+        getAllDefinitions: vi.fn().mockReturnValue([]),
+      }),
+      getSkillManager: vi.fn().mockReturnValue({
+        getSkills: vi.fn().mockReturnValue([]),
+      }),
+      getApprovedPlanPath: vi.fn().mockReturnValue(undefined),
+    } as unknown as Config;
 
-      const prompt = getCoreSystemPrompt(testConfig);
-      if (expectCodebaseInvestigator) {
-        expect(prompt).toContain(
-          `Utilize specialized sub-agents (e.g., \`codebase_investigator\`) as the primary mechanism for initial discovery`,
-        );
-        expect(prompt).not.toContain(
-          'Use `grep_search` and `glob` search tools extensively',
-        );
-      } else {
-        expect(prompt).not.toContain(
-          `Utilize specialized sub-agents (e.g., \`codebase_investigator\`) as the primary mechanism for initial discovery`,
-        );
-        expect(prompt).toContain(
-          'Use `grep_search` and `glob` search tools extensively',
-        );
-      }
-      expect(prompt).toMatchSnapshot();
-    },
-  );
+    const prompt = getCoreSystemPrompt(testConfig);
+    if (expectCodebaseInvestigator) {
+      expect(prompt).toContain(
+        `Utilize specialized sub-agents (e.g., \`codebase_investigator\`) as the primary mechanism for initial discovery`
+      );
+      expect(prompt).not.toContain('Use `grep_search` and `glob` search tools extensively');
+    } else {
+      expect(prompt).not.toContain(
+        `Utilize specialized sub-agents (e.g., \`codebase_investigator\`) as the primary mechanism for initial discovery`
+      );
+      expect(prompt).toContain('Use `grep_search` and `glob` search tools extensively');
+    }
+    expect(prompt).toMatchSnapshot();
+  });
 
   describe('ApprovalMode in System Prompt', () => {
     it('should include PLAN mode instructions', () => {
@@ -430,9 +390,7 @@ describe('Core System Prompt (prompts.ts)', () => {
     });
 
     it('should NOT include approval mode instructions for DEFAULT mode', () => {
-      vi.mocked(mockConfig.getApprovalMode).mockReturnValue(
-        ApprovalMode.DEFAULT,
-      );
+      vi.mocked(mockConfig.getApprovalMode).mockReturnValue(ApprovalMode.DEFAULT);
       const prompt = getCoreSystemPrompt(mockConfig);
       expect(prompt).not.toContain('# Active Approval Mode: Plan');
       expect(prompt).toMatchSnapshot();
@@ -449,7 +407,7 @@ describe('Core System Prompt (prompts.ts)', () => {
         {},
         {} as MessageBus,
         false,
-        true, // isReadOnly
+        true // isReadOnly
       );
 
       const nonReadOnlyMcpTool = new DiscoveredMCPTool(
@@ -460,13 +418,10 @@ describe('Core System Prompt (prompts.ts)', () => {
         {},
         {} as MessageBus,
         false,
-        false,
+        false
       );
 
-      vi.mocked(mockConfig.getToolRegistry().getAllTools).mockReturnValue([
-        readOnlyMcpTool,
-        nonReadOnlyMcpTool,
-      ]);
+      vi.mocked(mockConfig.getToolRegistry().getAllTools).mockReturnValue([readOnlyMcpTool, nonReadOnlyMcpTool]);
       vi.mocked(mockConfig.getToolRegistry().getAllToolNames).mockReturnValue([
         readOnlyMcpTool.name,
         nonReadOnlyMcpTool.name,
@@ -475,19 +430,13 @@ describe('Core System Prompt (prompts.ts)', () => {
       const prompt = getCoreSystemPrompt(mockConfig);
 
       expect(prompt).toContain('`read_static_value` (readonly-server)');
-      expect(prompt).not.toContain(
-        '`non_read_static_value` (nonreadonly-server)',
-      );
+      expect(prompt).not.toContain('`non_read_static_value` (nonreadonly-server)');
     });
 
     it('should only list available tools in PLAN mode', () => {
       vi.mocked(mockConfig.getApprovalMode).mockReturnValue(ApprovalMode.PLAN);
       // Only enable a subset of tools, including ask_user
-      vi.mocked(mockConfig.getToolRegistry().getAllToolNames).mockReturnValue([
-        'glob',
-        'read_file',
-        'ask_user',
-      ]);
+      vi.mocked(mockConfig.getToolRegistry().getAllToolNames).mockReturnValue(['glob', 'read_file', 'ask_user']);
 
       const prompt = getCoreSystemPrompt(mockConfig);
 
@@ -504,12 +453,8 @@ describe('Core System Prompt (prompts.ts)', () => {
 
     describe('Approved Plan in Plan Mode', () => {
       beforeEach(() => {
-        vi.mocked(mockConfig.getApprovalMode).mockReturnValue(
-          ApprovalMode.PLAN,
-        );
-        vi.mocked(mockConfig.storage.getProjectTempPlansDir).mockReturnValue(
-          '/tmp/plans',
-        );
+        vi.mocked(mockConfig.getApprovalMode).mockReturnValue(ApprovalMode.PLAN);
+        vi.mocked(mockConfig.storage.getProjectTempPlansDir).mockReturnValue('/tmp/plans');
       });
 
       it('should include approved plan path when set in config', () => {
@@ -544,9 +489,7 @@ describe('Core System Prompt (prompts.ts)', () => {
     });
 
     it('should NOT include YOLO mode instructions for DEFAULT mode', () => {
-      vi.mocked(mockConfig.getApprovalMode).mockReturnValue(
-        ApprovalMode.DEFAULT,
-      );
+      vi.mocked(mockConfig.getApprovalMode).mockReturnValue(ApprovalMode.DEFAULT);
       const prompt = getCoreSystemPrompt(mockConfig);
       expect(prompt).not.toContain('# Autonomous Mode (YOLO)');
     });
@@ -555,42 +498,32 @@ describe('Core System Prompt (prompts.ts)', () => {
   describe('Platform-specific and Background Process instructions', () => {
     it('should include Windows-specific shell efficiency commands on win32', () => {
       mockPlatform('win32');
-      vi.mocked(mockConfig.getActiveModel).mockReturnValue(
-        DEFAULT_GEMINI_FLASH_LITE_MODEL,
-      );
+      vi.mocked(mockConfig.getActiveModel).mockReturnValue(DEFAULT_GEMINI_FLASH_LITE_MODEL);
       const prompt = getCoreSystemPrompt(mockConfig);
       expect(prompt).toContain(
-        "using commands like 'type' or 'findstr' (on CMD) and 'Get-Content' or 'Select-String' (on PowerShell)",
+        "using commands like 'type' or 'findstr' (on CMD) and 'Get-Content' or 'Select-String' (on PowerShell)"
       );
-      expect(prompt).not.toContain(
-        "using commands like 'grep', 'tail', 'head'",
-      );
+      expect(prompt).not.toContain("using commands like 'grep', 'tail', 'head'");
     });
 
     it('should include generic shell efficiency commands on non-Windows', () => {
       mockPlatform('linux');
-      vi.mocked(mockConfig.getActiveModel).mockReturnValue(
-        DEFAULT_GEMINI_FLASH_LITE_MODEL,
-      );
+      vi.mocked(mockConfig.getActiveModel).mockReturnValue(DEFAULT_GEMINI_FLASH_LITE_MODEL);
       const prompt = getCoreSystemPrompt(mockConfig);
       expect(prompt).toContain("using commands like 'grep', 'tail', 'head'");
       expect(prompt).not.toContain(
-        "using commands like 'type' or 'findstr' (on CMD) and 'Get-Content' or 'Select-String' (on PowerShell)",
+        "using commands like 'type' or 'findstr' (on CMD) and 'Get-Content' or 'Select-String' (on PowerShell)"
       );
     });
 
     it('should use is_background parameter in background process instructions', () => {
       const prompt = getCoreSystemPrompt(mockConfig);
-      expect(prompt).toContain(
-        'To run a command in the background, set the `is_background` parameter to true.',
-      );
+      expect(prompt).toContain('To run a command in the background, set the `is_background` parameter to true.');
       expect(prompt).not.toContain('via `&`');
     });
 
     it("should include 'ctrl + f' instructions when interactive shell is enabled", () => {
-      vi.mocked(mockConfig.getActiveModel).mockReturnValue(
-        PREVIEW_GEMINI_MODEL,
-      );
+      vi.mocked(mockConfig.getActiveModel).mockReturnValue(PREVIEW_GEMINI_MODEL);
       vi.mocked(mockConfig.isInteractive).mockReturnValue(true);
       vi.mocked(mockConfig.isInteractiveShellEnabled).mockReturnValue(true);
       const prompt = getCoreSystemPrompt(mockConfig);
@@ -598,9 +531,7 @@ describe('Core System Prompt (prompts.ts)', () => {
     });
 
     it("should NOT include 'ctrl + f' instructions when interactive shell is disabled", () => {
-      vi.mocked(mockConfig.getActiveModel).mockReturnValue(
-        PREVIEW_GEMINI_MODEL,
-      );
+      vi.mocked(mockConfig.getActiveModel).mockReturnValue(PREVIEW_GEMINI_MODEL);
       vi.mocked(mockConfig.isInteractive).mockReturnValue(true);
       vi.mocked(mockConfig.isInteractiveShellEnabled).mockReturnValue(false);
       const prompt = getCoreSystemPrompt(mockConfig);
@@ -618,50 +549,40 @@ describe('Core System Prompt (prompts.ts)', () => {
 
   it('should include planning phase suggestion when enter_plan_mode tool is enabled', () => {
     vi.mocked(mockConfig.getActiveModel).mockReturnValue(PREVIEW_GEMINI_MODEL);
-    vi.mocked(mockConfig.getToolRegistry().getAllToolNames).mockReturnValue([
-      'enter_plan_mode',
-    ]);
+    vi.mocked(mockConfig.getToolRegistry().getAllToolNames).mockReturnValue(['enter_plan_mode']);
     const prompt = getCoreSystemPrompt(mockConfig);
 
     expect(prompt).toContain(
-      'If the request is ambiguous, broad in scope, or involves creating a new feature/application, you MUST use the `enter_plan_mode` tool to design your approach before making changes. Do NOT use Plan Mode for straightforward bug fixes, answering questions, or simple inquiries.',
+      'If the request is ambiguous, broad in scope, or involves creating a new feature/application, you MUST use the `enter_plan_mode` tool to design your approach before making changes. Do NOT use Plan Mode for straightforward bug fixes, answering questions, or simple inquiries.'
     );
     expect(prompt).toMatchSnapshot();
   });
 
   describe('GEMINI_SYSTEM_MD environment variable', () => {
-    it.each(['false', '0'])(
-      'should use default prompt when GEMINI_SYSTEM_MD is "%s"',
-      (value) => {
-        vi.stubEnv('GEMINI_SYSTEM_MD', value);
-        const prompt = getCoreSystemPrompt(mockConfig);
-        expect(fs.readFileSync).not.toHaveBeenCalled();
-        expect(prompt).not.toContain('custom system prompt');
-      },
-    );
+    it.each(['false', '0'])('should use default prompt when GEMINI_SYSTEM_MD is "%s"', (value) => {
+      vi.stubEnv('GEMINI_SYSTEM_MD', value);
+      const prompt = getCoreSystemPrompt(mockConfig);
+      expect(fs.readFileSync).not.toHaveBeenCalled();
+      expect(prompt).not.toContain('custom system prompt');
+    });
 
     it('should throw error if GEMINI_SYSTEM_MD points to a non-existent file', () => {
       const customPath = '/non/existent/path/system.md';
       vi.stubEnv('GEMINI_SYSTEM_MD', customPath);
       vi.mocked(fs.existsSync).mockReturnValue(false);
-      expect(() => getCoreSystemPrompt(mockConfig)).toThrow(
-        `missing system prompt file '${path.resolve(customPath)}'`,
-      );
+      expect(() => getCoreSystemPrompt(mockConfig)).toThrow(`missing system prompt file '${path.resolve(customPath)}'`);
     });
 
-    it.each(['true', '1'])(
-      'should read from default path when GEMINI_SYSTEM_MD is "%s"',
-      (value) => {
-        const defaultPath = path.resolve(path.join(GEMINI_DIR, 'system.md'));
-        vi.stubEnv('GEMINI_SYSTEM_MD', value);
-        vi.mocked(fs.existsSync).mockReturnValue(true);
-        vi.mocked(fs.readFileSync).mockReturnValue('custom system prompt');
+    it.each(['true', '1'])('should read from default path when GEMINI_SYSTEM_MD is "%s"', (value) => {
+      const defaultPath = path.resolve(path.join(GEMINI_DIR, 'system.md'));
+      vi.stubEnv('GEMINI_SYSTEM_MD', value);
+      vi.mocked(fs.existsSync).mockReturnValue(true);
+      vi.mocked(fs.readFileSync).mockReturnValue('custom system prompt');
 
-        const prompt = getCoreSystemPrompt(mockConfig);
-        expect(fs.readFileSync).toHaveBeenCalledWith(defaultPath, 'utf8');
-        expect(prompt).toBe('custom system prompt');
-      },
-    );
+      const prompt = getCoreSystemPrompt(mockConfig);
+      expect(fs.readFileSync).toHaveBeenCalledWith(defaultPath, 'utf8');
+      expect(prompt).toBe('custom system prompt');
+    });
 
     it('should read from custom path when GEMINI_SYSTEM_MD provides one, preserving case', () => {
       const customPath = path.resolve('/custom/path/SyStEm.Md');
@@ -684,66 +605,43 @@ describe('Core System Prompt (prompts.ts)', () => {
       vi.mocked(fs.readFileSync).mockReturnValue('custom system prompt');
 
       const prompt = getCoreSystemPrompt(mockConfig);
-      expect(fs.readFileSync).toHaveBeenCalledWith(
-        path.resolve(expectedPath),
-        'utf8',
-      );
+      expect(fs.readFileSync).toHaveBeenCalledWith(path.resolve(expectedPath), 'utf8');
       expect(prompt).toBe('custom system prompt');
     });
   });
 
   describe('GEMINI_WRITE_SYSTEM_MD environment variable', () => {
-    it.each(['false', '0'])(
-      'should not write to file when GEMINI_WRITE_SYSTEM_MD is "%s"',
-      (value) => {
-        vi.stubEnv('GEMINI_WRITE_SYSTEM_MD', value);
-        getCoreSystemPrompt(mockConfig);
-        expect(fs.writeFileSync).not.toHaveBeenCalled();
-      },
-    );
+    it.each(['false', '0'])('should not write to file when GEMINI_WRITE_SYSTEM_MD is "%s"', (value) => {
+      vi.stubEnv('GEMINI_WRITE_SYSTEM_MD', value);
+      getCoreSystemPrompt(mockConfig);
+      expect(fs.writeFileSync).not.toHaveBeenCalled();
+    });
 
-    it.each(['true', '1'])(
-      'should write to default path when GEMINI_WRITE_SYSTEM_MD is "%s"',
-      (value) => {
-        const defaultPath = path.resolve(path.join(GEMINI_DIR, 'system.md'));
-        vi.stubEnv('GEMINI_WRITE_SYSTEM_MD', value);
-        getCoreSystemPrompt(mockConfig);
-        expect(fs.writeFileSync).toHaveBeenCalledWith(
-          defaultPath,
-          expect.any(String),
-        );
-      },
-    );
+    it.each(['true', '1'])('should write to default path when GEMINI_WRITE_SYSTEM_MD is "%s"', (value) => {
+      const defaultPath = path.resolve(path.join(GEMINI_DIR, 'system.md'));
+      vi.stubEnv('GEMINI_WRITE_SYSTEM_MD', value);
+      getCoreSystemPrompt(mockConfig);
+      expect(fs.writeFileSync).toHaveBeenCalledWith(defaultPath, expect.any(String));
+    });
 
     it('should write to custom path when GEMINI_WRITE_SYSTEM_MD provides one', () => {
       const customPath = path.resolve('/custom/path/system.md');
       vi.stubEnv('GEMINI_WRITE_SYSTEM_MD', customPath);
       getCoreSystemPrompt(mockConfig);
-      expect(fs.writeFileSync).toHaveBeenCalledWith(
-        customPath,
-        expect.any(String),
-      );
+      expect(fs.writeFileSync).toHaveBeenCalledWith(customPath, expect.any(String));
     });
 
     it.each([
       ['~/custom/system.md', 'custom/system.md'],
       ['~', ''],
-    ])(
-      'should expand tilde in custom path when GEMINI_WRITE_SYSTEM_MD is "%s"',
-      (customPath, relativePath) => {
-        const homeDir = '/Users/test';
-        vi.spyOn(os, 'homedir').mockReturnValue(homeDir);
-        const expectedPath = relativePath
-          ? path.join(homeDir, relativePath)
-          : homeDir;
-        vi.stubEnv('GEMINI_WRITE_SYSTEM_MD', customPath);
-        getCoreSystemPrompt(mockConfig);
-        expect(fs.writeFileSync).toHaveBeenCalledWith(
-          path.resolve(expectedPath),
-          expect.any(String),
-        );
-      },
-    );
+    ])('should expand tilde in custom path when GEMINI_WRITE_SYSTEM_MD is "%s"', (customPath, relativePath) => {
+      const homeDir = '/Users/test';
+      vi.spyOn(os, 'homedir').mockReturnValue(homeDir);
+      const expectedPath = relativePath ? path.join(homeDir, relativePath) : homeDir;
+      vi.stubEnv('GEMINI_WRITE_SYSTEM_MD', customPath);
+      getCoreSystemPrompt(mockConfig);
+      expect(fs.writeFileSync).toHaveBeenCalledWith(path.resolve(expectedPath), expect.any(String));
+    });
   });
 });
 
@@ -786,17 +684,14 @@ describe('resolvePathFromEnv helper function', () => {
   });
 
   describe('when envVar is a file path', () => {
-    it.each([['/absolute/path/file.txt'], ['relative/path/file.txt']])(
-      'should resolve path: %s',
-      (input) => {
-        const result = resolvePathFromEnv(input);
-        expect(result).toEqual({
-          isSwitch: false,
-          value: path.resolve(input),
-          isDisabled: false,
-        });
-      },
-    );
+    it.each([['/absolute/path/file.txt'], ['relative/path/file.txt']])('should resolve path: %s', (input) => {
+      const result = resolvePathFromEnv(input);
+      expect(result).toEqual({
+        isSwitch: false,
+        value: path.resolve(input),
+        isDisabled: false,
+      });
+    });
 
     it.each([
       ['~/documents/file.txt', 'documents/file.txt'],
@@ -807,9 +702,7 @@ describe('resolvePathFromEnv helper function', () => {
       const result = resolvePathFromEnv(input);
       expect(result).toEqual({
         isSwitch: false,
-        value: path.resolve(
-          homeRelativePath ? path.join(homeDir, homeRelativePath) : homeDir,
-        ),
+        value: path.resolve(homeRelativePath ? path.join(homeDir, homeRelativePath) : homeDir),
         isDisabled: false,
       });
     });
@@ -818,9 +711,7 @@ describe('resolvePathFromEnv helper function', () => {
       vi.spyOn(os, 'homedir').mockImplementation(() => {
         throw new Error('Cannot resolve home directory');
       });
-      const consoleSpy = vi
-        .spyOn(debugLogger, 'warn')
-        .mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(debugLogger, 'warn').mockImplementation(() => {});
 
       const result = resolvePathFromEnv('~/documents/file.txt');
       expect(result).toEqual({
@@ -830,7 +721,7 @@ describe('resolvePathFromEnv helper function', () => {
       });
       expect(consoleSpy).toHaveBeenCalledWith(
         'Could not resolve home directory for path: ~/documents/file.txt',
-        expect.any(Error),
+        expect.any(Error)
       );
 
       consoleSpy.mockRestore();

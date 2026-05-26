@@ -14,11 +14,9 @@ import { type IdeInfo } from './detect-ide.js';
 
 const logger = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  debug: (...args: any[]) =>
-    debugLogger.debug('[DEBUG] [IDEConnectionUtils]', ...args),
+  debug: (...args: any[]) => debugLogger.debug('[DEBUG] [IDEConnectionUtils]', ...args),
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  error: (...args: any[]) =>
-    debugLogger.error('[ERROR] [IDEConnectionUtils]', ...args),
+  error: (...args: any[]) => debugLogger.error('[ERROR] [IDEConnectionUtils]', ...args),
 };
 
 export type StdioConfig = {
@@ -34,7 +32,7 @@ export type ConnectionConfig = {
 
 export function validateWorkspacePath(
   ideWorkspacePath: string | undefined,
-  cwd: string,
+  cwd: string
 ): { isValid: boolean; error?: string } {
   if (ideWorkspacePath === undefined) {
     return {
@@ -55,15 +53,13 @@ export function validateWorkspacePath(
     .map((p) => resolveToRealPath(p))
     .filter((e) => !!e);
   const realCwd = resolveToRealPath(cwd);
-  const isWithinWorkspace = ideWorkspacePaths.some((workspacePath) =>
-    isSubpath(workspacePath, realCwd),
-  );
+  const isWithinWorkspace = ideWorkspacePaths.some((workspacePath) => isSubpath(workspacePath, realCwd));
 
   if (!isWithinWorkspace) {
     return {
       isValid: false,
       error: `Directory mismatch. Gemini CLI is running in a different location than the open workspace in the IDE. Please run the CLI from one of the following directories: ${ideWorkspacePaths.join(
-        ', ',
+        ', '
       )}`,
     };
   }
@@ -92,9 +88,7 @@ export function getStdioConfigFromEnv(): StdioConfig | undefined {
       if (Array.isArray(parsedArgs)) {
         args = parsedArgs;
       } else {
-        logger.error(
-          'GEMINI_CLI_IDE_SERVER_STDIO_ARGS must be a JSON array string.',
-        );
+        logger.error('GEMINI_CLI_IDE_SERVER_STDIO_ARGS must be a JSON array string.');
       }
     } catch (e) {
       logger.error('Failed to parse GEMINI_CLI_IDE_SERVER_STDIO_ARGS:', e);
@@ -105,18 +99,11 @@ export function getStdioConfigFromEnv(): StdioConfig | undefined {
 }
 
 export async function getConnectionConfigFromFile(
-  pid: number,
-): Promise<
-  (ConnectionConfig & { workspacePath?: string; ideInfo?: IdeInfo }) | undefined
-> {
+  pid: number
+): Promise<(ConnectionConfig & { workspacePath?: string; ideInfo?: IdeInfo }) | undefined> {
   // For backwards compatibility
   try {
-    const portFile = path.join(
-      os.tmpdir(),
-      'gemini',
-      'ide',
-      `gemini-ide-server-${pid}.json`,
-    );
+    const portFile = path.join(os.tmpdir(), 'gemini', 'ide', `gemini-ide-server-${pid}.json`);
     const portFileContents = await fs.promises.readFile(portFile, 'utf8');
     return JSON.parse(portFileContents);
   } catch (_) {
@@ -148,9 +135,7 @@ export async function getConnectionConfigFromFile(
   let fileContents: string[];
   try {
     fileContents = await Promise.all(
-      matchingFiles.map((file) =>
-        fs.promises.readFile(path.join(portFileDir, file), 'utf8'),
-      ),
+      matchingFiles.map((file) => fs.promises.readFile(path.join(portFileDir, file), 'utf8'))
     );
   } catch (e) {
     logger.debug('Failed to read IDE connection config file(s):', e);
@@ -169,10 +154,7 @@ export async function getConnectionConfigFromFile(
     if (!content) {
       return false;
     }
-    const { isValid } = validateWorkspacePath(
-      content.workspacePath,
-      process.cwd(),
-    );
+    const { isValid } = validateWorkspacePath(content.workspacePath, process.cwd());
     return isValid;
   });
 
@@ -186,9 +168,7 @@ export async function getConnectionConfigFromFile(
 
   const portFromEnv = getPortFromEnv();
   if (portFromEnv) {
-    const matchingPort = validWorkspaces.find(
-      (content) => String(content.port) === portFromEnv,
-    );
+    const matchingPort = validWorkspaces.find((content) => String(content.port) === portFromEnv);
     if (matchingPort) {
       return matchingPort;
     }
@@ -248,8 +228,5 @@ function isSshConnected() {
 }
 
 function isDevContainer() {
-  return !!(
-    process.env['VSCODE_REMOTE_CONTAINERS_SESSION'] ||
-    process.env['REMOTE_CONTAINERS']
-  );
+  return !!(process.env['VSCODE_REMOTE_CONTAINERS_SESSION'] || process.env['REMOTE_CONTAINERS']);
 }

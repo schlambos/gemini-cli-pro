@@ -190,8 +190,7 @@ describe('classifyGoogleError', () => {
           '@type': 'type.googleapis.com/google.rpc.QuotaFailure',
           violations: [
             {
-              quotaMetric:
-                'generativelanguage.googleapis.com/generate_content_free_tier_requests',
+              quotaMetric: 'generativelanguage.googleapis.com/generate_content_free_tier_requests',
               quotaId: 'GenerateRequestsPerMinutePerProjectPerModel-FreeTier',
               quotaDimensions: {
                 location: 'global',
@@ -225,8 +224,7 @@ describe('classifyGoogleError', () => {
   it('should return RetryableQuotaError for Cloud Code RATE_LIMIT_EXCEEDED with retry delay', () => {
     const apiError: GoogleApiError = {
       code: 429,
-      message:
-        'You have exhausted your capacity on this model. Your quota will reset after 0s.',
+      message: 'You have exhausted your capacity on this model. Your quota will reset after 0s.',
       details: [
         {
           '@type': 'type.googleapis.com/google.rpc.ErrorInfo',
@@ -248,16 +246,13 @@ describe('classifyGoogleError', () => {
     vi.spyOn(errorParser, 'parseGoogleApiError').mockReturnValue(apiError);
     const result = classifyGoogleError(new Error());
     expect(result).toBeInstanceOf(RetryableQuotaError);
-    expect((result as RetryableQuotaError).retryDelayMs).toBeCloseTo(
-      539.477544,
-    );
+    expect((result as RetryableQuotaError).retryDelayMs).toBeCloseTo(539.477544);
   });
 
   it('should return TerminalQuotaError for Cloud Code QUOTA_EXHAUSTED', () => {
     const apiError: GoogleApiError = {
       code: 429,
-      message:
-        'You have exhausted your capacity on this model. Your quota will reset after 0s.',
+      message: 'You have exhausted your capacity on this model. Your quota will reset after 0s.',
       details: [
         {
           '@type': 'type.googleapis.com/google.rpc.ErrorInfo',
@@ -463,15 +458,9 @@ describe('classifyGoogleError', () => {
     vi.spyOn(errorParser, 'parseGoogleApiError').mockReturnValue(apiError);
     const result = classifyGoogleError(new Error());
     expect(result).toBeInstanceOf(ValidationRequiredError);
-    expect((result as ValidationRequiredError).validationLink).toBe(
-      'https://example.com/validate',
-    );
-    expect((result as ValidationRequiredError).validationDescription).toBe(
-      'Complete validation to continue',
-    );
-    expect((result as ValidationRequiredError).learnMoreUrl).toBe(
-      'https://support.google.com/accounts?p=al_alert',
-    );
+    expect((result as ValidationRequiredError).validationLink).toBe('https://example.com/validate');
+    expect((result as ValidationRequiredError).validationDescription).toBe('Complete validation to continue');
+    expect((result as ValidationRequiredError).learnMoreUrl).toBe('https://support.google.com/accounts?p=al_alert');
     expect((result as ValidationRequiredError).cause).toBe(apiError);
   });
 
@@ -509,12 +498,10 @@ describe('classifyGoogleError', () => {
     expect(result).toBeInstanceOf(ValidationRequiredError);
     // Should get the validation link from the first link
     expect((result as ValidationRequiredError).validationLink).toBe(
-      'https://accounts.sandbox.google.com/signin/continue?sarp=1&scc=1&continue=...',
+      'https://accounts.sandbox.google.com/signin/continue?sarp=1&scc=1&continue=...'
     );
     // Should get the Learn more URL from the SECOND link, not the first
-    expect((result as ValidationRequiredError).learnMoreUrl).toBe(
-      'https://support.google.com/accounts?p=al_alert',
-    );
+    expect((result as ValidationRequiredError).learnMoreUrl).toBe('https://support.google.com/accounts?p=al_alert');
   });
 
   it('should fallback to ErrorInfo metadata when Help detail is not present', () => {
@@ -535,12 +522,8 @@ describe('classifyGoogleError', () => {
     vi.spyOn(errorParser, 'parseGoogleApiError').mockReturnValue(apiError);
     const result = classifyGoogleError(new Error());
     expect(result).toBeInstanceOf(ValidationRequiredError);
-    expect((result as ValidationRequiredError).validationLink).toBe(
-      'https://staging.example.com/validate',
-    );
-    expect(
-      (result as ValidationRequiredError).validationDescription,
-    ).toBeUndefined();
+    expect((result as ValidationRequiredError).validationLink).toBe('https://staging.example.com/validate');
+    expect((result as ValidationRequiredError).validationDescription).toBeUndefined();
     expect((result as ValidationRequiredError).learnMoreUrl).toBeUndefined();
   });
 
@@ -593,9 +576,7 @@ describe('classifyGoogleError', () => {
     vi.spyOn(errorParser, 'parseGoogleApiError').mockReturnValue(apiError);
     const result = classifyGoogleError(new Error());
     expect(result).toBeInstanceOf(ValidationRequiredError);
-    expect((result as ValidationRequiredError).learnMoreUrl).toBe(
-      'https://support.google.com/accounts?p=al_alert',
-    );
+    expect((result as ValidationRequiredError).learnMoreUrl).toBe('https://support.google.com/accounts?p=al_alert');
   });
 
   it('should return original error for 403 from non-cloudcode domain', () => {

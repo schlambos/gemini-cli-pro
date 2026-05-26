@@ -20,8 +20,7 @@ import type { CallableTool } from '@google/genai';
 import { MessageType } from '../types.js';
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   const mockAuthenticate = vi.fn();
   return {
     ...actual,
@@ -44,11 +43,7 @@ const mockMessageBus = {
 } as unknown as MessageBus;
 
 // Helper function to create a mock DiscoveredMCPTool
-const createMockMCPTool = (
-  name: string,
-  serverName: string,
-  description?: string,
-) =>
+const createMockMCPTool = (name: string, serverName: string, description?: string) =>
   new DiscoveredMCPTool(
     {
       callTool: vi.fn(),
@@ -64,7 +59,7 @@ const createMockMCPTool = (
     undefined, // nameOverride
     undefined, // cliConfig
     undefined, // extensionName
-    undefined, // extensionId
+    undefined // extensionId
   );
 
 describe('mcpCommand', () => {
@@ -87,9 +82,7 @@ describe('mcpCommand', () => {
 
     // Default mock implementations
     vi.mocked(getMCPServerStatus).mockReturnValue(MCPServerStatus.CONNECTED);
-    vi.mocked(getMCPDiscoveryState).mockReturnValue(
-      MCPDiscoveryState.COMPLETED,
-    );
+    vi.mocked(getMCPDiscoveryState).mockReturnValue(MCPDiscoveryState.COMPLETED);
 
     // Create mock config with all necessary methods
     mockConfig = {
@@ -180,20 +173,13 @@ describe('mcpCommand', () => {
       const mockServer2Tools = [createMockMCPTool('server2_tool1', 'server2')];
       const mockServer3Tools = [createMockMCPTool('server3_tool1', 'server3')];
 
-      const allTools = [
-        ...mockServer1Tools,
-        ...mockServer2Tools,
-        ...mockServer3Tools,
-      ];
+      const allTools = [...mockServer1Tools, ...mockServer2Tools, ...mockServer3Tools];
 
       mockConfig.getToolRegistry = vi.fn().mockReturnValue({
         getAllTools: vi.fn().mockReturnValue(allTools),
       });
 
-      const resourcesByServer: Record<
-        string,
-        Array<{ name: string; uri: string }>
-      > = {
+      const resourcesByServer: Record<string, Array<{ name: string; uri: string }>> = {
         server1: [
           {
             name: 'Server1 Resource',
@@ -209,8 +195,8 @@ describe('mcpCommand', () => {
             resources.map((entry) => ({
               serverName,
               ...entry,
-            })),
-          ),
+            }))
+          )
         ),
       });
 
@@ -231,35 +217,31 @@ describe('mcpCommand', () => {
               uri: 'file:///server1/resource1.txt',
             }),
           ]),
-        }),
+        })
       );
     });
 
     it('should display tool descriptions when desc argument is used', async () => {
-      const descSubCommand = mcpCommand.subCommands!.find(
-        (c) => c.name === 'desc',
-      );
+      const descSubCommand = mcpCommand.subCommands!.find((c) => c.name === 'desc');
       await descSubCommand!.action!(mockContext, '');
 
       expect(mockContext.ui.addItem).toHaveBeenCalledWith(
         expect.objectContaining({
           type: MessageType.MCP_STATUS,
           showDescriptions: true,
-        }),
+        })
       );
     });
 
     it('should not display descriptions when nodesc argument is used', async () => {
-      const listSubCommand = mcpCommand.subCommands!.find(
-        (c) => c.name === 'list',
-      );
+      const listSubCommand = mcpCommand.subCommands!.find((c) => c.name === 'list');
       await listSubCommand!.action!(mockContext, '');
 
       expect(mockContext.ui.addItem).toHaveBeenCalledWith(
         expect.objectContaining({
           type: MessageType.MCP_STATUS,
           showDescriptions: false,
-        }),
+        })
       );
     });
   });

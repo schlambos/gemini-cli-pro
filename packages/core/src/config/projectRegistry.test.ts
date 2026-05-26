@@ -68,9 +68,7 @@ describe('ProjectRegistry', () => {
 
     const id1 = await registry.getShortId(path.join(tempDir, 'one', 'gemini'));
     const id2 = await registry.getShortId(path.join(tempDir, 'two', 'gemini'));
-    const id3 = await registry.getShortId(
-      path.join(tempDir, 'three', 'gemini'),
-    );
+    const id3 = await registry.getShortId(path.join(tempDir, 'three', 'gemini'));
 
     expect(id1).toBe('gemini');
     expect(id2).toBe('gemini-1');
@@ -171,16 +169,13 @@ describe('ProjectRegistry', () => {
         projects: {
           [projectPath]: 'my-project',
         },
-      }),
+      })
     );
 
     // 2. But disk says project-b owns 'my-project'
     const slugDir = path.join(baseDir1, 'my-project');
     fs.mkdirSync(slugDir, { recursive: true });
-    fs.writeFileSync(
-      path.join(slugDir, '.project_root'),
-      normalizePath(path.join(tempDir, 'project-b')),
-    );
+    fs.writeFileSync(path.join(slugDir, '.project_root'), normalizePath(path.join(tempDir, 'project-b')));
 
     // 3. my-project asks for its ID
     const registry = new ProjectRegistry(registryPath, [baseDir1]);
@@ -225,7 +220,7 @@ describe('ProjectRegistry', () => {
         projects: {
           [projectPath]: slug,
         },
-      }),
+      })
     );
 
     // 2. No markers on disk
@@ -236,17 +231,9 @@ describe('ProjectRegistry', () => {
     const id = await registry.getShortId(projectPath);
     expect(id).toBe(slug);
 
-    expect(fs.existsSync(path.join(baseDir1, slug, '.project_root'))).toBe(
-      true,
-    );
-    expect(fs.existsSync(path.join(baseDir2, slug, '.project_root'))).toBe(
-      true,
-    );
-    expect(
-      normalizePath(
-        fs.readFileSync(path.join(baseDir1, slug, '.project_root'), 'utf8'),
-      ),
-    ).toBe(projectPath);
+    expect(fs.existsSync(path.join(baseDir1, slug, '.project_root'))).toBe(true);
+    expect(fs.existsSync(path.join(baseDir2, slug, '.project_root'))).toBe(true);
+    expect(normalizePath(fs.readFileSync(path.join(baseDir1, slug, '.project_root'), 'utf8'))).toBe(projectPath);
   });
 
   it('handles corrupted (unreadable) ownership markers by picking a new slug', async () => {
@@ -256,10 +243,7 @@ describe('ProjectRegistry', () => {
     // 1. Marker exists but is owned by someone else
     const slugDir = path.join(baseDir1, slug);
     fs.mkdirSync(slugDir, { recursive: true });
-    fs.writeFileSync(
-      path.join(slugDir, '.project_root'),
-      normalizePath(path.join(tempDir, 'something-else')),
-    );
+    fs.writeFileSync(path.join(slugDir, '.project_root'), normalizePath(path.join(tempDir, 'something-else')));
 
     // 2. Registry also thinks we own it
     fs.writeFileSync(
@@ -268,7 +252,7 @@ describe('ProjectRegistry', () => {
         projects: {
           [projectPath]: slug,
         },
-      }),
+      })
     );
 
     const registry = new ProjectRegistry(registryPath, [baseDir1]);
@@ -290,14 +274,12 @@ describe('ProjectRegistry', () => {
       registryPath,
       expect.objectContaining({
         retries: expect.any(Object),
-      }),
+      })
     );
   });
 
   it('throws if not initialized', async () => {
     const registry = new ProjectRegistry(registryPath);
-    await expect(registry.getShortId('/foo')).rejects.toThrow(
-      'ProjectRegistry must be initialized before use',
-    );
+    await expect(registry.getShortId('/foo')).rejects.toThrow('ProjectRegistry must be initialized before use');
   });
 });

@@ -5,11 +5,7 @@
  */
 
 import { render } from '../../test-utils/render.js';
-import {
-  ScrollProvider,
-  useScrollable,
-  type ScrollState,
-} from './ScrollProvider.js';
+import { ScrollProvider, useScrollable, type ScrollState } from './ScrollProvider.js';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useRef, useImperativeHandle, forwardRef, type RefObject } from 'react';
 import { Box, type DOMElement } from 'ink';
@@ -48,7 +44,7 @@ const TestScrollable = forwardRef(
       scrollBy: (delta: number) => void;
       getScrollState: () => ScrollState;
     },
-    ref,
+    ref
   ) => {
     const elementRef = useRef<DOMElement>(null);
     useImperativeHandle(ref, () => elementRef.current);
@@ -61,11 +57,11 @@ const TestScrollable = forwardRef(
         hasFocus: () => true,
         flashScrollbar: () => {},
       },
-      true,
+      true
     );
 
     return <Box ref={elementRef} />;
-  },
+  }
 );
 TestScrollable.displayName = 'TestScrollable';
 
@@ -89,12 +85,8 @@ describe('ScrollProvider Drag', () => {
 
     render(
       <ScrollProvider>
-        <TestScrollable
-          id="test-scrollable"
-          scrollBy={scrollBy}
-          getScrollState={getScrollState}
-        />
-      </ScrollProvider>,
+        <TestScrollable id='test-scrollable' scrollBy={scrollBy} getScrollState={getScrollState} />
+      </ScrollProvider>
     );
 
     // Scrollbar at x + width = 10.
@@ -192,12 +184,8 @@ describe('ScrollProvider Drag', () => {
 
     render(
       <ScrollProvider>
-        <TestScrollable
-          id="test-scrollable"
-          scrollBy={scrollBy}
-          getScrollState={getScrollState}
-        />
-      </ScrollProvider>,
+        <TestScrollable id='test-scrollable' scrollBy={scrollBy} getScrollState={getScrollState} />
+      </ScrollProvider>
     );
 
     // Thumb at 0. Click at 5.
@@ -255,12 +243,8 @@ describe('ScrollProvider Drag', () => {
 
     render(
       <ScrollProvider>
-        <TestScrollable
-          id="test-scrollable"
-          scrollBy={scrollBy}
-          getScrollState={getScrollState}
-        />
-      </ScrollProvider>,
+        <TestScrollable id='test-scrollable' scrollBy={scrollBy} getScrollState={getScrollState} />
+      </ScrollProvider>
     );
 
     // Thumb at 5. Click at 2.
@@ -293,12 +277,8 @@ describe('ScrollProvider Drag', () => {
 
     render(
       <ScrollProvider>
-        <TestScrollable
-          id="test-scrollable"
-          scrollBy={scrollBy}
-          getScrollState={getScrollState}
-        />
-      </ScrollProvider>,
+        <TestScrollable id='test-scrollable' scrollBy={scrollBy} getScrollState={getScrollState} />
+      </ScrollProvider>
     );
 
     // Thumb at 5. Click at 0.
@@ -331,12 +311,8 @@ describe('ScrollProvider Drag', () => {
 
     render(
       <ScrollProvider>
-        <TestScrollable
-          id="test-scrollable"
-          scrollBy={scrollBy}
-          getScrollState={getScrollState}
-        />
-      </ScrollProvider>,
+        <TestScrollable id='test-scrollable' scrollBy={scrollBy} getScrollState={getScrollState} />
+      </ScrollProvider>
     );
 
     // Thumb at 0. Click at 9.
@@ -377,7 +353,7 @@ describe('ScrollProvider Drag', () => {
           scrollTo: (scrollTop: number, duration?: number) => void;
           getScrollState: () => ScrollState;
         },
-        ref,
+        ref
       ) => {
         const elementRef = useRef<DOMElement>(null);
         useImperativeHandle(ref, () => elementRef.current);
@@ -390,22 +366,22 @@ describe('ScrollProvider Drag', () => {
             hasFocus: () => true,
             flashScrollbar: () => {},
           },
-          true,
+          true
         );
         return <Box ref={elementRef} />;
-      },
+      }
     );
     TestScrollableWithScrollTo.displayName = 'TestScrollableWithScrollTo';
 
     render(
       <ScrollProvider>
         <TestScrollableWithScrollTo
-          id="test-scrollable-scrollto"
+          id='test-scrollable-scrollto'
           scrollBy={scrollBy}
           scrollTo={scrollTo}
           getScrollState={getScrollState}
         />
-      </ScrollProvider>,
+      </ScrollProvider>
     );
 
     // Click on track (jump)

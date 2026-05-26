@@ -9,26 +9,16 @@ import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
 import { Storage } from '../config/storage.js';
 import { getErrorMessage } from '../utils/errors.js';
-import type {
-  OAuthToken,
-  OAuthCredentials,
-  TokenStorage,
-} from './token-storage/types.js';
+import type { OAuthToken, OAuthCredentials, TokenStorage } from './token-storage/types.js';
 import { HybridTokenStorage } from './token-storage/hybrid-token-storage.js';
-import {
-  DEFAULT_SERVICE_NAME,
-  FORCE_ENCRYPTED_FILE_ENV_VAR,
-} from './token-storage/index.js';
+import { DEFAULT_SERVICE_NAME, FORCE_ENCRYPTED_FILE_ENV_VAR } from './token-storage/index.js';
 
 /**
  * Class for managing MCP OAuth token storage and retrieval.
  */
 export class MCPOAuthTokenStorage implements TokenStorage {
-  private readonly hybridTokenStorage = new HybridTokenStorage(
-    DEFAULT_SERVICE_NAME,
-  );
-  private readonly useEncryptedFile =
-    process.env[FORCE_ENCRYPTED_FILE_ENV_VAR] === 'true';
+  private readonly hybridTokenStorage = new HybridTokenStorage(DEFAULT_SERVICE_NAME);
+  private readonly useEncryptedFile = process.env[FORCE_ENCRYPTED_FILE_ENV_VAR] === 'true';
 
   /**
    * Get the path to the token storage file.
@@ -71,11 +61,7 @@ export class MCPOAuthTokenStorage implements TokenStorage {
       // File doesn't exist or is invalid, return empty map
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-        coreEvents.emitFeedback(
-          'error',
-          `Failed to load MCP OAuth tokens: ${getErrorMessage(error)}`,
-          error,
-        );
+        coreEvents.emitFeedback('error', `Failed to load MCP OAuth tokens: ${getErrorMessage(error)}`, error);
       }
     }
 
@@ -104,14 +90,10 @@ export class MCPOAuthTokenStorage implements TokenStorage {
       await fs.writeFile(
         tokenFile,
         JSON.stringify(tokenArray, null, 2),
-        { mode: 0o600 }, // Restrict file permissions
+        { mode: 0o600 } // Restrict file permissions
       );
     } catch (error) {
-      coreEvents.emitFeedback(
-        'error',
-        `Failed to save MCP OAuth token: ${getErrorMessage(error)}`,
-        error,
-      );
+      coreEvents.emitFeedback('error', `Failed to save MCP OAuth token: ${getErrorMessage(error)}`, error);
       throw error;
     }
   }
@@ -130,7 +112,7 @@ export class MCPOAuthTokenStorage implements TokenStorage {
     token: OAuthToken,
     clientId?: string,
     tokenUrl?: string,
-    mcpServerUrl?: string,
+    mcpServerUrl?: string
   ): Promise<void> {
     await this.ensureConfigDir();
 
@@ -188,11 +170,7 @@ export class MCPOAuthTokenStorage implements TokenStorage {
           });
         }
       } catch (error) {
-        coreEvents.emitFeedback(
-          'error',
-          `Failed to remove MCP OAuth token: ${getErrorMessage(error)}`,
-          error,
-        );
+        coreEvents.emitFeedback('error', `Failed to remove MCP OAuth token: ${getErrorMessage(error)}`, error);
       }
     }
   }
@@ -226,11 +204,7 @@ export class MCPOAuthTokenStorage implements TokenStorage {
     } catch (error) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-        coreEvents.emitFeedback(
-          'error',
-          `Failed to clear MCP OAuth tokens: ${getErrorMessage(error)}`,
-          error,
-        );
+        coreEvents.emitFeedback('error', `Failed to clear MCP OAuth tokens: ${getErrorMessage(error)}`, error);
       }
     }
   }

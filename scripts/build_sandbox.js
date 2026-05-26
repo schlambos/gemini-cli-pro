@@ -18,13 +18,7 @@
 // limitations under the License.
 
 import { execSync } from 'node:child_process';
-import {
-  chmodSync,
-  existsSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
+import { chmodSync, existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import os from 'node:os';
 import yargs from 'yargs';
@@ -52,15 +46,12 @@ const argv = yargs(hideBin(process.argv))
   })
   .option('output-file', {
     type: 'string',
-    description:
-      'Path to write the final image URI. Used for CI/CD pipeline integration.',
+    description: 'Path to write the final image URI. Used for CI/CD pipeline integration.',
   }).argv;
 
 let sandboxCommand;
 try {
-  sandboxCommand = execSync('node scripts/sandbox_command.js')
-    .toString()
-    .trim();
+  sandboxCommand = execSync('node scripts/sandbox_command.js').toString().trim();
 } catch (e) {
   console.warn('ERROR: could not detect sandbox container command');
   console.error(e);
@@ -68,9 +59,7 @@ try {
 }
 
 if (sandboxCommand === 'sandbox-exec') {
-  console.warn(
-    'WARNING: container-based sandboxing is disabled (see README.md#sandboxing)',
-  );
+  console.warn('WARNING: container-based sandboxing is disabled (see README.md#sandboxing)');
   process.exit(0);
 }
 
@@ -80,9 +69,7 @@ const image = argv.i;
 const dockerFile = argv.f;
 
 if (!image.length) {
-  console.warn(
-    'No default image tag specified in gemini-cli/packages/cli/package.json',
-  );
+  console.warn('No default image tag specified in gemini-cli/packages/cli/package.json');
 }
 
 if (!argv.s) {
@@ -93,35 +80,21 @@ if (!argv.s) {
 console.log('packing @google/gemini-cli ...');
 const cliPackageDir = join('packages', 'cli');
 rmSync(join(cliPackageDir, 'dist', 'google-gemini-cli-*.tgz'), { force: true });
-execSync(
-  `npm pack -w @google/gemini-cli --pack-destination ./packages/cli/dist`,
-  {
-    stdio: 'ignore',
-  },
-);
+execSync(`npm pack -w @google/gemini-cli --pack-destination ./packages/cli/dist`, {
+  stdio: 'ignore',
+});
 
 console.log('packing @google/gemini-cli-core ...');
 const corePackageDir = join('packages', 'core');
 rmSync(join(corePackageDir, 'dist', 'google-gemini-cli-core-*.tgz'), {
   force: true,
 });
-execSync(
-  `npm pack -w @google/gemini-cli-core --pack-destination ./packages/core/dist`,
-  { stdio: 'ignore' },
-);
+execSync(`npm pack -w @google/gemini-cli-core --pack-destination ./packages/core/dist`, { stdio: 'ignore' });
 
-const packageVersion = JSON.parse(
-  readFileSync(join(process.cwd(), 'package.json'), 'utf-8'),
-).version;
+const packageVersion = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf-8')).version;
 
-chmodSync(
-  join(cliPackageDir, 'dist', `google-gemini-cli-${packageVersion}.tgz`),
-  0o755,
-);
-chmodSync(
-  join(corePackageDir, 'dist', `google-gemini-cli-core-${packageVersion}.tgz`),
-  0o755,
-);
+chmodSync(join(cliPackageDir, 'dist', `google-gemini-cli-${packageVersion}.tgz`), 0o755);
+chmodSync(join(corePackageDir, 'dist', `google-gemini-cli-core-${packageVersion}.tgz`), 0o755);
 
 const buildStdout = process.env.VERBOSE ? 'inherit' : 'ignore';
 
@@ -148,12 +121,9 @@ function buildImage(imageName, dockerfile) {
     }
   }
 
-  const npmPackageVersion = JSON.parse(
-    readFileSync(join(process.cwd(), 'package.json'), 'utf-8'),
-  ).version;
+  const npmPackageVersion = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf-8')).version;
 
-  const imageTag =
-    process.env.GEMINI_SANDBOX_IMAGE_TAG || imageName.split(':')[1];
+  const imageTag = process.env.GEMINI_SANDBOX_IMAGE_TAG || imageName.split(':')[1];
   const finalImageName = `${imageName.split(':')[0]}:${imageTag}`;
 
   try {
@@ -161,21 +131,17 @@ function buildImage(imageName, dockerfile) {
       `${sandboxCommand} build ${buildCommandArgs} ${
         process.env.BUILD_SANDBOX_FLAGS || ''
       } --build-arg CLI_VERSION_ARG=${npmPackageVersion} -f "${dockerfile}" -t "${finalImageName}" .`,
-      { stdio: buildStdout, shell: shellToUse },
+      { stdio: buildStdout, shell: shellToUse }
     );
     console.log(`built ${finalImageName}`);
 
     // If an output file path was provided via command-line, write the final image URI to it.
     if (argv.outputFile) {
-      console.log(
-        `Writing final image URI for CI artifact to: ${argv.outputFile}`,
-      );
+      console.log(`Writing final image URI for CI artifact to: ${argv.outputFile}`);
       // The publish step only supports one image. If we build multiple, only the last one
       // will be published. Throw an error to make this failure explicit if the file already exists.
       if (existsSync(argv.outputFile)) {
-        throw new Error(
-          `CI artifact file ${argv.outputFile} already exists. Refusing to overwrite.`,
-        );
+        throw new Error(`CI artifact file ${argv.outputFile} already exists. Refusing to overwrite.`);
       }
       writeFileSync(argv.outputFile, finalImageName);
     }

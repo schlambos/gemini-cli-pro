@@ -13,12 +13,7 @@ import { getScopeItems } from '../../../utils/dialogScopeUtils.js';
 import { RadioButtonSelect } from './RadioButtonSelect.js';
 import { TextInput } from './TextInput.js';
 import type { TextBuffer } from './text-buffer.js';
-import {
-  cpSlice,
-  cpLen,
-  stripUnsafeCharacters,
-  cpIndexToOffset,
-} from '../../utils/textUtils.js';
+import { cpSlice, cpLen, stripUnsafeCharacters, cpIndexToOffset } from '../../utils/textUtils.js';
 import { useKeypress, type Key } from '../../hooks/useKeypress.js';
 import { keyMatchers, Command } from '../../keyMatchers.js';
 
@@ -84,20 +79,13 @@ export interface BaseSettingsDialogProps {
   /** Called when a boolean/enum item is toggled */
   onItemToggle: (key: string, item: SettingsDialogItem) => void;
   /** Called when edit mode is committed with new value */
-  onEditCommit: (
-    key: string,
-    newValue: string,
-    item: SettingsDialogItem,
-  ) => void;
+  onEditCommit: (key: string, newValue: string, item: SettingsDialogItem) => void;
   /** Called when Ctrl+C is pressed to clear/reset an item */
   onItemClear: (key: string, item: SettingsDialogItem) => void;
   /** Called when dialog should close */
   onClose: () => void;
   /** Optional custom key handler for parent-specific keys. Return true if handled. */
-  onKeyPress?: (
-    key: Key,
-    currentItem: SettingsDialogItem | undefined,
-  ) => boolean;
+  onKeyPress?: (key: Key, currentItem: SettingsDialogItem | undefined) => boolean;
 
   // Optional extra content below help text (for restart prompt, etc.)
   /** Optional footer content (e.g., restart prompt) */
@@ -130,9 +118,7 @@ export function BaseSettingsDialog({
   // Internal state
   const [activeIndex, setActiveIndex] = useState(0);
   const [scrollOffset, setScrollOffset] = useState(0);
-  const [focusSection, setFocusSection] = useState<'settings' | 'scope'>(
-    'settings',
-  );
+  const [focusSection, setFocusSection] = useState<'settings' | 'scope'>('settings');
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [editBuffer, setEditBuffer] = useState('');
   const [editCursorPos, setEditCursorPos] = useState(0);
@@ -157,8 +143,7 @@ export function BaseSettingsDialog({
             // Adjust scroll offset to ensure the item is visible
             let newScroll = scrollOffset;
             if (newIndex < scrollOffset) newScroll = newIndex;
-            else if (newIndex >= scrollOffset + maxItemsToShow)
-              newScroll = newIndex - maxItemsToShow + 1;
+            else if (newIndex >= scrollOffset + maxItemsToShow) newScroll = newIndex - maxItemsToShow + 1;
 
             const maxScroll = Math.max(0, items.length - maxItemsToShow);
             setScrollOffset(Math.min(newScroll, maxScroll));
@@ -229,7 +214,7 @@ export function BaseSettingsDialog({
     (scope: LoadableSettingScope) => {
       onScopeChange?.(scope);
     },
-    [onScopeChange],
+    [onScopeChange]
   );
 
   // Handle scope select (for RadioButtonSelect)
@@ -237,7 +222,7 @@ export function BaseSettingsDialog({
     (scope: LoadableSettingScope) => {
       onScopeChange?.(scope);
     },
-    [onScopeChange],
+    [onScopeChange]
   );
 
   // Keyboard handling
@@ -421,25 +406,22 @@ export function BaseSettingsDialog({
     {
       isActive: true,
       priority: focusSection === 'settings' && !editingKey,
-    },
+    }
   );
 
   return (
     <Box
-      borderStyle="round"
+      borderStyle='round'
       borderColor={borderColor ?? theme.border.default}
-      flexDirection="row"
+      flexDirection='row'
       padding={1}
-      width="100%"
-      height="100%"
+      width='100%'
+      height='100%'
     >
-      <Box flexDirection="column" flexGrow={1}>
+      <Box flexDirection='column' flexGrow={1}>
         {/* Title */}
         <Box marginX={1}>
-          <Text
-            bold={focusSection === 'settings' && !editingKey}
-            wrap="truncate"
-          >
+          <Text bold={focusSection === 'settings' && !editingKey} wrap='truncate'>
             {focusSection === 'settings' ? '> ' : '  '}
             {title}{' '}
           </Text>
@@ -448,7 +430,7 @@ export function BaseSettingsDialog({
         {/* Search input (if enabled) */}
         {searchEnabled && searchBuffer && (
           <Box
-            borderStyle="round"
+            borderStyle='round'
             borderColor={
               editingKey
                 ? theme.border.default
@@ -472,7 +454,7 @@ export function BaseSettingsDialog({
 
         {/* Items list */}
         {visibleItems.length === 0 ? (
-          <Box marginX={1} height={1} flexDirection="column">
+          <Box marginX={1} height={1} flexDirection='column'>
             <Text color={theme.text.secondary}>No matches found.</Text>
           </Box>
         ) : (
@@ -484,8 +466,7 @@ export function BaseSettingsDialog({
             )}
             {visibleItems.map((item, idx) => {
               const globalIndex = idx + scrollOffset;
-              const isActive =
-                focusSection === 'settings' && activeIndex === globalIndex;
+              const isActive = focusSection === 'settings' && activeIndex === globalIndex;
 
               // Compute display value with edit mode cursor
               let displayValue: string;
@@ -494,18 +475,12 @@ export function BaseSettingsDialog({
                 if (cursorVisible && editCursorPos < cpLen(editBuffer)) {
                   // Cursor is in the middle or at start of text
                   const beforeCursor = cpSlice(editBuffer, 0, editCursorPos);
-                  const atCursor = cpSlice(
-                    editBuffer,
-                    editCursorPos,
-                    editCursorPos + 1,
-                  );
+                  const atCursor = cpSlice(editBuffer, editCursorPos, editCursorPos + 1);
                   const afterCursor = cpSlice(editBuffer, editCursorPos + 1);
-                  displayValue =
-                    beforeCursor + chalk.inverse(atCursor) + afterCursor;
+                  displayValue = beforeCursor + chalk.inverse(atCursor) + afterCursor;
                 } else if (editCursorPos >= cpLen(editBuffer)) {
                   // Cursor is at the end - show inverted space
-                  displayValue =
-                    editBuffer + (cursorVisible ? chalk.inverse(' ') : ' ');
+                  displayValue = editBuffer + (cursorVisible ? chalk.inverse(' ') : ' ');
                 } else {
                   // Cursor not visible
                   displayValue = editBuffer;
@@ -516,41 +491,17 @@ export function BaseSettingsDialog({
 
               return (
                 <React.Fragment key={item.key}>
-                  <Box marginX={1} flexDirection="row" alignItems="flex-start">
+                  <Box marginX={1} flexDirection='row' alignItems='flex-start'>
                     <Box minWidth={2} flexShrink={0}>
-                      <Text
-                        color={
-                          isActive ? theme.status.success : theme.text.secondary
-                        }
-                      >
-                        {isActive ? '●' : ''}
-                      </Text>
+                      <Text color={isActive ? theme.status.success : theme.text.secondary}>{isActive ? '●' : ''}</Text>
                     </Box>
-                    <Box
-                      flexDirection="row"
-                      flexGrow={1}
-                      minWidth={0}
-                      alignItems="flex-start"
-                    >
-                      <Box
-                        flexDirection="column"
-                        width={maxLabelWidth}
-                        minWidth={0}
-                      >
-                        <Text
-                          color={
-                            isActive ? theme.status.success : theme.text.primary
-                          }
-                        >
+                    <Box flexDirection='row' flexGrow={1} minWidth={0} alignItems='flex-start'>
+                      <Box flexDirection='column' width={maxLabelWidth} minWidth={0}>
+                        <Text color={isActive ? theme.status.success : theme.text.primary}>
                           {item.label}
-                          {item.scopeMessage && (
-                            <Text color={theme.text.secondary}>
-                              {' '}
-                              {item.scopeMessage}
-                            </Text>
-                          )}
+                          {item.scopeMessage && <Text color={theme.text.secondary}> {item.scopeMessage}</Text>}
                         </Text>
-                        <Text color={theme.text.secondary} wrap="truncate">
+                        <Text color={theme.text.secondary} wrap='truncate'>
                           {item.description ?? ''}
                         </Text>
                       </Box>
@@ -564,13 +515,8 @@ export function BaseSettingsDialog({
                                 ? theme.text.secondary
                                 : theme.text.primary
                           }
-                          terminalCursorFocus={
-                            editingKey === item.key && cursorVisible
-                          }
-                          terminalCursorPosition={cpIndexToOffset(
-                            editBuffer,
-                            editCursorPos,
-                          )}
+                          terminalCursorFocus={editingKey === item.key && cursorVisible}
+                          terminalCursorPosition={cpIndexToOffset(editBuffer, editCursorPos)}
                         >
                           {displayValue}
                         </Text>
@@ -593,15 +539,13 @@ export function BaseSettingsDialog({
 
         {/* Scope Selection */}
         {showScopeSelector && (
-          <Box marginX={1} flexDirection="column">
-            <Text bold={focusSection === 'scope'} wrap="truncate">
+          <Box marginX={1} flexDirection='column'>
+            <Text bold={focusSection === 'scope'} wrap='truncate'>
               {focusSection === 'scope' ? '> ' : '  '}Apply To
             </Text>
             <RadioButtonSelect
               items={scopeItems}
-              initialIndex={scopeItems.findIndex(
-                (item) => item.value === selectedScope,
-              )}
+              initialIndex={scopeItems.findIndex((item) => item.value === selectedScope)}
               onSelect={handleScopeSelect}
               onHighlight={handleScopeHighlight}
               isFocused={focusSection === 'scope'}

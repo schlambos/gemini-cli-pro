@@ -17,10 +17,7 @@ export class StorageMigration {
    * @param oldPath The old directory path (hash-based).
    * @param newPath The new directory path (slug-based).
    */
-  static async migrateDirectory(
-    oldPath: string,
-    newPath: string,
-  ): Promise<void> {
+  static async migrateDirectory(oldPath: string, newPath: string): Promise<void> {
     try {
       if (!fs.existsSync(oldPath)) {
         return;
@@ -29,10 +26,7 @@ export class StorageMigration {
       if (fs.existsSync(newPath)) {
         const files = await fs.promises.readdir(newPath);
         // If it contains more than just the .project_root file, it's not a fresh directory from ProjectRegistry
-        if (
-          files.length > 1 ||
-          (files.length === 1 && files[0] !== '.project_root')
-        ) {
+        if (files.length > 1 || (files.length === 1 && files[0] !== '.project_root')) {
           return;
         }
       }
@@ -44,10 +38,7 @@ export class StorageMigration {
       // Copy (safer and handles cross-device moves)
       await fs.promises.cp(oldPath, newPath, { recursive: true });
     } catch (e) {
-      debugLogger.debug(
-        `Storage Migration: Failed to move ${oldPath} to ${newPath}:`,
-        e,
-      );
+      debugLogger.debug(`Storage Migration: Failed to move ${oldPath} to ${newPath}:`, e);
     }
   }
 }

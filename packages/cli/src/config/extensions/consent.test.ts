@@ -48,8 +48,7 @@ vi.mock('node:fs/promises', async (importOriginal) => {
 });
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     debugLogger: {
@@ -85,53 +84,39 @@ describe('consent', () => {
       { input: 'n', expected: false },
       { input: 'N', expected: false },
       { input: 'yes', expected: false },
-    ])(
-      'should return $expected for input "$input"',
-      async ({ input, expected }) => {
-        const questionMock = vi.fn().mockImplementation((_, callback) => {
-          callback(input);
-        });
-        mockReadline.createInterface.mockReturnValue({
-          question: questionMock,
-          close: vi.fn(),
-        });
+    ])('should return $expected for input "$input"', async ({ input, expected }) => {
+      const questionMock = vi.fn().mockImplementation((_, callback) => {
+        callback(input);
+      });
+      mockReadline.createInterface.mockReturnValue({
+        question: questionMock,
+        close: vi.fn(),
+      });
 
-        const consent = await requestConsentNonInteractive('Test consent');
-        expect(debugLogger.log).toHaveBeenCalledWith('Test consent');
-        expect(questionMock).toHaveBeenCalledWith(
-          'Do you want to continue? [Y/n]: ',
-          expect.any(Function),
-        );
-        expect(consent).toBe(expected);
-      },
-    );
+      const consent = await requestConsentNonInteractive('Test consent');
+      expect(debugLogger.log).toHaveBeenCalledWith('Test consent');
+      expect(questionMock).toHaveBeenCalledWith('Do you want to continue? [Y/n]: ', expect.any(Function));
+      expect(consent).toBe(expected);
+    });
   });
 
   describe('requestConsentInteractive', () => {
     it.each([
       { confirmed: true, expected: true },
       { confirmed: false, expected: false },
-    ])(
-      'should resolve with $expected when user confirms with $confirmed',
-      async ({ confirmed, expected }) => {
-        const addExtensionUpdateConfirmationRequest = vi
-          .fn()
-          .mockImplementation((request: ConfirmationRequest) => {
-            request.onConfirm(confirmed);
-          });
+    ])('should resolve with $expected when user confirms with $confirmed', async ({ confirmed, expected }) => {
+      const addExtensionUpdateConfirmationRequest = vi.fn().mockImplementation((request: ConfirmationRequest) => {
+        request.onConfirm(confirmed);
+      });
 
-        const consent = await requestConsentInteractive(
-          'Test consent',
-          addExtensionUpdateConfirmationRequest,
-        );
+      const consent = await requestConsentInteractive('Test consent', addExtensionUpdateConfirmationRequest);
 
-        expect(addExtensionUpdateConfirmationRequest).toHaveBeenCalledWith({
-          prompt: 'Test consent\n\nDo you want to continue?',
-          onConfirm: expect.any(Function),
-        });
-        expect(consent).toBe(expected);
-      },
-    );
+      expect(addExtensionUpdateConfirmationRequest).toHaveBeenCalledWith({
+        prompt: 'Test consent\n\nDo you want to continue?',
+        onConfirm: expect.any(Function),
+      });
+      expect(consent).toBe(expected);
+    });
   });
 
   describe('maybeRequestConsentOrFail', () => {
@@ -142,32 +127,21 @@ describe('consent', () => {
 
     it('should request consent if there is no previous config', async () => {
       const requestConsent = vi.fn().mockResolvedValue(true);
-      await maybeRequestConsentOrFail(
-        baseConfig,
-        requestConsent,
-        false,
-        undefined,
-      );
+      await maybeRequestConsentOrFail(baseConfig, requestConsent, false, undefined);
       expect(requestConsent).toHaveBeenCalledTimes(1);
     });
 
     it('should not request consent if configs are identical', async () => {
       const requestConsent = vi.fn().mockResolvedValue(true);
-      await maybeRequestConsentOrFail(
-        baseConfig,
-        requestConsent,
-        false,
-        baseConfig,
-        false,
-      );
+      await maybeRequestConsentOrFail(baseConfig, requestConsent, false, baseConfig, false);
       expect(requestConsent).not.toHaveBeenCalled();
     });
 
     it('should throw an error if consent is denied', async () => {
       const requestConsent = vi.fn().mockResolvedValue(false);
-      await expect(
-        maybeRequestConsentOrFail(baseConfig, requestConsent, false, undefined),
-      ).rejects.toThrow('Installation cancelled for "test-ext".');
+      await expect(maybeRequestConsentOrFail(baseConfig, requestConsent, false, undefined)).rejects.toThrow(
+        'Installation cancelled for "test-ext".'
+      );
     });
 
     describe('consent string generation', () => {
@@ -182,12 +156,7 @@ describe('consent', () => {
           excludeTools: ['tool1', 'tool2'],
         };
         const requestConsent = vi.fn().mockResolvedValue(true);
-        await maybeRequestConsentOrFail(
-          config,
-          requestConsent,
-          false,
-          undefined,
-        );
+        await maybeRequestConsentOrFail(config, requestConsent, false, undefined);
 
         const expectedConsentString = [
           'Installing extension "test-ext".',
@@ -210,13 +179,7 @@ describe('consent', () => {
           mcpServers: { server1: { command: 'npm', args: ['start'] } },
         };
         const requestConsent = vi.fn().mockResolvedValue(true);
-        await maybeRequestConsentOrFail(
-          newConfig,
-          requestConsent,
-          false,
-          prevConfig,
-          false,
-        );
+        await maybeRequestConsentOrFail(newConfig, requestConsent, false, prevConfig, false);
         expect(requestConsent).toHaveBeenCalledTimes(1);
       });
 
@@ -227,13 +190,7 @@ describe('consent', () => {
           contextFileName: 'new-context.md',
         };
         const requestConsent = vi.fn().mockResolvedValue(true);
-        await maybeRequestConsentOrFail(
-          newConfig,
-          requestConsent,
-          false,
-          prevConfig,
-          false,
-        );
+        await maybeRequestConsentOrFail(newConfig, requestConsent, false, prevConfig, false);
         expect(requestConsent).toHaveBeenCalledTimes(1);
       });
 
@@ -244,41 +201,22 @@ describe('consent', () => {
           excludeTools: ['new-tool'],
         };
         const requestConsent = vi.fn().mockResolvedValue(true);
-        await maybeRequestConsentOrFail(
-          newConfig,
-          requestConsent,
-          false,
-          prevConfig,
-          false,
-        );
+        await maybeRequestConsentOrFail(newConfig, requestConsent, false, prevConfig, false);
         expect(requestConsent).toHaveBeenCalledTimes(1);
       });
 
       it('should include warning when hooks are present', async () => {
         const requestConsent = vi.fn().mockResolvedValue(true);
-        await maybeRequestConsentOrFail(
-          baseConfig,
-          requestConsent,
-          true,
-          undefined,
-        );
+        await maybeRequestConsentOrFail(baseConfig, requestConsent, true, undefined);
 
         expect(requestConsent).toHaveBeenCalledWith(
-          expect.stringContaining(
-            '⚠️  This extension contains Hooks which can automatically execute commands.',
-          ),
+          expect.stringContaining('⚠️  This extension contains Hooks which can automatically execute commands.')
         );
       });
 
       it('should request consent if hooks status changes', async () => {
         const requestConsent = vi.fn().mockResolvedValue(true);
-        await maybeRequestConsentOrFail(
-          baseConfig,
-          requestConsent,
-          true,
-          baseConfig,
-          false,
-        );
+        await maybeRequestConsentOrFail(baseConfig, requestConsent, true, baseConfig, false);
         expect(requestConsent).toHaveBeenCalledTimes(1);
       });
 
@@ -314,14 +252,7 @@ describe('consent', () => {
           excludeTools: ['tool1', 'tool2'],
         };
         const requestConsent = vi.fn().mockResolvedValue(true);
-        await maybeRequestConsentOrFail(
-          config,
-          requestConsent,
-          false,
-          undefined,
-          false,
-          [skill1, skill2],
-        );
+        await maybeRequestConsentOrFail(config, requestConsent, false, undefined, false, [skill1, skill2]);
 
         const expectedConsentString = [
           'Installing extension "test-ext".',
@@ -363,24 +294,15 @@ describe('consent', () => {
         // We do this instead of using fs.mkdir(..., { mode: 0o000 }) because
         // directory permissions work differently on Windows and 0o000 doesn't
         // effectively block access there, leading to test failures in Windows CI.
-        mockReaddir.mockRejectedValueOnce(
-          new Error('EACCES: permission denied, scandir'),
-        );
+        mockReaddir.mockRejectedValueOnce(new Error('EACCES: permission denied, scandir'));
 
         const requestConsent = vi.fn().mockResolvedValue(true);
-        await maybeRequestConsentOrFail(
-          baseConfig,
-          requestConsent,
-          false,
-          undefined,
-          false,
-          [skill],
-        );
+        await maybeRequestConsentOrFail(baseConfig, requestConsent, false, undefined, false, [skill]);
 
         expect(requestConsent).toHaveBeenCalledWith(
           expect.stringContaining(
-            `    (Source: ${skill.location}) ${chalk.red('⚠️ (Could not count items in directory)')}`,
-          ),
+            `    (Source: ${skill.location}) ${chalk.red('⚠️ (Could not count items in directory)')}`
+          )
         );
       });
     });
@@ -400,21 +322,13 @@ describe('consent', () => {
       };
 
       const { skillsConsentString } = await import('./consent.js');
-      const consentString = await skillsConsentString(
-        [skill1],
-        'https://example.com/repo.git',
-        '/mock/target/dir',
-      );
+      const consentString = await skillsConsentString([skill1], 'https://example.com/repo.git', '/mock/target/dir');
 
-      expect(consentString).toContain(
-        'Installing agent skill(s) from "https://example.com/repo.git".',
-      );
+      expect(consentString).toContain('Installing agent skill(s) from "https://example.com/repo.git".');
       expect(consentString).toContain('Install Destination: /mock/target/dir');
       expect(consentString).toContain('\n' + SKILLS_WARNING_MESSAGE);
       expect(consentString).toContain(`  * ${chalk.bold('skill1')}: desc1`);
-      expect(consentString).toContain(
-        chalk.dim(`(Source: ${skill1.location}) (1 items in directory)`),
-      );
+      expect(consentString).toContain(chalk.dim(`(Source: ${skill1.location}) (1 items in directory)`));
     });
   });
 });

@@ -27,33 +27,22 @@ afterEach(() => {
 // These can be overridden in specific tests using vi.unmock().
 
 vi.mock('./src/config/projectRegistry.js', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('./src/config/projectRegistry.js')>();
-  actual.ProjectRegistry.prototype.initialize = vi.fn(() =>
-    Promise.resolve(undefined),
-  );
-  actual.ProjectRegistry.prototype.getShortId = vi.fn(() =>
-    Promise.resolve('project-slug'),
-  );
+  const actual = await importOriginal<typeof import('./src/config/projectRegistry.js')>();
+  actual.ProjectRegistry.prototype.initialize = vi.fn(() => Promise.resolve(undefined));
+  actual.ProjectRegistry.prototype.getShortId = vi.fn(() => Promise.resolve('project-slug'));
   return actual;
 });
 
 vi.mock('./src/config/storageMigration.js', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('./src/config/storageMigration.js')>();
-  actual.StorageMigration.migrateDirectory = vi.fn(() =>
-    Promise.resolve(undefined),
-  );
+  const actual = await importOriginal<typeof import('./src/config/storageMigration.js')>();
+  actual.StorageMigration.migrateDirectory = vi.fn(() => Promise.resolve(undefined));
   return actual;
 });
 
 vi.mock('./src/config/storage.js', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('./src/config/storage.js')>();
+  const actual = await importOriginal<typeof import('./src/config/storage.js')>();
   actual.Storage.prototype.initialize = vi.fn(() => Promise.resolve(undefined));
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (actual.Storage.prototype as any).getProjectIdentifier = vi.fn(
-    () => 'project-slug',
-  );
+  (actual.Storage.prototype as any).getProjectIdentifier = vi.fn(() => 'project-slug');
   return actual;
 });

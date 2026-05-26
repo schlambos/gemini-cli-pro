@@ -7,10 +7,7 @@
 import type { SlashCommand, CommandContext } from './types.js';
 import { CommandKind } from './types.js';
 import { MessageType, type HistoryItemHooksList } from '../types.js';
-import type {
-  HookRegistryEntry,
-  MessageActionReturn,
-} from '@google/gemini-cli-core';
+import type { HookRegistryEntry, MessageActionReturn } from '@google/gemini-cli-core';
 import { getErrorMessage } from '@google/gemini-cli-core';
 import { SettingScope, isLoadableSettingScope } from '../../config/settings.js';
 import { enableHook, disableHook } from '../../utils/hookSettings.js';
@@ -19,9 +16,7 @@ import { renderHookActionFeedback } from '../../utils/hookUtils.js';
 /**
  * Display a formatted list of hooks with their status
  */
-async function panelAction(
-  context: CommandContext,
-): Promise<void | MessageActionReturn> {
+async function panelAction(context: CommandContext): Promise<void | MessageActionReturn> {
   const { config } = context.services;
   if (!config) {
     return {
@@ -45,10 +40,7 @@ async function panelAction(
 /**
  * Enable a hook by name
  */
-async function enableAction(
-  context: CommandContext,
-  args: string,
-): Promise<void | MessageActionReturn> {
+async function enableAction(context: CommandContext, args: string): Promise<void | MessageActionReturn> {
   const { config } = context.services;
   if (!config) {
     return {
@@ -83,10 +75,7 @@ async function enableAction(
     hookSystem.setHookEnabled(hookName, true);
   }
 
-  const feedback = renderHookActionFeedback(
-    result,
-    (label, path) => `${label} (${path})`,
-  );
+  const feedback = renderHookActionFeedback(result, (label, path) => `${label} (${path})`);
 
   return {
     type: 'message',
@@ -98,10 +87,7 @@ async function enableAction(
 /**
  * Disable a hook by name
  */
-async function disableAction(
-  context: CommandContext,
-  args: string,
-): Promise<void | MessageActionReturn> {
+async function disableAction(context: CommandContext, args: string): Promise<void | MessageActionReturn> {
   const { config } = context.services;
   if (!config) {
     return {
@@ -138,10 +124,7 @@ async function disableAction(
     hookSystem.setHookEnabled(hookName, false);
   }
 
-  const feedback = renderHookActionFeedback(
-    result,
-    (label, path) => `${label} (${path})`,
-  );
+  const feedback = renderHookActionFeedback(result, (label, path) => `${label} (${path})`);
 
   return {
     type: 'message',
@@ -153,10 +136,7 @@ async function disableAction(
 /**
  * Completion function for enabled hook names (to be disabled)
  */
-function completeEnabledHookNames(
-  context: CommandContext,
-  partialArg: string,
-): string[] {
+function completeEnabledHookNames(context: CommandContext, partialArg: string): string[] {
   const { config } = context.services;
   if (!config) return [];
 
@@ -173,10 +153,7 @@ function completeEnabledHookNames(
 /**
  * Completion function for disabled hook names (to be enabled)
  */
-function completeDisabledHookNames(
-  context: CommandContext,
-  partialArg: string,
-): string[] {
+function completeDisabledHookNames(context: CommandContext, partialArg: string): string[] {
   const { config } = context.services;
   if (!config) return [];
 
@@ -200,9 +177,7 @@ function getHookDisplayName(hook: HookRegistryEntry): string {
 /**
  * Enable all hooks by clearing the disabled list
  */
-async function enableAllAction(
-  context: CommandContext,
-): Promise<void | MessageActionReturn> {
+async function enableAllAction(context: CommandContext): Promise<void | MessageActionReturn> {
   const { config } = context.services;
   if (!config) {
     return {
@@ -271,9 +246,7 @@ async function enableAllAction(
 /**
  * Disable all hooks by adding all hooks to the disabled list
  */
-async function disableAllAction(
-  context: CommandContext,
-): Promise<void | MessageActionReturn> {
+async function disableAllAction(context: CommandContext): Promise<void | MessageActionReturn> {
   const { config } = context.services;
   if (!config) {
     return {
@@ -314,9 +287,7 @@ async function disableAllAction(
 
   try {
     const allHookNames = allHooks.map((hook) => getHookDisplayName(hook));
-    const scope = settings.workspace
-      ? SettingScope.Workspace
-      : SettingScope.User;
+    const scope = settings.workspace ? SettingScope.Workspace : SettingScope.User;
     settings.setValue(scope, 'hooksConfig.disabled', allHookNames);
 
     for (const hook of enabledHooks) {
@@ -386,12 +357,6 @@ export const hooksCommand: SlashCommand = {
   name: 'hooks',
   description: 'Manage hooks',
   kind: CommandKind.BUILT_IN,
-  subCommands: [
-    panelCommand,
-    enableCommand,
-    disableCommand,
-    enableAllCommand,
-    disableAllCommand,
-  ],
+  subCommands: [panelCommand, enableCommand, disableCommand, enableAllCommand, disableAllCommand],
   action: async (context: CommandContext) => panelCommand.action!(context, ''),
 };

@@ -43,13 +43,11 @@ describe('readStdin', () => {
     });
 
     // Capture event handlers
-    mockStdin.on.mockImplementation(
-      (event: string, handler: (...args: unknown[]) => void) => {
-        if (event === 'readable') onReadableHandler = handler as () => void;
-        if (event === 'end') onEndHandler = handler as () => void;
-        if (event === 'error') onErrorHandler = handler as (err: Error) => void;
-      },
-    );
+    mockStdin.on.mockImplementation((event: string, handler: (...args: unknown[]) => void) => {
+      if (event === 'readable') onReadableHandler = handler as () => void;
+      if (event === 'end') onEndHandler = handler as () => void;
+      if (event === 'error') onErrorHandler = handler as (err: Error) => void;
+    });
     mockStdin.listeners.mockReturnValue([]);
     mockStdin.listenerCount.mockReturnValue(0);
   });
@@ -64,10 +62,7 @@ describe('readStdin', () => {
   });
 
   it('should read and accumulate data from stdin', async () => {
-    mockStdin.read
-      .mockReturnValueOnce('I love ')
-      .mockReturnValueOnce('Gemini!')
-      .mockReturnValueOnce(null);
+    mockStdin.read.mockReturnValueOnce('I love ').mockReturnValueOnce('Gemini!').mockReturnValueOnce(null);
 
     const promise = readStdin();
 
@@ -107,10 +102,7 @@ describe('readStdin', () => {
 
   it('should clear timeout once when data is received and resolve with data', async () => {
     const clearTimeoutSpy = vi.spyOn(global, 'clearTimeout');
-    mockStdin.read
-      .mockReturnValueOnce('chunk1')
-      .mockReturnValueOnce('chunk2')
-      .mockReturnValueOnce(null);
+    mockStdin.read.mockReturnValueOnce('chunk1').mockReturnValueOnce('chunk2').mockReturnValueOnce(null);
 
     const promise = readStdin();
 
@@ -134,9 +126,7 @@ describe('readStdin', () => {
     onReadableHandler();
 
     await expect(promise).resolves.toBe('a'.repeat(MAX_STDIN_SIZE));
-    expect(debugLogger.warn).toHaveBeenCalledWith(
-      `Warning: stdin input truncated to ${MAX_STDIN_SIZE} bytes.`,
-    );
+    expect(debugLogger.warn).toHaveBeenCalledWith(`Warning: stdin input truncated to ${MAX_STDIN_SIZE} bytes.`);
     expect(mockStdin.destroy).toHaveBeenCalled();
   });
 

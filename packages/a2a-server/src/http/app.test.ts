@@ -5,28 +5,12 @@
  */
 
 import type { Config } from '@google/gemini-cli-core';
-import {
-  GeminiEventType,
-  ApprovalMode,
-  type ToolCallConfirmationDetails,
-} from '@google/gemini-cli-core';
-import type {
-  TaskStatusUpdateEvent,
-  SendStreamingMessageSuccessResponse,
-} from '@a2a-js/sdk';
+import { GeminiEventType, ApprovalMode, type ToolCallConfirmationDetails } from '@google/gemini-cli-core';
+import type { TaskStatusUpdateEvent, SendStreamingMessageSuccessResponse } from '@a2a-js/sdk';
 import express from 'express';
 import type { Server } from 'node:http';
 import request from 'supertest';
-import {
-  afterAll,
-  afterEach,
-  beforeEach,
-  beforeAll,
-  describe,
-  expect,
-  it,
-  vi,
-} from 'vitest';
+import { afterAll, afterEach, beforeEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createApp, main } from './app.js';
 import { commandRegistry } from '../commands/command-registry.js';
 import {
@@ -39,19 +23,14 @@ import {
 import { MockTool } from '@google/gemini-cli-core/src/test-utils/mock-tool.js';
 import type { Command, CommandContext } from '../commands/types.js';
 
-const mockToolConfirmationFn = async () =>
-  ({}) as unknown as ToolCallConfirmationDetails;
+const mockToolConfirmationFn = async () => ({}) as unknown as ToolCallConfirmationDetails;
 
-const streamToSSEEvents = (
-  stream: string,
-): SendStreamingMessageSuccessResponse[] =>
+const streamToSSEEvents = (stream: string): SendStreamingMessageSuccessResponse[] =>
   stream
     .split('\n\n')
     .filter(Boolean) // Remove empty strings from trailing newlines
     .map((chunk) => {
-      const dataLine = chunk
-        .split('\n')
-        .find((line) => line.startsWith('data: '));
+      const dataLine = chunk.split('\n').find((line) => line.startsWith('data: '));
       if (!dataLine) {
         throw new Error(`Invalid SSE chunk found: "${chunk}"`);
       }
@@ -121,7 +100,7 @@ describe('E2E Tests', () => {
         server.close(() => {
           resolve();
         });
-      }),
+      })
   );
 
   afterEach(() => {
@@ -151,9 +130,7 @@ describe('E2E Tests', () => {
     expect(textContentEvent.metadata?.['coderAgent']).toMatchObject({
       kind: 'text-content',
     });
-    expect(textContentEvent.status.message?.parts).toMatchObject([
-      { kind: 'text', text: 'Hello how are you?' },
-    ]);
+    expect(textContentEvent.status.message?.parts).toMatchObject([{ kind: 'text', text: 'Hello how are you?' }]);
 
     // Status update: input-required (final)
     const finalEvent = events[3].result as TaskStatusUpdateEvent;
@@ -300,12 +277,7 @@ describe('E2E Tests', () => {
     const agent = request.agent(app);
     const res = await agent
       .post('/')
-      .send(
-        createStreamMessageRequest(
-          'run two tools',
-          'a2a-multi-tool-test-message',
-        ),
-      )
+      .send(createStreamMessageRequest('run two tools', 'a2a-multi-tool-test-message'))
       .set('Content-Type', 'application/json')
       .expect(200);
 
@@ -333,14 +305,10 @@ describe('E2E Tests', () => {
 
     // --- Assert the event stream ---
     // 1. Initial "submitted" status.
-    expect((events[0].result as TaskStatusUpdateEvent).status.state).toBe(
-      'submitted',
-    );
+    expect((events[0].result as TaskStatusUpdateEvent).status.state).toBe('submitted');
 
     // 2. "working" status after receiving the user prompt.
-    expect((events[1].result as TaskStatusUpdateEvent).status.state).toBe(
-      'working',
-    );
+    expect((events[1].result as TaskStatusUpdateEvent).status.state).toBe('working');
 
     // 3. A "state-change" event from the agent.
     expect(events[2].result.metadata?.['coderAgent']).toMatchObject({
@@ -433,17 +401,13 @@ describe('E2E Tests', () => {
       name: 'test-tool-1',
       displayName: 'Test Tool 1',
       shouldConfirmExecute: vi.fn(mockToolConfirmationFn),
-      execute: vi
-        .fn()
-        .mockResolvedValue({ llmContent: 'tool 1 done', returnDisplay: '' }),
+      execute: vi.fn().mockResolvedValue({ llmContent: 'tool 1 done', returnDisplay: '' }),
     });
     const mockTool2 = new MockTool({
       name: 'test-tool-2',
       displayName: 'Test Tool 2',
       shouldConfirmExecute: vi.fn(mockToolConfirmationFn),
-      execute: vi
-        .fn()
-        .mockResolvedValue({ llmContent: 'tool 2 done', returnDisplay: '' }),
+      execute: vi.fn().mockResolvedValue({ llmContent: 'tool 2 done', returnDisplay: '' }),
     });
 
     getToolRegistrySpy.mockReturnValue({
@@ -459,12 +423,7 @@ describe('E2E Tests', () => {
     const agent = request.agent(app);
     const res = await agent
       .post('/')
-      .send(
-        createStreamMessageRequest(
-          'run two tools',
-          'a2a-multi-tool-test-message',
-        ),
-      )
+      .send(createStreamMessageRequest('run two tools', 'a2a-multi-tool-test-message'))
       .set('Content-Type', 'application/json')
       .expect(200);
 
@@ -581,12 +540,7 @@ describe('E2E Tests', () => {
     const agent = request.agent(app);
     const res = await agent
       .post('/')
-      .send(
-        createStreamMessageRequest(
-          'run a tool without approval',
-          'a2a-no-approval-test-message',
-        ),
-      )
+      .send(createStreamMessageRequest('run a tool without approval', 'a2a-no-approval-test-message'))
       .set('Content-Type', 'application/json')
       .expect(200);
 
@@ -664,9 +618,7 @@ describe('E2E Tests', () => {
     expect(textContentEvent.metadata?.['coderAgent']).toMatchObject({
       kind: 'text-content',
     });
-    expect(textContentEvent.status.message?.parts).toMatchObject([
-      { text: 'Tool executed successfully.' },
-    ]);
+    expect(textContentEvent.status.message?.parts).toMatchObject([{ text: 'Tool executed successfully.' }]);
 
     assertUniqueFinalEventIsLast(events);
     expect(events.length).toBe(10);
@@ -712,12 +664,7 @@ describe('E2E Tests', () => {
     const agent = request.agent(app);
     const res = await agent
       .post('/')
-      .send(
-        createStreamMessageRequest(
-          'run a tool in yolo mode',
-          'a2a-yolo-mode-test-message',
-        ),
-      )
+      .send(createStreamMessageRequest('run a tool in yolo mode', 'a2a-yolo-mode-test-message'))
       .set('Content-Type', 'application/json')
       .expect(200);
 
@@ -795,9 +742,7 @@ describe('E2E Tests', () => {
     expect(textContentEvent.metadata?.['coderAgent']).toMatchObject({
       kind: 'text-content',
     });
-    expect(textContentEvent.status.message?.parts).toMatchObject([
-      { text: 'Tool executed successfully.' },
-    ]);
+    expect(textContentEvent.status.message?.parts).toMatchObject([{ text: 'Tool executed successfully.' }]);
 
     assertUniqueFinalEventIsLast(events);
     expect(events.length).toBe(10);
@@ -863,9 +808,7 @@ describe('E2E Tests', () => {
         },
       ];
 
-      const getAllCommandsSpy = vi
-        .spyOn(commandRegistry, 'getAllCommands')
-        .mockReturnValue(mockCommands);
+      const getAllCommandsSpy = vi.spyOn(commandRegistry, 'getAllCommands').mockReturnValue(mockCommands);
 
       const agent = request.agent(app);
       const res = await agent.get('/listCommands').expect(200);
@@ -910,9 +853,7 @@ describe('E2E Tests', () => {
       };
       cyclicCommand.subCommands?.push(cyclicCommand); // Create cycle
 
-      const getAllCommandsSpy = vi
-        .spyOn(commandRegistry, 'getAllCommands')
-        .mockReturnValue([cyclicCommand]);
+      const getAllCommandsSpy = vi.spyOn(commandRegistry, 'getAllCommands').mockReturnValue([cyclicCommand]);
 
       const agent = request.agent(app);
       const res = await agent.get('/listCommands').expect(200);
@@ -920,9 +861,7 @@ describe('E2E Tests', () => {
       expect(res.body.commands[0].name).toBe('cyclic-command');
       expect(res.body.commands[0].subCommands).toEqual([]);
 
-      expect(warnSpy).toHaveBeenCalledWith(
-        'Command cyclic-command already inserted in the response, skipping',
-      );
+      expect(warnSpy).toHaveBeenCalledWith('Command cyclic-command already inserted in the response, skipping');
 
       getAllCommandsSpy.mockRestore();
       warnSpy.mockRestore();
@@ -982,11 +921,7 @@ describe('E2E Tests', () => {
 
     it('should return 400 for missing command', async () => {
       const agent = request.agent(app);
-      await agent
-        .post('/executeCommand')
-        .send({ args: [] })
-        .set('Content-Type', 'application/json')
-        .expect(400);
+      await agent.post('/executeCommand').send({ args: [] }).set('Content-Type', 'application/json').expect(400);
       expect(getExtensionsSpy).not.toHaveBeenCalled();
     });
 
@@ -1006,16 +941,12 @@ describe('E2E Tests', () => {
       const mockCommand = {
         name: 'test-command',
         description: 'a mock command',
-        execute: vi
-          .fn()
-          .mockResolvedValue({ name: 'test-command', data: 'success' }),
+        execute: vi.fn().mockResolvedValue({ name: 'test-command', data: 'success' }),
       };
       vi.spyOn(commandRegistry, 'get').mockReturnValue(mockCommand);
 
       delete process.env['CODER_AGENT_WORKSPACE_PATH'];
-      const response = await request(app)
-        .post('/executeCommand')
-        .send({ command: 'test-command', args: [] });
+      const response = await request(app).post('/executeCommand').send({ command: 'test-command', args: [] });
 
       expect(response.status).toBe(200);
       expect(response.body.data).toBe('success');
@@ -1026,20 +957,16 @@ describe('E2E Tests', () => {
         name: 'workspace-command',
         description: 'A command that requires a workspace',
         requiresWorkspace: true,
-        execute: vi
-          .fn()
-          .mockResolvedValue({ name: 'workspace-command', data: 'success' }),
+        execute: vi.fn().mockResolvedValue({ name: 'workspace-command', data: 'success' }),
       };
       vi.spyOn(commandRegistry, 'get').mockReturnValue(mockWorkspaceCommand);
 
       delete process.env['CODER_AGENT_WORKSPACE_PATH'];
-      const response = await request(app)
-        .post('/executeCommand')
-        .send({ command: 'workspace-command', args: [] });
+      const response = await request(app).post('/executeCommand').send({ command: 'workspace-command', args: [] });
 
       expect(response.status).toBe(400);
       expect(response.body.error).toBe(
-        'Command "workspace-command" requires a workspace, but CODER_AGENT_WORKSPACE_PATH is not set.',
+        'Command "workspace-command" requires a workspace, but CODER_AGENT_WORKSPACE_PATH is not set.'
       );
     });
 
@@ -1048,16 +975,12 @@ describe('E2E Tests', () => {
         name: 'workspace-command',
         description: 'A command that requires a workspace',
         requiresWorkspace: true,
-        execute: vi
-          .fn()
-          .mockResolvedValue({ name: 'workspace-command', data: 'success' }),
+        execute: vi.fn().mockResolvedValue({ name: 'workspace-command', data: 'success' }),
       };
       vi.spyOn(commandRegistry, 'get').mockReturnValue(mockWorkspaceCommand);
 
       process.env['CODER_AGENT_WORKSPACE_PATH'] = '/tmp/test-workspace';
-      const response = await request(app)
-        .post('/executeCommand')
-        .send({ command: 'workspace-command', args: [] });
+      const response = await request(app).post('/executeCommand').send({ command: 'workspace-command', args: [] });
 
       expect(response.status).toBe(200);
       expect(response.body.data).toBe('success');
@@ -1087,9 +1010,7 @@ describe('E2E Tests', () => {
     });
 
     describe('/executeCommand streaming', () => {
-      it('should execute a streaming command and stream back events', (done: (
-        err?: unknown,
-      ) => void) => {
+      it('should execute a streaming command and stream back events', (done: (err?: unknown) => void) => {
         const executeSpy = vi.fn(async (context: CommandContext) => {
           context.eventBus?.publish({
             kind: 'status-update',
@@ -1159,9 +1080,7 @@ describe('E2E Tests', () => {
         const mockNonStreamCommand = {
           name: 'non-stream-test',
           description: 'A test non-streaming command',
-          execute: vi
-            .fn()
-            .mockResolvedValue({ name: 'non-stream-test', data: 'done' }),
+          execute: vi.fn().mockResolvedValue({ name: 'non-stream-test', data: 'done' }),
         };
         vi.spyOn(commandRegistry, 'get').mockReturnValue(mockNonStreamCommand);
 
@@ -1179,37 +1098,27 @@ describe('E2E Tests', () => {
 
   describe('main', () => {
     it('should listen on localhost only', async () => {
-      const listenSpy = vi
-        .spyOn(express.application, 'listen')
-        .mockImplementation((...args: unknown[]) => {
-          // Trigger the callback passed to listen
-          const callback = args.find(
-            (arg): arg is () => void => typeof arg === 'function',
-          );
-          if (callback) {
-            callback();
-          }
+      const listenSpy = vi.spyOn(express.application, 'listen').mockImplementation((...args: unknown[]) => {
+        // Trigger the callback passed to listen
+        const callback = args.find((arg): arg is () => void => typeof arg === 'function');
+        if (callback) {
+          callback();
+        }
 
-          return {
-            address: () => ({ port: 1234 }),
-            on: vi.fn(),
-            once: vi.fn(),
-            emit: vi.fn(),
-          } as unknown as Server;
-        });
+        return {
+          address: () => ({ port: 1234 }),
+          on: vi.fn(),
+          once: vi.fn(),
+          emit: vi.fn(),
+        } as unknown as Server;
+      });
 
       // Avoid process.exit if possible, or mock it if main might fail
-      const exitSpy = vi
-        .spyOn(process, 'exit')
-        .mockImplementation(() => undefined as never);
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
 
       await main();
 
-      expect(listenSpy).toHaveBeenCalledWith(
-        expect.any(Number),
-        'localhost',
-        expect.any(Function),
-      );
+      expect(listenSpy).toHaveBeenCalledWith(expect.any(Number), 'localhost', expect.any(Function));
 
       listenSpy.mockRestore();
       exitSpy.mockRestore();

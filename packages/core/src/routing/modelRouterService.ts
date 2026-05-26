@@ -5,11 +5,7 @@
  */
 
 import type { Config } from '../config/config.js';
-import type {
-  RoutingContext,
-  RoutingDecision,
-  TerminalStrategy,
-} from './routingStrategy.js';
+import type { RoutingContext, RoutingDecision, TerminalStrategy } from './routingStrategy.js';
 import { DefaultStrategy } from './strategies/defaultStrategy.js';
 import { ClassifierStrategy } from './strategies/classifierStrategy.js';
 import { NumericalClassifierStrategy } from './strategies/numericalClassifierStrategy.js';
@@ -44,7 +40,7 @@ export class ModelRouterService {
         new NumericalClassifierStrategy(),
         new DefaultStrategy(),
       ],
-      'agent-router',
+      'agent-router'
     );
   }
 
@@ -62,21 +58,16 @@ export class ModelRouterService {
       this.config.getNumericalRoutingEnabled(),
       this.config.getClassifierThreshold(),
     ]);
-    const classifierThreshold =
-      thresholdValue !== undefined ? String(thresholdValue) : undefined;
+    const classifierThreshold = thresholdValue !== undefined ? String(thresholdValue) : undefined;
 
     let failed = false;
     let error_message: string | undefined;
 
     try {
-      decision = await this.strategy.route(
-        context,
-        this.config,
-        this.config.getBaseLlmClient(),
-      );
+      decision = await this.strategy.route(context, this.config, this.config.getBaseLlmClient());
 
       debugLogger.debug(
-        `[Routing] Selected model: ${decision.model} (Source: ${decision.metadata.source}, Latency: ${decision.metadata.latencyMs}ms)\n\t[Routing] Reasoning: ${decision.metadata.reasoning}`,
+        `[Routing] Selected model: ${decision.model} (Source: ${decision.metadata.source}, Latency: ${decision.metadata.latencyMs}ms)\n\t[Routing] Reasoning: ${decision.metadata.reasoning}`
       );
     } catch (e) {
       failed = true;
@@ -95,7 +86,7 @@ export class ModelRouterService {
       };
 
       debugLogger.debug(
-        `[Routing] Exception during routing: ${error_message}\n\tFallback model: ${decision.model} (Source: ${decision.metadata.source})`,
+        `[Routing] Exception during routing: ${error_message}\n\tFallback model: ${decision.model} (Source: ${decision.metadata.source})`
       );
     } finally {
       const event = new ModelRoutingEvent(
@@ -106,7 +97,7 @@ export class ModelRouterService {
         failed,
         error_message,
         enableNumericalRouting,
-        classifierThreshold,
+        classifierThreshold
       );
       logModelRouting(this.config, event);
     }

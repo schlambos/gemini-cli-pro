@@ -4,44 +4,25 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  useCallback,
-  useEffect,
-  useReducer,
-  useRef,
-  useTransition,
-} from 'react';
+import { useCallback, useEffect, useReducer, useRef, useTransition } from 'react';
 import type { ConsoleMessageItem } from '../types.js';
-import {
-  coreEvents,
-  CoreEvent,
-  type ConsoleLogPayload,
-} from '@google/gemini-cli-core';
+import { coreEvents, CoreEvent, type ConsoleLogPayload } from '@google/gemini-cli-core';
 
 export interface UseConsoleMessagesReturn {
   consoleMessages: ConsoleMessageItem[];
   clearConsoleMessages: () => void;
 }
 
-type Action =
-  | { type: 'ADD_MESSAGES'; payload: ConsoleMessageItem[] }
-  | { type: 'CLEAR' };
+type Action = { type: 'ADD_MESSAGES'; payload: ConsoleMessageItem[] } | { type: 'CLEAR' };
 
-function consoleMessagesReducer(
-  state: ConsoleMessageItem[],
-  action: Action,
-): ConsoleMessageItem[] {
+function consoleMessagesReducer(state: ConsoleMessageItem[], action: Action): ConsoleMessageItem[] {
   const MAX_CONSOLE_MESSAGES = 1000;
   switch (action.type) {
     case 'ADD_MESSAGES': {
       const newMessages = [...state];
       for (const queuedMessage of action.payload) {
         const lastMessage = newMessages[newMessages.length - 1];
-        if (
-          lastMessage &&
-          lastMessage.type === queuedMessage.type &&
-          lastMessage.content === queuedMessage.content
-        ) {
+        if (lastMessage && lastMessage.type === queuedMessage.type && lastMessage.content === queuedMessage.content) {
           // Create a new object for the last message to ensure React detects
           // the change, preventing mutation of the existing state object.
           newMessages[newMessages.length - 1] = {
@@ -93,7 +74,7 @@ export function useConsoleMessages(): UseConsoleMessagesReturn {
         timeoutRef.current = setTimeout(processQueue, 16);
       }
     },
-    [processQueue],
+    [processQueue]
   );
 
   useEffect(() => {
@@ -113,14 +94,8 @@ export function useConsoleMessages(): UseConsoleMessagesReturn {
       });
     };
 
-    const handleOutput = (payload: {
-      isStderr: boolean;
-      chunk: Uint8Array | string;
-    }) => {
-      let content =
-        typeof payload.chunk === 'string'
-          ? payload.chunk
-          : new TextDecoder().decode(payload.chunk);
+    const handleOutput = (payload: { isStderr: boolean; chunk: Uint8Array | string }) => {
+      let content = typeof payload.chunk === 'string' ? payload.chunk : new TextDecoder().decode(payload.chunk);
 
       const MAX_OUTPUT_CHUNK_LENGTH = 10000;
       if (content.length > MAX_OUTPUT_CHUNK_LENGTH) {
@@ -161,7 +136,7 @@ export function useConsoleMessages(): UseConsoleMessagesReturn {
         clearTimeout(timeoutRef.current);
       }
     },
-    [],
+    []
   );
 
   return { consoleMessages, clearConsoleMessages };

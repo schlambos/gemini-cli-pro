@@ -44,9 +44,7 @@ export interface ToolConfirmationMessageProps {
   terminalWidth: number;
 }
 
-export const ToolConfirmationMessage: React.FC<
-  ToolConfirmationMessageProps
-> = ({
+export const ToolConfirmationMessage: React.FC<ToolConfirmationMessageProps> = ({
   callId,
   confirmationDetails,
   config,
@@ -57,24 +55,18 @@ export const ToolConfirmationMessage: React.FC<
   const { confirm, isDiffingEnabled } = useToolActions();
 
   const settings = useSettings();
-  const allowPermanentApproval =
-    settings.merged.security.enablePermanentToolApproval;
+  const allowPermanentApproval = settings.merged.security.enablePermanentToolApproval;
 
-  const handlesOwnUI =
-    confirmationDetails.type === 'ask_user' ||
-    confirmationDetails.type === 'exit_plan_mode';
+  const handlesOwnUI = confirmationDetails.type === 'ask_user' || confirmationDetails.type === 'exit_plan_mode';
   const isTrustedFolder = config.isTrustedFolder();
 
   const handleConfirm = useCallback(
     (outcome: ToolConfirmationOutcome, payload?: ToolConfirmationPayload) => {
       void confirm(callId, outcome, payload).catch((error: unknown) => {
-        debugLogger.error(
-          `Failed to handle tool confirmation for ${callId}:`,
-          error,
-        );
+        debugLogger.error(`Failed to handle tool confirmation for ${callId}:`, error);
       });
     },
-    [confirm, callId],
+    [confirm, callId]
   );
 
   useKeypress(
@@ -91,13 +83,10 @@ export const ToolConfirmationMessage: React.FC<
       }
       return false;
     },
-    { isActive: isFocused },
+    { isActive: isFocused }
   );
 
-  const handleSelect = useCallback(
-    (item: ToolConfirmationOutcome) => handleConfirm(item),
-    [handleConfirm],
-  );
+  const handleSelect = useCallback((item: ToolConfirmationOutcome) => handleConfirm(item), [handleConfirm]);
 
   const getOptions = useCallback(() => {
     const options: Array<RadioSelectItem<ToolConfirmationOutcome>> = [];
@@ -222,13 +211,7 @@ export const ToolConfirmationMessage: React.FC<
       });
     }
     return options;
-  }, [
-    confirmationDetails,
-    isTrustedFolder,
-    allowPermanentApproval,
-    config,
-    isDiffingEnabled,
-  ]);
+  }, [confirmationDetails, isTrustedFolder, allowPermanentApproval, config, isDiffingEnabled]);
 
   const availableBodyContentHeight = useCallback(() => {
     if (availableTerminalHeight === undefined) {
@@ -245,12 +228,7 @@ export const ToolConfirmationMessage: React.FC<
     const optionsCount = getOptions().length;
 
     const surroundingElementsHeight =
-      PADDING_OUTER_Y +
-      MARGIN_BODY_BOTTOM +
-      HEIGHT_QUESTION +
-      MARGIN_QUESTION_BOTTOM +
-      optionsCount +
-      1; // Reserve one line for 'ShowMoreLines' hint
+      PADDING_OUTER_Y + MARGIN_BODY_BOTTOM + HEIGHT_QUESTION + MARGIN_QUESTION_BOTTOM + optionsCount + 1; // Reserve one line for 'ShowMoreLines' hint
 
     return Math.max(availableTerminalHeight - surroundingElementsHeight, 1);
   }, [availableTerminalHeight, getOptions]);
@@ -341,9 +319,7 @@ export const ToolConfirmationMessage: React.FC<
         executionProps.commands && executionProps.commands.length > 1
           ? executionProps.commands
           : [executionProps.command];
-      const containsRedirection = commandsToDisplay.some((cmd) =>
-        hasRedirection(cmd),
-      );
+      const containsRedirection = commandsToDisplay.some((cmd) => hasRedirection(cmd));
 
       let bodyContentHeight = availableBodyContentHeight();
       let warnings: React.ReactNode = null;
@@ -355,12 +331,8 @@ export const ToolConfirmationMessage: React.FC<
       if (containsRedirection) {
         // Calculate lines needed for Note and Tip
         const safeWidth = Math.max(terminalWidth, 1);
-        const noteLength =
-          REDIRECTION_WARNING_NOTE_LABEL.length +
-          REDIRECTION_WARNING_NOTE_TEXT.length;
-        const tipLength =
-          REDIRECTION_WARNING_TIP_LABEL.length +
-          REDIRECTION_WARNING_TIP_TEXT.length;
+        const noteLength = REDIRECTION_WARNING_NOTE_LABEL.length + REDIRECTION_WARNING_NOTE_TEXT.length;
+        const tipLength = REDIRECTION_WARNING_TIP_LABEL.length + REDIRECTION_WARNING_TIP_TEXT.length;
 
         const noteLines = Math.ceil(noteLength / safeWidth);
         const tipLines = Math.ceil(tipLength / safeWidth);
@@ -368,10 +340,7 @@ export const ToolConfirmationMessage: React.FC<
         const warningHeight = noteLines + tipLines + spacerLines;
 
         if (bodyContentHeight !== undefined) {
-          bodyContentHeight = Math.max(
-            bodyContentHeight - warningHeight,
-            MINIMUM_MAX_HEIGHT,
-          );
+          bodyContentHeight = Math.max(bodyContentHeight - warningHeight, MINIMUM_MAX_HEIGHT);
         }
 
         warnings = (
@@ -394,12 +363,9 @@ export const ToolConfirmationMessage: React.FC<
       }
 
       bodyContent = (
-        <Box flexDirection="column">
-          <MaxSizedBox
-            maxHeight={bodyContentHeight}
-            maxWidth={Math.max(terminalWidth, 1)}
-          >
-            <Box flexDirection="column">
+        <Box flexDirection='column'>
+          <MaxSizedBox maxHeight={bodyContentHeight} maxWidth={Math.max(terminalWidth, 1)}>
+            <Box flexDirection='column'>
               {commandsToDisplay.map((cmd, idx) => (
                 <Text key={idx} color={theme.text.link}>
                   {sanitizeForDisplay(cmd)}
@@ -412,22 +378,15 @@ export const ToolConfirmationMessage: React.FC<
       );
     } else if (confirmationDetails.type === 'info') {
       const infoProps = confirmationDetails;
-      const displayUrls =
-        infoProps.urls &&
-        !(
-          infoProps.urls.length === 1 && infoProps.urls[0] === infoProps.prompt
-        );
+      const displayUrls = infoProps.urls && !(infoProps.urls.length === 1 && infoProps.urls[0] === infoProps.prompt);
 
       bodyContent = (
-        <Box flexDirection="column">
+        <Box flexDirection='column'>
           <Text color={theme.text.link}>
-            <RenderInline
-              text={infoProps.prompt}
-              defaultColor={theme.text.link}
-            />
+            <RenderInline text={infoProps.prompt} defaultColor={theme.text.link} />
           </Text>
           {displayUrls && infoProps.urls && infoProps.urls.length > 0 && (
-            <Box flexDirection="column" marginTop={1}>
+            <Box flexDirection='column' marginTop={1}>
               <Text color={theme.text.primary}>URLs to fetch:</Text>
               {infoProps.urls.map((url) => (
                 <Text key={url}>
@@ -444,7 +403,7 @@ export const ToolConfirmationMessage: React.FC<
       const mcpProps = confirmationDetails;
 
       bodyContent = (
-        <Box flexDirection="column">
+        <Box flexDirection='column'>
           <Text color={theme.text.link}>MCP Server: {mcpProps.serverName}</Text>
           <Text color={theme.text.link}>Tool: {mcpProps.toolName}</Text>
         </Box>
@@ -452,51 +411,35 @@ export const ToolConfirmationMessage: React.FC<
     }
 
     return { question, bodyContent, options };
-  }, [
-    confirmationDetails,
-    getOptions,
-    availableBodyContentHeight,
-    terminalWidth,
-    handleConfirm,
-  ]);
+  }, [confirmationDetails, getOptions, availableBodyContentHeight, terminalWidth, handleConfirm]);
 
   if (confirmationDetails.type === 'edit') {
     if (confirmationDetails.isModifying) {
       return (
         <Box
           width={terminalWidth}
-          borderStyle="round"
+          borderStyle='round'
           borderColor={theme.border.default}
-          justifyContent="space-around"
+          justifyContent='space-around'
           paddingTop={1}
           paddingBottom={1}
-          overflow="hidden"
+          overflow='hidden'
         >
           <Text color={theme.text.primary}>Modify in progress: </Text>
-          <Text color={theme.status.success}>
-            Save and close external editor to continue
-          </Text>
+          <Text color={theme.status.success}>Save and close external editor to continue</Text>
         </Box>
       );
     }
   }
 
   return (
-    <Box
-      flexDirection="column"
-      paddingTop={0}
-      paddingBottom={handlesOwnUI ? 0 : 1}
-    >
+    <Box flexDirection='column' paddingTop={0} paddingBottom={handlesOwnUI ? 0 : 1}>
       {handlesOwnUI ? (
         bodyContent
       ) : (
         <>
-          <Box flexGrow={1} flexShrink={1} overflow="hidden">
-            <MaxSizedBox
-              maxHeight={availableBodyContentHeight()}
-              maxWidth={terminalWidth}
-              overflowDirection="top"
-            >
+          <Box flexGrow={1} flexShrink={1} overflow='hidden'>
+            <MaxSizedBox maxHeight={availableBodyContentHeight()} maxWidth={terminalWidth} overflowDirection='top'>
               {bodyContent}
             </MaxSizedBox>
           </Box>
@@ -506,11 +449,7 @@ export const ToolConfirmationMessage: React.FC<
           </Box>
 
           <Box flexShrink={0}>
-            <RadioButtonSelect
-              items={options}
-              onSelect={handleSelect}
-              isFocused={isFocused}
-            />
+            <RadioButtonSelect items={options} onSelect={handleSelect} isFocused={isFocused} />
           </Box>
         </>
       )}

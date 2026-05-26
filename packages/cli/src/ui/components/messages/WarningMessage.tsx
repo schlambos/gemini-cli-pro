@@ -18,12 +18,12 @@ export const WarningMessage: React.FC<WarningMessageProps> = ({ text }) => {
   const prefixWidth = 3;
 
   return (
-    <Box flexDirection="row" marginTop={1}>
+    <Box flexDirection='row' marginTop={1}>
       <Box width={prefixWidth}>
         <Text color={theme.status.warning}>{prefix}</Text>
       </Box>
       <Box flexGrow={1}>
-        <Text wrap="wrap">
+        <Text wrap='wrap'>
           <RenderInline text={text} defaultColor={theme.status.warning} />
         </Text>
       </Box>

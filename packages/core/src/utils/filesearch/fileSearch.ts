@@ -41,11 +41,7 @@ export class AbortError extends Error {
  * @param signal An AbortSignal to cancel the operation.
  * @returns A promise that resolves to the filtered and sorted list of paths.
  */
-export async function filter(
-  allPaths: string[],
-  pattern: string,
-  signal: AbortSignal | undefined,
-): Promise<string[]> {
+export async function filter(allPaths: string[], pattern: string, signal: AbortSignal | undefined): Promise<string[]> {
   const patternFilter = picomatch(pattern, {
     dot: true,
     contains: true,
@@ -101,10 +97,7 @@ class RecursiveFileSearch implements FileSearch {
   constructor(private readonly options: FileSearchOptions) {}
 
   async initialize(): Promise<void> {
-    this.ignore = loadIgnoreRules(
-      this.options.fileDiscoveryService,
-      this.options.ignoreDirs,
-    );
+    this.ignore = loadIgnoreRules(this.options.fileDiscoveryService, this.options.ignoreDirs);
 
     this.allFiles = await crawl({
       crawlDirectory: this.options.projectRoot,
@@ -119,23 +112,15 @@ class RecursiveFileSearch implements FileSearch {
     this.buildResultCache();
   }
 
-  async search(
-    pattern: string,
-    options: SearchOptions = {},
-  ): Promise<string[]> {
-    if (
-      !this.resultCache ||
-      (!this.fzf && this.options.enableFuzzySearch) ||
-      !this.ignore
-    ) {
+  async search(pattern: string, options: SearchOptions = {}): Promise<string[]> {
+    if (!this.resultCache || (!this.fzf && this.options.enableFuzzySearch) || !this.ignore) {
       throw new Error('Engine not initialized. Call initialize() first.');
     }
 
     pattern = unescapePath(pattern) || '*';
 
     let filteredCandidates;
-    const { files: candidates, isExactMatch } =
-      await this.resultCache.get(pattern);
+    const { files: candidates, isExactMatch } = await this.resultCache.get(pattern);
 
     if (isExactMatch) {
       // Use the cached result.
@@ -147,9 +132,7 @@ class RecursiveFileSearch implements FileSearch {
       } else {
         filteredCandidates = await this.fzf
           .find(pattern)
-          .then((results: Array<FzfResultItem<string>>) =>
-            results.map((entry: FzfResultItem<string>) => entry.item),
-          )
+          .then((results: Array<FzfResultItem<string>>) => results.map((entry: FzfResultItem<string>) => entry.item))
           .catch(() => {
             shouldCache = false;
             return [];
@@ -203,16 +186,10 @@ class DirectoryFileSearch implements FileSearch {
   constructor(private readonly options: FileSearchOptions) {}
 
   async initialize(): Promise<void> {
-    this.ignore = loadIgnoreRules(
-      this.options.fileDiscoveryService,
-      this.options.ignoreDirs,
-    );
+    this.ignore = loadIgnoreRules(this.options.fileDiscoveryService, this.options.ignoreDirs);
   }
 
-  async search(
-    pattern: string,
-    options: SearchOptions = {},
-  ): Promise<string[]> {
+  async search(pattern: string, options: SearchOptions = {}): Promise<string[]> {
     if (!this.ignore) {
       throw new Error('Engine not initialized. Call initialize() first.');
     }

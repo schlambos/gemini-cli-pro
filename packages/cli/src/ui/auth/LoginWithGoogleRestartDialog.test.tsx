@@ -26,9 +26,7 @@ const mockedRunExitCleanup = runExitCleanup as Mock;
 
 describe('LoginWithGoogleRestartDialog', () => {
   const onDismiss = vi.fn();
-  const exitSpy = vi
-    .spyOn(process, 'exit')
-    .mockImplementation(() => undefined as never);
+  const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
 
   const mockConfig = {
     getRemoteAdminSettings: vi.fn(),
@@ -41,22 +39,12 @@ describe('LoginWithGoogleRestartDialog', () => {
   });
 
   it('renders correctly', () => {
-    const { lastFrame } = render(
-      <LoginWithGoogleRestartDialog
-        onDismiss={onDismiss}
-        config={mockConfig}
-      />,
-    );
+    const { lastFrame } = render(<LoginWithGoogleRestartDialog onDismiss={onDismiss} config={mockConfig} />);
     expect(lastFrame()).toMatchSnapshot();
   });
 
   it('calls onDismiss when escape is pressed', () => {
-    render(
-      <LoginWithGoogleRestartDialog
-        onDismiss={onDismiss}
-        config={mockConfig}
-      />,
-    );
+    render(<LoginWithGoogleRestartDialog onDismiss={onDismiss} config={mockConfig} />);
     const keypressHandler = mockedUseKeypress.mock.calls[0][0];
 
     keypressHandler({
@@ -70,34 +58,26 @@ describe('LoginWithGoogleRestartDialog', () => {
     expect(onDismiss).toHaveBeenCalledTimes(1);
   });
 
-  it.each(['r', 'R'])(
-    'calls runExitCleanup and process.exit when %s is pressed',
-    async (keyName) => {
-      vi.useFakeTimers();
+  it.each(['r', 'R'])('calls runExitCleanup and process.exit when %s is pressed', async (keyName) => {
+    vi.useFakeTimers();
 
-      render(
-        <LoginWithGoogleRestartDialog
-          onDismiss={onDismiss}
-          config={mockConfig}
-        />,
-      );
-      const keypressHandler = mockedUseKeypress.mock.calls[0][0];
+    render(<LoginWithGoogleRestartDialog onDismiss={onDismiss} config={mockConfig} />);
+    const keypressHandler = mockedUseKeypress.mock.calls[0][0];
 
-      keypressHandler({
-        name: keyName,
-        shift: false,
-        ctrl: false,
-        cmd: false,
-        sequence: keyName,
-      });
+    keypressHandler({
+      name: keyName,
+      shift: false,
+      ctrl: false,
+      cmd: false,
+      sequence: keyName,
+    });
 
-      // Advance timers to trigger the setTimeout callback
-      await vi.runAllTimersAsync();
+    // Advance timers to trigger the setTimeout callback
+    await vi.runAllTimersAsync();
 
-      expect(mockedRunExitCleanup).toHaveBeenCalledTimes(1);
-      expect(exitSpy).toHaveBeenCalledWith(RELAUNCH_EXIT_CODE);
+    expect(mockedRunExitCleanup).toHaveBeenCalledTimes(1);
+    expect(exitSpy).toHaveBeenCalledWith(RELAUNCH_EXIT_CODE);
 
-      vi.useRealTimers();
-    },
-  );
+    vi.useRealTimers();
+  });
 });

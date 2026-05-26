@@ -51,11 +51,7 @@ describe('useMouseClick', () => {
     // relativeY = 7 - 5 = 2
     callback({ name: 'left-press', col: 16, row: 8 });
 
-    expect(handler).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'left-press' }),
-      5,
-      2,
-    );
+    expect(handler).toHaveBeenCalledWith(expect.objectContaining({ name: 'left-press' }), 5, 2);
   });
 
   it('should not call handler when click is outside bounds', () => {

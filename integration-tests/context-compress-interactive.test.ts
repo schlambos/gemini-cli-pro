@@ -21,16 +21,13 @@ describe('Interactive Mode', () => {
 
   it('should trigger chat compression with /compress command', async () => {
     await rig.setup('interactive-compress-success', {
-      fakeResponsesPath: join(
-        import.meta.dirname,
-        'context-compress-interactive.compress.responses',
-      ),
+      fakeResponsesPath: join(import.meta.dirname, 'context-compress-interactive.compress.responses'),
     });
 
     const run = await rig.runInteractive();
 
     await run.sendKeys(
-      'Write a 200 word story about a robot. The story MUST end with the text THE_END followed by a period.',
+      'Write a 200 word story about a robot. The story MUST end with the text THE_END followed by a period.'
     );
     await run.type('\r');
 
@@ -40,13 +37,8 @@ describe('Interactive Mode', () => {
     await run.type('/compress');
     await run.type('\r');
 
-    const foundEvent = await rig.waitForTelemetryEvent(
-      'chat_compression',
-      25000,
-    );
-    expect(foundEvent, 'chat_compression telemetry event was not found').toBe(
-      true,
-    );
+    const foundEvent = await rig.waitForTelemetryEvent('chat_compression', 25000);
+    expect(foundEvent, 'chat_compression telemetry event was not found').toBe(true);
 
     await run.expectText('Chat history compressed', 5000);
   });
@@ -56,10 +48,7 @@ describe('Interactive Mode', () => {
   // it is in fact not.
   it.skip('should handle compression failure on token inflation', async () => {
     await rig.setup('interactive-compress-failure', {
-      fakeResponsesPath: join(
-        import.meta.dirname,
-        'context-compress-interactive.compress-failure.responses',
-      ),
+      fakeResponsesPath: join(import.meta.dirname, 'context-compress-interactive.compress-failure.responses'),
     });
 
     const run = await rig.runInteractive();
@@ -74,22 +63,13 @@ describe('Interactive Mode', () => {
     await run.expectText('compression was not beneficial', 25000);
 
     // Verify no telemetry event is logged for NOOP
-    const foundEvent = await rig.waitForTelemetryEvent(
-      'chat_compression',
-      5000,
-    );
-    expect(
-      foundEvent,
-      'chat_compression telemetry event should be found for failures',
-    ).toBe(true);
+    const foundEvent = await rig.waitForTelemetryEvent('chat_compression', 5000);
+    expect(foundEvent, 'chat_compression telemetry event should be found for failures').toBe(true);
   });
 
   it('should handle /compress command on empty history', async () => {
     rig.setup('interactive-compress-empty', {
-      fakeResponsesPath: join(
-        import.meta.dirname,
-        'context-compress-interactive.compress-empty.responses',
-      ),
+      fakeResponsesPath: join(import.meta.dirname, 'context-compress-interactive.compress-empty.responses'),
     });
 
     const run = await rig.runInteractive();
@@ -101,11 +81,8 @@ describe('Interactive Mode', () => {
     // Verify no telemetry event is logged for NOOP
     const foundEvent = await rig.waitForTelemetryEvent(
       'chat_compression',
-      5000, // Short timeout as we expect it not to happen
+      5000 // Short timeout as we expect it not to happen
     );
-    expect(
-      foundEvent,
-      'chat_compression telemetry event should not be found for NOOP',
-    ).toBe(false);
+    expect(foundEvent, 'chat_compression telemetry event should not be found for NOOP').toBe(false);
   });
 });

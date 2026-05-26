@@ -13,8 +13,7 @@ import { formatDuration } from '../utils/formatters.js';
 import type { Config } from '@google/gemini-cli-core';
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     UserAccountManager: vi.fn().mockImplementation(() => ({
@@ -45,9 +44,7 @@ describe('statsCommand', () => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     statsCommand.action(mockContext, '');
 
-    const expectedDuration = formatDuration(
-      endTime.getTime() - startTime.getTime(),
-    );
+    const expectedDuration = formatDuration(endTime.getTime() - startTime.getTime());
     expect(mockContext.ui.addItem).toHaveBeenCalledWith({
       type: MessageType.STATS,
       duration: expectedDuration,
@@ -67,9 +64,7 @@ describe('statsCommand', () => {
     const mockGetModel = vi.fn().mockReturnValue('gemini-pro');
     const mockGetQuotaRemaining = vi.fn().mockReturnValue(85);
     const mockGetQuotaLimit = vi.fn().mockReturnValue(100);
-    const mockGetQuotaResetTime = vi
-      .fn()
-      .mockReturnValue('2025-01-01T12:00:00Z');
+    const mockGetQuotaResetTime = vi.fn().mockReturnValue('2025-01-01T12:00:00Z');
 
     mockContext.services.config = {
       refreshUserQuota: mockRefreshUserQuota,
@@ -91,14 +86,12 @@ describe('statsCommand', () => {
         pooledRemaining: 85,
         pooledLimit: 100,
         pooledResetTime: '2025-01-01T12:00:00Z',
-      }),
+      })
     );
   });
 
   it('should display model stats when using the "model" subcommand', () => {
-    const modelSubCommand = statsCommand.subCommands?.find(
-      (sc) => sc.name === 'model',
-    );
+    const modelSubCommand = statsCommand.subCommands?.find((sc) => sc.name === 'model');
     if (!modelSubCommand?.action) throw new Error('Subcommand has no action');
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -116,9 +109,7 @@ describe('statsCommand', () => {
   });
 
   it('should display tool stats when using the "tools" subcommand', () => {
-    const toolsSubCommand = statsCommand.subCommands?.find(
-      (sc) => sc.name === 'tools',
-    );
+    const toolsSubCommand = statsCommand.subCommands?.find((sc) => sc.name === 'tools');
     if (!toolsSubCommand?.action) throw new Error('Subcommand has no action');
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises

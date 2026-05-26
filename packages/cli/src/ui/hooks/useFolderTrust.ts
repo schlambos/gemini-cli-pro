@@ -7,11 +7,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import type { LoadedSettings } from '../../config/settings.js';
 import { FolderTrustChoice } from '../components/FolderTrustDialog.js';
-import {
-  loadTrustedFolders,
-  TrustLevel,
-  isWorkspaceTrusted,
-} from '../../config/trustedFolders.js';
+import { loadTrustedFolders, TrustLevel, isWorkspaceTrusted } from '../../config/trustedFolders.js';
 import * as process from 'node:process';
 import { type HistoryItemWithoutId, MessageType } from '../types.js';
 import { coreEvents, ExitCodes, isHeadlessMode } from '@google/gemini-cli-core';
@@ -20,7 +16,7 @@ import { runExitCleanup } from '../../utils/cleanup.js';
 export const useFolderTrust = (
   settings: LoadedSettings,
   onTrustChange: (isTrusted: boolean | undefined) => void,
-  addItem: (item: HistoryItemWithoutId, timestamp: number) => number,
+  addItem: (item: HistoryItemWithoutId, timestamp: number) => number
 ) => {
   const [isTrusted, setIsTrusted] = useState<boolean | undefined>(undefined);
   const [isFolderTrustDialogOpen, setIsFolderTrustDialogOpen] = useState(false);
@@ -40,7 +36,7 @@ export const useFolderTrust = (
             type: MessageType.INFO,
             text: 'This folder is untrusted, project settings, hooks, MCPs, and GEMINI.md files will not be applied for this folder.\nUse the `/permissions` command to change the trust level.',
           },
-          Date.now(),
+          Date.now()
         );
         startupMessageSent.current = true;
       }
@@ -82,10 +78,7 @@ export const useFolderTrust = (
       try {
         await trustedFolders.setValue(cwd, trustLevel);
       } catch (_e) {
-        coreEvents.emitFeedback(
-          'error',
-          'Failed to save trust settings. Exiting Gemini CLI.',
-        );
+        coreEvents.emitFeedback('error', 'Failed to save trust settings. Exiting Gemini CLI.');
         setTimeout(async () => {
           await runExitCleanup();
           process.exit(ExitCodes.FATAL_CONFIG_ERROR);
@@ -93,9 +86,7 @@ export const useFolderTrust = (
         return;
       }
 
-      const currentIsTrusted =
-        trustLevel === TrustLevel.TRUST_FOLDER ||
-        trustLevel === TrustLevel.TRUST_PARENT;
+      const currentIsTrusted = trustLevel === TrustLevel.TRUST_FOLDER || trustLevel === TrustLevel.TRUST_PARENT;
 
       onTrustChange(currentIsTrusted);
       setIsTrusted(currentIsTrusted);
@@ -111,7 +102,7 @@ export const useFolderTrust = (
         setIsFolderTrustDialogOpen(false);
       }
     },
-    [onTrustChange, isTrusted],
+    [onTrustChange, isTrusted]
   );
 
   return {

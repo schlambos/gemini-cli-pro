@@ -18,9 +18,7 @@ describe('<Checklist />', () => {
   ];
 
   it('renders nothing when list is empty', () => {
-    const { lastFrame } = render(
-      <Checklist title="Test List" items={[]} isExpanded={true} />,
-    );
+    const { lastFrame } = render(<Checklist title='Test List' items={[]} isExpanded={true} />);
     expect(lastFrame()).toBe('');
   });
 
@@ -29,32 +27,20 @@ describe('<Checklist />', () => {
       { status: 'completed', label: 'Task 1' },
       { status: 'cancelled', label: 'Task 2' },
     ];
-    const { lastFrame } = render(
-      <Checklist title="Test List" items={inactiveItems} isExpanded={false} />,
-    );
+    const { lastFrame } = render(<Checklist title='Test List' items={inactiveItems} isExpanded={false} />);
     expect(lastFrame()).toBe('');
   });
 
   it('renders summary view correctly (collapsed)', () => {
     const { lastFrame } = render(
-      <Checklist
-        title="Test List"
-        items={items}
-        isExpanded={false}
-        toggleHint="toggle me"
-      />,
+      <Checklist title='Test List' items={items} isExpanded={false} toggleHint='toggle me' />
     );
     expect(lastFrame()).toMatchSnapshot();
   });
 
   it('renders expanded view correctly', () => {
     const { lastFrame } = render(
-      <Checklist
-        title="Test List"
-        items={items}
-        isExpanded={true}
-        toggleHint="toggle me"
-      />,
+      <Checklist title='Test List' items={items} isExpanded={true} toggleHint='toggle me' />
     );
     expect(lastFrame()).toMatchSnapshot();
   });
@@ -64,9 +50,7 @@ describe('<Checklist />', () => {
       { status: 'completed', label: 'Task 1' },
       { status: 'pending', label: 'Task 2' },
     ];
-    const { lastFrame } = render(
-      <Checklist title="Test List" items={pendingItems} isExpanded={false} />,
-    );
+    const { lastFrame } = render(<Checklist title='Test List' items={pendingItems} isExpanded={false} />);
     expect(lastFrame()).toMatchSnapshot();
   });
 });

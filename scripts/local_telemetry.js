@@ -77,10 +77,9 @@ async function main() {
   const otelcolPath = await ensureBinary(
     'otelcol-contrib',
     'open-telemetry/opentelemetry-collector-releases',
-    (version, platform, arch, ext) =>
-      `otelcol-contrib_${version}_${platform}_${arch}.${ext}`,
+    (version, platform, arch, ext) => `otelcol-contrib_${version}_${platform}_${arch}.${ext}`,
     'otelcol-contrib',
-    false, // isJaeger = false
+    false // isJaeger = false
   ).catch((e) => {
     console.error(`🛑 Error getting otelcol-contrib: ${e.message}`);
     return null;
@@ -90,10 +89,9 @@ async function main() {
   const jaegerPath = await ensureBinary(
     'jaeger',
     'jaegertracing/jaeger',
-    (version, platform, arch, ext) =>
-      `jaeger-${version}-${platform}-${arch}.${ext}`,
+    (version, platform, arch, ext) => `jaeger-${version}-${platform}-${arch}.${ext}`,
     'jaeger',
-    true, // isJaeger = true
+    true // isJaeger = true
   ).catch((e) => {
     console.error(`🛑 Error getting jaeger: ${e.message}`);
     return null;
@@ -126,16 +124,12 @@ async function main() {
   let jaegerProcess, collectorProcess;
   let jaegerLogFd, collectorLogFd;
 
-  const originalSandboxSetting = manageTelemetrySettings(
-    true,
-    'http://localhost:4317',
-    'local',
-  );
+  const originalSandboxSetting = manageTelemetrySettings(true, 'http://localhost:4317', 'local');
 
   registerCleanup(
     () => [jaegerProcess, collectorProcess],
     () => [jaegerLogFd, collectorLogFd],
-    originalSandboxSetting,
+    originalSandboxSetting
   );
 
   if (!fileExists(OTEL_DIR)) fs.mkdirSync(OTEL_DIR, { recursive: true });
@@ -145,11 +139,9 @@ async function main() {
   // Start Jaeger
   console.log(`🚀 Starting Jaeger service... Logs: ${JAEGER_LOG_FILE}`);
   jaegerLogFd = fs.openSync(JAEGER_LOG_FILE, 'a');
-  jaegerProcess = spawn(
-    jaegerPath,
-    ['--set=receivers.otlp.protocols.grpc.endpoint=localhost:14317'],
-    { stdio: ['ignore', jaegerLogFd, jaegerLogFd] },
-  );
+  jaegerProcess = spawn(jaegerPath, ['--set=receivers.otlp.protocols.grpc.endpoint=localhost:14317'], {
+    stdio: ['ignore', jaegerLogFd, jaegerLogFd],
+  });
   console.log(`⏳ Waiting for Jaeger to start (PID: ${jaegerProcess.pid})...`);
 
   try {
@@ -173,9 +165,7 @@ async function main() {
   collectorProcess = spawn(otelcolPath, ['--config', OTEL_CONFIG_FILE], {
     stdio: ['ignore', collectorLogFd, collectorLogFd],
   });
-  console.log(
-    `⏳ Waiting for OTEL collector to start (PID: ${collectorProcess.pid})...`,
-  );
+  console.log(`⏳ Waiting for OTEL collector to start (PID: ${collectorProcess.pid})...`);
 
   try {
     await waitForPort(4317);
@@ -205,12 +195,12 @@ async function main() {
 ✨ Local telemetry environment is running.`);
   console.log(
     `
-🔎 View traces in the Jaeger UI: http://localhost:${JAEGER_PORT}`,
+🔎 View traces in the Jaeger UI: http://localhost:${JAEGER_PORT}`
   );
   console.log(`📊 View metrics in the logs and metrics: ${OTEL_LOG_FILE}`);
   console.log(
     `
-📄 Tail logs and metrics in another terminal: tail -f ${OTEL_LOG_FILE}`,
+📄 Tail logs and metrics in another terminal: tail -f ${OTEL_LOG_FILE}`
   );
   console.log(`
 Press Ctrl+C to exit.`);

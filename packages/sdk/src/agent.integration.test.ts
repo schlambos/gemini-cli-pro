@@ -16,8 +16,7 @@ const __dirname = dirname(__filename);
 // Set this to true locally when you need to update snapshots
 const RECORD_MODE = process.env['RECORD_NEW_RESPONSES'] === 'true';
 
-const getGoldenPath = (name: string) =>
-  path.resolve(__dirname, '../test-data', `${name}.json`);
+const getGoldenPath = (name: string) => path.resolve(__dirname, '../test-data', `${name}.json`);
 
 describe('GeminiCliAgent Integration', () => {
   it('handles static instructions', async () => {
@@ -38,9 +37,7 @@ describe('GeminiCliAgent Integration', () => {
     }
 
     const textEvents = events.filter((e) => e.type === 'content');
-    const responseText = textEvents
-      .map((e) => (typeof e.value === 'string' ? e.value : ''))
-      .join('');
+    const responseText = textEvents.map((e) => (typeof e.value === 'string' ? e.value : '')).join('');
 
     // Expect pirate speak
     expect(responseText.toLowerCase()).toMatch(/ahoy|matey|arrr/);

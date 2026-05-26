@@ -143,5 +143,5 @@ export const AtomOneDark: Theme = new Theme(
       fontWeight: 'bold',
     },
   },
-  atomOneDarkColors,
+  atomOneDarkColors
 );

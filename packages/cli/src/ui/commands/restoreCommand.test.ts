@@ -11,11 +11,7 @@ import * as path from 'node:path';
 import { restoreCommand } from './restoreCommand.js';
 import { type CommandContext } from './types.js';
 import { createMockCommandContext } from '../../test-utils/mockCommandContext.js';
-import {
-  GEMINI_DIR,
-  type Config,
-  type GitService,
-} from '@google/gemini-cli-core';
+import { GEMINI_DIR, type Config, type GitService } from '@google/gemini-cli-core';
 
 describe('restoreCommand', () => {
   let mockContext: CommandContext;
@@ -27,9 +23,7 @@ describe('restoreCommand', () => {
   let checkpointsDir: string;
 
   beforeEach(async () => {
-    testRootDir = await fs.mkdtemp(
-      path.join(os.tmpdir(), 'restore-command-test-'),
-    );
+    testRootDir = await fs.mkdtemp(path.join(os.tmpdir(), 'restore-command-test-'));
     geminiTempDir = path.join(testRootDir, GEMINI_DIR);
     checkpointsDir = path.join(geminiTempDir, 'checkpoints');
     // The command itself creates this, but for tests it's easier to have it ready.
@@ -78,19 +72,15 @@ describe('restoreCommand', () => {
         description: expect.any(String),
         action: expect.any(Function),
         completion: expect.any(Function),
-      }),
+      })
     );
   });
 
   describe('action', () => {
     it('should return an error if temp dir is not found', async () => {
-      vi.mocked(
-        mockConfig.storage.getProjectTempCheckpointsDir,
-      ).mockReturnValue('');
+      vi.mocked(mockConfig.storage.getProjectTempCheckpointsDir).mockReturnValue('');
 
-      expect(
-        await restoreCommand(mockConfig)?.action?.(mockContext, ''),
-      ).toEqual({
+      expect(await restoreCommand(mockConfig)?.action?.(mockContext, '')).toEqual({
         type: 'message',
         messageType: 'error',
         content: 'Could not determine the .gemini directory path.',
@@ -136,10 +126,7 @@ describe('restoreCommand', () => {
 
     it('should handle file read errors gracefully', async () => {
       const checkpointName = 'test1';
-      const checkpointPath = path.join(
-        checkpointsDir,
-        `${checkpointName}.json`,
-      );
+      const checkpointPath = path.join(checkpointsDir, `${checkpointName}.json`);
       // Create a directory instead of a file to cause a read error.
       await fs.mkdir(checkpointPath);
       const command = restoreCommand(mockConfig);
@@ -147,9 +134,7 @@ describe('restoreCommand', () => {
       expect(await command?.action?.(mockContext, checkpointName)).toEqual({
         type: 'message',
         messageType: 'error',
-        content: expect.stringContaining(
-          'Could not read restorable tool calls.',
-        ),
+        content: expect.stringContaining('Could not read restorable tool calls.'),
       });
     });
 
@@ -160,10 +145,7 @@ describe('restoreCommand', () => {
         commitHash: 'abcdef123',
         toolCall: { name: 'run_shell_command', args: { command: 'ls' } },
       };
-      await fs.writeFile(
-        path.join(checkpointsDir, 'my-checkpoint.json'),
-        JSON.stringify(toolCallData),
-      );
+      await fs.writeFile(path.join(checkpointsDir, 'my-checkpoint.json'), JSON.stringify(toolCallData));
       const command = restoreCommand(mockConfig);
 
       expect(await command?.action?.(mockContext, 'my-checkpoint')).toEqual({
@@ -171,19 +153,15 @@ describe('restoreCommand', () => {
         toolName: 'run_shell_command',
         toolArgs: { command: 'ls' },
       });
-      expect(mockContext.ui.loadHistory).toHaveBeenCalledWith(
-        toolCallData.history,
-      );
+      expect(mockContext.ui.loadHistory).toHaveBeenCalledWith(toolCallData.history);
       expect(mockSetHistory).toHaveBeenCalledWith(toolCallData.clientHistory);
-      expect(mockGitService.restoreProjectFromSnapshot).toHaveBeenCalledWith(
-        toolCallData.commitHash,
-      );
+      expect(mockGitService.restoreProjectFromSnapshot).toHaveBeenCalledWith(toolCallData.commitHash);
       expect(mockContext.ui.addItem).toHaveBeenCalledWith(
         {
           type: 'info',
           text: 'Restored project to the state before the tool call.',
         },
-        expect.any(Number),
+        expect.any(Number)
       );
     });
 
@@ -191,10 +169,7 @@ describe('restoreCommand', () => {
       const toolCallData = {
         toolCall: { name: 'run_shell_command', args: { command: 'ls' } },
       };
-      await fs.writeFile(
-        path.join(checkpointsDir, 'my-checkpoint.json'),
-        JSON.stringify(toolCallData),
-      );
+      await fs.writeFile(path.join(checkpointsDir, 'my-checkpoint.json'), JSON.stringify(toolCallData));
 
       const command = restoreCommand(mockConfig);
 
@@ -214,7 +189,7 @@ describe('restoreCommand', () => {
     const checkpointName = 'missing-toolcall';
     await fs.writeFile(
       path.join(checkpointsDir, `${checkpointName}.json`),
-      JSON.stringify({ history: [] }), // An object that is valid JSON but missing the 'toolCall' property
+      JSON.stringify({ history: [] }) // An object that is valid JSON but missing the 'toolCall' property
     );
     const command = restoreCommand(mockConfig);
 
@@ -244,16 +219,10 @@ describe('restoreCommand', () => {
     it('should return a list of checkpoint names', async () => {
       await fs.writeFile(path.join(checkpointsDir, 'test1.json'), '{}');
       await fs.writeFile(path.join(checkpointsDir, 'test2.json'), '{}');
-      await fs.writeFile(
-        path.join(checkpointsDir, 'not-a-checkpoint.txt'),
-        '{}',
-      );
+      await fs.writeFile(path.join(checkpointsDir, 'not-a-checkpoint.txt'), '{}');
       const command = restoreCommand(mockConfig);
 
-      expect(await command?.completion?.(mockContext, '')).toEqual([
-        'test1',
-        'test2',
-      ]);
+      expect(await command?.completion?.(mockContext, '')).toEqual(['test1', 'test2']);
     });
   });
 });

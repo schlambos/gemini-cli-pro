@@ -46,12 +46,7 @@ const DRAFT_2020_12_SCHEMA = 'https://json-schema.org/draft/2020-12/schema';
  * Returns the appropriate validator based on schema's $schema field.
  */
 function getValidator(schema: AnySchema): Ajv {
-  if (
-    typeof schema === 'object' &&
-    schema !== null &&
-    '$schema' in schema &&
-    schema.$schema === DRAFT_2020_12_SCHEMA
-  ) {
+  if (typeof schema === 'object' && schema !== null && '$schema' in schema && schema.$schema === DRAFT_2020_12_SCHEMA) {
     return ajv2020;
   }
   return ajvDefault;
@@ -92,8 +87,7 @@ export class SchemaValidator {
         `Failed to compile schema (${
           // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
           (schema as Record<string, unknown>)?.['$schema'] ?? '<no $schema>'
-        }): ${error instanceof Error ? error.message : String(error)}. ` +
-          'Skipping parameter validation.',
+        }): ${error instanceof Error ? error.message : String(error)}. ` + 'Skipping parameter validation.'
       );
       return null;
     }
@@ -124,8 +118,7 @@ export class SchemaValidator {
         `Failed to validate schema (${
           // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
           (schema as Record<string, unknown>)?.['$schema'] ?? '<no $schema>'
-        }): ${error instanceof Error ? error.message : String(error)}. ` +
-          'Skipping schema validation.',
+        }): ${error instanceof Error ? error.message : String(error)}. ` + 'Skipping schema validation.'
       );
       return null;
     }

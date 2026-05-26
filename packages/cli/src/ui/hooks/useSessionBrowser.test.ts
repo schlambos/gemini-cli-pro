@@ -7,27 +7,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook } from '../../test-utils/render.js';
 import { act } from 'react';
-import {
-  useSessionBrowser,
-  convertSessionToHistoryFormats,
-} from './useSessionBrowser.js';
+import { useSessionBrowser, convertSessionToHistoryFormats } from './useSessionBrowser.js';
 import * as fs from 'node:fs/promises';
 import path from 'node:path';
 import { getSessionFiles, type SessionInfo } from '../../utils/sessionUtils.js';
-import {
-  type Config,
-  type ConversationRecord,
-  type MessageRecord,
-  CoreToolCallStatus,
-} from '@google/gemini-cli-core';
+import { type Config, type ConversationRecord, type MessageRecord, CoreToolCallStatus } from '@google/gemini-cli-core';
 import { coreEvents } from '@google/gemini-cli-core';
 
 // Mock modules
 vi.mock('fs/promises');
 vi.mock('path');
 vi.mock('../../utils/sessionUtils.js', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('../../utils/sessionUtils.js')>();
+  const actual = await importOriginal<typeof import('../../utils/sessionUtils.js')>();
   return {
     ...actual,
     getSessionFiles: vi.fn(),
@@ -63,12 +54,8 @@ describe('useSessionBrowser', () => {
     vi.resetAllMocks();
     vi.spyOn(coreEvents, 'emitFeedback').mockImplementation(() => {});
     mockedPath.join.mockImplementation((...args) => args.join('/'));
-    vi.mocked(mockConfig.storage.getProjectTempDir).mockReturnValue(
-      MOCKED_PROJECT_TEMP_DIR,
-    );
-    vi.mocked(mockConfig.getSessionId).mockReturnValue(
-      MOCKED_CURRENT_SESSION_ID,
-    );
+    vi.mocked(mockConfig.storage.getProjectTempDir).mockReturnValue(MOCKED_PROJECT_TEMP_DIR);
+    vi.mocked(mockConfig.getSessionId).mockReturnValue(MOCKED_CURRENT_SESSION_ID);
   });
 
   it('should successfully resume a session', async () => {
@@ -85,20 +72,13 @@ describe('useSessionBrowser', () => {
     mockedGetSessionFiles.mockResolvedValue([mockSession]);
     mockedFs.readFile.mockResolvedValue(JSON.stringify(mockConversation));
 
-    const { result } = renderHook(() =>
-      useSessionBrowser(mockConfig, mockOnLoadHistory),
-    );
+    const { result } = renderHook(() => useSessionBrowser(mockConfig, mockOnLoadHistory));
 
     await act(async () => {
       await result.current.handleResumeSession(mockSession);
     });
-    expect(mockedFs.readFile).toHaveBeenCalledWith(
-      `${MOCKED_CHATS_DIR}/${MOCKED_FILENAME}`,
-      'utf8',
-    );
-    expect(mockConfig.setSessionId).toHaveBeenCalledWith(
-      'existing-session-456',
-    );
+    expect(mockedFs.readFile).toHaveBeenCalledWith(`${MOCKED_CHATS_DIR}/${MOCKED_FILENAME}`, 'utf8');
+    expect(mockConfig.setSessionId).toHaveBeenCalledWith('existing-session-456');
     expect(result.current.isSessionBrowserOpen).toBe(false);
     expect(mockOnLoadHistory).toHaveBeenCalled();
   });
@@ -111,19 +91,13 @@ describe('useSessionBrowser', () => {
     } as SessionInfo;
     mockedFs.readFile.mockRejectedValue(new Error('File not found'));
 
-    const { result } = renderHook(() =>
-      useSessionBrowser(mockConfig, mockOnLoadHistory),
-    );
+    const { result } = renderHook(() => useSessionBrowser(mockConfig, mockOnLoadHistory));
 
     await act(async () => {
       await result.current.handleResumeSession(mockSession);
     });
 
-    expect(coreEvents.emitFeedback).toHaveBeenCalledWith(
-      'error',
-      'Error resuming session:',
-      expect.any(Error),
-    );
+    expect(coreEvents.emitFeedback).toHaveBeenCalledWith('error', 'Error resuming session:', expect.any(Error));
     expect(result.current.isSessionBrowserOpen).toBe(false);
   });
 
@@ -135,19 +109,13 @@ describe('useSessionBrowser', () => {
     } as SessionInfo;
     mockedFs.readFile.mockResolvedValue('invalid json');
 
-    const { result } = renderHook(() =>
-      useSessionBrowser(mockConfig, mockOnLoadHistory),
-    );
+    const { result } = renderHook(() => useSessionBrowser(mockConfig, mockOnLoadHistory));
 
     await act(async () => {
       await result.current.handleResumeSession(mockSession);
     });
 
-    expect(coreEvents.emitFeedback).toHaveBeenCalledWith(
-      'error',
-      'Error resuming session:',
-      expect.any(Error),
-    );
+    expect(coreEvents.emitFeedback).toHaveBeenCalledWith('error', 'Error resuming session:', expect.any(Error));
     expect(result.current.isSessionBrowserOpen).toBe(false);
   });
 });

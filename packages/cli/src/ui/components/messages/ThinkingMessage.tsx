@@ -19,9 +19,7 @@ interface ThinkingMessageProps {
  * Renders a model's thought as a distinct bubble.
  * Leverages Ink layout for wrapping and borders.
  */
-export const ThinkingMessage: React.FC<ThinkingMessageProps> = ({
-  thought,
-}) => {
+export const ThinkingMessage: React.FC<ThinkingMessageProps> = ({ thought }) => {
   const { summary, body } = useMemo(() => {
     const subject = normalizeEscapedNewlines(thought.subject).trim();
     const description = normalizeEscapedNewlines(thought.description).trim();
@@ -52,7 +50,7 @@ export const ThinkingMessage: React.FC<ThinkingMessageProps> = ({
   }
 
   return (
-    <Box width="100%" marginBottom={1} paddingLeft={1} flexDirection="column">
+    <Box width='100%' marginBottom={1} paddingLeft={1} flexDirection='column'>
       {summary && (
         <Box paddingLeft={2}>
           <Text color={theme.text.primary} bold italic>
@@ -62,7 +60,7 @@ export const ThinkingMessage: React.FC<ThinkingMessageProps> = ({
       )}
       {body && (
         <Box
-          borderStyle="single"
+          borderStyle='single'
           borderLeft
           borderRight={false}
           borderTop={false}

@@ -31,11 +31,7 @@ export interface GlobPath {
  * Recent files (modified within recencyThresholdMs) are listed first, newest to oldest.
  * Older files are listed after recent ones, sorted alphabetically by path.
  */
-export function sortFileEntries(
-  entries: GlobPath[],
-  nowTimestamp: number,
-  recencyThresholdMs: number,
-): GlobPath[] {
+export function sortFileEntries(entries: GlobPath[], nowTimestamp: number, recencyThresholdMs: number): GlobPath[] {
   const sortedEntries = [...entries];
   sortedEntries.sort((a, b) => {
     const mtimeA = a.mtimeMs ?? 0;
@@ -86,16 +82,13 @@ export interface GlobToolParams {
   respect_gemini_ignore?: boolean;
 }
 
-class GlobToolInvocation extends BaseToolInvocation<
-  GlobToolParams,
-  ToolResult
-> {
+class GlobToolInvocation extends BaseToolInvocation<GlobToolParams, ToolResult> {
   constructor(
     private config: Config,
     params: GlobToolParams,
     messageBus: MessageBus,
     _toolName?: string,
-    _toolDisplayName?: string,
+    _toolDisplayName?: string
   ) {
     super(params, messageBus, _toolName, _toolDisplayName);
   }
@@ -103,10 +96,7 @@ class GlobToolInvocation extends BaseToolInvocation<
   getDescription(): string {
     let description = `'${this.params.pattern}'`;
     if (this.params.dir_path) {
-      const searchDir = path.resolve(
-        this.config.getTargetDir(),
-        this.params.dir_path || '.',
-      );
+      const searchDir = path.resolve(this.config.getTargetDir(), this.params.dir_path || '.');
       const relativePath = makeRelative(searchDir, this.config.getTargetDir());
       description += ` within ${shortenPath(relativePath)}`;
     }
@@ -121,14 +111,8 @@ class GlobToolInvocation extends BaseToolInvocation<
       // If a specific path is provided, resolve it and check if it's within workspace
       let searchDirectories: readonly string[];
       if (this.params.dir_path) {
-        const searchDirAbsolute = path.resolve(
-          this.config.getTargetDir(),
-          this.params.dir_path,
-        );
-        const validationError = this.config.validatePathAccess(
-          searchDirAbsolute,
-          'read',
-        );
+        const searchDirAbsolute = path.resolve(this.config.getTargetDir(), this.params.dir_path);
+        const validationError = this.config.validatePathAccess(searchDirAbsolute, 'read');
         if (validationError) {
           return {
             llmContent: validationError,
@@ -172,29 +156,22 @@ class GlobToolInvocation extends BaseToolInvocation<
         allEntries.push(...entries);
       }
 
-      const relativePaths = allEntries.map((p) =>
-        path.relative(this.config.getTargetDir(), p.fullpath()),
-      );
+      const relativePaths = allEntries.map((p) => path.relative(this.config.getTargetDir(), p.fullpath()));
 
-      const { filteredPaths, ignoredCount } =
-        fileDiscovery.filterFilesWithReport(relativePaths, {
-          respectGitIgnore:
-            this.params?.respect_git_ignore ??
-            this.config.getFileFilteringOptions().respectGitIgnore ??
-            DEFAULT_FILE_FILTERING_OPTIONS.respectGitIgnore,
-          respectGeminiIgnore:
-            this.params?.respect_gemini_ignore ??
-            this.config.getFileFilteringOptions().respectGeminiIgnore ??
-            DEFAULT_FILE_FILTERING_OPTIONS.respectGeminiIgnore,
-        });
+      const { filteredPaths, ignoredCount } = fileDiscovery.filterFilesWithReport(relativePaths, {
+        respectGitIgnore:
+          this.params?.respect_git_ignore ??
+          this.config.getFileFilteringOptions().respectGitIgnore ??
+          DEFAULT_FILE_FILTERING_OPTIONS.respectGitIgnore,
+        respectGeminiIgnore:
+          this.params?.respect_gemini_ignore ??
+          this.config.getFileFilteringOptions().respectGeminiIgnore ??
+          DEFAULT_FILE_FILTERING_OPTIONS.respectGeminiIgnore,
+      });
 
-      const filteredAbsolutePaths = new Set(
-        filteredPaths.map((p) => path.resolve(this.config.getTargetDir(), p)),
-      );
+      const filteredAbsolutePaths = new Set(filteredPaths.map((p) => path.resolve(this.config.getTargetDir(), p)));
 
-      const filteredEntries = allEntries.filter((entry) =>
-        filteredAbsolutePaths.has(entry.fullpath()),
-      );
+      const filteredEntries = allEntries.filter((entry) => filteredAbsolutePaths.has(entry.fullpath()));
 
       if (!filteredEntries || filteredEntries.length === 0) {
         let message = `No files found matching pattern "${this.params.pattern}"`;
@@ -217,15 +194,9 @@ class GlobToolInvocation extends BaseToolInvocation<
       const nowTimestamp = new Date().getTime();
 
       // Sort the filtered entries using the new helper function
-      const sortedEntries = sortFileEntries(
-        filteredEntries,
-        nowTimestamp,
-        oneDayInMs,
-      );
+      const sortedEntries = sortFileEntries(filteredEntries, nowTimestamp, oneDayInMs);
 
-      const sortedAbsolutePaths = sortedEntries.map((entry) =>
-        entry.fullpath(),
-      );
+      const sortedAbsolutePaths = sortedEntries.map((entry) => entry.fullpath());
       const fileListDescription = sortedAbsolutePaths.join('\n');
       const fileCount = sortedAbsolutePaths.length;
 
@@ -267,7 +238,7 @@ export class GlobTool extends BaseDeclarativeTool<GlobToolParams, ToolResult> {
   static readonly Name = GLOB_TOOL_NAME;
   constructor(
     private config: Config,
-    messageBus: MessageBus,
+    messageBus: MessageBus
   ) {
     super(
       GlobTool.Name,
@@ -277,25 +248,17 @@ export class GlobTool extends BaseDeclarativeTool<GlobToolParams, ToolResult> {
       GLOB_DEFINITION.base.parametersJsonSchema,
       messageBus,
       true,
-      false,
+      false
     );
   }
 
   /**
    * Validates the parameters for the tool.
    */
-  protected override validateToolParamValues(
-    params: GlobToolParams,
-  ): string | null {
-    const searchDirAbsolute = path.resolve(
-      this.config.getTargetDir(),
-      params.dir_path || '.',
-    );
+  protected override validateToolParamValues(params: GlobToolParams): string | null {
+    const searchDirAbsolute = path.resolve(this.config.getTargetDir(), params.dir_path || '.');
 
-    const validationError = this.config.validatePathAccess(
-      searchDirAbsolute,
-      'read',
-    );
+    const validationError = this.config.validatePathAccess(searchDirAbsolute, 'read');
     if (validationError) {
       return validationError;
     }
@@ -312,11 +275,7 @@ export class GlobTool extends BaseDeclarativeTool<GlobToolParams, ToolResult> {
       return `Error accessing search path: ${e}`;
     }
 
-    if (
-      !params.pattern ||
-      typeof params.pattern !== 'string' ||
-      params.pattern.trim() === ''
-    ) {
+    if (!params.pattern || typeof params.pattern !== 'string' || params.pattern.trim() === '') {
       return "The 'pattern' parameter cannot be empty.";
     }
 
@@ -327,15 +286,9 @@ export class GlobTool extends BaseDeclarativeTool<GlobToolParams, ToolResult> {
     params: GlobToolParams,
     messageBus: MessageBus,
     _toolName?: string,
-    _toolDisplayName?: string,
+    _toolDisplayName?: string
   ): ToolInvocation<GlobToolParams, ToolResult> {
-    return new GlobToolInvocation(
-      this.config,
-      params,
-      messageBus,
-      _toolName,
-      _toolDisplayName,
-    );
+    return new GlobToolInvocation(this.config, params, messageBus, _toolName, _toolDisplayName);
   }
 
   override getSchema(modelId?: string) {

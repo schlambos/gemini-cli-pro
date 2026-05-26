@@ -17,19 +17,11 @@ import {
   type ToolConfirmationPayload,
   type ToolCallConfirmationDetails,
 } from '../tools/tools.js';
-import {
-  type ValidatingToolCall,
-  type WaitingToolCall,
-  CoreToolCallStatus,
-} from './types.js';
+import { type ValidatingToolCall, type WaitingToolCall, CoreToolCallStatus } from './types.js';
 import type { Config } from '../config/config.js';
 import type { SchedulerStateManager } from './state-manager.js';
 import type { ToolModificationHandler } from './tool-modifier.js';
-import {
-  resolveEditorAsync,
-  type EditorType,
-  NO_EDITOR_AVAILABLE_ERROR,
-} from '../utils/editor.js';
+import { resolveEditorAsync, type EditorType, NO_EDITOR_AVAILABLE_ERROR } from '../utils/editor.js';
 import type { DiffUpdateResult } from '../ide/ide-client.js';
 import { debugLogger } from '../utils/debugLogger.js';
 import { coreEvents } from '../utils/events.js';
@@ -62,18 +54,14 @@ export interface ResolutionResult {
 export async function awaitConfirmation(
   messageBus: MessageBus,
   correlationId: string,
-  signal: AbortSignal,
+  signal: AbortSignal
 ): Promise<ConfirmationResult> {
   if (signal.aborted) {
     throw new Error('Operation cancelled');
   }
 
   try {
-    for await (const [msg] of on(
-      messageBus,
-      MessageBusType.TOOL_CONFIRMATION_RESPONSE,
-      { signal },
-    )) {
+    for await (const [msg] of on(messageBus, MessageBusType.TOOL_CONFIRMATION_RESPONSE, { signal })) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
       const response = msg as ToolConfirmationResponse;
       if (response.correlationId === correlationId) {
@@ -81,9 +69,7 @@ export async function awaitConfirmation(
           outcome:
             response.outcome ??
             // TODO: Remove legacy confirmed boolean fallback once migration complete
-            (response.confirmed
-              ? ToolConfirmationOutcome.ProceedOnce
-              : ToolConfirmationOutcome.Cancel),
+            (response.confirmed ? ToolConfirmationOutcome.ProceedOnce : ToolConfirmationOutcome.Cancel),
           payload: response.payload,
         };
       }
@@ -116,7 +102,7 @@ export async function resolveConfirmation(
     getPreferredEditor: () => EditorType | undefined;
     schedulerId: string;
     onWaitingForConfirmation?: (waiting: boolean) => void;
-  },
+  }
 ): Promise<ResolutionResult> {
   const { state, onWaitingForConfirmation } = deps;
   const callId = toolCall.request.callId;
@@ -146,8 +132,7 @@ export async function resolveConfirmation(
     const serializableDetails = details as SerializableConfirmationDetails;
     lastDetails = serializableDetails;
 
-    const ideConfirmation =
-      'ideConfirmation' in details ? details.ideConfirmation : undefined;
+    const ideConfirmation = 'ideConfirmation' in details ? details.ideConfirmation : undefined;
 
     state.updateStatus(callId, CoreToolCallStatus.AwaitingApproval, {
       confirmationDetails: serializableDetails,
@@ -155,12 +140,7 @@ export async function resolveConfirmation(
     });
 
     onWaitingForConfirmation?.(true);
-    const response = await waitForConfirmation(
-      deps.messageBus,
-      correlationId,
-      signal,
-      ideConfirmation,
-    );
+    const response = await waitForConfirmation(deps.messageBus, correlationId, signal, ideConfirmation);
     onWaitingForConfirmation?.(false);
     outcome = response.outcome;
 
@@ -169,11 +149,7 @@ export async function resolveConfirmation(
     }
 
     if (outcome === ToolConfirmationOutcome.ModifyWithEditor) {
-      const modResult = await handleExternalModification(
-        deps,
-        toolCall,
-        signal,
-      );
+      const modResult = await handleExternalModification(deps, toolCall, signal);
       // Editor is not available - emit error feedback and stay in the loop
       // to return to previous confirmation screen.
       if (modResult.error) {
@@ -193,7 +169,7 @@ export async function resolveConfirmation(
  */
 async function notifyHooks(
   deps: { config: Config; messageBus: MessageBus },
-  details: ToolCallConfirmationDetails,
+  details: ToolCallConfirmationDetails
 ): Promise<void> {
   if (deps.config.getHookSystem()) {
     await deps.config.getHookSystem()?.fireToolNotificationEvent({
@@ -225,7 +201,7 @@ async function handleExternalModification(
     getPreferredEditor: () => EditorType | undefined;
   },
   toolCall: ValidatingToolCall,
-  signal: AbortSignal,
+  signal: AbortSignal
 ): Promise<ExternalModificationResult> {
   const { state, modifier, getPreferredEditor } = deps;
 
@@ -241,15 +217,11 @@ async function handleExternalModification(
     // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
     state.firstActiveCall as WaitingToolCall,
     editor,
-    signal,
+    signal
   );
   if (result) {
     const newInvocation = toolCall.tool.build(result.updatedParams);
-    state.updateArgs(
-      toolCall.request.callId,
-      result.updatedParams,
-      newInvocation,
-    );
+    state.updateArgs(toolCall.request.callId, result.updatedParams, newInvocation);
   }
   return {};
 }
@@ -261,22 +233,18 @@ async function handleInlineModification(
   deps: { state: SchedulerStateManager; modifier: ToolModificationHandler },
   toolCall: ValidatingToolCall,
   payload: ToolConfirmationPayload,
-  signal: AbortSignal,
+  signal: AbortSignal
 ): Promise<void> {
   const { state, modifier } = deps;
   const result = await modifier.applyInlineModify(
     // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
     state.firstActiveCall as WaitingToolCall,
     payload,
-    signal,
+    signal
   );
   if (result) {
     const newInvocation = toolCall.tool.build(result.updatedParams);
-    state.updateArgs(
-      toolCall.request.callId,
-      result.updatedParams,
-      newInvocation,
-    );
+    state.updateArgs(toolCall.request.callId, result.updatedParams, newInvocation);
   }
 }
 
@@ -288,7 +256,7 @@ async function waitForConfirmation(
   messageBus: MessageBus,
   correlationId: string,
   signal: AbortSignal,
-  ideConfirmation?: Promise<DiffUpdateResult>,
+  ideConfirmation?: Promise<DiffUpdateResult>
 ): Promise<ConfirmationResult> {
   // Create a controller to abort the bus listener if the IDE wins (or vice versa)
   const raceController = new AbortController();
@@ -315,13 +283,9 @@ async function waitForConfirmation(
         (resolution) =>
           ({
             outcome:
-              resolution.status === 'accepted'
-                ? ToolConfirmationOutcome.ProceedOnce
-                : ToolConfirmationOutcome.Cancel,
-            payload: resolution.content
-              ? { newContent: resolution.content }
-              : undefined,
-          }) as ConfirmationResult,
+              resolution.status === 'accepted' ? ToolConfirmationOutcome.ProceedOnce : ToolConfirmationOutcome.Cancel,
+            payload: resolution.content ? { newContent: resolution.content } : undefined,
+          }) as ConfirmationResult
       )
       .catch((error) => {
         debugLogger.warn('Error waiting for confirmation via IDE', error);

@@ -68,7 +68,7 @@ export type ExtensionUpdateAction =
 
 export function extensionUpdatesReducer(
   state: ExtensionUpdatesState,
-  action: ExtensionUpdateAction,
+  action: ExtensionUpdateAction
 ): ExtensionUpdatesState {
   switch (action.type) {
     case 'SET_STATE': {
@@ -111,14 +111,8 @@ export function extensionUpdatesReducer(
         // If there is a pre-existing scheduled update, we merge them.
         scheduledUpdate: {
           all: state.scheduledUpdate?.all || action.payload.all,
-          names: [
-            ...(state.scheduledUpdate?.names ?? []),
-            ...(action.payload.names ?? []),
-          ],
-          onCompleteCallbacks: [
-            ...(state.scheduledUpdate?.onCompleteCallbacks ?? []),
-            action.payload.onComplete,
-          ],
+          names: [...(state.scheduledUpdate?.names ?? []), ...(action.payload.names ?? [])],
+          onCompleteCallbacks: [...(state.scheduledUpdate?.onCompleteCallbacks ?? []), action.payload.onComplete],
         },
       };
     case 'CLEAR_SCHEDULED_UPDATE':

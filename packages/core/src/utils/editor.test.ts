@@ -4,15 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  vi,
-  describe,
-  it,
-  expect,
-  beforeEach,
-  afterEach,
-  type Mock,
-} from 'vitest';
+import { vi, describe, it, expect, beforeEach, afterEach, type Mock } from 'vitest';
 import {
   hasValidEditorCommand,
   hasValidEditorCommandAsync,
@@ -91,9 +83,7 @@ describe('editor utils', () => {
         // Non-windows tests
         it(`should return true if first command "${commands[0]}" exists on non-windows`, () => {
           Object.defineProperty(process, 'platform', { value: 'linux' });
-          (execSync as Mock).mockReturnValue(
-            Buffer.from(`/usr/bin/${commands[0]}`),
-          );
+          (execSync as Mock).mockReturnValue(Buffer.from(`/usr/bin/${commands[0]}`));
           expect(hasValidEditorCommand(editor)).toBe(true);
           expect(execSync).toHaveBeenCalledWith(`command -v ${commands[0]}`, {
             stdio: 'ignore',
@@ -125,16 +115,11 @@ describe('editor utils', () => {
         // Windows tests
         it(`should return true if first command "${win32Commands[0]}" exists on windows`, () => {
           Object.defineProperty(process, 'platform', { value: 'win32' });
-          (execSync as Mock).mockReturnValue(
-            Buffer.from(`C:\\Program Files\\...\\${win32Commands[0]}`),
-          );
+          (execSync as Mock).mockReturnValue(Buffer.from(`C:\\Program Files\\...\\${win32Commands[0]}`));
           expect(hasValidEditorCommand(editor)).toBe(true);
-          expect(execSync).toHaveBeenCalledWith(
-            `where.exe ${win32Commands[0]}`,
-            {
-              stdio: 'ignore',
-            },
-          );
+          expect(execSync).toHaveBeenCalledWith(`where.exe ${win32Commands[0]}`, {
+            stdio: 'ignore',
+          });
         });
 
         if (win32Commands.length > 1) {
@@ -144,9 +129,7 @@ describe('editor utils', () => {
               .mockImplementationOnce(() => {
                 throw new Error(); // first command not found
               })
-              .mockReturnValueOnce(
-                Buffer.from(`C:\\Program Files\\...\\${win32Commands[1]}`),
-              ); // second command found
+              .mockReturnValueOnce(Buffer.from(`C:\\Program Files\\...\\${win32Commands[1]}`)); // second command found
             expect(hasValidEditorCommand(editor)).toBe(true);
             expect(execSync).toHaveBeenCalledTimes(2);
           });
@@ -194,9 +177,7 @@ describe('editor utils', () => {
       // Non-windows tests
       it(`should use first command "${commands[0]}" when it exists on non-windows`, () => {
         Object.defineProperty(process, 'platform', { value: 'linux' });
-        (execSync as Mock).mockReturnValue(
-          Buffer.from(`/usr/bin/${commands[0]}`),
-        );
+        (execSync as Mock).mockReturnValue(Buffer.from(`/usr/bin/${commands[0]}`));
         const diffCommand = getDiffCommand('old.txt', 'new.txt', editor);
         expect(diffCommand).toEqual({
           command: commands[0],
@@ -237,9 +218,7 @@ describe('editor utils', () => {
       // Windows tests
       it(`should use first command "${win32Commands[0]}" when it exists on windows`, () => {
         Object.defineProperty(process, 'platform', { value: 'win32' });
-        (execSync as Mock).mockReturnValue(
-          Buffer.from(`C:\\Program Files\\...\\${win32Commands[0]}`),
-        );
+        (execSync as Mock).mockReturnValue(Buffer.from(`C:\\Program Files\\...\\${win32Commands[0]}`));
         const diffCommand = getDiffCommand('old.txt', 'new.txt', editor);
         expect(diffCommand).toEqual({
           command: win32Commands[0],
@@ -254,9 +233,7 @@ describe('editor utils', () => {
             .mockImplementationOnce(() => {
               throw new Error(); // first command not found
             })
-            .mockReturnValueOnce(
-              Buffer.from(`C:\\Program Files\\...\\${win32Commands[1]}`),
-            ); // second command found
+            .mockReturnValueOnce(Buffer.from(`C:\\Program Files\\...\\${win32Commands[1]}`)); // second command found
 
           const diffCommand = getDiffCommand('old.txt', 'new.txt', editor);
           expect(diffCommand).toEqual({
@@ -317,17 +294,10 @@ describe('editor utils', () => {
     }
 
     it('should return the correct command for emacs with escaped paths', () => {
-      const command = getDiffCommand(
-        'old file "quote".txt',
-        'new file \\back\\slash.txt',
-        'emacs',
-      );
+      const command = getDiffCommand('old file "quote".txt', 'new file \\back\\slash.txt', 'emacs');
       expect(command).toEqual({
         command: 'emacs',
-        args: [
-          '--eval',
-          '(ediff "old file \\"quote\\".txt" "new file \\\\back\\\\slash.txt")',
-        ],
+        args: ['--eval', '(ediff "old file \\"quote\\".txt" "new file \\\\back\\\\slash.txt")'],
       });
     });
 
@@ -347,13 +317,7 @@ describe('editor utils', () => {
   });
 
   describe('openDiff', () => {
-    const guiEditors: EditorType[] = [
-      'vscode',
-      'vscodium',
-      'windsurf',
-      'cursor',
-      'zed',
-    ];
+    const guiEditors: EditorType[] = ['vscode', 'vscodium', 'windsurf', 'cursor', 'zed'];
 
     for (const editor of guiEditors) {
       it(`should call spawn for ${editor}`, async () => {
@@ -366,14 +330,10 @@ describe('editor utils', () => {
 
         await openDiff('old.txt', 'new.txt', editor);
         const diffCommand = getDiffCommand('old.txt', 'new.txt', editor)!;
-        expect(spawn).toHaveBeenCalledWith(
-          diffCommand.command,
-          diffCommand.args,
-          {
-            stdio: 'inherit',
-            shell: process.platform === 'win32',
-          },
-        );
+        expect(spawn).toHaveBeenCalledWith(diffCommand.command, diffCommand.args, {
+          stdio: 'inherit',
+          shell: process.platform === 'win32',
+        });
         expect(mockSpawnOn).toHaveBeenCalledWith('close', expect.any(Function));
         expect(mockSpawnOn).toHaveBeenCalledWith('error', expect.any(Function));
       });
@@ -387,9 +347,7 @@ describe('editor utils', () => {
         });
         (spawn as Mock).mockReturnValue({ on: mockSpawnOn });
 
-        await expect(openDiff('old.txt', 'new.txt', editor)).rejects.toThrow(
-          'spawn error',
-        );
+        await expect(openDiff('old.txt', 'new.txt', editor)).rejects.toThrow('spawn error');
       });
 
       it(`should reject if ${editor} exits with non-zero code`, async () => {
@@ -400,9 +358,7 @@ describe('editor utils', () => {
         });
         (spawn as Mock).mockReturnValue({ on: mockSpawnOn });
 
-        await expect(openDiff('old.txt', 'new.txt', editor)).rejects.toThrow(
-          `${editor} exited with code 1`,
-        );
+        await expect(openDiff('old.txt', 'new.txt', editor)).rejects.toThrow(`${editor} exited with code 1`);
       });
     }
 
@@ -412,25 +368,17 @@ describe('editor utils', () => {
       it(`should call spawnSync for ${editor}`, async () => {
         await openDiff('old.txt', 'new.txt', editor);
         const diffCommand = getDiffCommand('old.txt', 'new.txt', editor)!;
-        expect(spawnSync).toHaveBeenCalledWith(
-          diffCommand.command,
-          diffCommand.args,
-          {
-            stdio: 'inherit',
-          },
-        );
+        expect(spawnSync).toHaveBeenCalledWith(diffCommand.command, diffCommand.args, {
+          stdio: 'inherit',
+        });
       });
     }
 
     it('should log an error if diff command is not available', async () => {
-      const consoleErrorSpy = vi
-        .spyOn(debugLogger, 'error')
-        .mockImplementation(() => {});
+      const consoleErrorSpy = vi.spyOn(debugLogger, 'error').mockImplementation(() => {});
       // @ts-expect-error Testing unsupported editor
       await openDiff('old.txt', 'new.txt', 'foobar');
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'No diff tool available. Install a supported editor.',
-      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith('No diff tool available. Install a supported editor.');
     });
   });
 
@@ -471,13 +419,7 @@ describe('editor utils', () => {
       expect(allowEditorTypeInSandbox('hx')).toBe(true);
     });
 
-    const guiEditors: EditorType[] = [
-      'vscode',
-      'vscodium',
-      'windsurf',
-      'cursor',
-      'zed',
-    ];
+    const guiEditors: EditorType[] = ['vscode', 'vscodium', 'windsurf', 'cursor', 'zed'];
     for (const editor of guiEditors) {
       it(`should not allow ${editor} in sandbox mode`, () => {
         vi.stubEnv('SANDBOX', 'sandbox');
@@ -551,16 +493,13 @@ describe('editor utils', () => {
   // Helper to create a mock exec that simulates async behavior
   const mockExecAsync = (implementation: (cmd: string) => boolean): void => {
     (exec as unknown as Mock).mockImplementation(
-      (
-        cmd: string,
-        callback: (error: Error | null, stdout: string, stderr: string) => void,
-      ) => {
+      (cmd: string, callback: (error: Error | null, stdout: string, stderr: string) => void) => {
         if (implementation(cmd)) {
           callback(null, '/usr/bin/cmd', '');
         } else {
           callback(new Error('Command not found'), '', '');
         }
-      },
+      }
     );
   };
 
@@ -633,10 +572,7 @@ describe('editor utils', () => {
       mockExecAsync(() => false);
       vi.stubEnv('SANDBOX', '');
       const resolvePromise = resolveEditorAsync('vim');
-      setTimeout(
-        () => coreEvents.emit(CoreEvent.EditorSelected, { editor: 'neovim' }),
-        0,
-      );
+      setTimeout(() => coreEvents.emit(CoreEvent.EditorSelected, { editor: 'neovim' }), 0);
       const result = await resolvePromise;
       expect(result).toBe('neovim');
     });
@@ -645,10 +581,7 @@ describe('editor utils', () => {
       mockExecAsync((cmd) => cmd.includes('code'));
       vi.stubEnv('SANDBOX', 'sandbox');
       const resolvePromise = resolveEditorAsync('vscode');
-      setTimeout(
-        () => coreEvents.emit(CoreEvent.EditorSelected, { editor: 'vim' }),
-        0,
-      );
+      setTimeout(() => coreEvents.emit(CoreEvent.EditorSelected, { editor: 'vim' }), 0);
       const result = await resolvePromise;
       expect(result).toBe('vim');
     });
@@ -660,10 +593,7 @@ describe('editor utils', () => {
       const resolvePromise = resolveEditorAsync(undefined);
 
       // Simulate UI selection
-      setTimeout(
-        () => coreEvents.emit(CoreEvent.EditorSelected, { editor: 'vim' }),
-        0,
-      );
+      setTimeout(() => coreEvents.emit(CoreEvent.EditorSelected, { editor: 'vim' }), 0);
 
       const result = await resolvePromise;
       expect(result).toBe('vim');
@@ -674,10 +604,7 @@ describe('editor utils', () => {
       const resolvePromise = resolveEditorAsync(undefined);
 
       // Simulate UI cancellation (exit dialog)
-      setTimeout(
-        () => coreEvents.emit(CoreEvent.EditorSelected, { editor: undefined }),
-        0,
-      );
+      setTimeout(() => coreEvents.emit(CoreEvent.EditorSelected, { editor: undefined }), 0);
 
       const result = await resolvePromise;
       expect(result).toBeUndefined();
@@ -700,10 +627,7 @@ describe('editor utils', () => {
       const resolvePromise = resolveEditorAsync(undefined);
 
       // Simulate UI selection
-      setTimeout(
-        () => coreEvents.emit(CoreEvent.EditorSelected, { editor: 'vim' }),
-        0,
-      );
+      setTimeout(() => coreEvents.emit(CoreEvent.EditorSelected, { editor: 'vim' }), 0);
 
       const result = await resolvePromise;
       expect(result).toBe('vim');

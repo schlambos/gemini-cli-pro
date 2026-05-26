@@ -46,9 +46,7 @@ describe('<ExtensionsList />', () => {
     vi.resetAllMocks();
   });
 
-  const mockUIState = (
-    extensionsUpdateState: Map<string, ExtensionUpdateState>,
-  ) => {
+  const mockUIState = (extensionsUpdateState: Map<string, ExtensionUpdateState>) => {
     mockUseUIState.mockReturnValue({
       extensionsUpdateState,
       // Add other required properties from UIState if needed by the component
@@ -64,9 +62,7 @@ describe('<ExtensionsList />', () => {
 
   it('should render a list of extensions with their version and status', () => {
     mockUIState(new Map());
-    const { lastFrame, unmount } = render(
-      <ExtensionsList extensions={mockExtensions} />,
-    );
+    const { lastFrame, unmount } = render(<ExtensionsList extensions={mockExtensions} />);
     const output = lastFrame();
     expect(output).toContain('ext-one (v1.0.0) - active');
     expect(output).toContain('ext-two (v2.1.0) - active');
@@ -76,9 +72,7 @@ describe('<ExtensionsList />', () => {
 
   it('should display "unknown state" if an extension has no update state', () => {
     mockUIState(new Map());
-    const { lastFrame, unmount } = render(
-      <ExtensionsList extensions={[mockExtensions[0]]} />,
-    );
+    const { lastFrame, unmount } = render(<ExtensionsList extensions={[mockExtensions[0]]} />);
     expect(lastFrame()).toContain('(unknown state)');
     unmount();
   });
@@ -118,9 +112,7 @@ describe('<ExtensionsList />', () => {
     it(`should correctly display the state: ${state}`, () => {
       const updateState = new Map([[mockExtensions[0].name, state]]);
       mockUIState(updateState);
-      const { lastFrame, unmount } = render(
-        <ExtensionsList extensions={[mockExtensions[0]]} />,
-      );
+      const { lastFrame, unmount } = render(<ExtensionsList extensions={[mockExtensions[0]]} />);
       expect(lastFrame()).toContain(expectedText);
       unmount();
     });
@@ -155,9 +147,7 @@ describe('<ExtensionsList />', () => {
         },
       ],
     };
-    const { lastFrame, unmount } = render(
-      <ExtensionsList extensions={[extensionWithSettings]} />,
-    );
+    const { lastFrame, unmount } = render(<ExtensionsList extensions={[extensionWithSettings]} />);
     const output = lastFrame();
     expect(output).toContain('settings:');
     expect(output).toContain('- sensitiveApiKey: ***');

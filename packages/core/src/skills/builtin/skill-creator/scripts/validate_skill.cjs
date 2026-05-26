@@ -36,12 +36,9 @@ function validateSkill(skillPath) {
 
   const nameMatch = frontmatterText.match(/^name:\s*(.+)$/m);
   // Match description: "text" or description: 'text' or description: text
-  const descMatch = frontmatterText.match(
-    /^description:\s*(?:'([^']*)'|"([^"]*)"|(.+))$/m,
-  );
+  const descMatch = frontmatterText.match(/^description:\s*(?:'([^']*)'|"([^"]*)"|(.+))$/m);
 
-  if (!nameMatch)
-    return { valid: false, message: 'Missing "name" in frontmatter' };
+  if (!nameMatch) return { valid: false, message: 'Missing "name" in frontmatter' };
   if (!descMatch)
     return {
       valid: false,
@@ -50,11 +47,7 @@ function validateSkill(skillPath) {
 
   const name = nameMatch[1].trim();
   const description = (
-    descMatch[1] !== undefined
-      ? descMatch[1]
-      : descMatch[2] !== undefined
-        ? descMatch[2]
-        : descMatch[3] || ''
+    descMatch[1] !== undefined ? descMatch[1] : descMatch[2] !== undefined ? descMatch[2] : descMatch[3] || ''
   ).trim();
 
   if (description.includes('\n')) {

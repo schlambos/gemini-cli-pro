@@ -7,11 +7,7 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { format } from 'node:util';
 import { handleEnable, enableCommand } from './enable.js';
-import {
-  loadSettings,
-  SettingScope,
-  type LoadedSettings,
-} from '../../config/settings.js';
+import { loadSettings, SettingScope, type LoadedSettings } from '../../config/settings.js';
 
 const emitConsoleLog = vi.hoisted(() => vi.fn());
 const debugLogger = vi.hoisted(() => ({
@@ -21,8 +17,7 @@ const debugLogger = vi.hoisted(() => ({
 }));
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     debugLogger,
@@ -30,8 +25,7 @@ vi.mock('@google/gemini-cli-core', async (importOriginal) => {
 });
 
 vi.mock('../../config/settings.js', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('../../config/settings.js')>();
+  const actual = await importOriginal<typeof import('../../config/settings.js')>();
   return {
     ...actual,
     loadSettings: vi.fn(),
@@ -68,20 +62,14 @@ describe('skills enable command', () => {
         }),
         setValue: vi.fn(),
       };
-      mockLoadSettings.mockReturnValue(
-        mockSettings as unknown as LoadedSettings,
-      );
+      mockLoadSettings.mockReturnValue(mockSettings as unknown as LoadedSettings);
 
       await handleEnable({ name: 'skill1' });
 
-      expect(mockSettings.setValue).toHaveBeenCalledWith(
-        SettingScope.User,
-        'skills.disabled',
-        [],
-      );
+      expect(mockSettings.setValue).toHaveBeenCalledWith(SettingScope.User, 'skills.disabled', []);
       expect(emitConsoleLog).toHaveBeenCalledWith(
         'log',
-        'Skill "skill1" enabled by removing it from the disabled list in user (/user/settings.json) and workspace (/workspace/settings.json) settings.',
+        'Skill "skill1" enabled by removing it from the disabled list in user (/user/settings.json) and workspace (/workspace/settings.json) settings.'
       );
     });
 
@@ -104,25 +92,15 @@ describe('skills enable command', () => {
         }),
         setValue: vi.fn(),
       };
-      mockLoadSettings.mockReturnValue(
-        mockSettings as unknown as LoadedSettings,
-      );
+      mockLoadSettings.mockReturnValue(mockSettings as unknown as LoadedSettings);
 
       await handleEnable({ name: 'skill1' });
 
-      expect(mockSettings.setValue).toHaveBeenCalledWith(
-        SettingScope.User,
-        'skills.disabled',
-        [],
-      );
-      expect(mockSettings.setValue).toHaveBeenCalledWith(
-        SettingScope.Workspace,
-        'skills.disabled',
-        [],
-      );
+      expect(mockSettings.setValue).toHaveBeenCalledWith(SettingScope.User, 'skills.disabled', []);
+      expect(mockSettings.setValue).toHaveBeenCalledWith(SettingScope.Workspace, 'skills.disabled', []);
       expect(emitConsoleLog).toHaveBeenCalledWith(
         'log',
-        'Skill "skill1" enabled by removing it from the disabled list in workspace (/workspace/settings.json) and user (/user/settings.json) settings.',
+        'Skill "skill1" enabled by removing it from the disabled list in workspace (/workspace/settings.json) and user (/user/settings.json) settings.'
       );
     });
 
@@ -134,17 +112,12 @@ describe('skills enable command', () => {
         }),
         setValue: vi.fn(),
       };
-      mockLoadSettings.mockReturnValue(
-        mockSettings as unknown as LoadedSettings,
-      );
+      mockLoadSettings.mockReturnValue(mockSettings as unknown as LoadedSettings);
 
       await handleEnable({ name: 'skill1' });
 
       expect(mockSettings.setValue).not.toHaveBeenCalled();
-      expect(emitConsoleLog).toHaveBeenCalledWith(
-        'log',
-        'Skill "skill1" is already enabled.',
-      );
+      expect(emitConsoleLog).toHaveBeenCalledWith('log', 'Skill "skill1" is already enabled.');
     });
   });
 

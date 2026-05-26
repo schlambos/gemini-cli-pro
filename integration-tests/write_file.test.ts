@@ -43,8 +43,8 @@ describe('write_file', () => {
       createToolCallErrorMessage(
         'write_file',
         allTools.map((t) => t.toolRequest.name),
-        result,
-      ),
+        result
+      )
     ).toBeTruthy();
 
     assertModelHasOutput(result);
@@ -65,7 +65,7 @@ describe('write_file', () => {
         rig.readToolLogs().map((t) => ({
           name: t.toolRequest.name,
           args: t.toolRequest.args,
-        })),
+        }))
       );
     }
 
@@ -74,10 +74,7 @@ describe('write_file', () => {
     // Log success info if verbose
     vi.stubEnv('VERBOSE', 'true');
     if (process.env['VERBOSE'] === 'true') {
-      console.log(
-        'File created successfully with content:',
-        newFileContent.substring(0, 100) + '...',
-      );
+      console.log('File created successfully with content:', newFileContent.substring(0, 100) + '...');
     }
   });
 });

@@ -10,7 +10,7 @@ import { describe, it, expect } from 'vitest';
 
 describe('WarningMessage', () => {
   it('renders with the correct prefix and text', () => {
-    const { lastFrame } = render(<WarningMessage text="Watch out!" />);
+    const { lastFrame } = render(<WarningMessage text='Watch out!' />);
     const output = lastFrame();
 
     expect(output).toMatchSnapshot();

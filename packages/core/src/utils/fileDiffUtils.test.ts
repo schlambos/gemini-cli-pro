@@ -5,10 +5,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import {
-  getFileDiffFromResultDisplay,
-  computeModelAddedAndRemovedLines,
-} from './fileDiffUtils.js';
+import { getFileDiffFromResultDisplay, computeModelAddedAndRemovedLines } from './fileDiffUtils.js';
 import type { FileDiff, ToolResultDisplay } from '../tools/tools.js';
 
 describe('fileDiffUtils', () => {
@@ -18,18 +15,14 @@ describe('fileDiffUtils', () => {
     });
 
     it('returns undefined if resultDisplay is not an object', () => {
-      expect(
-        getFileDiffFromResultDisplay('string' as ToolResultDisplay),
-      ).toBeUndefined();
+      expect(getFileDiffFromResultDisplay('string' as ToolResultDisplay)).toBeUndefined();
     });
 
     it('returns undefined if resultDisplay missing diffStat', () => {
       const resultDisplay = {
         fileName: 'file.txt',
       };
-      expect(
-        getFileDiffFromResultDisplay(resultDisplay as ToolResultDisplay),
-      ).toBeUndefined();
+      expect(getFileDiffFromResultDisplay(resultDisplay as ToolResultDisplay)).toBeUndefined();
     });
 
     it('returns the FileDiff object if structure is valid', () => {
@@ -48,9 +41,7 @@ describe('fileDiffUtils', () => {
         diffStat: validDiffStat,
       };
 
-      const result = getFileDiffFromResultDisplay(
-        resultDisplay as ToolResultDisplay,
-      );
+      const result = getFileDiffFromResultDisplay(resultDisplay as ToolResultDisplay);
       expect(result).toBe(resultDisplay);
     });
   });

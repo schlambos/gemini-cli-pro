@@ -42,9 +42,7 @@ describe('ToastDisplay', () => {
     });
 
     it('returns true when ctrlCPressedOnce is true', () => {
-      expect(
-        shouldShowToast({ ...baseState, ctrlCPressedOnce: true } as UIState),
-      ).toBe(true);
+      expect(shouldShowToast({ ...baseState, ctrlCPressedOnce: true } as UIState)).toBe(true);
     });
 
     it('returns true when transientMessage is present', () => {
@@ -52,14 +50,12 @@ describe('ToastDisplay', () => {
         shouldShowToast({
           ...baseState,
           transientMessage: { text: 'test', type: TransientMessageType.Hint },
-        } as UIState),
+        } as UIState)
       ).toBe(true);
     });
 
     it('returns true when ctrlDPressedOnce is true', () => {
-      expect(
-        shouldShowToast({ ...baseState, ctrlDPressedOnce: true } as UIState),
-      ).toBe(true);
+      expect(shouldShowToast({ ...baseState, ctrlDPressedOnce: true } as UIState)).toBe(true);
     });
 
     it('returns true when showEscapePrompt is true and buffer is NOT empty', () => {
@@ -68,7 +64,7 @@ describe('ToastDisplay', () => {
           ...baseState,
           showEscapePrompt: true,
           buffer: { text: 'some text' } as TextBuffer,
-        } as UIState),
+        } as UIState)
       ).toBe(true);
     });
 
@@ -78,7 +74,7 @@ describe('ToastDisplay', () => {
           ...baseState,
           showEscapePrompt: true,
           history: [{ id: '1' } as unknown as HistoryItem],
-        } as UIState),
+        } as UIState)
       ).toBe(true);
     });
 
@@ -87,7 +83,7 @@ describe('ToastDisplay', () => {
         shouldShowToast({
           ...baseState,
           showEscapePrompt: true,
-        } as UIState),
+        } as UIState)
       ).toBe(false);
     });
 
@@ -96,7 +92,7 @@ describe('ToastDisplay', () => {
         shouldShowToast({
           ...baseState,
           queueErrorMessage: 'error',
-        } as UIState),
+        } as UIState)
       ).toBe(true);
     });
   });

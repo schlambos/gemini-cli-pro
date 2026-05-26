@@ -37,18 +37,13 @@ interface ExtensionConfig {
 }
 
 export function loadExtensions(workspaceDir: string): GeminiCLIExtension[] {
-  const allExtensions = [
-    ...loadExtensionsFromDir(workspaceDir),
-    ...loadExtensionsFromDir(homedir()),
-  ];
+  const allExtensions = [...loadExtensionsFromDir(workspaceDir), ...loadExtensionsFromDir(homedir())];
 
   const uniqueExtensions: GeminiCLIExtension[] = [];
   const seenNames = new Set<string>();
   for (const extension of allExtensions) {
     if (!seenNames.has(extension.name)) {
-      logger.info(
-        `Loading extension: ${extension.name} (version: ${extension.version})`,
-      );
+      logger.info(`Loading extension: ${extension.name} (version: ${extension.version})`);
       uniqueExtensions.push(extension);
       seenNames.add(extension.name);
     }
@@ -77,17 +72,13 @@ function loadExtensionsFromDir(dir: string): GeminiCLIExtension[] {
 
 function loadExtension(extensionDir: string): GeminiCLIExtension | null {
   if (!fs.statSync(extensionDir).isDirectory()) {
-    logger.error(
-      `Warning: unexpected file ${extensionDir} in extensions directory.`,
-    );
+    logger.error(`Warning: unexpected file ${extensionDir} in extensions directory.`);
     return null;
   }
 
   const configFilePath = path.join(extensionDir, EXTENSIONS_CONFIG_FILENAME);
   if (!fs.existsSync(configFilePath)) {
-    logger.error(
-      `Warning: extension directory ${extensionDir} does not contain a config file ${configFilePath}.`,
-    );
+    logger.error(`Warning: extension directory ${extensionDir} does not contain a config file ${configFilePath}.`);
     return null;
   }
 
@@ -96,9 +87,7 @@ function loadExtension(extensionDir: string): GeminiCLIExtension | null {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
     const config = JSON.parse(configContent) as ExtensionConfig;
     if (!config.name || !config.version) {
-      logger.error(
-        `Invalid extension config in ${configFilePath}: missing name or version.`,
-      );
+      logger.error(`Invalid extension config in ${configFilePath}: missing name or version.`);
       return null;
     }
 
@@ -120,9 +109,7 @@ function loadExtension(extensionDir: string): GeminiCLIExtension | null {
       isActive: true, // Barring any other signals extensions should be considered Active.
     } as GeminiCLIExtension;
   } catch (e) {
-    logger.error(
-      `Warning: error parsing extension config in ${configFilePath}: ${e}`,
-    );
+    logger.error(`Warning: error parsing extension config in ${configFilePath}: ${e}`);
     return null;
   }
 }
@@ -136,9 +123,7 @@ function getContextFileNames(config: ExtensionConfig): string[] {
   return config.contextFileName;
 }
 
-export function loadInstallMetadata(
-  extensionDir: string,
-): ExtensionInstallMetadata | undefined {
+export function loadInstallMetadata(extensionDir: string): ExtensionInstallMetadata | undefined {
   const metadataFilePath = path.join(extensionDir, INSTALL_METADATA_FILENAME);
   try {
     const configContent = fs.readFileSync(metadataFilePath, 'utf-8');
@@ -146,9 +131,7 @@ export function loadInstallMetadata(
     const metadata = JSON.parse(configContent) as ExtensionInstallMetadata;
     return metadata;
   } catch (e) {
-    logger.warn(
-      `Failed to load or parse extension install metadata at ${metadataFilePath}: ${e}`,
-    );
+    logger.warn(`Failed to load or parse extension install metadata at ${metadataFilePath}: ${e}`);
     return undefined;
   }
 }

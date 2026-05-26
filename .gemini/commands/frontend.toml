@@ -1,4 +1,4 @@
-description="Injects context of all relevant cli files"
+description = "Injects context of all relevant cli files"
 prompt = """
 The source code contains the content of absolutely every source code file in
 packages/cli and key files from packages/core. In addition to the source code, the following test files are

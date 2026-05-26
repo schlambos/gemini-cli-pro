@@ -84,7 +84,7 @@ const findNextValidIndex = (
   currentIndex: number,
   direction: 'up' | 'down',
   items: BaseSelectionItem[],
-  wrapAround = true,
+  wrapAround = true
 ): number => {
   const len = items.length;
   if (len === 0) return currentIndex;
@@ -114,10 +114,7 @@ const findNextValidIndex = (
     if (!wrapAround) {
       // If the item is disabled and we're not wrapping, we continue searching
       // in the same direction, but we must stop if we hit the bounds.
-      if (
-        (direction === 'down' && nextIndex === len - 1) ||
-        (direction === 'up' && nextIndex === 0)
-      ) {
+      if ((direction === 'down' && nextIndex === len - 1) || (direction === 'up' && nextIndex === 0)) {
         return currentIndex;
       }
     }
@@ -127,11 +124,7 @@ const findNextValidIndex = (
   return currentIndex;
 };
 
-const computeInitialIndex = (
-  initialIndex: number,
-  items: BaseSelectionItem[],
-  initialKey?: string,
-): number => {
+const computeInitialIndex = (initialIndex: number, items: BaseSelectionItem[], initialKey?: string): number => {
   if (items.length === 0) {
     return 0;
   }
@@ -158,10 +151,7 @@ const computeInitialIndex = (
   return targetIndex;
 };
 
-function selectionListReducer(
-  state: SelectionListState,
-  action: SelectionListAction,
-): SelectionListState {
+function selectionListReducer(state: SelectionListState, action: SelectionListAction): SelectionListState {
   switch (action.type) {
     case 'SET_ACTIVE_INDEX': {
       const { index } = action.payload;
@@ -180,12 +170,7 @@ function selectionListReducer(
 
     case 'MOVE_UP': {
       const { items, wrapAround } = state;
-      const newIndex = findNextValidIndex(
-        state.activeIndex,
-        'up',
-        items,
-        wrapAround,
-      );
+      const newIndex = findNextValidIndex(state.activeIndex, 'up', items, wrapAround);
       if (newIndex !== state.activeIndex) {
         return { ...state, activeIndex: newIndex, pendingHighlight: true };
       }
@@ -194,12 +179,7 @@ function selectionListReducer(
 
     case 'MOVE_DOWN': {
       const { items, wrapAround } = state;
-      const newIndex = findNextValidIndex(
-        state.activeIndex,
-        'down',
-        items,
-        wrapAround,
-      );
+      const newIndex = findNextValidIndex(state.activeIndex, 'down', items, wrapAround);
       if (newIndex !== state.activeIndex) {
         return { ...state, activeIndex: newIndex, pendingHighlight: true };
       }
@@ -213,8 +193,7 @@ function selectionListReducer(
     case 'INITIALIZE': {
       const { initialIndex, items, wrapAround } = action.payload;
       const activeKey =
-        initialIndex === state.initialIndex &&
-        state.activeIndex !== state.initialIndex
+        initialIndex === state.initialIndex && state.activeIndex !== state.initialIndex
           ? state.items[state.activeIndex]?.key
           : undefined;
 
@@ -247,10 +226,7 @@ function selectionListReducer(
   }
 }
 
-function areBaseItemsEqual(
-  a: BaseSelectionItem[],
-  b: BaseSelectionItem[],
-): boolean {
+function areBaseItemsEqual(a: BaseSelectionItem[], b: BaseSelectionItem[]): boolean {
   if (a === b) return true;
   if (a.length !== b.length) return false;
 
@@ -263,9 +239,7 @@ function areBaseItemsEqual(
   return true;
 }
 
-function toBaseItems<T>(
-  items: Array<SelectionListItem<T>>,
-): BaseSelectionItem[] {
+function toBaseItems<T>(items: Array<SelectionListItem<T>>): BaseSelectionItem[] {
   return items.map(({ key, disabled }) => ({ key, disabled }));
 }
 
@@ -318,9 +292,7 @@ export function useSelectionList<T>({
 
     if (focusKey === lastProcessedFocusKeyRef.current) return;
 
-    const index = items.findIndex(
-      (item) => item.key === focusKey && !item.disabled,
-    );
+    const index = items.findIndex((item) => item.key === focusKey && !item.disabled);
     if (index !== -1) {
       lastProcessedFocusKeyRef.current = focusKey;
       dispatch({ type: 'SET_ACTIVE_INDEX', payload: { index } });
@@ -329,10 +301,7 @@ export function useSelectionList<T>({
 
   // Initialize/synchronize state when initialIndex or items change
   useEffect(() => {
-    const baseItemsChanged = !areBaseItemsEqual(
-      prevBaseItemsRef.current,
-      baseItems,
-    );
+    const baseItemsChanged = !areBaseItemsEqual(prevBaseItemsRef.current, baseItems);
     const initialIndexChanged = prevInitialIndexRef.current !== initialIndex;
     const wrapAroundChanged = prevWrapAroundRef.current !== wrapAround;
 
@@ -367,14 +336,7 @@ export function useSelectionList<T>({
     if (needsClear) {
       dispatch({ type: 'CLEAR_PENDING_FLAGS' });
     }
-  }, [
-    state.pendingHighlight,
-    state.pendingSelect,
-    state.activeIndex,
-    items,
-    onHighlight,
-    onSelect,
-  ]);
+  }, [state.pendingHighlight, state.pendingSelect, state.activeIndex, items, onHighlight, onSelect]);
 
   useEffect(
     () => () => {
@@ -382,7 +344,7 @@ export function useSelectionList<T>({
         clearTimeout(numberInputTimer.current);
       }
     },
-    [],
+    []
   );
 
   const itemsLength = items.length;
@@ -461,7 +423,7 @@ export function useSelectionList<T>({
       }
       return false;
     },
-    [dispatch, itemsLength, showNumbers],
+    [dispatch, itemsLength, showNumbers]
   );
 
   useKeypress(handleKeypress, {

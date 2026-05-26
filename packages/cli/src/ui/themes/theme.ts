@@ -8,11 +8,7 @@ import type { CSSProperties } from 'react';
 
 import type { SemanticColors } from './semantic-tokens.js';
 
-import {
-  resolveColor,
-  interpolateColor,
-  getThemeTypeFromBackgroundColor,
-} from './color-utils.js';
+import { resolveColor, interpolateColor, getThemeTypeFromBackgroundColor } from './color-utils.js';
 
 import type { CustomTheme } from '@google/gemini-cli-core';
 import { DEFAULT_BORDER_OPACITY } from '../constants.js';
@@ -119,7 +115,7 @@ export class Theme {
     readonly type: ThemeType,
     rawMappings: Record<string, CSSProperties>,
     readonly colors: ColorsTheme,
-    semanticColors?: SemanticColors,
+    semanticColors?: SemanticColors
   ) {
     this.semanticColors = semanticColors ?? {
       text: {
@@ -137,11 +133,7 @@ export class Theme {
         },
       },
       border: {
-        default: interpolateColor(
-          this.colors.Background,
-          this.colors.Gray,
-          DEFAULT_BORDER_OPACITY,
-        ),
+        default: interpolateColor(this.colors.Background, this.colors.Gray, DEFAULT_BORDER_OPACITY),
         focused: this.colors.AccentBlue,
       },
       ui: {
@@ -160,9 +152,7 @@ export class Theme {
 
     // Determine the default foreground color
     const rawDefaultColor = rawMappings['hljs']?.color;
-    this.defaultColor =
-      (rawDefaultColor ? Theme._resolveColor(rawDefaultColor) : undefined) ??
-      ''; // Default to empty string if not found or resolvable
+    this.defaultColor = (rawDefaultColor ? Theme._resolveColor(rawDefaultColor) : undefined) ?? ''; // Default to empty string if not found or resolvable
   }
 
   /**
@@ -189,9 +179,7 @@ export class Theme {
    * @param hljsTheme The raw CSSProperties mappings from a react-syntax-highlighter theme object.
    * @returns An Ink-compatible theme map (Record<string, string>).
    */
-  protected _buildColorMap(
-    hljsTheme: Record<string, CSSProperties>,
-  ): Record<string, string> {
+  protected _buildColorMap(hljsTheme: Record<string, CSSProperties>): Record<string, string> {
     const inkTheme: Record<string, string> = {};
     for (const key in hljsTheme) {
       // Ensure the key starts with 'hljs-' or is 'hljs' for the base style
@@ -233,10 +221,8 @@ export function createCustomTheme(customTheme: CustomTheme): Theme {
     AccentGreen: customTheme.status?.success ?? customTheme.AccentGreen ?? '',
     AccentYellow: customTheme.status?.warning ?? customTheme.AccentYellow ?? '',
     AccentRed: customTheme.status?.error ?? customTheme.AccentRed ?? '',
-    DiffAdded:
-      customTheme.background?.diff?.added ?? customTheme.DiffAdded ?? '',
-    DiffRemoved:
-      customTheme.background?.diff?.removed ?? customTheme.DiffRemoved ?? '',
+    DiffAdded: customTheme.background?.diff?.added ?? customTheme.DiffAdded ?? '',
+    DiffRemoved: customTheme.background?.diff?.removed ?? customTheme.DiffRemoved ?? '',
     Comment: customTheme.ui?.comment ?? customTheme.Comment ?? '',
     Gray: customTheme.text?.secondary ?? customTheme.Gray ?? '',
     DarkGray:
@@ -244,7 +230,7 @@ export function createCustomTheme(customTheme: CustomTheme): Theme {
       interpolateColor(
         customTheme.text?.secondary ?? customTheme.Gray ?? '',
         customTheme.background?.primary ?? customTheme.Background ?? '',
-        0.5,
+        0.5
       ),
     GradientColors: customTheme.ui?.gradient ?? customTheme.GradientColors,
   };
@@ -393,10 +379,7 @@ export function createCustomTheme(customTheme: CustomTheme): Theme {
       secondary: customTheme.text?.secondary ?? colors.Gray,
       link: customTheme.text?.link ?? colors.AccentBlue,
       accent: customTheme.text?.accent ?? colors.AccentPurple,
-      response:
-        customTheme.text?.response ??
-        customTheme.text?.primary ??
-        colors.Foreground,
+      response: customTheme.text?.response ?? customTheme.text?.primary ?? colors.Foreground,
     },
     background: {
       primary: customTheme.background?.primary ?? colors.Background,
@@ -406,13 +389,7 @@ export function createCustomTheme(customTheme: CustomTheme): Theme {
       },
     },
     border: {
-      default:
-        customTheme.border?.default ??
-        interpolateColor(
-          colors.Background,
-          colors.Gray,
-          DEFAULT_BORDER_OPACITY,
-        ),
+      default: customTheme.border?.default ?? interpolateColor(colors.Background, colors.Gray, DEFAULT_BORDER_OPACITY),
       focused: customTheme.border?.focused ?? colors.AccentBlue,
     },
     ui: {
@@ -428,13 +405,7 @@ export function createCustomTheme(customTheme: CustomTheme): Theme {
     },
   };
 
-  return new Theme(
-    customTheme.name,
-    'custom',
-    rawMappings,
-    colors,
-    semanticColors,
-  );
+  return new Theme(customTheme.name, 'custom', rawMappings, colors, semanticColors);
 }
 
 /**
@@ -485,7 +456,7 @@ export function pickDefaultThemeName(
   terminalBackground: string | undefined,
   availableThemes: readonly Theme[],
   defaultDarkThemeName: string,
-  defaultLightThemeName: string,
+  defaultLightThemeName: string
 ): string {
   if (terminalBackground) {
     const lowerTerminalBackground = terminalBackground.toLowerCase();

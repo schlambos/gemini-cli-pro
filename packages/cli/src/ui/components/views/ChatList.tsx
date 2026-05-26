@@ -19,19 +19,15 @@ export const ChatList: React.FC<ChatListProps> = ({ chats }) => {
   }
 
   return (
-    <Box flexDirection="column">
+    <Box flexDirection='column'>
       <Text>List of saved conversations:</Text>
       <Box height={1} />
       {chats.map((chat) => {
         const isoString = chat.mtime;
-        const match = isoString.match(
-          /(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})/,
-        );
-        const formattedDate = match
-          ? `${match[1]} ${match[2]}`
-          : 'Invalid Date';
+        const match = isoString.match(/(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})/);
+        const formattedDate = match ? `${match[1]} ${match[2]}` : 'Invalid Date';
         return (
-          <Box key={chat.name} flexDirection="row">
+          <Box key={chat.name} flexDirection='row'>
             <Text>
               {'  '}- <Text color={theme.text.accent}>{chat.name}</Text>{' '}
               <Text color={theme.text.secondary}>({formattedDate})</Text>

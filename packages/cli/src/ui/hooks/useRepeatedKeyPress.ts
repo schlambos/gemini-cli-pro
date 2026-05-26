@@ -62,7 +62,7 @@ export function useRepeatedKeyPress(options: UseRepeatedKeyPressOptions) {
         clearTimeout(timerRef.current);
       }
     },
-    [],
+    []
   );
 
   return { pressCount, handlePress, resetCount };

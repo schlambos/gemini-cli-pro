@@ -20,8 +20,7 @@ import {
 
 // Mock dependencies
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     Config: vi.fn().mockImplementation((params) => {
@@ -129,10 +128,8 @@ describe('loadConfig', () => {
           expect.objectContaining({
             disableYoloMode: !mockAdminSettings.strictModeDisabled,
             mcpEnabled: mockAdminSettings.mcpSetting?.mcpEnabled,
-            extensionsEnabled:
-              mockAdminSettings.cliFeatureSetting?.extensionsSetting
-                ?.extensionsEnabled,
-          }),
+            extensionsEnabled: mockAdminSettings.cliFeatureSetting?.extensionsSetting?.extensionsEnabled,
+          })
         );
       });
 
@@ -151,7 +148,7 @@ describe('loadConfig', () => {
             disableYoloMode: !false,
             mcpEnabled: mockAdminSettings.mcpSetting?.mcpEnabled,
             extensionsEnabled: undefined,
-          }),
+          })
         );
       });
 
@@ -174,22 +171,19 @@ describe('loadConfig', () => {
         const mockCodeAssistServer = { projectId: 'test-project' };
         vi.mocked(getCodeAssistServer).mockReturnValue(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          mockCodeAssistServer as any,
+          mockCodeAssistServer as any
         );
         vi.mocked(fetchAdminControlsOnce).mockResolvedValue(mockAdminSettings);
 
         await loadConfig(mockSettings, mockExtensionLoader, taskId);
 
-        expect(fetchAdminControlsOnce).toHaveBeenCalledWith(
-          mockCodeAssistServer,
-          true,
-        );
+        expect(fetchAdminControlsOnce).toHaveBeenCalledWith(mockCodeAssistServer, true);
         expect(Config).toHaveBeenLastCalledWith(
           expect.objectContaining({
             disableYoloMode: !mockAdminSettings.strictModeDisabled,
             mcpEnabled: mockAdminSettings.mcpSetting?.mcpEnabled,
             extensionsEnabled: undefined,
-          }),
+          })
         );
       });
     });
@@ -200,9 +194,7 @@ describe('loadConfig', () => {
     process.env['CUSTOM_IGNORE_FILE_PATHS'] = testPath;
     const config = await loadConfig(mockSettings, mockExtensionLoader, taskId);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect((config as any).fileFiltering.customIgnoreFilePaths).toEqual([
-      testPath,
-    ]);
+    expect((config as any).fileFiltering.customIgnoreFilePaths).toEqual([testPath]);
   });
 
   it('should set customIgnoreFilePaths when settings.fileFiltering.customIgnoreFilePaths is present', async () => {
@@ -214,9 +206,7 @@ describe('loadConfig', () => {
     };
     const config = await loadConfig(settings, mockExtensionLoader, taskId);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect((config as any).fileFiltering.customIgnoreFilePaths).toEqual([
-      testPath,
-    ]);
+    expect((config as any).fileFiltering.customIgnoreFilePaths).toEqual([testPath]);
   });
 
   it('should merge customIgnoreFilePaths from settings and env var', async () => {
@@ -230,10 +220,7 @@ describe('loadConfig', () => {
     };
     const config = await loadConfig(settings, mockExtensionLoader, taskId);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect((config as any).fileFiltering.customIgnoreFilePaths).toEqual([
-      settingsPath,
-      envPath,
-    ]);
+    expect((config as any).fileFiltering.customIgnoreFilePaths).toEqual([settingsPath, envPath]);
   });
 
   it('should split CUSTOM_IGNORE_FILE_PATHS using system delimiter', async () => {

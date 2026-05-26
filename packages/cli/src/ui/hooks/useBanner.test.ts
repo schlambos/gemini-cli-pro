@@ -4,14 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  type MockedFunction,
-} from 'vitest';
+import { describe, it, expect, vi, beforeEach, type MockedFunction } from 'vitest';
 import { renderHook } from '../../test-utils/render.js';
 import { useBanner } from './useBanner.js';
 import { persistentState } from '../../utils/persistentState.js';
@@ -39,12 +32,8 @@ vi.mock('../colors.js', () => ({
 }));
 
 describe('useBanner', () => {
-  const mockedPersistentStateGet = persistentState.get as MockedFunction<
-    typeof persistentState.get
-  >;
-  const mockedPersistentStateSet = persistentState.set as MockedFunction<
-    typeof persistentState.set
-  >;
+  const mockedPersistentStateGet = persistentState.get as MockedFunction<typeof persistentState.get>;
+  const mockedPersistentStateSet = persistentState.set as MockedFunction<typeof persistentState.set>;
 
   const defaultBannerData = {
     defaultText: 'Standard Banner',
@@ -68,10 +57,7 @@ describe('useBanner', () => {
 
   it('should hide banner if show count exceeds max limit (Legacy format)', () => {
     mockedPersistentStateGet.mockReturnValue({
-      [crypto
-        .createHash('sha256')
-        .update(defaultBannerData.defaultText)
-        .digest('hex')]: 5,
+      [crypto.createHash('sha256').update(defaultBannerData.defaultText).digest('hex')]: 5,
     });
 
     const { result } = renderHook(() => useBanner(defaultBannerData));
@@ -90,12 +76,9 @@ describe('useBanner', () => {
     renderHook(() => useBanner(data));
 
     // Expect set to be called with incremented count
-    expect(mockedPersistentStateSet).toHaveBeenCalledWith(
-      'defaultBannerShownCount',
-      {
-        [crypto.createHash('sha256').update(data.defaultText).digest('hex')]: 2,
-      },
-    );
+    expect(mockedPersistentStateSet).toHaveBeenCalledWith('defaultBannerShownCount', {
+      [crypto.createHash('sha256').update(data.defaultText).digest('hex')]: 2,
+    });
   });
 
   it('should NOT increment count if warning text is shown instead', () => {

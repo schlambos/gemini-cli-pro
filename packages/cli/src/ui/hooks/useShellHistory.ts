@@ -19,10 +19,7 @@ export interface UseShellHistoryReturn {
   resetHistoryPosition: () => void;
 }
 
-async function getHistoryFilePath(
-  projectRoot: string,
-  configStorage?: Storage,
-): Promise<string> {
+async function getHistoryFilePath(projectRoot: string, configStorage?: Storage): Promise<string> {
   const storage = configStorage ?? new Storage(projectRoot);
   await storage.initialize();
   return storage.getHistoryFilePath();
@@ -58,10 +55,7 @@ async function readHistoryFile(filePath: string): Promise<string[]> {
   }
 }
 
-async function writeHistoryFile(
-  filePath: string,
-  history: string[],
-): Promise<void> {
+async function writeHistoryFile(filePath: string, history: string[]): Promise<void> {
   try {
     await fs.mkdir(path.dirname(filePath), { recursive: true });
     await fs.writeFile(filePath, history.join('\n'));
@@ -70,10 +64,7 @@ async function writeHistoryFile(
   }
 }
 
-export function useShellHistory(
-  projectRoot: string,
-  storage?: Storage,
-): UseShellHistoryReturn {
+export function useShellHistory(projectRoot: string, storage?: Storage): UseShellHistoryReturn {
   const [history, setHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [historyFilePath, setHistoryFilePath] = useState<string | null>(null);
@@ -103,7 +94,7 @@ export function useShellHistory(
       writeHistoryFile(historyFilePath, [...newHistory].reverse());
       setHistoryIndex(-1);
     },
-    [history, historyFilePath],
+    [history, historyFilePath]
   );
 
   const getPreviousCommand = useCallback(() => {

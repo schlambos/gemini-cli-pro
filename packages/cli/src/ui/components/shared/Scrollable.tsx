@@ -4,14 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useLayoutEffect,
-  useCallback,
-  useMemo,
-} from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect, useCallback, useMemo } from 'react';
 import { Box, getInnerHeight, getScrollHeight, type DOMElement } from 'ink';
 import { useKeypress, type Key } from '../../hooks/useKeypress.js';
 import { useScrollable } from '../../contexts/ScrollProvider.js';
@@ -66,10 +59,7 @@ export const Scrollable: React.FC<ScrollableProps> = ({
 
     const isAtBottom = scrollTop >= size.scrollHeight - size.innerHeight - 1;
 
-    if (
-      size.innerHeight !== innerHeight ||
-      size.scrollHeight !== scrollHeight
-    ) {
+    if (size.innerHeight !== innerHeight || size.scrollHeight !== scrollHeight) {
       setSize({ innerHeight, scrollHeight });
       if (isAtBottom) {
         setScrollTop(Math.max(0, scrollHeight - innerHeight));
@@ -89,18 +79,14 @@ export const Scrollable: React.FC<ScrollableProps> = ({
     (delta: number) => {
       const { scrollHeight, innerHeight } = sizeRef.current;
       const current = getScrollTop();
-      const next = Math.min(
-        Math.max(0, current + delta),
-        Math.max(0, scrollHeight - innerHeight),
-      );
+      const next = Math.min(Math.max(0, current + delta), Math.max(0, scrollHeight - innerHeight));
       setPendingScrollTop(next);
       setScrollTop(next);
     },
-    [sizeRef, getScrollTop, setPendingScrollTop],
+    [sizeRef, getScrollTop, setPendingScrollTop]
   );
 
-  const { scrollbarColor, flashScrollbar, scrollByWithAnimation } =
-    useAnimatedScrollbar(hasFocus, scrollBy);
+  const { scrollbarColor, flashScrollbar, scrollByWithAnimation } = useAnimatedScrollbar(hasFocus, scrollBy);
 
   useKeypress(
     (key: Key) => {
@@ -137,7 +123,7 @@ export const Scrollable: React.FC<ScrollableProps> = ({
       // bubble keypress
       return false;
     },
-    { isActive: hasFocus },
+    { isActive: hasFocus }
   );
 
   const getScrollState = useCallback(
@@ -146,7 +132,7 @@ export const Scrollable: React.FC<ScrollableProps> = ({
       scrollHeight: size.scrollHeight,
       innerHeight: size.innerHeight,
     }),
-    [getScrollTop, size.scrollHeight, size.innerHeight],
+    [getScrollTop, size.scrollHeight, size.innerHeight]
   );
 
   const hasFocusCallback = useCallback(() => hasFocus, [hasFocus]);
@@ -160,7 +146,7 @@ export const Scrollable: React.FC<ScrollableProps> = ({
       hasFocus: hasFocusCallback,
       flashScrollbar,
     }),
-    [getScrollState, scrollByWithAnimation, hasFocusCallback, flashScrollbar],
+    [getScrollState, scrollByWithAnimation, hasFocusCallback, flashScrollbar]
   );
 
   useScrollable(scrollableEntry, true);
@@ -171,9 +157,9 @@ export const Scrollable: React.FC<ScrollableProps> = ({
       maxHeight={maxHeight}
       width={width ?? maxWidth}
       height={height}
-      flexDirection="column"
-      overflowY="scroll"
-      overflowX="hidden"
+      flexDirection='column'
+      overflowY='scroll'
+      overflowX='hidden'
       scrollTop={scrollTop}
       flexGrow={flexGrow}
       scrollbarThumbColor={scrollbarColor}
@@ -183,7 +169,7 @@ export const Scrollable: React.FC<ScrollableProps> = ({
         based on the children's content. It also adds a right padding to
         make room for the scrollbar.
       */}
-      <Box flexShrink={0} paddingRight={1} flexDirection="column">
+      <Box flexShrink={0} paddingRight={1} flexDirection='column'>
         {children}
       </Box>
     </Box>

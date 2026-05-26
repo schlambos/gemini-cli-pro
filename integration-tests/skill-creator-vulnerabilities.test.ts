@@ -12,15 +12,9 @@ import { execSync, spawnSync } from 'node:child_process';
 
 describe('skill-creator scripts security and bug fixes', () => {
   let rig: TestRig;
-  const initScript = path.resolve(
-    'packages/core/src/skills/builtin/skill-creator/scripts/init_skill.cjs',
-  );
-  const validateScript = path.resolve(
-    'packages/core/src/skills/builtin/skill-creator/scripts/validate_skill.cjs',
-  );
-  const packageScript = path.resolve(
-    'packages/core/src/skills/builtin/skill-creator/scripts/package_skill.cjs',
-  );
+  const initScript = path.resolve('packages/core/src/skills/builtin/skill-creator/scripts/init_skill.cjs');
+  const validateScript = path.resolve('packages/core/src/skills/builtin/skill-creator/scripts/validate_skill.cjs');
+  const packageScript = path.resolve('packages/core/src/skills/builtin/skill-creator/scripts/package_skill.cjs');
 
   beforeEach(() => {
     rig = new TestRig();
@@ -58,17 +52,11 @@ describe('skill-creator scripts security and bug fixes', () => {
 
     const maliciousName = '../traversal-success';
 
-    const result = spawnSync(
-      'node',
-      [initScript, maliciousName, '--path', tempDir],
-      {
-        encoding: 'utf8',
-      },
-    );
+    const result = spawnSync('node', [initScript, maliciousName, '--path', tempDir], {
+      encoding: 'utf8',
+    });
 
-    expect(result.stderr).toContain(
-      'Error: Skill name cannot contain path separators',
-    );
+    expect(result.stderr).toContain('Error: Skill name cannot contain path separators');
     const traversalDir = path.join(path.dirname(tempDir), 'traversal-success');
     expect(fs.existsSync(traversalDir)).toBe(false);
   });
@@ -104,8 +92,6 @@ describe('skill-creator scripts security and bug fixes', () => {
 
     // It might still fail validation (e.g. TODOs), but it should NOT crash with a stack trace
     expect(result.status).not.toBe(null);
-    expect(result.stderr).not.toContain(
-      "TypeError: Cannot read properties of undefined (reading 'trim')",
-    );
+    expect(result.stderr).not.toContain("TypeError: Cannot read properties of undefined (reading 'trim')");
   });
 });

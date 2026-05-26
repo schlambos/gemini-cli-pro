@@ -4,15 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  describe,
-  it,
-  expect,
-  beforeEach,
-  afterEach,
-  vi,
-  type Mocked,
-} from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi, type Mocked } from 'vitest';
 import { detectLineEnding } from '../utils/textUtils.js';
 import { WriteFileTool } from './write-file.js';
 import { EditTool } from './edit.js';
@@ -25,16 +17,10 @@ import fs from 'node:fs';
 import os from 'node:os';
 import { GeminiClient } from '../core/client.js';
 import type { BaseLlmClient } from '../core/baseLlmClient.js';
-import {
-  ensureCorrectEdit,
-  ensureCorrectFileContent,
-} from '../utils/editCorrector.js';
+import { ensureCorrectEdit, ensureCorrectFileContent } from '../utils/editCorrector.js';
 import { StandardFileSystemService } from '../services/fileSystemService.js';
 import { WorkspaceContext } from '../utils/workspaceContext.js';
-import {
-  createMockMessageBus,
-  getMockMessageBusInstance,
-} from '../test-utils/mock-message-bus.js';
+import { createMockMessageBus, getMockMessageBusInstance } from '../test-utils/mock-message-bus.js';
 
 const rootDir = path.resolve(os.tmpdir(), 'gemini-cli-line-ending-test-root');
 
@@ -104,16 +90,12 @@ describe('Line Ending Preservation', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    tempDir = fs.mkdtempSync(
-      path.join(os.tmpdir(), 'line-ending-test-external-'),
-    );
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'line-ending-test-external-'));
     if (!fs.existsSync(rootDir)) {
       fs.mkdirSync(rootDir, { recursive: true });
     }
 
-    mockGeminiClientInstance = new (vi.mocked(GeminiClient))(
-      mockConfig,
-    ) as Mocked<GeminiClient>;
+    mockGeminiClientInstance = new (vi.mocked(GeminiClient))(mockConfig) as Mocked<GeminiClient>;
     vi.mocked(GeminiClient).mockImplementation(() => mockGeminiClientInstance);
 
     mockBaseLlmClientInstance = {
@@ -121,16 +103,10 @@ describe('Line Ending Preservation', () => {
     } as unknown as Mocked<BaseLlmClient>;
 
     vi.mocked(ensureCorrectEdit).mockImplementation(mockEnsureCorrectEdit);
-    vi.mocked(ensureCorrectFileContent).mockImplementation(
-      mockEnsureCorrectFileContent,
-    );
+    vi.mocked(ensureCorrectFileContent).mockImplementation(mockEnsureCorrectFileContent);
 
-    mockConfigInternal.getGeminiClient.mockReturnValue(
-      mockGeminiClientInstance,
-    );
-    mockConfigInternal.getBaseLlmClient.mockReturnValue(
-      mockBaseLlmClientInstance,
-    );
+    mockConfigInternal.getGeminiClient.mockReturnValue(mockGeminiClientInstance);
+    mockConfigInternal.getBaseLlmClient.mockReturnValue(mockBaseLlmClientInstance);
   });
 
   afterEach(() => {
@@ -191,11 +167,7 @@ describe('Line Ending Preservation', () => {
 
       // Force approval
       const confirmDetails = await invocation.shouldConfirmExecute(abortSignal);
-      if (
-        confirmDetails &&
-        typeof confirmDetails === 'object' &&
-        'onConfirm' in confirmDetails
-      ) {
+      if (confirmDetails && typeof confirmDetails === 'object' && 'onConfirm' in confirmDetails) {
         await confirmDetails.onConfirm(ToolConfirmationOutcome.ProceedOnce);
       }
 
@@ -216,11 +188,7 @@ describe('Line Ending Preservation', () => {
       const invocation = tool.build(params);
 
       const confirmDetails = await invocation.shouldConfirmExecute(abortSignal);
-      if (
-        confirmDetails &&
-        typeof confirmDetails === 'object' &&
-        'onConfirm' in confirmDetails
-      ) {
+      if (confirmDetails && typeof confirmDetails === 'object' && 'onConfirm' in confirmDetails) {
         await confirmDetails.onConfirm(ToolConfirmationOutcome.ProceedOnce);
       }
 
@@ -264,11 +232,7 @@ describe('Line Ending Preservation', () => {
 
       // Force approval
       const confirmDetails = await invocation.shouldConfirmExecute(abortSignal);
-      if (
-        confirmDetails &&
-        typeof confirmDetails === 'object' &&
-        'onConfirm' in confirmDetails
-      ) {
+      if (confirmDetails && typeof confirmDetails === 'object' && 'onConfirm' in confirmDetails) {
         await confirmDetails.onConfirm(ToolConfirmationOutcome.ProceedOnce);
       }
 

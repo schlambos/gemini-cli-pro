@@ -16,25 +16,17 @@ import {
   BeforeToolHookOutput,
 } from './types.js';
 import { defaultHookTranslator } from './hookTranslator.js';
-import type {
-  GenerateContentParameters,
-  GenerateContentResponse,
-  ToolConfig,
-} from '@google/genai';
+import type { GenerateContentParameters, GenerateContentResponse, ToolConfig } from '@google/genai';
 import type { LLMRequest, LLMResponse } from './hookTranslator.js';
 import type { HookDecision } from './types.js';
 
 vi.mock('./hookTranslator.js', () => ({
   defaultHookTranslator: {
-    fromHookLLMResponse: vi.fn(
-      (response: LLMResponse) => response as unknown as GenerateContentResponse,
-    ),
-    fromHookLLMRequest: vi.fn(
-      (request: LLMRequest, target: GenerateContentParameters) => ({
-        ...target,
-        ...request,
-      }),
-    ),
+    fromHookLLMResponse: vi.fn((response: LLMResponse) => response as unknown as GenerateContentResponse),
+    fromHookLLMRequest: vi.fn((request: LLMRequest, target: GenerateContentParameters) => ({
+      ...target,
+      ...request,
+    })),
     fromHookToolConfig: vi.fn((config: ToolConfig) => config),
   },
 }));
@@ -190,9 +182,7 @@ describe('Hook Output Classes', () => {
           additionalContext: 'context with <tag> and </hook_context>',
         },
       });
-      expect(output.getAdditionalContext()).toBe(
-        'context with &lt;tag&gt; and &lt;/hook_context&gt;',
-      );
+      expect(output.getAdditionalContext()).toBe('context with &lt;tag&gt; and &lt;/hook_context&gt;');
     });
 
     it('getAdditionalContext should return undefined if additionalContext is not present', () => {
@@ -231,9 +221,7 @@ describe('Hook Output Classes', () => {
         hookSpecificOutput: { llm_response: mockResponse },
       });
       expect(output.getSyntheticResponse()).toEqual(mockResponse);
-      expect(defaultHookTranslator.fromHookLLMResponse).toHaveBeenCalledWith(
-        mockResponse,
-      );
+      expect(defaultHookTranslator.fromHookLLMResponse).toHaveBeenCalledWith(mockResponse);
     });
 
     it('getSyntheticResponse should return undefined if llm_response is not present', () => {
@@ -254,10 +242,7 @@ describe('Hook Output Classes', () => {
       });
       const result = output.applyLLMRequestModifications(target);
       expect(result).toEqual({ ...target, ...mockRequest });
-      expect(defaultHookTranslator.fromHookLLMRequest).toHaveBeenCalledWith(
-        mockRequest,
-        target,
-      );
+      expect(defaultHookTranslator.fromHookLLMRequest).toHaveBeenCalledWith(mockRequest, target);
     });
 
     it('applyLLMRequestModifications should return target unchanged if llm_request is not present', () => {
@@ -279,9 +264,7 @@ describe('Hook Output Classes', () => {
       });
       const result = output.applyToolConfigModifications(target);
       expect(result).toEqual({ ...target, toolConfig: mockToolConfig });
-      expect(defaultHookTranslator.fromHookToolConfig).toHaveBeenCalledWith(
-        mockToolConfig,
-      );
+      expect(defaultHookTranslator.fromHookToolConfig).toHaveBeenCalledWith(mockToolConfig);
     });
 
     it('applyToolConfigModifications should return target unchanged if toolConfig is not present', () => {
@@ -310,9 +293,7 @@ describe('Hook Output Classes', () => {
         hookSpecificOutput: { llm_response: mockResponse },
       });
       expect(output.getModifiedResponse()).toEqual(mockResponse);
-      expect(defaultHookTranslator.fromHookLLMResponse).toHaveBeenCalledWith(
-        mockResponse,
-      );
+      expect(defaultHookTranslator.fromHookLLMResponse).toHaveBeenCalledWith(mockResponse);
     });
 
     it('getModifiedResponse should return undefined if llm_response is present but no content', () => {

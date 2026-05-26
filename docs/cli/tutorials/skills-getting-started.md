@@ -26,8 +26,7 @@ responding correctly.
     ```markdown
     ---
     name: api-auditor
-    description:
-      Expertise in auditing and testing API endpoints. Use when the user asks to
+    description: Expertise in auditing and testing API endpoints. Use when the user asks to
       "check", "test", or "audit" a URL or API.
     ---
 

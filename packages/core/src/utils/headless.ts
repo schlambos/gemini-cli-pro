@@ -29,16 +29,13 @@ export interface HeadlessModeOptions {
  */
 export function isHeadlessMode(options?: HeadlessModeOptions): boolean {
   if (process.env['GEMINI_CLI_INTEGRATION_TEST'] !== 'true') {
-    const isCI =
-      process.env['CI'] === 'true' || process.env['GITHUB_ACTIONS'] === 'true';
+    const isCI = process.env['CI'] === 'true' || process.env['GITHUB_ACTIONS'] === 'true';
     if (isCI) {
       return true;
     }
   }
 
-  const isNotTTY =
-    (!!process.stdin && !process.stdin.isTTY) ||
-    (!!process.stdout && !process.stdout.isTTY);
+  const isNotTTY = (!!process.stdin && !process.stdin.isTTY) || (!!process.stdout && !process.stdout.isTTY);
 
   if (isNotTTY || !!options?.prompt || !!options?.query) {
     return true;

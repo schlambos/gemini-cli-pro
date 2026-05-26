@@ -7,12 +7,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { existsSync } from 'node:fs';
 import * as path from 'node:path';
-import {
-  TestRig,
-  printDebugInfo,
-  assertModelHasOutput,
-  checkModelOutputContent,
-} from './test-helper.js';
+import { TestRig, printDebugInfo, assertModelHasOutput, checkModelOutputContent } from './test-helper.js';
 
 describe('file-system', () => {
   let rig: TestRig;
@@ -43,10 +38,7 @@ describe('file-system', () => {
       });
     }
 
-    expect(
-      foundToolCall,
-      'Expected to find a read_file tool call',
-    ).toBeTruthy();
+    expect(foundToolCall, 'Expected to find a read_file tool call').toBeTruthy();
 
     assertModelHasOutput(result);
     checkModelOutputContent(result, {
@@ -66,21 +58,14 @@ describe('file-system', () => {
     });
 
     // Accept multiple valid tools for editing files
-    const foundToolCall = await rig.waitForAnyToolCall([
-      'write_file',
-      'edit',
-      'replace',
-    ]);
+    const foundToolCall = await rig.waitForAnyToolCall(['write_file', 'edit', 'replace']);
 
     // Add debugging information
     if (!foundToolCall) {
       printDebugInfo(rig, result);
     }
 
-    expect(
-      foundToolCall,
-      'Expected to find a write_file, edit, or replace tool call',
-    ).toBeTruthy();
+    expect(foundToolCall, 'Expected to find a write_file, edit, or replace tool call').toBeTruthy();
 
     assertModelHasOutput(result);
     checkModelOutputContent(result, { testName: 'File write test' });
@@ -102,10 +87,7 @@ describe('file-system', () => {
       });
     }
 
-    expect(
-      fileContent.toLowerCase().includes('hello'),
-      'Expected file to contain hello',
-    ).toBeTruthy();
+    expect(fileContent.toLowerCase().includes('hello'), 'Expected file to contain hello').toBeTruthy();
 
     // Log success info if verbose
     if (process.env['VERBOSE'] === 'true') {
@@ -127,10 +109,7 @@ describe('file-system', () => {
     if (!foundToolCall) {
       printDebugInfo(rig, result);
     }
-    expect(
-      foundToolCall,
-      'Expected to find a write_file tool call',
-    ).toBeTruthy();
+    expect(foundToolCall, 'Expected to find a write_file tool call').toBeTruthy();
 
     const newFileContent = rig.readFile(fileName);
     expect(newFileContent).toBe('hello');
@@ -149,13 +128,9 @@ describe('file-system', () => {
     await rig.waitForTelemetryReady();
     const toolLogs = rig.readToolLogs();
 
-    const readCall = toolLogs.find(
-      (log) => log.toolRequest.name === 'read_file',
-    );
+    const readCall = toolLogs.find((log) => log.toolRequest.name === 'read_file');
     const writeCall = toolLogs.find(
-      (log) =>
-        log.toolRequest.name === 'write_file' ||
-        log.toolRequest.name === 'replace',
+      (log) => log.toolRequest.name === 'write_file' || log.toolRequest.name === 'replace'
     );
 
     if (!readCall || !writeCall) {
@@ -163,10 +138,7 @@ describe('file-system', () => {
     }
 
     expect(readCall, 'Expected to find a read_file tool call').toBeDefined();
-    expect(
-      writeCall,
-      'Expected to find a write_file or replace tool call',
-    ).toBeDefined();
+    expect(writeCall, 'Expected to find a write_file or replace tool call').toBeDefined();
 
     const newFileContent = rig.readFile(fileName);
     expect(newFileContent).toBe('1.0.1');
@@ -191,26 +163,15 @@ describe('file-system', () => {
         'Tool logs': rig.readToolLogs(),
       });
     }
-    expect(
-      foundToolCall,
-      `Expected to find one of ${validTools.join(', ')} tool calls`,
-    ).toBeTruthy();
+    expect(foundToolCall, `Expected to find one of ${validTools.join(', ')} tool calls`).toBeTruthy();
 
     const toolLogs = rig.readToolLogs();
-    const successfulEdit = toolLogs.some(
-      (log) =>
-        validTools.includes(log.toolRequest.name) && log.toolRequest.success,
-    );
+    const successfulEdit = toolLogs.some((log) => validTools.includes(log.toolRequest.name) && log.toolRequest.success);
     if (!successfulEdit) {
-      console.error(
-        `Expected a successful edit tool call (${validTools.join(', ')}), but none was found.`,
-      );
+      console.error(`Expected a successful edit tool call (${validTools.join(', ')}), but none was found.`);
       printDebugInfo(rig, result);
     }
-    expect(
-      successfulEdit,
-      `Expected a successful edit tool call (${validTools.join(', ')})`,
-    ).toBeTruthy();
+    expect(successfulEdit, `Expected a successful edit tool call (${validTools.join(', ')})`).toBeTruthy();
 
     const newFileContent = rig.readFile(fileName);
     if (newFileContent !== expectedContent) {
@@ -224,10 +185,9 @@ describe('file-system', () => {
   });
 
   it('should fail safely when trying to edit a non-existent file', async () => {
-    await rig.setup(
-      'should fail safely when trying to edit a non-existent file',
-      { settings: { tools: { core: ['read_file', 'replace'] } } },
-    );
+    await rig.setup('should fail safely when trying to edit a non-existent file', {
+      settings: { tools: { core: ['read_file', 'replace'] } },
+    });
     const fileName = 'non_existent.txt';
 
     const result = await rig.run({
@@ -237,58 +197,37 @@ describe('file-system', () => {
     await rig.waitForTelemetryReady();
     const toolLogs = rig.readToolLogs();
 
-    const readAttempt = toolLogs.find(
-      (log) => log.toolRequest.name === 'read_file',
-    );
-    const writeAttempt = toolLogs.find(
-      (log) => log.toolRequest.name === 'write_file',
-    );
-    const successfulReplace = toolLogs.find(
-      (log) => log.toolRequest.name === 'replace' && log.toolRequest.success,
-    );
+    const readAttempt = toolLogs.find((log) => log.toolRequest.name === 'read_file');
+    const writeAttempt = toolLogs.find((log) => log.toolRequest.name === 'write_file');
+    const successfulReplace = toolLogs.find((log) => log.toolRequest.name === 'replace' && log.toolRequest.success);
 
     // The model can either investigate (and fail) or do nothing.
     // If it chose to investigate by reading, that read must have failed.
     if (readAttempt && readAttempt.toolRequest.success) {
-      console.error(
-        'A read_file attempt succeeded for a non-existent file when it should have failed.',
-      );
+      console.error('A read_file attempt succeeded for a non-existent file when it should have failed.');
       printDebugInfo(rig, result);
     }
     if (readAttempt) {
-      expect(
-        readAttempt.toolRequest.success,
-        'If model tries to read the file, that attempt must fail',
-      ).toBe(false);
+      expect(readAttempt.toolRequest.success, 'If model tries to read the file, that attempt must fail').toBe(false);
     }
 
     // CRITICAL: Verify that no matter what the model did, it never successfully
     // wrote or replaced anything.
     if (writeAttempt) {
-      console.error(
-        'A write_file attempt was made when no file should be written.',
-      );
+      console.error('A write_file attempt was made when no file should be written.');
       printDebugInfo(rig, result);
     }
-    expect(
-      writeAttempt,
-      'write_file should not have been called',
-    ).toBeUndefined();
+    expect(writeAttempt, 'write_file should not have been called').toBeUndefined();
 
     if (successfulReplace) {
       console.error('A successful replace occurred when it should not have.');
       printDebugInfo(rig, result);
     }
-    expect(
-      successfulReplace,
-      'A successful replace should not have occurred',
-    ).toBeUndefined();
+    expect(successfulReplace, 'A successful replace should not have occurred').toBeUndefined();
 
     // Final verification: ensure the file was not created.
     const filePath = path.join(rig.testDir!, fileName);
     const fileExists = existsSync(filePath);
-    expect(fileExists, 'The non-existent file should not be created').toBe(
-      false,
-    );
+    expect(fileExists, 'The non-existent file should not be created').toBe(false);
   });
 });

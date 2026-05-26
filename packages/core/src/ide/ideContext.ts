@@ -4,10 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  IDE_MAX_OPEN_FILES,
-  IDE_MAX_SELECTED_TEXT_LENGTH,
-} from './constants.js';
+import { IDE_MAX_OPEN_FILES, IDE_MAX_SELECTED_TEXT_LENGTH } from './constants.js';
 import type { IdeContext } from './types.js';
 
 type IdeContextSubscriber = (ideContext?: IdeContext) => void;
@@ -64,15 +61,9 @@ export class IdeContextStore {
         });
 
         // Truncate selected text in the active file
-        if (
-          mostRecentFile.selectedText &&
-          mostRecentFile.selectedText.length > IDE_MAX_SELECTED_TEXT_LENGTH
-        ) {
+        if (mostRecentFile.selectedText && mostRecentFile.selectedText.length > IDE_MAX_SELECTED_TEXT_LENGTH) {
           mostRecentFile.selectedText =
-            mostRecentFile.selectedText.substring(
-              0,
-              IDE_MAX_SELECTED_TEXT_LENGTH,
-            ) + '... [TRUNCATED]';
+            mostRecentFile.selectedText.substring(0, IDE_MAX_SELECTED_TEXT_LENGTH) + '... [TRUNCATED]';
         }
       }
 

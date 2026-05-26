@@ -22,9 +22,7 @@ let experimentsPromise: Promise<Experiments> | undefined;
  *
  * The experiments are cached so that they are only fetched once.
  */
-export async function getExperiments(
-  server?: CodeAssistServer,
-): Promise<Experiments> {
+export async function getExperiments(server?: CodeAssistServer): Promise<Experiments> {
   if (experimentsPromise) {
     return experimentsPromise;
   }
@@ -41,7 +39,7 @@ export async function getExperiments(
           (response.experimentIds && !Array.isArray(response.experimentIds))
         ) {
           throw new Error(
-            'Invalid format for experiments file: `flags` and `experimentIds` must be arrays if present.',
+            'Invalid format for experiments file: `flags` and `experimentIds` must be arrays if present.'
           );
         }
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion

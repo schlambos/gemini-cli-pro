@@ -9,15 +9,9 @@ import { ThemedGradient } from './ThemedGradient.js';
 import { theme } from '../semantic-colors.js';
 import type { ReactNode } from 'react';
 
-export function getFormattedBannerContent(
-  rawText: string,
-  isWarning: boolean,
-  subsequentLineColor: string,
-): ReactNode {
+export function getFormattedBannerContent(rawText: string, isWarning: boolean, subsequentLineColor: string): ReactNode {
   if (isWarning) {
-    return (
-      <Text color={theme.status.warning}>{rawText.replace(/\\n/g, '\n')}</Text>
-    );
+    return <Text color={theme.status.warning}>{rawText.replace(/\\n/g, '\n')}</Text>;
   }
 
   const text = rawText.replace(/\\n/g, '\n');
@@ -49,16 +43,12 @@ interface BannerProps {
 export const Banner = ({ bannerText, isWarning, width }: BannerProps) => {
   const subsequentLineColor = theme.text.primary;
 
-  const formattedBannerContent = getFormattedBannerContent(
-    bannerText,
-    isWarning,
-    subsequentLineColor,
-  );
+  const formattedBannerContent = getFormattedBannerContent(bannerText, isWarning, subsequentLineColor);
 
   return (
     <Box
-      flexDirection="column"
-      borderStyle="round"
+      flexDirection='column'
+      borderStyle='round'
       borderColor={isWarning ? theme.status.warning : theme.border.default}
       width={width}
       paddingLeft={1}

@@ -17,7 +17,7 @@ import { type Settings } from './settings.js';
 
 export async function createPolicyEngineConfig(
   settings: Settings,
-  approvalMode: ApprovalMode,
+  approvalMode: ApprovalMode
 ): Promise<PolicyEngineConfig> {
   // Explicitly construct PolicySettings from Settings to ensure type safety
   // and avoid accidental leakage of other settings properties.
@@ -31,9 +31,6 @@ export async function createPolicyEngineConfig(
   return createCorePolicyEngineConfig(policySettings, approvalMode);
 }
 
-export function createPolicyUpdater(
-  policyEngine: PolicyEngine,
-  messageBus: MessageBus,
-) {
+export function createPolicyUpdater(policyEngine: PolicyEngine, messageBus: MessageBus) {
   return createCorePolicyUpdater(policyEngine, messageBus);
 }

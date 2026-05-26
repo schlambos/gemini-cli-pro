@@ -5,10 +5,7 @@
  */
 
 import { type FunctionCall } from '@google/genai';
-import type {
-  ToolConfirmationOutcome,
-  ToolConfirmationPayload,
-} from '../tools/tools.js';
+import type { ToolConfirmationOutcome, ToolConfirmationPayload } from '../tools/tools.js';
 import type { ToolCall } from '../scheduler/types.js';
 
 export enum MessageBusType {

@@ -6,8 +6,7 @@
 
 import type { Resource } from '@modelcontextprotocol/sdk/types.js';
 
-const resourceKey = (serverName: string, uri: string): string =>
-  `${serverName}::${uri}`;
+const resourceKey = (serverName: string, uri: string): string => `${serverName}::${uri}`;
 
 export interface MCPResource extends Resource {
   serverName: string;

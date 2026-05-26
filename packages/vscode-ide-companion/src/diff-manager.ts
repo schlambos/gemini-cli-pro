@@ -50,21 +50,20 @@ interface DiffInfo {
  * Manages the state and lifecycle of diff views within the IDE.
  */
 export class DiffManager {
-  private readonly onDidChangeEmitter =
-    new vscode.EventEmitter<JSONRPCNotification>();
+  private readonly onDidChangeEmitter = new vscode.EventEmitter<JSONRPCNotification>();
   readonly onDidChange = this.onDidChangeEmitter.event;
   private diffDocuments = new Map<string, DiffInfo>();
   private readonly subscriptions: vscode.Disposable[] = [];
 
   constructor(
     private readonly log: (message: string) => void,
-    private readonly diffContentProvider: DiffContentProvider,
+    private readonly diffContentProvider: DiffContentProvider
   ) {
     this.subscriptions.push(
       vscode.window.onDidChangeActiveTextEditor((editor) => {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.onActiveEditorChange(editor);
-      }),
+      })
     );
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.onActiveEditorChange(vscode.window.activeTextEditor);
@@ -97,11 +96,7 @@ export class DiffManager {
     });
 
     const diffTitle = `${path.basename(filePath)} ↔ Modified`;
-    await vscode.commands.executeCommand(
-      'setContext',
-      'gemini.diff.isVisible',
-      true,
-    );
+    await vscode.commands.executeCommand('setContext', 'gemini.diff.isVisible', true);
 
     let leftDocUri;
     try {
@@ -116,19 +111,11 @@ export class DiffManager {
       });
     }
 
-    await vscode.commands.executeCommand(
-      'vscode.diff',
-      leftDocUri,
-      rightDocUri,
-      diffTitle,
-      {
-        preview: false,
-        preserveFocus: true,
-      },
-    );
-    await vscode.commands.executeCommand(
-      'workbench.action.files.setActiveEditorWriteableInSession',
-    );
+    await vscode.commands.executeCommand('vscode.diff', leftDocUri, rightDocUri, diffTitle, {
+      preview: false,
+      preserveFocus: true,
+    });
+    await vscode.commands.executeCommand('workbench.action.files.setActiveEditorWriteableInSession');
   }
 
   /**
@@ -173,7 +160,7 @@ export class DiffManager {
           filePath: diffInfo.originalFilePath,
           content: modifiedContent,
         },
-      }),
+      })
     );
   }
 
@@ -199,7 +186,7 @@ export class DiffManager {
           filePath: diffInfo.originalFilePath,
           content: modifiedContent,
         },
-      }),
+      })
     );
   }
 
@@ -216,11 +203,7 @@ export class DiffManager {
         }
       }
     }
-    await vscode.commands.executeCommand(
-      'setContext',
-      'gemini.diff.isVisible',
-      isVisible,
-    );
+    await vscode.commands.executeCommand('setContext', 'gemini.diff.isVisible', isVisible);
   }
 
   private addDiffDocument(uri: vscode.Uri, diffInfo: DiffInfo) {
@@ -229,11 +212,7 @@ export class DiffManager {
 
   private async closeDiffEditor(rightDocUri: vscode.Uri) {
     const diffInfo = this.diffDocuments.get(rightDocUri.toString());
-    await vscode.commands.executeCommand(
-      'setContext',
-      'gemini.diff.isVisible',
-      false,
-    );
+    await vscode.commands.executeCommand('setContext', 'gemini.diff.isVisible', false);
 
     if (diffInfo) {
       this.diffDocuments.delete(rightDocUri.toString());
@@ -243,10 +222,7 @@ export class DiffManager {
     // Find and close the tab corresponding to the diff view
     for (const tabGroup of vscode.window.tabGroups.all) {
       for (const tab of tabGroup.tabs) {
-        if (
-          tab.input instanceof vscode.TabInputTextDiff &&
-          tab.input.modified.toString() === rightDocUri.toString()
-        ) {
+        if (tab.input instanceof vscode.TabInputTextDiff && tab.input.modified.toString() === rightDocUri.toString()) {
           await vscode.window.tabGroups.close(tab);
           return;
         }

@@ -18,12 +18,8 @@ import { StickyHeader } from './StickyHeader.js';
 import { useAlternateBuffer } from '../hooks/useAlternateBuffer.js';
 import type { SerializableConfirmationDetails } from '@google/gemini-cli-core';
 
-function getConfirmationHeader(
-  details: SerializableConfirmationDetails | undefined,
-): string {
-  const headers: Partial<
-    Record<SerializableConfirmationDetails['type'], string>
-  > = {
+function getConfirmationHeader(details: SerializableConfirmationDetails | undefined): string {
+  const headers: Partial<Record<SerializableConfirmationDetails['type'], string>> = {
     ask_user: 'Answer Questions',
     exit_plan_mode: 'Ready to start implementation?',
   };
@@ -37,17 +33,10 @@ interface ToolConfirmationQueueProps {
   confirmingTool: ConfirmingToolState;
 }
 
-export const ToolConfirmationQueue: React.FC<ToolConfirmationQueueProps> = ({
-  confirmingTool,
-}) => {
+export const ToolConfirmationQueue: React.FC<ToolConfirmationQueueProps> = ({ confirmingTool }) => {
   const config = useConfig();
   const isAlternateBuffer = useAlternateBuffer();
-  const {
-    mainAreaWidth,
-    terminalHeight,
-    constrainHeight,
-    availableTerminalHeight: uiAvailableHeight,
-  } = useUIState();
+  const { mainAreaWidth, terminalHeight, constrainHeight, availableTerminalHeight: uiAvailableHeight } = useUIState();
   const { tool, index, total } = confirmingTool;
 
   // Safety check: ToolConfirmationMessage requires confirmationDetails
@@ -56,41 +45,27 @@ export const ToolConfirmationQueue: React.FC<ToolConfirmationQueueProps> = ({
   // Render up to 100% of the available terminal height (minus 1 line for safety)
   // to maximize space for diffs and other content.
   const maxHeight =
-    uiAvailableHeight !== undefined
-      ? Math.max(uiAvailableHeight - 1, 4)
-      : Math.floor(terminalHeight * 0.5);
+    uiAvailableHeight !== undefined ? Math.max(uiAvailableHeight - 1, 4) : Math.floor(terminalHeight * 0.5);
 
   // ToolConfirmationMessage needs to know the height available for its OWN content.
   // We subtract the lines used by the Queue wrapper:
   // - 2 lines for the rounded border
   // - 2 lines for the Header (text + margin)
   // - 2 lines for Tool Identity (text + margin)
-  const availableContentHeight =
-    constrainHeight && !isAlternateBuffer
-      ? Math.max(maxHeight - 6, 4)
-      : undefined;
+  const availableContentHeight = constrainHeight && !isAlternateBuffer ? Math.max(maxHeight - 6, 4) : undefined;
 
   const isRoutine =
-    tool.confirmationDetails?.type === 'ask_user' ||
-    tool.confirmationDetails?.type === 'exit_plan_mode';
+    tool.confirmationDetails?.type === 'ask_user' || tool.confirmationDetails?.type === 'exit_plan_mode';
   const borderColor = isRoutine ? theme.status.success : theme.status.warning;
   const hideToolIdentity = isRoutine;
 
   return (
     <OverflowProvider>
-      <Box flexDirection="column" width={mainAreaWidth} flexShrink={0}>
-        <StickyHeader
-          width={mainAreaWidth}
-          isFirst={true}
-          borderColor={borderColor}
-          borderDimColor={false}
-        >
-          <Box flexDirection="column" width={mainAreaWidth - 4}>
+      <Box flexDirection='column' width={mainAreaWidth} flexShrink={0}>
+        <StickyHeader width={mainAreaWidth} isFirst={true} borderColor={borderColor} borderDimColor={false}>
+          <Box flexDirection='column' width={mainAreaWidth - 4}>
             {/* Header */}
-            <Box
-              marginBottom={hideToolIdentity ? 0 : 1}
-              justifyContent="space-between"
-            >
+            <Box marginBottom={hideToolIdentity ? 0 : 1} justifyContent='space-between'>
               <Text color={borderColor} bold>
                 {getConfirmationHeader(tool.confirmationDetails)}
               </Text>
@@ -104,12 +79,7 @@ export const ToolConfirmationQueue: React.FC<ToolConfirmationQueueProps> = ({
             {!hideToolIdentity && (
               <Box>
                 <ToolStatusIndicator status={tool.status} name={tool.name} />
-                <ToolInfo
-                  name={tool.name}
-                  status={tool.status}
-                  description={tool.description}
-                  emphasis="high"
-                />
+                <ToolInfo name={tool.name} status={tool.status} description={tool.description} emphasis='high' />
               </Box>
             )}
           </Box>
@@ -117,14 +87,14 @@ export const ToolConfirmationQueue: React.FC<ToolConfirmationQueueProps> = ({
 
         <Box
           width={mainAreaWidth}
-          borderStyle="round"
+          borderStyle='round'
           borderColor={borderColor}
           borderTop={false}
           borderBottom={false}
           borderLeft={true}
           borderRight={true}
           paddingX={1}
-          flexDirection="column"
+          flexDirection='column'
         >
           {/* Interactive Area */}
           {/*
@@ -148,7 +118,7 @@ export const ToolConfirmationQueue: React.FC<ToolConfirmationQueueProps> = ({
           borderTop={false}
           borderBottom={true}
           borderColor={borderColor}
-          borderStyle="round"
+          borderStyle='round'
         />
       </Box>
       <ShowMoreLines constrainHeight={constrainHeight} />

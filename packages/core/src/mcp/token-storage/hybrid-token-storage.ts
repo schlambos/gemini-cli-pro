@@ -27,9 +27,7 @@ export class HybridTokenStorage extends BaseTokenStorage {
 
     if (!forceFileStorage) {
       try {
-        const { KeychainTokenStorage } = await import(
-          './keychain-token-storage.js'
-        );
+        const { KeychainTokenStorage } = await import('./keychain-token-storage.js');
         const keychainStorage = new KeychainTokenStorage(this.serviceName);
 
         const isAvailable = await keychainStorage.isAvailable();
@@ -37,9 +35,7 @@ export class HybridTokenStorage extends BaseTokenStorage {
           this.storage = keychainStorage;
           this.storageType = TokenStorageType.KEYCHAIN;
 
-          coreEvents.emitTelemetryTokenStorageType(
-            new TokenStorageInitializationEvent('keychain', forceFileStorage),
-          );
+          coreEvents.emitTelemetryTokenStorageType(new TokenStorageInitializationEvent('keychain', forceFileStorage));
 
           return this.storage;
         }
@@ -51,9 +47,7 @@ export class HybridTokenStorage extends BaseTokenStorage {
     this.storage = new FileTokenStorage(this.serviceName);
     this.storageType = TokenStorageType.ENCRYPTED_FILE;
 
-    coreEvents.emitTelemetryTokenStorageType(
-      new TokenStorageInitializationEvent('encrypted_file', forceFileStorage),
-    );
+    coreEvents.emitTelemetryTokenStorageType(new TokenStorageInitializationEvent('encrypted_file', forceFileStorage));
 
     return this.storage;
   }

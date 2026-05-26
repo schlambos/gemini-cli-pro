@@ -24,8 +24,7 @@ import { createMockMessageBus } from '@google/gemini-cli-core/src/test-utils/moc
 
 // Mock Core Scheduler
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     Scheduler: vi.fn().mockImplementation(() => ({
@@ -35,9 +34,7 @@ vi.mock('@google/gemini-cli-core', async (importOriginal) => {
   };
 });
 
-const createMockTool = (
-  overrides: Partial<AnyDeclarativeTool> = {},
-): AnyDeclarativeTool =>
+const createMockTool = (overrides: Partial<AnyDeclarativeTool> = {}): AnyDeclarativeTool =>
   ({
     name: 'test_tool',
     displayName: 'Test Tool',
@@ -49,9 +46,7 @@ const createMockTool = (
     ...overrides,
   }) as AnyDeclarativeTool;
 
-const createMockInvocation = (
-  overrides: Partial<AnyToolInvocation> = {},
-): AnyToolInvocation =>
+const createMockInvocation = (overrides: Partial<AnyToolInvocation> = {}): AnyToolInvocation =>
   ({
     getDescription: () => 'Executing test tool',
     shouldConfirmExecute: vi.fn(),
@@ -79,11 +74,7 @@ describe('useToolScheduler', () => {
 
   it('initializes with empty tool calls', () => {
     const { result } = renderHook(() =>
-      useToolScheduler(
-        vi.fn().mockResolvedValue(undefined),
-        mockConfig,
-        () => undefined,
-      ),
+      useToolScheduler(vi.fn().mockResolvedValue(undefined), mockConfig, () => undefined)
     );
     const [toolCalls] = result.current;
     expect(toolCalls).toEqual([]);
@@ -91,11 +82,7 @@ describe('useToolScheduler', () => {
 
   it('updates tool calls when MessageBus emits TOOL_CALLS_UPDATE', () => {
     const { result } = renderHook(() =>
-      useToolScheduler(
-        vi.fn().mockResolvedValue(undefined),
-        mockConfig,
-        () => undefined,
-      ),
+      useToolScheduler(vi.fn().mockResolvedValue(undefined), mockConfig, () => undefined)
     );
 
     const mockToolCall = {
@@ -133,11 +120,7 @@ describe('useToolScheduler', () => {
 
   it('preserves responseSubmittedToGemini flag across updates', () => {
     const { result } = renderHook(() =>
-      useToolScheduler(
-        vi.fn().mockResolvedValue(undefined),
-        mockConfig,
-        () => undefined,
-      ),
+      useToolScheduler(vi.fn().mockResolvedValue(undefined), mockConfig, () => undefined)
     );
 
     const mockToolCall = {
@@ -192,11 +175,7 @@ describe('useToolScheduler', () => {
   it('updates lastToolOutputTime when tools are executing', () => {
     vi.useFakeTimers();
     const { result } = renderHook(() =>
-      useToolScheduler(
-        vi.fn().mockResolvedValue(undefined),
-        mockConfig,
-        () => undefined,
-      ),
+      useToolScheduler(vi.fn().mockResolvedValue(undefined), mockConfig, () => undefined)
     );
 
     const startTime = Date.now();
@@ -230,11 +209,7 @@ describe('useToolScheduler', () => {
 
   it('delegates cancelAll to the Core Scheduler', () => {
     const { result } = renderHook(() =>
-      useToolScheduler(
-        vi.fn().mockResolvedValue(undefined),
-        mockConfig,
-        () => undefined,
-      ),
+      useToolScheduler(vi.fn().mockResolvedValue(undefined), mockConfig, () => undefined)
     );
 
     const [, , , , cancelAll] = result.current;
@@ -279,12 +254,10 @@ describe('useToolScheduler', () => {
         ({
           schedule: vi.fn().mockResolvedValue([completedToolCall]),
           cancelAll: vi.fn(),
-        }) as unknown as Scheduler,
+        }) as unknown as Scheduler
     );
 
-    const { result } = renderHook(() =>
-      useToolScheduler(onComplete, mockConfig, () => undefined),
-    );
+    const { result } = renderHook(() => useToolScheduler(onComplete, mockConfig, () => undefined));
 
     const [, schedule] = result.current;
     const signal = new AbortController().signal;
@@ -299,7 +272,7 @@ describe('useToolScheduler', () => {
           isClientInitiated: false,
           prompt_id: 'p1',
         },
-        signal,
+        signal
       );
     });
 
@@ -309,11 +282,7 @@ describe('useToolScheduler', () => {
 
   it('setToolCallsForDisplay re-groups tools by schedulerId (Multi-Scheduler support)', () => {
     const { result } = renderHook(() =>
-      useToolScheduler(
-        vi.fn().mockResolvedValue(undefined),
-        mockConfig,
-        () => undefined,
-      ),
+      useToolScheduler(vi.fn().mockResolvedValue(undefined), mockConfig, () => undefined)
     );
 
     const callRoot = {
@@ -360,19 +329,13 @@ describe('useToolScheduler', () => {
 
     let [toolCalls] = result.current;
     expect(toolCalls).toHaveLength(2);
-    expect(
-      toolCalls.find((t) => t.request.callId === 'call-root')?.schedulerId,
-    ).toBe(ROOT_SCHEDULER_ID);
-    expect(
-      toolCalls.find((t) => t.request.callId === 'call-sub')?.schedulerId,
-    ).toBe('subagent-1');
+    expect(toolCalls.find((t) => t.request.callId === 'call-root')?.schedulerId).toBe(ROOT_SCHEDULER_ID);
+    expect(toolCalls.find((t) => t.request.callId === 'call-sub')?.schedulerId).toBe('subagent-1');
 
     // 2. Call setToolCallsForDisplay (e.g., simulate a manual update or clear)
     act(() => {
       const [, , , setToolCalls] = result.current;
-      setToolCalls((prev) =>
-        prev.map((t) => ({ ...t, responseSubmittedToGemini: true })),
-      );
+      setToolCalls((prev) => prev.map((t) => ({ ...t, responseSubmittedToGemini: true })));
     });
 
     // 3. Verify that tools are still present and maintain their scheduler IDs
@@ -398,11 +361,7 @@ describe('useToolScheduler', () => {
 
     [toolCalls] = result.current;
     expect(toolCalls).toHaveLength(2);
-    expect(
-      toolCalls.find((t) => t.request.callId === 'call-root')?.status,
-    ).toBe(CoreToolCallStatus.Executing);
-    expect(
-      toolCalls.find((t) => t.request.callId === 'call-sub')?.schedulerId,
-    ).toBe('subagent-1');
+    expect(toolCalls.find((t) => t.request.callId === 'call-root')?.status).toBe(CoreToolCallStatus.Executing);
+    expect(toolCalls.find((t) => t.request.callId === 'call-sub')?.schedulerId).toBe('subagent-1');
   });
 });

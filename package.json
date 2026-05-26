@@ -1,21 +1,23 @@
 {
   "name": "@google/gemini-cli",
   "version": "0.30.0",
-  "engines": {
-    "node": ">=20.0.0"
-  },
-  "type": "module",
-  "workspaces": [
-    "packages/*"
-  ],
   "private": "true",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/google-gemini/gemini-cli.git"
   },
-  "config": {
-    "sandboxImageUri": "us-docker.pkg.dev/gemini-code-dev/gemini-cli/sandbox:0.30.0"
+  "bin": {
+    "gemini": "bundle/gemini.js"
   },
+  "workspaces": [
+    "packages/*"
+  ],
+  "files": [
+    "bundle/",
+    "README.md",
+    "LICENSE"
+  ],
+  "type": "module",
   "scripts": {
     "start": "cross-env NODE_ENV=development node scripts/start.js",
     "start:a2a-server": "CODER_AGENT_PORT=41242 npm run start --workspace @google/gemini-cli-a2a-server",
@@ -63,21 +65,13 @@
     "clean": "node scripts/clean.js",
     "pre-commit": "node scripts/pre-commit.js"
   },
-  "overrides": {
+  "dependencies": {
     "ink": "npm:@jrichman/ink@6.4.10",
-    "wrap-ansi": "9.0.2",
-    "cliui": {
-      "wrap-ansi": "7.0.0"
-    }
+    "latest-version": "^9.0.0",
+    "proper-lockfile": "^4.1.2",
+    "punycode": "^2.3.1",
+    "simple-git": "^3.28.0"
   },
-  "bin": {
-    "gemini": "bundle/gemini.js"
-  },
-  "files": [
-    "bundle/",
-    "README.md",
-    "LICENSE"
-  ],
   "devDependencies": {
     "@agentclientprotocol/sdk": "^0.12.0",
     "@octokit/rest": "^22.0.0",
@@ -125,13 +119,6 @@
     "vitest": "^3.2.4",
     "yargs": "^17.7.2"
   },
-  "dependencies": {
-    "ink": "npm:@jrichman/ink@6.4.10",
-    "latest-version": "^9.0.0",
-    "proper-lockfile": "^4.1.2",
-    "punycode": "^2.3.1",
-    "simple-git": "^3.28.0"
-  },
   "optionalDependencies": {
     "@lydell/node-pty": "1.1.0",
     "@lydell/node-pty-darwin-arm64": "1.1.0",
@@ -142,6 +129,13 @@
     "gemini-cli-devtools": "^0.2.1",
     "keytar": "^7.9.0",
     "node-pty": "^1.0.0"
+  },
+  "overrides": {
+    "cliui": {
+      "wrap-ansi": "7.0.0"
+    },
+    "ink": "npm:@jrichman/ink@6.4.10",
+    "wrap-ansi": "9.0.2"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -154,5 +148,11 @@
     "*.{json,md}": [
       "prettier --write"
     ]
+  },
+  "config": {
+    "sandboxImageUri": "us-docker.pkg.dev/gemini-code-dev/gemini-cli/sandbox:0.30.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   }
 }

@@ -29,8 +29,7 @@ export interface RegistryExtension {
 }
 
 export class ExtensionRegistryClient {
-  private static readonly REGISTRY_URL =
-    'https://geminicli.com/extensions.json';
+  private static readonly REGISTRY_URL = 'https://geminicli.com/extensions.json';
   private static readonly FETCH_TIMEOUT_MS = 10000; // 10 seconds
 
   private static fetchPromise: Promise<RegistryExtension[]> | null = null;
@@ -43,7 +42,7 @@ export class ExtensionRegistryClient {
   async getExtensions(
     page: number = 1,
     limit: number = 10,
-    orderBy: 'ranking' | 'alphabetical' = 'ranking',
+    orderBy: 'ranking' | 'alphabetical' = 'ranking'
   ): Promise<{ extensions: RegistryExtension[]; total: number }> {
     const allExtensions = [...(await this.fetchAllExtensions())];
 
@@ -52,9 +51,7 @@ export class ExtensionRegistryClient {
         allExtensions.sort((a, b) => a.rank - b.rank);
         break;
       case 'alphabetical':
-        allExtensions.sort((a, b) =>
-          a.extensionName.localeCompare(b.extensionName),
-        );
+        allExtensions.sort((a, b) => a.extensionName.localeCompare(b.extensionName));
         break;
       default: {
         const _exhaustiveCheck: never = orderBy;
@@ -77,8 +74,7 @@ export class ExtensionRegistryClient {
     }
 
     const fzf = new AsyncFzf(allExtensions, {
-      selector: (ext: RegistryExtension) =>
-        `${ext.extensionName} ${ext.extensionDescription} ${ext.fullName}`,
+      selector: (ext: RegistryExtension) => `${ext.extensionName} ${ext.extensionDescription} ${ext.fullName}`,
       fuzzy: 'v2',
     });
     const results = await fzf.find(query);
@@ -99,7 +95,7 @@ export class ExtensionRegistryClient {
       try {
         const response = await fetchWithTimeout(
           ExtensionRegistryClient.REGISTRY_URL,
-          ExtensionRegistryClient.FETCH_TIMEOUT_MS,
+          ExtensionRegistryClient.FETCH_TIMEOUT_MS
         );
         if (!response.ok) {
           throw new Error(`Failed to fetch extensions: ${response.statusText}`);

@@ -5,11 +5,7 @@
  */
 
 import { render } from '../../test-utils/render.js';
-import {
-  ScrollProvider,
-  useScrollable,
-  type ScrollState,
-} from './ScrollProvider.js';
+import { ScrollProvider, useScrollable, type ScrollState } from './ScrollProvider.js';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useRef, useImperativeHandle, forwardRef, type RefObject } from 'react';
 import { Box, type DOMElement } from 'ink';
@@ -49,7 +45,7 @@ const TestScrollable = forwardRef(
       scrollTo?: (scrollTop: number) => void;
       getScrollState: () => ScrollState;
     },
-    ref,
+    ref
   ) => {
     const elementRef = useRef<DOMElement>(null);
     useImperativeHandle(ref, () => elementRef.current);
@@ -63,11 +59,11 @@ const TestScrollable = forwardRef(
         hasFocus: () => true,
         flashScrollbar: () => {},
       },
-      true,
+      true
     );
 
     return <Box ref={elementRef} />;
-  },
+  }
 );
 TestScrollable.displayName = 'TestScrollable';
 
@@ -92,12 +88,8 @@ describe('ScrollProvider', () => {
 
       render(
         <ScrollProvider>
-          <TestScrollable
-            id="test-scrollable"
-            scrollBy={scrollBy}
-            getScrollState={getScrollState}
-          />
-        </ScrollProvider>,
+          <TestScrollable id='test-scrollable' scrollBy={scrollBy} getScrollState={getScrollState} />
+        </ScrollProvider>
       );
 
       let handled = false;
@@ -130,12 +122,8 @@ describe('ScrollProvider', () => {
 
       render(
         <ScrollProvider>
-          <TestScrollable
-            id="test-scrollable"
-            scrollBy={scrollBy}
-            getScrollState={getScrollState}
-          />
-        </ScrollProvider>,
+          <TestScrollable id='test-scrollable' scrollBy={scrollBy} getScrollState={getScrollState} />
+        </ScrollProvider>
       );
 
       let handled = false;
@@ -169,13 +157,8 @@ describe('ScrollProvider', () => {
 
     render(
       <ScrollProvider>
-        <TestScrollable
-          id="test-scrollable"
-          scrollBy={scrollBy}
-          scrollTo={scrollTo}
-          getScrollState={getScrollState}
-        />
-      </ScrollProvider>,
+        <TestScrollable id='test-scrollable' scrollBy={scrollBy} scrollTo={scrollTo} getScrollState={getScrollState} />
+      </ScrollProvider>
     );
 
     // Scrollbar is at x + width = 0 + 10 = 10.
@@ -213,12 +196,8 @@ describe('ScrollProvider', () => {
 
     render(
       <ScrollProvider>
-        <TestScrollable
-          id="test-scrollable"
-          scrollBy={scrollBy}
-          getScrollState={getScrollState}
-        />
-      </ScrollProvider>,
+        <TestScrollable id='test-scrollable' scrollBy={scrollBy} getScrollState={getScrollState} />
+      </ScrollProvider>
     );
 
     for (const callback of mockUseMouseCallbacks) {
@@ -246,12 +225,8 @@ describe('ScrollProvider', () => {
 
     render(
       <ScrollProvider>
-        <TestScrollable
-          id="test-scrollable"
-          scrollBy={scrollBy}
-          getScrollState={getScrollState}
-        />
-      </ScrollProvider>,
+        <TestScrollable id='test-scrollable' scrollBy={scrollBy} getScrollState={getScrollState} />
+      </ScrollProvider>
     );
 
     // Simulate multiple scroll events
@@ -291,12 +266,8 @@ describe('ScrollProvider', () => {
 
     render(
       <ScrollProvider>
-        <TestScrollable
-          id="test-scrollable"
-          scrollBy={scrollBy}
-          getScrollState={getScrollState}
-        />
-      </ScrollProvider>,
+        <TestScrollable id='test-scrollable' scrollBy={scrollBy} getScrollState={getScrollState} />
+      </ScrollProvider>
     );
 
     // Simulate mixed scroll events: down (1), down (1), up (-1)
@@ -349,12 +320,8 @@ describe('ScrollProvider', () => {
 
     render(
       <ScrollProvider>
-        <TestScrollable
-          id="test-scrollable"
-          scrollBy={scrollBy}
-          getScrollState={getScrollState}
-        />
-      </ScrollProvider>,
+        <TestScrollable id='test-scrollable' scrollBy={scrollBy} getScrollState={getScrollState} />
+      </ScrollProvider>
     );
 
     // Try to scroll down 3 times, but only 1 is allowed before hitting bottom
@@ -410,13 +377,8 @@ describe('ScrollProvider', () => {
 
     render(
       <ScrollProvider>
-        <TestScrollable
-          id="test-scrollable"
-          scrollBy={scrollBy}
-          scrollTo={scrollTo}
-          getScrollState={getScrollState}
-        />
-      </ScrollProvider>,
+        <TestScrollable id='test-scrollable' scrollBy={scrollBy} scrollTo={scrollTo} getScrollState={getScrollState} />
+      </ScrollProvider>
     );
 
     // Start drag on thumb
@@ -472,12 +434,8 @@ describe('ScrollProvider', () => {
 
     render(
       <ScrollProvider>
-        <TestScrollable
-          id="test-scrollable"
-          scrollBy={scrollBy}
-          getScrollState={getScrollState}
-        />
-      </ScrollProvider>,
+        <TestScrollable id='test-scrollable' scrollBy={scrollBy} getScrollState={getScrollState} />
+      </ScrollProvider>
     );
 
     // Start drag on thumb

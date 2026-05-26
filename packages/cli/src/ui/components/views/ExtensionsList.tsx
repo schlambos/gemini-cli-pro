@@ -23,9 +23,9 @@ export const ExtensionsList: React.FC<ExtensionsList> = ({ extensions }) => {
   }
 
   return (
-    <Box flexDirection="column" marginBottom={1}>
+    <Box flexDirection='column' marginBottom={1}>
       <Text>Installed extensions: </Text>
-      <Box flexDirection="column" paddingLeft={2}>
+      <Box flexDirection='column' paddingLeft={2}>
         {extensions.map((ext) => {
           const state = extensionsUpdateState.get(ext.name);
           const isActive = ext.isActive;
@@ -60,24 +60,22 @@ export const ExtensionsList: React.FC<ExtensionsList> = ({ extensions }) => {
           }
 
           return (
-            <Box key={ext.name} flexDirection="column" marginBottom={1}>
+            <Box key={ext.name} flexDirection='column' marginBottom={1}>
               <Text>
-                <Text color="cyan">{`${ext.name} (v${ext.version})`}</Text>
+                <Text color='cyan'>{`${ext.name} (v${ext.version})`}</Text>
                 <Text color={activeColor}>{` - ${activeString}`}</Text>
                 {<Text color={stateColor}>{` (${stateText})`}</Text>}
               </Text>
               {ext.resolvedSettings && ext.resolvedSettings.length > 0 && (
-                <Box flexDirection="column" paddingLeft={2}>
+                <Box flexDirection='column' paddingLeft={2}>
                   <Text>settings:</Text>
                   {ext.resolvedSettings.map((setting) => (
                     <Text key={setting.name}>
                       - {setting.name}: {getFormattedSettingValue(setting)}
                       {setting.scope && (
-                        <Text color="gray">
+                        <Text color='gray'>
                           {' '}
-                          (
-                          {setting.scope.charAt(0).toUpperCase() +
-                            setting.scope.slice(1)}
+                          ({setting.scope.charAt(0).toUpperCase() + setting.scope.slice(1)}
                           {setting.source ? ` - ${setting.source}` : ''})
                         </Text>
                       )}

@@ -17,9 +17,7 @@ interface StatusDisplayProps {
   hideContextSummary: boolean;
 }
 
-export const StatusDisplay: React.FC<StatusDisplayProps> = ({
-  hideContextSummary,
-}) => {
+export const StatusDisplay: React.FC<StatusDisplayProps> = ({ hideContextSummary }) => {
   const uiState = useUIState();
   const settings = useSettings();
   const config = useConfig();
@@ -28,10 +26,7 @@ export const StatusDisplay: React.FC<StatusDisplayProps> = ({
     return <Text color={theme.status.error}>|⌐■_■|</Text>;
   }
 
-  if (
-    uiState.activeHooks.length > 0 &&
-    settings.merged.hooksConfig.notifications
-  ) {
+  if (uiState.activeHooks.length > 0 && settings.merged.hooksConfig.notifications) {
     return <HookStatusDisplay activeHooks={uiState.activeHooks} />;
   }
 
@@ -42,9 +37,7 @@ export const StatusDisplay: React.FC<StatusDisplayProps> = ({
         geminiMdFileCount={uiState.geminiMdFileCount}
         contextFileNames={uiState.contextFileNames}
         mcpServers={config.getMcpClientManager()?.getMcpServers() ?? {}}
-        blockedMcpServers={
-          config.getMcpClientManager()?.getBlockedMcpServers() ?? []
-        }
+        blockedMcpServers={config.getMcpClientManager()?.getBlockedMcpServers() ?? []}
         skillCount={config.getSkillManager().getDisplayableSkills().length}
         backgroundProcessCount={uiState.backgroundShellCount}
       />

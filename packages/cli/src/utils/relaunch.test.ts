@@ -4,15 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  vi,
-  describe,
-  it,
-  expect,
-  beforeEach,
-  afterEach,
-  type MockInstance,
-} from 'vitest';
+import { vi, describe, it, expect, beforeEach, afterEach, type MockInstance } from 'vitest';
 import { EventEmitter } from 'node:events';
 import { RELAUNCH_EXIT_CODE } from './processUtils.js';
 import type { ChildProcess } from 'node:child_process';
@@ -23,8 +15,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     writeToStderr: mocks.writeToStderr,
@@ -52,9 +43,7 @@ describe('relaunchOnExitCode', () => {
     processExitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {
       throw new Error('PROCESS_EXIT_CALLED');
     });
-    stdinResumeSpy = vi
-      .spyOn(process.stdin, 'resume')
-      .mockImplementation(() => process.stdin);
+    stdinResumeSpy = vi.spyOn(process.stdin, 'resume').mockImplementation(() => process.stdin);
     vi.clearAllMocks();
     mocks.writeToStderr.mockClear();
   });
@@ -67,9 +56,7 @@ describe('relaunchOnExitCode', () => {
   it('should exit with non-RELAUNCH_EXIT_CODE', async () => {
     const runner = vi.fn().mockResolvedValue(0);
 
-    await expect(relaunchOnExitCode(runner)).rejects.toThrow(
-      'PROCESS_EXIT_CALLED',
-    );
+    await expect(relaunchOnExitCode(runner)).rejects.toThrow('PROCESS_EXIT_CALLED');
 
     expect(runner).toHaveBeenCalledTimes(1);
     expect(processExitSpy).toHaveBeenCalledWith(0);
@@ -84,9 +71,7 @@ describe('relaunchOnExitCode', () => {
       return 0; // Exit on third call
     });
 
-    await expect(relaunchOnExitCode(runner)).rejects.toThrow(
-      'PROCESS_EXIT_CALLED',
-    );
+    await expect(relaunchOnExitCode(runner)).rejects.toThrow('PROCESS_EXIT_CALLED');
 
     expect(runner).toHaveBeenCalledTimes(3);
     expect(processExitSpy).toHaveBeenCalledWith(0);
@@ -96,15 +81,11 @@ describe('relaunchOnExitCode', () => {
     const error = new Error('Runner failed');
     const runner = vi.fn().mockRejectedValue(error);
 
-    await expect(relaunchOnExitCode(runner)).rejects.toThrow(
-      'PROCESS_EXIT_CALLED',
-    );
+    await expect(relaunchOnExitCode(runner)).rejects.toThrow('PROCESS_EXIT_CALLED');
 
     expect(runner).toHaveBeenCalledTimes(1);
     expect(mocks.writeToStderr).toHaveBeenCalledWith(
-      expect.stringContaining(
-        'Fatal error: Failed to relaunch the CLI process.',
-      ),
+      expect.stringContaining('Fatal error: Failed to relaunch the CLI process.')
     );
     expect(stdinResumeSpy).toHaveBeenCalled();
     expect(processExitSpy).toHaveBeenCalledWith(1);
@@ -136,12 +117,8 @@ describe('relaunchAppInChildProcess', () => {
     processExitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {
       throw new Error('PROCESS_EXIT_CALLED');
     });
-    stdinPauseSpy = vi
-      .spyOn(process.stdin, 'pause')
-      .mockImplementation(() => process.stdin);
-    stdinResumeSpy = vi
-      .spyOn(process.stdin, 'resume')
-      .mockImplementation(() => process.stdin);
+    stdinPauseSpy = vi.spyOn(process.stdin, 'pause').mockImplementation(() => process.stdin);
+    stdinResumeSpy = vi.spyOn(process.stdin, 'resume').mockImplementation(() => process.stdin);
   });
 
   afterEach(() => {
@@ -177,30 +154,15 @@ describe('relaunchAppInChildProcess', () => {
 
       // Setup test data to verify argument ordering
       const mockExecArgv = ['--inspect=9229', '--trace-warnings'];
-      const mockArgv = [
-        '/usr/bin/node',
-        '/path/to/cli.js',
-        'command',
-        '--flag=value',
-        '--verbose',
-      ];
-      const additionalNodeArgs = [
-        '--max-old-space-size=4096',
-        '--experimental-modules',
-      ];
+      const mockArgv = ['/usr/bin/node', '/path/to/cli.js', 'command', '--flag=value', '--verbose'];
+      const additionalNodeArgs = ['--max-old-space-size=4096', '--experimental-modules'];
       const additionalScriptArgs = ['--model', 'gemini-1.5-pro', '--debug'];
 
       // Extract the argument construction logic from relaunchAppInChildProcess
       const script = mockArgv[1];
       const scriptArgs = mockArgv.slice(2);
 
-      const nodeArgs = [
-        ...mockExecArgv,
-        ...additionalNodeArgs,
-        script,
-        ...additionalScriptArgs,
-        ...scriptArgs,
-      ];
+      const nodeArgs = [...mockExecArgv, ...additionalNodeArgs, script, ...additionalScriptArgs, ...scriptArgs];
 
       // Verify the argument construction follows the expected pattern:
       // [...process.execArgv, ...additionalNodeArgs, script, ...additionalScriptArgs, ...scriptArgs]
@@ -237,13 +199,7 @@ describe('relaunchAppInChildProcess', () => {
       const script = mockArgv[1];
       const scriptArgs = mockArgv.slice(2);
 
-      const nodeArgs = [
-        ...mockExecArgv,
-        ...additionalNodeArgs,
-        script,
-        ...additionalScriptArgs,
-        ...scriptArgs,
-      ];
+      const nodeArgs = [...mockExecArgv, ...additionalNodeArgs, script, ...additionalScriptArgs, ...scriptArgs];
 
       const expectedArgs = ['--trace-warnings', '/app/cli.js', 'start'];
 
@@ -268,13 +224,7 @@ describe('relaunchAppInChildProcess', () => {
       const script = mockArgv[1];
       const scriptArgs = mockArgv.slice(2);
 
-      const nodeArgs = [
-        ...mockExecArgv,
-        ...additionalNodeArgs,
-        script,
-        ...additionalScriptArgs,
-        ...scriptArgs,
-      ];
+      const nodeArgs = [...mockExecArgv, ...additionalNodeArgs, script, ...additionalScriptArgs, ...scriptArgs];
 
       const expectedArgs = [
         '--max-old-space-size=8192',
@@ -321,10 +271,7 @@ describe('relaunchAppInChildProcess', () => {
 /**
  * Creates a mock child process that emits events asynchronously
  */
-function createMockChildProcess(
-  exitCode: number = 0,
-  autoClose: boolean = false,
-): ChildProcess {
+function createMockChildProcess(exitCode: number = 0, autoClose: boolean = false): ChildProcess {
   const mockChild = new EventEmitter() as ChildProcess;
 
   Object.assign(mockChild, {

@@ -5,10 +5,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import {
-  FakeContentGenerator,
-  type FakeResponse,
-} from './fakeContentGenerator.js';
+import { FakeContentGenerator, type FakeResponse } from './fakeContentGenerator.js';
 import { promises } from 'node:fs';
 import {
   GenerateContentResponse,
@@ -37,9 +34,7 @@ describe('FakeContentGenerator', () => {
   const fakeGenerateContentResponse: FakeResponse = {
     method: 'generateContent',
     response: {
-      candidates: [
-        { content: { parts: [{ text: 'response1' }], role: 'model' } },
-      ],
+      candidates: [{ content: { parts: [{ text: 'response1' }], role: 'model' } }],
     } as GenerateContentResponse,
   };
 
@@ -47,14 +42,10 @@ describe('FakeContentGenerator', () => {
     method: 'generateContentStream',
     response: [
       {
-        candidates: [
-          { content: { parts: [{ text: 'chunk1' }], role: 'model' } },
-        ],
+        candidates: [{ content: { parts: [{ text: 'chunk1' }], role: 'model' } }],
       },
       {
-        candidates: [
-          { content: { parts: [{ text: 'chunk2' }], role: 'model' } },
-        ],
+        candidates: [{ content: { parts: [{ text: 'chunk2' }], role: 'model' } }],
       },
     ] as GenerateContentResponse[],
   };
@@ -77,24 +68,14 @@ describe('FakeContentGenerator', () => {
 
   it('should return responses for generateContent', async () => {
     const generator = new FakeContentGenerator([fakeGenerateContentResponse]);
-    const response = await generator.generateContent(
-      {} as GenerateContentParameters,
-      'id',
-      LlmRole.MAIN,
-    );
+    const response = await generator.generateContent({} as GenerateContentParameters, 'id', LlmRole.MAIN);
     expect(response).instanceOf(GenerateContentResponse);
     expect(response).toEqual(fakeGenerateContentResponse.response);
   });
 
   it('should return responses for generateContentStream', async () => {
-    const generator = new FakeContentGenerator([
-      fakeGenerateContentStreamResponse,
-    ]);
-    const stream = await generator.generateContentStream(
-      {} as GenerateContentParameters,
-      'id',
-      LlmRole.MAIN,
-    );
+    const generator = new FakeContentGenerator([fakeGenerateContentStreamResponse]);
+    const stream = await generator.generateContentStream({} as GenerateContentParameters, 'id', LlmRole.MAIN);
     const responses = [];
     for await (const response of stream) {
       expect(response).instanceOf(GenerateContentResponse);
@@ -124,11 +105,7 @@ describe('FakeContentGenerator', () => {
     ];
     const generator = new FakeContentGenerator(fakeResponses);
     for (const fakeResponse of fakeResponses) {
-      const response = await generator[fakeResponse.method](
-        {} as never,
-        '',
-        LlmRole.MAIN,
-      );
+      const response = await generator[fakeResponse.method]({} as never, '', LlmRole.MAIN);
       if (fakeResponse.method === 'generateContentStream') {
         const responses = [];
         for await (const item of response as AsyncGenerator<GenerateContentResponse>) {
@@ -144,31 +121,19 @@ describe('FakeContentGenerator', () => {
 
   it('should throw error when no more responses', async () => {
     const generator = new FakeContentGenerator([fakeGenerateContentResponse]);
-    await generator.generateContent(
-      {} as GenerateContentParameters,
-      'id',
-      LlmRole.MAIN,
+    await generator.generateContent({} as GenerateContentParameters, 'id', LlmRole.MAIN);
+    await expect(generator.embedContent({} as EmbedContentParameters)).rejects.toThrowError(
+      'No more mock responses for embedContent'
     );
-    await expect(
-      generator.embedContent({} as EmbedContentParameters),
-    ).rejects.toThrowError('No more mock responses for embedContent');
-    await expect(
-      generator.countTokens({} as CountTokensParameters),
-    ).rejects.toThrowError('No more mock responses for countTokens');
-    await expect(
-      generator.generateContentStream(
-        {} as GenerateContentParameters,
-        'id',
-        LlmRole.MAIN,
-      ),
-    ).rejects.toThrow('No more mock responses for generateContentStream');
-    await expect(
-      generator.generateContent(
-        {} as GenerateContentParameters,
-        'id',
-        LlmRole.MAIN,
-      ),
-    ).rejects.toThrowError('No more mock responses for generateContent');
+    await expect(generator.countTokens({} as CountTokensParameters)).rejects.toThrowError(
+      'No more mock responses for countTokens'
+    );
+    await expect(generator.generateContentStream({} as GenerateContentParameters, 'id', LlmRole.MAIN)).rejects.toThrow(
+      'No more mock responses for generateContentStream'
+    );
+    await expect(generator.generateContent({} as GenerateContentParameters, 'id', LlmRole.MAIN)).rejects.toThrowError(
+      'No more mock responses for generateContent'
+    );
   });
 
   describe('fromFile', () => {
@@ -177,11 +142,7 @@ describe('FakeContentGenerator', () => {
       mockReadFile.mockResolvedValue(fileContent);
 
       const generator = await FakeContentGenerator.fromFile('fake-path.json');
-      const response = await generator.generateContent(
-        {} as GenerateContentParameters,
-        'id',
-        LlmRole.MAIN,
-      );
+      const response = await generator.generateContent({} as GenerateContentParameters, 'id', LlmRole.MAIN);
       expect(response).toEqual(fakeGenerateContentResponse.response);
     });
   });

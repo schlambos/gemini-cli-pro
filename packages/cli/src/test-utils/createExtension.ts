@@ -12,10 +12,7 @@ import {
   type ExtensionSetting,
   type CustomTheme,
 } from '@google/gemini-cli-core';
-import {
-  EXTENSIONS_CONFIG_FILENAME,
-  INSTALL_METADATA_FILENAME,
-} from '../config/extensions/variables.js';
+import { EXTENSIONS_CONFIG_FILENAME, INSTALL_METADATA_FILENAME } from '../config/extensions/variables.js';
 
 export function createExtension({
   extensionsDir = 'extensions-dir',
@@ -39,7 +36,7 @@ export function createExtension({
       mcpServers,
       settings,
       themes,
-    }),
+    })
   );
 
   if (addContextFile) {
@@ -51,10 +48,7 @@ export function createExtension({
   }
 
   if (installMetadata) {
-    fs.writeFileSync(
-      path.join(extDir, INSTALL_METADATA_FILENAME),
-      JSON.stringify(installMetadata),
-    );
+    fs.writeFileSync(path.join(extDir, INSTALL_METADATA_FILENAME), JSON.stringify(installMetadata));
   }
   return extDir;
 }

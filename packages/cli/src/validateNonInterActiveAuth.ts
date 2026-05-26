@@ -5,12 +5,7 @@
  */
 
 import type { Config } from '@google/gemini-cli-core';
-import {
-  AuthType,
-  debugLogger,
-  OutputFormat,
-  ExitCodes,
-} from '@google/gemini-cli-core';
+import { AuthType, debugLogger, OutputFormat, ExitCodes } from '@google/gemini-cli-core';
 import { USER_SETTINGS_PATH } from './config/settings.js';
 import { validateAuthMethod } from './config/auth.js';
 import { type LoadedSettings } from './config/settings.js';
@@ -32,11 +27,7 @@ function getAuthTypeFromEnv(): AuthType | undefined {
   // 1. Environment variables (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
   // 2. AWS Profile (AWS_PROFILE)
   // 3. IAM role (for EC2/ECS/Lambda)
-  if (
-    process.env['AWS_ACCESS_KEY_ID'] ||
-    process.env['AWS_PROFILE'] ||
-    process.env['AWS_REGION']
-  ) {
+  if (process.env['AWS_ACCESS_KEY_ID'] || process.env['AWS_PROFILE'] || process.env['AWS_REGION']) {
     return AuthType.USE_BEDROCK;
   }
   // Check for OpenAI API key
@@ -54,7 +45,7 @@ export async function validateNonInteractiveAuth(
   configuredAuthType: AuthType | undefined,
   useExternalAuth: boolean | undefined,
   nonInteractiveConfig: Config,
-  settings: LoadedSettings,
+  settings: LoadedSettings
 ) {
   try {
     // Environment variables take priority over stored settings for non-Google
@@ -96,7 +87,7 @@ export async function validateNonInteractiveAuth(
       handleError(
         error instanceof Error ? error : new Error(String(error)),
         nonInteractiveConfig,
-        ExitCodes.FATAL_AUTHENTICATION_ERROR,
+        ExitCodes.FATAL_AUTHENTICATION_ERROR
       );
     } else {
       debugLogger.error(error instanceof Error ? error.message : String(error));

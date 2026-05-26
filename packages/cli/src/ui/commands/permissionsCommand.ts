@@ -4,11 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type {
-  OpenDialogActionReturn,
-  SlashCommand,
-  SlashCommandActionReturn,
-} from './types.js';
+import type { OpenDialogActionReturn, SlashCommand, SlashCommandActionReturn } from './types.js';
 import { CommandKind } from './types.js';
 import * as process from 'node:process';
 import * as path from 'node:path';
@@ -23,8 +19,7 @@ export const permissionsCommand: SlashCommand = {
   subCommands: [
     {
       name: 'trust',
-      description:
-        'Manage folder trust settings. Usage: /permissions trust [<directory-path>]',
+      description: 'Manage folder trust settings. Usage: /permissions trust [<directory-path>]',
       kind: CommandKind.BUILT_IN,
       autoExecute: false,
       action: (context, input): SlashCommandActionReturn => {

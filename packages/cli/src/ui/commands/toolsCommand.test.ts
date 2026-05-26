@@ -79,8 +79,7 @@ describe('toolsCommand', () => {
     if (!toolsCommand.action) throw new Error('Action not defined');
     await toolsCommand.action(mockContext, '');
 
-    const [message] = (mockContext.ui.addItem as ReturnType<typeof vi.fn>).mock
-      .calls[0];
+    const [message] = (mockContext.ui.addItem as ReturnType<typeof vi.fn>).mock.calls[0];
     expect(message.type).toBe(MessageType.TOOLS_LIST);
     expect(message.showDescriptions).toBe(false);
     expect(message.tools).toHaveLength(2);
@@ -100,14 +99,11 @@ describe('toolsCommand', () => {
     if (!toolsCommand.action) throw new Error('Action not defined');
     await toolsCommand.action(mockContext, 'desc');
 
-    const [message] = (mockContext.ui.addItem as ReturnType<typeof vi.fn>).mock
-      .calls[0];
+    const [message] = (mockContext.ui.addItem as ReturnType<typeof vi.fn>).mock.calls[0];
     expect(message.type).toBe(MessageType.TOOLS_LIST);
     expect(message.showDescriptions).toBe(true);
     expect(message.tools).toHaveLength(2);
-    expect(message.tools[0].description).toBe(
-      'Reads files from the local system.',
-    );
+    expect(message.tools[0].description).toBe('Reads files from the local system.');
     expect(message.tools[1].description).toBe('Edits code files.');
   });
 });

@@ -30,8 +30,7 @@ vi.mock('../contexts/UIActionsContext.js', () => ({
 }));
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     ShellExecutionService: {
@@ -51,8 +50,7 @@ vi.mock('./AnsiOutput.js', () => ({
 }));
 
 // Mock useKeypress
-let keypressHandlers: Array<{ handler: KeypressHandler; isActive: boolean }> =
-  [];
+let keypressHandlers: Array<{ handler: KeypressHandler; isActive: boolean }> = [];
 vi.mock('../hooks/useKeypress.js', () => ({
   useKeypress: vi.fn((handler, { isActive }) => {
     keypressHandlers.push({ handler, isActive });
@@ -85,17 +83,14 @@ vi.mock('./shared/ScrollableList.js', () => ({
       renderItem,
     }: {
       data: BackgroundShell[];
-      renderItem: (props: {
-        item: BackgroundShell;
-        index: number;
-      }) => React.ReactNode;
+      renderItem: (props: { item: BackgroundShell; index: number }) => React.ReactNode;
     }) => (
-      <Box flexDirection="column">
+      <Box flexDirection='column'>
         {data.map((item: BackgroundShell, index: number) => (
           <Box key={index}>{renderItem({ item, index })}</Box>
         ))}
       </Box>
-    ),
+    )
   ),
 }));
 
@@ -152,7 +147,7 @@ describe('<BackgroundShellDisplay />', () => {
           isFocused={false}
           isListOpenProp={false}
         />
-      </ScrollProvider>,
+      </ScrollProvider>
     );
     await act(async () => {
       await delay(0);
@@ -172,7 +167,7 @@ describe('<BackgroundShellDisplay />', () => {
           isFocused={false}
           isListOpenProp={false}
         />
-      </ScrollProvider>,
+      </ScrollProvider>
     );
     await act(async () => {
       await delay(0);
@@ -192,7 +187,7 @@ describe('<BackgroundShellDisplay />', () => {
           isFocused={true} // Focused
           isListOpenProp={false}
         />
-      </ScrollProvider>,
+      </ScrollProvider>
     );
     await act(async () => {
       await delay(0);
@@ -212,17 +207,13 @@ describe('<BackgroundShellDisplay />', () => {
           isFocused={false}
           isListOpenProp={false}
         />
-      </ScrollProvider>,
+      </ScrollProvider>
     );
     await act(async () => {
       await delay(0);
     });
 
-    expect(ShellExecutionService.resizePty).toHaveBeenCalledWith(
-      shell1.pid,
-      76,
-      21,
-    );
+    expect(ShellExecutionService.resizePty).toHaveBeenCalledWith(shell1.pid, 76, 21);
 
     rerender(
       <ScrollProvider>
@@ -234,17 +225,13 @@ describe('<BackgroundShellDisplay />', () => {
           isFocused={false}
           isListOpenProp={false}
         />
-      </ScrollProvider>,
+      </ScrollProvider>
     );
     await act(async () => {
       await delay(0);
     });
 
-    expect(ShellExecutionService.resizePty).toHaveBeenCalledWith(
-      shell1.pid,
-      96,
-      27,
-    );
+    expect(ShellExecutionService.resizePty).toHaveBeenCalledWith(shell1.pid, 96, 27);
   });
 
   it('renders the process list when isListOpenProp is true', async () => {
@@ -258,7 +245,7 @@ describe('<BackgroundShellDisplay />', () => {
           isFocused={true}
           isListOpenProp={true}
         />
-      </ScrollProvider>,
+      </ScrollProvider>
     );
     await act(async () => {
       await delay(0);
@@ -278,7 +265,7 @@ describe('<BackgroundShellDisplay />', () => {
           isFocused={true}
           isListOpenProp={true}
         />
-      </ScrollProvider>,
+      </ScrollProvider>
     );
     await act(async () => {
       await delay(0);
@@ -309,7 +296,7 @@ describe('<BackgroundShellDisplay />', () => {
           isFocused={true}
           isListOpenProp={true}
         />
-      </ScrollProvider>,
+      </ScrollProvider>
     );
     await act(async () => {
       await delay(0);
@@ -341,7 +328,7 @@ describe('<BackgroundShellDisplay />', () => {
           isFocused={true}
           isListOpenProp={false}
         />
-      </ScrollProvider>,
+      </ScrollProvider>
     );
     await act(async () => {
       await delay(0);
@@ -366,7 +353,7 @@ describe('<BackgroundShellDisplay />', () => {
           isFocused={true}
           isListOpenProp={true}
         />
-      </ScrollProvider>,
+      </ScrollProvider>
     );
     await act(async () => {
       await delay(0);
@@ -397,7 +384,7 @@ describe('<BackgroundShellDisplay />', () => {
           isFocused={true}
           isListOpenProp={true}
         />
-      </ScrollProvider>,
+      </ScrollProvider>
     );
     await act(async () => {
       await delay(0);

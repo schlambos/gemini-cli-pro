@@ -17,7 +17,7 @@ export function handleAutoUpdate(
   info: UpdateObject | null,
   settings: LoadedSettings,
   projectRoot: string,
-  spawnFn: typeof spawn = spawnWrapper,
+  spawnFn: typeof spawn = spawnWrapper
 ) {
   if (!info) {
     return;
@@ -34,16 +34,9 @@ export function handleAutoUpdate(
     return;
   }
 
-  const installationInfo = getInstallationInfo(
-    projectRoot,
-    settings.merged.general.enableAutoUpdate,
-  );
+  const installationInfo = getInstallationInfo(projectRoot, settings.merged.general.enableAutoUpdate);
 
-  if (
-    [PackageManager.NPX, PackageManager.PNPX, PackageManager.BUNX].includes(
-      installationInfo.packageManager,
-    )
-  ) {
+  if ([PackageManager.NPX, PackageManager.PNPX, PackageManager.BUNX].includes(installationInfo.packageManager)) {
     return;
   }
 
@@ -56,17 +49,14 @@ export function handleAutoUpdate(
     message: combinedMessage,
   });
 
-  if (
-    !installationInfo.updateCommand ||
-    !settings.merged.general.enableAutoUpdate
-  ) {
+  if (!installationInfo.updateCommand || !settings.merged.general.enableAutoUpdate) {
     return;
   }
   const isNightly = info.update.latest.includes('nightly');
 
   const updateCommand = installationInfo.updateCommand.replace(
     '@latest',
-    isNightly ? '@nightly' : `@${info.update.latest}`,
+    isNightly ? '@nightly' : `@${info.update.latest}`
   );
   const updateProcess = spawnFn(updateCommand, {
     stdio: 'ignore',
@@ -79,8 +69,7 @@ export function handleAutoUpdate(
   updateProcess.on('close', (code) => {
     if (code === 0) {
       updateEventEmitter.emit('update-success', {
-        message:
-          'Update successful! The new version will be used on your next run.',
+        message: 'Update successful! The new version will be used on your next run.',
       });
     } else {
       updateEventEmitter.emit('update-failed', {
@@ -99,7 +88,7 @@ export function handleAutoUpdate(
 
 export function setUpdateHandler(
   addItem: (item: Omit<HistoryItem, 'id'>, timestamp: number) => void,
-  setUpdateInfo: (info: UpdateObject | null) => void,
+  setUpdateInfo: (info: UpdateObject | null) => void
 ) {
   let successfullyInstalled = false;
   const handleUpdateReceived = (info: UpdateObject) => {
@@ -112,7 +101,7 @@ export function setUpdateHandler(
             type: MessageType.INFO,
             text: savedMessage,
           },
-          Date.now(),
+          Date.now()
         );
       }
       setUpdateInfo(null);
@@ -126,7 +115,7 @@ export function setUpdateHandler(
         type: MessageType.ERROR,
         text: `Automatic update failed. Please try updating manually`,
       },
-      Date.now(),
+      Date.now()
     );
   };
 
@@ -138,7 +127,7 @@ export function setUpdateHandler(
         type: MessageType.INFO,
         text: `Update successful! The new version will be used on your next run.`,
       },
-      Date.now(),
+      Date.now()
     );
   };
 
@@ -148,7 +137,7 @@ export function setUpdateHandler(
         type: MessageType.INFO,
         text: data.message,
       },
-      Date.now(),
+      Date.now()
     );
   };
 

@@ -44,9 +44,7 @@ describe('generateFastAckText', () => {
   it('uses the default fast-ack-helper model config and returns response text', async () => {
     const llmClient = {
       generateContent: vi.fn().mockResolvedValue({
-        candidates: [
-          { content: { parts: [{ text: '  Got it. Skipping #2.  ' }] } },
-        ],
+        candidates: [{ content: { parts: [{ text: '  Got it. Skipping #2.  ' }] } }],
       }),
     } as unknown as BaseLlmClient;
 
@@ -116,10 +114,7 @@ describe('generateSteeringAckMessage', () => {
       }),
     } as unknown as BaseLlmClient;
 
-    const result = await generateSteeringAckMessage(
-      llmClient,
-      'focus on tests',
-    );
+    const result = await generateSteeringAckMessage(llmClient, 'focus on tests');
     expect(result).toBe('Got it. I will focus on the tests now.');
   });
 
@@ -130,7 +125,7 @@ describe('generateSteeringAckMessage', () => {
 
     const result = await generateSteeringAckMessage(
       llmClient,
-      'a very long hint that should be truncated in the fallback message if it was longer but it is not',
+      'a very long hint that should be truncated in the fallback message if it was longer but it is not'
     );
     expect(result).toContain('Understood. a very long hint');
   });

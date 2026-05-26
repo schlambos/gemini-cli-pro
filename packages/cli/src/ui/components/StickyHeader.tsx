@@ -33,8 +33,8 @@ export const StickyHeader: React.FC<StickyHeaderProps> = ({
     width={width}
     stickyChildren={
       <Box
-        borderStyle="round"
-        flexDirection="column"
+        borderStyle='round'
+        flexDirection='column'
         width={width}
         opaque
         borderColor={borderColor}
@@ -48,7 +48,7 @@ export const StickyHeader: React.FC<StickyHeaderProps> = ({
         <Box
           width={width - 2}
           borderColor={theme.ui.dark}
-          borderStyle="single"
+          borderStyle='single'
           borderTop={false}
           borderBottom={true}
           borderLeft={false}
@@ -58,7 +58,7 @@ export const StickyHeader: React.FC<StickyHeaderProps> = ({
     }
   >
     <Box
-      borderStyle="round"
+      borderStyle='round'
       width={width}
       borderColor={borderColor}
       borderDimColor={borderDimColor}

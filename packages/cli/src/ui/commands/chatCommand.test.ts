@@ -13,10 +13,7 @@ import { AuthType, type GeminiClient } from '@google/gemini-cli-core';
 
 import * as fsPromises from 'node:fs/promises';
 import { chatCommand, debugCommand } from './chatCommand.js';
-import {
-  serializeHistoryToMarkdown,
-  exportHistoryToFile,
-} from '../utils/historyExportUtils.js';
+import { serializeHistoryToMarkdown, exportHistoryToFile } from '../utils/historyExportUtils.js';
 import type { Stats } from 'node:fs';
 import type { HistoryItemWithoutId } from '../types.js';
 import path from 'node:path';
@@ -28,8 +25,7 @@ vi.mock('fs/promises', () => ({
 }));
 
 vi.mock('../utils/historyExportUtils.js', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('../utils/historyExportUtils.js')>();
+  const actual = await importOriginal<typeof import('../utils/historyExportUtils.js')>();
   return {
     ...actual,
     exportHistoryToFile: vi.fn(),
@@ -47,12 +43,8 @@ describe('chatCommand', () => {
   let mockDeleteCheckpoint: ReturnType<typeof vi.fn>;
   let mockGetHistory: ReturnType<typeof vi.fn>;
 
-  const getSubCommand = (
-    name: 'list' | 'save' | 'resume' | 'delete' | 'share',
-  ): SlashCommand => {
-    const subCommand = chatCommand.subCommands?.find(
-      (cmd) => cmd.name === name,
-    );
+  const getSubCommand = (name: 'list' | 'save' | 'resume' | 'delete' | 'share'): SlashCommand => {
+    const subCommand = chatCommand.subCommands?.find((cmd) => cmd.name === name);
     if (!subCommand) {
       throw new Error(`/chat ${name} command not found.`);
     }
@@ -171,9 +163,7 @@ describe('chatCommand', () => {
         content: 'No conversation found to save.',
       });
 
-      mockGetHistory.mockReturnValue([
-        { role: 'user', parts: [{ text: 'context for our chat' }] },
-      ]);
+      mockGetHistory.mockReturnValue([{ role: 'user', parts: [{ text: 'context for our chat' }] }]);
       result = await saveCommand?.action?.(mockContext, tag);
       expect(result).toEqual({
         type: 'message',
@@ -225,10 +215,7 @@ describe('chatCommand', () => {
       const result = await saveCommand?.action?.(mockContext, tag);
 
       expect(mockCheckpointExists).not.toHaveBeenCalled(); // Should skip existence check
-      expect(mockSaveCheckpoint).toHaveBeenCalledWith(
-        { history, authType: AuthType.LOGIN_WITH_GOOGLE },
-        tag,
-      );
+      expect(mockSaveCheckpoint).toHaveBeenCalledWith({ history, authType: AuthType.LOGIN_WITH_GOOGLE }, tag);
       expect(result).toEqual({
         type: 'message',
         messageType: 'info',
@@ -335,15 +322,14 @@ describe('chatCommand', () => {
       it('should provide completion suggestions', async () => {
         const fakeFiles = ['checkpoint-alpha.json', 'checkpoint-beta.json'];
         mockFs.readdir.mockImplementation(
-          (async (_: string): Promise<string[]> =>
-            fakeFiles) as unknown as typeof fsPromises.readdir,
+          (async (_: string): Promise<string[]> => fakeFiles) as unknown as typeof fsPromises.readdir
         );
 
         mockFs.stat.mockImplementation(
           (async (_: string): Promise<Stats> =>
             ({
               mtime: new Date(),
-            }) as Stats) as unknown as typeof fsPromises.stat,
+            }) as Stats) as unknown as typeof fsPromises.stat
         );
 
         const result = await resumeCommand?.completion?.(mockContext, 'a');
@@ -355,12 +341,9 @@ describe('chatCommand', () => {
         const fakeFiles = ['checkpoint-test1.json', 'checkpoint-test2.json'];
         const date = new Date();
         mockFs.readdir.mockImplementation(
-          (async (_: string): Promise<string[]> =>
-            fakeFiles) as unknown as typeof fsPromises.readdir,
+          (async (_: string): Promise<string[]> => fakeFiles) as unknown as typeof fsPromises.readdir
         );
-        mockFs.stat.mockImplementation((async (
-          path: string,
-        ): Promise<Stats> => {
+        mockFs.stat.mockImplementation((async (path: string): Promise<Stats> => {
           if (path.endsWith('test1.json')) {
             return { mtime: date } as Stats;
           }
@@ -415,15 +398,14 @@ describe('chatCommand', () => {
       it('should provide completion suggestions', async () => {
         const fakeFiles = ['checkpoint-alpha.json', 'checkpoint-beta.json'];
         mockFs.readdir.mockImplementation(
-          (async (_: string): Promise<string[]> =>
-            fakeFiles) as unknown as typeof fsPromises.readdir,
+          (async (_: string): Promise<string[]> => fakeFiles) as unknown as typeof fsPromises.readdir
         );
 
         mockFs.stat.mockImplementation(
           (async (_: string): Promise<Stats> =>
             ({
               mtime: new Date(),
-            }) as Stats) as unknown as typeof fsPromises.stat,
+            }) as Stats) as unknown as typeof fsPromises.stat
         );
 
         const result = await deleteCommand?.completion?.(mockContext, 'a');
@@ -444,9 +426,7 @@ describe('chatCommand', () => {
 
     beforeEach(() => {
       shareCommand = getSubCommand('share');
-      vi.spyOn(process, 'cwd').mockReturnValue(
-        path.resolve('/usr/local/google/home/myuser/gemini-cli'),
-      );
+      vi.spyOn(process, 'cwd').mockReturnValue(path.resolve('/usr/local/google/home/myuser/gemini-cli'));
       vi.spyOn(Date, 'now').mockReturnValue(1234567890);
       mockGetHistory.mockReturnValue(mockHistory);
       mockFs.writeFile.mockClear();
@@ -454,10 +434,7 @@ describe('chatCommand', () => {
 
     it('should default to a json file if no path is provided', async () => {
       const result = await shareCommand?.action?.(mockContext, '');
-      const expectedPath = path.join(
-        process.cwd(),
-        'gemini-conversation-1234567890.json',
-      );
+      const expectedPath = path.join(process.cwd(), 'gemini-conversation-1234567890.json');
       expect(mockExport).toHaveBeenCalledWith({
         history: mockHistory,
         filePath: expectedPath,
@@ -511,9 +488,7 @@ describe('chatCommand', () => {
     });
 
     it('should inform if there is no conversation to share', async () => {
-      mockGetHistory.mockReturnValue([
-        { role: 'user', parts: [{ text: 'context' }] },
-      ]);
+      mockGetHistory.mockReturnValue([{ role: 'user', parts: [{ text: 'context' }] }]);
       const result = await shareCommand?.action?.(mockContext, 'my-chat.json');
       expect(mockExport).not.toHaveBeenCalled();
       expect(result).toEqual({
@@ -564,9 +539,7 @@ describe('chatCommand', () => {
       ];
 
       const expectedMarkdown =
-        '## USER 🧑‍💻\n\nHello\n\n---\n\n' +
-        '## MODEL ✨\n\nHi there!\n\n---\n\n' +
-        '## USER 🧑‍💻\n\nHow are you?';
+        '## USER 🧑‍💻\n\nHello\n\n---\n\n' + '## MODEL ✨\n\nHi there!\n\n---\n\n' + '## USER 🧑‍💻\n\nHow are you?';
 
       const result = serializeHistoryToMarkdown(history);
       expect(result).toBe(expectedMarkdown);
@@ -695,8 +668,7 @@ Hi there!`;
 
       beforeEach(() => {
         mockGetLatestApiRequest = vi.fn();
-        mockContext.services.config!.getLatestApiRequest =
-          mockGetLatestApiRequest;
+        mockContext.services.config!.getLatestApiRequest = mockGetLatestApiRequest;
         vi.spyOn(process, 'cwd').mockReturnValue('/project/root');
         vi.spyOn(Date, 'now').mockReturnValue(1234567890);
         mockFs.writeFile.mockClear();
@@ -726,10 +698,7 @@ Hi there!`;
         const expectedFilename = 'gcli-request-1234567890.json';
         const expectedPath = path.join('/project/root', expectedFilename);
 
-        expect(mockFs.writeFile).toHaveBeenCalledWith(
-          expectedPath,
-          expect.stringContaining('"role": "user"'),
-        );
+        expect(mockFs.writeFile).toHaveBeenCalledWith(expectedPath, expect.stringContaining('"role": "user"'));
         expect(result).toEqual({
           type: 'message',
           messageType: 'info',

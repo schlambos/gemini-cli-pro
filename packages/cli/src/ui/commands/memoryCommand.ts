@@ -4,12 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  addMemory,
-  listMemoryFiles,
-  refreshMemory,
-  showMemory,
-} from '@google/gemini-cli-core';
+import { addMemory, listMemoryFiles, refreshMemory, showMemory } from '@google/gemini-cli-core';
 import { MessageType } from '../types.js';
 import type { SlashCommand, SlashCommandActionReturn } from './types.js';
 import { CommandKind } from './types.js';
@@ -35,7 +30,7 @@ export const memoryCommand: SlashCommand = {
             type: MessageType.INFO,
             text: result.content,
           },
-          Date.now(),
+          Date.now()
         );
       },
     },
@@ -56,7 +51,7 @@ export const memoryCommand: SlashCommand = {
             type: MessageType.INFO,
             text: `Attempting to save to memory: "${args.trim()}"`,
           },
-          Date.now(),
+          Date.now()
         );
 
         return result;
@@ -74,7 +69,7 @@ export const memoryCommand: SlashCommand = {
             type: MessageType.INFO,
             text: 'Refreshing memory from source files...',
           },
-          Date.now(),
+          Date.now()
         );
 
         try {
@@ -87,7 +82,7 @@ export const memoryCommand: SlashCommand = {
                 type: MessageType.INFO,
                 text: result.content,
               },
-              Date.now(),
+              Date.now()
             );
           }
         } catch (error) {
@@ -97,7 +92,7 @@ export const memoryCommand: SlashCommand = {
               // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
               text: `Error refreshing memory: ${(error as Error).message}`,
             },
-            Date.now(),
+            Date.now()
           );
         }
       },
@@ -117,7 +112,7 @@ export const memoryCommand: SlashCommand = {
             type: MessageType.INFO,
             text: result.content,
           },
-          Date.now(),
+          Date.now()
         );
       },
     },

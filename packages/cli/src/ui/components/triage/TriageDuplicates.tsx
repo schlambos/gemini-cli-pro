@@ -84,10 +84,7 @@ const MAX_CONCURRENT_ANALYSIS = 10;
 
 const getReactionCount = (issue: Issue | Candidate | undefined) => {
   if (!issue || !issue.reactionGroups) return 0;
-  return issue.reactionGroups.reduce(
-    (acc, group) => acc + group.users.totalCount,
-    0,
-  );
+  return issue.reactionGroups.reduce((acc, group) => acc + group.users.totalCount, 0);
 };
 
 const getStateColor = (state: string, stateReason?: string) => {
@@ -124,9 +121,7 @@ export const TriageDuplicates = ({
   const [inputAction, setInputAction] = useState<string>('');
 
   // History View State
-  const [processedHistory, setProcessedHistory] = useState<ProcessedIssue[]>(
-    [],
-  );
+  const [processedHistory, setProcessedHistory] = useState<ProcessedIssue[]>([]);
   const [showHistory, setShowHistory] = useState(false);
 
   // Derived state for candidate list scrolling
@@ -136,19 +131,12 @@ export const TriageDuplicates = ({
   useEffect(() => {
     if (selectedCandidateIndex < candidateListScrollOffset) {
       setCandidateListScrollOffset(selectedCandidateIndex);
-    } else if (
-      selectedCandidateIndex >=
-      candidateListScrollOffset + VISIBLE_CANDIDATES
-    ) {
-      setCandidateListScrollOffset(
-        selectedCandidateIndex - VISIBLE_CANDIDATES + 1,
-      );
+    } else if (selectedCandidateIndex >= candidateListScrollOffset + VISIBLE_CANDIDATES) {
+      setCandidateListScrollOffset(selectedCandidateIndex - VISIBLE_CANDIDATES + 1);
     }
   }, [selectedCandidateIndex, candidateListScrollOffset]);
 
-  const fetchCandidateDetails = async (
-    number: number,
-  ): Promise<Candidate | null> => {
+  const fetchCandidateDetails = async (number: number): Promise<Candidate | null> => {
     try {
       const { stdout } = await spawnAsync('gh', [
         'issue',
@@ -160,10 +148,7 @@ export const TriageDuplicates = ({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
       return JSON.parse(stdout) as Candidate;
     } catch (err) {
-      debugLogger.error(
-        `Failed to fetch details for candidate #${number}`,
-        err,
-      );
+      debugLogger.error(`Failed to fetch details for candidate #${number}`, err);
       return null;
     }
   };
@@ -172,9 +157,7 @@ export const TriageDuplicates = ({
   const analyzeIssue = useCallback(
     async (issue: Issue): Promise<AnalysisResult | null> => {
       // Find duplicate comment
-      const dupComment = issue.comments.find((c) =>
-        c.body.includes('Found possible duplicate issues:'),
-      );
+      const dupComment = issue.comments.find((c) => c.body.includes('Found possible duplicate issues:'));
 
       if (!dupComment) return null;
 
@@ -226,7 +209,7 @@ Reactions: ${getReactionCount(c)}
 Body:
 ${c.body.slice(0, 4000)}
 </candidate>
-`,
+`
   )
   .join('\n')}
 </candidates>
@@ -287,9 +270,7 @@ Return a JSON object with:
 
       let canonical: Candidate | undefined;
       if (rec.canonical_issue_number) {
-        canonical = candidates.find(
-          (c) => c.number === rec.canonical_issue_number,
-        );
+        canonical = candidates.find((c) => c.number === rec.canonical_issue_number);
         if (!canonical) {
           canonical = {
             number: rec.canonical_issue_number,
@@ -309,9 +290,7 @@ Return a JSON object with:
 
       const ranked = candidates
         .map((c) => {
-          const rankInfo = rec.ranked_candidates?.find(
-            (r) => r.number === c.number,
-          );
+          const rankInfo = rec.ranked_candidates?.find((r) => r.number === c.number);
           return {
             ...c,
             score: rankInfo?.score || 0,
@@ -326,7 +305,7 @@ Return a JSON object with:
         recommendation: rec,
       };
     },
-    [config],
+    [config]
   );
 
   // Background Analysis Queue
@@ -337,15 +316,8 @@ Return a JSON object with:
     const analyzeNext = async () => {
       // Find next N unanalyzed issues starting from currentIndex
       const issuesToAnalyze = state.issues
-        .slice(
-          state.currentIndex,
-          state.currentIndex + MAX_CONCURRENT_ANALYSIS + 20,
-        ) // Look ahead a bit
-        .filter(
-          (issue) =>
-            !state.analysisCache.has(issue.number) &&
-            !state.analyzingIds.has(issue.number),
-        )
+        .slice(state.currentIndex, state.currentIndex + MAX_CONCURRENT_ANALYSIS + 20) // Look ahead a bit
+        .filter((issue) => !state.analysisCache.has(issue.number) && !state.analyzingIds.has(issue.number))
         .slice(0, MAX_CONCURRENT_ANALYSIS - state.analyzingIds.size);
 
       if (issuesToAnalyze.length === 0) return;
@@ -387,13 +359,7 @@ Return a JSON object with:
     };
 
     void analyzeNext();
-  }, [
-    state.issues,
-    state.currentIndex,
-    state.analysisCache,
-    state.analyzingIds,
-    analyzeIssue,
-  ]);
+  }, [state.issues, state.currentIndex, state.analysisCache, state.analyzingIds, analyzeIssue]);
 
   // Update UI when current issue changes or its analysis completes
   useEffect(() => {
@@ -430,12 +396,7 @@ Return a JSON object with:
         message: `Waiting for analysis queue...`,
       }));
     }
-  }, [
-    state.currentIndex,
-    state.issues,
-    state.analysisCache,
-    state.analyzingIds,
-  ]);
+  }, [state.currentIndex, state.issues, state.analysisCache, state.analyzingIds]);
 
   const fetchIssues = useCallback(async (limit: number) => {
     try {
@@ -583,21 +544,14 @@ Return a JSON object with:
       }
 
       if (showHistory) {
-        if (
-          keyMatchers[Command.ESCAPE](key) ||
-          input === 'h' ||
-          input === 'q'
-        ) {
+        if (keyMatchers[Command.ESCAPE](key) || input === 'h' || input === 'q') {
           setShowHistory(false);
         }
         return;
       }
 
       // Global Quit/Cancel
-      if (
-        keyMatchers[Command.ESCAPE](key) ||
-        (input === 'q' && focusSection !== 'candidate_detail')
-      ) {
+      if (keyMatchers[Command.ESCAPE](key) || (input === 'q' && focusSection !== 'candidate_detail')) {
         if (focusSection === 'candidate_detail') {
           setFocusSection('candidates');
           return;
@@ -606,8 +560,7 @@ Return a JSON object with:
         return;
       }
 
-      if (state.status !== 'interaction' && state.status !== 'analyzing')
-        return;
+      if (state.status !== 'interaction' && state.status !== 'analyzing') return;
 
       // Allow action if 'skip' (s) even if analyzing, but d/r require interaction
       const isInteraction = state.status === 'interaction';
@@ -624,11 +577,7 @@ Return a JSON object with:
             },
           ]);
           handleNext();
-        } else if (
-          inputAction === 'd' &&
-          state.canonicalIssue &&
-          isInteraction
-        ) {
+        } else if (inputAction === 'd' && state.canonicalIssue && isInteraction) {
           void performAction('duplicate');
         } else if (inputAction === 'r' && isInteraction) {
           void performAction('remove-label');
@@ -655,9 +604,7 @@ Return a JSON object with:
 
       // Priority 3: Navigation
       if (key.name === 'tab') {
-        setFocusSection((prev) =>
-          prev === 'target' ? 'candidates' : 'target',
-        );
+        setFocusSection((prev) => (prev === 'target' ? 'candidates' : 'target'));
         setInputAction(''); // Clear pending action when switching focus
         return;
       }
@@ -670,9 +617,7 @@ Return a JSON object with:
         if (keyMatchers[Command.NAVIGATION_DOWN](key)) {
           const targetBody = state.currentIssue?.body || '';
           const targetLines = targetBody.split('\n');
-          const visibleLines = targetExpanded
-            ? VISIBLE_LINES_EXPANDED
-            : VISIBLE_LINES_COLLAPSED;
+          const visibleLines = targetExpanded ? VISIBLE_LINES_EXPANDED : VISIBLE_LINES_COLLAPSED;
           const maxScroll = Math.max(0, targetLines.length - visibleLines);
           setTargetScrollOffset((prev) => Math.min(prev + 1, maxScroll));
         }
@@ -681,17 +626,12 @@ Return a JSON object with:
         }
       } else if (focusSection === 'candidates') {
         if (keyMatchers[Command.NAVIGATION_DOWN](key)) {
-          setSelectedCandidateIndex((prev) =>
-            Math.min((state.candidates?.length || 1) - 1, prev + 1),
-          );
+          setSelectedCandidateIndex((prev) => Math.min((state.candidates?.length || 1) - 1, prev + 1));
         }
         if (keyMatchers[Command.NAVIGATION_UP](key)) {
           setSelectedCandidateIndex((prev) => Math.max(0, prev - 1));
         }
-        if (
-          keyMatchers[Command.MOVE_RIGHT](key) ||
-          (keyMatchers[Command.RETURN](key) && !inputAction)
-        ) {
+        if (keyMatchers[Command.MOVE_RIGHT](key) || (keyMatchers[Command.RETURN](key) && !inputAction)) {
           setFocusSection('candidate_detail');
           setCandidateScrollOffset(0);
         }
@@ -712,13 +652,13 @@ Return a JSON object with:
         }
       }
     },
-    { isActive: true },
+    { isActive: true }
   );
 
   if (state.status === 'loading') {
     return (
       <Box>
-        <Spinner type="dots" />
+        <Spinner type='dots' />
         <Text> {state.message}</Text>
       </Box>
     );
@@ -726,31 +666,18 @@ Return a JSON object with:
 
   if (showHistory) {
     return (
-      <Box
-        flexDirection="column"
-        borderStyle="double"
-        borderColor="yellow"
-        padding={1}
-      >
-        <Text bold color="yellow">
+      <Box flexDirection='column' borderStyle='double' borderColor='yellow' padding={1}>
+        <Text bold color='yellow'>
           Processed Issues History:
         </Text>
-        <Box flexDirection="column" marginTop={1}>
+        <Box flexDirection='column' marginTop={1}>
           {processedHistory.length === 0 ? (
-            <Text color="gray">No issues processed yet.</Text>
+            <Text color='gray'>No issues processed yet.</Text>
           ) : (
             processedHistory.map((item, i) => (
               <Text key={i}>
                 <Text bold>#{item.number}</Text> {item.title.slice(0, 40)}...
-                <Text
-                  color={
-                    item.action === 'duplicate'
-                      ? 'red'
-                      : item.action === 'skip'
-                        ? 'gray'
-                        : 'green'
-                  }
-                >
+                <Text color={item.action === 'duplicate' ? 'red' : item.action === 'skip' ? 'gray' : 'green'}>
                   [{item.action.toUpperCase()}
                   {item.target ? ` -> #${item.target}` : ''}]
                 </Text>
@@ -759,20 +686,18 @@ Return a JSON object with:
           )}
         </Box>
         <Box marginTop={1}>
-          <Text color="gray">
-            Press &apos;h&apos; or &apos;Esc&apos; to return to triage.
-          </Text>
+          <Text color='gray'>Press &apos;h&apos; or &apos;Esc&apos; to return to triage.</Text>
         </Box>
       </Box>
     );
   }
 
   if (state.status === 'completed') {
-    return <Text color="green">{state.message}</Text>;
+    return <Text color='green'>{state.message}</Text>;
   }
 
   if (state.status === 'error') {
-    return <Text color="red">{state.message}</Text>;
+    return <Text color='red'>{state.message}</Text>;
   }
 
   const { currentIssue } = state;
@@ -781,127 +706,101 @@ Return a JSON object with:
 
   const targetBody = currentIssue.body || '';
   const targetLines = targetBody.split('\n');
-  const visibleLines = targetExpanded
-    ? VISIBLE_LINES_EXPANDED
-    : VISIBLE_LINES_COLLAPSED;
-  const targetViewLines = targetLines.slice(
-    targetScrollOffset,
-    targetScrollOffset + visibleLines,
-  );
+  const visibleLines = targetExpanded ? VISIBLE_LINES_EXPANDED : VISIBLE_LINES_COLLAPSED;
+  const targetViewLines = targetLines.slice(targetScrollOffset, targetScrollOffset + visibleLines);
 
   const selectedCandidate = state.candidates?.[selectedCandidateIndex];
 
   if (focusSection === 'candidate_detail' && selectedCandidate) {
     const candBody = selectedCandidate.body || '';
     const candLines = candBody.split('\n');
-    const candViewLines = candLines.slice(
-      candidateScrollOffset,
-      candidateScrollOffset + VISIBLE_LINES_DETAIL,
-    );
+    const candViewLines = candLines.slice(candidateScrollOffset, candidateScrollOffset + VISIBLE_LINES_DETAIL);
 
     return (
-      <Box
-        flexDirection="column"
-        borderColor="magenta"
-        borderStyle="double"
-        padding={1}
-      >
-        <Box flexDirection="row" justifyContent="space-between">
-          <Text bold color="magenta">
+      <Box flexDirection='column' borderColor='magenta' borderStyle='double' padding={1}>
+        <Box flexDirection='row' justifyContent='space-between'>
+          <Text bold color='magenta'>
             Candidate Detail: #{selectedCandidate.number}
           </Text>
-          <Text color="gray">Esc to go back</Text>
+          <Text color='gray'>Esc to go back</Text>
         </Box>
         <Text bold>{selectedCandidate.title}</Text>
-        <Text color="gray">
-          Author: {selectedCandidate.author?.login} | 👍{' '}
-          {getReactionCount(selectedCandidate)}
+        <Text color='gray'>
+          Author: {selectedCandidate.author?.login} | 👍 {getReactionCount(selectedCandidate)}
         </Text>
-        <Text color="gray">{selectedCandidate.url}</Text>
+        <Text color='gray'>{selectedCandidate.url}</Text>
         <Box
-          borderStyle="single"
+          borderStyle='single'
           marginTop={1}
-          flexDirection="column"
+          flexDirection='column'
           minHeight={Math.min(candLines.length, VISIBLE_LINES_DETAIL)}
         >
           {candViewLines.map((line: string, i: number) => (
-            <Text key={i} wrap="wrap">
+            <Text key={i} wrap='wrap'>
               {line}
             </Text>
           ))}
           {candLines.length > candidateScrollOffset + VISIBLE_LINES_DETAIL && (
-            <Text color="gray">... (more below)</Text>
+            <Text color='gray'>... (more below)</Text>
           )}
         </Box>
         <Box marginTop={1}>
-          <Text color="gray">
-            Use Up/Down to scroll. Left Arrow or Esc to go back.
-          </Text>
+          <Text color='gray'>Use Up/Down to scroll. Left Arrow or Esc to go back.</Text>
         </Box>
       </Box>
     );
   }
 
   const visibleCandidates =
-    state.candidates?.slice(
-      candidateListScrollOffset,
-      candidateListScrollOffset + VISIBLE_CANDIDATES,
-    ) || [];
+    state.candidates?.slice(candidateListScrollOffset, candidateListScrollOffset + VISIBLE_CANDIDATES) || [];
 
   return (
-    <Box flexDirection="column">
-      <Box flexDirection="row" justifyContent="space-between">
-        <Text bold color="cyan">
+    <Box flexDirection='column'>
+      <Box flexDirection='row' justifyContent='space-between'>
+        <Text bold color='cyan'>
           Triage Issue ({state.currentIndex + 1}/{state.issues.length})
         </Text>
-        <Text color="gray">[Tab] Switch Focus | [h] History | [q] Quit</Text>
+        <Text color='gray'>[Tab] Switch Focus | [h] History | [q] Quit</Text>
       </Box>
 
       {/* Target Issue Section */}
       <Box
-        flexDirection="column"
+        flexDirection='column'
         borderStyle={focusSection === 'target' ? 'double' : 'single'}
         borderColor={focusSection === 'target' ? 'cyan' : 'gray'}
         paddingX={1}
       >
-        <Box flexDirection="row" justifyContent="space-between">
+        <Box flexDirection='row' justifyContent='space-between'>
           <Text>
             Issue:{' '}
-            <Text bold color="yellow">
+            <Text bold color='yellow'>
               #{currentIssue.number}
             </Text>{' '}
             - {currentIssue.title}
           </Text>
-          <Text color="gray">
-            Author: {currentIssue.author?.login} | 👍{' '}
-            {getReactionCount(currentIssue)}
+          <Text color='gray'>
+            Author: {currentIssue.author?.login} | 👍 {getReactionCount(currentIssue)}
           </Text>
         </Box>
-        <Text color="gray">{currentIssue.url}</Text>
-        <Box
-          marginTop={1}
-          flexDirection="column"
-          minHeight={Math.min(targetLines.length, visibleLines)}
-        >
+        <Text color='gray'>{currentIssue.url}</Text>
+        <Box marginTop={1} flexDirection='column' minHeight={Math.min(targetLines.length, visibleLines)}>
           {targetViewLines.map((line, i) => (
-            <Text key={i} italic wrap="wrap">
+            <Text key={i} italic wrap='wrap'>
               {line}
             </Text>
           ))}
           {!targetExpanded && targetLines.length > VISIBLE_LINES_COLLAPSED && (
-            <Text color="gray">... (press &apos;e&apos; to expand)</Text>
+            <Text color='gray'>... (press &apos;e&apos; to expand)</Text>
           )}
-          {targetExpanded &&
-            targetLines.length >
-              targetScrollOffset + VISIBLE_LINES_EXPANDED && (
-              <Text color="gray">... (more below)</Text>
-            )}
+          {targetExpanded && targetLines.length > targetScrollOffset + VISIBLE_LINES_EXPANDED && (
+            <Text color='gray'>... (more below)</Text>
+          )}
         </Box>
       </Box>
 
       {/* Candidates List Section */}
       <Box
-        flexDirection="column"
+        flexDirection='column'
         marginTop={1}
         borderStyle={focusSection === 'candidates' ? 'double' : 'single'}
         borderColor={focusSection === 'candidates' ? 'magenta' : 'gray'}
@@ -909,21 +808,17 @@ Return a JSON object with:
         minHeight={VISIBLE_CANDIDATES * 2 + 1}
       >
         {state.status === 'analyzing' && !state.candidates ? (
-          <Box
-            alignItems="center"
-            justifyContent="center"
-            height={VISIBLE_CANDIDATES * 2}
-          >
-            <Spinner type="dots" />
+          <Box alignItems='center' justifyContent='center' height={VISIBLE_CANDIDATES * 2}>
+            <Spinner type='dots' />
             <Text> {state.message}</Text>
           </Box>
         ) : (
           <>
-            <Text bold color="magenta">
+            <Text bold color='magenta'>
               Ranked Candidates (Select to view details):
             </Text>
             {state.candidates?.length === 0 ? (
-              <Text italic color="gray">
+              <Text italic color='gray'>
                 {' '}
                 No candidates found.
               </Text>
@@ -933,40 +828,31 @@ Return a JSON object with:
                 const isDuplicateOfCurrent =
                   currentIssue &&
                   c.comments.some((comment) =>
-                    comment.body
-                      .toLowerCase()
-                      .includes(`duplicate of #${currentIssue.number}`),
+                    comment.body.toLowerCase().includes(`duplicate of #${currentIssue.number}`)
                   );
 
                 return (
-                  <Box key={c.number} flexDirection="column" marginLeft={1}>
+                  <Box key={c.number} flexDirection='column' marginLeft={1}>
                     <Text
-                      color={
-                        state.canonicalIssue?.number === c.number
-                          ? 'green'
-                          : 'white'
-                      }
+                      color={state.canonicalIssue?.number === c.number ? 'green' : 'white'}
                       backgroundColor={
-                        focusSection === 'candidates' &&
-                        selectedCandidateIndex === absoluteIndex
-                          ? 'blue'
-                          : undefined
+                        focusSection === 'candidates' && selectedCandidateIndex === absoluteIndex ? 'blue' : undefined
                       }
-                      wrap="wrap"
+                      wrap='wrap'
                     >
                       {absoluteIndex + 1}. <Text bold>#{c.number}</Text>{' '}
                       <Text color={getStateColor(c.state, c.stateReason)}>
                         [{(c.stateReason || c.state).toUpperCase()}]
                       </Text>{' '}
                       {isDuplicateOfCurrent && (
-                        <Text color="red" bold>
+                        <Text color='red' bold>
                           [DUPLICATE OF CURRENT]{' '}
                         </Text>
                       )}
                       - {c.title} (Score: {c.score}/100)
                     </Text>
                     <Box marginLeft={2}>
-                      <Text color="gray" wrap="wrap">
+                      <Text color='gray' wrap='wrap'>
                         Reactions: {getReactionCount(c)} | {c.reason}
                       </Text>
                     </Box>
@@ -974,72 +860,56 @@ Return a JSON object with:
                 );
               })
             )}
-            {state.candidates &&
-              state.candidates.length >
-                candidateListScrollOffset + VISIBLE_CANDIDATES && (
-                <Text color="gray">
-                  ... (
-                  {state.candidates.length -
-                    (candidateListScrollOffset + VISIBLE_CANDIDATES)}{' '}
-                  more)
-                </Text>
-              )}
+            {state.candidates && state.candidates.length > candidateListScrollOffset + VISIBLE_CANDIDATES && (
+              <Text color='gray'>
+                ... ({state.candidates.length - (candidateListScrollOffset + VISIBLE_CANDIDATES)} more)
+              </Text>
+            )}
           </>
         )}
       </Box>
 
       {/* Analysis / Actions Footer */}
-      <Box
-        marginTop={1}
-        padding={1}
-        borderStyle="round"
-        borderColor="blue"
-        flexDirection="column"
-      >
-        <Box flexDirection="row">
-          <Text bold color="blue">
+      <Box marginTop={1} padding={1} borderStyle='round' borderColor='blue' flexDirection='column'>
+        <Box flexDirection='row'>
+          <Text bold color='blue'>
             Analysis:{' '}
           </Text>
-          <Text wrap="wrap"> {state.message}</Text>
+          <Text wrap='wrap'> {state.message}</Text>
         </Box>
         {state.suggestedComment && (
-          <Box marginTop={1} flexDirection="column">
-            <Text bold color="gray">
+          <Box marginTop={1} flexDirection='column'>
+            <Text bold color='gray'>
               Suggested Comment:
             </Text>
-            <Text italic color="gray" wrap="wrap">
+            <Text italic color='gray' wrap='wrap'>
               &quot;{state.suggestedComment}&quot;
             </Text>
           </Box>
         )}
       </Box>
 
-      <Box marginTop={1} flexDirection="row" gap={2}>
-        <Box flexDirection="column">
-          <Text bold color="white">
+      <Box marginTop={1} flexDirection='row' gap={2}>
+        <Box flexDirection='column'>
+          <Text bold color='white'>
             Actions (Focus Target/List to use):
           </Text>
-          <Text>
-            [d] Mark as duplicate{' '}
-            {state.canonicalIssue ? `of #${state.canonicalIssue.number}` : ''}
-          </Text>
+          <Text>[d] Mark as duplicate {state.canonicalIssue ? `of #${state.canonicalIssue.number}` : ''}</Text>
           <Text>[r] Remove &apos;possible-duplicate&apos; label</Text>
           <Text>[s] Skip</Text>
         </Box>
         <Box
-          borderStyle="bold"
-          borderColor="yellow"
+          borderStyle='bold'
+          borderColor='yellow'
           paddingX={2}
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
+          flexDirection='column'
+          alignItems='center'
+          justifyContent='center'
         >
-          <Text bold color="yellow">
+          <Text bold color='yellow'>
             SELECTED: {inputAction ? inputAction.toUpperCase() : '...'}
           </Text>
-          {inputAction ? (
-            <Text color="gray">Press ENTER to confirm</Text>
-          ) : null}
+          {inputAction ? <Text color='gray'>Press ENTER to confirm</Text> : null}
         </Box>
       </Box>
     </Box>

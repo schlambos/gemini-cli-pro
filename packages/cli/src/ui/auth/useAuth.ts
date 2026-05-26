@@ -6,20 +6,12 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { LoadedSettings } from '../../config/settings.js';
-import {
-  AuthType,
-  type Config,
-  loadApiKey,
-  debugLogger,
-} from '@google/gemini-cli-core';
+import { AuthType, type Config, loadApiKey, debugLogger } from '@google/gemini-cli-core';
 import { getErrorMessage } from '@google/gemini-cli-core';
 import { AuthState } from '../types.js';
 import { validateAuthMethod } from '../../config/auth.js';
 
-export function validateAuthMethodWithSettings(
-  authType: AuthType,
-  settings: LoadedSettings,
-): string | null {
+export function validateAuthMethodWithSettings(authType: AuthType, settings: LoadedSettings): string | null {
   const enforcedType = settings.merged.security.auth.enforcedType;
   if (enforcedType && enforcedType !== authType) {
     return `Authentication is enforced to be ${enforcedType}, but you are currently using ${authType}.`;
@@ -38,19 +30,13 @@ export function validateAuthMethodWithSettings(
   return validateAuthMethod(authType);
 }
 
-export const useAuthCommand = (
-  settings: LoadedSettings,
-  config: Config,
-  initialAuthError: string | null = null,
-) => {
+export const useAuthCommand = (settings: LoadedSettings, config: Config, initialAuthError: string | null = null) => {
   const [authState, setAuthState] = useState<AuthState>(
-    initialAuthError ? AuthState.Updating : AuthState.Unauthenticated,
+    initialAuthError ? AuthState.Updating : AuthState.Unauthenticated
   );
 
   const [authError, setAuthError] = useState<string | null>(initialAuthError);
-  const [apiKeyDefaultValue, setApiKeyDefaultValue] = useState<
-    string | undefined
-  >(undefined);
+  const [apiKeyDefaultValue, setApiKeyDefaultValue] = useState<string | undefined>(undefined);
 
   const onAuthError = useCallback(
     (error: string | null) => {
@@ -59,7 +45,7 @@ export const useAuthCommand = (
         setAuthState(AuthState.Updating);
       }
     },
-    [setAuthError, setAuthState],
+    [setAuthError, setAuthState]
   );
 
   const reloadApiKey = useCallback(async () => {
@@ -91,9 +77,7 @@ export const useAuthCommand = (
       const authType = settings.merged.security.auth.selectedType;
       if (!authType) {
         if (process.env['GEMINI_API_KEY']) {
-          onAuthError(
-            'Existing API key detected (GEMINI_API_KEY). Select "Gemini API Key" option to use it.',
-          );
+          onAuthError('Existing API key detected (GEMINI_API_KEY). Select "Gemini API Key" option to use it.');
         } else {
           onAuthError('No authentication method selected.');
         }
@@ -122,7 +106,7 @@ export const useAuthCommand = (
       ) {
         onAuthError(
           `Invalid value for GEMINI_DEFAULT_AUTH_TYPE: "${defaultAuthType}". ` +
-            `Valid values are: ${Object.values(AuthType).join(', ')}.`,
+            `Valid values are: ${Object.values(AuthType).join(', ')}.`
         );
         return;
       }
@@ -137,15 +121,7 @@ export const useAuthCommand = (
         onAuthError(`Failed to login. Message: ${getErrorMessage(e)}`);
       }
     })();
-  }, [
-    settings,
-    config,
-    authState,
-    setAuthState,
-    setAuthError,
-    onAuthError,
-    reloadApiKey,
-  ]);
+  }, [settings, config, authState, setAuthState, setAuthError, onAuthError, reloadApiKey]);
 
   return {
     authState,

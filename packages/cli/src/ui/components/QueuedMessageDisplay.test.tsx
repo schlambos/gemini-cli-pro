@@ -10,18 +10,14 @@ import { QueuedMessageDisplay } from './QueuedMessageDisplay.js';
 
 describe('QueuedMessageDisplay', () => {
   it('renders nothing when message queue is empty', () => {
-    const { lastFrame, unmount } = render(
-      <QueuedMessageDisplay messageQueue={[]} />,
-    );
+    const { lastFrame, unmount } = render(<QueuedMessageDisplay messageQueue={[]} />);
 
     expect(lastFrame()).toBe('');
     unmount();
   });
 
   it('displays single queued message', () => {
-    const { lastFrame, unmount } = render(
-      <QueuedMessageDisplay messageQueue={['First message']} />,
-    );
+    const { lastFrame, unmount } = render(<QueuedMessageDisplay messageQueue={['First message']} />);
 
     const output = lastFrame();
     expect(output).toContain('Queued (press ↑ to edit):');
@@ -30,15 +26,9 @@ describe('QueuedMessageDisplay', () => {
   });
 
   it('displays multiple queued messages', () => {
-    const messageQueue = [
-      'First queued message',
-      'Second queued message',
-      'Third queued message',
-    ];
+    const messageQueue = ['First queued message', 'Second queued message', 'Third queued message'];
 
-    const { lastFrame, unmount } = render(
-      <QueuedMessageDisplay messageQueue={messageQueue} />,
-    );
+    const { lastFrame, unmount } = render(<QueuedMessageDisplay messageQueue={messageQueue} />);
 
     const output = lastFrame();
     expect(output).toContain('Queued (press ↑ to edit):');
@@ -49,17 +39,9 @@ describe('QueuedMessageDisplay', () => {
   });
 
   it('shows overflow indicator when more than 3 messages are queued', () => {
-    const messageQueue = [
-      'Message 1',
-      'Message 2',
-      'Message 3',
-      'Message 4',
-      'Message 5',
-    ];
+    const messageQueue = ['Message 1', 'Message 2', 'Message 3', 'Message 4', 'Message 5'];
 
-    const { lastFrame, unmount } = render(
-      <QueuedMessageDisplay messageQueue={messageQueue} />,
-    );
+    const { lastFrame, unmount } = render(<QueuedMessageDisplay messageQueue={messageQueue} />);
 
     const output = lastFrame();
     expect(output).toContain('Queued (press ↑ to edit):');
@@ -75,9 +57,7 @@ describe('QueuedMessageDisplay', () => {
   it('normalizes whitespace in messages', () => {
     const messageQueue = ['Message   with\tmultiple\n  whitespace'];
 
-    const { lastFrame, unmount } = render(
-      <QueuedMessageDisplay messageQueue={messageQueue} />,
-    );
+    const { lastFrame, unmount } = render(<QueuedMessageDisplay messageQueue={messageQueue} />);
 
     const output = lastFrame();
     expect(output).toContain('Queued (press ↑ to edit):');

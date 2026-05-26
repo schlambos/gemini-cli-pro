@@ -44,12 +44,8 @@ vi.mock('vscode', () => ({
 
 describe('OpenFilesManager', () => {
   let context: vscode.ExtensionContext;
-  let onDidChangeActiveTextEditorListener: (
-    editor: vscode.TextEditor | undefined,
-  ) => void;
-  let onDidChangeTextEditorSelectionListener: (
-    e: vscode.TextEditorSelectionChangeEvent,
-  ) => void;
+  let onDidChangeActiveTextEditorListener: (editor: vscode.TextEditor | undefined) => void;
+  let onDidChangeTextEditorSelectionListener: (e: vscode.TextEditorSelectionChangeEvent) => void;
   let onDidDeleteFilesListener: (e: vscode.FileDeleteEvent) => void;
   let onDidCloseTextDocumentListener: (doc: vscode.TextDocument) => void;
   let onDidRenameFilesListener: (e: vscode.FileRenameEvent) => void;
@@ -57,36 +53,26 @@ describe('OpenFilesManager', () => {
   beforeEach(() => {
     vi.useFakeTimers();
 
-    vi.mocked(vscode.window.onDidChangeActiveTextEditor).mockImplementation(
-      (listener) => {
-        onDidChangeActiveTextEditorListener = listener;
-        return { dispose: vi.fn() };
-      },
-    );
-    vi.mocked(vscode.window.onDidChangeTextEditorSelection).mockImplementation(
-      (listener) => {
-        onDidChangeTextEditorSelectionListener = listener;
-        return { dispose: vi.fn() };
-      },
-    );
-    vi.mocked(vscode.workspace.onDidDeleteFiles).mockImplementation(
-      (listener) => {
-        onDidDeleteFilesListener = listener;
-        return { dispose: vi.fn() };
-      },
-    );
-    vi.mocked(vscode.workspace.onDidCloseTextDocument).mockImplementation(
-      (listener) => {
-        onDidCloseTextDocumentListener = listener;
-        return { dispose: vi.fn() };
-      },
-    );
-    vi.mocked(vscode.workspace.onDidRenameFiles).mockImplementation(
-      (listener) => {
-        onDidRenameFilesListener = listener;
-        return { dispose: vi.fn() };
-      },
-    );
+    vi.mocked(vscode.window.onDidChangeActiveTextEditor).mockImplementation((listener) => {
+      onDidChangeActiveTextEditorListener = listener;
+      return { dispose: vi.fn() };
+    });
+    vi.mocked(vscode.window.onDidChangeTextEditorSelection).mockImplementation((listener) => {
+      onDidChangeTextEditorSelectionListener = listener;
+      return { dispose: vi.fn() };
+    });
+    vi.mocked(vscode.workspace.onDidDeleteFiles).mockImplementation((listener) => {
+      onDidDeleteFilesListener = listener;
+      return { dispose: vi.fn() };
+    });
+    vi.mocked(vscode.workspace.onDidCloseTextDocument).mockImplementation((listener) => {
+      onDidCloseTextDocumentListener = listener;
+      return { dispose: vi.fn() };
+    });
+    vi.mocked(vscode.workspace.onDidRenameFiles).mockImplementation((listener) => {
+      onDidRenameFilesListener = listener;
+      return { dispose: vi.fn() };
+    });
 
     context = {
       subscriptions: [],
@@ -98,8 +84,7 @@ describe('OpenFilesManager', () => {
     vi.useRealTimers();
   });
 
-  const getUri = (path: string) =>
-    vscode.Uri.file(path) as unknown as vscode.Uri;
+  const getUri = (path: string) => vscode.Uri.file(path) as unknown as vscode.Uri;
 
   const addFile = (uri: vscode.Uri) => {
     onDidChangeActiveTextEditorListener({
@@ -119,9 +104,7 @@ describe('OpenFilesManager', () => {
     addFile(uri);
     await vi.advanceTimersByTimeAsync(100);
     expect(manager.state.workspaceState!.openFiles).toHaveLength(1);
-    expect(manager.state.workspaceState!.openFiles![0].path).toBe(
-      '/test/file1.txt',
-    );
+    expect(manager.state.workspaceState!.openFiles![0].path).toBe('/test/file1.txt');
   });
 
   it('moves an existing file to the top', async () => {
@@ -133,9 +116,7 @@ describe('OpenFilesManager', () => {
     addFile(uri1);
     await vi.advanceTimersByTimeAsync(100);
     expect(manager.state.workspaceState!.openFiles).toHaveLength(2);
-    expect(manager.state.workspaceState!.openFiles![0].path).toBe(
-      '/test/file1.txt',
-    );
+    expect(manager.state.workspaceState!.openFiles![0].path).toBe('/test/file1.txt');
   });
 
   it('does not exceed the max number of files', async () => {
@@ -146,12 +127,8 @@ describe('OpenFilesManager', () => {
     }
     await vi.advanceTimersByTimeAsync(100);
     expect(manager.state.workspaceState!.openFiles).toHaveLength(MAX_FILES);
-    expect(manager.state.workspaceState!.openFiles![0].path).toBe(
-      `/test/file${MAX_FILES + 4}.txt`,
-    );
-    expect(manager.state.workspaceState!.openFiles![MAX_FILES - 1].path).toBe(
-      `/test/file5.txt`,
-    );
+    expect(manager.state.workspaceState!.openFiles![0].path).toBe(`/test/file${MAX_FILES + 4}.txt`);
+    expect(manager.state.workspaceState!.openFiles![MAX_FILES - 1].path).toBe(`/test/file5.txt`);
   });
 
   it('fires onDidChange when a file is added', async () => {
@@ -207,9 +184,7 @@ describe('OpenFilesManager', () => {
     await vi.advanceTimersByTimeAsync(100);
 
     expect(manager.state.workspaceState!.openFiles).toHaveLength(1);
-    expect(manager.state.workspaceState!.openFiles![0].path).toBe(
-      '/test/file2.txt',
-    );
+    expect(manager.state.workspaceState!.openFiles![0].path).toBe('/test/file2.txt');
   });
 
   it('fires onDidChange when a file is deleted', async () => {
@@ -242,9 +217,7 @@ describe('OpenFilesManager', () => {
     await vi.advanceTimersByTimeAsync(100);
 
     expect(manager.state.workspaceState!.openFiles).toHaveLength(1);
-    expect(manager.state.workspaceState!.openFiles![0].path).toBe(
-      '/test/file2.txt',
-    );
+    expect(manager.state.workspaceState!.openFiles![0].path).toBe('/test/file2.txt');
   });
 
   it('fires onDidChange only once when adding an existing file', async () => {
@@ -268,17 +241,13 @@ describe('OpenFilesManager', () => {
     addFile(oldUri);
     await vi.advanceTimersByTimeAsync(100);
     expect(manager.state.workspaceState!.openFiles).toHaveLength(1);
-    expect(manager.state.workspaceState!.openFiles![0].path).toBe(
-      '/test/file1.txt',
-    );
+    expect(manager.state.workspaceState!.openFiles![0].path).toBe('/test/file1.txt');
 
     onDidRenameFilesListener({ files: [{ oldUri, newUri }] });
     await vi.advanceTimersByTimeAsync(100);
 
     expect(manager.state.workspaceState!.openFiles).toHaveLength(1);
-    expect(manager.state.workspaceState!.openFiles![0].path).toBe(
-      '/test/file2.txt',
-    );
+    expect(manager.state.workspaceState!.openFiles![0].path).toBe('/test/file2.txt');
   });
 
   it('adds a file when the active editor changes', async () => {
@@ -289,9 +258,7 @@ describe('OpenFilesManager', () => {
     await vi.advanceTimersByTimeAsync(100);
 
     expect(manager.state.workspaceState!.openFiles).toHaveLength(1);
-    expect(manager.state.workspaceState!.openFiles![0].path).toBe(
-      '/test/file1.txt',
-    );
+    expect(manager.state.workspaceState!.openFiles![0].path).toBe('/test/file1.txt');
   });
 
   it('updates the cursor position on selection change', async () => {
@@ -413,9 +380,7 @@ describe('OpenFilesManager', () => {
     addFile(uri2);
     await vi.advanceTimersByTimeAsync(100);
 
-    file1 = manager.state.workspaceState!.openFiles!.find(
-      (f) => f.path === '/test/file1.txt',
-    )!;
+    file1 = manager.state.workspaceState!.openFiles!.find((f) => f.path === '/test/file1.txt')!;
     const file2 = manager.state.workspaceState!.openFiles![0];
 
     expect(file1.isActive).toBe(false);

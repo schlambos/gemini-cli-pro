@@ -7,11 +7,7 @@
 /// <reference types="vitest/globals" />
 
 import { describe, it, expect } from 'vitest';
-import {
-  validateSettings,
-  formatValidationError,
-  settingsZodSchema,
-} from './settings-validation.js';
+import { validateSettings, formatValidationError, settingsZodSchema } from './settings-validation.js';
 import { z } from 'zod';
 
 describe('settings-validation', () => {
@@ -210,9 +206,7 @@ describe('settings-validation', () => {
       if (result.error) {
         expect(result.error.issues.length).toBeGreaterThan(0);
         // Path should be mcpServers.my-server.command
-        const issue = result.error.issues.find((i) =>
-          i.path.includes('command'),
-        );
+        const issue = result.error.issues.find((i) => i.path.includes('command'));
         expect(issue).toBeDefined();
         expect(issue?.code).toBe('invalid_type');
       }
@@ -292,9 +286,7 @@ describe('settings-validation', () => {
       if (result.error) {
         expect(result.error.issues.length).toBeGreaterThan(0);
         // Should complain about missing 'name'
-        const issue = result.error.issues.find(
-          (i) => i.code === 'invalid_type' && i.message.includes('Required'),
-        );
+        const issue = result.error.issues.find((i) => i.code === 'invalid_type' && i.message.includes('Required'));
         expect(issue).toBeDefined();
       }
     });
@@ -314,18 +306,13 @@ describe('settings-validation', () => {
       expect(result.success).toBe(false);
 
       if (result.error) {
-        const formatted = formatValidationError(
-          result.error,
-          '/path/to/settings.json',
-        );
+        const formatted = formatValidationError(result.error, '/path/to/settings.json');
 
         expect(formatted).toContain('/path/to/settings.json');
         expect(formatted).toContain('model.name');
         expect(formatted).toContain('Expected: string, but received: object');
         expect(formatted).toContain('Please fix the configuration.');
-        expect(formatted).toContain(
-          'https://github.com/google-gemini/gemini-cli',
-        );
+        expect(formatted).toContain('https://github.com/google-gemini/gemini-cli');
       }
     });
 
@@ -340,10 +327,7 @@ describe('settings-validation', () => {
       expect(result.success).toBe(false);
 
       if (result.error) {
-        const formatted = formatValidationError(
-          result.error,
-          '~/.gemini/settings.json',
-        );
+        const formatted = formatValidationError(result.error, '~/.gemini/settings.json');
 
         expect(formatted).toContain('~/.gemini/settings.json');
         expect(formatted).toContain('model.summarizeToolOutput');
@@ -363,9 +347,7 @@ describe('settings-validation', () => {
       if (result.error) {
         const formatted = formatValidationError(result.error, 'test.json');
 
-        expect(formatted).toContain(
-          'https://github.com/google-gemini/gemini-cli',
-        );
+        expect(formatted).toContain('https://github.com/google-gemini/gemini-cli');
         expect(formatted).toContain('configuration.md');
       }
     });

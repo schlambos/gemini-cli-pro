@@ -14,9 +14,7 @@ interface CategorizedRules {
   yolo: PolicyRule[];
 }
 
-const categorizeRulesByMode = (
-  rules: readonly PolicyRule[],
-): CategorizedRules => {
+const categorizeRulesByMode = (rules: readonly PolicyRule[]): CategorizedRules => {
   const result: CategorizedRules = {
     normal: [],
     autoEdit: [],
@@ -55,7 +53,7 @@ const listPoliciesCommand: SlashCommand = {
           type: MessageType.ERROR,
           text: 'Error: Config not available.',
         },
-        Date.now(),
+        Date.now()
       );
       return;
     }
@@ -69,37 +67,27 @@ const listPoliciesCommand: SlashCommand = {
           type: MessageType.INFO,
           text: 'No active policies.',
         },
-        Date.now(),
+        Date.now()
       );
       return;
     }
 
     const categorized = categorizeRulesByMode(rules);
     const normalRulesSet = new Set(categorized.normal);
-    const uniqueAutoEdit = categorized.autoEdit.filter(
-      (rule) => !normalRulesSet.has(rule),
-    );
-    const uniqueYolo = categorized.yolo.filter(
-      (rule) => !normalRulesSet.has(rule),
-    );
+    const uniqueAutoEdit = categorized.autoEdit.filter((rule) => !normalRulesSet.has(rule));
+    const uniqueYolo = categorized.yolo.filter((rule) => !normalRulesSet.has(rule));
 
     let content = '**Active Policies**\n\n';
     content += formatSection('Normal Mode Policies', categorized.normal);
-    content += formatSection(
-      'Auto Edit Mode Policies (combined with normal mode policies)',
-      uniqueAutoEdit,
-    );
-    content += formatSection(
-      'Yolo Mode Policies (combined with normal mode policies)',
-      uniqueYolo,
-    );
+    content += formatSection('Auto Edit Mode Policies (combined with normal mode policies)', uniqueAutoEdit);
+    content += formatSection('Yolo Mode Policies (combined with normal mode policies)', uniqueYolo);
 
     context.ui.addItem(
       {
         type: MessageType.INFO,
         text: content,
       },
-      Date.now(),
+      Date.now()
     );
   },
 };

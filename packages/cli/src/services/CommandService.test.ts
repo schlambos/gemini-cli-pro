@@ -29,9 +29,7 @@ class MockCommandLoader implements ICommandLoader {
     this.commandsToLoad = commandsToLoad;
   }
 
-  loadCommands = vi.fn(
-    async (): Promise<SlashCommand[]> => Promise.resolve(this.commandsToLoad),
-  );
+  loadCommands = vi.fn(async (): Promise<SlashCommand[]> => Promise.resolve(this.commandsToLoad));
 }
 
 describe('CommandService', () => {
@@ -45,48 +43,32 @@ describe('CommandService', () => {
 
   it('should load commands from a single loader', async () => {
     const mockLoader = new MockCommandLoader([mockCommandA, mockCommandB]);
-    const service = await CommandService.create(
-      [mockLoader],
-      new AbortController().signal,
-    );
+    const service = await CommandService.create([mockLoader], new AbortController().signal);
 
     const commands = service.getCommands();
 
     expect(mockLoader.loadCommands).toHaveBeenCalledTimes(1);
     expect(commands).toHaveLength(2);
-    expect(commands).toEqual(
-      expect.arrayContaining([mockCommandA, mockCommandB]),
-    );
+    expect(commands).toEqual(expect.arrayContaining([mockCommandA, mockCommandB]));
   });
 
   it('should aggregate commands from multiple loaders', async () => {
     const loader1 = new MockCommandLoader([mockCommandA]);
     const loader2 = new MockCommandLoader([mockCommandC]);
-    const service = await CommandService.create(
-      [loader1, loader2],
-      new AbortController().signal,
-    );
+    const service = await CommandService.create([loader1, loader2], new AbortController().signal);
 
     const commands = service.getCommands();
 
     expect(loader1.loadCommands).toHaveBeenCalledTimes(1);
     expect(loader2.loadCommands).toHaveBeenCalledTimes(1);
     expect(commands).toHaveLength(2);
-    expect(commands).toEqual(
-      expect.arrayContaining([mockCommandA, mockCommandC]),
-    );
+    expect(commands).toEqual(expect.arrayContaining([mockCommandA, mockCommandC]));
   });
 
   it('should override commands from earlier loaders with those from later loaders', async () => {
     const loader1 = new MockCommandLoader([mockCommandA, mockCommandB]);
-    const loader2 = new MockCommandLoader([
-      mockCommandB_Override,
-      mockCommandC,
-    ]);
-    const service = await CommandService.create(
-      [loader1, loader2],
-      new AbortController().signal,
-    );
+    const loader2 = new MockCommandLoader([mockCommandB_Override, mockCommandC]);
+    const service = await CommandService.create([loader1, loader2], new AbortController().signal);
 
     const commands = service.getCommands();
 
@@ -99,31 +81,20 @@ describe('CommandService', () => {
     expect(commandB).toEqual(mockCommandB_Override);
 
     // Ensure the other commands are still present.
-    expect(commands).toEqual(
-      expect.arrayContaining([
-        mockCommandA,
-        mockCommandC,
-        mockCommandB_Override,
-      ]),
-    );
+    expect(commands).toEqual(expect.arrayContaining([mockCommandA, mockCommandC, mockCommandB_Override]));
   });
 
   it('should handle loaders that return an empty array of commands gracefully', async () => {
     const loader1 = new MockCommandLoader([mockCommandA]);
     const emptyLoader = new MockCommandLoader([]);
     const loader3 = new MockCommandLoader([mockCommandB]);
-    const service = await CommandService.create(
-      [loader1, emptyLoader, loader3],
-      new AbortController().signal,
-    );
+    const service = await CommandService.create([loader1, emptyLoader, loader3], new AbortController().signal);
 
     const commands = service.getCommands();
 
     expect(emptyLoader.loadCommands).toHaveBeenCalledTimes(1);
     expect(commands).toHaveLength(2);
-    expect(commands).toEqual(
-      expect.arrayContaining([mockCommandA, mockCommandB]),
-    );
+    expect(commands).toEqual(expect.arrayContaining([mockCommandA, mockCommandB]));
   });
 
   it('should load commands from successful loaders even if one fails', async () => {
@@ -132,25 +103,16 @@ describe('CommandService', () => {
     const error = new Error('Loader failed');
     vi.spyOn(failingLoader, 'loadCommands').mockRejectedValue(error);
 
-    const service = await CommandService.create(
-      [successfulLoader, failingLoader],
-      new AbortController().signal,
-    );
+    const service = await CommandService.create([successfulLoader, failingLoader], new AbortController().signal);
 
     const commands = service.getCommands();
     expect(commands).toHaveLength(1);
     expect(commands).toEqual([mockCommandA]);
-    expect(debugLogger.debug).toHaveBeenCalledWith(
-      'A command loader failed:',
-      error,
-    );
+    expect(debugLogger.debug).toHaveBeenCalledWith('A command loader failed:', error);
   });
 
   it('getCommands should return a readonly array that cannot be mutated', async () => {
-    const service = await CommandService.create(
-      [new MockCommandLoader([mockCommandA])],
-      new AbortController().signal,
-    );
+    const service = await CommandService.create([new MockCommandLoader([mockCommandA])], new AbortController().signal);
 
     const commands = service.getCommands();
 
@@ -194,45 +156,30 @@ describe('CommandService', () => {
     };
 
     const mockLoader1 = new MockCommandLoader([builtinCommand]);
-    const mockLoader2 = new MockCommandLoader([
-      userCommand,
-      extensionCommand1,
-      extensionCommand2,
-    ]);
+    const mockLoader2 = new MockCommandLoader([userCommand, extensionCommand1, extensionCommand2]);
 
-    const service = await CommandService.create(
-      [mockLoader1, mockLoader2],
-      new AbortController().signal,
-    );
+    const service = await CommandService.create([mockLoader1, mockLoader2], new AbortController().signal);
 
     const commands = service.getCommands();
     expect(commands).toHaveLength(4);
 
     // Built-in command keeps original name
-    const deployBuiltin = commands.find(
-      (cmd) => cmd.name === 'deploy' && !cmd.extensionName,
-    );
+    const deployBuiltin = commands.find((cmd) => cmd.name === 'deploy' && !cmd.extensionName);
     expect(deployBuiltin).toBeDefined();
     expect(deployBuiltin?.kind).toBe(CommandKind.BUILT_IN);
 
     // Extension command conflicting with built-in gets renamed
-    const deployExtension = commands.find(
-      (cmd) => cmd.name === 'firebase.deploy',
-    );
+    const deployExtension = commands.find((cmd) => cmd.name === 'firebase.deploy');
     expect(deployExtension).toBeDefined();
     expect(deployExtension?.extensionName).toBe('firebase');
 
     // User command keeps original name
-    const syncUser = commands.find(
-      (cmd) => cmd.name === 'sync' && !cmd.extensionName,
-    );
+    const syncUser = commands.find((cmd) => cmd.name === 'sync' && !cmd.extensionName);
     expect(syncUser).toBeDefined();
     expect(syncUser?.kind).toBe(CommandKind.FILE);
 
     // Extension command conflicting with user command gets renamed
-    const syncExtension = commands.find(
-      (cmd) => cmd.name === 'git-helper.sync',
-    );
+    const syncExtension = commands.find((cmd) => cmd.name === 'git-helper.sync');
     expect(syncExtension).toBeDefined();
     expect(syncExtension?.extensionName).toBe('git-helper');
   });
@@ -244,16 +191,9 @@ describe('CommandService', () => {
     const userDeployCommand = createMockCommand('deploy', CommandKind.FILE);
 
     const mockLoader1 = new MockCommandLoader([builtinCommand]);
-    const mockLoader2 = new MockCommandLoader([
-      userCommand,
-      userDeployCommand,
-      projectCommand,
-    ]);
+    const mockLoader2 = new MockCommandLoader([userCommand, userDeployCommand, projectCommand]);
 
-    const service = await CommandService.create(
-      [mockLoader1, mockLoader2],
-      new AbortController().signal,
-    );
+    const service = await CommandService.create([mockLoader1, mockLoader2], new AbortController().signal);
 
     const commands = service.getCommands();
     expect(commands).toHaveLength(2);
@@ -281,36 +221,23 @@ describe('CommandService', () => {
       description: '[gcp] Deploy to Google Cloud',
     };
 
-    const mockLoader = new MockCommandLoader([
-      userCommand1,
-      userCommand2,
-      extensionCommand,
-    ]);
+    const mockLoader = new MockCommandLoader([userCommand1, userCommand2, extensionCommand]);
 
-    const service = await CommandService.create(
-      [mockLoader],
-      new AbortController().signal,
-    );
+    const service = await CommandService.create([mockLoader], new AbortController().signal);
 
     const commands = service.getCommands();
     expect(commands).toHaveLength(3);
 
     // Original user command keeps its name
-    const deployUser = commands.find(
-      (cmd) => cmd.name === 'deploy' && !cmd.extensionName,
-    );
+    const deployUser = commands.find((cmd) => cmd.name === 'deploy' && !cmd.extensionName);
     expect(deployUser).toBeDefined();
 
     // User's dot notation command keeps its name
-    const gcpDeployUser = commands.find(
-      (cmd) => cmd.name === 'gcp.deploy' && !cmd.extensionName,
-    );
+    const gcpDeployUser = commands.find((cmd) => cmd.name === 'gcp.deploy' && !cmd.extensionName);
     expect(gcpDeployUser).toBeDefined();
 
     // Extension command gets renamed with suffix due to secondary conflict
-    const deployExtension = commands.find(
-      (cmd) => cmd.name === 'gcp.deploy1' && cmd.extensionName === 'gcp',
-    );
+    const deployExtension = commands.find((cmd) => cmd.name === 'gcp.deploy1' && cmd.extensionName === 'gcp');
     expect(deployExtension).toBeDefined();
     expect(deployExtension?.description).toBe('[gcp] Deploy to Google Cloud');
   });
@@ -328,25 +255,15 @@ describe('CommandService', () => {
       description: '[gcp] Deploy to Google Cloud',
     };
 
-    const mockLoader = new MockCommandLoader([
-      userCommand1,
-      userCommand2,
-      userCommand3,
-      extensionCommand,
-    ]);
+    const mockLoader = new MockCommandLoader([userCommand1, userCommand2, userCommand3, extensionCommand]);
 
-    const service = await CommandService.create(
-      [mockLoader],
-      new AbortController().signal,
-    );
+    const service = await CommandService.create([mockLoader], new AbortController().signal);
 
     const commands = service.getCommands();
     expect(commands).toHaveLength(4);
 
     // Extension command gets renamed with suffix 2 due to multiple conflicts
-    const deployExtension = commands.find(
-      (cmd) => cmd.name === 'gcp.deploy2' && cmd.extensionName === 'gcp',
-    );
+    const deployExtension = commands.find((cmd) => cmd.name === 'gcp.deploy2' && cmd.extensionName === 'gcp');
     expect(deployExtension).toBeDefined();
     expect(deployExtension?.description).toBe('[gcp] Deploy to Google Cloud');
   });
@@ -358,15 +275,9 @@ describe('CommandService', () => {
       extensionName: 'firebase',
     };
 
-    const mockLoader = new MockCommandLoader([
-      builtinCommand,
-      extensionCommand,
-    ]);
+    const mockLoader = new MockCommandLoader([builtinCommand, extensionCommand]);
 
-    const service = await CommandService.create(
-      [mockLoader],
-      new AbortController().signal,
-    );
+    const service = await CommandService.create([mockLoader], new AbortController().signal);
 
     const conflicts = service.getConflicts();
     expect(conflicts).toHaveLength(1);
@@ -397,15 +308,9 @@ describe('CommandService', () => {
       extensionName: 'aws',
     };
 
-    const mockLoader = new MockCommandLoader([
-      extension1Command,
-      extension2Command,
-    ]);
+    const mockLoader = new MockCommandLoader([extension1Command, extension2Command]);
 
-    const service = await CommandService.create(
-      [mockLoader],
-      new AbortController().signal,
-    );
+    const service = await CommandService.create([mockLoader], new AbortController().signal);
 
     const conflicts = service.getConflicts();
     expect(conflicts).toHaveLength(1);
@@ -441,10 +346,7 @@ describe('CommandService', () => {
 
     const mockLoader = new MockCommandLoader([builtinCommand, ext1, ext2]);
 
-    const service = await CommandService.create(
-      [mockLoader],
-      new AbortController().signal,
-    );
+    const service = await CommandService.create([mockLoader], new AbortController().signal);
 
     const conflicts = service.getConflicts();
     expect(conflicts).toHaveLength(1);
@@ -460,7 +362,7 @@ describe('CommandService', () => {
           renamedTo: 'ext2.deploy',
           command: expect.objectContaining({ extensionName: 'ext2' }),
         }),
-      ]),
+      ])
     );
   });
 });

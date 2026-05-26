@@ -4,11 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  SettingScope,
-  isLoadableSettingScope,
-  type LoadedSettings,
-} from '../config/settings.js';
+import { SettingScope, isLoadableSettingScope, type LoadedSettings } from '../config/settings.js';
 import type { ModifiedScope } from './skillSettings.js';
 
 export type AgentActionStatus = 'success' | 'no-op' | 'error';
@@ -32,10 +28,7 @@ export interface AgentActionResult {
  * Enables an agent by ensuring it is enabled in any writable scope (User and Workspace).
  * It sets `agents.overrides.<agentName>.enabled` to `true`.
  */
-export function enableAgent(
-  settings: LoadedSettings,
-  agentName: string,
-): AgentActionResult {
+export function enableAgent(settings: LoadedSettings, agentName: string): AgentActionResult {
   const writableScopes = [SettingScope.Workspace, SettingScope.User];
   const foundInDisabledScopes: ModifiedScope[] = [];
   const alreadyEnabledScopes: ModifiedScope[] = [];
@@ -43,8 +36,7 @@ export function enableAgent(
   for (const scope of writableScopes) {
     if (isLoadableSettingScope(scope)) {
       const scopePath = settings.forScope(scope).path;
-      const agentOverrides =
-        settings.forScope(scope).settings.agents?.overrides;
+      const agentOverrides = settings.forScope(scope).settings.agents?.overrides;
       const isEnabled = agentOverrides?.[agentName]?.enabled === true;
 
       if (!isEnabled) {
@@ -86,11 +78,7 @@ export function enableAgent(
 /**
  * Disables an agent by setting `agents.overrides.<agentName>.enabled` to `false` in the specified scope.
  */
-export function disableAgent(
-  settings: LoadedSettings,
-  agentName: string,
-  scope: SettingScope,
-): AgentActionResult {
+export function disableAgent(settings: LoadedSettings, agentName: string, scope: SettingScope): AgentActionResult {
   if (!isLoadableSettingScope(scope)) {
     return {
       status: 'error',
@@ -117,15 +105,11 @@ export function disableAgent(
   }
 
   // Check if it's already disabled in the other writable scope
-  const otherScope =
-    scope === SettingScope.Workspace
-      ? SettingScope.User
-      : SettingScope.Workspace;
+  const otherScope = scope === SettingScope.Workspace ? SettingScope.User : SettingScope.Workspace;
   const alreadyDisabledInOther: ModifiedScope[] = [];
 
   if (isLoadableSettingScope(otherScope)) {
-    const otherOverrides =
-      settings.forScope(otherScope).settings.agents?.overrides;
+    const otherOverrides = settings.forScope(otherScope).settings.agents?.overrides;
     if (otherOverrides?.[agentName]?.enabled === false) {
       alreadyDisabledInOther.push({
         scope: otherScope,

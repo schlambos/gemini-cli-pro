@@ -11,7 +11,7 @@ import type { ResolvedModelConfig } from '../services/modelConfigService.js';
  */
 export const makeResolvedModelConfig = (
   model: string,
-  overrides: Partial<ResolvedModelConfig['generateContentConfig']> = {},
+  overrides: Partial<ResolvedModelConfig['generateContentConfig']> = {}
 ): ResolvedModelConfig =>
   // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
   ({

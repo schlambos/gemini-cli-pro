@@ -24,7 +24,7 @@ type ShellExecutionServiceExecute = (
   onOutputEvent: (event: ShellOutputEvent) => void,
   abortSignal: AbortSignal,
   shouldUseNodePty: boolean,
-  shellExecutionConfig: ShellExecutionConfig,
+  shellExecutionConfig: ShellExecutionConfig
 ) => Promise<ShellExecutionHandle>;
 
 export class MockShellExecutionService {
@@ -35,9 +35,7 @@ export class MockShellExecutionService {
   /**
    * Registers the original implementation to allow falling back to real shell execution.
    */
-  static setOriginalImplementation(
-    implementation: ShellExecutionServiceExecute,
-  ) {
+  static setOriginalImplementation(implementation: ShellExecutionServiceExecute) {
     this.originalExecute = implementation;
   }
 
@@ -68,12 +66,10 @@ export class MockShellExecutionService {
     onOutputEvent: (event: ShellOutputEvent) => void,
     abortSignal: AbortSignal,
     shouldUseNodePty: boolean,
-    shellExecutionConfig: ShellExecutionConfig,
+    shellExecutionConfig: ShellExecutionConfig
   ): Promise<ShellExecutionHandle> {
     const mock = this.mockCommands.find((m) =>
-      typeof m.command === 'string'
-        ? m.command === commandToExecute
-        : m.command.test(commandToExecute),
+      typeof m.command === 'string' ? m.command === commandToExecute : m.command.test(commandToExecute)
     );
 
     const pid = Math.floor(Math.random() * 10000);
@@ -110,7 +106,7 @@ export class MockShellExecutionService {
         onOutputEvent,
         abortSignal,
         shouldUseNodePty,
-        shellExecutionConfig,
+        shellExecutionConfig
       );
     }
 

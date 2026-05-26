@@ -69,7 +69,7 @@ export type {
 const createErrorResponse = (
   request: ToolCallRequestInfo,
   error: Error,
-  errorType: ToolErrorType | undefined,
+  errorType: ToolErrorType | undefined
 ): ToolCallResponseInfo => ({
   callId: request.callId,
   error,
@@ -98,10 +98,7 @@ interface CoreToolSchedulerOptions {
 export class CoreToolScheduler {
   // Static WeakMap to track which MessageBus instances already have a handler subscribed
   // This prevents duplicate subscriptions when multiple CoreToolScheduler instances are created
-  private static subscribedMessageBuses = new WeakMap<
-    MessageBus,
-    (request: ToolConfirmationRequest) => void
-  >();
+  private static subscribedMessageBuses = new WeakMap<MessageBus, (request: ToolConfirmationRequest) => void>();
 
   private toolCalls: ToolCall[] = [];
   private outputUpdateHandler?: OutputUpdateHandler;
@@ -153,10 +150,7 @@ export class CoreToolScheduler {
         });
       };
 
-      messageBus.subscribe(
-        MessageBusType.TOOL_CONFIRMATION_REQUEST,
-        sharedHandler,
-      );
+      messageBus.subscribe(MessageBusType.TOOL_CONFIRMATION_REQUEST, sharedHandler);
 
       // Store the handler in the WeakMap so we don't subscribe again
       CoreToolScheduler.subscribedMessageBuses.set(messageBus, sharedHandler);
@@ -167,39 +161,36 @@ export class CoreToolScheduler {
     targetCallId: string,
     status: CoreToolCallStatus.Success,
     signal: AbortSignal,
-    response: ToolCallResponseInfo,
+    response: ToolCallResponseInfo
   ): void;
   private setStatusInternal(
     targetCallId: string,
     status: CoreToolCallStatus.AwaitingApproval,
     signal: AbortSignal,
-    confirmationDetails: ToolCallConfirmationDetails,
+    confirmationDetails: ToolCallConfirmationDetails
   ): void;
   private setStatusInternal(
     targetCallId: string,
     status: CoreToolCallStatus.Error,
     signal: AbortSignal,
-    response: ToolCallResponseInfo,
+    response: ToolCallResponseInfo
   ): void;
   private setStatusInternal(
     targetCallId: string,
     status: CoreToolCallStatus.Cancelled,
     signal: AbortSignal,
-    reason: string,
+    reason: string
   ): void;
   private setStatusInternal(
     targetCallId: string,
-    status:
-      | CoreToolCallStatus.Executing
-      | CoreToolCallStatus.Scheduled
-      | CoreToolCallStatus.Validating,
-    signal: AbortSignal,
+    status: CoreToolCallStatus.Executing | CoreToolCallStatus.Scheduled | CoreToolCallStatus.Validating,
+    signal: AbortSignal
   ): void;
   private setStatusInternal(
     targetCallId: string,
     newStatus: Status,
     signal: AbortSignal,
-    auxiliaryData?: unknown,
+    auxiliaryData?: unknown
   ): void {
     this.toolCalls = this.toolCalls.map((currentCall) => {
       if (
@@ -221,9 +212,7 @@ export class CoreToolScheduler {
 
       switch (newStatus) {
         case CoreToolCallStatus.Success: {
-          const durationMs = existingStartTime
-            ? Date.now() - existingStartTime
-            : undefined;
+          const durationMs = existingStartTime ? Date.now() - existingStartTime : undefined;
           return {
             request: currentCall.request,
             tool: toolInstance,
@@ -237,9 +226,7 @@ export class CoreToolScheduler {
           } as SuccessfulToolCall;
         }
         case CoreToolCallStatus.Error: {
-          const durationMs = existingStartTime
-            ? Date.now() - existingStartTime
-            : undefined;
+          const durationMs = existingStartTime ? Date.now() - existingStartTime : undefined;
           return {
             request: currentCall.request,
             status: CoreToolCallStatus.Error,
@@ -275,9 +262,7 @@ export class CoreToolScheduler {
             approvalMode,
           } as ScheduledToolCall;
         case CoreToolCallStatus.Cancelled: {
-          const durationMs = existingStartTime
-            ? Date.now() - existingStartTime
-            : undefined;
+          const durationMs = existingStartTime ? Date.now() - existingStartTime : undefined;
 
           // Preserve diff for cancelled edit operations
           let resultDisplay: ToolResultDisplay | undefined = undefined;
@@ -287,8 +272,7 @@ export class CoreToolScheduler {
               resultDisplay = {
                 fileDiff: waitingCall.confirmationDetails.fileDiff,
                 fileName: waitingCall.confirmationDetails.fileName,
-                originalContent:
-                  waitingCall.confirmationDetails.originalContent,
+                originalContent: waitingCall.confirmationDetails.originalContent,
                 newContent: waitingCall.confirmationDetails.newContent,
                 filePath: waitingCall.confirmationDetails.filePath,
               };
@@ -357,24 +341,17 @@ export class CoreToolScheduler {
     this.toolCalls = this.toolCalls.map((call) => {
       // We should never be asked to set args on an ErroredToolCall, but
       // we guard for the case anyways.
-      if (
-        call.request.callId !== targetCallId ||
-        call.status === CoreToolCallStatus.Error
-      ) {
+      if (call.request.callId !== targetCallId || call.status === CoreToolCallStatus.Error) {
         return call;
       }
 
       const invocationOrError = this.buildInvocation(
         call.tool,
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-        args as Record<string, unknown>,
+        args as Record<string, unknown>
       );
       if (invocationOrError instanceof Error) {
-        const response = createErrorResponse(
-          call.request,
-          invocationOrError,
-          ToolErrorType.INVALID_TOOL_PARAMS,
-        );
+        const response = createErrorResponse(call.request, invocationOrError, ToolErrorType.INVALID_TOOL_PARAMS);
         return {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
           request: { ...call.request, args: args as Record<string, unknown> },
@@ -398,17 +375,12 @@ export class CoreToolScheduler {
     return (
       this.isFinalizingToolCalls ||
       this.toolCalls.some(
-        (call) =>
-          call.status === CoreToolCallStatus.Executing ||
-          call.status === CoreToolCallStatus.AwaitingApproval,
+        (call) => call.status === CoreToolCallStatus.Executing || call.status === CoreToolCallStatus.AwaitingApproval
       )
     );
   }
 
-  private buildInvocation(
-    tool: AnyDeclarativeTool,
-    args: object,
-  ): AnyToolInvocation | Error {
+  private buildInvocation(tool: AnyDeclarativeTool, args: object): AnyToolInvocation | Error {
     try {
       return tool.build(args);
     } catch (e) {
@@ -419,46 +391,38 @@ export class CoreToolScheduler {
     }
   }
 
-  schedule(
-    request: ToolCallRequestInfo | ToolCallRequestInfo[],
-    signal: AbortSignal,
-  ): Promise<void> {
-    return runInDevTraceSpan(
-      { name: 'schedule' },
-      async ({ metadata: spanMetadata }) => {
-        spanMetadata.input = request;
-        if (this.isRunning() || this.isScheduling) {
-          return new Promise((resolve, reject) => {
-            const abortHandler = () => {
-              // Find and remove the request from the queue
-              const index = this.requestQueue.findIndex(
-                (item) => item.request === request,
-              );
-              if (index > -1) {
-                this.requestQueue.splice(index, 1);
-                reject(new Error('Tool call cancelled while in queue.'));
-              }
-            };
+  schedule(request: ToolCallRequestInfo | ToolCallRequestInfo[], signal: AbortSignal): Promise<void> {
+    return runInDevTraceSpan({ name: 'schedule' }, async ({ metadata: spanMetadata }) => {
+      spanMetadata.input = request;
+      if (this.isRunning() || this.isScheduling) {
+        return new Promise((resolve, reject) => {
+          const abortHandler = () => {
+            // Find and remove the request from the queue
+            const index = this.requestQueue.findIndex((item) => item.request === request);
+            if (index > -1) {
+              this.requestQueue.splice(index, 1);
+              reject(new Error('Tool call cancelled while in queue.'));
+            }
+          };
 
-            signal.addEventListener('abort', abortHandler, { once: true });
+          signal.addEventListener('abort', abortHandler, { once: true });
 
-            this.requestQueue.push({
-              request,
-              signal,
-              resolve: () => {
-                signal.removeEventListener('abort', abortHandler);
-                resolve();
-              },
-              reject: (reason?: Error) => {
-                signal.removeEventListener('abort', abortHandler);
-                reject(reason);
-              },
-            });
+          this.requestQueue.push({
+            request,
+            signal,
+            resolve: () => {
+              signal.removeEventListener('abort', abortHandler);
+              resolve();
+            },
+            reject: (reason?: Error) => {
+              signal.removeEventListener('abort', abortHandler);
+              reject(reason);
+            },
           });
-        }
-        return this._schedule(request, signal);
-      },
-    );
+        });
+      }
+      return this._schedule(request, signal);
+    });
   }
 
   cancelAll(signal: AbortSignal): void {
@@ -480,7 +444,7 @@ export class CoreToolScheduler {
           activeCall.request.callId,
           CoreToolCallStatus.Cancelled,
           signal,
-          'User cancelled the operation.',
+          'User cancelled the operation.'
         );
       }
     }
@@ -492,75 +456,54 @@ export class CoreToolScheduler {
     void this.checkAndNotifyCompletion(signal);
   }
 
-  private async _schedule(
-    request: ToolCallRequestInfo | ToolCallRequestInfo[],
-    signal: AbortSignal,
-  ): Promise<void> {
+  private async _schedule(request: ToolCallRequestInfo | ToolCallRequestInfo[], signal: AbortSignal): Promise<void> {
     this.isScheduling = true;
     this.isCancelling = false;
     try {
       if (this.isRunning()) {
         throw new Error(
-          'Cannot schedule new tool calls while other tool calls are actively running (executing or awaiting approval).',
+          'Cannot schedule new tool calls while other tool calls are actively running (executing or awaiting approval).'
         );
       }
       const requestsToProcess = Array.isArray(request) ? request : [request];
       const currentApprovalMode = this.config.getApprovalMode();
       this.completedToolCallsForBatch = [];
 
-      const newToolCalls: ToolCall[] = requestsToProcess.map(
-        (reqInfo): ToolCall => {
-          const toolInstance = this.config
-            .getToolRegistry()
-            .getTool(reqInfo.name);
-          if (!toolInstance) {
-            const suggestion = getToolSuggestion(
-              reqInfo.name,
-              this.config.getToolRegistry().getAllToolNames(),
-            );
-            const errorMessage = `Tool "${reqInfo.name}" not found in registry. Tools must use the exact names that are registered.${suggestion}`;
-            return {
-              status: CoreToolCallStatus.Error,
-              request: reqInfo,
-              response: createErrorResponse(
-                reqInfo,
-                new Error(errorMessage),
-                ToolErrorType.TOOL_NOT_REGISTERED,
-              ),
-              durationMs: 0,
-              approvalMode: currentApprovalMode,
-            };
-          }
-
-          const invocationOrError = this.buildInvocation(
-            toolInstance,
-            reqInfo.args,
-          );
-          if (invocationOrError instanceof Error) {
-            return {
-              status: CoreToolCallStatus.Error,
-              request: reqInfo,
-              tool: toolInstance,
-              response: createErrorResponse(
-                reqInfo,
-                invocationOrError,
-                ToolErrorType.INVALID_TOOL_PARAMS,
-              ),
-              durationMs: 0,
-              approvalMode: currentApprovalMode,
-            };
-          }
-
+      const newToolCalls: ToolCall[] = requestsToProcess.map((reqInfo): ToolCall => {
+        const toolInstance = this.config.getToolRegistry().getTool(reqInfo.name);
+        if (!toolInstance) {
+          const suggestion = getToolSuggestion(reqInfo.name, this.config.getToolRegistry().getAllToolNames());
+          const errorMessage = `Tool "${reqInfo.name}" not found in registry. Tools must use the exact names that are registered.${suggestion}`;
           return {
-            status: CoreToolCallStatus.Validating,
+            status: CoreToolCallStatus.Error,
             request: reqInfo,
-            tool: toolInstance,
-            invocation: invocationOrError,
-            startTime: Date.now(),
+            response: createErrorResponse(reqInfo, new Error(errorMessage), ToolErrorType.TOOL_NOT_REGISTERED),
+            durationMs: 0,
             approvalMode: currentApprovalMode,
           };
-        },
-      );
+        }
+
+        const invocationOrError = this.buildInvocation(toolInstance, reqInfo.args);
+        if (invocationOrError instanceof Error) {
+          return {
+            status: CoreToolCallStatus.Error,
+            request: reqInfo,
+            tool: toolInstance,
+            response: createErrorResponse(reqInfo, invocationOrError, ToolErrorType.INVALID_TOOL_PARAMS),
+            durationMs: 0,
+            approvalMode: currentApprovalMode,
+          };
+        }
+
+        return {
+          status: CoreToolCallStatus.Validating,
+          request: reqInfo,
+          tool: toolInstance,
+          invocation: invocationOrError,
+          startTime: Date.now(),
+          approvalMode: currentApprovalMode,
+        };
+      });
 
       this.toolCallQueue.push(...newToolCalls);
       await this._processNextInQueue(signal);
@@ -603,12 +546,7 @@ export class CoreToolScheduler {
 
       try {
         if (signal.aborted) {
-          this.setStatusInternal(
-            reqInfo.callId,
-            CoreToolCallStatus.Cancelled,
-            signal,
-            'Tool call cancelled by user.',
-          );
+          this.setStatusInternal(reqInfo.callId, CoreToolCallStatus.Cancelled, signal, 'Tool call cancelled by user.');
           // The completion check will handle the cascade.
           await this.checkAndNotifyCompletion(signal);
           return;
@@ -620,63 +558,40 @@ export class CoreToolScheduler {
           name: toolCall.request.name,
           args: toolCall.request.args,
         };
-        const serverName =
-          toolCall.tool instanceof DiscoveredMCPTool
-            ? toolCall.tool.serverName
-            : undefined;
+        const serverName = toolCall.tool instanceof DiscoveredMCPTool ? toolCall.tool.serverName : undefined;
 
-        const { decision, rule } = await this.config
-          .getPolicyEngine()
-          .check(toolCallForPolicy, serverName);
+        const { decision, rule } = await this.config.getPolicyEngine().check(toolCallForPolicy, serverName);
 
         if (decision === PolicyDecision.DENY) {
-          const { errorMessage, errorType } = getPolicyDenialError(
-            this.config,
-            rule,
-          );
+          const { errorMessage, errorType } = getPolicyDenialError(this.config, rule);
           this.setStatusInternal(
             reqInfo.callId,
             CoreToolCallStatus.Error,
             signal,
-            createErrorResponse(reqInfo, new Error(errorMessage), errorType),
+            createErrorResponse(reqInfo, new Error(errorMessage), errorType)
           );
           await this.checkAndNotifyCompletion(signal);
           return;
         }
 
         if (decision === PolicyDecision.ALLOW) {
-          this.setToolCallOutcome(
-            reqInfo.callId,
-            ToolConfirmationOutcome.ProceedAlways,
-          );
-          this.setStatusInternal(
-            reqInfo.callId,
-            CoreToolCallStatus.Scheduled,
-            signal,
-          );
+          this.setToolCallOutcome(reqInfo.callId, ToolConfirmationOutcome.ProceedAlways);
+          this.setStatusInternal(reqInfo.callId, CoreToolCallStatus.Scheduled, signal);
         } else {
           // PolicyDecision.ASK_USER
 
           // We need confirmation details to show to the user
-          const confirmationDetails =
-            await invocation.shouldConfirmExecute(signal);
+          const confirmationDetails = await invocation.shouldConfirmExecute(signal);
 
           if (!confirmationDetails) {
-            this.setToolCallOutcome(
-              reqInfo.callId,
-              ToolConfirmationOutcome.ProceedAlways,
-            );
-            this.setStatusInternal(
-              reqInfo.callId,
-              CoreToolCallStatus.Scheduled,
-              signal,
-            );
+            this.setToolCallOutcome(reqInfo.callId, ToolConfirmationOutcome.ProceedAlways);
+            this.setStatusInternal(reqInfo.callId, CoreToolCallStatus.Scheduled, signal);
           } else {
             if (!this.config.isInteractive()) {
               throw new Error(
                 `Tool execution for "${
                   toolCall.tool.displayName || toolCall.tool.name
-                }" requires user confirmation, which is not supported in non-interactive mode.`,
+                }" requires user confirmation, which is not supported in non-interactive mode.`
               );
             }
 
@@ -687,10 +602,7 @@ export class CoreToolScheduler {
             }
 
             // Allow IDE to resolve confirmation
-            if (
-              confirmationDetails.type === 'edit' &&
-              confirmationDetails.ideConfirmation
-            ) {
+            if (confirmationDetails.type === 'edit' && confirmationDetails.ideConfirmation) {
               // eslint-disable-next-line @typescript-eslint/no-floating-promises
               confirmationDetails.ideConfirmation.then((resolution) => {
                 if (resolution.status === 'accepted') {
@@ -699,7 +611,7 @@ export class CoreToolScheduler {
                     reqInfo.callId,
                     confirmationDetails.onConfirm,
                     ToolConfirmationOutcome.ProceedOnce,
-                    signal,
+                    signal
                   );
                 } else {
                   // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -707,7 +619,7 @@ export class CoreToolScheduler {
                     reqInfo.callId,
                     confirmationDetails.onConfirm,
                     ToolConfirmationOutcome.Cancel,
-                    signal,
+                    signal
                   );
                 }
               });
@@ -716,34 +628,20 @@ export class CoreToolScheduler {
             const originalOnConfirm = confirmationDetails.onConfirm;
             const wrappedConfirmationDetails: ToolCallConfirmationDetails = {
               ...confirmationDetails,
-              onConfirm: (
-                outcome: ToolConfirmationOutcome,
-                payload?: ToolConfirmationPayload,
-              ) =>
-                this.handleConfirmationResponse(
-                  reqInfo.callId,
-                  originalOnConfirm,
-                  outcome,
-                  signal,
-                  payload,
-                ),
+              onConfirm: (outcome: ToolConfirmationOutcome, payload?: ToolConfirmationPayload) =>
+                this.handleConfirmationResponse(reqInfo.callId, originalOnConfirm, outcome, signal, payload),
             };
             this.setStatusInternal(
               reqInfo.callId,
               CoreToolCallStatus.AwaitingApproval,
               signal,
-              wrappedConfirmationDetails,
+              wrappedConfirmationDetails
             );
           }
         }
       } catch (error) {
         if (signal.aborted) {
-          this.setStatusInternal(
-            reqInfo.callId,
-            CoreToolCallStatus.Cancelled,
-            signal,
-            'Tool call cancelled by user.',
-          );
+          this.setStatusInternal(reqInfo.callId, CoreToolCallStatus.Cancelled, signal, 'Tool call cancelled by user.');
           await this.checkAndNotifyCompletion(signal);
         } else {
           this.setStatusInternal(
@@ -753,8 +651,8 @@ export class CoreToolScheduler {
             createErrorResponse(
               reqInfo,
               error instanceof Error ? error : new Error(String(error)),
-              ToolErrorType.UNHANDLED_EXCEPTION,
-            ),
+              ToolErrorType.UNHANDLED_EXCEPTION
+            )
           );
           await this.checkAndNotifyCompletion(signal);
         }
@@ -768,12 +666,10 @@ export class CoreToolScheduler {
     originalOnConfirm: (outcome: ToolConfirmationOutcome) => Promise<void>,
     outcome: ToolConfirmationOutcome,
     signal: AbortSignal,
-    payload?: ToolConfirmationPayload,
+    payload?: ToolConfirmationPayload
   ): Promise<void> {
     const toolCall = this.toolCalls.find(
-      (c) =>
-        c.request.callId === callId &&
-        c.status === CoreToolCallStatus.AwaitingApproval,
+      (c) => c.request.callId === callId && c.status === CoreToolCallStatus.AwaitingApproval
     );
 
     if (toolCall && toolCall.status === CoreToolCallStatus.AwaitingApproval) {
@@ -796,49 +692,30 @@ export class CoreToolScheduler {
       }
 
       /* eslint-disable @typescript-eslint/no-unsafe-type-assertion */
-      this.setStatusInternal(
-        callId,
-        CoreToolCallStatus.AwaitingApproval,
-        signal,
-        {
-          ...waitingToolCall.confirmationDetails,
-          isModifying: true,
-        } as ToolCallConfirmationDetails,
-      );
+      this.setStatusInternal(callId, CoreToolCallStatus.AwaitingApproval, signal, {
+        ...waitingToolCall.confirmationDetails,
+        isModifying: true,
+      } as ToolCallConfirmationDetails);
       /* eslint-enable @typescript-eslint/no-unsafe-type-assertion */
 
-      const result = await this.toolModifier.handleModifyWithEditor(
-        waitingToolCall,
-        editorType,
-        signal,
-      );
+      const result = await this.toolModifier.handleModifyWithEditor(waitingToolCall, editorType, signal);
 
       // Restore status (isModifying: false) and update diff if result exists
       if (result) {
         this.setArgsInternal(callId, result.updatedParams);
         /* eslint-disable @typescript-eslint/no-unsafe-type-assertion */
-        this.setStatusInternal(
-          callId,
-          CoreToolCallStatus.AwaitingApproval,
-          signal,
-          {
-            ...waitingToolCall.confirmationDetails,
-            fileDiff: result.updatedDiff,
-            isModifying: false,
-          } as ToolCallConfirmationDetails,
-        );
+        this.setStatusInternal(callId, CoreToolCallStatus.AwaitingApproval, signal, {
+          ...waitingToolCall.confirmationDetails,
+          fileDiff: result.updatedDiff,
+          isModifying: false,
+        } as ToolCallConfirmationDetails);
         /* eslint-enable @typescript-eslint/no-unsafe-type-assertion */
       } else {
         /* eslint-disable @typescript-eslint/no-unsafe-type-assertion */
-        this.setStatusInternal(
-          callId,
-          CoreToolCallStatus.AwaitingApproval,
-          signal,
-          {
-            ...waitingToolCall.confirmationDetails,
-            isModifying: false,
-          } as ToolCallConfirmationDetails,
-        );
+        this.setStatusInternal(callId, CoreToolCallStatus.AwaitingApproval, signal, {
+          ...waitingToolCall.confirmationDetails,
+          isModifying: false,
+        } as ToolCallConfirmationDetails);
         /* eslint-enable @typescript-eslint/no-unsafe-type-assertion */
       }
     } else {
@@ -849,20 +726,15 @@ export class CoreToolScheduler {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
           toolCall as WaitingToolCall,
           payload,
-          signal,
+          signal
         );
         if (result) {
           this.setArgsInternal(callId, result.updatedParams);
           /* eslint-disable @typescript-eslint/no-unsafe-type-assertion */
-          this.setStatusInternal(
-            callId,
-            CoreToolCallStatus.AwaitingApproval,
-            signal,
-            {
-              ...(toolCall as WaitingToolCall).confirmationDetails,
-              fileDiff: result.updatedDiff,
-            } as ToolCallConfirmationDetails,
-          );
+          this.setStatusInternal(callId, CoreToolCallStatus.AwaitingApproval, signal, {
+            ...(toolCall as WaitingToolCall).confirmationDetails,
+            fileDiff: result.updatedDiff,
+          } as ToolCallConfirmationDetails);
           /* eslint-enable @typescript-eslint/no-unsafe-type-assertion */
           // After an inline modification, wait for another user confirmation.
           return;
@@ -873,33 +745,23 @@ export class CoreToolScheduler {
     await this.attemptExecutionOfScheduledCalls(signal);
   }
 
-  private async attemptExecutionOfScheduledCalls(
-    signal: AbortSignal,
-  ): Promise<void> {
+  private async attemptExecutionOfScheduledCalls(signal: AbortSignal): Promise<void> {
     const allCallsFinalOrScheduled = this.toolCalls.every(
       (call) =>
         call.status === CoreToolCallStatus.Scheduled ||
         call.status === CoreToolCallStatus.Cancelled ||
         call.status === CoreToolCallStatus.Success ||
-        call.status === CoreToolCallStatus.Error,
+        call.status === CoreToolCallStatus.Error
     );
 
     if (allCallsFinalOrScheduled) {
-      const callsToExecute = this.toolCalls.filter(
-        (call) => call.status === CoreToolCallStatus.Scheduled,
-      );
+      const callsToExecute = this.toolCalls.filter((call) => call.status === CoreToolCallStatus.Scheduled);
 
       for (const toolCall of callsToExecute) {
         if (toolCall.status !== CoreToolCallStatus.Scheduled) continue;
 
-        this.setStatusInternal(
-          toolCall.request.callId,
-          CoreToolCallStatus.Executing,
-          signal,
-        );
-        const executingCall = this.toolCalls.find(
-          (c) => c.request.callId === toolCall.request.callId,
-        );
+        this.setStatusInternal(toolCall.request.callId, CoreToolCallStatus.Executing, signal);
+        const executingCall = this.toolCalls.find((c) => c.request.callId === toolCall.request.callId);
 
         if (!executingCall) {
           // Should not happen, but safe guard
@@ -914,27 +776,22 @@ export class CoreToolScheduler {
               this.outputUpdateHandler(callId, output);
             }
             this.toolCalls = this.toolCalls.map((tc) =>
-              tc.request.callId === callId &&
-              tc.status === CoreToolCallStatus.Executing
+              tc.request.callId === callId && tc.status === CoreToolCallStatus.Executing
                 ? { ...tc, liveOutput: output }
-                : tc,
+                : tc
             );
             this.notifyToolCallsUpdate();
           },
           onUpdateToolCall: (updatedCall) => {
             this.toolCalls = this.toolCalls.map((tc) =>
-              tc.request.callId === updatedCall.request.callId
-                ? updatedCall
-                : tc,
+              tc.request.callId === updatedCall.request.callId ? updatedCall : tc
             );
             this.notifyToolCallsUpdate();
           },
         });
 
         this.toolCalls = this.toolCalls.map((tc) =>
-          tc.request.callId === completedCall.request.callId
-            ? { ...completedCall, approvalMode: tc.approvalMode }
-            : tc,
+          tc.request.callId === completedCall.request.callId ? { ...completedCall, approvalMode: tc.approvalMode } : tc
         );
         this.notifyToolCallsUpdate();
 
@@ -1013,9 +870,7 @@ export class CoreToolScheduler {
       // After completion of the entire batch, process the next item in the main request queue.
       if (this.requestQueue.length > 0) {
         const next = this.requestQueue.shift()!;
-        this._schedule(next.request, next.signal)
-          .then(next.resolve)
-          .catch(next.reject);
+        this._schedule(next.request, next.signal).then(next.resolve).catch(next.reject);
       }
     } else {
       // The batch is not yet complete, so continue processing the current batch sequence.
@@ -1032,11 +887,8 @@ export class CoreToolScheduler {
         continue;
       }
       const durationMs =
-        'startTime' in queuedCall && queuedCall.startTime
-          ? Date.now() - queuedCall.startTime
-          : undefined;
-      const errorMessage =
-        '[Operation Cancelled] User cancelled the operation.';
+        'startTime' in queuedCall && queuedCall.startTime ? Date.now() - queuedCall.startTime : undefined;
+      const errorMessage = '[Operation Cancelled] User cancelled the operation.';
       this.completedToolCallsForBatch.push({
         request: queuedCall.request,
         tool: queuedCall.tool,
@@ -1069,11 +921,7 @@ export class CoreToolScheduler {
 
   private notifyToolCallsUpdate(): void {
     if (this.onToolCallsUpdate) {
-      this.onToolCallsUpdate([
-        ...this.completedToolCallsForBatch,
-        ...this.toolCalls,
-        ...this.toolCallQueue,
-      ]);
+      this.onToolCallsUpdate([...this.completedToolCallsForBatch, ...this.toolCalls, ...this.toolCallQueue]);
     }
   }
 

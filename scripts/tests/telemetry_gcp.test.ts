@@ -49,8 +49,6 @@ describe('telemetry_gcp.js', () => {
 
     expect(mockSpawn).toHaveBeenCalled();
     const spawnOptions = mockSpawn.mock.calls[0][2];
-    expect(spawnOptions?.env).not.toHaveProperty(
-      'GOOGLE_APPLICATION_CREDENTIALS',
-    );
+    expect(spawnOptions?.env).not.toHaveProperty('GOOGLE_APPLICATION_CREDENTIALS');
   });
 });

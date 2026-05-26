@@ -7,10 +7,7 @@
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
-import {
-  EXTENSION_SETTINGS_FILENAME,
-  EXTENSIONS_CONFIG_FILENAME,
-} from './variables.js';
+import { EXTENSION_SETTINGS_FILENAME, EXTENSIONS_CONFIG_FILENAME } from './variables.js';
 import { Storage, homedir } from '@google/gemini-cli-core';
 
 export class ExtensionStorage {
@@ -21,10 +18,7 @@ export class ExtensionStorage {
   }
 
   getExtensionDir(): string {
-    return path.join(
-      ExtensionStorage.getUserExtensionsDir(),
-      this.extensionName,
-    );
+    return path.join(ExtensionStorage.getUserExtensionsDir(), this.extensionName);
   }
 
   getConfigPath(): string {

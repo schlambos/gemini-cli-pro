@@ -20,9 +20,7 @@ interface LogoutConfirmationDialogProps {
   onSelect: (choice: LogoutChoice) => void;
 }
 
-export const LogoutConfirmationDialog: React.FC<
-  LogoutConfirmationDialogProps
-> = ({ onSelect }) => {
+export const LogoutConfirmationDialog: React.FC<LogoutConfirmationDialogProps> = ({ onSelect }) => {
   // Handle escape key to exit (consistent with other dialogs)
   useKeypress(
     (key) => {
@@ -32,7 +30,7 @@ export const LogoutConfirmationDialog: React.FC<
       }
       return false;
     },
-    { isActive: true },
+    { isActive: true }
   );
 
   const options: Array<RadioSelectItem<LogoutChoice>> = [
@@ -49,31 +47,27 @@ export const LogoutConfirmationDialog: React.FC<
   ];
 
   return (
-    <Box flexDirection="row" width="100%">
+    <Box flexDirection='row' width='100%'>
       <Box
-        flexDirection="column"
-        borderStyle="round"
+        flexDirection='column'
+        borderStyle='round'
         borderColor={theme.border.focused}
         padding={1}
         flexGrow={1}
         marginLeft={1}
         marginRight={1}
       >
-        <Box flexDirection="column" marginBottom={1}>
+        <Box flexDirection='column' marginBottom={1}>
           <Text bold color={theme.text.primary}>
             You are now logged out.
           </Text>
-          <Text color={theme.text.secondary}>
-            Login again to continue using Gemini CLI, or exit the application.
-          </Text>
+          <Text color={theme.text.secondary}>Login again to continue using Gemini CLI, or exit the application.</Text>
         </Box>
 
         <RadioButtonSelect items={options} onSelect={onSelect} isFocused />
 
         <Box marginTop={1}>
-          <Text color={theme.text.secondary}>
-            (Use Enter to select, Esc to close)
-          </Text>
+          <Text color={theme.text.secondary}>(Use Enter to select, Esc to close)</Text>
         </Box>
       </Box>
     </Box>

@@ -11,21 +11,15 @@ import type { Config } from '../config/config.js';
 import { GetInternalDocsTool } from '../tools/get-internal-docs.js';
 
 const CliHelpReportSchema = z.object({
-  answer: z
-    .string()
-    .describe('The detailed answer to the user question about Gemini CLI.'),
-  sources: z
-    .array(z.string())
-    .describe('The documentation files used to answer the question.'),
+  answer: z.string().describe('The detailed answer to the user question about Gemini CLI.'),
+  sources: z.array(z.string()).describe('The documentation files used to answer the question.'),
 });
 
 /**
  * An agent specialized in answering questions about Gemini CLI itself,
  * using its own documentation and runtime state.
  */
-export const CliHelpAgent = (
-  config: Config,
-): AgentDefinition<typeof CliHelpReportSchema> => ({
+export const CliHelpAgent = (config: Config): AgentDefinition<typeof CliHelpReportSchema> => ({
   name: 'cli_help',
   kind: 'local',
   displayName: 'CLI Help Agent',

@@ -12,14 +12,11 @@ import { debugLogger } from './debugLogger.js';
 // Simple console logger for import processing
 const logger = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  debug: (...args: any[]) =>
-    debugLogger.debug('[DEBUG] [ImportProcessor]', ...args),
+  debug: (...args: any[]) => debugLogger.debug('[DEBUG] [ImportProcessor]', ...args),
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  warn: (...args: any[]) =>
-    debugLogger.warn('[WARN] [ImportProcessor]', ...args),
+  warn: (...args: any[]) => debugLogger.warn('[WARN] [ImportProcessor]', ...args),
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  error: (...args: any[]) =>
-    debugLogger.error('[ERROR] [ImportProcessor]', ...args),
+  error: (...args: any[]) => debugLogger.error('[ERROR] [ImportProcessor]', ...args),
 };
 
 /**
@@ -87,9 +84,7 @@ function hasMessage(err: unknown): err is { message: string } {
  * Finds all import statements in content without using regex
  * @returns Array of {start, _end, path} objects for each import found
  */
-function findImports(
-  content: string,
-): Array<{ start: number; _end: number; path: string }> {
+function findImports(content: string): Array<{ start: number; _end: number; path: string }> {
   const imports: Array<{ start: number; _end: number; path: string }> = [];
   let i = 0;
   const len = content.length;
@@ -107,12 +102,7 @@ function findImports(
 
     // Find the end of the import path (whitespace or newline)
     let j = i + 1;
-    while (
-      j < len &&
-      !isWhitespace(content[j]) &&
-      content[j] !== '\n' &&
-      content[j] !== '\r'
-    ) {
+    while (j < len && !isWhitespace(content[j]) && content[j] !== '\n' && content[j] !== '\r') {
       j++;
     }
 
@@ -120,12 +110,7 @@ function findImports(
     const importPath = content.slice(i + 1, j);
 
     // Basic validation (starts with ./ or / or letter)
-    if (
-      importPath.length > 0 &&
-      (importPath[0] === '.' ||
-        importPath[0] === '/' ||
-        isLetter(importPath[0]))
-    ) {
+    if (importPath.length > 0 && (importPath[0] === '.' || importPath[0] === '/' || isLetter(importPath[0]))) {
       imports.push({
         start: i,
         _end: j,
@@ -184,7 +169,7 @@ export async function processImports(
     currentDepth: 0,
   },
   projectRoot?: string,
-  importFormat: 'flat' | 'tree' = 'tree',
+  importFormat: 'flat' | 'tree' = 'tree'
 ): Promise<ProcessImportsResult> {
   if (!projectRoot) {
     projectRoot = await findProjectRoot(basePath);
@@ -192,9 +177,7 @@ export async function processImports(
 
   if (importState.currentDepth >= importState.maxDepth) {
     if (debugMode) {
-      logger.warn(
-        `Maximum import depth (${importState.maxDepth}) reached. Stopping import processing.`,
-      );
+      logger.warn(`Maximum import depth (${importState.maxDepth}) reached. Stopping import processing.`);
     }
     return {
       content,
@@ -210,12 +193,7 @@ export async function processImports(
     const processedFiles = new Set<string>();
 
     // Helper to recursively process imports
-    async function processFlat(
-      fileContent: string,
-      fileBasePath: string,
-      filePath: string,
-      depth: number,
-    ) {
+    async function processFlat(fileContent: string, fileBasePath: string, filePath: string, depth: number) {
       // Normalize the file path to ensure consistent comparison
       const normalizedPath = path.normalize(filePath);
 
@@ -237,19 +215,12 @@ export async function processImports(
         const { start, path: importPath } = imports[i];
 
         // Skip if inside a code region
-        if (
-          codeRegions.some(
-            ([regionStart, regionEnd]) =>
-              start >= regionStart && start < regionEnd,
-          )
-        ) {
+        if (codeRegions.some(([regionStart, regionEnd]) => start >= regionStart && start < regionEnd)) {
           continue;
         }
 
         // Validate import path
-        if (
-          !validateImportPath(importPath, fileBasePath, [projectRoot || ''])
-        ) {
+        if (!validateImportPath(importPath, fileBasePath, [projectRoot || ''])) {
           continue;
         }
 
@@ -264,17 +235,10 @@ export async function processImports(
           const importedContent = await fs.readFile(fullPath, 'utf-8');
 
           // Process the imported file
-          await processFlat(
-            importedContent,
-            path.dirname(fullPath),
-            normalizedFullPath,
-            depth + 1,
-          );
+          await processFlat(importedContent, path.dirname(fullPath), normalizedFullPath, depth + 1);
         } catch (error) {
           if (debugMode) {
-            logger.warn(
-              `Failed to import ${fullPath}: ${hasMessage(error) ? error.message : 'Unknown error'}`,
-            );
+            logger.warn(`Failed to import ${fullPath}: ${hasMessage(error) ? error.message : 'Unknown error'}`);
           }
           // Continue with other imports even if one fails
         }
@@ -282,17 +246,12 @@ export async function processImports(
     }
 
     // Start with the root file (current file)
-    const rootPath = path.normalize(
-      importState.currentFile || path.resolve(basePath),
-    );
+    const rootPath = path.normalize(importState.currentFile || path.resolve(basePath));
     await processFlat(content, basePath, rootPath, 0);
 
     // Concatenate all unique files in order, Claude-style
     const flatContent = flatFiles
-      .map(
-        (f) =>
-          `--- File: ${f.path} ---\n${f.content.trim()}\n--- End of File: ${f.path} ---`,
-      )
+      .map((f) => `--- File: ${f.path} ---\n${f.content.trim()}\n--- End of File: ${f.path} ---`)
       .join('\n\n');
 
     return {
@@ -345,7 +304,7 @@ export async function processImports(
         debugMode,
         newImportState,
         projectRoot,
-        importFormat,
+        importFormat
       );
       result += `<!-- Imported from: ${importPath} -->\n${imported.content}\n<!-- End of import from: ${importPath} -->`;
       imports.push(imported.importTree);
@@ -372,11 +331,7 @@ export async function processImports(
   };
 }
 
-export function validateImportPath(
-  importPath: string,
-  basePath: string,
-  allowedDirectories: string[],
-): boolean {
+export function validateImportPath(importPath: string, basePath: string, allowedDirectories: string[]): boolean {
   // Reject URLs
   if (/^(file|https?):\/\//.test(importPath)) {
     return false;
@@ -384,7 +339,5 @@ export function validateImportPath(
 
   const resolvedPath = path.resolve(basePath, importPath);
 
-  return allowedDirectories.some((allowedDir) =>
-    isSubpath(allowedDir, resolvedPath),
-  );
+  return allowedDirectories.some((allowedDir) => isSubpath(allowedDir, resolvedPath));
 }

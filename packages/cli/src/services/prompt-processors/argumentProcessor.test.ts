@@ -22,9 +22,7 @@ describe('Argument Processors', () => {
         },
       });
       const result = await processor.process(prompt, context);
-      expect(result).toEqual([
-        { text: 'Parse the command.\n\n/mycommand arg1 "arg two"' },
-      ]);
+      expect(result).toEqual([{ text: 'Parse the command.\n\n/mycommand arg1 "arg two"' }]);
     });
 
     it('should NOT append the full command if no args are provided', async () => {

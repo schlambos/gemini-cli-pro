@@ -46,9 +46,7 @@ describe('ToolExecutor', () => {
     vi.mocked(fileUtils.saveTruncatedToolOutput).mockResolvedValue({
       outputFile: '/tmp/truncated_output.txt',
     });
-    vi.mocked(fileUtils.formatTruncatedToolOutput).mockReturnValue(
-      'TruncatedContent...',
-    );
+    vi.mocked(fileUtils.formatTruncatedToolOutput).mockReturnValue('TruncatedContent...');
   });
 
   afterEach(() => {
@@ -94,8 +92,7 @@ describe('ToolExecutor', () => {
 
     expect(result.status).toBe(CoreToolCallStatus.Success);
     if (result.status === CoreToolCallStatus.Success) {
-      const response = result.response.responseParts[0]?.functionResponse
-        ?.response as Record<string, unknown>;
+      const response = result.response.responseParts[0]?.functionResponse?.response as Record<string, unknown>;
       expect(response).toEqual({ output: 'Tool output' });
     }
   });
@@ -107,9 +104,7 @@ describe('ToolExecutor', () => {
     const invocation = mockTool.build({});
 
     // Mock executeToolWithHooks to throw
-    vi.mocked(coreToolHookTriggers.executeToolWithHooks).mockRejectedValue(
-      new Error('Tool Failed'),
-    );
+    vi.mocked(coreToolHookTriggers.executeToolWithHooks).mockRejectedValue(new Error('Tool Failed'));
 
     const scheduledCall: ScheduledToolCall = {
       status: CoreToolCallStatus.Scheduled,
@@ -144,12 +139,10 @@ describe('ToolExecutor', () => {
     const invocation = mockTool.build({});
 
     // Mock executeToolWithHooks to simulate slow execution or cancellation check
-    vi.mocked(coreToolHookTriggers.executeToolWithHooks).mockImplementation(
-      async () => {
-        await new Promise((r) => setTimeout(r, 100));
-        return { llmContent: 'Done', returnDisplay: 'Done' };
-      },
-    );
+    vi.mocked(coreToolHookTriggers.executeToolWithHooks).mockImplementation(async () => {
+      await new Promise((r) => setTimeout(r, 100));
+      return { llmContent: 'Done', returnDisplay: 'Done' };
+    });
 
     const scheduledCall: ScheduledToolCall = {
       status: CoreToolCallStatus.Scheduled,
@@ -220,19 +213,18 @@ describe('ToolExecutor', () => {
       SHELL_TOOL_NAME,
       'call-trunc',
       expect.any(String), // temp dir
-      'test-session-id', // session id from makeFakeConfig
+      'test-session-id' // session id from makeFakeConfig
     );
 
     expect(fileUtils.formatTruncatedToolOutput).toHaveBeenCalledWith(
       longOutput,
       '/tmp/truncated_output.txt',
-      10, // threshold (maxChars)
+      10 // threshold (maxChars)
     );
 
     expect(result.status).toBe(CoreToolCallStatus.Success);
     if (result.status === CoreToolCallStatus.Success) {
-      const response = result.response.responseParts[0]?.functionResponse
-        ?.response as Record<string, unknown>;
+      const response = result.response.responseParts[0]?.functionResponse?.response as Record<string, unknown>;
       // The content should be the *truncated* version returned by the mock formatTruncatedToolOutput
       expect(response).toEqual({ output: 'TruncatedContent...' });
       expect(result.response.outputFile).toBe('/tmp/truncated_output.txt');
@@ -242,11 +234,7 @@ describe('ToolExecutor', () => {
   it('should report PID updates for shell tools', async () => {
     // 1. Setup ShellToolInvocation
     const messageBus = createMockMessageBus();
-    const shellInvocation = new ShellToolInvocation(
-      config,
-      { command: 'sleep 10' },
-      messageBus,
-    );
+    const shellInvocation = new ShellToolInvocation(config, { command: 'sleep 10' }, messageBus);
     // We need a dummy tool that matches the invocation just for structure
     const mockTool = new MockTool({ name: SHELL_TOOL_NAME });
 
@@ -259,7 +247,7 @@ describe('ToolExecutor', () => {
           setPidCallback(testPid);
         }
         return { llmContent: 'done', returnDisplay: 'done' };
-      },
+      }
     );
 
     const scheduledCall: ScheduledToolCall = {
@@ -290,7 +278,7 @@ describe('ToolExecutor', () => {
       expect.objectContaining({
         status: CoreToolCallStatus.Executing,
         pid: testPid,
-      }),
+      })
     );
   });
 });

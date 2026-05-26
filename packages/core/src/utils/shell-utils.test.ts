@@ -4,15 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  expect,
-  describe,
-  it,
-  beforeEach,
-  beforeAll,
-  vi,
-  afterEach,
-} from 'vitest';
+import { expect, describe, it, beforeEach, beforeAll, vi, afterEach } from 'vitest';
 import {
   escapeShellArg,
   getCommandRoots,
@@ -81,9 +73,7 @@ beforeAll(async () => {
 
 beforeEach(() => {
   mockPlatform.mockReturnValue('linux');
-  mockQuote.mockImplementation((args: string[]) =>
-    args.map((arg) => `'${arg}'`).join(' '),
-  );
+  mockQuote.mockImplementation((args: string[]) => args.map((arg) => `'${arg}'`).join(' '));
   mockSpawnSync.mockReturnValue({
     stdout: Buffer.from(''),
     stderr: Buffer.from(''),
@@ -96,17 +86,14 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-const mockPowerShellResult = (
-  commands: Array<{ name: string; text: string }>,
-  hasRedirection: boolean,
-) => {
+const mockPowerShellResult = (commands: Array<{ name: string; text: string }>, hasRedirection: boolean) => {
   mockSpawnSync.mockReturnValue({
     stdout: Buffer.from(
       JSON.stringify({
         success: true,
         commands,
         hasRedirection,
-      }),
+      })
     ),
     stderr: Buffer.from(''),
     status: 0,
@@ -153,9 +140,7 @@ describe('getCommandRoots', () => {
   });
 
   it('should treat parameter expansions with prompt transformations as unsafe', () => {
-    const roots = getCommandRoots(
-      'echo "${var1=aa\\140 env| ls -l\\140}${var1@P}"',
-    );
+    const roots = getCommandRoots('echo "${var1=aa\\140 env| ls -l\\140}${var1@P}"');
     expect(roots).toEqual([]);
   });
 
@@ -171,9 +156,7 @@ describe('getCommandRoots', () => {
 
   it('should correctly identify input redirection with explicit file descriptor', () => {
     const result = parseCommandDetails('ls 2< input.txt');
-    const redirection = result?.details.find((d) =>
-      d.name.startsWith('redirection'),
-    );
+    const redirection = result?.details.find((d) => d.name.startsWith('redirection'));
     expect(redirection?.name).toBe('redirection (<)');
   });
 
@@ -211,16 +194,12 @@ describe('getCommandRoots', () => {
     nowSpy.mockReturnValueOnce(0).mockReturnValue(2000);
 
     // Use a very complex command to ensure progressCallback is triggered at least once
-    const complexCommand =
-      'ls -la && ' + Array(100).fill('echo "hello"').join(' && ');
+    const complexCommand = 'ls -la && ' + Array(100).fill('echo "hello"').join(' && ');
     const roots = getCommandRoots(complexCommand);
     expect(roots).toEqual([]);
     expect(nowSpy).toHaveBeenCalled();
 
-    expect(mockDebugLogger.error).toHaveBeenCalledWith(
-      'Bash command parsing timed out for command:',
-      complexCommand,
-    );
+    expect(mockDebugLogger.error).toHaveBeenCalledWith('Bash command parsing timed out for command:', complexCommand);
 
     nowSpy.mockRestore();
   });
@@ -275,8 +254,7 @@ describeWindowsOnly('PowerShell integration', () => {
   beforeEach(() => {
     mockPlatform.mockReturnValue('win32');
     const systemRoot = process.env['SystemRoot'] || 'C:\\\\Windows';
-    process.env['ComSpec'] =
-      `${systemRoot}\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe`;
+    process.env['ComSpec'] = `${systemRoot}\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe`;
   });
 
   afterEach(() => {
@@ -293,7 +271,7 @@ describeWindowsOnly('PowerShell integration', () => {
         { name: 'Get-ChildItem', text: 'Get-ChildItem' },
         { name: 'Select-Object', text: 'Select-Object Name' },
       ],
-      false,
+      false
     );
 
     const roots = getCommandRoots('Get-ChildItem | Select-Object Name');
@@ -320,18 +298,12 @@ describe('stripShellWrapper', () => {
   });
 
   it('should strip powershell.exe -Command with optional -NoProfile', () => {
-    expect(
-      stripShellWrapper('powershell.exe -NoProfile -Command "Get-ChildItem"'),
-    ).toEqual('Get-ChildItem');
-    expect(
-      stripShellWrapper('powershell.exe -Command "Get-ChildItem"'),
-    ).toEqual('Get-ChildItem');
+    expect(stripShellWrapper('powershell.exe -NoProfile -Command "Get-ChildItem"')).toEqual('Get-ChildItem');
+    expect(stripShellWrapper('powershell.exe -Command "Get-ChildItem"')).toEqual('Get-ChildItem');
   });
 
   it('should strip pwsh -Command wrapper', () => {
-    expect(
-      stripShellWrapper('pwsh -NoProfile -Command "Get-ChildItem"'),
-    ).toEqual('Get-ChildItem');
+    expect(stripShellWrapper('pwsh -NoProfile -Command "Get-ChildItem"')).toEqual('Get-ChildItem');
   });
 
   it('should not strip anything if no wrapper is present', () => {
@@ -443,8 +415,7 @@ describe('getShellConfiguration', () => {
     });
 
     it('should return PowerShell configuration if ComSpec points to powershell.exe', () => {
-      const psPath =
-        'C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe';
+      const psPath = 'C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe';
       process.env['ComSpec'] = psPath;
       const config = getShellConfiguration();
       expect(config.executable).toBe(psPath);
@@ -490,7 +461,7 @@ describe('hasRedirection (PowerShell via mock)', () => {
   it('should return false when quoted redirection chars are used but not actual redirection', () => {
     mockPowerShellResult(
       [{ name: 'echo', text: 'echo "-> arrow"' }],
-      false, // Parser says NO redirection
+      false // Parser says NO redirection
     );
     expect(hasRedirection('echo "-> arrow"')).toBe(false);
   });

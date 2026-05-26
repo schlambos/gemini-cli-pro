@@ -20,8 +20,7 @@ describe('<SectionHeader />', () => {
       width: 40,
     },
     {
-      description:
-        'renders correctly when title is truncated but still shows dashes',
+      description: 'renders correctly when title is truncated but still shows dashes',
       title: 'Very Long Header Title That Will Truncate',
       width: 20,
     },
@@ -31,10 +30,7 @@ describe('<SectionHeader />', () => {
       width: 25,
     },
   ])('$description', ({ title, width }) => {
-    const { lastFrame, unmount } = renderWithProviders(
-      <SectionHeader title={title} />,
-      { width },
-    );
+    const { lastFrame, unmount } = renderWithProviders(<SectionHeader title={title} />, { width });
 
     expect(lastFrame()).toMatchSnapshot();
     unmount();

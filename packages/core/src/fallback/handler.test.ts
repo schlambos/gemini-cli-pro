@@ -4,16 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  type Mock,
-  type MockInstance,
-  afterEach,
-} from 'vitest';
+import { describe, it, expect, vi, beforeEach, type Mock, type MockInstance, afterEach } from 'vitest';
 import { handleFallback } from './handler.js';
 import type { Config } from '../config/config.js';
 import type { ModelAvailabilityService } from '../availability/modelAvailabilityService.js';
@@ -32,10 +23,7 @@ import { openBrowserSecurely } from '../utils/secure-browser-launcher.js';
 import { debugLogger } from '../utils/debugLogger.js';
 import * as policyHelpers from '../availability/policyHelpers.js';
 import { createDefaultPolicy } from '../availability/policyCatalog.js';
-import {
-  RetryableQuotaError,
-  TerminalQuotaError,
-} from '../utils/googleQuotaErrors.js';
+import { RetryableQuotaError, TerminalQuotaError } from '../utils/googleQuotaErrors.js';
 
 // Mock the telemetry logger and event class
 vi.mock('../telemetry/index.js', () => ({
@@ -71,7 +59,7 @@ const createMockConfig = (overrides: Partial<Config> = {}): Config =>
       createAvailabilityServiceMock({
         selectedModel: FALLBACK_MODEL,
         skipped: [],
-      }),
+      })
     ),
     getActiveModel: vi.fn(() => MOCK_PRO_MODEL),
     getModel: vi.fn(() => MOCK_PRO_MODEL),
@@ -113,11 +101,7 @@ describe('handleFallback', () => {
     });
 
     it('returns null if no new API key is present', async () => {
-      const result = await handleFallback(
-        mockConfig,
-        MOCK_PRO_MODEL,
-        AUTH_API_KEY,
-      );
+      const result = await handleFallback(mockConfig, MOCK_PRO_MODEL, AUTH_API_KEY);
 
       expect(result).toBeNull();
       expect(mockConfig.refreshAuth).not.toHaveBeenCalled();
@@ -126,11 +110,7 @@ describe('handleFallback', () => {
     it('refreshes auth when a different GEMINI_API_KEY is set', async () => {
       vi.stubEnv('GEMINI_API_KEY', 'rotated-key');
 
-      const result = await handleFallback(
-        mockConfig,
-        MOCK_PRO_MODEL,
-        AUTH_API_KEY,
-      );
+      const result = await handleFallback(mockConfig, MOCK_PRO_MODEL, AUTH_API_KEY);
 
       expect(result).toBe(true);
       expect(mockConfig.refreshAuth).toHaveBeenCalledWith(AuthType.USE_GEMINI);
@@ -152,53 +132,33 @@ describe('handleFallback', () => {
       policyConfig = createMockConfig();
 
       // Ensure we test the availability path
-      vi.mocked(policyConfig.getModelAvailabilityService).mockReturnValue(
-        availability,
-      );
-      vi.mocked(policyConfig.getFallbackModelHandler).mockReturnValue(
-        policyHandler,
-      );
+      vi.mocked(policyConfig.getModelAvailabilityService).mockReturnValue(availability);
+      vi.mocked(policyConfig.getFallbackModelHandler).mockReturnValue(policyHandler);
     });
 
     it('should return null immediately if authType is not OAuth', async () => {
-      const result = await handleFallback(
-        policyConfig,
-        MOCK_PRO_MODEL,
-        AUTH_API_KEY,
-      );
+      const result = await handleFallback(policyConfig, MOCK_PRO_MODEL, AUTH_API_KEY);
       expect(result).toBeNull();
       expect(policyHandler).not.toHaveBeenCalled();
     });
 
     it('uses availability selection with correct candidates when enabled', async () => {
       // Direct mock manipulation since it's already a vi.fn()
-      vi.mocked(policyConfig.getModel).mockReturnValue(
-        DEFAULT_GEMINI_MODEL_AUTO,
-      );
+      vi.mocked(policyConfig.getModel).mockReturnValue(DEFAULT_GEMINI_MODEL_AUTO);
 
       await handleFallback(policyConfig, DEFAULT_GEMINI_MODEL, AUTH_OAUTH);
 
-      expect(availability.selectFirstAvailable).toHaveBeenCalledWith([
-        DEFAULT_GEMINI_FLASH_MODEL,
-      ]);
+      expect(availability.selectFirstAvailable).toHaveBeenCalledWith([DEFAULT_GEMINI_FLASH_MODEL]);
     });
 
     it('falls back to last resort when availability returns null', async () => {
-      vi.mocked(policyConfig.getModel).mockReturnValue(
-        DEFAULT_GEMINI_MODEL_AUTO,
-      );
-      availability.selectFirstAvailable = vi
-        .fn()
-        .mockReturnValue({ selectedModel: null, skipped: [] });
+      vi.mocked(policyConfig.getModel).mockReturnValue(DEFAULT_GEMINI_MODEL_AUTO);
+      availability.selectFirstAvailable = vi.fn().mockReturnValue({ selectedModel: null, skipped: [] });
       policyHandler.mockResolvedValue('retry_once');
 
       await handleFallback(policyConfig, MOCK_PRO_MODEL, AUTH_OAUTH);
 
-      expect(policyHandler).toHaveBeenCalledWith(
-        MOCK_PRO_MODEL,
-        DEFAULT_GEMINI_FLASH_MODEL,
-        undefined,
-      );
+      expect(policyHandler).toHaveBeenCalledWith(MOCK_PRO_MODEL, DEFAULT_GEMINI_FLASH_MODEL, undefined);
     });
 
     it('executes silent policy action without invoking UI handler', async () => {
@@ -212,9 +172,7 @@ describe('handleFallback', () => {
       flashPolicy.isLastResort = true;
 
       const silentChain = [proPolicy, flashPolicy];
-      const chainSpy = vi
-        .spyOn(policyHelpers, 'resolvePolicyChain')
-        .mockReturnValue(silentChain);
+      const chainSpy = vi.spyOn(policyHelpers, 'resolvePolicyChain').mockReturnValue(silentChain);
 
       try {
         availability.selectFirstAvailable = vi.fn().mockReturnValue({
@@ -222,17 +180,11 @@ describe('handleFallback', () => {
           skipped: [],
         });
 
-        const result = await handleFallback(
-          policyConfig,
-          MOCK_PRO_MODEL,
-          AUTH_OAUTH,
-        );
+        const result = await handleFallback(policyConfig, MOCK_PRO_MODEL, AUTH_OAUTH);
 
         expect(result).toBe(true);
         expect(policyConfig.getFallbackModelHandler).not.toHaveBeenCalled();
-        expect(policyConfig.activateFallbackMode).toHaveBeenCalledWith(
-          DEFAULT_GEMINI_FLASH_MODEL,
-        );
+        expect(policyConfig.activateFallbackMode).toHaveBeenCalledWith(DEFAULT_GEMINI_FLASH_MODEL);
       } finally {
         chainSpy.mockRestore();
       }
@@ -240,9 +192,7 @@ describe('handleFallback', () => {
 
     it('does not wrap around to upgrade candidates if the current model was selected at the end (e.g. by router)', async () => {
       // Last-resort failure (Flash) in [Preview, Pro, Flash] checks Preview then Pro (all upstream).
-      vi.mocked(policyConfig.getModel).mockReturnValue(
-        DEFAULT_GEMINI_MODEL_AUTO,
-      );
+      vi.mocked(policyConfig.getModel).mockReturnValue(DEFAULT_GEMINI_MODEL_AUTO);
 
       availability.selectFirstAvailable = vi.fn().mockReturnValue({
         selectedModel: MOCK_PRO_MODEL,
@@ -250,18 +200,10 @@ describe('handleFallback', () => {
       });
       policyHandler.mockResolvedValue('retry_once');
 
-      await handleFallback(
-        policyConfig,
-        DEFAULT_GEMINI_FLASH_MODEL,
-        AUTH_OAUTH,
-      );
+      await handleFallback(policyConfig, DEFAULT_GEMINI_FLASH_MODEL, AUTH_OAUTH);
 
       expect(availability.selectFirstAvailable).not.toHaveBeenCalled();
-      expect(policyHandler).toHaveBeenCalledWith(
-        DEFAULT_GEMINI_FLASH_MODEL,
-        DEFAULT_GEMINI_FLASH_MODEL,
-        undefined,
-      );
+      expect(policyHandler).toHaveBeenCalledWith(DEFAULT_GEMINI_FLASH_MODEL, DEFAULT_GEMINI_FLASH_MODEL, undefined);
     });
 
     it('successfully follows expected availability response for Preview Chain', async () => {
@@ -270,39 +212,23 @@ describe('handleFallback', () => {
         skipped: [],
       });
       policyHandler.mockResolvedValue('retry_once');
-      vi.mocked(policyConfig.getActiveModel).mockReturnValue(
-        PREVIEW_GEMINI_MODEL,
-      );
-      vi.mocked(policyConfig.getModel).mockReturnValue(
-        PREVIEW_GEMINI_MODEL_AUTO,
-      );
+      vi.mocked(policyConfig.getActiveModel).mockReturnValue(PREVIEW_GEMINI_MODEL);
+      vi.mocked(policyConfig.getModel).mockReturnValue(PREVIEW_GEMINI_MODEL_AUTO);
 
-      const result = await handleFallback(
-        policyConfig,
-        PREVIEW_GEMINI_MODEL,
-        AUTH_OAUTH,
-      );
+      const result = await handleFallback(policyConfig, PREVIEW_GEMINI_MODEL, AUTH_OAUTH);
 
       expect(result).toBe(true);
-      expect(availability.selectFirstAvailable).toHaveBeenCalledWith([
-        PREVIEW_GEMINI_FLASH_MODEL,
-      ]);
+      expect(availability.selectFirstAvailable).toHaveBeenCalledWith([PREVIEW_GEMINI_FLASH_MODEL]);
     });
 
     it('should launch upgrade flow and avoid fallback mode when handler returns "upgrade"', async () => {
       policyHandler.mockResolvedValue('upgrade');
       vi.mocked(openBrowserSecurely).mockResolvedValue(undefined);
 
-      const result = await handleFallback(
-        policyConfig,
-        MOCK_PRO_MODEL,
-        AUTH_OAUTH,
-      );
+      const result = await handleFallback(policyConfig, MOCK_PRO_MODEL, AUTH_OAUTH);
 
       expect(result).toBe(false);
-      expect(openBrowserSecurely).toHaveBeenCalledWith(
-        'https://goo.gle/set-up-gemini-code-assist',
-      );
+      expect(openBrowserSecurely).toHaveBeenCalledWith('https://goo.gle/set-up-gemini-code-assist');
       expect(policyConfig.activateFallbackMode).not.toHaveBeenCalled();
     });
 
@@ -310,17 +236,10 @@ describe('handleFallback', () => {
       const handlerError = new Error('UI interaction failed');
       policyHandler.mockRejectedValue(handlerError);
 
-      const result = await handleFallback(
-        policyConfig,
-        MOCK_PRO_MODEL,
-        AUTH_OAUTH,
-      );
+      const result = await handleFallback(policyConfig, MOCK_PRO_MODEL, AUTH_OAUTH);
 
       expect(result).toBeNull();
-      expect(debugLogger.error).toHaveBeenCalledWith(
-        'Fallback handler failed:',
-        handlerError,
-      );
+      expect(debugLogger.error).toHaveBeenCalledWith('Fallback handler failed:', handlerError);
     });
 
     it('should pass TerminalQuotaError (429) correctly to the handler', async () => {
@@ -329,28 +248,13 @@ describe('handleFallback', () => {
         message: 'mock error',
         details: [],
       };
-      const terminalError = new TerminalQuotaError(
-        'Quota error',
-        mockGoogleApiError,
-        5,
-      );
+      const terminalError = new TerminalQuotaError('Quota error', mockGoogleApiError, 5);
       policyHandler.mockResolvedValue('retry_always');
-      vi.mocked(policyConfig.getModel).mockReturnValue(
-        DEFAULT_GEMINI_MODEL_AUTO,
-      );
+      vi.mocked(policyConfig.getModel).mockReturnValue(DEFAULT_GEMINI_MODEL_AUTO);
 
-      await handleFallback(
-        policyConfig,
-        MOCK_PRO_MODEL,
-        AUTH_OAUTH,
-        terminalError,
-      );
+      await handleFallback(policyConfig, MOCK_PRO_MODEL, AUTH_OAUTH, terminalError);
 
-      expect(policyHandler).toHaveBeenCalledWith(
-        MOCK_PRO_MODEL,
-        DEFAULT_GEMINI_FLASH_MODEL,
-        terminalError,
-      );
+      expect(policyHandler).toHaveBeenCalledWith(MOCK_PRO_MODEL, DEFAULT_GEMINI_FLASH_MODEL, terminalError);
     });
 
     it('should pass RetryableQuotaError correctly to the handler', async () => {
@@ -359,82 +263,43 @@ describe('handleFallback', () => {
         message: 'mock error',
         details: [],
       };
-      const retryableError = new RetryableQuotaError(
-        'Service unavailable',
-        mockGoogleApiError,
-        1000,
-      );
+      const retryableError = new RetryableQuotaError('Service unavailable', mockGoogleApiError, 1000);
       policyHandler.mockResolvedValue('retry_once');
-      vi.mocked(policyConfig.getModel).mockReturnValue(
-        DEFAULT_GEMINI_MODEL_AUTO,
-      );
+      vi.mocked(policyConfig.getModel).mockReturnValue(DEFAULT_GEMINI_MODEL_AUTO);
 
-      await handleFallback(
-        policyConfig,
-        MOCK_PRO_MODEL,
-        AUTH_OAUTH,
-        retryableError,
-      );
+      await handleFallback(policyConfig, MOCK_PRO_MODEL, AUTH_OAUTH, retryableError);
 
-      expect(policyHandler).toHaveBeenCalledWith(
-        MOCK_PRO_MODEL,
-        DEFAULT_GEMINI_FLASH_MODEL,
-        retryableError,
-      );
+      expect(policyHandler).toHaveBeenCalledWith(MOCK_PRO_MODEL, DEFAULT_GEMINI_FLASH_MODEL, retryableError);
     });
 
     it('Call the handler with fallback model same as the failed model when the failed model is the last-resort policy', async () => {
       // Ensure short-circuit when wrapping to an unavailable upstream model.
-      availability.selectFirstAvailable = vi
-        .fn()
-        .mockReturnValue({ selectedModel: null, skipped: [] });
-      vi.mocked(policyConfig.getModel).mockReturnValue(
-        DEFAULT_GEMINI_MODEL_AUTO,
-      );
+      availability.selectFirstAvailable = vi.fn().mockReturnValue({ selectedModel: null, skipped: [] });
+      vi.mocked(policyConfig.getModel).mockReturnValue(DEFAULT_GEMINI_MODEL_AUTO);
 
-      const result = await handleFallback(
-        policyConfig,
-        DEFAULT_GEMINI_FLASH_MODEL,
-        AUTH_OAUTH,
-      );
+      const result = await handleFallback(policyConfig, DEFAULT_GEMINI_FLASH_MODEL, AUTH_OAUTH);
 
       policyHandler.mockResolvedValue('retry_once');
 
       expect(result).not.toBeNull();
-      expect(policyHandler).toHaveBeenCalledWith(
-        DEFAULT_GEMINI_FLASH_MODEL,
-        DEFAULT_GEMINI_FLASH_MODEL,
-        undefined,
-      );
+      expect(policyHandler).toHaveBeenCalledWith(DEFAULT_GEMINI_FLASH_MODEL, DEFAULT_GEMINI_FLASH_MODEL, undefined);
     });
 
     it('calls activateFallbackMode when handler returns "retry_always"', async () => {
       policyHandler.mockResolvedValue('retry_always');
-      vi.mocked(policyConfig.getModel).mockReturnValue(
-        DEFAULT_GEMINI_MODEL_AUTO,
-      );
+      vi.mocked(policyConfig.getModel).mockReturnValue(DEFAULT_GEMINI_MODEL_AUTO);
 
-      const result = await handleFallback(
-        policyConfig,
-        MOCK_PRO_MODEL,
-        AUTH_OAUTH,
-      );
+      const result = await handleFallback(policyConfig, MOCK_PRO_MODEL, AUTH_OAUTH);
 
       expect(result).toBe(true);
-      expect(policyConfig.activateFallbackMode).toHaveBeenCalledWith(
-        FALLBACK_MODEL,
-      );
+      expect(policyConfig.activateFallbackMode).toHaveBeenCalledWith(FALLBACK_MODEL);
       // TODO: add logging expect statement
     });
 
     it('does NOT call activateFallbackMode when handler returns "stop"', async () => {
       policyHandler.mockResolvedValue('stop');
 
-      const result = await handleFallback(
-        policyConfig,
-        MOCK_PRO_MODEL,
-        AUTH_OAUTH,
-      );
+      const result = await handleFallback(policyConfig, MOCK_PRO_MODEL, AUTH_OAUTH);
 
       expect(result).toBe(false);
       expect(policyConfig.activateFallbackMode).not.toHaveBeenCalled();
@@ -444,11 +309,7 @@ describe('handleFallback', () => {
     it('does NOT call activateFallbackMode when handler returns "retry_once"', async () => {
       policyHandler.mockResolvedValue('retry_once');
 
-      const result = await handleFallback(
-        policyConfig,
-        MOCK_PRO_MODEL,
-        AUTH_OAUTH,
-      );
+      const result = await handleFallback(policyConfig, MOCK_PRO_MODEL, AUTH_OAUTH);
 
       expect(result).toBe(true);
       expect(policyConfig.activateFallbackMode).not.toHaveBeenCalled();

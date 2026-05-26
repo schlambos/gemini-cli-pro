@@ -50,13 +50,10 @@ vi.mock('./paths.js', async (importOriginal) => {
 describe('InstallationManager', () => {
   let tempHomeDir: string;
   let installationManager: InstallationManager;
-  const installationIdFile = () =>
-    path.join(tempHomeDir, GEMINI_DIR, 'installation_id');
+  const installationIdFile = () => path.join(tempHomeDir, GEMINI_DIR, 'installation_id');
 
   beforeEach(() => {
-    tempHomeDir = fs.mkdtempSync(
-      path.join(os.tmpdir(), 'gemini-cli-test-home-'),
-    );
+    tempHomeDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gemini-cli-test-home-'));
     (pathsHomedir as Mock).mockReturnValue(tempHomeDir);
     (os.homedir as Mock).mockReturnValue(tempHomeDir);
     installationManager = new InstallationManager();
@@ -101,9 +98,7 @@ describe('InstallationManager', () => {
       readSpy.mockImplementationOnce(() => {
         throw new Error('Read error');
       });
-      const consoleWarnSpy = vi
-        .spyOn(debugLogger, 'warn')
-        .mockImplementation(() => {});
+      const consoleWarnSpy = vi.spyOn(debugLogger, 'warn').mockImplementation(() => {});
 
       const id = installationManager.getInstallationId();
 

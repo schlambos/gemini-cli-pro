@@ -8,17 +8,11 @@ import type React from 'react';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Text } from 'ink';
 import { theme } from '../semantic-colors.js';
-import type {
-  LoadableSettingScope,
-  LoadedSettings,
-} from '../../config/settings.js';
+import type { LoadableSettingScope, LoadedSettings } from '../../config/settings.js';
 import { SettingScope } from '../../config/settings.js';
 import type { AgentDefinition, AgentOverride } from '@google/gemini-cli-core';
 import { getCachedStringWidth } from '../utils/textUtils.js';
-import {
-  BaseSettingsDialog,
-  type SettingsDialogItem,
-} from './shared/BaseSettingsDialog.js';
+import { BaseSettingsDialog, type SettingsDialogItem } from './shared/BaseSettingsDialog.js';
 
 /**
  * Configuration field definition for agent settings
@@ -114,10 +108,7 @@ interface AgentConfigDialogProps {
 /**
  * Get a nested value from an object using a path array
  */
-function getNestedValue(
-  obj: Record<string, unknown> | undefined,
-  path: string[],
-): unknown {
+function getNestedValue(obj: Record<string, unknown> | undefined, path: string[]): unknown {
   if (!obj) return undefined;
   let current: unknown = obj;
   for (const key of path) {
@@ -132,11 +123,7 @@ function getNestedValue(
 /**
  * Set a nested value in an object using a path array, creating intermediate objects as needed
  */
-function setNestedValue(
-  obj: Record<string, unknown>,
-  path: string[],
-  value: unknown,
-): Record<string, unknown> {
+function setNestedValue(obj: Record<string, unknown>, path: string[], value: unknown): Record<string, unknown> {
   const result = { ...obj };
   let current = result;
 
@@ -165,10 +152,7 @@ function setNestedValue(
 /**
  * Get the effective default value for a field from the agent definition
  */
-function getFieldDefaultFromDefinition(
-  field: AgentConfigField,
-  definition: AgentDefinition,
-): unknown {
+function getFieldDefaultFromDefinition(field: AgentConfigField, definition: AgentDefinition): unknown {
   if (definition.kind !== 'local') return field.defaultValue;
 
   if (field.key === 'enabled') {
@@ -208,9 +192,7 @@ export function AgentConfigDialog({
   onSave,
 }: AgentConfigDialogProps): React.JSX.Element {
   // Scope selector state (User by default)
-  const [selectedScope, setSelectedScope] = useState<LoadableSettingScope>(
-    SettingScope.User,
-  );
+  const [selectedScope, setSelectedScope] = useState<LoadableSettingScope>(SettingScope.User);
 
   // Pending override state for the selected scope
   const [pendingOverride, setPendingOverride] = useState<AgentOverride>(() => {
@@ -226,9 +208,7 @@ export function AgentConfigDialog({
   useEffect(() => {
     const scopeSettings = settings.forScope(selectedScope).settings;
     const existingOverride = scopeSettings.agents?.overrides?.[agentName];
-    setPendingOverride(
-      existingOverride ? structuredClone(existingOverride) : {},
-    );
+    setPendingOverride(existingOverride ? structuredClone(existingOverride) : {});
     setModifiedFields(new Set());
   }, [selectedScope, settings, agentName]);
 
@@ -243,13 +223,11 @@ export function AgentConfigDialog({
       }
       // Build the full settings path for agent override
       // e.g., agents.overrides.<agentName>.modelConfig.generateContentConfig.temperature
-      const settingsPath = ['agents', 'overrides', agentName, ...path].join(
-        '.',
-      );
+      const settingsPath = ['agents', 'overrides', agentName, ...path].join('.');
       settings.setValue(selectedScope, settingsPath, value);
       onSave?.();
     },
-    [settings, selectedScope, agentName, onSave],
+    [settings, selectedScope, agentName, onSave]
   );
 
   // Calculate max label width
@@ -270,11 +248,10 @@ export function AgentConfigDialog({
         const currentValue = getNestedValue(
           // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
           pendingOverride as Record<string, unknown>,
-          field.path,
+          field.path
         );
         const defaultValue = getFieldDefaultFromDefinition(field, definition);
-        const effectiveValue =
-          currentValue !== undefined ? currentValue : defaultValue;
+        const effectiveValue = currentValue !== undefined ? currentValue : defaultValue;
 
         let displayValue: string;
         if (field.type === 'boolean') {
@@ -286,15 +263,13 @@ export function AgentConfigDialog({
         }
 
         // Add * if modified
-        const isModified =
-          modifiedFields.has(field.key) || currentValue !== undefined;
+        const isModified = modifiedFields.has(field.key) || currentValue !== undefined;
         if (isModified && currentValue !== undefined) {
           displayValue += '*';
         }
 
         // Get raw value for edit mode
-        const rawValue =
-          currentValue !== undefined ? currentValue : effectiveValue;
+        const rawValue = currentValue !== undefined ? currentValue : effectiveValue;
 
         return {
           key: field.key,
@@ -308,7 +283,7 @@ export function AgentConfigDialog({
           rawValue: rawValue as string | number | boolean | undefined,
         };
       }),
-    [pendingOverride, definition, modifiedFields],
+    [pendingOverride, definition, modifiedFields]
   );
 
   const maxItemsToShow = 8;
@@ -327,18 +302,17 @@ export function AgentConfigDialog({
       const currentValue = getNestedValue(
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
         pendingOverride as Record<string, unknown>,
-        field.path,
+        field.path
       );
       const defaultValue = getFieldDefaultFromDefinition(field, definition);
-      const effectiveValue =
-        currentValue !== undefined ? currentValue : defaultValue;
+      const effectiveValue = currentValue !== undefined ? currentValue : defaultValue;
       const newValue = !effectiveValue;
 
       const newOverride = setNestedValue(
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
         pendingOverride as Record<string, unknown>,
         field.path,
-        newValue,
+        newValue
       ) as AgentOverride;
 
       setPendingOverride(newOverride);
@@ -347,7 +321,7 @@ export function AgentConfigDialog({
       // Save the field value to settings
       saveFieldValue(field.key, field.path, newValue);
     },
-    [pendingOverride, definition, saveFieldValue],
+    [pendingOverride, definition, saveFieldValue]
   );
 
   // Handle edit commit for string/number fields
@@ -379,7 +353,7 @@ export function AgentConfigDialog({
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
         pendingOverride as Record<string, unknown>,
         field.path,
-        parsed,
+        parsed
       ) as AgentOverride;
 
       setPendingOverride(newOverride);
@@ -388,7 +362,7 @@ export function AgentConfigDialog({
       // Save the field value to settings
       saveFieldValue(field.key, field.path, parsed);
     },
-    [pendingOverride, saveFieldValue],
+    [pendingOverride, saveFieldValue]
   );
 
   // Handle clear/reset - reset to default value (removes override)
@@ -402,7 +376,7 @@ export function AgentConfigDialog({
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
         pendingOverride as Record<string, unknown>,
         field.path,
-        undefined,
+        undefined
       ) as AgentOverride;
 
       setPendingOverride(newOverride);
@@ -415,14 +389,12 @@ export function AgentConfigDialog({
       // Save as undefined to remove the override
       saveFieldValue(field.key, field.path, undefined);
     },
-    [pendingOverride, saveFieldValue],
+    [pendingOverride, saveFieldValue]
   );
 
   // Footer content
   const footerContent =
-    modifiedFields.size > 0 ? (
-      <Text color={theme.text.secondary}>Changes saved automatically.</Text>
-    ) : null;
+    modifiedFields.size > 0 ? <Text color={theme.text.secondary}>Changes saved automatically.</Text> : null;
 
   return (
     <BaseSettingsDialog

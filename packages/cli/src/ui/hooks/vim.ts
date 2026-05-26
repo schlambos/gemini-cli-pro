@@ -169,14 +169,11 @@ export function useVim(buffer: TextBuffer, onSubmit?: (value: string) => void) {
       setVimMode(mode);
       dispatch({ type: 'SET_MODE', mode });
     },
-    [setVimMode],
+    [setVimMode]
   );
 
   // Helper functions using the reducer state
-  const getCurrentCount = useCallback(
-    () => state.count || DEFAULT_COUNT,
-    [state.count],
-  );
+  const getCurrentCount = useCallback(() => state.count || DEFAULT_COUNT, [state.count]);
 
   // Returns true if two escapes occurred within DOUBLE_ESCAPE_TIMEOUT_MS.
   const checkDoubleEscape = useCallback((): boolean => {
@@ -372,7 +369,7 @@ export function useVim(buffer: TextBuffer, onSubmit?: (value: string) => void) {
       }
       return true;
     },
-    [buffer, updateMode],
+    [buffer, updateMode]
   );
 
   /**
@@ -403,10 +400,7 @@ export function useVim(buffer: TextBuffer, onSubmit?: (value: string) => void) {
       }
 
       // Let InputPrompt handle Ctrl+U (kill line left) and Ctrl+K (kill line right)
-      if (
-        normalizedKey.ctrl &&
-        (normalizedKey.name === 'u' || normalizedKey.name === 'k')
-      ) {
+      if (normalizedKey.ctrl && (normalizedKey.name === 'u' || normalizedKey.name === 'k')) {
         return false;
       }
 
@@ -421,12 +415,7 @@ export function useVim(buffer: TextBuffer, onSubmit?: (value: string) => void) {
       }
 
       // Special handling for Enter key to allow command submission (lower priority than completion)
-      if (
-        normalizedKey.name === 'return' &&
-        !normalizedKey.alt &&
-        !normalizedKey.ctrl &&
-        !normalizedKey.cmd
-      ) {
+      if (normalizedKey.name === 'return' && !normalizedKey.alt && !normalizedKey.ctrl && !normalizedKey.cmd) {
         if (buffer.text.trim() && onSubmit) {
           // Handle command submission directly
           const submittedValue = buffer.text;
@@ -439,7 +428,7 @@ export function useVim(buffer: TextBuffer, onSubmit?: (value: string) => void) {
 
       return buffer.handleInput(normalizedKey);
     },
-    [buffer, dispatch, updateMode, onSubmit, checkDoubleEscape],
+    [buffer, dispatch, updateMode, onSubmit, checkDoubleEscape]
   );
 
   /**
@@ -457,7 +446,7 @@ export function useVim(buffer: TextBuffer, onSubmit?: (value: string) => void) {
       cmd: key.cmd || false,
       insertable: key.insertable || false,
     }),
-    [],
+    []
   );
 
   /**
@@ -486,7 +475,7 @@ export function useVim(buffer: TextBuffer, onSubmit?: (value: string) => void) {
       dispatch({ type: 'SET_PENDING_OPERATOR', operator: null });
       return true;
     },
-    [getCurrentCount, dispatch, buffer, updateMode],
+    [getCurrentCount, dispatch, buffer, updateMode]
   );
 
   /**
@@ -517,7 +506,7 @@ export function useVim(buffer: TextBuffer, onSubmit?: (value: string) => void) {
       dispatch({ type: 'SET_PENDING_OPERATOR', operator: null });
       return true;
     },
-    [getCurrentCount, dispatch, buffer],
+    [getCurrentCount, dispatch, buffer]
   );
 
   /**
@@ -527,10 +516,7 @@ export function useVim(buffer: TextBuffer, onSubmit?: (value: string) => void) {
    * @returns boolean indicating if command was handled
    */
   const handleOperatorMotion = useCallback(
-    (
-      operator: 'd' | 'c',
-      motion: 'w' | 'b' | 'e' | 'W' | 'B' | 'E',
-    ): boolean => {
+    (operator: 'd' | 'c', motion: 'w' | 'b' | 'e' | 'W' | 'B' | 'E'): boolean => {
       const count = getCurrentCount();
 
       const commandMap = {
@@ -564,7 +550,7 @@ export function useVim(buffer: TextBuffer, onSubmit?: (value: string) => void) {
 
       return true;
     },
-    [getCurrentCount, executeCommand, dispatch],
+    [getCurrentCount, executeCommand, dispatch]
   );
 
   const handleInput = useCallback(
@@ -612,10 +598,7 @@ export function useVim(buffer: TextBuffer, onSubmit?: (value: string) => void) {
         }
 
         // Handle count input (numbers 1-9, and 0 if count > 0)
-        if (
-          DIGIT_1_TO_9.test(normalizedKey.sequence) ||
-          (normalizedKey.sequence === '0' && state.count > 0)
-        ) {
+        if (DIGIT_1_TO_9.test(normalizedKey.sequence) || (normalizedKey.sequence === '0' && state.count > 0)) {
           dispatch({
             type: 'INCREMENT_COUNT',
             digit: parseInt(normalizedKey.sequence, 10),
@@ -1202,7 +1185,7 @@ export function useVim(buffer: TextBuffer, onSubmit?: (value: string) => void) {
       executeCommand,
       updateMode,
       checkDoubleEscape,
-    ],
+    ]
   );
 
   return {

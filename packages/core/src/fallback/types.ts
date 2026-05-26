@@ -5,11 +5,7 @@
  */
 
 import type { ModelSelectionResult } from '../availability/modelAvailabilityService.js';
-import type {
-  FailureKind,
-  FallbackAction,
-  ModelPolicy,
-} from '../availability/modelPolicy.js';
+import type { FailureKind, FallbackAction, ModelPolicy } from '../availability/modelPolicy.js';
 
 /**
  * Defines the intent returned by the UI layer during a fallback scenario.
@@ -35,7 +31,7 @@ export interface FallbackRecommendation extends ModelSelectionResult {
 export type FallbackModelHandler = (
   failedModel: string,
   fallbackModel: string,
-  error?: unknown,
+  error?: unknown
 ) => Promise<FallbackIntent | null>;
 
 /**
@@ -53,5 +49,5 @@ export type ValidationIntent =
 export type ValidationHandler = (
   validationLink?: string,
   validationDescription?: string,
-  learnMoreUrl?: string,
+  learnMoreUrl?: string
 ) => Promise<ValidationIntent>;

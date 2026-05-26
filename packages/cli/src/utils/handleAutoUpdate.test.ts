@@ -24,7 +24,7 @@ vi.mock('./installationInfo.js', async () => {
 });
 
 vi.mock('./updateEventEmitter.js', async (importOriginal) =>
-  importOriginal<typeof import('./updateEventEmitter.js')>(),
+  importOriginal<typeof import('./updateEventEmitter.js')>()
 );
 
 const mockGetInstallationInfo = vi.mocked(getInstallationInfo);
@@ -71,9 +71,7 @@ describe('handleAutoUpdate', () => {
       unref: vi.fn(),
     }) as unknown as ChildProcess;
 
-    mockSpawn.mockReturnValue(
-      mockChildProcess as unknown as ReturnType<typeof mockSpawn>,
-    );
+    mockSpawn.mockReturnValue(mockChildProcess as unknown as ReturnType<typeof mockSpawn>);
   });
 
   afterEach(() => {
@@ -128,7 +126,7 @@ describe('handleAutoUpdate', () => {
 
       expect(updateEventEmitter.emit).not.toHaveBeenCalled();
       expect(mockSpawn).not.toHaveBeenCalled();
-    },
+    }
   );
 
   it('should emit "update-received" but not update if no update command is found', () => {
@@ -201,8 +199,7 @@ describe('handleAutoUpdate', () => {
     });
 
     expect(updateEventEmitter.emit).toHaveBeenCalledWith('update-failed', {
-      message:
-        'Automatic update failed. Please try updating manually. (command: npm i -g @google/gemini-cli@2.0.0)',
+      message: 'Automatic update failed. Please try updating manually. (command: npm i -g @google/gemini-cli@2.0.0)',
     });
   });
 
@@ -225,8 +222,7 @@ describe('handleAutoUpdate', () => {
     });
 
     expect(updateEventEmitter.emit).toHaveBeenCalledWith('update-failed', {
-      message:
-        'Automatic update failed. Please try updating manually. (error: Spawn error)',
+      message: 'Automatic update failed. Please try updating manually. (error: Spawn error)',
     });
   });
 
@@ -247,14 +243,11 @@ describe('handleAutoUpdate', () => {
 
     handleAutoUpdate(mockUpdateInfo, mockSettings, '/root', mockSpawn);
 
-    expect(mockSpawn).toHaveBeenCalledWith(
-      'npm i -g @google/gemini-cli@nightly',
-      {
-        shell: true,
-        stdio: 'ignore',
-        detached: true,
-      },
-    );
+    expect(mockSpawn).toHaveBeenCalledWith('npm i -g @google/gemini-cli@nightly', {
+      shell: true,
+      stdio: 'ignore',
+      detached: true,
+    });
   });
 
   it('should emit "update-success" when the update process succeeds', async () => {
@@ -276,8 +269,7 @@ describe('handleAutoUpdate', () => {
     });
 
     expect(updateEventEmitter.emit).toHaveBeenCalledWith('update-success', {
-      message:
-        'Update successful! The new version will be used on your next run.',
+      message: 'Update successful! The new version will be used on your next run.',
     });
   });
 });
@@ -330,7 +322,7 @@ describe('setUpdateHandler', () => {
         type: MessageType.INFO,
         text: 'Update available',
       },
-      expect.any(Number),
+      expect.any(Number)
     );
     expect(setUpdateInfo).toHaveBeenCalledWith(null);
   });
@@ -344,7 +336,7 @@ describe('setUpdateHandler', () => {
         type: MessageType.ERROR,
         text: 'Automatic update failed. Please try updating manually',
       },
-      expect.any(Number),
+      expect.any(Number)
     );
   });
 
@@ -357,7 +349,7 @@ describe('setUpdateHandler', () => {
         type: MessageType.INFO,
         text: 'Update successful! The new version will be used on your next run.',
       },
-      expect.any(Number),
+      expect.any(Number)
     );
   });
 
@@ -385,7 +377,7 @@ describe('setUpdateHandler', () => {
         type: MessageType.INFO,
         text: 'Update successful! The new version will be used on your next run.',
       },
-      expect.any(Number),
+      expect.any(Number)
     );
   });
 
@@ -397,7 +389,7 @@ describe('setUpdateHandler', () => {
         type: MessageType.INFO,
         text: 'Info message',
       },
-      expect.any(Number),
+      expect.any(Number)
     );
   });
 });

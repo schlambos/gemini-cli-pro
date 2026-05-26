@@ -16,24 +16,12 @@ import {
   getCitations,
   convertToFunctionResponse,
 } from './generateContentResponseUtilities.js';
-import type {
-  GenerateContentResponse,
-  Part,
-  SafetyRating,
-  CitationMetadata,
-  PartListUnion,
-} from '@google/genai';
+import type { GenerateContentResponse, Part, SafetyRating, CitationMetadata, PartListUnion } from '@google/genai';
 import { FinishReason } from '@google/genai';
-import {
-  DEFAULT_GEMINI_MODEL,
-  PREVIEW_GEMINI_MODEL,
-} from '../config/models.js';
+import { DEFAULT_GEMINI_MODEL, PREVIEW_GEMINI_MODEL } from '../config/models.js';
 
 const mockTextPart = (text: string): Part => ({ text });
-const mockFunctionCallPart = (
-  name: string,
-  args?: Record<string, unknown>,
-): Part => ({
+const mockFunctionCallPart = (name: string, args?: Record<string, unknown>): Part => ({
   functionCall: { name, args: args ?? {} },
 });
 
@@ -41,7 +29,7 @@ const mockResponse = (
   parts: Part[],
   finishReason: FinishReason = FinishReason.STOP,
   safetyRatings: SafetyRating[] = [],
-  citationMetadata?: CitationMetadata,
+  citationMetadata?: CitationMetadata
 ): GenerateContentResponse => ({
   candidates: [
     {
@@ -65,9 +53,7 @@ const mockResponse = (
   codeExecutionResult: undefined,
 });
 
-const minimalMockResponse = (
-  candidates: GenerateContentResponse['candidates'],
-): GenerateContentResponse => ({
+const minimalMockResponse = (candidates: GenerateContentResponse['candidates']): GenerateContentResponse => ({
   candidates,
   promptFeedback: { safetyRatings: [] },
   text: undefined,
@@ -84,12 +70,7 @@ describe('generateContentResponseUtilities', () => {
 
     it('should handle simple string llmContent', () => {
       const llmContent = 'Simple text output';
-      const result = convertToFunctionResponse(
-        toolName,
-        callId,
-        llmContent,
-        DEFAULT_GEMINI_MODEL,
-      );
+      const result = convertToFunctionResponse(toolName, callId, llmContent, DEFAULT_GEMINI_MODEL);
       expect(result).toEqual([
         {
           functionResponse: {
@@ -103,12 +84,7 @@ describe('generateContentResponseUtilities', () => {
 
     it('should handle llmContent as a single Part with text', () => {
       const llmContent: Part = { text: 'Text from Part object' };
-      const result = convertToFunctionResponse(
-        toolName,
-        callId,
-        llmContent,
-        DEFAULT_GEMINI_MODEL,
-      );
+      const result = convertToFunctionResponse(toolName, callId, llmContent, DEFAULT_GEMINI_MODEL);
       expect(result).toEqual([
         {
           functionResponse: {
@@ -122,12 +98,7 @@ describe('generateContentResponseUtilities', () => {
 
     it('should handle llmContent as a PartListUnion array with a single text Part', () => {
       const llmContent: PartListUnion = [{ text: 'Text from array' }];
-      const result = convertToFunctionResponse(
-        toolName,
-        callId,
-        llmContent,
-        DEFAULT_GEMINI_MODEL,
-      );
+      const result = convertToFunctionResponse(toolName, callId, llmContent, DEFAULT_GEMINI_MODEL);
       expect(result).toEqual([
         {
           functionResponse: {
@@ -141,12 +112,7 @@ describe('generateContentResponseUtilities', () => {
 
     it('should handle llmContent as a PartListUnion array with multiple Parts', () => {
       const llmContent: PartListUnion = [{ text: 'part1' }, { text: 'part2' }];
-      const result = convertToFunctionResponse(
-        toolName,
-        callId,
-        llmContent,
-        DEFAULT_GEMINI_MODEL,
-      );
+      const result = convertToFunctionResponse(toolName, callId, llmContent, DEFAULT_GEMINI_MODEL);
       expect(result).toEqual([
         {
           functionResponse: {
@@ -162,12 +128,7 @@ describe('generateContentResponseUtilities', () => {
       const llmContent: Part = {
         fileData: { mimeType: 'application/pdf', fileUri: 'gs://...' },
       };
-      const result = convertToFunctionResponse(
-        toolName,
-        callId,
-        llmContent,
-        PREVIEW_GEMINI_MODEL,
-      );
+      const result = convertToFunctionResponse(toolName, callId, llmContent, PREVIEW_GEMINI_MODEL);
       expect(result).toEqual([
         {
           functionResponse: {
@@ -184,12 +145,7 @@ describe('generateContentResponseUtilities', () => {
       const llmContent: Part = {
         inlineData: { mimeType: 'image/png', data: 'base64...' },
       };
-      const result = convertToFunctionResponse(
-        toolName,
-        callId,
-        llmContent,
-        PREVIEW_GEMINI_MODEL,
-      );
+      const result = convertToFunctionResponse(toolName, callId, llmContent, PREVIEW_GEMINI_MODEL);
       expect(result).toEqual([
         {
           functionResponse: {
@@ -206,12 +162,7 @@ describe('generateContentResponseUtilities', () => {
       const llmContent: Part = {
         fileData: { mimeType: 'application/pdf', fileUri: 'gs://...' },
       };
-      const result = convertToFunctionResponse(
-        toolName,
-        callId,
-        llmContent,
-        DEFAULT_GEMINI_MODEL,
-      );
+      const result = convertToFunctionResponse(toolName, callId, llmContent, DEFAULT_GEMINI_MODEL);
       expect(result).toEqual([
         {
           functionResponse: {
@@ -240,12 +191,7 @@ describe('generateContentResponseUtilities', () => {
         },
       };
 
-      const result = convertToFunctionResponse(
-        toolName,
-        callId,
-        input,
-        DEFAULT_GEMINI_MODEL,
-      );
+      const result = convertToFunctionResponse(toolName, callId, input, DEFAULT_GEMINI_MODEL);
 
       expect(result).toHaveLength(1);
       expect(result[0].functionResponse).toEqual({
@@ -261,12 +207,7 @@ describe('generateContentResponseUtilities', () => {
         { inlineData: { mimeType: 'image/jpeg', data: 'base64data...' } },
         { text: 'Another text part' },
       ];
-      const result = convertToFunctionResponse(
-        toolName,
-        callId,
-        llmContent,
-        PREVIEW_GEMINI_MODEL,
-      );
+      const result = convertToFunctionResponse(toolName, callId, llmContent, PREVIEW_GEMINI_MODEL);
       expect(result).toEqual([
         {
           functionResponse: {
@@ -286,15 +227,8 @@ describe('generateContentResponseUtilities', () => {
     });
 
     it('should handle llmContent as an array with a single inlineData Part', () => {
-      const llmContent: PartListUnion = [
-        { inlineData: { mimeType: 'image/gif', data: 'gifdata...' } },
-      ];
-      const result = convertToFunctionResponse(
-        toolName,
-        callId,
-        llmContent,
-        PREVIEW_GEMINI_MODEL,
-      );
+      const llmContent: PartListUnion = [{ inlineData: { mimeType: 'image/gif', data: 'gifdata...' } }];
+      const result = convertToFunctionResponse(toolName, callId, llmContent, PREVIEW_GEMINI_MODEL);
       expect(result).toEqual([
         {
           functionResponse: {
@@ -309,12 +243,7 @@ describe('generateContentResponseUtilities', () => {
 
     it('should handle llmContent as a generic Part (not text, inlineData, or fileData)', () => {
       const llmContent: Part = { functionCall: { name: 'test', args: {} } };
-      const result = convertToFunctionResponse(
-        toolName,
-        callId,
-        llmContent,
-        PREVIEW_GEMINI_MODEL,
-      );
+      const result = convertToFunctionResponse(toolName, callId, llmContent, PREVIEW_GEMINI_MODEL);
       expect(result).toEqual([
         {
           functionResponse: {
@@ -328,12 +257,7 @@ describe('generateContentResponseUtilities', () => {
 
     it('should handle empty string llmContent', () => {
       const llmContent = '';
-      const result = convertToFunctionResponse(
-        toolName,
-        callId,
-        llmContent,
-        PREVIEW_GEMINI_MODEL,
-      );
+      const result = convertToFunctionResponse(toolName, callId, llmContent, PREVIEW_GEMINI_MODEL);
       expect(result).toEqual([
         {
           functionResponse: {
@@ -347,12 +271,7 @@ describe('generateContentResponseUtilities', () => {
 
     it('should handle llmContent as an empty array', () => {
       const llmContent: PartListUnion = [];
-      const result = convertToFunctionResponse(
-        toolName,
-        callId,
-        llmContent,
-        PREVIEW_GEMINI_MODEL,
-      );
+      const result = convertToFunctionResponse(toolName, callId, llmContent, PREVIEW_GEMINI_MODEL);
       expect(result).toEqual([
         {
           functionResponse: {
@@ -366,12 +285,7 @@ describe('generateContentResponseUtilities', () => {
 
     it('should handle llmContent as a Part with undefined inlineData/fileData/text', () => {
       const llmContent: Part = {}; // An empty part object
-      const result = convertToFunctionResponse(
-        toolName,
-        callId,
-        llmContent,
-        PREVIEW_GEMINI_MODEL,
-      );
+      const result = convertToFunctionResponse(toolName, callId, llmContent, PREVIEW_GEMINI_MODEL);
       expect(result).toEqual([
         {
           functionResponse: {
@@ -405,15 +319,8 @@ describe('generateContentResponseUtilities', () => {
           },
         ],
       };
-      const response = mockResponse(
-        [mockTextPart('Hello')],
-        undefined,
-        undefined,
-        citationMetadata,
-      );
-      expect(getCitations(response)).toEqual([
-        '(Example Title) https://example.com',
-      ]);
+      const response = mockResponse([mockTextPart('Hello')], undefined, undefined, citationMetadata);
+      expect(getCitations(response)).toEqual(['(Example Title) https://example.com']);
     });
 
     it('should return citations with uri only if no title', () => {
@@ -426,12 +333,7 @@ describe('generateContentResponseUtilities', () => {
           },
         ],
       };
-      const response = mockResponse(
-        [mockTextPart('Hello')],
-        undefined,
-        undefined,
-        citationMetadata,
-      );
+      const response = mockResponse([mockTextPart('Hello')], undefined, undefined, citationMetadata);
       expect(getCitations(response)).toEqual(['https://example.com']);
     });
 
@@ -450,12 +352,7 @@ describe('generateContentResponseUtilities', () => {
           },
         ],
       };
-      const response = mockResponse(
-        [mockTextPart('Hello')],
-        undefined,
-        undefined,
-        citationMetadata,
-      );
+      const response = mockResponse([mockTextPart('Hello')], undefined, undefined, citationMetadata);
       expect(getCitations(response)).toEqual(['https://valid.com']);
     });
   });
@@ -468,28 +365,16 @@ describe('generateContentResponseUtilities', () => {
       expect(getResponseTextFromParts([mockTextPart('Hello')])).toBe('Hello');
     });
     it('should concatenate text from multiple text parts', () => {
-      expect(
-        getResponseTextFromParts([
-          mockTextPart('Hello '),
-          mockTextPart('World'),
-        ]),
-      ).toBe('Hello World');
+      expect(getResponseTextFromParts([mockTextPart('Hello '), mockTextPart('World')])).toBe('Hello World');
     });
     it('should ignore function call parts', () => {
       expect(
-        getResponseTextFromParts([
-          mockTextPart('Hello '),
-          mockFunctionCallPart('testFunc'),
-          mockTextPart('World'),
-        ]),
+        getResponseTextFromParts([mockTextPart('Hello '), mockFunctionCallPart('testFunc'), mockTextPart('World')])
       ).toBe('Hello World');
     });
     it('should return undefined if only function call parts exist', () => {
       expect(
-        getResponseTextFromParts([
-          mockFunctionCallPart('testFunc'),
-          mockFunctionCallPart('anotherFunc'),
-        ]),
+        getResponseTextFromParts([mockFunctionCallPart('testFunc'), mockFunctionCallPart('anotherFunc')])
       ).toBeUndefined();
     });
   });
@@ -507,9 +392,7 @@ describe('generateContentResponseUtilities', () => {
     });
     it('should extract a single function call', () => {
       const func = { name: 'testFunc', args: { a: 1 } };
-      const response = mockResponse([
-        mockFunctionCallPart(func.name, func.args),
-      ]);
+      const response = mockResponse([mockFunctionCallPart(func.name, func.args)]);
       expect(getFunctionCalls(response)).toEqual([func]);
     });
     it('should extract multiple function calls', () => {
@@ -531,10 +414,7 @@ describe('generateContentResponseUtilities', () => {
       expect(getFunctionCalls(response)).toEqual([func]);
     });
     it('should return undefined if only text parts exist', () => {
-      const response = mockResponse([
-        mockTextPart('Some text'),
-        mockTextPart('More text'),
-      ]);
+      const response = mockResponse([mockTextPart('Some text'), mockTextPart('More text')]);
       expect(getFunctionCalls(response)).toBeUndefined();
     });
   });
@@ -545,9 +425,7 @@ describe('generateContentResponseUtilities', () => {
     });
     it('should extract a single function call', () => {
       const func = { name: 'testFunc', args: { a: 1 } };
-      expect(
-        getFunctionCallsFromParts([mockFunctionCallPart(func.name, func.args)]),
-      ).toEqual([func]);
+      expect(getFunctionCallsFromParts([mockFunctionCallPart(func.name, func.args)])).toEqual([func]);
     });
     it('should extract multiple function calls', () => {
       const func1 = { name: 'testFunc1', args: { a: 1 } };
@@ -556,7 +434,7 @@ describe('generateContentResponseUtilities', () => {
         getFunctionCallsFromParts([
           mockFunctionCallPart(func1.name, func1.args),
           mockFunctionCallPart(func2.name, func2.args),
-        ]),
+        ])
       ).toEqual([func1, func2]);
     });
     it('should ignore text parts', () => {
@@ -566,16 +444,11 @@ describe('generateContentResponseUtilities', () => {
           mockTextPart('Some text'),
           mockFunctionCallPart(func.name, func.args),
           mockTextPart('More text'),
-        ]),
+        ])
       ).toEqual([func]);
     });
     it('should return undefined if only text parts exist', () => {
-      expect(
-        getFunctionCallsFromParts([
-          mockTextPart('Some text'),
-          mockTextPart('More text'),
-        ]),
-      ).toBeUndefined();
+      expect(getFunctionCallsFromParts([mockTextPart('Some text'), mockTextPart('More text')])).toBeUndefined();
     });
   });
 
@@ -622,19 +495,14 @@ describe('generateContentResponseUtilities', () => {
     });
     it('should return only function call JSON if only function calls exist', () => {
       const func = { name: 'testFunc', args: { data: 'payload' } };
-      const response = mockResponse([
-        mockFunctionCallPart(func.name, func.args),
-      ]);
+      const response = mockResponse([mockFunctionCallPart(func.name, func.args)]);
       const expectedJson = JSON.stringify([func], null, 2);
       expect(getStructuredResponse(response)).toBe(expectedJson);
     });
     it('should return text and function call JSON if both exist', () => {
       const text = 'Consider this data:';
       const func = { name: 'processData', args: { item: 42 } };
-      const response = mockResponse([
-        mockTextPart(text),
-        mockFunctionCallPart(func.name, func.args),
-      ]);
+      const response = mockResponse([mockTextPart(text), mockFunctionCallPart(func.name, func.args)]);
       const expectedJson = JSON.stringify([func], null, 2);
       expect(getStructuredResponse(response)).toBe(`${text}\n${expectedJson}`);
     });
@@ -658,14 +526,9 @@ describe('generateContentResponseUtilities', () => {
     it('should return text and function call JSON if both exist in parts', () => {
       const text = 'Consider this data:';
       const func = { name: 'processData', args: { item: 42 } };
-      const parts = [
-        mockTextPart(text),
-        mockFunctionCallPart(func.name, func.args),
-      ];
+      const parts = [mockTextPart(text), mockFunctionCallPart(func.name, func.args)];
       const expectedJson = JSON.stringify([func], null, 2);
-      expect(getStructuredResponseFromParts(parts)).toBe(
-        `${text}\n${expectedJson}`,
-      );
+      expect(getStructuredResponseFromParts(parts)).toBe(`${text}\n${expectedJson}`);
     });
     it('should return undefined if neither text nor function calls exist in parts', () => {
       const parts: Part[] = [];

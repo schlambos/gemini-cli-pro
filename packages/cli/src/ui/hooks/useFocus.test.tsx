@@ -35,12 +35,8 @@ describe('useFocus', () => {
       pause: vi.fn(),
     });
     stdout = { write: vi.fn() };
-    mockedUseStdin.mockReturnValue({ stdin } as unknown as ReturnType<
-      typeof useStdin
-    >);
-    mockedUseStdout.mockReturnValue({ stdout } as unknown as ReturnType<
-      typeof useStdout
-    >);
+    mockedUseStdin.mockReturnValue({ stdin } as unknown as ReturnType<typeof useStdin>);
+    mockedUseStdout.mockReturnValue({ stdout } as unknown as ReturnType<typeof useStdout>);
   });
 
   afterEach(() => {
@@ -57,7 +53,7 @@ describe('useFocus', () => {
     const { unmount } = render(
       <KeypressProvider>
         <TestComponent />
-      </KeypressProvider>,
+      </KeypressProvider>
     );
     return {
       result: {

@@ -4,11 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  coreEvents,
-  CoreEvent,
-  type SlashCommandConflictsPayload,
-} from '@google/gemini-cli-core';
+import { coreEvents, CoreEvent, type SlashCommandConflictsPayload } from '@google/gemini-cli-core';
 
 export class SlashCommandConflictHandler {
   private notifiedConflicts = new Set<string>();
@@ -38,17 +34,12 @@ export class SlashCommandConflictHandler {
     if (newConflicts.length > 0) {
       const conflictMessages = newConflicts
         .map((c) => {
-          const winnerSource = c.winnerExtensionName
-            ? `extension '${c.winnerExtensionName}'`
-            : 'an existing command';
+          const winnerSource = c.winnerExtensionName ? `extension '${c.winnerExtensionName}'` : 'an existing command';
           return `- Command '/${c.name}' from extension '${c.loserExtensionName}' was renamed to '/${c.renamedTo}' because it conflicts with ${winnerSource}.`;
         })
         .join('\n');
 
-      coreEvents.emitFeedback(
-        'info',
-        `Command conflicts detected:\n${conflictMessages}`,
-      );
+      coreEvents.emitFeedback('info', `Command conflicts detected:\n${conflictMessages}`);
     }
   }
 }

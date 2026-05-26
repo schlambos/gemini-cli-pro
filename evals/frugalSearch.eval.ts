@@ -111,33 +111,28 @@ describe('Frugal Search', () => {
     },
     assert: async (rig) => {
       const toolCalls = rig.readToolLogs();
-      const grepCalls = toolCalls.filter(
-        (call) => call.toolRequest.name === 'grep_search',
-      );
+      const grepCalls = toolCalls.filter((call) => call.toolRequest.name === 'grep_search');
 
       expect(grepCalls.length).toBeGreaterThan(0);
 
       const grepParams = grepCalls.map(getGrepParams);
 
-      const hasTotalMaxLimit = grepParams.some(
-        (p) => p.total_max_matches !== undefined && p.total_max_matches <= 100,
-      );
+      const hasTotalMaxLimit = grepParams.some((p) => p.total_max_matches !== undefined && p.total_max_matches <= 100);
       expect(
         hasTotalMaxLimit,
         `Expected agent to use a small total_max_matches (<= 100) for a sample usage request. Actual values: ${JSON.stringify(
-          grepParams.map((p) => p.total_max_matches),
-        )}`,
+          grepParams.map((p) => p.total_max_matches)
+        )}`
       ).toBe(true);
 
       const hasMaxMatchesPerFileLimit = grepParams.some(
-        (p) =>
-          p.max_matches_per_file !== undefined && p.max_matches_per_file <= 5,
+        (p) => p.max_matches_per_file !== undefined && p.max_matches_per_file <= 5
       );
       expect(
         hasMaxMatchesPerFileLimit,
         `Expected agent to use a small max_matches_per_file (<= 5) for a sample usage request. Actual values: ${JSON.stringify(
-          grepParams.map((p) => p.max_matches_per_file),
-        )}`,
+          grepParams.map((p) => p.max_matches_per_file)
+        )}`
       ).toBe(true);
     },
   });

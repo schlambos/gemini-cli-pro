@@ -4,22 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  describe,
-  it,
-  expect,
-  beforeEach,
-  vi,
-  afterEach,
-  type Mock,
-} from 'vitest';
+import { describe, it, expect, beforeEach, vi, afterEach, type Mock } from 'vitest';
 import { act, useEffect } from 'react';
 import { renderWithProviders } from '../../test-utils/render.js';
 import { waitFor } from '../../test-utils/async.js';
-import {
-  useCommandCompletion,
-  CompletionMode,
-} from './useCommandCompletion.js';
+import { useCommandCompletion, CompletionMode } from './useCommandCompletion.js';
 import type { CommandContext } from '../commands/types.js';
 import type { Config } from '@google/gemini-cli-core';
 import { useTextBuffer } from '../components/shared/text-buffer.js';
@@ -56,28 +45,19 @@ const setupMocks = ({
 }) => {
   // Mock for @-completions
   (useAtCompletion as Mock).mockImplementation(
-    ({
-      enabled,
-      setSuggestions,
-      setIsLoadingSuggestions,
-    }: UseAtCompletionProps) => {
+    ({ enabled, setSuggestions, setIsLoadingSuggestions }: UseAtCompletionProps) => {
       useEffect(() => {
         if (enabled) {
           setIsLoadingSuggestions(isLoading);
           setSuggestions(atSuggestions);
         }
       }, [enabled, setSuggestions, setIsLoadingSuggestions]);
-    },
+    }
   );
 
   // Mock for /-completions
   (useSlashCompletion as Mock).mockImplementation(
-    ({
-      enabled,
-      setSuggestions,
-      setIsLoadingSuggestions,
-      setIsPerfectMatch,
-    }: UseSlashCompletionProps) => {
+    ({ enabled, setSuggestions, setIsLoadingSuggestions, setIsPerfectMatch }: UseSlashCompletionProps) => {
       useEffect(() => {
         if (enabled) {
           setIsLoadingSuggestions(isLoading);
@@ -87,7 +67,7 @@ const setupMocks = ({
       }, [enabled, setSuggestions, setIsLoadingSuggestions, setIsPerfectMatch]);
       // The hook returns a range, which we can mock simply
       return slashCompletionRange;
-    },
+    }
   );
 };
 
@@ -113,7 +93,7 @@ describe('useCommandCompletion', () => {
     initialText: string,
     cursorOffset?: number,
     shellModeActive = false,
-    active = true,
+    active = true
   ) => {
     let hookResult: ReturnType<typeof useCommandCompletion> & {
       textBuffer: ReturnType<typeof useTextBuffer>;
@@ -181,11 +161,7 @@ describe('useCommandCompletion', () => {
         expect(result.current.showSuggestions).toBe(true);
 
         act(() => {
-          result.current.textBuffer.replaceRangeByOffset(
-            0,
-            5,
-            'just some text',
-          );
+          result.current.textBuffer.replaceRangeByOffset(0, 5, 'just some text');
         });
 
         await waitFor(() => {
@@ -218,7 +194,7 @@ describe('useCommandCompletion', () => {
             expect.objectContaining({
               enabled: true,
               pattern: 'src/a\\ file.txt',
-            }),
+            })
           );
           expect(result.current.completionMode).toBe(CompletionMode.AT);
         });
@@ -235,7 +211,7 @@ describe('useCommandCompletion', () => {
             expect.objectContaining({
               enabled: true,
               pattern: 'file1',
-            }),
+            })
           );
         });
       });
@@ -245,44 +221,29 @@ describe('useCommandCompletion', () => {
           shellModeActive: false,
           expectedSuggestions: 1,
           expectedShowSuggestions: true,
-          description:
-            'should show slash command suggestions when shellModeActive is false',
+          description: 'should show slash command suggestions when shellModeActive is false',
         },
         {
           shellModeActive: true,
           expectedSuggestions: 0,
           expectedShowSuggestions: false,
-          description:
-            'should not show slash command suggestions when shellModeActive is true',
+          description: 'should not show slash command suggestions when shellModeActive is true',
         },
-      ])(
-        '$description',
-        async ({
-          shellModeActive,
-          expectedSuggestions,
-          expectedShowSuggestions,
-        }) => {
-          setupMocks({
-            slashSuggestions: [{ label: 'clear', value: 'clear' }],
-          });
+      ])('$description', async ({ shellModeActive, expectedSuggestions, expectedShowSuggestions }) => {
+        setupMocks({
+          slashSuggestions: [{ label: 'clear', value: 'clear' }],
+        });
 
-          const { result } = renderCommandCompletionHook(
-            '/',
-            undefined,
-            shellModeActive,
-          );
+        const { result } = renderCommandCompletionHook('/', undefined, shellModeActive);
 
-          await waitFor(() => {
-            expect(result.current.suggestions.length).toBe(expectedSuggestions);
-            expect(result.current.showSuggestions).toBe(
-              expectedShowSuggestions,
-            );
-            if (!shellModeActive) {
-              expect(result.current.completionMode).toBe(CompletionMode.SLASH);
-            }
-          });
-        },
-      );
+        await waitFor(() => {
+          expect(result.current.suggestions.length).toBe(expectedSuggestions);
+          expect(result.current.showSuggestions).toBe(expectedShowSuggestions);
+          if (!shellModeActive) {
+            expect(result.current.completionMode).toBe(CompletionMode.SLASH);
+          }
+        });
+      });
     });
 
     describe('Navigation', () => {
@@ -387,9 +348,7 @@ describe('useCommandCompletion', () => {
         const { result } = renderCommandCompletionHook('/');
 
         await waitFor(() => {
-          expect(result.current.suggestions.length).toBe(
-            mockSuggestions.length,
-          );
+          expect(result.current.suggestions.length).toBe(mockSuggestions.length);
           expect(result.current.activeSuggestionIndex).toBe(0);
         });
       });
@@ -452,9 +411,7 @@ describe('useCommandCompletion', () => {
         result.current.handleAutocomplete(0);
       });
 
-      expect(result.current.textBuffer.text).toBe(
-        '@src/file1.txt is a good file',
-      );
+      expect(result.current.textBuffer.text).toBe('@src/file1.txt is a good file');
     });
 
     it('should complete a directory path ending with / without a trailing space', async () => {
@@ -477,9 +434,7 @@ describe('useCommandCompletion', () => {
 
     it('should complete a directory path ending with \\ without a trailing space', async () => {
       setupMocks({
-        atSuggestions: [
-          { label: 'src\\components\\', value: 'src\\components\\' },
-        ],
+        atSuggestions: [{ label: 'src\\components\\', value: 'src\\components\\' }],
       });
 
       const { result } = renderCommandCompletionHook('@src\\comp');
@@ -541,9 +496,7 @@ describe('useCommandCompletion', () => {
       };
 
       function TestComponent() {
-        const textBuffer = useTextBufferForTest(
-          '/* This is a block comment */',
-        );
+        const textBuffer = useTextBufferForTest('/* This is a block comment */');
         const completion = useCommandCompletion({
           buffer: textBuffer,
           cwd: testRootDir,
@@ -576,9 +529,7 @@ describe('useCommandCompletion', () => {
       };
 
       function TestComponent() {
-        const textBuffer = useTextBufferForTest(
-          'This is regular text that should trigger completion',
-        );
+        const textBuffer = useTextBufferForTest('This is regular text that should trigger completion');
         const completion = useCommandCompletion({
           buffer: textBuffer,
           cwd: testRootDir,
@@ -596,9 +547,7 @@ describe('useCommandCompletion', () => {
 
       // This test verifies that comments are filtered out while regular text is not
       await waitFor(() => {
-        expect(hookResult!.textBuffer.text).toBe(
-          'This is regular text that should trigger completion',
-        );
+        expect(hookResult!.textBuffer.text).toBe('This is regular text that should trigger completion');
       });
     });
   });
@@ -619,7 +568,7 @@ describe('useCommandCompletion', () => {
           expect.objectContaining({
             enabled: true,
             pattern: 'src/fi',
-          }),
+          })
         );
       });
     });
@@ -655,7 +604,7 @@ describe('useCommandCompletion', () => {
           expect.objectContaining({
             enabled: true,
             pattern: '',
-          }),
+          })
         );
       });
     });
@@ -675,7 +624,7 @@ describe('useCommandCompletion', () => {
           expect.objectContaining({
             enabled: true,
             pattern: 'src/ba',
-          }),
+          })
         );
       });
     });
@@ -710,7 +659,7 @@ describe('useCommandCompletion', () => {
         expect(useSlashCompletion).toHaveBeenLastCalledWith(
           expect.objectContaining({
             enabled: true,
-          }),
+          })
         );
       });
     });

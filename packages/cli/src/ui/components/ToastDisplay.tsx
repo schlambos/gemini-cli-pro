@@ -15,8 +15,7 @@ export function shouldShowToast(uiState: UIState): boolean {
     uiState.ctrlCPressedOnce ||
     Boolean(uiState.transientMessage) ||
     uiState.ctrlDPressedOnce ||
-    (uiState.showEscapePrompt &&
-      (uiState.buffer.text.length > 0 || uiState.history.length > 0)) ||
+    (uiState.showEscapePrompt && (uiState.buffer.text.length > 0 || uiState.history.length > 0)) ||
     Boolean(uiState.queueErrorMessage)
   );
 }
@@ -25,24 +24,15 @@ export const ToastDisplay: React.FC = () => {
   const uiState = useUIState();
 
   if (uiState.ctrlCPressedOnce) {
-    return (
-      <Text color={theme.status.warning}>Press Ctrl+C again to exit.</Text>
-    );
+    return <Text color={theme.status.warning}>Press Ctrl+C again to exit.</Text>;
   }
 
-  if (
-    uiState.transientMessage?.type === TransientMessageType.Warning &&
-    uiState.transientMessage.text
-  ) {
-    return (
-      <Text color={theme.status.warning}>{uiState.transientMessage.text}</Text>
-    );
+  if (uiState.transientMessage?.type === TransientMessageType.Warning && uiState.transientMessage.text) {
+    return <Text color={theme.status.warning}>{uiState.transientMessage.text}</Text>;
   }
 
   if (uiState.ctrlDPressedOnce) {
-    return (
-      <Text color={theme.status.warning}>Press Ctrl+D again to exit.</Text>
-    );
+    return <Text color={theme.status.warning}>Press Ctrl+D again to exit.</Text>;
   }
 
   if (uiState.showEscapePrompt) {
@@ -53,20 +43,11 @@ export const ToastDisplay: React.FC = () => {
       return null;
     }
 
-    return (
-      <Text color={theme.text.secondary}>
-        Press Esc again to {isPromptEmpty ? 'rewind' : 'clear prompt'}.
-      </Text>
-    );
+    return <Text color={theme.text.secondary}>Press Esc again to {isPromptEmpty ? 'rewind' : 'clear prompt'}.</Text>;
   }
 
-  if (
-    uiState.transientMessage?.type === TransientMessageType.Hint &&
-    uiState.transientMessage.text
-  ) {
-    return (
-      <Text color={theme.text.secondary}>{uiState.transientMessage.text}</Text>
-    );
+  if (uiState.transientMessage?.type === TransientMessageType.Hint && uiState.transientMessage.text) {
+    return <Text color={theme.text.secondary}>{uiState.transientMessage.text}</Text>;
   }
 
   if (uiState.queueErrorMessage) {

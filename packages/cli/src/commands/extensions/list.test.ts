@@ -23,8 +23,7 @@ const debugLogger = vi.hoisted(() => ({
 }));
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     coreEvents: {
@@ -66,23 +65,16 @@ describe('extensions list command', () => {
   describe('handleList', () => {
     it('should log a message if no extensions are installed', async () => {
       const mockCwd = vi.spyOn(process, 'cwd').mockReturnValue('/test/dir');
-      mockExtensionManager.prototype.loadExtensions = vi
-        .fn()
-        .mockResolvedValue([]);
+      mockExtensionManager.prototype.loadExtensions = vi.fn().mockResolvedValue([]);
       await handleList();
 
-      expect(emitConsoleLog).toHaveBeenCalledWith(
-        'log',
-        'No extensions installed.',
-      );
+      expect(emitConsoleLog).toHaveBeenCalledWith('log', 'No extensions installed.');
       mockCwd.mockRestore();
     });
 
     it('should output empty JSON array if no extensions are installed and output-format is json', async () => {
       const mockCwd = vi.spyOn(process, 'cwd').mockReturnValue('/test/dir');
-      mockExtensionManager.prototype.loadExtensions = vi
-        .fn()
-        .mockResolvedValue([]);
+      mockExtensionManager.prototype.loadExtensions = vi.fn().mockResolvedValue([]);
       await handleList({ outputFormat: 'json' });
 
       expect(emitConsoleLog).toHaveBeenCalledWith('log', '[]');
@@ -95,18 +87,11 @@ describe('extensions list command', () => {
         { name: 'ext1', version: '1.0.0' },
         { name: 'ext2', version: '2.0.0' },
       ];
-      mockExtensionManager.prototype.loadExtensions = vi
-        .fn()
-        .mockResolvedValue(extensions);
-      mockExtensionManager.prototype.toOutputString = vi.fn(
-        (ext) => `${ext.name}@${ext.version}`,
-      );
+      mockExtensionManager.prototype.loadExtensions = vi.fn().mockResolvedValue(extensions);
+      mockExtensionManager.prototype.toOutputString = vi.fn((ext) => `${ext.name}@${ext.version}`);
       await handleList();
 
-      expect(emitConsoleLog).toHaveBeenCalledWith(
-        'log',
-        'ext1@1.0.0\n\next2@2.0.0',
-      );
+      expect(emitConsoleLog).toHaveBeenCalledWith('log', 'ext1@1.0.0\n\next2@2.0.0');
       mockCwd.mockRestore();
     });
 
@@ -116,36 +101,24 @@ describe('extensions list command', () => {
         { name: 'ext1', version: '1.0.0' },
         { name: 'ext2', version: '2.0.0' },
       ];
-      mockExtensionManager.prototype.loadExtensions = vi
-        .fn()
-        .mockResolvedValue(extensions);
+      mockExtensionManager.prototype.loadExtensions = vi.fn().mockResolvedValue(extensions);
       await handleList({ outputFormat: 'json' });
 
-      expect(emitConsoleLog).toHaveBeenCalledWith(
-        'log',
-        JSON.stringify(extensions, null, 2),
-      );
+      expect(emitConsoleLog).toHaveBeenCalledWith('log', JSON.stringify(extensions, null, 2));
       mockCwd.mockRestore();
     });
 
     it('should log an error message and exit with code 1 when listing fails', async () => {
       const mockProcessExit = vi
         .spyOn(process, 'exit')
-        .mockImplementation((() => {}) as (
-          code?: string | number | null | undefined,
-        ) => never);
+        .mockImplementation((() => {}) as (code?: string | number | null | undefined) => never);
       const error = new Error('List failed');
-      mockExtensionManager.prototype.loadExtensions = vi
-        .fn()
-        .mockRejectedValue(error);
+      mockExtensionManager.prototype.loadExtensions = vi.fn().mockRejectedValue(error);
       mockGetErrorMessage.mockReturnValue('List failed message');
 
       await handleList();
 
-      expect(emitConsoleLog).toHaveBeenCalledWith(
-        'error',
-        'List failed message',
-      );
+      expect(emitConsoleLog).toHaveBeenCalledWith('error', 'List failed message');
       expect(mockProcessExit).toHaveBeenCalledWith(1);
       mockProcessExit.mockRestore();
     });
@@ -163,11 +136,7 @@ describe('extensions list command', () => {
       const mockYargs = {
         option: vi.fn().mockReturnThis(),
       };
-      (
-        command.builder as unknown as (
-          yargs: typeof mockYargs,
-        ) => typeof mockYargs
-      )(mockYargs);
+      (command.builder as unknown as (yargs: typeof mockYargs) => typeof mockYargs)(mockYargs);
       expect(mockYargs.option).toHaveBeenCalledWith('output-format', {
         alias: 'o',
         type: 'string',
@@ -178,14 +147,8 @@ describe('extensions list command', () => {
     });
 
     it('handler should call handleList with parsed arguments', async () => {
-      mockExtensionManager.prototype.loadExtensions = vi
-        .fn()
-        .mockResolvedValue([]);
-      await (
-        command.handler as unknown as (args: {
-          'output-format': string;
-        }) => Promise<void>
-      )({
+      mockExtensionManager.prototype.loadExtensions = vi.fn().mockResolvedValue([]);
+      await (command.handler as unknown as (args: { 'output-format': string }) => Promise<void>)({
         'output-format': 'json',
       });
       expect(mockExtensionManager.prototype.loadExtensions).toHaveBeenCalled();

@@ -4,12 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  addMemory,
-  listMemoryFiles,
-  refreshMemory,
-  showMemory,
-} from '@google/gemini-cli-core';
+import { addMemory, listMemoryFiles, refreshMemory, showMemory } from '@google/gemini-cli-core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   AddMemoryCommand,
@@ -19,16 +14,11 @@ import {
   ShowMemoryCommand,
 } from './memory.js';
 import type { CommandContext } from './types.js';
-import type {
-  AnyDeclarativeTool,
-  Config,
-  ToolRegistry,
-} from '@google/gemini-cli-core';
+import type { AnyDeclarativeTool, Config, ToolRegistry } from '@google/gemini-cli-core';
 
 // Mock the core functions
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     showMemory: vi.fn(),
@@ -161,29 +151,18 @@ describe('a2a-server memory commands', () => {
         toolArgs: { fact },
       });
 
-      const response = await command.execute(mockContext, [
-        'this',
-        'is',
-        'a',
-        'new',
-        'fact',
-      ]);
+      const response = await command.execute(mockContext, ['this', 'is', 'a', 'new', 'fact']);
 
       expect(mockAddMemory).toHaveBeenCalledWith(fact);
       expect(mockConfig.getToolRegistry).toHaveBeenCalled();
       expect(mockToolRegistry.getTool).toHaveBeenCalledWith('save_memory');
-      expect(mockSaveMemoryTool.buildAndExecute).toHaveBeenCalledWith(
-        { fact },
-        expect.any(AbortSignal),
-        undefined,
-        {
-          sanitizationConfig: {
-            allowedEnvironmentVariables: [],
-            blockedEnvironmentVariables: [],
-            enableEnvironmentVariableRedaction: false,
-          },
+      expect(mockSaveMemoryTool.buildAndExecute).toHaveBeenCalledWith({ fact }, expect.any(AbortSignal), undefined, {
+        sanitizationConfig: {
+          allowedEnvironmentVariables: [],
+          blockedEnvironmentVariables: [],
+          enableEnvironmentVariableRedaction: false,
         },
-      );
+      });
       expect(mockRefreshMemory).toHaveBeenCalledWith(mockContext.config);
       expect(response.name).toBe('memory add');
       expect(response.data).toBe(`Added memory: "${fact}"`);

@@ -5,11 +5,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import {
-  FileSpanExporter,
-  FileLogExporter,
-  FileMetricExporter,
-} from './file-exporters.js';
+import { FileSpanExporter, FileLogExporter, FileMetricExporter } from './file-exporters.js';
 import { ExportResultCode } from '@opentelemetry/core';
 import type { ReadableSpan } from '@opentelemetry/sdk-trace-base';
 import type { ReadableLogRecord } from '@opentelemetry/sdk-logs';
@@ -38,9 +34,7 @@ describe('FileSpanExporter', () => {
 
   beforeEach(() => {
     mockWriteStream = createMockWriteStream();
-    vi.mocked(fs.createWriteStream).mockReturnValue(
-      mockWriteStream as unknown as fs.WriteStream,
-    );
+    vi.mocked(fs.createWriteStream).mockReturnValue(mockWriteStream as unknown as fs.WriteStream);
     exporter = new FileSpanExporter('/tmp/test-spans.log');
   });
 
@@ -102,9 +96,7 @@ describe('FileSpanExporter', () => {
 
   it('should report failure on write error', () => {
     const writeError = new Error('disk full');
-    mockWriteStream.write.mockImplementation(
-      (_data: string, cb: (err?: Error | null) => void) => cb(writeError),
-    );
+    mockWriteStream.write.mockImplementation((_data: string, cb: (err?: Error | null) => void) => cb(writeError));
 
     const span = { name: 'test' } as unknown as ReadableSpan;
     const resultCallback = vi.fn();
@@ -120,9 +112,7 @@ describe('FileSpanExporter', () => {
 describe('FileLogExporter', () => {
   beforeEach(() => {
     mockWriteStream = createMockWriteStream();
-    vi.mocked(fs.createWriteStream).mockReturnValue(
-      mockWriteStream as unknown as fs.WriteStream,
-    );
+    vi.mocked(fs.createWriteStream).mockReturnValue(mockWriteStream as unknown as fs.WriteStream);
   });
 
   it('should export logs with circular references', () => {
@@ -149,9 +139,7 @@ describe('FileLogExporter', () => {
 describe('FileMetricExporter', () => {
   beforeEach(() => {
     mockWriteStream = createMockWriteStream();
-    vi.mocked(fs.createWriteStream).mockReturnValue(
-      mockWriteStream as unknown as fs.WriteStream,
-    );
+    vi.mocked(fs.createWriteStream).mockReturnValue(mockWriteStream as unknown as fs.WriteStream);
   });
 
   it('should export metrics with circular references', () => {
@@ -179,9 +167,7 @@ describe('FileMetricExporter', () => {
 
   it('should return CUMULATIVE aggregation temporality', () => {
     const exporter = new FileMetricExporter('/tmp/test-metrics.log');
-    expect(exporter.getPreferredAggregationTemporality()).toBe(
-      AggregationTemporality.CUMULATIVE,
-    );
+    expect(exporter.getPreferredAggregationTemporality()).toBe(AggregationTemporality.CUMULATIVE);
   });
 
   it('should resolve forceFlush', async () => {

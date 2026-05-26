@@ -8,44 +8,23 @@ import type React from 'react';
 import { useState } from 'react';
 import { Box, Text } from 'ink';
 import { theme } from '../semantic-colors.js';
-import {
-  editorSettingsManager,
-  type EditorDisplay,
-} from '../editors/editorSettingsManager.js';
+import { editorSettingsManager, type EditorDisplay } from '../editors/editorSettingsManager.js';
 import { RadioButtonSelect } from './shared/RadioButtonSelect.js';
-import type {
-  LoadableSettingScope,
-  LoadedSettings,
-} from '../../config/settings.js';
+import type { LoadableSettingScope, LoadedSettings } from '../../config/settings.js';
 import { SettingScope } from '../../config/settings.js';
-import {
-  type EditorType,
-  isEditorAvailable,
-  EDITOR_DISPLAY_NAMES,
-} from '@google/gemini-cli-core';
+import { type EditorType, isEditorAvailable, EDITOR_DISPLAY_NAMES } from '@google/gemini-cli-core';
 import { useKeypress } from '../hooks/useKeypress.js';
 import { coreEvents } from '@google/gemini-cli-core';
 
 interface EditorDialogProps {
-  onSelect: (
-    editorType: EditorType | undefined,
-    scope: LoadableSettingScope,
-  ) => void;
+  onSelect: (editorType: EditorType | undefined, scope: LoadableSettingScope) => void;
   settings: LoadedSettings;
   onExit: () => void;
 }
 
-export function EditorSettingsDialog({
-  onSelect,
-  settings,
-  onExit,
-}: EditorDialogProps): React.JSX.Element {
-  const [selectedScope, setSelectedScope] = useState<LoadableSettingScope>(
-    SettingScope.User,
-  );
-  const [focusedSection, setFocusedSection] = useState<'editor' | 'scope'>(
-    'editor',
-  );
+export function EditorSettingsDialog({ onSelect, settings, onExit }: EditorDialogProps): React.JSX.Element {
+  const [selectedScope, setSelectedScope] = useState<LoadableSettingScope>(SettingScope.User);
+  const [focusedSection, setFocusedSection] = useState<'editor' | 'scope'>('editor');
   useKeypress(
     (key) => {
       if (key.name === 'tab') {
@@ -58,24 +37,17 @@ export function EditorSettingsDialog({
       }
       return false;
     },
-    { isActive: true },
+    { isActive: true }
   );
 
-  const editorItems: EditorDisplay[] =
-    editorSettingsManager.getAvailableEditorDisplays();
+  const editorItems: EditorDisplay[] = editorSettingsManager.getAvailableEditorDisplays();
 
-  const currentPreference =
-    settings.forScope(selectedScope).settings.general?.preferredEditor;
+  const currentPreference = settings.forScope(selectedScope).settings.general?.preferredEditor;
   let editorIndex = currentPreference
-    ? editorItems.findIndex(
-        (item: EditorDisplay) => item.type === currentPreference,
-      )
+    ? editorItems.findIndex((item: EditorDisplay) => item.type === currentPreference)
     : 0;
   if (editorIndex === -1) {
-    coreEvents.emitFeedback(
-      'error',
-      `Editor is not supported: ${currentPreference}`,
-    );
+    coreEvents.emitFeedback('error', `Editor is not supported: ${currentPreference}`);
     editorIndex = 0;
   }
 
@@ -110,26 +82,16 @@ export function EditorSettingsDialog({
   };
 
   let otherScopeModifiedMessage = '';
-  const otherScope =
-    selectedScope === SettingScope.User
-      ? SettingScope.Workspace
-      : SettingScope.User;
-  if (
-    settings.forScope(otherScope).settings.general?.preferredEditor !==
-    undefined
-  ) {
+  const otherScope = selectedScope === SettingScope.User ? SettingScope.Workspace : SettingScope.User;
+  if (settings.forScope(otherScope).settings.general?.preferredEditor !== undefined) {
     otherScopeModifiedMessage =
-      settings.forScope(selectedScope).settings.general?.preferredEditor !==
-      undefined
+      settings.forScope(selectedScope).settings.general?.preferredEditor !== undefined
         ? `(Also modified in ${otherScope})`
         : `(Modified in ${otherScope})`;
   }
 
   let mergedEditorName = 'None';
-  if (
-    settings.merged.general.preferredEditor &&
-    isEditorAvailable(settings.merged.general.preferredEditor)
-  ) {
+  if (settings.merged.general.preferredEditor && isEditorAvailable(settings.merged.general.preferredEditor)) {
     mergedEditorName =
       EDITOR_DISPLAY_NAMES[
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
@@ -138,14 +100,8 @@ export function EditorSettingsDialog({
   }
 
   return (
-    <Box
-      borderStyle="round"
-      borderColor={theme.border.default}
-      flexDirection="row"
-      padding={1}
-      width="100%"
-    >
-      <Box flexDirection="column" width="45%" paddingRight={2}>
+    <Box borderStyle='round' borderColor={theme.border.default} flexDirection='row' padding={1} width='100%'>
+      <Box flexDirection='column' width='45%' paddingRight={2}>
         <Text bold={focusedSection === 'editor'}>
           {focusedSection === 'editor' ? '> ' : '  '}Select Editor{' '}
           <Text color={theme.text.secondary}>{otherScopeModifiedMessage}</Text>
@@ -163,10 +119,8 @@ export function EditorSettingsDialog({
           key={selectedScope}
         />
 
-        <Box marginTop={1} flexDirection="column">
-          <Text bold={focusedSection === 'scope'}>
-            {focusedSection === 'scope' ? '> ' : '  '}Apply To
-          </Text>
+        <Box marginTop={1} flexDirection='column'>
+          <Text bold={focusedSection === 'scope'}>{focusedSection === 'scope' ? '> ' : '  '}Apply To</Text>
           <RadioButtonSelect
             items={scopeItems}
             initialIndex={0}
@@ -176,31 +130,21 @@ export function EditorSettingsDialog({
         </Box>
 
         <Box marginTop={1}>
-          <Text color={theme.text.secondary}>
-            (Use Enter to select, Tab to change focus, Esc to close)
-          </Text>
+          <Text color={theme.text.secondary}>(Use Enter to select, Tab to change focus, Esc to close)</Text>
         </Box>
       </Box>
 
-      <Box flexDirection="column" width="55%" paddingLeft={2}>
+      <Box flexDirection='column' width='55%' paddingLeft={2}>
         <Text bold color={theme.text.primary}>
           Editor Preference
         </Text>
-        <Box flexDirection="column" gap={1} marginTop={1}>
+        <Box flexDirection='column' gap={1} marginTop={1}>
           <Text color={theme.text.secondary}>
-            These editors are currently supported. Please note that some editors
-            cannot be used in sandbox mode.
+            These editors are currently supported. Please note that some editors cannot be used in sandbox mode.
           </Text>
           <Text color={theme.text.secondary}>
             Your preferred editor is:{' '}
-            <Text
-              color={
-                mergedEditorName === 'None'
-                  ? theme.status.error
-                  : theme.text.link
-              }
-              bold
-            >
+            <Text color={mergedEditorName === 'None' ? theme.status.error : theme.text.link} bold>
               {mergedEditorName}
             </Text>
             .

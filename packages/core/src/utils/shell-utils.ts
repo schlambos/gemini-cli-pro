@@ -8,11 +8,7 @@ import os from 'node:os';
 import fs from 'node:fs';
 import path from 'node:path';
 import { quote } from 'shell-quote';
-import {
-  spawn,
-  spawnSync,
-  type SpawnOptionsWithoutStdio,
-} from 'node:child_process';
+import { spawn, spawnSync, type SpawnOptionsWithoutStdio } from 'node:child_process';
 import * as readline from 'node:readline';
 import type { Node, Tree } from 'web-tree-sitter';
 import { Language, Parser, Query } from 'web-tree-sitter';
@@ -40,9 +36,7 @@ export interface ShellConfiguration {
   shell: ShellType;
 }
 
-export async function resolveExecutable(
-  exe: string,
-): Promise<string | undefined> {
+export async function resolveExecutable(exe: string): Promise<string | undefined> {
   if (path.isAbsolute(exe)) {
     try {
       await fs.promises.access(exe, fs.constants.X_OK);
@@ -52,8 +46,7 @@ export async function resolveExecutable(
     }
   }
   const paths = (process.env['PATH'] || '').split(path.delimiter);
-  const extensions =
-    os.platform() === 'win32' ? ['.exe', '.cmd', '.bat', ''] : [''];
+  const extensions = os.platform() === 'win32' ? ['.exe', '.cmd', '.bat', ''] : [''];
 
   for (const p of paths) {
     for (const ext of extensions) {
@@ -101,14 +94,14 @@ async function loadBashLanguage(): Promise<void> {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore resolved by esbuild-plugin-wasm during bundling
           import('web-tree-sitter/tree-sitter.wasm?binary'),
-        'web-tree-sitter/tree-sitter.wasm',
+        'web-tree-sitter/tree-sitter.wasm'
       ),
       loadWasmBinary(
         () =>
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore resolved by esbuild-plugin-wasm during bundling
           import('tree-sitter-bash/tree-sitter-bash.wasm?binary'),
-        'tree-sitter-bash/tree-sitter-bash.wasm',
+        'tree-sitter-bash/tree-sitter-bash.wasm'
       ),
     ]);
 
@@ -193,15 +186,10 @@ foreach ($commandAst in $commandAsts) {
   hasRedirection = $hasRedirection
 } | ConvertTo-Json -Compress
 `,
-  'utf16le',
+  'utf16le'
 ).toString('base64');
 
-const REDIRECTION_NAMES = new Set([
-  'redirection (<)',
-  'redirection (>)',
-  'heredoc (<<)',
-  'herestring (<<<)',
-]);
+const REDIRECTION_NAMES = new Set(['redirection (<)', 'redirection (>)', 'heredoc (<<)', 'herestring (<<<)']);
 
 function createParser(): Parser | null {
   if (!bashLanguage) {
@@ -220,10 +208,7 @@ function createParser(): Parser | null {
   }
 }
 
-function parseCommandTree(
-  command: string,
-  timeoutMicros: number = PARSE_TIMEOUT_MICROS,
-): Tree | null {
+function parseCommandTree(command: string, timeoutMicros: number = PARSE_TIMEOUT_MICROS): Tree | null {
   const parser = createParser();
   if (!parser || !command.trim()) {
     return null;
@@ -311,10 +296,7 @@ function extractNameFromNode(node: Node): string | null {
   }
 }
 
-function collectCommandDetails(
-  root: Node,
-  source: string,
-): ParsedCommandDetail[] {
+function collectCommandDetails(root: Node, source: string): ParsedCommandDetail[] {
   const stack: Node[] = [root];
   const details: ParsedCommandDetail[] = [];
 
@@ -356,10 +338,7 @@ function hasPromptCommandTransform(root: Node): boolean {
         const operatorNode = current.child(i);
         const transformNode = current.child(i + 1);
 
-        if (
-          operatorNode?.text === '@' &&
-          transformNode?.text?.toLowerCase() === 'p'
-        ) {
+        if (operatorNode?.text === '@' && transformNode?.text?.toLowerCase() === 'p') {
           return true;
         }
       }
@@ -378,10 +357,7 @@ function hasPromptCommandTransform(root: Node): boolean {
 
 function parseBashCommandDetails(command: string): CommandParseResult | null {
   if (treeSitterInitializationError) {
-    debugLogger.debug(
-      'Bash parser not initialized:',
-      treeSitterInitializationError,
-    );
+    debugLogger.debug('Bash parser not initialized:', treeSitterInitializationError);
     return null;
   }
 
@@ -399,10 +375,7 @@ function parseBashCommandDetails(command: string): CommandParseResult | null {
 
   const details = collectCommandDetails(tree.rootNode, command);
 
-  const hasError =
-    tree.rootNode.hasError ||
-    details.length === 0 ||
-    hasPromptCommandTransform(tree.rootNode);
+  const hasError = tree.rootNode.hasError || details.length === 0 || hasPromptCommandTransform(tree.rootNode);
 
   if (hasError) {
     let query = null;
@@ -415,12 +388,7 @@ function parseBashCommandDetails(command: string): CommandParseResult | null {
         return `${type} node: "${node.text}" at ${node.startPosition.row}:${node.startPosition.column}`;
       });
 
-      debugLogger.log(
-        'Bash command parsing error detected for command:',
-        command,
-        'Syntax Errors:',
-        syntaxErrors,
-      );
+      debugLogger.log('Bash command parsing error detected for command:', command, 'Syntax Errors:', syntaxErrors);
     } catch (_e) {
       // Ignore query errors
     } finally {
@@ -433,10 +401,7 @@ function parseBashCommandDetails(command: string): CommandParseResult | null {
   };
 }
 
-function parsePowerShellCommandDetails(
-  command: string,
-  executable: string,
-): CommandParseResult | null {
+function parsePowerShellCommandDetails(command: string, executable: string): CommandParseResult | null {
   const trimmed = command.trim();
   if (!trimmed) {
     return {
@@ -448,20 +413,14 @@ function parsePowerShellCommandDetails(
   try {
     const result = spawnSync(
       executable,
-      [
-        '-NoLogo',
-        '-NoProfile',
-        '-NonInteractive',
-        '-EncodedCommand',
-        POWERSHELL_PARSER_SCRIPT,
-      ],
+      ['-NoLogo', '-NoProfile', '-NonInteractive', '-EncodedCommand', POWERSHELL_PARSER_SCRIPT],
       {
         env: {
           ...process.env,
           [POWERSHELL_COMMAND_ENV]: command,
         },
         encoding: 'utf-8',
-      },
+      }
     );
 
     if (result.error || result.status !== 0) {
@@ -495,10 +454,7 @@ function parsePowerShellCommandDetails(
         }
 
         const name = normalizeCommandName(commandDetail.name);
-        const text =
-          typeof commandDetail.text === 'string'
-            ? commandDetail.text.trim()
-            : command;
+        const text = typeof commandDetail.text === 'string' ? commandDetail.text.trim() : command;
 
         return {
           name,
@@ -518,9 +474,7 @@ function parsePowerShellCommandDetails(
   }
 }
 
-export function parseCommandDetails(
-  command: string,
-): CommandParseResult | null {
+export function parseCommandDetails(command: string): CommandParseResult | null {
   const configuration = getShellConfiguration();
 
   if (configuration.shell === 'powershell') {
@@ -547,10 +501,7 @@ export function getShellConfiguration(): ShellConfiguration {
     const comSpec = process.env['ComSpec'];
     if (comSpec) {
       const executable = comSpec.toLowerCase();
-      if (
-        executable.endsWith('powershell.exe') ||
-        executable.endsWith('pwsh.exe')
-      ) {
+      if (executable.endsWith('powershell.exe') || executable.endsWith('pwsh.exe')) {
         return {
           executable: comSpec,
           argsPrefix: ['-NoProfile', '-Command'],
@@ -624,13 +575,8 @@ export function hasRedirection(command: string): boolean {
   const configuration = getShellConfiguration();
 
   if (configuration.shell === 'powershell') {
-    const parsed = parsePowerShellCommandDetails(
-      command,
-      configuration.executable,
-    );
-    return parsed && !parsed.hasError
-      ? !!parsed.hasRedirection
-      : fallbackCheck();
+    const parsed = parsePowerShellCommandDetails(command, configuration.executable);
+    return parsed && !parsed.hasError ? !!parsed.hasRedirection : fallbackCheck();
   }
 
   if (configuration.shell === 'bash' && bashLanguage) {
@@ -740,7 +686,7 @@ export function stripShellWrapper(command: string): string {
 export const spawnAsync = (
   command: string,
   args: string[],
-  options?: SpawnOptionsWithoutStdio,
+  options?: SpawnOptionsWithoutStdio
 ): Promise<{ stdout: string; stderr: string }> =>
   new Promise((resolve, reject) => {
     const child = spawn(command, args, options);
@@ -782,7 +728,7 @@ export async function* execStreaming(
   options?: SpawnOptionsWithoutStdio & {
     signal?: AbortSignal;
     allowedExitCodes?: number[];
-  },
+  }
 ): AsyncGenerator<string, void, void> {
   const child = spawn(command, args, {
     ...options,
@@ -867,13 +813,8 @@ export async function* execStreaming(
           if (error) reject(error);
           else {
             const stderr = Buffer.concat(errorChunks).toString('utf8');
-            const truncatedMsg =
-              stderrTotalBytes >= MAX_STDERR_BYTES ? '...[truncated]' : '';
-            reject(
-              new Error(
-                `Process exited with code ${code}: ${stderr}${truncatedMsg}`,
-              ),
-            );
+            const truncatedMsg = stderrTotalBytes >= MAX_STDERR_BYTES ? '...[truncated]' : '';
+            reject(new Error(`Process exited with code ${code}: ${stderr}${truncatedMsg}`));
           }
         }
       }

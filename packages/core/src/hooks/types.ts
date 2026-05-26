@@ -10,11 +10,7 @@ import type {
   ToolConfig as GenAIToolConfig,
   ToolListUnion,
 } from '@google/genai';
-import type {
-  LLMRequest,
-  LLMResponse,
-  HookToolConfig,
-} from './hookTranslator.js';
+import type { LLMRequest, LLMResponse, HookToolConfig } from './hookTranslator.js';
 import { defaultHookTranslator } from './hookTranslator.js';
 
 /**
@@ -92,13 +88,7 @@ export function getHookKey(hook: HookConfig): string {
 /**
  * Decision types for hook outputs
  */
-export type HookDecision =
-  | 'ask'
-  | 'block'
-  | 'deny'
-  | 'approve'
-  | 'allow'
-  | undefined;
+export type HookDecision = 'ask' | 'block' | 'deny' | 'approve' | 'allow' | undefined;
 
 /**
  * Base hook input - common fields for all events
@@ -128,10 +118,7 @@ export interface HookOutput {
  * Factory function to create the appropriate hook output class based on event name
  * Returns DefaultHookOutput for all events since it contains all necessary methods
  */
-export function createHookOutput(
-  eventName: string,
-  data: Partial<HookOutput>,
-): DefaultHookOutput {
+export function createHookOutput(eventName: string, data: Partial<HookOutput>): DefaultHookOutput {
   switch (eventName) {
     case 'BeforeModel':
       return new BeforeModelHookOutput(data);
@@ -194,9 +181,7 @@ export class DefaultHookOutput implements HookOutput {
   /**
    * Apply LLM request modifications (specific method for BeforeModel hooks)
    */
-  applyLLMRequestModifications(
-    target: GenerateContentParameters,
-  ): GenerateContentParameters {
+  applyLLMRequestModifications(target: GenerateContentParameters): GenerateContentParameters {
     // Base implementation - overridden by BeforeModelHookOutput
     return target;
   }
@@ -204,10 +189,7 @@ export class DefaultHookOutput implements HookOutput {
   /**
    * Apply tool config modifications (specific method for BeforeToolSelection hooks)
    */
-  applyToolConfigModifications(target: {
-    toolConfig?: GenAIToolConfig;
-    tools?: ToolListUnion;
-  }): {
+  applyToolConfigModifications(target: { toolConfig?: GenAIToolConfig; tools?: ToolListUnion }): {
     toolConfig?: GenAIToolConfig;
     tools?: ToolListUnion;
   } {
@@ -219,10 +201,7 @@ export class DefaultHookOutput implements HookOutput {
    * Get sanitized additional context for adding to responses.
    */
   getAdditionalContext(): string | undefined {
-    if (
-      this.hookSpecificOutput &&
-      'additionalContext' in this.hookSpecificOutput
-    ) {
+    if (this.hookSpecificOutput && 'additionalContext' in this.hookSpecificOutput) {
       const context = this.hookSpecificOutput['additionalContext'];
       if (typeof context !== 'string') {
         return undefined;
@@ -265,11 +244,7 @@ export class BeforeToolHookOutput extends DefaultHookOutput {
   getModifiedToolInput(): Record<string, unknown> | undefined {
     if (this.hookSpecificOutput && 'tool_input' in this.hookSpecificOutput) {
       const input = this.hookSpecificOutput['tool_input'];
-      if (
-        typeof input === 'object' &&
-        input !== null &&
-        !Array.isArray(input)
-      ) {
+      if (typeof input === 'object' && input !== null && !Array.isArray(input)) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
         return input as Record<string, unknown>;
       }
@@ -288,9 +263,7 @@ export class BeforeModelHookOutput extends DefaultHookOutput {
   getSyntheticResponse(): GenerateContentResponse | undefined {
     if (this.hookSpecificOutput && 'llm_response' in this.hookSpecificOutput) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-      const hookResponse = this.hookSpecificOutput[
-        'llm_response'
-      ] as LLMResponse;
+      const hookResponse = this.hookSpecificOutput['llm_response'] as LLMResponse;
       if (hookResponse) {
         // Convert hook format to SDK format
         return defaultHookTranslator.fromHookLLMResponse(hookResponse);
@@ -302,20 +275,16 @@ export class BeforeModelHookOutput extends DefaultHookOutput {
   /**
    * Apply modifications to LLM request
    */
-  override applyLLMRequestModifications(
-    target: GenerateContentParameters,
-  ): GenerateContentParameters {
+  override applyLLMRequestModifications(target: GenerateContentParameters): GenerateContentParameters {
     if (this.hookSpecificOutput && 'llm_request' in this.hookSpecificOutput) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-      const hookRequest = this.hookSpecificOutput[
-        'llm_request'
-      ] as Partial<LLMRequest>;
+      const hookRequest = this.hookSpecificOutput['llm_request'] as Partial<LLMRequest>;
       if (hookRequest) {
         // Convert hook format to SDK format
         const sdkRequest = defaultHookTranslator.fromHookLLMRequest(
           // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
           hookRequest as LLMRequest,
-          target,
+          target
         );
         return {
           ...target,
@@ -334,19 +303,16 @@ export class BeforeToolSelectionHookOutput extends DefaultHookOutput {
   /**
    * Apply tool configuration modifications
    */
-  override applyToolConfigModifications(target: {
+  override applyToolConfigModifications(target: { toolConfig?: GenAIToolConfig; tools?: ToolListUnion }): {
     toolConfig?: GenAIToolConfig;
     tools?: ToolListUnion;
-  }): { toolConfig?: GenAIToolConfig; tools?: ToolListUnion } {
+  } {
     if (this.hookSpecificOutput && 'toolConfig' in this.hookSpecificOutput) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-      const hookToolConfig = this.hookSpecificOutput[
-        'toolConfig'
-      ] as HookToolConfig;
+      const hookToolConfig = this.hookSpecificOutput['toolConfig'] as HookToolConfig;
       if (hookToolConfig) {
         // Convert hook format to SDK format
-        const sdkToolConfig =
-          defaultHookTranslator.fromHookToolConfig(hookToolConfig);
+        const sdkToolConfig = defaultHookTranslator.fromHookToolConfig(hookToolConfig);
         return {
           ...target,
           tools: target.tools || [],
@@ -368,14 +334,12 @@ export class AfterModelHookOutput extends DefaultHookOutput {
   getModifiedResponse(): GenerateContentResponse | undefined {
     if (this.hookSpecificOutput && 'llm_response' in this.hookSpecificOutput) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-      const hookResponse = this.hookSpecificOutput[
-        'llm_response'
-      ] as Partial<LLMResponse>;
+      const hookResponse = this.hookSpecificOutput['llm_response'] as Partial<LLMResponse>;
       if (hookResponse?.candidates?.[0]?.content?.parts?.length) {
         // Convert hook format to SDK format
         return defaultHookTranslator.fromHookLLMResponse(
           // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-          hookResponse as LLMResponse,
+          hookResponse as LLMResponse
         );
       }
     }

@@ -39,8 +39,7 @@ vi.mock('node:os', async (importOriginal) => {
 });
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     tmpdir: vi.fn(() => '/tmp'),
@@ -74,13 +73,9 @@ vi.mock('./open-files-manager', () => {
 });
 
 const getPortFromMock = (
-  replaceMock: ReturnType<
-    () => vscode.ExtensionContext['environmentVariableCollection']['replace']
-  >,
+  replaceMock: ReturnType<() => vscode.ExtensionContext['environmentVariableCollection']['replace']>
 ) => {
-  const port = vi
-    .mocked(replaceMock)
-    .mock.calls.find((call) => call[0] === 'GEMINI_CLI_IDE_SERVER_PORT')?.[1];
+  const port = vi.mocked(replaceMock).mock.calls.find((call) => call[0] === 'GEMINI_CLI_IDE_SERVER_PORT')?.[1];
 
   if (port === undefined) {
     expect.fail('Port was not set');
@@ -123,33 +118,17 @@ describe('IDEServer', () => {
     expect(replaceMock).toHaveBeenNthCalledWith(
       1,
       'GEMINI_CLI_IDE_SERVER_PORT',
-      expect.any(String), // port is a number as a string
+      expect.any(String) // port is a number as a string
     );
 
-    const expectedWorkspacePaths = [
-      '/test/workspace1',
-      '/test/workspace2',
-    ].join(path.delimiter);
+    const expectedWorkspacePaths = ['/test/workspace1', '/test/workspace2'].join(path.delimiter);
 
-    expect(replaceMock).toHaveBeenNthCalledWith(
-      2,
-      'GEMINI_CLI_IDE_WORKSPACE_PATH',
-      expectedWorkspacePaths,
-    );
+    expect(replaceMock).toHaveBeenNthCalledWith(2, 'GEMINI_CLI_IDE_WORKSPACE_PATH', expectedWorkspacePaths);
 
-    expect(replaceMock).toHaveBeenNthCalledWith(
-      3,
-      'GEMINI_CLI_IDE_AUTH_TOKEN',
-      'test-auth-token',
-    );
+    expect(replaceMock).toHaveBeenNthCalledWith(3, 'GEMINI_CLI_IDE_AUTH_TOKEN', 'test-auth-token');
 
     const port = getPortFromMock(replaceMock);
-    const expectedPortFile = path.join(
-      '/tmp',
-      'gemini',
-      'ide',
-      `gemini-ide-server-${process.ppid}-${port}.json`,
-    );
+    const expectedPortFile = path.join('/tmp', 'gemini', 'ide', `gemini-ide-server-${process.ppid}-${port}.json`);
     const expectedContent = JSON.stringify({
       port: parseInt(port, 10),
       workspacePath: expectedWorkspacePaths,
@@ -158,10 +137,7 @@ describe('IDEServer', () => {
     expect(fs.mkdir).toHaveBeenCalledWith(path.join('/tmp', 'gemini', 'ide'), {
       recursive: true,
     });
-    expect(fs.writeFile).toHaveBeenCalledWith(
-      expectedPortFile,
-      expectedContent,
-    );
+    expect(fs.writeFile).toHaveBeenCalledWith(expectedPortFile, expectedContent);
     expect(fs.chmod).toHaveBeenCalledWith(expectedPortFile, 0o600);
   });
 
@@ -171,27 +147,16 @@ describe('IDEServer', () => {
     await ideServer.start(mockContext);
     const replaceMock = mockContext.environmentVariableCollection.replace;
 
-    expect(replaceMock).toHaveBeenCalledWith(
-      'GEMINI_CLI_IDE_WORKSPACE_PATH',
-      '/foo/bar',
-    );
+    expect(replaceMock).toHaveBeenCalledWith('GEMINI_CLI_IDE_WORKSPACE_PATH', '/foo/bar');
 
     const port = getPortFromMock(replaceMock);
-    const expectedPortFile = path.join(
-      '/tmp',
-      'gemini',
-      'ide',
-      `gemini-ide-server-${process.ppid}-${port}.json`,
-    );
+    const expectedPortFile = path.join('/tmp', 'gemini', 'ide', `gemini-ide-server-${process.ppid}-${port}.json`);
     const expectedContent = JSON.stringify({
       port: parseInt(port, 10),
       workspacePath: '/foo/bar',
       authToken: 'test-auth-token',
     });
-    expect(fs.writeFile).toHaveBeenCalledWith(
-      expectedPortFile,
-      expectedContent,
-    );
+    expect(fs.writeFile).toHaveBeenCalledWith(expectedPortFile, expectedContent);
     expect(fs.chmod).toHaveBeenCalledWith(expectedPortFile, 0o600);
   });
 
@@ -201,27 +166,16 @@ describe('IDEServer', () => {
     await ideServer.start(mockContext);
     const replaceMock = mockContext.environmentVariableCollection.replace;
 
-    expect(replaceMock).toHaveBeenCalledWith(
-      'GEMINI_CLI_IDE_WORKSPACE_PATH',
-      '',
-    );
+    expect(replaceMock).toHaveBeenCalledWith('GEMINI_CLI_IDE_WORKSPACE_PATH', '');
 
     const port = getPortFromMock(replaceMock);
-    const expectedPortFile = path.join(
-      '/tmp',
-      'gemini',
-      'ide',
-      `gemini-ide-server-${process.ppid}-${port}.json`,
-    );
+    const expectedPortFile = path.join('/tmp', 'gemini', 'ide', `gemini-ide-server-${process.ppid}-${port}.json`);
     const expectedContent = JSON.stringify({
       port: parseInt(port, 10),
       workspacePath: '',
       authToken: 'test-auth-token',
     });
-    expect(fs.writeFile).toHaveBeenCalledWith(
-      expectedPortFile,
-      expectedContent,
-    );
+    expect(fs.writeFile).toHaveBeenCalledWith(expectedPortFile, expectedContent);
     expect(fs.chmod).toHaveBeenCalledWith(expectedPortFile, 0o600);
   });
 
@@ -230,65 +184,37 @@ describe('IDEServer', () => {
     await ideServer.start(mockContext);
     const replaceMock = mockContext.environmentVariableCollection.replace;
 
-    expect(replaceMock).toHaveBeenCalledWith(
-      'GEMINI_CLI_IDE_WORKSPACE_PATH',
-      '/foo/bar',
-    );
+    expect(replaceMock).toHaveBeenCalledWith('GEMINI_CLI_IDE_WORKSPACE_PATH', '/foo/bar');
 
     // Simulate adding a folder
-    vscodeMock.workspace.workspaceFolders = [
-      { uri: { fsPath: '/foo/bar' } },
-      { uri: { fsPath: '/baz/qux' } },
-    ];
+    vscodeMock.workspace.workspaceFolders = [{ uri: { fsPath: '/foo/bar' } }, { uri: { fsPath: '/baz/qux' } }];
     await ideServer.syncEnvVars();
 
-    const expectedWorkspacePaths = ['/foo/bar', '/baz/qux'].join(
-      path.delimiter,
-    );
-    expect(replaceMock).toHaveBeenCalledWith(
-      'GEMINI_CLI_IDE_WORKSPACE_PATH',
-      expectedWorkspacePaths,
-    );
-    expect(replaceMock).toHaveBeenCalledWith(
-      'GEMINI_CLI_IDE_AUTH_TOKEN',
-      'test-auth-token',
-    );
+    const expectedWorkspacePaths = ['/foo/bar', '/baz/qux'].join(path.delimiter);
+    expect(replaceMock).toHaveBeenCalledWith('GEMINI_CLI_IDE_WORKSPACE_PATH', expectedWorkspacePaths);
+    expect(replaceMock).toHaveBeenCalledWith('GEMINI_CLI_IDE_AUTH_TOKEN', 'test-auth-token');
 
     const port = getPortFromMock(replaceMock);
-    const expectedPortFile = path.join(
-      '/tmp',
-      'gemini',
-      'ide',
-      `gemini-ide-server-${process.ppid}-${port}.json`,
-    );
+    const expectedPortFile = path.join('/tmp', 'gemini', 'ide', `gemini-ide-server-${process.ppid}-${port}.json`);
     const expectedContent = JSON.stringify({
       port: parseInt(port, 10),
       workspacePath: expectedWorkspacePaths,
       authToken: 'test-auth-token',
     });
-    expect(fs.writeFile).toHaveBeenCalledWith(
-      expectedPortFile,
-      expectedContent,
-    );
+    expect(fs.writeFile).toHaveBeenCalledWith(expectedPortFile, expectedContent);
     expect(fs.chmod).toHaveBeenCalledWith(expectedPortFile, 0o600);
 
     // Simulate removing a folder
     vscodeMock.workspace.workspaceFolders = [{ uri: { fsPath: '/baz/qux' } }];
     await ideServer.syncEnvVars();
 
-    expect(replaceMock).toHaveBeenCalledWith(
-      'GEMINI_CLI_IDE_WORKSPACE_PATH',
-      '/baz/qux',
-    );
+    expect(replaceMock).toHaveBeenCalledWith('GEMINI_CLI_IDE_WORKSPACE_PATH', '/baz/qux');
     const expectedContent2 = JSON.stringify({
       port: parseInt(port, 10),
       workspacePath: '/baz/qux',
       authToken: 'test-auth-token',
     });
-    expect(fs.writeFile).toHaveBeenCalledWith(
-      expectedPortFile,
-      expectedContent2,
-    );
+    expect(fs.writeFile).toHaveBeenCalledWith(expectedPortFile, expectedContent2);
     expect(fs.chmod).toHaveBeenCalledWith(expectedPortFile, 0o600);
   });
 
@@ -296,12 +222,7 @@ describe('IDEServer', () => {
     await ideServer.start(mockContext);
     const replaceMock = mockContext.environmentVariableCollection.replace;
     const port = getPortFromMock(replaceMock);
-    const portFile = path.join(
-      '/tmp',
-      'gemini',
-      'ide',
-      `gemini-ide-server-${process.ppid}-${port}.json`,
-    );
+    const portFile = path.join('/tmp', 'gemini', 'ide', `gemini-ide-server-${process.ppid}-${port}.json`);
     expect(fs.writeFile).toHaveBeenCalledWith(portFile, expect.any(String));
 
     await ideServer.stop();
@@ -310,42 +231,25 @@ describe('IDEServer', () => {
     expect(fs.unlink).toHaveBeenCalledWith(portFile);
   });
 
-  it.skipIf(process.platform !== 'win32')(
-    'should handle windows paths',
-    async () => {
-      vscodeMock.workspace.workspaceFolders = [
-        { uri: { fsPath: 'c:\\foo\\bar' } },
-        { uri: { fsPath: 'd:\\baz\\qux' } },
-      ];
+  it.skipIf(process.platform !== 'win32')('should handle windows paths', async () => {
+    vscodeMock.workspace.workspaceFolders = [{ uri: { fsPath: 'c:\\foo\\bar' } }, { uri: { fsPath: 'd:\\baz\\qux' } }];
 
-      await ideServer.start(mockContext);
-      const replaceMock = mockContext.environmentVariableCollection.replace;
-      const expectedWorkspacePaths = 'c:\\foo\\bar;d:\\baz\\qux';
+    await ideServer.start(mockContext);
+    const replaceMock = mockContext.environmentVariableCollection.replace;
+    const expectedWorkspacePaths = 'c:\\foo\\bar;d:\\baz\\qux';
 
-      expect(replaceMock).toHaveBeenCalledWith(
-        'GEMINI_CLI_IDE_WORKSPACE_PATH',
-        expectedWorkspacePaths,
-      );
+    expect(replaceMock).toHaveBeenCalledWith('GEMINI_CLI_IDE_WORKSPACE_PATH', expectedWorkspacePaths);
 
-      const port = getPortFromMock(replaceMock);
-      const expectedPortFile = path.join(
-        '/tmp',
-        'gemini',
-        'ide',
-        `gemini-ide-server-${process.ppid}-${port}.json`,
-      );
-      const expectedContent = JSON.stringify({
-        port: parseInt(port, 10),
-        workspacePath: expectedWorkspacePaths,
-        authToken: 'test-auth-token',
-      });
-      expect(fs.writeFile).toHaveBeenCalledWith(
-        expectedPortFile,
-        expectedContent,
-      );
-      expect(fs.chmod).toHaveBeenCalledWith(expectedPortFile, 0o600);
-    },
-  );
+    const port = getPortFromMock(replaceMock);
+    const expectedPortFile = path.join('/tmp', 'gemini', 'ide', `gemini-ide-server-${process.ppid}-${port}.json`);
+    const expectedContent = JSON.stringify({
+      port: parseInt(port, 10),
+      workspacePath: expectedWorkspacePaths,
+      authToken: 'test-auth-token',
+    });
+    expect(fs.writeFile).toHaveBeenCalledWith(expectedPortFile, expectedContent);
+    expect(fs.chmod).toHaveBeenCalledWith(expectedPortFile, 0o600);
+  });
 
   describe('auth token', () => {
     let port: number;
@@ -406,11 +310,7 @@ describe('IDEServer', () => {
     });
 
     it('should reject request with malformed auth token', async () => {
-      const malformedHeaders = [
-        'Bearer',
-        'invalid-token',
-        'Bearer token extra',
-      ];
+      const malformedHeaders = ['Bearer', 'invalid-token', 'Bearer token extra'];
 
       for (const header of malformedHeaders) {
         const response = await fetch(`http://localhost:${port}/mcp`, {
@@ -434,11 +334,7 @@ describe('IDEServer', () => {
   });
 });
 
-const request = (
-  port: string,
-  options: http.RequestOptions,
-  body?: string,
-): Promise<http.IncomingMessage> =>
+const request = (port: string, options: http.RequestOptions, body?: string): Promise<http.IncomingMessage> =>
   new Promise((resolve, reject) => {
     const req = http.request(
       {
@@ -449,7 +345,7 @@ const request = (
       (res) => {
         res.resume(); // Consume response data to free up memory
         resolve(res);
-      },
+      }
     );
     req.on('error', reject);
     if (body) {
@@ -496,7 +392,7 @@ describe('IDEServer HTTP endpoints', () => {
           'Content-Type': 'application/json',
         },
       },
-      JSON.stringify({ jsonrpc: '2.0', method: 'initialize' }),
+      JSON.stringify({ jsonrpc: '2.0', method: 'initialize' })
     );
     expect(response.statusCode).toBe(403);
   });
@@ -512,7 +408,7 @@ describe('IDEServer HTTP endpoints', () => {
           'Content-Type': 'application/json',
         },
       },
-      JSON.stringify({ jsonrpc: '2.0', method: 'initialize' }),
+      JSON.stringify({ jsonrpc: '2.0', method: 'initialize' })
     );
     expect(response.statusCode).toBe(403);
   });
@@ -529,7 +425,7 @@ describe('IDEServer HTTP endpoints', () => {
           Authorization: 'Bearer test-auth-token',
         },
       },
-      JSON.stringify({ jsonrpc: '2.0', method: 'initialize' }),
+      JSON.stringify({ jsonrpc: '2.0', method: 'initialize' })
     );
     // We expect a 400 here because we are not sending a valid MCP request,
     // but it's not a host error, which is what we are testing.

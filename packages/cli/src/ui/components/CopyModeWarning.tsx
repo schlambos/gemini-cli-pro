@@ -18,9 +18,7 @@ export const CopyModeWarning: React.FC = () => {
 
   return (
     <Box>
-      <Text color={theme.status.warning}>
-        In Copy Mode. Press any key to exit.
-      </Text>
+      <Text color={theme.status.warning}>In Copy Mode. Press any key to exit.</Text>
     </Box>
   );
 };

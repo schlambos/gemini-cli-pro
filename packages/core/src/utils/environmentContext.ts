@@ -15,9 +15,7 @@ export const INITIAL_HISTORY_LENGTH = 1;
  * @param {Config} config - The runtime configuration and services.
  * @returns {Promise<string>} A promise that resolves to the directory context string.
  */
-export async function getDirectoryContextString(
-  config: Config,
-): Promise<string> {
+export async function getDirectoryContextString(config: Config): Promise<string> {
   const workspaceContext = config.getWorkspaceContext();
   const workspaceDirectories = workspaceContext.getDirectories();
 
@@ -25,8 +23,8 @@ export async function getDirectoryContextString(
     workspaceDirectories.map((dir) =>
       getFolderStructure(dir, {
         fileService: config.getFileService(),
-      }),
-    ),
+      })
+    )
   );
 
   const folderStructure = folderStructures.join('\n');
@@ -53,9 +51,7 @@ export async function getEnvironmentContext(config: Config): Promise<Part[]> {
     day: 'numeric',
   });
   const platform = process.platform;
-  const directoryContext = config.getIncludeDirectoryTree()
-    ? await getDirectoryContextString(config)
-    : '';
+  const directoryContext = config.getIncludeDirectoryTree() ? await getDirectoryContextString(config) : '';
   const tempDir = config.storage.getProjectTempDir();
   const environmentMemory = config.getEnvironmentMemory();
 
@@ -75,10 +71,7 @@ ${environmentMemory}
   return initialParts;
 }
 
-export async function getInitialChatHistory(
-  config: Config,
-  extraHistory?: Content[],
-): Promise<Content[]> {
+export async function getInitialChatHistory(config: Config, extraHistory?: Content[]): Promise<Content[]> {
   const envParts = await getEnvironmentContext(config);
   const envContextString = envParts.map((part) => part.text || '').join('\n\n');
 

@@ -9,8 +9,7 @@ import { INFORMATIVE_TIPS } from '../constants/tips.js';
 import { WITTY_LOADING_PHRASES } from '../constants/wittyPhrases.js';
 
 export const PHRASE_CHANGE_INTERVAL_MS = 15000;
-export const INTERACTIVE_SHELL_WAITING_PHRASE =
-  'Interactive shell awaiting input... press tab to focus shell';
+export const INTERACTIVE_SHELL_WAITING_PHRASE = 'Interactive shell awaiting input... press tab to focus shell';
 
 /**
  * Custom hook to manage cycling through loading phrases.
@@ -24,16 +23,13 @@ export const usePhraseCycler = (
   isActive: boolean,
   isWaiting: boolean,
   shouldShowFocusHint: boolean,
-  customPhrases?: string[],
+  customPhrases?: string[]
 ) => {
-  const loadingPhrases =
-    customPhrases && customPhrases.length > 0
-      ? customPhrases
-      : WITTY_LOADING_PHRASES;
+  const loadingPhrases = customPhrases && customPhrases.length > 0 ? customPhrases : WITTY_LOADING_PHRASES;
 
-  const [currentLoadingPhrase, setCurrentLoadingPhrase] = useState<
-    string | undefined
-  >(isActive ? loadingPhrases[0] : undefined);
+  const [currentLoadingPhrase, setCurrentLoadingPhrase] = useState<string | undefined>(
+    isActive ? loadingPhrases[0] : undefined
+  );
 
   const phraseIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const hasShownFirstRequestTipRef = useRef(false);

@@ -28,10 +28,7 @@ vi.mock('../core/baseLlmClient.js', () => ({
 }));
 
 // Helper to create a session with N user messages
-function createSessionWithUserMessages(
-  count: number,
-  options: { summary?: string; sessionId?: string } = {},
-) {
+function createSessionWithUserMessages(count: number, options: { summary?: string; sessionId?: string } = {}) {
   return JSON.stringify({
     sessionId: options.sessionId ?? 'session-id',
     summary: options.summary,
@@ -66,12 +63,8 @@ describe('sessionSummaryUtils', () => {
     mockGenerateSummary = vi.fn().mockResolvedValue('Add dark mode to the app');
 
     // Import the mocked module to access the constructor
-    const { SessionSummaryService } = await import(
-      './sessionSummaryService.js'
-    );
-    (
-      SessionSummaryService as unknown as ReturnType<typeof vi.fn>
-    ).mockImplementation(() => ({
+    const { SessionSummaryService } = await import('./sessionSummaryService.js');
+    (SessionSummaryService as unknown as ReturnType<typeof vi.fn>).mockImplementation(() => ({
       generateSummary: mockGenerateSummary,
     }));
   });
@@ -101,9 +94,7 @@ describe('sessionSummaryUtils', () => {
     it('should return null if most recent session already has summary', async () => {
       vi.mocked(fs.access).mockResolvedValue(undefined);
       mockReaddir.mockResolvedValue(['session-2024-01-01T10-00-abc12345.json']);
-      vi.mocked(fs.readFile).mockResolvedValue(
-        createSessionWithUserMessages(5, { summary: 'Existing summary' }),
-      );
+      vi.mocked(fs.readFile).mockResolvedValue(createSessionWithUserMessages(5, { summary: 'Existing summary' }));
 
       const result = await getPreviousSession(mockConfig);
 
@@ -113,9 +104,7 @@ describe('sessionSummaryUtils', () => {
     it('should return null if most recent session has 1 or fewer user messages', async () => {
       vi.mocked(fs.access).mockResolvedValue(undefined);
       mockReaddir.mockResolvedValue(['session-2024-01-01T10-00-abc12345.json']);
-      vi.mocked(fs.readFile).mockResolvedValue(
-        createSessionWithUserMessages(1),
-      );
+      vi.mocked(fs.readFile).mockResolvedValue(createSessionWithUserMessages(1));
 
       const result = await getPreviousSession(mockConfig);
 
@@ -125,19 +114,11 @@ describe('sessionSummaryUtils', () => {
     it('should return path if most recent session has more than 1 user message and no summary', async () => {
       vi.mocked(fs.access).mockResolvedValue(undefined);
       mockReaddir.mockResolvedValue(['session-2024-01-01T10-00-abc12345.json']);
-      vi.mocked(fs.readFile).mockResolvedValue(
-        createSessionWithUserMessages(2),
-      );
+      vi.mocked(fs.readFile).mockResolvedValue(createSessionWithUserMessages(2));
 
       const result = await getPreviousSession(mockConfig);
 
-      expect(result).toBe(
-        path.join(
-          '/tmp/project',
-          'chats',
-          'session-2024-01-01T10-00-abc12345.json',
-        ),
-      );
+      expect(result).toBe(path.join('/tmp/project', 'chats', 'session-2024-01-01T10-00-abc12345.json'));
     });
 
     it('should select most recently created session by filename', async () => {
@@ -146,19 +127,11 @@ describe('sessionSummaryUtils', () => {
         'session-2024-01-01T10-00-older000.json',
         'session-2024-01-02T10-00-newer000.json',
       ]);
-      vi.mocked(fs.readFile).mockResolvedValue(
-        createSessionWithUserMessages(2),
-      );
+      vi.mocked(fs.readFile).mockResolvedValue(createSessionWithUserMessages(2));
 
       const result = await getPreviousSession(mockConfig);
 
-      expect(result).toBe(
-        path.join(
-          '/tmp/project',
-          'chats',
-          'session-2024-01-02T10-00-newer000.json',
-        ),
-      );
+      expect(result).toBe(path.join('/tmp/project', 'chats', 'session-2024-01-02T10-00-newer000.json'));
     });
 
     it('should return null if most recent session file is corrupted', async () => {
@@ -180,35 +153,24 @@ describe('sessionSummaryUtils', () => {
     });
 
     it('should generate and save summary for session needing one', async () => {
-      const sessionPath = path.join(
-        '/tmp/project',
-        'chats',
-        'session-2024-01-01T10-00-abc12345.json',
-      );
+      const sessionPath = path.join('/tmp/project', 'chats', 'session-2024-01-01T10-00-abc12345.json');
 
       vi.mocked(fs.access).mockResolvedValue(undefined);
       mockReaddir.mockResolvedValue(['session-2024-01-01T10-00-abc12345.json']);
-      vi.mocked(fs.readFile).mockResolvedValue(
-        createSessionWithUserMessages(2),
-      );
+      vi.mocked(fs.readFile).mockResolvedValue(createSessionWithUserMessages(2));
       vi.mocked(fs.writeFile).mockResolvedValue(undefined);
 
       await generateSummary(mockConfig);
 
       expect(mockGenerateSummary).toHaveBeenCalledTimes(1);
       expect(fs.writeFile).toHaveBeenCalledTimes(1);
-      expect(fs.writeFile).toHaveBeenCalledWith(
-        sessionPath,
-        expect.stringContaining('Add dark mode to the app'),
-      );
+      expect(fs.writeFile).toHaveBeenCalledWith(sessionPath, expect.stringContaining('Add dark mode to the app'));
     });
 
     it('should handle errors gracefully without throwing', async () => {
       vi.mocked(fs.access).mockResolvedValue(undefined);
       mockReaddir.mockResolvedValue(['session-2024-01-01T10-00-abc12345.json']);
-      vi.mocked(fs.readFile).mockResolvedValue(
-        createSessionWithUserMessages(2),
-      );
+      vi.mocked(fs.readFile).mockResolvedValue(createSessionWithUserMessages(2));
       mockGenerateSummary.mockRejectedValue(new Error('API Error'));
 
       await expect(generateSummary(mockConfig)).resolves.not.toThrow();

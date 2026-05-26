@@ -10,10 +10,7 @@ import { Box, Text } from 'ink';
 import { useEffect } from 'react';
 import { Composer } from './Composer.js';
 import { UIStateContext, type UIState } from '../contexts/UIStateContext.js';
-import {
-  UIActionsContext,
-  type UIActions,
-} from '../contexts/UIActionsContext.js';
+import { UIActionsContext, type UIActions } from '../contexts/UIActionsContext.js';
 import { ConfigContext } from '../contexts/ConfigContext.js';
 import { SettingsContext } from '../contexts/SettingsContext.js';
 import { createMockSettings } from '../../test-utils/settings.js';
@@ -24,11 +21,7 @@ vi.mock('../contexts/VimModeContext.js', () => ({
     vimMode: 'INSERT',
   })),
 }));
-import {
-  ApprovalMode,
-  tokenLimit,
-  CoreToolCallStatus,
-} from '@google/gemini-cli-core';
+import { ApprovalMode, tokenLimit, CoreToolCallStatus } from '@google/gemini-cli-core';
 import type { Config } from '@google/gemini-cli-core';
 import { StreamingState } from '../types.js';
 import { TransientMessageType } from '../../utils/events.js';
@@ -42,15 +35,8 @@ const composerTestControls = vi.hoisted(() => ({
 
 // Mock child components
 vi.mock('./LoadingIndicator.js', () => ({
-  LoadingIndicator: ({
-    thought,
-    thoughtLabel,
-  }: {
-    thought?: { subject?: string } | string;
-    thoughtLabel?: string;
-  }) => {
-    const fallbackText =
-      typeof thought === 'string' ? thought : thought?.subject;
+  LoadingIndicator: ({ thought, thoughtLabel }: { thought?: { subject?: string } | string; thoughtLabel?: string }) => {
+    const fallbackText = typeof thought === 'string' ? thought : thought?.subject;
     const text = thoughtLabel ?? fallbackText;
     return <Text>LoadingIndicator{text ? `: ${text}` : ''}</Text>;
   },
@@ -66,8 +52,7 @@ vi.mock('./ToastDisplay.js', () => ({
     uiState.ctrlCPressedOnce ||
     Boolean(uiState.transientMessage) ||
     uiState.ctrlDPressedOnce ||
-    (uiState.showEscapePrompt &&
-      (uiState.buffer.text.length > 0 || uiState.history.length > 0)) ||
+    (uiState.showEscapePrompt && (uiState.buffer.text.length > 0 || uiState.history.length > 0)) ||
     Boolean(uiState.queueErrorMessage),
 }));
 
@@ -249,7 +234,7 @@ const renderComposer = (
   uiState: UIState,
   settings = createMockSettings(),
   config = createMockConfig(),
-  uiActions = createMockUIActions(),
+  uiActions = createMockUIActions()
 ) =>
   render(
     <ConfigContext.Provider value={config as unknown as Config}>
@@ -260,7 +245,7 @@ const renderComposer = (
           </UIActionsContext.Provider>
         </UIStateContext.Provider>
       </SettingsContext.Provider>
-    </ConfigContext.Provider>,
+    </ConfigContext.Provider>
   );
 
 describe('Composer', () => {
@@ -493,11 +478,7 @@ describe('Composer', () => {
   describe('Message Queue Display', () => {
     it('displays queued messages when present', () => {
       const uiState = createMockUIState({
-        messageQueue: [
-          'First queued message',
-          'Second queued message',
-          'Third queued message',
-        ],
+        messageQueue: ['First queued message', 'Second queued message', 'Third queued message'],
       });
 
       const { lastFrame } = renderComposer(uiState);
@@ -603,12 +584,7 @@ describe('Composer', () => {
       expect(lastFrame()).not.toContain('InputPrompt');
     });
 
-    it.each([
-      [ApprovalMode.DEFAULT],
-      [ApprovalMode.AUTO_EDIT],
-      [ApprovalMode.PLAN],
-      [ApprovalMode.YOLO],
-    ])(
+    it.each([[ApprovalMode.DEFAULT], [ApprovalMode.AUTO_EDIT], [ApprovalMode.PLAN], [ApprovalMode.YOLO]])(
       'shows ApprovalModeIndicator when approval mode is %s and shell mode is inactive',
       (mode) => {
         const uiState = createMockUIState({
@@ -619,7 +595,7 @@ describe('Composer', () => {
         const { lastFrame } = renderComposer(uiState);
 
         expect(lastFrame()).toMatch(/ApprovalModeIndic[\s\S]*ator/);
-      },
+      }
     );
 
     it('shows ShellModeIndicator when shell mode is active', () => {
@@ -656,18 +632,15 @@ describe('Composer', () => {
       [ApprovalMode.YOLO, 'YOLO'],
       [ApprovalMode.PLAN, 'plan'],
       [ApprovalMode.AUTO_EDIT, 'auto edit'],
-    ])(
-      'shows minimal mode badge "%s" when clean UI details are hidden',
-      (mode, label) => {
-        const uiState = createMockUIState({
-          cleanUiDetailsVisible: false,
-          showApprovalModeIndicator: mode,
-        });
+    ])('shows minimal mode badge "%s" when clean UI details are hidden', (mode, label) => {
+      const uiState = createMockUIState({
+        cleanUiDetailsVisible: false,
+        showApprovalModeIndicator: mode,
+      });
 
-        const { lastFrame } = renderComposer(uiState);
-        expect(lastFrame()).toContain(label);
-      },
-    );
+      const { lastFrame } = renderComposer(uiState);
+      expect(lastFrame()).toContain(label);
+    });
 
     it('hides minimal mode badge while loading in clean mode', () => {
       const uiState = createMockUIState({
@@ -782,9 +755,7 @@ describe('Composer', () => {
 
       const { lastFrame } = renderComposer(uiState);
 
-      expect(lastFrame()).toContain(
-        "InputPrompt:   Press 'Esc' for NORMAL mode.",
-      );
+      expect(lastFrame()).toContain("InputPrompt:   Press 'Esc' for NORMAL mode.");
     });
 
     it('shows correct placeholder in NORMAL mode', async () => {
@@ -799,9 +770,7 @@ describe('Composer', () => {
 
       const { lastFrame } = renderComposer(uiState);
 
-      expect(lastFrame()).toContain(
-        "InputPrompt:   Press 'i' for INSERT mode.",
-      );
+      expect(lastFrame()).toContain("InputPrompt:   Press 'i' for INSERT mode.");
     });
   });
 

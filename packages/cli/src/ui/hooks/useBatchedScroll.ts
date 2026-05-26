@@ -22,10 +22,7 @@ export function useBatchedScroll(currentScrollTop: number) {
     pendingScrollTopRef.current = null;
   });
 
-  const getScrollTop = useCallback(
-    () => pendingScrollTopRef.current ?? currentScrollTopRef.current,
-    [],
-  );
+  const getScrollTop = useCallback(() => pendingScrollTopRef.current ?? currentScrollTopRef.current, []);
 
   const setPendingScrollTop = useCallback((newScrollTop: number) => {
     pendingScrollTopRef.current = newScrollTop;

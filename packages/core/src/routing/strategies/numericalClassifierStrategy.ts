@@ -7,11 +7,7 @@
 import { z } from 'zod';
 import type { BaseLlmClient } from '../../core/baseLlmClient.js';
 import { getPromptIdWithFallback } from '../../utils/promptIdContext.js';
-import type {
-  RoutingContext,
-  RoutingDecision,
-  RoutingStrategy,
-} from '../routingStrategy.js';
+import type { RoutingContext, RoutingDecision, RoutingStrategy } from '../routingStrategy.js';
 import { resolveClassifierModel, isGemini3Model } from '../../config/models.js';
 import { createUserContent, Type } from '@google/genai';
 import type { Config } from '../../config/config.js';
@@ -129,11 +125,7 @@ function getComplexityThreshold(sessionId: string): number {
 export class NumericalClassifierStrategy implements RoutingStrategy {
   readonly name = 'numerical_classifier';
 
-  async route(
-    context: RoutingContext,
-    config: Config,
-    baseLlmClient: BaseLlmClient,
-  ): Promise<RoutingDecision | null> {
+  async route(context: RoutingContext, config: Config, baseLlmClient: BaseLlmClient): Promise<RoutingDecision | null> {
     const startTime = Date.now();
     try {
       const model = context.requestedModel ?? config.getModel();
@@ -150,9 +142,7 @@ export class NumericalClassifierStrategy implements RoutingStrategy {
       const finalHistory = context.history.slice(-HISTORY_TURNS_FOR_CONTEXT);
 
       // Wrap the user's request in tags to prevent prompt injection
-      const requestParts = Array.isArray(context.request)
-        ? context.request
-        : [context.request];
+      const requestParts = Array.isArray(context.request) ? context.request : [context.request];
 
       const sanitizedRequest = requestParts.map((part) => {
         if (typeof part === 'string') {
@@ -177,22 +167,14 @@ export class NumericalClassifierStrategy implements RoutingStrategy {
       const routerResponse = ClassifierResponseSchema.parse(jsonResponse);
       const score = routerResponse.complexity_score;
 
-      const { threshold, groupLabel, modelAlias } =
-        await this.getRoutingDecision(
-          score,
-          config,
-          config.getSessionId() || 'unknown-session',
-        );
-      const useGemini3_1 = (await config.getGemini31Launched?.()) ?? false;
-      const useCustomToolModel =
-        useGemini3_1 &&
-        config.getContentGeneratorConfig().authType === AuthType.USE_GEMINI;
-      const selectedModel = resolveClassifierModel(
-        model,
-        modelAlias,
-        useGemini3_1,
-        useCustomToolModel,
+      const { threshold, groupLabel, modelAlias } = await this.getRoutingDecision(
+        score,
+        config,
+        config.getSessionId() || 'unknown-session'
       );
+      const useGemini3_1 = (await config.getGemini31Launched?.()) ?? false;
+      const useCustomToolModel = useGemini3_1 && config.getContentGeneratorConfig().authType === AuthType.USE_GEMINI;
+      const selectedModel = resolveClassifierModel(model, modelAlias, useGemini3_1, useCustomToolModel);
 
       const latencyMs = Date.now() - startTime;
 
@@ -213,7 +195,7 @@ export class NumericalClassifierStrategy implements RoutingStrategy {
   private async getRoutingDecision(
     score: number,
     config: Config,
-    sessionId: string,
+    sessionId: string
   ): Promise<{
     threshold: number;
     groupLabel: string;

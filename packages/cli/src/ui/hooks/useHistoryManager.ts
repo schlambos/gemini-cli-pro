@@ -9,21 +9,12 @@ import type { HistoryItem } from '../types.js';
 import type { ChatRecordingService } from '@google/gemini-cli-core/src/services/chatRecordingService.js';
 
 // Type for the updater function passed to updateHistoryItem
-type HistoryItemUpdater = (
-  prevItem: HistoryItem,
-) => Partial<Omit<HistoryItem, 'id'>>;
+type HistoryItemUpdater = (prevItem: HistoryItem) => Partial<Omit<HistoryItem, 'id'>>;
 
 export interface UseHistoryManagerReturn {
   history: HistoryItem[];
-  addItem: (
-    itemData: Omit<HistoryItem, 'id'>,
-    baseTimestamp?: number,
-    isResuming?: boolean,
-  ) => number; // Returns the generated ID
-  updateItem: (
-    id: number,
-    updates: Partial<Omit<HistoryItem, 'id'>> | HistoryItemUpdater,
-  ) => void;
+  addItem: (itemData: Omit<HistoryItem, 'id'>, baseTimestamp?: number, isResuming?: boolean) => number; // Returns the generated ID
+  updateItem: (id: number, updates: Partial<Omit<HistoryItem, 'id'>> | HistoryItemUpdater) => void;
   clearItems: () => void;
   loadHistory: (newHistory: HistoryItem[]) => void;
 }
@@ -56,11 +47,7 @@ export function useHistory({
 
   // Adds a new item to the history state with a unique ID.
   const addItem = useCallback(
-    (
-      itemData: Omit<HistoryItem, 'id'>,
-      baseTimestamp: number = Date.now(),
-      isResuming: boolean = false,
-    ): number => {
+    (itemData: Omit<HistoryItem, 'id'>, baseTimestamp: number = Date.now(), isResuming: boolean = false): number => {
       const id = getNextMessageId(baseTimestamp);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
       const newItem: HistoryItem = { ...itemData, id } as HistoryItem;
@@ -69,11 +56,7 @@ export function useHistory({
         if (prevHistory.length > 0) {
           const lastItem = prevHistory[prevHistory.length - 1];
           // Prevent adding duplicate consecutive user messages
-          if (
-            lastItem.type === 'user' &&
-            newItem.type === 'user' &&
-            lastItem.text === newItem.text
-          ) {
+          if (lastItem.type === 'user' && newItem.type === 'user' && lastItem.text === newItem.text) {
             return prevHistory; // Don't add the duplicate
           }
         }
@@ -119,7 +102,7 @@ export function useHistory({
 
       return id; // Return the generated ID (even if not added, to keep signature)
     },
-    [getNextMessageId, chatRecordingService],
+    [getNextMessageId, chatRecordingService]
   );
 
   /**
@@ -129,26 +112,19 @@ export function useHistory({
    * if ABSOLUTELY NECESSARY
    */
   //
-  const updateItem = useCallback(
-    (
-      id: number,
-      updates: Partial<Omit<HistoryItem, 'id'>> | HistoryItemUpdater,
-    ) => {
-      setHistory((prevHistory) =>
-        prevHistory.map((item) => {
-          if (item.id === id) {
-            // Apply updates based on whether it's an object or a function
-            const newUpdates =
-              typeof updates === 'function' ? updates(item) : updates;
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-            return { ...item, ...newUpdates } as HistoryItem;
-          }
-          return item;
-        }),
-      );
-    },
-    [],
-  );
+  const updateItem = useCallback((id: number, updates: Partial<Omit<HistoryItem, 'id'>> | HistoryItemUpdater) => {
+    setHistory((prevHistory) =>
+      prevHistory.map((item) => {
+        if (item.id === id) {
+          // Apply updates based on whether it's an object or a function
+          const newUpdates = typeof updates === 'function' ? updates(item) : updates;
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+          return { ...item, ...newUpdates } as HistoryItem;
+        }
+        return item;
+      })
+    );
+  }, []);
 
   // Clears the entire history state and resets the ID counter.
   const clearItems = useCallback(() => {
@@ -164,6 +140,6 @@ export function useHistory({
       clearItems,
       loadHistory,
     }),
-    [history, addItem, updateItem, clearItems, loadHistory],
+    [history, addItem, updateItem, clearItems, loadHistory]
   );
 }

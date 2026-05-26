@@ -27,9 +27,7 @@ function runGh(args) {
     }).trim();
   } catch (error) {
     const stderr = error.stderr ? ` Stderr: ${error.stderr.trim()}` : '';
-    console.error(
-      `❌ Error running gh ${args.join(' ')}: ${error.message}${stderr}`,
-    );
+    console.error(`❌ Error running gh ${args.join(' ')}: ${error.message}${stderr}`);
     return null;
   }
 }
@@ -53,13 +51,7 @@ async function main() {
   const jqFilter =
     '.[] | select(.pull_request == null) | select([.labels[].name] as $l | (any($l[]; . == "🔒 maintainer only") | not) and (any($l[]; . == "help wanted") | not) and (any($l[]; . == "status/need-triage") | not)) | {number: .number, title: .title}';
 
-  const output = runGh([
-    'api',
-    `repos/${REPO}/issues?state=open&per_page=100`,
-    '--paginate',
-    '--jq',
-    jqFilter,
-  ]);
+  const output = runGh(['api', `repos/${REPO}/issues?state=open&per_page=100`, '--paginate', '--jq', jqFilter]);
 
   if (output === null) {
     process.exit(1);
@@ -90,9 +82,7 @@ async function main() {
 
   if (isDryRun) {
     for (const issue of issues) {
-      console.log(
-        `[DRY RUN] Would label issue #${issue.number}: ${issue.title}`,
-      );
+      console.log(`[DRY RUN] Would label issue #${issue.number}: ${issue.title}`);
     }
     successCount = issues.length;
   } else {
@@ -102,15 +92,7 @@ async function main() {
       const issueNumber = String(issue.number);
       console.log(`🏷️  Labeling issue #${issueNumber}: ${issue.title}`);
 
-      const result = runGh([
-        'issue',
-        'edit',
-        issueNumber,
-        '--add-label',
-        'status/need-triage',
-        '--repo',
-        REPO,
-      ]);
+      const result = runGh(['issue', 'edit', issueNumber, '--add-label', 'status/need-triage', '--repo', REPO]);
 
       if (result !== null) {
         successCount++;

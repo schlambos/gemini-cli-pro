@@ -102,10 +102,9 @@ describe('DialogManager', () => {
   };
 
   it('renders nothing by default', () => {
-    const { lastFrame } = renderWithProviders(
-      <DialogManager {...defaultProps} />,
-      { uiState: baseUiState as Partial<UIState> as UIState },
-    );
+    const { lastFrame } = renderWithProviders(<DialogManager {...defaultProps} />, {
+      uiState: baseUiState as Partial<UIState> as UIState,
+    });
     expect(lastFrame()).toBe('');
   });
 
@@ -142,18 +141,9 @@ describe('DialogManager', () => {
       'IdeIntegrationNudge',
     ],
     [{ isFolderTrustDialogOpen: true }, 'FolderTrustDialog'],
-    [
-      { loopDetectionConfirmationRequest: { onComplete: vi.fn() } },
-      'LoopDetectionConfirmation',
-    ],
-    [
-      { commandConfirmationRequest: { prompt: 'foo', onConfirm: vi.fn() } },
-      'ConsentPrompt',
-    ],
-    [
-      { authConsentRequest: { prompt: 'bar', onConfirm: vi.fn() } },
-      'ConsentPrompt',
-    ],
+    [{ loopDetectionConfirmationRequest: { onComplete: vi.fn() } }, 'LoopDetectionConfirmation'],
+    [{ commandConfirmationRequest: { prompt: 'foo', onConfirm: vi.fn() } }, 'ConsentPrompt'],
+    [{ authConsentRequest: { prompt: 'bar', onConfirm: vi.fn() } }, 'ConsentPrompt'],
     [
       {
         confirmUpdateExtensionRequests: [{ prompt: 'foo', onConfirm: vi.fn() }],
@@ -188,19 +178,13 @@ describe('DialogManager', () => {
     ],
   ];
 
-  it.each(testCases)(
-    'renders %s when state is %o',
-    (uiStateOverride, expectedComponent) => {
-      const { lastFrame } = renderWithProviders(
-        <DialogManager {...defaultProps} />,
-        {
-          uiState: {
-            ...baseUiState,
-            ...uiStateOverride,
-          } as Partial<UIState> as UIState,
-        },
-      );
-      expect(lastFrame()).toContain(expectedComponent);
-    },
-  );
+  it.each(testCases)('renders %s when state is %o', (uiStateOverride, expectedComponent) => {
+    const { lastFrame } = renderWithProviders(<DialogManager {...defaultProps} />, {
+      uiState: {
+        ...baseUiState,
+        ...uiStateOverride,
+      } as Partial<UIState> as UIState,
+    });
+    expect(lastFrame()).toContain(expectedComponent);
+  });
 });

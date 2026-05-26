@@ -11,12 +11,8 @@ export const APPROVAL_MODE_REVEAL_DURATION_MS = 1200;
 const FOCUS_UI_ENABLED_STATE_KEY = 'focusUiEnabled';
 
 export function useVisibilityToggle() {
-  const [focusUiEnabledByDefault] = useState(
-    () => persistentState.get(FOCUS_UI_ENABLED_STATE_KEY) === true,
-  );
-  const [cleanUiDetailsVisible, setCleanUiDetailsVisibleState] = useState(
-    !focusUiEnabledByDefault,
-  );
+  const [focusUiEnabledByDefault] = useState(() => persistentState.get(FOCUS_UI_ENABLED_STATE_KEY) === true);
+  const [cleanUiDetailsVisible, setCleanUiDetailsVisibleState] = useState(!focusUiEnabledByDefault);
   const modeRevealTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const cleanUiDetailsPinnedRef = useRef(!focusUiEnabledByDefault);
 
@@ -38,7 +34,7 @@ export function useVisibilityToggle() {
       setCleanUiDetailsVisibleState(visible);
       persistFocusUiPreference(visible);
     },
-    [clearModeRevealTimeout, persistFocusUiPreference],
+    [clearModeRevealTimeout, persistFocusUiPreference]
   );
 
   const toggleCleanUiDetailsVisible = useCallback(() => {
@@ -65,7 +61,7 @@ export function useVisibilityToggle() {
         modeRevealTimeoutRef.current = null;
       }, durationMs);
     },
-    [clearModeRevealTimeout],
+    [clearModeRevealTimeout]
   );
 
   useEffect(() => () => clearModeRevealTimeout(), [clearModeRevealTimeout]);

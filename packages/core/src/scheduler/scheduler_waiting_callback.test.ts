@@ -74,7 +74,7 @@ describe('Scheduler waiting callback', () => {
       expect.anything(),
       expect.objectContaining({
         onWaitingForConfirmation,
-      }),
+      })
     );
   });
 });

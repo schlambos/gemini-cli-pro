@@ -12,13 +12,7 @@
  */
 
 import { FinishReason } from '@google/genai';
-import type {
-  Candidate,
-  Content,
-  ContentUnion,
-  Part,
-  PartUnion,
-} from '@google/genai';
+import type { Candidate, Content, ContentUnion, Part, PartUnion } from '@google/genai';
 import { truncateString } from '../utils/textUtils.js';
 
 // 160KB limit for the total size of string content in a log entry.
@@ -71,10 +65,7 @@ function getStringReferences(parts: AnyPart[]): StringReference[] {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
           len: () => (part['code'] as string).length,
         });
-      } else if (
-        part.type === 'codeExecutionResult' &&
-        typeof part['output'] === 'string'
-      ) {
+      } else if (part.type === 'codeExecutionResult' && typeof part['output'] === 'string') {
         refs.push({
           // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
           get: () => part['output'] as string,
@@ -102,16 +93,11 @@ function limitTotalLength(parts: AnyPart[]): void {
 
   // Filter out parts that are already small enough to not need truncation
   const largeRefs = refs.filter((ref) => ref.len() > averageSize);
-  const smallRefsLength = refs
-    .filter((ref) => ref.len() <= averageSize)
-    .reduce((sum, ref) => sum + ref.len(), 0);
+  const smallRefsLength = refs.filter((ref) => ref.len() <= averageSize).reduce((sum, ref) => sum + ref.len(), 0);
 
   // Distribute the remaining budget among large parts
   const remainingBudget = GLOBAL_TEXT_LIMIT - smallRefsLength;
-  const budgetPerLargePart = Math.max(
-    1,
-    Math.floor(remainingBudget / largeRefs.length),
-  );
+  const budgetPerLargePart = Math.max(1, Math.floor(remainingBudget / largeRefs.length));
 
   for (const ref of largeRefs) {
     const original = ref.get();
@@ -132,12 +118,7 @@ export function toInputMessages(contents: Content[]): InputMessages {
 }
 
 function isPart(value: unknown): value is Part {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    !Array.isArray(value) &&
-    !('parts' in value)
-  );
+  return typeof value === 'object' && value !== null && !Array.isArray(value) && !('parts' in value);
 }
 
 function toPart(part: PartUnion): Part {
@@ -172,9 +153,7 @@ function toContent(content: ContentUnion): Content | undefined {
   }
 }
 
-export function toSystemInstruction(
-  systemInstruction?: ContentUnion,
-): SystemInstruction | undefined {
+export function toSystemInstruction(systemInstruction?: ContentUnion): SystemInstruction | undefined {
   const parts: AnyPart[] = [];
   if (systemInstruction) {
     const content = toContent(systemInstruction);
@@ -253,13 +232,10 @@ export function toOTelPart(part: Part): AnyPart {
     return new ToolCallRequestPart(
       part.functionCall.name,
       part.functionCall.id,
-      JSON.stringify(part.functionCall.args),
+      JSON.stringify(part.functionCall.args)
     );
   } else if (part.functionResponse) {
-    return new ToolCallResponsePart(
-      JSON.stringify(part.functionResponse.response),
-      part.functionResponse.id,
-    );
+    return new ToolCallResponsePart(JSON.stringify(part.functionResponse.response), part.functionResponse.id);
   } else if (part.executableCode) {
     const { executableCode, ...unexpectedData } = part;
     return new GenericPart('executableCode', {
@@ -362,12 +338,7 @@ export interface OutputMessage extends ChatMessage {
 
 export type OutputMessages = OutputMessage[];
 
-export type AnyPart =
-  | TextPart
-  | ToolCallRequestPart
-  | ToolCallResponsePart
-  | ReasoningPart
-  | GenericPart;
+export type AnyPart = TextPart | ToolCallRequestPart | ToolCallResponsePart | ReasoningPart | GenericPart;
 
 export type SystemInstruction = AnyPart[];
 

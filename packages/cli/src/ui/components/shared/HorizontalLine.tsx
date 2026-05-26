@@ -12,12 +12,10 @@ interface HorizontalLineProps {
   color?: string;
 }
 
-export const HorizontalLine: React.FC<HorizontalLineProps> = ({
-  color = theme.border.default,
-}) => (
+export const HorizontalLine: React.FC<HorizontalLineProps> = ({ color = theme.border.default }) => (
   <Box
-    width="100%"
-    borderStyle="single"
+    width='100%'
+    borderStyle='single'
     borderTop
     borderBottom={false}
     borderLeft={false}

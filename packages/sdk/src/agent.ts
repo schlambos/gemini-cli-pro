@@ -27,9 +27,7 @@ import { SdkAgentShell } from './shell.js';
 import type { SessionContext } from './types.js';
 import type { SkillReference } from './skills.js';
 
-export type SystemInstructions =
-  | string
-  | ((context: SessionContext) => string | Promise<string>);
+export type SystemInstructions = string | ((context: SessionContext) => string | Promise<string>);
 
 export interface GeminiCliAgentOptions {
   instructions: SystemInstructions;
@@ -57,8 +55,7 @@ export class GeminiCliAgent {
     this.tools = options.tools || [];
     this.skillRefs = options.skills || [];
 
-    const initialMemory =
-      typeof this.instructions === 'string' ? this.instructions : '';
+    const initialMemory = typeof this.instructions === 'string' ? this.instructions : '';
 
     const configParams: ConfigParameters = {
       sessionId: `sdk-${Date.now()}`,
@@ -80,10 +77,7 @@ export class GeminiCliAgent {
     this.config = new Config(configParams);
   }
 
-  async *sendStream(
-    prompt: string,
-    signal?: AbortSignal,
-  ): AsyncGenerator<ServerGeminiStreamEvent> {
+  async *sendStream(prompt: string, signal?: AbortSignal): AsyncGenerator<ServerGeminiStreamEvent> {
     // Lazy initialization of auth and client
     if (!this.config.getContentGenerator()) {
       const authType = getAuthTypeFromEnv() || AuthType.COMPUTE_ADC;
@@ -125,9 +119,7 @@ export class GeminiCliAgent {
         if (registry.getTool(toolName)) {
           registry.unregisterTool(toolName);
         }
-        registry.registerTool(
-          new ActivateSkillTool(this.config, this.config.getMessageBus()),
-        );
+        registry.registerTool(new ActivateSkillTool(this.config, this.config.getMessageBus()));
       }
 
       // Register tools now that registry exists
@@ -147,9 +139,7 @@ export class GeminiCliAgent {
     const fs = new SdkAgentFilesystem(this.config);
     const shell = new SdkAgentShell(this.config);
 
-    let request: Parameters<GeminiClient['sendMessageStream']>[0] = [
-      { text: prompt },
-    ];
+    let request: Parameters<GeminiClient['sendMessageStream']>[0] = [{ text: prompt }];
 
     if (!this.instructionsLoaded && typeof this.instructions === 'function') {
       const context: SessionContext = {
@@ -167,10 +157,7 @@ export class GeminiCliAgent {
         client.updateSystemInstruction();
         this.instructionsLoaded = true;
       } catch (e) {
-        const error =
-          e instanceof Error
-            ? e
-            : new Error(`Error resolving dynamic instructions: ${String(e)}`);
+        const error = e instanceof Error ? e : new Error(`Error resolving dynamic instructions: ${String(e)}`);
         throw error;
       }
     }
@@ -225,24 +212,16 @@ export class GeminiCliAgent {
         return tool;
       };
 
-      const completedCalls = await scheduleAgentTools(
-        this.config,
-        toolCallsToSchedule,
-        {
-          schedulerId: sessionId,
-          toolRegistry: scopedRegistry,
-          signal: abortSignal,
-        },
-      );
+      const completedCalls = await scheduleAgentTools(this.config, toolCallsToSchedule, {
+        schedulerId: sessionId,
+        toolRegistry: scopedRegistry,
+        signal: abortSignal,
+      });
 
-      const functionResponses = completedCalls.flatMap(
-        (call) => call.response.responseParts,
-      );
+      const functionResponses = completedCalls.flatMap((call) => call.response.responseParts);
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-      request = functionResponses as unknown as Parameters<
-        GeminiClient['sendMessageStream']
-      >[0];
+      request = functionResponses as unknown as Parameters<GeminiClient['sendMessageStream']>[0];
     }
   }
 }

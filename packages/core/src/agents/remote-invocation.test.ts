@@ -4,15 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  afterEach,
-  type Mock,
-} from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 import { RemoteAgentInvocation } from './remote-invocation.js';
 import { A2AClientManager } from './a2a-client-manager.js';
 import type { RemoteAgentDefinition } from './types.js';
@@ -62,11 +54,7 @@ describe('RemoteAgentInvocation', () => {
   describe('Constructor Validation', () => {
     it('accepts valid input with string query', () => {
       expect(() => {
-        new RemoteAgentInvocation(
-          mockDefinition,
-          { query: 'valid' },
-          mockMessageBus,
-        );
+        new RemoteAgentInvocation(mockDefinition, { query: 'valid' }, mockMessageBus);
       }).not.toThrow();
     });
 
@@ -85,27 +73,15 @@ describe('RemoteAgentInvocation', () => {
         parts: [{ kind: 'text', text: 'Hello' }],
       });
 
-      const invocation = new RemoteAgentInvocation(
-        mockDefinition,
-        {},
-        mockMessageBus,
-      );
+      const invocation = new RemoteAgentInvocation(mockDefinition, {}, mockMessageBus);
       await invocation.execute(new AbortController().signal);
 
-      expect(mockClientManager.sendMessage).toHaveBeenCalledWith(
-        'test-agent',
-        'Get Started!',
-        expect.any(Object),
-      );
+      expect(mockClientManager.sendMessage).toHaveBeenCalledWith('test-agent', 'Get Started!', expect.any(Object));
     });
 
     it('throws if query is not a string', () => {
       expect(() => {
-        new RemoteAgentInvocation(
-          mockDefinition,
-          { query: 123 },
-          mockMessageBus,
-        );
+        new RemoteAgentInvocation(mockDefinition, { query: 123 }, mockMessageBus);
       }).toThrow("requires a string 'query' input");
     });
   });
@@ -125,7 +101,7 @@ describe('RemoteAgentInvocation', () => {
         {
           query: 'hi',
         },
-        mockMessageBus,
+        mockMessageBus
       );
       await invocation.execute(new AbortController().signal);
 
@@ -135,7 +111,7 @@ describe('RemoteAgentInvocation', () => {
         expect.objectContaining({
           headers: expect.any(Function),
           shouldRetryWithHeaders: expect.any(Function),
-        }),
+        })
       );
     });
 
@@ -153,7 +129,7 @@ describe('RemoteAgentInvocation', () => {
         {
           query: 'hi',
         },
-        mockMessageBus,
+        mockMessageBus
       );
       await invocation.execute(new AbortController().signal);
 
@@ -178,17 +154,16 @@ describe('RemoteAgentInvocation', () => {
         {
           query: 'first',
         },
-        mockMessageBus,
+        mockMessageBus
       );
 
       // Execute first time
       const result1 = await invocation1.execute(new AbortController().signal);
       expect(result1.returnDisplay).toBe('Response 1');
-      expect(mockClientManager.sendMessage).toHaveBeenLastCalledWith(
-        'test-agent',
-        'first',
-        { contextId: undefined, taskId: undefined },
-      );
+      expect(mockClientManager.sendMessage).toHaveBeenLastCalledWith('test-agent', 'first', {
+        contextId: undefined,
+        taskId: undefined,
+      });
 
       // Prepare for second call with simulated state persistence
       mockClientManager.sendMessage.mockResolvedValueOnce({
@@ -205,7 +180,7 @@ describe('RemoteAgentInvocation', () => {
         {
           query: 'second',
         },
-        mockMessageBus,
+        mockMessageBus
       );
       const result2 = await invocation2.execute(new AbortController().signal);
       expect(result2.returnDisplay).toBe('Response 2');
@@ -213,7 +188,7 @@ describe('RemoteAgentInvocation', () => {
       expect(mockClientManager.sendMessage).toHaveBeenLastCalledWith(
         'test-agent',
         'second',
-        { contextId: 'ctx-1', taskId: 'task-1' }, // Used state from first call
+        { contextId: 'ctx-1', taskId: 'task-1' } // Used state from first call
       );
 
       // Third call: Task completes
@@ -231,7 +206,7 @@ describe('RemoteAgentInvocation', () => {
         {
           query: 'third',
         },
-        mockMessageBus,
+        mockMessageBus
       );
       await invocation3.execute(new AbortController().signal);
 
@@ -248,29 +223,27 @@ describe('RemoteAgentInvocation', () => {
         {
           query: 'fourth',
         },
-        mockMessageBus,
+        mockMessageBus
       );
       await invocation4.execute(new AbortController().signal);
 
       expect(mockClientManager.sendMessage).toHaveBeenLastCalledWith(
         'test-agent',
         'fourth',
-        { contextId: 'ctx-1', taskId: undefined }, // taskId cleared!
+        { contextId: 'ctx-1', taskId: undefined } // taskId cleared!
       );
     });
 
     it('should handle errors gracefully', async () => {
       mockClientManager.getClient.mockReturnValue({});
-      mockClientManager.sendMessage.mockRejectedValue(
-        new Error('Network error'),
-      );
+      mockClientManager.sendMessage.mockRejectedValue(new Error('Network error'));
 
       const invocation = new RemoteAgentInvocation(
         mockDefinition,
         {
           query: 'hi',
         },
-        mockMessageBus,
+        mockMessageBus
       );
       const result = await invocation.execute(new AbortController().signal);
 
@@ -297,7 +270,7 @@ describe('RemoteAgentInvocation', () => {
         {
           query: 'hi',
         },
-        mockMessageBus,
+        mockMessageBus
       );
       const result = await invocation.execute(new AbortController().signal);
 
@@ -313,19 +286,13 @@ describe('RemoteAgentInvocation', () => {
         {
           query: 'hi',
         },
-        mockMessageBus,
+        mockMessageBus
       );
       // @ts-expect-error - getConfirmationDetails is protected
-      const confirmation = await invocation.getConfirmationDetails(
-        new AbortController().signal,
-      );
+      const confirmation = await invocation.getConfirmationDetails(new AbortController().signal);
 
       expect(confirmation).not.toBe(false);
-      if (
-        confirmation &&
-        typeof confirmation === 'object' &&
-        confirmation.type === 'info'
-      ) {
+      if (confirmation && typeof confirmation === 'object' && confirmation.type === 'info') {
         expect(confirmation.title).toContain('Test Agent');
         expect(confirmation.prompt).toContain('Calling remote agent: "hi"');
       } else {

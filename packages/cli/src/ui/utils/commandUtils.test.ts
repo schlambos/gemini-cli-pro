@@ -8,12 +8,7 @@ import type { Mock } from 'vitest';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { EventEmitter } from 'node:events';
 import clipboardy from 'clipboardy';
-import {
-  isAtCommand,
-  isSlashCommand,
-  copyToClipboard,
-  getUrlOpenCommand,
-} from './commandUtils.js';
+import { isAtCommand, isSlashCommand, copyToClipboard, getUrlOpenCommand } from './commandUtils.js';
 
 // Constants used by OSC-52 tests
 const ESC = '\u001B';
@@ -60,7 +55,7 @@ vi.stubGlobal(
       get: () => mockProcess.platform,
       configurable: true, // Allows the property to be changed later if needed
     },
-  }),
+  })
 );
 
 const makeWritable = (opts?: { isTTY?: boolean; writeReturn?: boolean }) => {
@@ -203,9 +198,7 @@ describe('commandUtils', () => {
 
     it('should return false for line comments starting with //', () => {
       expect(isSlashCommand('// This is a comment')).toBe(false);
-      expect(isSlashCommand('// check if variants base info all filled.')).toBe(
-        false,
-      );
+      expect(isSlashCommand('// check if variants base info all filled.')).toBe(false);
       expect(isSlashCommand('//comment without space')).toBe(false);
     });
 
@@ -294,8 +287,7 @@ describe('commandUtils', () => {
       await copyToClipboard(testText);
 
       const written = tty.write.mock.calls[0][0] as string;
-      const chunkStarts = (written.match(new RegExp(`${ESC}P`, 'g')) || [])
-        .length;
+      const chunkStarts = (written.match(new RegExp(`${ESC}P`, 'g')) || []).length;
       const chunkEnds = written.split(ST).length - 1;
 
       expect(chunkStarts).toBeGreaterThan(1);
@@ -447,7 +439,7 @@ describe('commandUtils', () => {
 
       mockFs.createWriteStream.mockImplementation(() =>
         // Stream that never emits open or error
-        makeWritable({ isTTY: true }),
+        makeWritable({ isTTY: true })
       );
 
       mockClipboardyWrite.mockResolvedValue(undefined);

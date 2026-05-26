@@ -4,13 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import type { LoadedSettings } from '../../config/settings.js';
 import { SettingScope } from '../../config/settings.js';
 
@@ -25,13 +19,7 @@ interface VimModeContextType {
 
 const VimModeContext = createContext<VimModeContextType | undefined>(undefined);
 
-export const VimModeProvider = ({
-  children,
-  settings,
-}: {
-  children: React.ReactNode;
-  settings: LoadedSettings;
-}) => {
+export const VimModeProvider = ({ children, settings }: { children: React.ReactNode; settings: LoadedSettings }) => {
   const initialVimEnabled = settings.merged.general.vimMode;
   const [vimEnabled, setVimEnabled] = useState(initialVimEnabled);
   const [vimMode, setVimMode] = useState<VimMode>('INSERT');
@@ -64,9 +52,7 @@ export const VimModeProvider = ({
     setVimMode,
   };
 
-  return (
-    <VimModeContext.Provider value={value}>{children}</VimModeContext.Provider>
-  );
+  return <VimModeContext.Provider value={value}>{children}</VimModeContext.Provider>;
 };
 
 export const useVimMode = () => {

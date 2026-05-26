@@ -5,12 +5,7 @@
  */
 
 import type { LocalAgentDefinition } from './types.js';
-import {
-  GLOB_TOOL_NAME,
-  GREP_TOOL_NAME,
-  LS_TOOL_NAME,
-  READ_FILE_TOOL_NAME,
-} from '../tools/tool-names.js';
+import { GLOB_TOOL_NAME, GREP_TOOL_NAME, LS_TOOL_NAME, READ_FILE_TOOL_NAME } from '../tools/tool-names.js';
 import {
   DEFAULT_THINKING_MODE,
   DEFAULT_GEMINI_MODEL,
@@ -25,21 +20,17 @@ import { ThinkingLevel } from '@google/genai';
 const CodebaseInvestigationReportSchema = z.object({
   SummaryOfFindings: z
     .string()
-    .describe(
-      "A summary of the investigation's conclusions and insights for the main agent.",
-    ),
+    .describe("A summary of the investigation's conclusions and insights for the main agent."),
   ExplorationTrace: z
     .array(z.string())
-    .describe(
-      'A step-by-step list of actions and tools used during the investigation.',
-    ),
+    .describe('A step-by-step list of actions and tools used during the investigation.'),
   RelevantLocations: z
     .array(
       z.object({
         FilePath: z.string(),
         Reasoning: z.string(),
         KeySymbols: z.array(z.string()),
-      }),
+      })
     )
     .describe('A list of relevant files and the key symbols within them.'),
 });
@@ -49,18 +40,14 @@ const CodebaseInvestigationReportSchema = z.object({
  * dependencies, and technologies.
  */
 export const CodebaseInvestigatorAgent = (
-  config: Config,
+  config: Config
 ): LocalAgentDefinition<typeof CodebaseInvestigationReportSchema> => {
   // Use Preview Flash model if the main model supports modern features.
   // If the main model is not a modern model, use the default pro model.
-  const model = supportsModernFeatures(config.getModel())
-    ? PREVIEW_GEMINI_FLASH_MODEL
-    : DEFAULT_GEMINI_MODEL;
+  const model = supportsModernFeatures(config.getModel()) ? PREVIEW_GEMINI_FLASH_MODEL : DEFAULT_GEMINI_MODEL;
 
   const listCommand =
-    process.platform === 'win32'
-      ? '`dir /s` (CMD) or `Get-ChildItem -Recurse` (PowerShell)'
-      : '`ls -R`';
+    process.platform === 'win32' ? '`dir /s` (CMD) or `Get-ChildItem -Recurse` (PowerShell)' : '`ls -R`';
 
   return {
     name: 'codebase_investigator',
@@ -115,12 +102,7 @@ export const CodebaseInvestigatorAgent = (
 
     toolConfig: {
       // Grant access only to read-only tools.
-      tools: [
-        LS_TOOL_NAME,
-        READ_FILE_TOOL_NAME,
-        GLOB_TOOL_NAME,
-        GREP_TOOL_NAME,
-      ],
+      tools: [LS_TOOL_NAME, READ_FILE_TOOL_NAME, GLOB_TOOL_NAME, GREP_TOOL_NAME],
     },
 
     promptConfig: {

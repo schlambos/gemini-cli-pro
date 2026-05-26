@@ -9,11 +9,7 @@ import { waitFor } from '../../../test-utils/async.js';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { act } from 'react';
 import { Text } from 'ink';
-import {
-  BaseSettingsDialog,
-  type BaseSettingsDialogProps,
-  type SettingsDialogItem,
-} from './BaseSettingsDialog.js';
+import { BaseSettingsDialog, type BaseSettingsDialogProps, type SettingsDialogItem } from './BaseSettingsDialog.js';
 import { KeypressProvider } from '../../contexts/KeypressContext.js';
 import { SettingScope } from '../../../config/settings.js';
 
@@ -118,7 +114,7 @@ describe('BaseSettingsDialog', () => {
     return render(
       <KeypressProvider>
         <BaseSettingsDialog {...defaultProps} />
-      </KeypressProvider>,
+      </KeypressProvider>
     );
   };
 
@@ -298,7 +294,7 @@ describe('BaseSettingsDialog', () => {
       rerender(
         <KeypressProvider>
           <BaseSettingsDialog
-            title="Test Settings"
+            title='Test Settings'
             items={filteredItems}
             selectedScope={SettingScope.User}
             maxItemsToShow={5}
@@ -307,7 +303,7 @@ describe('BaseSettingsDialog', () => {
             onItemClear={mockOnItemClear}
             onClose={mockOnClose}
           />
-        </KeypressProvider>,
+        </KeypressProvider>
       );
 
       // Verify the dialog hasn't crashed and the items are displayed
@@ -350,7 +346,7 @@ describe('BaseSettingsDialog', () => {
       rerender(
         <KeypressProvider>
           <BaseSettingsDialog
-            title="Test Settings"
+            title='Test Settings'
             items={filteredItems}
             selectedScope={SettingScope.User}
             maxItemsToShow={5}
@@ -359,7 +355,7 @@ describe('BaseSettingsDialog', () => {
             onItemClear={mockOnItemClear}
             onClose={mockOnClose}
           />
-        </KeypressProvider>,
+        </KeypressProvider>
       );
 
       await waitFor(() => {
@@ -374,10 +370,7 @@ describe('BaseSettingsDialog', () => {
       });
 
       await waitFor(() => {
-        expect(mockOnItemToggle).toHaveBeenCalledWith(
-          'boolean-setting',
-          expect.anything(),
-        );
+        expect(mockOnItemToggle).toHaveBeenCalledWith('boolean-setting', expect.anything());
       });
     });
   });
@@ -392,10 +385,7 @@ describe('BaseSettingsDialog', () => {
       });
 
       await waitFor(() => {
-        expect(mockOnItemToggle).toHaveBeenCalledWith(
-          'boolean-setting',
-          expect.objectContaining({ type: 'boolean' }),
-        );
+        expect(mockOnItemToggle).toHaveBeenCalledWith('boolean-setting', expect.objectContaining({ type: 'boolean' }));
       });
     });
 
@@ -411,10 +401,7 @@ describe('BaseSettingsDialog', () => {
       });
 
       await waitFor(() => {
-        expect(mockOnItemToggle).toHaveBeenCalledWith(
-          'enum-setting',
-          expect.objectContaining({ type: 'enum' }),
-        );
+        expect(mockOnItemToggle).toHaveBeenCalledWith('enum-setting', expect.objectContaining({ type: 'enum' }));
       });
     });
 
@@ -462,10 +449,7 @@ describe('BaseSettingsDialog', () => {
       });
 
       await waitFor(() => {
-        expect(mockOnItemClear).toHaveBeenCalledWith(
-          'boolean-setting',
-          expect.objectContaining({ type: 'boolean' }),
-        );
+        expect(mockOnItemClear).toHaveBeenCalledWith('boolean-setting', expect.objectContaining({ type: 'boolean' }));
       });
     });
   });
@@ -495,7 +479,7 @@ describe('BaseSettingsDialog', () => {
         expect(mockOnEditCommit).toHaveBeenCalledWith(
           'string-setting',
           'test-valuex',
-          expect.objectContaining({ type: 'string' }),
+          expect.objectContaining({ type: 'string' })
         );
       });
     });
@@ -597,7 +581,7 @@ describe('BaseSettingsDialog', () => {
         expect(mockOnEditCommit).toHaveBeenCalledWith(
           'number-setting',
           '42123',
-          expect.objectContaining({ type: 'number' }),
+          expect.objectContaining({ type: 'number' })
         );
       });
     });
@@ -624,7 +608,7 @@ describe('BaseSettingsDialog', () => {
         expect(mockOnEditCommit).toHaveBeenCalledWith(
           'number-setting',
           '5',
-          expect.objectContaining({ type: 'number' }),
+          expect.objectContaining({ type: 'number' })
         );
       });
     });

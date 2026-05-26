@@ -36,9 +36,7 @@ describe('OverrideStrategy', () => {
     expect(decision).not.toBeNull();
     expect(decision?.model).toBe(overrideModel);
     expect(decision?.metadata.source).toBe('override');
-    expect(decision?.metadata.reasoning).toContain(
-      'Routing bypassed by forced model directive',
-    );
+    expect(decision?.metadata.reasoning).toContain('Routing bypassed by forced model directive');
     expect(decision?.metadata.reasoning).toContain(overrideModel);
   });
 
@@ -64,11 +62,7 @@ describe('OverrideStrategy', () => {
       requestedModel,
     } as RoutingContext;
 
-    const decision = await strategy.route(
-      contextWithRequestedModel,
-      mockConfig,
-      mockClient,
-    );
+    const decision = await strategy.route(contextWithRequestedModel, mockConfig, mockClient);
 
     expect(decision).not.toBeNull();
     expect(decision?.model).toBe(requestedModel);

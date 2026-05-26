@@ -149,17 +149,14 @@ describe('checkpoint utils', () => {
       ] as ToolCallRequestInfo[];
 
       (mockGitService.createFileSnapshot as Mock).mockResolvedValue('hash123');
-      (mockGeminiClient.getHistory as Mock).mockReturnValue([
-        { role: 'user', parts: [] },
-      ]);
+      (mockGeminiClient.getHistory as Mock).mockReturnValue([{ role: 'user', parts: [] }]);
 
-      const { checkpointsToWrite, toolCallToCheckpointMap, errors } =
-        await processRestorableToolCalls(
-          toolCalls,
-          mockGitService,
-          mockGeminiClient,
-          'history-data',
-        );
+      const { checkpointsToWrite, toolCallToCheckpointMap, errors } = await processRestorableToolCalls(
+        toolCalls,
+        mockGitService,
+        mockGeminiClient,
+        'history-data'
+      );
 
       expect(errors).toHaveLength(0);
       expect(checkpointsToWrite.size).toBe(1);
@@ -187,17 +184,13 @@ describe('checkpoint utils', () => {
         },
       ] as ToolCallRequestInfo[];
 
-      (mockGitService.createFileSnapshot as Mock).mockRejectedValue(
-        new Error('Snapshot failed'),
-      );
-      (mockGitService.getCurrentCommitHash as Mock).mockResolvedValue(
-        'fallback-hash',
-      );
+      (mockGitService.createFileSnapshot as Mock).mockRejectedValue(new Error('Snapshot failed'));
+      (mockGitService.getCurrentCommitHash as Mock).mockResolvedValue('fallback-hash');
 
       const { checkpointsToWrite, errors } = await processRestorableToolCalls(
         toolCalls,
         mockGitService,
-        mockGeminiClient,
+        mockGeminiClient
       );
 
       expect(errors).toHaveLength(1);
@@ -224,13 +217,11 @@ describe('checkpoint utils', () => {
       const { checkpointsToWrite, errors } = await processRestorableToolCalls(
         toolCalls,
         mockGitService,
-        mockGeminiClient,
+        mockGeminiClient
       );
 
       expect(errors).toHaveLength(1);
-      expect(errors[0]).toContain(
-        'Skipping restorable tool call due to missing file_path',
-      );
+      expect(errors[0]).toContain('Skipping restorable tool call due to missing file_path');
       expect(checkpointsToWrite.size).toBe(0);
     });
 
@@ -244,17 +235,13 @@ describe('checkpoint utils', () => {
           isClientInitiated: false,
         },
       ] as ToolCallRequestInfo[];
-      (mockGitService.createFileSnapshot as Mock).mockRejectedValue(
-        new Error('Snapshot failed'),
-      );
-      (mockGitService.getCurrentCommitHash as Mock).mockResolvedValue(
-        undefined,
-      );
+      (mockGitService.createFileSnapshot as Mock).mockRejectedValue(new Error('Snapshot failed'));
+      (mockGitService.getCurrentCommitHash as Mock).mockResolvedValue(undefined);
 
       const { checkpointsToWrite, errors } = await processRestorableToolCalls(
         toolCalls,
         mockGitService,
-        mockGeminiClient,
+        mockGeminiClient
       );
 
       expect(errors).toHaveLength(2);

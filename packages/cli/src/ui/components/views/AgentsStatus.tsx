@@ -15,16 +15,13 @@ interface AgentsStatusProps {
   terminalWidth: number;
 }
 
-export const AgentsStatus: React.FC<AgentsStatusProps> = ({
-  agents,
-  terminalWidth,
-}) => {
+export const AgentsStatus: React.FC<AgentsStatusProps> = ({ agents, terminalWidth }) => {
   const localAgents = agents.filter((a) => a.kind === 'local');
   const remoteAgents = agents.filter((a) => a.kind === 'remote');
 
   if (agents.length === 0) {
     return (
-      <Box flexDirection="column" marginBottom={1}>
+      <Box flexDirection='column' marginBottom={1}>
         <Text>No agents available.</Text>
       </Box>
     );
@@ -34,27 +31,21 @@ export const AgentsStatus: React.FC<AgentsStatusProps> = ({
     if (agentList.length === 0) return null;
 
     return (
-      <Box flexDirection="column">
+      <Box flexDirection='column'>
         <Text bold color={theme.text.primary}>
           {title}
         </Text>
         <Box height={1} />
         {agentList.map((agent) => (
-          <Box key={agent.name} flexDirection="row">
+          <Box key={agent.name} flexDirection='row'>
             <Text color={theme.text.primary}>{'  '}- </Text>
-            <Box flexDirection="column">
+            <Box flexDirection='column'>
               <Text bold color={theme.text.accent}>
                 {agent.displayName || agent.name}
-                {agent.displayName && agent.displayName !== agent.name && (
-                  <Text bold={false}> ({agent.name})</Text>
-                )}
+                {agent.displayName && agent.displayName !== agent.name && <Text bold={false}> ({agent.name})</Text>}
               </Text>
               {agent.description && (
-                <MarkdownDisplay
-                  terminalWidth={terminalWidth}
-                  text={agent.description}
-                  isPending={false}
-                />
+                <MarkdownDisplay terminalWidth={terminalWidth} text={agent.description} isPending={false} />
               )}
             </Box>
           </Box>
@@ -64,7 +55,7 @@ export const AgentsStatus: React.FC<AgentsStatusProps> = ({
   };
 
   return (
-    <Box flexDirection="column" marginBottom={1}>
+    <Box flexDirection='column' marginBottom={1}>
       {renderAgentList('Local Agents', localAgents)}
       {localAgents.length > 0 && remoteAgents.length > 0 && <Box height={1} />}
       {renderAgentList('Remote Agents', remoteAgents)}

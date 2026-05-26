@@ -161,12 +161,10 @@ export const createMockConfig = (overrides: Partial<Config> = {}): Config =>
 /**
  * Creates a mocked LoadedSettings object for tests.
  */
-export function createMockSettings(
-  overrides: Record<string, unknown> = {},
-): LoadedSettings {
+export function createMockSettings(overrides: Record<string, unknown> = {}): LoadedSettings {
   const merged = createTestMergedSettings(
     // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-    (overrides['merged'] as Partial<Settings>) || {},
+    (overrides['merged'] as Partial<Settings>) || {}
   );
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion

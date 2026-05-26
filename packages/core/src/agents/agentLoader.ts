@@ -10,11 +10,7 @@ import { type Dirent } from 'node:fs';
 import * as path from 'node:path';
 import * as crypto from 'node:crypto';
 import { z } from 'zod';
-import {
-  type AgentDefinition,
-  DEFAULT_MAX_TURNS,
-  DEFAULT_MAX_TIME_MINUTES,
-} from './types.js';
+import { type AgentDefinition, DEFAULT_MAX_TURNS, DEFAULT_MAX_TIME_MINUTES } from './types.js';
 import type { A2AAuthConfig } from './auth-provider/types.js';
 import { isValidToolName } from '../tools/tool-names.js';
 import { FRONTMATTER_REGEX } from '../skills/skillLoader.js';
@@ -28,8 +24,7 @@ interface FrontmatterBaseAgentDefinition {
   display_name?: string;
 }
 
-interface FrontmatterLocalAgentDefinition
-  extends FrontmatterBaseAgentDefinition {
+interface FrontmatterLocalAgentDefinition extends FrontmatterBaseAgentDefinition {
   kind: 'local';
   description: string;
   tools?: string[];
@@ -57,17 +52,14 @@ interface FrontmatterAuthConfig {
   password?: string;
 }
 
-interface FrontmatterRemoteAgentDefinition
-  extends FrontmatterBaseAgentDefinition {
+interface FrontmatterRemoteAgentDefinition extends FrontmatterBaseAgentDefinition {
   kind: 'remote';
   description?: string;
   agent_card_url: string;
   auth?: FrontmatterAuthConfig;
 }
 
-type FrontmatterAgentDefinition =
-  | FrontmatterLocalAgentDefinition
-  | FrontmatterRemoteAgentDefinition;
+type FrontmatterAgentDefinition = FrontmatterLocalAgentDefinition | FrontmatterRemoteAgentDefinition;
 
 /**
  * Error thrown when an agent definition is invalid or cannot be loaded.
@@ -75,7 +67,7 @@ type FrontmatterAgentDefinition =
 export class AgentLoadError extends Error {
   constructor(
     public filePath: string,
-    message: string,
+    message: string
   ) {
     super(`Failed to load agent from ${filePath}: ${message}`);
     this.name = 'AgentLoadError';
@@ -90,9 +82,7 @@ export interface AgentLoadResult {
   errors: AgentLoadError[];
 }
 
-const nameSchema = z
-  .string()
-  .regex(/^[a-z0-9-_]+$/, 'Name must be a valid slug');
+const nameSchema = z.string().regex(/^[a-z0-9-_]+$/, 'Name must be a valid slug');
 
 const localAgentSchema = z
   .object({
@@ -104,7 +94,7 @@ const localAgentSchema = z
       .array(
         z.string().refine((val) => isValidToolName(val), {
           message: 'Invalid tool name',
-        }),
+        })
       )
       .optional(),
     model: z.string().optional(),
@@ -194,10 +184,7 @@ const agentUnionOptions = [
 
 const remoteAgentsListSchema = z.array(remoteAgentSchema);
 
-const markdownFrontmatterSchema = z.union([
-  agentUnionOptions[0].schema,
-  agentUnionOptions[1].schema,
-]);
+const markdownFrontmatterSchema = z.union([agentUnionOptions[0].schema, agentUnionOptions[1].schema]);
 
 function formatZodError(error: z.ZodError, context: string): string {
   const issues = error.issues
@@ -206,11 +193,8 @@ function formatZodError(error: z.ZodError, context: string): string {
       if (i.code === z.ZodIssueCode.invalid_union) {
         return i.unionErrors
           .map((unionError, index) => {
-            const label =
-              agentUnionOptions[index]?.label ?? `Agent type #${index + 1}`;
-            const unionIssues = unionError.issues
-              .map((u) => `${u.path.join('.')}: ${u.message}`)
-              .join(', ');
+            const label = agentUnionOptions[index]?.label ?? `Agent type #${index + 1}`;
+            const unionIssues = unionError.issues.map((u) => `${u.path.join('.')}: ${u.message}`).join(', ');
             return `(${label}) ${unionIssues}`;
           })
           .join('\n');
@@ -229,10 +213,7 @@ function formatZodError(error: z.ZodError, context: string): string {
  * @returns An array containing the single parsed agent definition.
  * @throws AgentLoadError if parsing or validation fails.
  */
-export async function parseAgentMarkdown(
-  filePath: string,
-  content?: string,
-): Promise<FrontmatterAgentDefinition[]> {
+export async function parseAgentMarkdown(filePath: string, content?: string): Promise<FrontmatterAgentDefinition[]> {
   let fileContent: string;
   if (content !== undefined) {
     fileContent = content;
@@ -240,10 +221,7 @@ export async function parseAgentMarkdown(
     try {
       fileContent = await fs.readFile(filePath, 'utf-8');
     } catch (error) {
-      throw new AgentLoadError(
-        filePath,
-        `Could not read file: ${getErrorMessage(error)}`,
-      );
+      throw new AgentLoadError(filePath, `Could not read file: ${getErrorMessage(error)}`);
     }
   }
 
@@ -252,7 +230,7 @@ export async function parseAgentMarkdown(
   if (!match) {
     throw new AgentLoadError(
       filePath,
-      'Invalid agent definition: Missing mandatory YAML frontmatter. Agent Markdown files MUST start with YAML frontmatter enclosed in triple-dashes "---" (e.g., ---\nname: my-agent\n---).',
+      'Invalid agent definition: Missing mandatory YAML frontmatter. Agent Markdown files MUST start with YAML frontmatter enclosed in triple-dashes "---" (e.g., ---\nname: my-agent\n---).'
     );
   }
 
@@ -266,7 +244,7 @@ export async function parseAgentMarkdown(
     throw new AgentLoadError(
       filePath,
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-      `YAML frontmatter parsing failed: ${(error as Error).message}`,
+      `YAML frontmatter parsing failed: ${(error as Error).message}`
     );
   }
 
@@ -274,10 +252,7 @@ export async function parseAgentMarkdown(
   if (Array.isArray(rawFrontmatter)) {
     const result = remoteAgentsListSchema.safeParse(rawFrontmatter);
     if (!result.success) {
-      throw new AgentLoadError(
-        filePath,
-        `Validation failed: ${formatZodError(result.error, 'Remote Agents List')}`,
-      );
+      throw new AgentLoadError(filePath, `Validation failed: ${formatZodError(result.error, 'Remote Agents List')}`);
     }
     return result.data.map((agent) => ({
       ...agent,
@@ -288,10 +263,7 @@ export async function parseAgentMarkdown(
   const result = markdownFrontmatterSchema.safeParse(rawFrontmatter);
 
   if (!result.success) {
-    throw new AgentLoadError(
-      filePath,
-      `Validation failed: ${formatZodError(result.error, 'Agent Definition')}`,
-    );
+    throw new AgentLoadError(filePath, `Validation failed: ${formatZodError(result.error, 'Agent Definition')}`);
   }
 
   const frontmatter = result.data;
@@ -322,9 +294,7 @@ export async function parseAgentMarkdown(
  * Converts frontmatter auth config to the internal A2AAuthConfig type.
  * This handles the mapping from snake_case YAML to the internal type structure.
  */
-function convertFrontmatterAuthToConfig(
-  frontmatter: FrontmatterAuthConfig,
-): A2AAuthConfig {
+function convertFrontmatterAuthToConfig(frontmatter: FrontmatterAuthConfig): A2AAuthConfig {
   const base = {
     agent_card_requires_auth: frontmatter.agent_card_requires_auth,
   };
@@ -344,16 +314,12 @@ function convertFrontmatterAuthToConfig(
 
     case 'http': {
       if (!frontmatter.scheme) {
-        throw new Error(
-          'Internal error: HTTP scheme missing after validation.',
-        );
+        throw new Error('Internal error: HTTP scheme missing after validation.');
       }
       switch (frontmatter.scheme) {
         case 'Bearer':
           if (!frontmatter.token) {
-            throw new Error(
-              'Internal error: Bearer token missing after validation.',
-            );
+            throw new Error('Internal error: Bearer token missing after validation.');
           }
           return {
             ...base,
@@ -363,9 +329,7 @@ function convertFrontmatterAuthToConfig(
           };
         case 'Basic':
           if (!frontmatter.username || !frontmatter.password) {
-            throw new Error(
-              'Internal error: Basic auth credentials missing after validation.',
-            );
+            throw new Error('Internal error: Basic auth credentials missing after validation.');
           }
           return {
             ...base,
@@ -397,7 +361,7 @@ function convertFrontmatterAuthToConfig(
  */
 export function markdownToAgentDefinition(
   markdown: FrontmatterAgentDefinition,
-  metadata?: { hash?: string; filePath?: string },
+  metadata?: { hash?: string; filePath?: string }
 ): AgentDefinition {
   const inputConfig = {
     inputSchema: {
@@ -420,9 +384,7 @@ export function markdownToAgentDefinition(
       description: markdown.description || '(Loading description...)',
       displayName: markdown.display_name,
       agentCardUrl: markdown.agent_card_url,
-      auth: markdown.auth
-        ? convertFrontmatterAuthToConfig(markdown.auth)
-        : undefined,
+      auth: markdown.auth ? convertFrontmatterAuthToConfig(markdown.auth) : undefined,
       inputConfig,
       metadata,
     };
@@ -469,9 +431,7 @@ export function markdownToAgentDefinition(
  * @param dir Directory path to scan.
  * @returns Object containing successfully loaded agents and any errors.
  */
-export async function loadAgentsFromDirectory(
-  dir: string,
-): Promise<AgentLoadResult> {
+export async function loadAgentsFromDirectory(dir: string): Promise<AgentLoadResult> {
   const result: AgentLoadResult = {
     agents: [],
     errors: [],
@@ -490,17 +450,14 @@ export async function loadAgentsFromDirectory(
       new AgentLoadError(
         dir,
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-        `Could not list directory: ${(error as Error).message}`,
-      ),
+        `Could not list directory: ${(error as Error).message}`
+      )
     );
     return result;
   }
 
   const files = dirEntries.filter(
-    (entry) =>
-      entry.isFile() &&
-      !entry.name.startsWith('_') &&
-      entry.name.endsWith('.md'),
+    (entry) => entry.isFile() && !entry.name.startsWith('_') && entry.name.endsWith('.md')
   );
 
   for (const entry of files) {
@@ -521,8 +478,8 @@ export async function loadAgentsFromDirectory(
           new AgentLoadError(
             filePath,
             // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-            `Unexpected error: ${(error as Error).message}`,
-          ),
+            `Unexpected error: ${(error as Error).message}`
+          )
         );
       }
     }

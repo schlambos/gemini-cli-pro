@@ -9,11 +9,7 @@ import { HistoryItemDisplay } from './HistoryItemDisplay.js';
 import { type HistoryItem } from '../types.js';
 import { MessageType } from '../types.js';
 import { SessionStatsProvider } from '../contexts/SessionContext.js';
-import {
-  type Config,
-  type ToolExecuteConfirmationDetails,
-  CoreToolCallStatus,
-} from '@google/gemini-cli-core';
+import { type Config, type ToolExecuteConfirmationDetails, CoreToolCallStatus } from '@google/gemini-cli-core';
 import { ToolGroupMessage } from './messages/ToolGroupMessage.js';
 import { renderWithProviders } from '../../test-utils/render.js';
 import { createMockSettings } from '../../test-utils/settings.js';
@@ -39,9 +35,7 @@ describe('<HistoryItemDisplay />', () => {
       type: MessageType.USER,
       text: 'Hello',
     };
-    const { lastFrame } = renderWithProviders(
-      <HistoryItemDisplay {...baseItem} item={item} />,
-    );
+    const { lastFrame } = renderWithProviders(<HistoryItemDisplay {...baseItem} item={item} />);
     expect(lastFrame()).toContain('Hello');
   });
 
@@ -51,9 +45,7 @@ describe('<HistoryItemDisplay />', () => {
       type: MessageType.USER,
       text: '/theme',
     };
-    const { lastFrame } = renderWithProviders(
-      <HistoryItemDisplay {...baseItem} item={item} />,
-    );
+    const { lastFrame } = renderWithProviders(<HistoryItemDisplay {...baseItem} item={item} />);
     expect(lastFrame()).toContain('/theme');
   });
 
@@ -65,12 +57,11 @@ describe('<HistoryItemDisplay />', () => {
         type: MessageType.INFO,
         text: '⚡ Line 1\n⚡ Line 2\n⚡ Line 3',
       };
-      const { lastFrame } = renderWithProviders(
-        <HistoryItemDisplay {...baseItem} item={item} />,
-        { useAlternateBuffer },
-      );
+      const { lastFrame } = renderWithProviders(<HistoryItemDisplay {...baseItem} item={item} />, {
+        useAlternateBuffer,
+      });
       expect(lastFrame()).toMatchSnapshot();
-    },
+    }
   );
 
   it('renders AgentsStatus for "agents_list" type', () => {
@@ -91,9 +82,7 @@ describe('<HistoryItemDisplay />', () => {
         },
       ],
     };
-    const { lastFrame } = renderWithProviders(
-      <HistoryItemDisplay {...baseItem} item={item} />,
-    );
+    const { lastFrame } = renderWithProviders(<HistoryItemDisplay {...baseItem} item={item} />);
     expect(lastFrame()).toMatchSnapshot();
   });
 
@@ -106,7 +95,7 @@ describe('<HistoryItemDisplay />', () => {
     const { lastFrame } = renderWithProviders(
       <SessionStatsProvider>
         <HistoryItemDisplay {...baseItem} item={item} />
-      </SessionStatsProvider>,
+      </SessionStatsProvider>
     );
     expect(lastFrame()).toContain('Stats');
   });
@@ -123,9 +112,7 @@ describe('<HistoryItemDisplay />', () => {
       gcpProject: 'test-project',
       ideClient: 'test-ide',
     };
-    const { lastFrame } = renderWithProviders(
-      <HistoryItemDisplay {...baseItem} item={item} />,
-    );
+    const { lastFrame } = renderWithProviders(<HistoryItemDisplay {...baseItem} item={item} />);
     expect(lastFrame()).toContain('About Gemini CLI');
   });
 
@@ -137,11 +124,9 @@ describe('<HistoryItemDisplay />', () => {
     const { lastFrame } = renderWithProviders(
       <SessionStatsProvider>
         <HistoryItemDisplay {...baseItem} item={item} />
-      </SessionStatsProvider>,
+      </SessionStatsProvider>
     );
-    expect(lastFrame()).toContain(
-      'No API calls have been made in this session.',
-    );
+    expect(lastFrame()).toContain('No API calls have been made in this session.');
   });
 
   it('renders ToolStatsDisplay for "tool_stats" type', () => {
@@ -152,11 +137,9 @@ describe('<HistoryItemDisplay />', () => {
     const { lastFrame } = renderWithProviders(
       <SessionStatsProvider>
         <HistoryItemDisplay {...baseItem} item={item} />
-      </SessionStatsProvider>,
+      </SessionStatsProvider>
     );
-    expect(lastFrame()).toContain(
-      'No tool calls have been made in this session.',
-    );
+    expect(lastFrame()).toContain('No tool calls have been made in this session.');
   });
 
   it('renders SessionSummaryDisplay for "quit" type', () => {
@@ -168,7 +151,7 @@ describe('<HistoryItemDisplay />', () => {
     const { lastFrame } = renderWithProviders(
       <SessionStatsProvider>
         <HistoryItemDisplay {...baseItem} item={item} />
-      </SessionStatsProvider>,
+      </SessionStatsProvider>
     );
     expect(lastFrame()).toContain('Agent powering down. Goodbye!');
   });
@@ -181,11 +164,7 @@ describe('<HistoryItemDisplay />', () => {
     };
 
     const { lastFrame } = renderWithProviders(
-      <HistoryItemDisplay
-        item={historyItem}
-        terminalWidth={80}
-        isPending={false}
-      />,
+      <HistoryItemDisplay item={historyItem} terminalWidth={80} isPending={false} />
     );
 
     // The ANSI codes should be escaped for display.
@@ -216,21 +195,12 @@ describe('<HistoryItemDisplay />', () => {
       ],
     };
 
-    renderWithProviders(
-      <HistoryItemDisplay
-        item={historyItem}
-        terminalWidth={80}
-        isPending={false}
-      />,
-    );
+    renderWithProviders(<HistoryItemDisplay item={historyItem} terminalWidth={80} isPending={false} />);
 
     const passedProps = vi.mocked(ToolGroupMessage).mock.calls[0][0];
-    const confirmationDetails = passedProps.toolCalls[0]
-      .confirmationDetails as ToolExecuteConfirmationDetails;
+    const confirmationDetails = passedProps.toolCalls[0].confirmationDetails as ToolExecuteConfirmationDetails;
 
-    expect(confirmationDetails.command).toBe(
-      'echo "\\u001b[31mhello\\u001b[0m"',
-    );
+    expect(confirmationDetails.command).toBe('echo "\\u001b[31mhello\\u001b[0m"');
   });
 
   describe('thinking items', () => {
@@ -240,14 +210,11 @@ describe('<HistoryItemDisplay />', () => {
         type: 'thinking',
         thought: { subject: 'Thinking', description: 'test' },
       };
-      const { lastFrame } = renderWithProviders(
-        <HistoryItemDisplay {...baseItem} item={item} />,
-        {
-          settings: createMockSettings({
-            merged: { ui: { inlineThinkingMode: 'full' } },
-          }),
-        },
-      );
+      const { lastFrame } = renderWithProviders(<HistoryItemDisplay {...baseItem} item={item} />, {
+        settings: createMockSettings({
+          merged: { ui: { inlineThinkingMode: 'full' } },
+        }),
+      });
 
       expect(lastFrame()).toMatchSnapshot();
     });
@@ -258,105 +225,89 @@ describe('<HistoryItemDisplay />', () => {
         type: 'thinking',
         thought: { subject: 'Thinking', description: 'test' },
       };
-      const { lastFrame } = renderWithProviders(
-        <HistoryItemDisplay {...baseItem} item={item} />,
-        {
-          settings: createMockSettings({
-            merged: { ui: { inlineThinkingMode: 'off' } },
-          }),
-        },
-      );
+      const { lastFrame } = renderWithProviders(<HistoryItemDisplay {...baseItem} item={item} />, {
+        settings: createMockSettings({
+          merged: { ui: { inlineThinkingMode: 'off' } },
+        }),
+      });
 
       expect(lastFrame()).toBe('');
     });
   });
 
-  describe.each([true, false])(
-    'gemini items (alternateBuffer=%s)',
-    (useAlternateBuffer) => {
-      const longCode =
-        '# Example code block:\n' +
-        '```python\n' +
-        Array.from({ length: 50 }, (_, i) => `Line ${i + 1}`).join('\n') +
-        '\n```';
+  describe.each([true, false])('gemini items (alternateBuffer=%s)', (useAlternateBuffer) => {
+    const longCode =
+      '# Example code block:\n' +
+      '```python\n' +
+      Array.from({ length: 50 }, (_, i) => `Line ${i + 1}`).join('\n') +
+      '\n```';
 
-      it('should render a truncated gemini item', () => {
-        const item: HistoryItem = {
-          id: 1,
-          type: 'gemini',
-          text: longCode,
-        };
-        const { lastFrame } = renderWithProviders(
-          <HistoryItemDisplay
-            item={item}
-            isPending={false}
-            terminalWidth={80}
-            availableTerminalHeight={10}
-          />,
-          { useAlternateBuffer },
-        );
+    it('should render a truncated gemini item', () => {
+      const item: HistoryItem = {
+        id: 1,
+        type: 'gemini',
+        text: longCode,
+      };
+      const { lastFrame } = renderWithProviders(
+        <HistoryItemDisplay item={item} isPending={false} terminalWidth={80} availableTerminalHeight={10} />,
+        { useAlternateBuffer }
+      );
 
-        expect(lastFrame()).toMatchSnapshot();
-      });
+      expect(lastFrame()).toMatchSnapshot();
+    });
 
-      it('should render a full gemini item when using availableTerminalHeightGemini', () => {
-        const item: HistoryItem = {
-          id: 1,
-          type: 'gemini',
-          text: longCode,
-        };
-        const { lastFrame } = renderWithProviders(
-          <HistoryItemDisplay
-            item={item}
-            isPending={false}
-            terminalWidth={80}
-            availableTerminalHeight={10}
-            availableTerminalHeightGemini={Number.MAX_SAFE_INTEGER}
-          />,
-          { useAlternateBuffer },
-        );
+    it('should render a full gemini item when using availableTerminalHeightGemini', () => {
+      const item: HistoryItem = {
+        id: 1,
+        type: 'gemini',
+        text: longCode,
+      };
+      const { lastFrame } = renderWithProviders(
+        <HistoryItemDisplay
+          item={item}
+          isPending={false}
+          terminalWidth={80}
+          availableTerminalHeight={10}
+          availableTerminalHeightGemini={Number.MAX_SAFE_INTEGER}
+        />,
+        { useAlternateBuffer }
+      );
 
-        expect(lastFrame()).toMatchSnapshot();
-      });
+      expect(lastFrame()).toMatchSnapshot();
+    });
 
-      it('should render a truncated gemini_content item', () => {
-        const item: HistoryItem = {
-          id: 1,
-          type: 'gemini_content',
-          text: longCode,
-        };
-        const { lastFrame } = renderWithProviders(
-          <HistoryItemDisplay
-            item={item}
-            isPending={false}
-            terminalWidth={80}
-            availableTerminalHeight={10}
-          />,
-          { useAlternateBuffer },
-        );
+    it('should render a truncated gemini_content item', () => {
+      const item: HistoryItem = {
+        id: 1,
+        type: 'gemini_content',
+        text: longCode,
+      };
+      const { lastFrame } = renderWithProviders(
+        <HistoryItemDisplay item={item} isPending={false} terminalWidth={80} availableTerminalHeight={10} />,
+        { useAlternateBuffer }
+      );
 
-        expect(lastFrame()).toMatchSnapshot();
-      });
+      expect(lastFrame()).toMatchSnapshot();
+    });
 
-      it('should render a full gemini_content item when using availableTerminalHeightGemini', () => {
-        const item: HistoryItem = {
-          id: 1,
-          type: 'gemini_content',
-          text: longCode,
-        };
-        const { lastFrame } = renderWithProviders(
-          <HistoryItemDisplay
-            item={item}
-            isPending={false}
-            terminalWidth={80}
-            availableTerminalHeight={10}
-            availableTerminalHeightGemini={Number.MAX_SAFE_INTEGER}
-          />,
-          { useAlternateBuffer },
-        );
+    it('should render a full gemini_content item when using availableTerminalHeightGemini', () => {
+      const item: HistoryItem = {
+        id: 1,
+        type: 'gemini_content',
+        text: longCode,
+      };
+      const { lastFrame } = renderWithProviders(
+        <HistoryItemDisplay
+          item={item}
+          isPending={false}
+          terminalWidth={80}
+          availableTerminalHeight={10}
+          availableTerminalHeightGemini={Number.MAX_SAFE_INTEGER}
+        />,
+        { useAlternateBuffer }
+      );
 
-        expect(lastFrame()).toMatchSnapshot();
-      });
-    },
-  );
+      expect(lastFrame()).toMatchSnapshot();
+    });
+  });
 });

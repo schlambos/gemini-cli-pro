@@ -23,8 +23,7 @@ import {
 } from '@google/gemini-cli-core';
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const original =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const original = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...original,
     getErrorMessage: vi.fn((error: unknown) => {
@@ -56,18 +55,13 @@ vi.mock('@google/gemini-cli-core', async (importOriginal) => {
 });
 
 const mockRefreshMemory = refreshMemory as Mock;
-const mockRefreshServerHierarchicalMemory =
-  refreshServerHierarchicalMemory as Mock;
+const mockRefreshServerHierarchicalMemory = refreshServerHierarchicalMemory as Mock;
 
 describe('memoryCommand', () => {
   let mockContext: CommandContext;
 
-  const getSubCommand = (
-    name: 'show' | 'add' | 'refresh' | 'list',
-  ): SlashCommand => {
-    const subCommand = memoryCommand.subCommands?.find(
-      (cmd) => cmd.name === name,
-    );
+  const getSubCommand = (name: 'show' | 'add' | 'refresh' | 'list'): SlashCommand => {
+    const subCommand = memoryCommand.subCommands?.find((cmd) => cmd.name === name);
     if (!subCommand) {
       throw new Error(`/memory ${name} command not found.`);
     }
@@ -125,7 +119,7 @@ describe('memoryCommand', () => {
           type: MessageType.INFO,
           text: 'Memory is currently empty.',
         },
-        expect.any(Number),
+        expect.any(Number)
       );
     });
 
@@ -144,7 +138,7 @@ describe('memoryCommand', () => {
           type: MessageType.INFO,
           text: `Current memory content from 1 file(s):\n\n---\n${memoryContent}\n---`,
         },
-        expect.any(Number),
+        expect.any(Number)
       );
     });
   });
@@ -195,7 +189,7 @@ describe('memoryCommand', () => {
           type: MessageType.INFO,
           text: `Attempting to save to memory: "${fact}"`,
         },
-        expect.any(Number),
+        expect.any(Number)
       );
 
       expect(result).toEqual({
@@ -238,9 +232,7 @@ describe('memoryCommand', () => {
           include: [],
         }),
         isTrustedFolder: () => false,
-        updateSystemInstructionIfInitialized: vi
-          .fn()
-          .mockResolvedValue(undefined),
+        updateSystemInstructionIfInitialized: vi.fn().mockResolvedValue(undefined),
         isJitContextEnabled: vi.fn().mockReturnValue(false),
         getContextManager: vi.fn().mockReturnValue({
           refresh: mockContextManagerRefresh,
@@ -286,7 +278,7 @@ describe('memoryCommand', () => {
           type: MessageType.INFO,
           text: 'Memory refreshed successfully. Loaded 18 characters from 3 file(s).',
         },
-        expect.any(Number),
+        expect.any(Number)
       );
     });
 
@@ -296,8 +288,7 @@ describe('memoryCommand', () => {
       const successMessage = {
         type: 'message',
         messageType: MessageType.INFO,
-        content:
-          'Memory refreshed successfully. Loaded 18 characters from 2 file(s).',
+        content: 'Memory refreshed successfully. Loaded 18 characters from 2 file(s).',
       };
       mockRefreshMemory.mockResolvedValue(successMessage);
 
@@ -308,7 +299,7 @@ describe('memoryCommand', () => {
           type: MessageType.INFO,
           text: 'Refreshing memory from source files...',
         },
-        expect.any(Number),
+        expect.any(Number)
       );
 
       expect(mockRefreshMemory).toHaveBeenCalledOnce();
@@ -318,7 +309,7 @@ describe('memoryCommand', () => {
           type: MessageType.INFO,
           text: 'Memory refreshed successfully. Loaded 18 characters from 2 file(s).',
         },
-        expect.any(Number),
+        expect.any(Number)
       );
     });
 
@@ -341,7 +332,7 @@ describe('memoryCommand', () => {
           type: MessageType.INFO,
           text: 'Memory refreshed successfully. No memory content found.',
         },
-        expect.any(Number),
+        expect.any(Number)
       );
     });
 
@@ -363,7 +354,7 @@ describe('memoryCommand', () => {
           type: MessageType.ERROR,
           text: `Error refreshing memory: ${error.message}`,
         },
-        expect.any(Number),
+        expect.any(Number)
       );
     });
 
@@ -374,16 +365,14 @@ describe('memoryCommand', () => {
         services: { config: null },
       });
 
-      await expect(
-        refreshCommand.action(nullConfigContext, ''),
-      ).resolves.toBeUndefined();
+      await expect(refreshCommand.action(nullConfigContext, '')).resolves.toBeUndefined();
 
       expect(nullConfigContext.ui.addItem).toHaveBeenCalledWith(
         {
           type: MessageType.INFO,
           text: 'Refreshing memory from source files...',
         },
-        expect.any(Number),
+        expect.any(Number)
       );
 
       expect(mockRefreshMemory).not.toHaveBeenCalled();
@@ -433,7 +422,7 @@ describe('memoryCommand', () => {
           type: MessageType.INFO,
           text: 'No GEMINI.md files in use.',
         },
-        expect.any(Number),
+        expect.any(Number)
       );
     });
 
@@ -450,7 +439,7 @@ describe('memoryCommand', () => {
           type: MessageType.INFO,
           text: `There are 2 GEMINI.md file(s) in use:\n\n${filePaths.join('\n')}`,
         },
-        expect.any(Number),
+        expect.any(Number)
       );
     });
   });

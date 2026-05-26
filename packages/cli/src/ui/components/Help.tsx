@@ -16,13 +16,7 @@ interface Help {
 }
 
 export const Help: React.FC<Help> = ({ commands }) => (
-  <Box
-    flexDirection="column"
-    marginBottom={1}
-    borderColor={theme.border.default}
-    borderStyle="round"
-    padding={1}
-  >
+  <Box flexDirection='column' marginBottom={1} borderColor={theme.border.default} borderStyle='round' padding={1}>
     {/* Basics */}
     <Text bold color={theme.text.primary}>
       Basics:
@@ -69,17 +63,14 @@ export const Help: React.FC<Help> = ({ commands }) => (
     {commands
       .filter((command) => command.description && !command.hidden)
       .map((command: SlashCommand) => (
-        <Box key={command.name} flexDirection="column">
+        <Box key={command.name} flexDirection='column'>
           <Text color={theme.text.primary}>
             <Text bold color={theme.text.accent}>
               {' '}
               /{command.name}
             </Text>
-            {command.kind === CommandKind.MCP_PROMPT && (
-              <Text color={theme.text.secondary}> [MCP]</Text>
-            )}
-            {command.description &&
-              ' - ' + sanitizeForDisplay(command.description, 100)}
+            {command.kind === CommandKind.MCP_PROMPT && <Text color={theme.text.secondary}> [MCP]</Text>}
+            {command.description && ' - ' + sanitizeForDisplay(command.description, 100)}
           </Text>
           {command.subCommands &&
             command.subCommands
@@ -90,8 +81,7 @@ export const Help: React.FC<Help> = ({ commands }) => (
                     {'   '}
                     {subCommand.name}
                   </Text>
-                  {subCommand.description &&
-                    ' - ' + sanitizeForDisplay(subCommand.description, 100)}
+                  {subCommand.description && ' - ' + sanitizeForDisplay(subCommand.description, 100)}
                 </Text>
               ))}
         </Box>
@@ -104,8 +94,7 @@ export const Help: React.FC<Help> = ({ commands }) => (
       - shell command
     </Text>
     <Text color={theme.text.primary}>
-      <Text color={theme.text.secondary}>[MCP]</Text> - Model Context Protocol
-      command (from external servers)
+      <Text color={theme.text.secondary}>[MCP]</Text> - Model Context Protocol command (from external servers)
     </Text>
 
     <Box height={1} />
@@ -130,9 +119,7 @@ export const Help: React.FC<Help> = ({ commands }) => (
       <Text bold color={theme.text.accent}>
         {process.platform === 'win32' ? 'Ctrl+Enter' : 'Ctrl+J'}
       </Text>{' '}
-      {process.platform === 'linux'
-        ? '- New line (Alt+Enter works for certain linux distros)'
-        : '- New line'}
+      {process.platform === 'linux' ? '- New line (Alt+Enter works for certain linux distros)' : '- New line'}
     </Text>
     <Text color={theme.text.primary}>
       <Text bold color={theme.text.accent}>

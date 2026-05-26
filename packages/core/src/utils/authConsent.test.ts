@@ -30,9 +30,7 @@ describe('getConsentForOauth', () => {
   it('should use coreEvents when listeners are present', async () => {
     vi.restoreAllMocks();
     const mockEmitConsentRequest = vi.spyOn(coreEvents, 'emitConsentRequest');
-    const mockListenerCount = vi
-      .spyOn(coreEvents, 'listenerCount')
-      .mockReturnValue(1);
+    const mockListenerCount = vi.spyOn(coreEvents, 'listenerCount').mockReturnValue(1);
 
     mockEmitConsentRequest.mockImplementation((payload) => {
       payload.onConfirm(true);
@@ -43,10 +41,8 @@ describe('getConsentForOauth', () => {
     expect(result).toBe(true);
     expect(mockEmitConsentRequest).toHaveBeenCalledWith(
       expect.objectContaining({
-        prompt: expect.stringContaining(
-          'Login required. Opening authentication page in your browser.',
-        ),
-      }),
+        prompt: expect.stringContaining('Login required. Opening authentication page in your browser.'),
+      })
     );
 
     mockListenerCount.mockRestore();
@@ -55,9 +51,7 @@ describe('getConsentForOauth', () => {
 
   it('should use readline when no listeners are present and not headless', async () => {
     vi.restoreAllMocks();
-    const mockListenerCount = vi
-      .spyOn(coreEvents, 'listenerCount')
-      .mockReturnValue(0);
+    const mockListenerCount = vi.spyOn(coreEvents, 'listenerCount').mockReturnValue(0);
     (isHeadlessMode as Mock).mockReturnValue(false);
 
     const mockReadline = {
@@ -75,9 +69,7 @@ describe('getConsentForOauth', () => {
     expect(result).toBe(true);
     expect(readline.createInterface).toHaveBeenCalled();
     expect(writeToStdout).toHaveBeenCalledWith(
-      expect.stringContaining(
-        'Login required. Opening authentication page in your browser.',
-      ),
+      expect.stringContaining('Login required. Opening authentication page in your browser.')
     );
 
     mockListenerCount.mockRestore();
@@ -85,14 +77,10 @@ describe('getConsentForOauth', () => {
 
   it('should throw FatalAuthenticationError when no listeners and headless', async () => {
     vi.restoreAllMocks();
-    const mockListenerCount = vi
-      .spyOn(coreEvents, 'listenerCount')
-      .mockReturnValue(0);
+    const mockListenerCount = vi.spyOn(coreEvents, 'listenerCount').mockReturnValue(0);
     (isHeadlessMode as Mock).mockReturnValue(true);
 
-    await expect(getConsentForOauth('Login required.')).rejects.toThrow(
-      FatalAuthenticationError,
-    );
+    await expect(getConsentForOauth('Login required.')).rejects.toThrow(FatalAuthenticationError);
 
     mockListenerCount.mockRestore();
   });

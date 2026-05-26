@@ -28,9 +28,7 @@ export const RESUME_LATEST = 'latest';
 /**
  * Error codes for session-related errors.
  */
-export type SessionErrorCode =
-  | 'NO_SESSIONS_FOUND'
-  | 'INVALID_SESSION_IDENTIFIER';
+export type SessionErrorCode = 'NO_SESSIONS_FOUND' | 'INVALID_SESSION_IDENTIFIER';
 
 /**
  * Error thrown for session-related failures.
@@ -39,7 +37,7 @@ export type SessionErrorCode =
 export class SessionError extends Error {
   constructor(
     readonly code: SessionErrorCode,
-    message: string,
+    message: string
   ) {
     super(message);
     this.name = 'SessionError';
@@ -49,10 +47,7 @@ export class SessionError extends Error {
    * Creates an error for when no sessions exist for the current project.
    */
   static noSessionsFound(): SessionError {
-    return new SessionError(
-      'NO_SESSIONS_FOUND',
-      'No previous sessions found for this project.',
-    );
+    return new SessionError('NO_SESSIONS_FOUND', 'No previous sessions found for this project.');
   }
 
   /**
@@ -61,7 +56,7 @@ export class SessionError extends Error {
   static invalidSessionIdentifier(identifier: string): SessionError {
     return new SessionError(
       'INVALID_SESSION_IDENTIFIER',
-      `Invalid session identifier "${identifier}".\n  Use --list-sessions to see available sessions, then use --resume {number}, --resume {uuid}, or --resume latest.`,
+      `Invalid session identifier "${identifier}".\n  Use --list-sessions to see available sessions, then use --resume {number}, --resume {uuid}, or --resume latest.`
     );
   }
 }
@@ -168,11 +163,7 @@ export const extractFirstUserMessage = (messages: MessageRecord[]): string => {
     // First try filtering out slash commands.
     .filter((msg) => {
       const content = partListUnionToString(msg.content);
-      return (
-        !content.startsWith('/') &&
-        !content.startsWith('?') &&
-        content.trim().length > 0
-      );
+      return !content.startsWith('/') && !content.startsWith('?') && content.trim().length > 0;
     })
     .find((msg) => msg.type === 'user');
 
@@ -195,10 +186,7 @@ export const extractFirstUserMessage = (messages: MessageRecord[]): string => {
  * @param timestamp - The timestamp to format
  * @param style - 'long' (e.g. "2 hours ago") or 'short' (e.g. "2h")
  */
-export const formatRelativeTime = (
-  timestamp: string,
-  style: 'long' | 'short' = 'long',
-): string => {
+export const formatRelativeTime = (timestamp: string, style: 'long' | 'short' = 'long'): string => {
   const now = new Date();
   const time = new Date(timestamp);
   const diffMs = now.getTime() - time.getTime();
@@ -214,9 +202,7 @@ export const formatRelativeTime = (
     if (diffHours < 24) return `${diffHours}h`;
     if (diffDays < 30) return `${diffDays}d`;
     const diffMonths = Math.floor(diffDays / 30);
-    return diffMonths < 12
-      ? `${diffMonths}mo`
-      : `${Math.floor(diffMonths / 12)}y`;
+    return diffMonths < 12 ? `${diffMonths}mo` : `${Math.floor(diffMonths / 12)}y`;
   } else {
     if (diffDays > 0) {
       return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
@@ -242,87 +228,70 @@ export interface GetSessionOptions {
 export const getAllSessionFiles = async (
   chatsDir: string,
   currentSessionId?: string,
-  options: GetSessionOptions = {},
+  options: GetSessionOptions = {}
 ): Promise<SessionFileEntry[]> => {
   try {
     const files = await fs.readdir(chatsDir);
-    const sessionFiles = files
-      .filter((f) => f.startsWith(SESSION_FILE_PREFIX) && f.endsWith('.json'))
-      .sort(); // Sort by filename, which includes timestamp
+    const sessionFiles = files.filter((f) => f.startsWith(SESSION_FILE_PREFIX) && f.endsWith('.json')).sort(); // Sort by filename, which includes timestamp
 
-    const sessionPromises = sessionFiles.map(
-      async (file): Promise<SessionFileEntry> => {
-        const filePath = path.join(chatsDir, file);
-        try {
-          const content: ConversationRecord = JSON.parse(
-            await fs.readFile(filePath, 'utf8'),
-          );
+    const sessionPromises = sessionFiles.map(async (file): Promise<SessionFileEntry> => {
+      const filePath = path.join(chatsDir, file);
+      try {
+        const content: ConversationRecord = JSON.parse(await fs.readFile(filePath, 'utf8'));
 
-          // Validate required fields
-          if (
-            !content.sessionId ||
-            !content.messages ||
-            !Array.isArray(content.messages) ||
-            !content.startTime ||
-            !content.lastUpdated
-          ) {
-            // Missing required fields - treat as corrupted
-            return { fileName: file, sessionInfo: null };
-          }
-
-          // Skip sessions that only contain system messages (info, error, warning)
-          if (!hasUserOrAssistantMessage(content.messages)) {
-            return { fileName: file, sessionInfo: null };
-          }
-
-          const firstUserMessage = extractFirstUserMessage(content.messages);
-          const isCurrentSession = currentSessionId
-            ? file.includes(currentSessionId.slice(0, 8))
-            : false;
-
-          let fullContent: string | undefined;
-          let messages:
-            | Array<{ role: 'user' | 'assistant'; content: string }>
-            | undefined;
-
-          if (options.includeFullContent) {
-            fullContent = content.messages
-              .map((msg) => partListUnionToString(msg.content))
-              .join(' ');
-            messages = content.messages.map((msg) => ({
-              role:
-                msg.type === 'user'
-                  ? ('user' as const)
-                  : ('assistant' as const),
-              content: partListUnionToString(msg.content),
-            }));
-          }
-
-          const sessionInfo: SessionInfo = {
-            id: content.sessionId,
-            file: file.replace('.json', ''),
-            fileName: file,
-            startTime: content.startTime,
-            lastUpdated: content.lastUpdated,
-            messageCount: content.messages.length,
-            displayName: content.summary
-              ? stripUnsafeCharacters(content.summary)
-              : firstUserMessage,
-            firstUserMessage,
-            isCurrentSession,
-            index: 0, // Will be set after sorting valid sessions
-            summary: content.summary,
-            fullContent,
-            messages,
-          };
-
-          return { fileName: file, sessionInfo };
-        } catch {
-          // File is corrupted (can't read or parse JSON)
+        // Validate required fields
+        if (
+          !content.sessionId ||
+          !content.messages ||
+          !Array.isArray(content.messages) ||
+          !content.startTime ||
+          !content.lastUpdated
+        ) {
+          // Missing required fields - treat as corrupted
           return { fileName: file, sessionInfo: null };
         }
-      },
-    );
+
+        // Skip sessions that only contain system messages (info, error, warning)
+        if (!hasUserOrAssistantMessage(content.messages)) {
+          return { fileName: file, sessionInfo: null };
+        }
+
+        const firstUserMessage = extractFirstUserMessage(content.messages);
+        const isCurrentSession = currentSessionId ? file.includes(currentSessionId.slice(0, 8)) : false;
+
+        let fullContent: string | undefined;
+        let messages: Array<{ role: 'user' | 'assistant'; content: string }> | undefined;
+
+        if (options.includeFullContent) {
+          fullContent = content.messages.map((msg) => partListUnionToString(msg.content)).join(' ');
+          messages = content.messages.map((msg) => ({
+            role: msg.type === 'user' ? ('user' as const) : ('assistant' as const),
+            content: partListUnionToString(msg.content),
+          }));
+        }
+
+        const sessionInfo: SessionInfo = {
+          id: content.sessionId,
+          file: file.replace('.json', ''),
+          fileName: file,
+          startTime: content.startTime,
+          lastUpdated: content.lastUpdated,
+          messageCount: content.messages.length,
+          displayName: content.summary ? stripUnsafeCharacters(content.summary) : firstUserMessage,
+          firstUserMessage,
+          isCurrentSession,
+          index: 0, // Will be set after sorting valid sessions
+          summary: content.summary,
+          fullContent,
+          messages,
+        };
+
+        return { fileName: file, sessionInfo };
+      } catch {
+        // File is corrupted (can't read or parse JSON)
+        return { fileName: file, sessionInfo: null };
+      }
+    });
 
     return await Promise.all(sessionPromises);
   } catch (error) {
@@ -342,20 +311,13 @@ export const getAllSessionFiles = async (
 export const getSessionFiles = async (
   chatsDir: string,
   currentSessionId?: string,
-  options: GetSessionOptions = {},
+  options: GetSessionOptions = {}
 ): Promise<SessionInfo[]> => {
-  const allFiles = await getAllSessionFiles(
-    chatsDir,
-    currentSessionId,
-    options,
-  );
+  const allFiles = await getAllSessionFiles(chatsDir, currentSessionId, options);
 
   // Filter out corrupted files and extract SessionInfo
   const validSessions = allFiles
-    .filter(
-      (entry): entry is { fileName: string; sessionInfo: SessionInfo } =>
-        entry.sessionInfo !== null,
-    )
+    .filter((entry): entry is { fileName: string; sessionInfo: SessionInfo } => entry.sessionInfo !== null)
     .map((entry) => entry.sessionInfo);
 
   // Deduplicate sessions by ID
@@ -364,8 +326,7 @@ export const getSessionFiles = async (
     // If duplicate exists, keep the one with the later lastUpdated timestamp
     if (
       !uniqueSessionsMap.has(session.id) ||
-      new Date(session.lastUpdated).getTime() >
-        new Date(uniqueSessionsMap.get(session.id)!.lastUpdated).getTime()
+      new Date(session.lastUpdated).getTime() > new Date(uniqueSessionsMap.get(session.id)!.lastUpdated).getTime()
     ) {
       uniqueSessionsMap.set(session.id, session);
     }
@@ -373,9 +334,7 @@ export const getSessionFiles = async (
   const uniqueSessions = Array.from(uniqueSessionsMap.values());
 
   // Sort by startTime (oldest first) for stable session numbering
-  uniqueSessions.sort(
-    (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
-  );
+  uniqueSessions.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 
   // Set the correct 1-based indexes after sorting
   uniqueSessions.forEach((session, index) => {
@@ -395,10 +354,7 @@ export class SessionSelector {
    * Lists all available sessions for the current project.
    */
   async listSessions(): Promise<SessionInfo[]> {
-    const chatsDir = path.join(
-      this.config.storage.getProjectTempDir(),
-      'chats',
-    );
+    const chatsDir = path.join(this.config.storage.getProjectTempDir(), 'chats');
     return getSessionFiles(chatsDir, this.config.getSessionId());
   }
 
@@ -417,27 +373,17 @@ export class SessionSelector {
     }
 
     // Sort by startTime (oldest first, so newest sessions get highest numbers)
-    const sortedSessions = sessions.sort(
-      (a, b) =>
-        new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
-    );
+    const sortedSessions = sessions.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 
     // Try to find by UUID first
-    const sessionByUuid = sortedSessions.find(
-      (session) => session.id === identifier,
-    );
+    const sessionByUuid = sortedSessions.find((session) => session.id === identifier);
     if (sessionByUuid) {
       return sessionByUuid;
     }
 
     // Parse as index number (1-based) - only allow numeric indexes
     const index = parseInt(identifier, 10);
-    if (
-      !isNaN(index) &&
-      index.toString() === identifier &&
-      index > 0 &&
-      index <= sortedSessions.length
-    ) {
+    if (!isNaN(index) && index.toString() === identifier && index > 0 && index <= sortedSessions.length) {
       return sortedSessions[index - 1];
     }
 
@@ -461,10 +407,7 @@ export class SessionSelector {
       }
 
       // Sort by startTime (oldest first, so newest sessions get highest numbers)
-      sessions.sort(
-        (a, b) =>
-          new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
-      );
+      sessions.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 
       selectedSession = sessions[sessions.length - 1];
     } else {
@@ -477,7 +420,7 @@ export class SessionSelector {
         }
         // Wrap unexpected errors with context
         throw new Error(
-          `Failed to find session "${resumeArg}": ${error instanceof Error ? error.message : String(error)}`,
+          `Failed to find session "${resumeArg}": ${error instanceof Error ? error.message : String(error)}`
         );
       }
     }
@@ -488,19 +431,12 @@ export class SessionSelector {
   /**
    * Loads session data for a selected session.
    */
-  private async selectSession(
-    sessionInfo: SessionInfo,
-  ): Promise<SessionSelectionResult> {
-    const chatsDir = path.join(
-      this.config.storage.getProjectTempDir(),
-      'chats',
-    );
+  private async selectSession(sessionInfo: SessionInfo): Promise<SessionSelectionResult> {
+    const chatsDir = path.join(this.config.storage.getProjectTempDir(), 'chats');
     const sessionPath = path.join(chatsDir, sessionInfo.fileName);
 
     try {
-      const sessionData: ConversationRecord = JSON.parse(
-        await fs.readFile(sessionPath, 'utf8'),
-      );
+      const sessionData: ConversationRecord = JSON.parse(await fs.readFile(sessionPath, 'utf8'));
 
       const displayInfo = `Session ${sessionInfo.index}: ${sessionInfo.firstUserMessage} (${sessionInfo.messageCount} messages, ${formatRelativeTime(sessionInfo.lastUpdated)})`;
 
@@ -511,7 +447,7 @@ export class SessionSelector {
       };
     } catch (error) {
       throw new Error(
-        `Failed to load session ${sessionInfo.id}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Failed to load session ${sessionInfo.id}: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
   }
@@ -520,9 +456,7 @@ export class SessionSelector {
 /**
  * Converts session/conversation data into UI history and Gemini client history formats.
  */
-export function convertSessionToHistoryFormats(
-  messages: ConversationRecord['messages'],
-): {
+export function convertSessionToHistoryFormats(messages: ConversationRecord['messages']): {
   uiHistory: HistoryItemWithoutId[];
   clientHistory: Array<{ role: 'user' | 'model'; parts: Part[] }>;
 } {
@@ -530,9 +464,7 @@ export function convertSessionToHistoryFormats(
 
   for (const msg of messages) {
     // Add the message only if it has content
-    const displayContentString = msg.displayContent
-      ? partListUnionToString(msg.displayContent)
-      : undefined;
+    const displayContentString = msg.displayContent ? partListUnionToString(msg.displayContent) : undefined;
     const contentString = partListUnionToString(msg.content);
     const uiText = displayContentString || contentString;
 
@@ -567,12 +499,7 @@ export function convertSessionToHistoryFormats(
     }
 
     // Add tool calls if present
-    if (
-      msg.type !== 'user' &&
-      'toolCalls' in msg &&
-      msg.toolCalls &&
-      msg.toolCalls.length > 0
-    ) {
+    if (msg.type !== 'user' && 'toolCalls' in msg && msg.toolCalls && msg.toolCalls.length > 0) {
       uiHistory.push({
         type: 'tool_group',
         tools: msg.toolCalls.map((tool) => ({
@@ -580,10 +507,7 @@ export function convertSessionToHistoryFormats(
           name: tool.displayName || tool.name,
           description: tool.description || '',
           renderOutputAsMarkdown: tool.renderOutputAsMarkdown ?? true,
-          status:
-            tool.status === 'success'
-              ? CoreToolCallStatus.Success
-              : CoreToolCallStatus.Error,
+          status: tool.status === 'success' ? CoreToolCallStatus.Success : CoreToolCallStatus.Error,
           resultDisplay: tool.resultDisplay,
           confirmationDetails: undefined,
         })),
@@ -603,10 +527,7 @@ export function convertSessionToHistoryFormats(
     if (msg.type === 'user') {
       // Skip user slash commands
       const contentString = partListUnionToString(msg.content);
-      if (
-        contentString.trim().startsWith('/') ||
-        contentString.trim().startsWith('?')
-      ) {
+      if (contentString.trim().startsWith('/') || contentString.trim().startsWith('?')) {
         continue;
       }
 

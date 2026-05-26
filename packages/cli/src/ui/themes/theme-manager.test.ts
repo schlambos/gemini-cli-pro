@@ -28,8 +28,7 @@ vi.mock('node:os', async (importOriginal) => {
 });
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     homedir: () => os.homedir(),
@@ -92,12 +91,9 @@ describe('ThemeManager', () => {
   it('should list available themes including custom themes', () => {
     themeManager.loadCustomThemes({ MyCustomTheme: validCustomTheme });
     const available = themeManager.getAvailableThemes();
-    expect(
-      available.some(
-        (t: { name: string; isCustom?: boolean }) =>
-          t.name === 'MyCustomTheme' && t.isCustom,
-      ),
-    ).toBe(true);
+    expect(available.some((t: { name: string; isCustom?: boolean }) => t.name === 'MyCustomTheme' && t.isCustom)).toBe(
+      true
+    );
   });
 
   it('should get a theme by name', () => {
@@ -146,10 +142,7 @@ describe('ThemeManager', () => {
       expect(result).toBe(true);
       const activeTheme = themeManager.getActiveTheme();
       expect(activeTheme.name).toBe('My File Theme');
-      expect(fs.readFileSync).toHaveBeenCalledWith(
-        expect.stringContaining('my-theme.json'),
-        'utf-8',
-      );
+      expect(fs.readFileSync).toHaveBeenCalledWith(expect.stringContaining('my-theme.json'), 'utf-8');
     });
 
     it('should not load a theme if the file does not exist', () => {
@@ -174,17 +167,13 @@ describe('ThemeManager', () => {
     it('should not load a theme from an untrusted file path and log a message', () => {
       vi.spyOn(fs, 'existsSync').mockReturnValue(true);
       vi.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(mockTheme));
-      const consoleWarnSpy = vi
-        .spyOn(debugLogger, 'warn')
-        .mockImplementation(() => {});
+      const consoleWarnSpy = vi.spyOn(debugLogger, 'warn').mockImplementation(() => {});
 
       const result = themeManager.setActiveTheme('/untrusted/my-theme.json');
 
       expect(result).toBe(false);
       expect(themeManager.getActiveTheme().name).toBe(DEFAULT_THEME.name);
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('is outside your home directory'),
-      );
+      expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('is outside your home directory'));
 
       consoleWarnSpy.mockRestore();
     });
@@ -211,9 +200,7 @@ describe('ThemeManager', () => {
     it('should not allow extension themes to overwrite built-in themes even with prefixing', () => {
       // availableThemes has 'Ayu'.
       // We verify that it DOES prefix, so it won't collide even if extension name is similar.
-      themeManager.registerExtensionThemes('Ext', [
-        { ...validCustomTheme, name: 'Theme' },
-      ]);
+      themeManager.registerExtensionThemes('Ext', [{ ...validCustomTheme, name: 'Theme' }]);
       expect(themeManager.getCustomThemeNames()).toContain('Theme (Ext)');
     });
 
@@ -230,9 +217,7 @@ describe('ThemeManager', () => {
       themeManager.registerExtensionThemes('Ext', [extTheme]);
       themeManager.loadCustomThemes({ SettingsTheme: settingsTheme });
 
-      expect(themeManager.getCustomThemeNames()).toContain(
-        'ExtensionTheme (Ext)',
-      );
+      expect(themeManager.getCustomThemeNames()).toContain('ExtensionTheme (Ext)');
       expect(themeManager.getCustomThemeNames()).toContain('SettingsTheme');
 
       expect(themeManager.isCustomTheme('ExtensionTheme (Ext)')).toBe(true);
@@ -270,9 +255,7 @@ describe('ThemeManager', () => {
       // ui.dark should be interpolated from Gray and background (#000000)
       expect(semanticColors.border.default).toBeDefined();
       expect(semanticColors.ui.dark).toBeDefined();
-      expect(semanticColors.border.default).not.toBe(
-        DEFAULT_THEME.semanticColors.border.default,
-      );
+      expect(semanticColors.border.default).not.toBe(DEFAULT_THEME.semanticColors.border.default);
     });
 
     it('should return original semantic colors when terminal background is NOT set', () => {
@@ -287,14 +270,10 @@ describe('ThemeManager', () => {
       themeManager.setTerminalBackground(darkTerminalBg);
 
       const semanticColors = themeManager.getSemanticColors();
-      expect(semanticColors.background.primary).toBe(
-        themeManager.getTheme('Default Light')!.colors.Background,
-      );
+      expect(semanticColors.background.primary).toBe(themeManager.getTheme('Default Light')!.colors.Background);
 
       const colors = themeManager.getColors();
-      expect(colors.Background).toBe(
-        themeManager.getTheme('Default Light')!.colors.Background,
-      );
+      expect(colors.Background).toBe(themeManager.getTheme('Default Light')!.colors.Background);
     });
 
     it('should NOT override background when theme is incompatible (Dark theme on Light terminal)', () => {
@@ -303,14 +282,10 @@ describe('ThemeManager', () => {
       themeManager.setTerminalBackground(lightTerminalBg);
 
       const semanticColors = themeManager.getSemanticColors();
-      expect(semanticColors.background.primary).toBe(
-        themeManager.getTheme('Default')!.colors.Background,
-      );
+      expect(semanticColors.background.primary).toBe(themeManager.getTheme('Default')!.colors.Background);
 
       const colors = themeManager.getColors();
-      expect(colors.Background).toBe(
-        themeManager.getTheme('Default')!.colors.Background,
-      );
+      expect(colors.Background).toBe(themeManager.getTheme('Default')!.colors.Background);
     });
 
     it('should override background for custom theme when compatible', () => {

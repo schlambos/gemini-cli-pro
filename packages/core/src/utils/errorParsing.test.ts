@@ -17,8 +17,7 @@ describe('parseAndFormatApiError', () => {
   it('should format a valid API error JSON', () => {
     const errorMessage =
       'got status: 400 Bad Request. {"error":{"code":400,"message":"API key not valid. Please pass a valid API key.","status":"INVALID_ARGUMENT"}}';
-    const expected =
-      '[API Error: API key not valid. Please pass a valid API key. (Status: INVALID_ARGUMENT)]';
+    const expected = '[API Error: API key not valid. Please pass a valid API key. (Status: INVALID_ARGUMENT)]';
     expect(parseAndFormatApiError(errorMessage)).toBe(expected);
   });
 
@@ -30,11 +29,11 @@ describe('parseAndFormatApiError', () => {
       undefined,
       undefined,
       'gemini-2.5-pro',
-      DEFAULT_GEMINI_FLASH_MODEL,
+      DEFAULT_GEMINI_FLASH_MODEL
     );
     expect(result).toContain('[API Error: Rate limit exceeded');
     expect(result).toContain(
-      'Possible quota limitations in place or slow response times detected. Switching to the gemini-2.5-flash model',
+      'Possible quota limitations in place or slow response times detected. Switching to the gemini-2.5-flash model'
     );
   });
 
@@ -48,23 +47,17 @@ describe('parseAndFormatApiError', () => {
 
   it('should return the original message if it is not a JSON error', () => {
     const errorMessage = 'This is a plain old error message';
-    expect(parseAndFormatApiError(errorMessage)).toBe(
-      `[API Error: ${errorMessage}]`,
-    );
+    expect(parseAndFormatApiError(errorMessage)).toBe(`[API Error: ${errorMessage}]`);
   });
 
   it('should return the original message for malformed JSON', () => {
     const errorMessage = '[Stream Error: {"error": "malformed}';
-    expect(parseAndFormatApiError(errorMessage)).toBe(
-      `[API Error: ${errorMessage}]`,
-    );
+    expect(parseAndFormatApiError(errorMessage)).toBe(`[API Error: ${errorMessage}]`);
   });
 
   it('should handle JSON that does not match the ApiError structure', () => {
     const errorMessage = '[Stream Error: {"not_an_error": "some other json"}]';
-    expect(parseAndFormatApiError(errorMessage)).toBe(
-      `[API Error: ${errorMessage}]`,
-    );
+    expect(parseAndFormatApiError(errorMessage)).toBe(`[API Error: ${errorMessage}]`);
   });
 
   it('should format a nested API error', () => {

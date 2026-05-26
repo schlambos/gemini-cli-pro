@@ -11,11 +11,7 @@ import { CoreToolCallStatus } from './types.js';
 import * as modifiableToolModule from '../tools/modifiable-tool.js';
 import * as Diff from 'diff';
 import { MockModifiableTool, MockTool } from '../test-utils/mock-tool.js';
-import type {
-  ToolResult,
-  ToolInvocation,
-  ToolConfirmationPayload,
-} from '../tools/tools.js';
+import type { ToolResult, ToolInvocation, ToolConfirmationPayload } from '../tools/tools.js';
 import type { ModifyContext } from '../tools/modifiable-tool.js';
 import type { Mock } from 'vitest';
 
@@ -34,9 +30,7 @@ type MockModifyContext = {
   [K in keyof ModifyContext<Record<string, unknown>>]: Mock;
 };
 
-function createMockWaitingToolCall(
-  overrides: Partial<WaitingToolCall> = {},
-): WaitingToolCall {
+function createMockWaitingToolCall(overrides: Partial<WaitingToolCall> = {}): WaitingToolCall {
   return {
     status: CoreToolCallStatus.AwaitingApproval,
     request: {
@@ -82,15 +76,13 @@ describe('ToolModificationHandler', () => {
     };
 
     vi.spyOn(mockModifiableTool, 'getModifyContext').mockReturnValue(
-      mockModifyContext as unknown as ModifyContext<Record<string, unknown>>,
+      mockModifyContext as unknown as ModifyContext<Record<string, unknown>>
     );
   });
 
   describe('handleModifyWithEditor', () => {
     it('should return undefined if tool is not modifiable', async () => {
-      vi.mocked(
-        modifiableToolModule.isModifiableDeclarativeTool,
-      ).mockReturnValue(false);
+      vi.mocked(modifiableToolModule.isModifiableDeclarativeTool).mockReturnValue(false);
 
       const mockWaitingToolCall = createMockWaitingToolCall({
         tool: mockPlainTool,
@@ -103,19 +95,13 @@ describe('ToolModificationHandler', () => {
         },
       });
 
-      const result = await handler.handleModifyWithEditor(
-        mockWaitingToolCall,
-        'vscode',
-        new AbortController().signal,
-      );
+      const result = await handler.handleModifyWithEditor(mockWaitingToolCall, 'vscode', new AbortController().signal);
 
       expect(result).toBeUndefined();
     });
 
     it('should call modifyWithEditor and return updated params', async () => {
-      vi.mocked(
-        modifiableToolModule.isModifiableDeclarativeTool,
-      ).mockReturnValue(true);
+      vi.mocked(modifiableToolModule.isModifiableDeclarativeTool).mockReturnValue(true);
 
       vi.mocked(modifiableToolModule.modifyWithEditor).mockResolvedValue({
         updatedParams: { path: 'foo.txt', content: 'new' },
@@ -143,18 +129,14 @@ describe('ToolModificationHandler', () => {
         },
       });
 
-      const result = await handler.handleModifyWithEditor(
-        mockWaitingToolCall,
-        'vscode',
-        new AbortController().signal,
-      );
+      const result = await handler.handleModifyWithEditor(mockWaitingToolCall, 'vscode', new AbortController().signal);
 
       expect(modifiableToolModule.modifyWithEditor).toHaveBeenCalledWith(
         mockWaitingToolCall.request.args,
         mockModifyContext,
         'vscode',
         expect.any(AbortSignal),
-        { currentContent: 'old', proposedContent: 'new' },
+        { currentContent: 'old', proposedContent: 'new' }
       );
 
       expect(result).toEqual({
@@ -166,9 +148,7 @@ describe('ToolModificationHandler', () => {
 
   describe('applyInlineModify', () => {
     it('should return undefined if tool is not modifiable', async () => {
-      vi.mocked(
-        modifiableToolModule.isModifiableDeclarativeTool,
-      ).mockReturnValue(false);
+      vi.mocked(modifiableToolModule.isModifiableDeclarativeTool).mockReturnValue(false);
 
       const mockWaitingToolCall = createMockWaitingToolCall({
         tool: mockPlainTool,
@@ -177,16 +157,14 @@ describe('ToolModificationHandler', () => {
       const result = await handler.applyInlineModify(
         mockWaitingToolCall,
         { newContent: 'foo' },
-        new AbortController().signal,
+        new AbortController().signal
       );
 
       expect(result).toBeUndefined();
     });
 
     it('should return undefined if payload has no new content', async () => {
-      vi.mocked(
-        modifiableToolModule.isModifiableDeclarativeTool,
-      ).mockReturnValue(true);
+      vi.mocked(modifiableToolModule.isModifiableDeclarativeTool).mockReturnValue(true);
 
       const mockWaitingToolCall = createMockWaitingToolCall({
         tool: mockModifiableTool,
@@ -195,16 +173,14 @@ describe('ToolModificationHandler', () => {
       const result = await handler.applyInlineModify(
         mockWaitingToolCall,
         {} as ToolConfirmationPayload, // no newContent property
-        new AbortController().signal,
+        new AbortController().signal
       );
 
       expect(result).toBeUndefined();
     });
 
     it('should process empty string as valid new content', async () => {
-      vi.mocked(
-        modifiableToolModule.isModifiableDeclarativeTool,
-      ).mockReturnValue(true);
+      vi.mocked(modifiableToolModule.isModifiableDeclarativeTool).mockReturnValue(true);
       (Diff.createPatch as unknown as Mock).mockReturnValue('mock-diff-empty');
 
       mockModifyContext.getCurrentContent.mockResolvedValue('old content');
@@ -220,14 +196,10 @@ describe('ToolModificationHandler', () => {
       const result = await handler.applyInlineModify(
         mockWaitingToolCall,
         { newContent: '' },
-        new AbortController().signal,
+        new AbortController().signal
       );
 
-      expect(mockModifyContext.createUpdatedParams).toHaveBeenCalledWith(
-        expect.any(String),
-        '',
-        expect.any(Object),
-      );
+      expect(mockModifyContext.createUpdatedParams).toHaveBeenCalledWith(expect.any(String), '', expect.any(Object));
       expect(result).toEqual({
         updatedParams: { content: '' },
         updatedDiff: 'mock-diff-empty',
@@ -235,9 +207,7 @@ describe('ToolModificationHandler', () => {
     });
 
     it('should calculate diff and return updated params', async () => {
-      vi.mocked(
-        modifiableToolModule.isModifiableDeclarativeTool,
-      ).mockReturnValue(true);
+      vi.mocked(modifiableToolModule.isModifiableDeclarativeTool).mockReturnValue(true);
       (Diff.createPatch as unknown as Mock).mockReturnValue('mock-diff');
 
       mockModifyContext.getCurrentContent.mockResolvedValue('old content');
@@ -260,22 +230,14 @@ describe('ToolModificationHandler', () => {
       const result = await handler.applyInlineModify(
         mockWaitingToolCall,
         { newContent: 'new content' },
-        new AbortController().signal,
+        new AbortController().signal
       );
 
       expect(mockModifyContext.getCurrentContent).toHaveBeenCalled();
-      expect(mockModifyContext.createUpdatedParams).toHaveBeenCalledWith(
-        'old content',
-        'new content',
-        { content: 'original' },
-      );
-      expect(Diff.createPatch).toHaveBeenCalledWith(
-        'test.txt',
-        'old content',
-        'new content',
-        'Current',
-        'Proposed',
-      );
+      expect(mockModifyContext.createUpdatedParams).toHaveBeenCalledWith('old content', 'new content', {
+        content: 'original',
+      });
+      expect(Diff.createPatch).toHaveBeenCalledWith('test.txt', 'old content', 'new content', 'Current', 'Proposed');
 
       expect(result).toEqual({
         updatedParams: { content: 'new content' },

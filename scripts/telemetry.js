@@ -13,10 +13,7 @@ import { GEMINI_DIR } from '@google/gemini-cli-core';
 
 const projectRoot = join(import.meta.dirname, '..');
 
-const USER_SETTINGS_DIR = join(
-  process.env.HOME || process.env.USERPROFILE || process.env.HOMEPATH || '',
-  GEMINI_DIR,
-);
+const USER_SETTINGS_DIR = join(process.env.HOME || process.env.USERPROFILE || process.env.HOMEPATH || '', GEMINI_DIR);
 const USER_SETTINGS_PATH = join(USER_SETTINGS_DIR, 'settings.json');
 const WORKSPACE_SETTINGS_PATH = join(projectRoot, GEMINI_DIR, 'settings.json');
 
@@ -31,9 +28,7 @@ function loadSettings(filePath) {
       return settings.telemetry;
     }
   } catch (e) {
-    console.warn(
-      `⚠️ Warning: Could not parse settings file at ${filePath}: ${e.message}`,
-    );
+    console.warn(`⚠️ Warning: Could not parse settings file at ${filePath}: ${e.message}`);
   }
   return undefined;
 }
@@ -54,17 +49,11 @@ if (targetArg) {
     target = potentialTarget;
     console.log(`⚙️  Using command-line target: ${target}`);
   } else {
-    console.error(
-      `🛑 Error: Invalid target '${potentialTarget}'. Allowed targets are: ${allowedTargets.join(
-        ', ',
-      )}.`,
-    );
+    console.error(`🛑 Error: Invalid target '${potentialTarget}'. Allowed targets are: ${allowedTargets.join(', ')}.`);
     process.exit(1);
   }
 } else if (telemetrySettings?.target) {
-  console.log(
-    `⚙️ Using telemetry target from settings.json: ${telemetrySettings.target}`,
-  );
+  console.log(`⚙️ Using telemetry target from settings.json: ${telemetrySettings.target}`);
 }
 
 const targetScripts = {

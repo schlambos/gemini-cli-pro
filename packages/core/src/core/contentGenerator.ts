@@ -35,13 +35,13 @@ export interface ContentGenerator {
   generateContent(
     request: GenerateContentParameters,
     userPromptId: string,
-    role: LlmRole,
+    role: LlmRole
   ): Promise<GenerateContentResponse>;
 
   generateContentStream(
     request: GenerateContentParameters,
     userPromptId: string,
-    role: LlmRole,
+    role: LlmRole
   ): Promise<AsyncGenerator<GenerateContentResponse>>;
 
   countTokens(request: CountTokensParameters): Promise<CountTokensResponse>;
@@ -110,15 +110,11 @@ export type ContentGeneratorConfig = {
 
 export async function createContentGeneratorConfig(
   config: Config,
-  authType: AuthType | undefined,
+  authType: AuthType | undefined
 ): Promise<ContentGeneratorConfig> {
-  const geminiApiKey =
-    process.env['GEMINI_API_KEY'] || (await loadApiKey()) || undefined;
+  const geminiApiKey = process.env['GEMINI_API_KEY'] || (await loadApiKey()) || undefined;
   const googleApiKey = process.env['GOOGLE_API_KEY'] || undefined;
-  const googleCloudProject =
-    process.env['GOOGLE_CLOUD_PROJECT'] ||
-    process.env['GOOGLE_CLOUD_PROJECT_ID'] ||
-    undefined;
+  const googleCloudProject = process.env['GOOGLE_CLOUD_PROJECT'] || process.env['GOOGLE_CLOUD_PROJECT_ID'] || undefined;
   const googleCloudLocation = process.env['GOOGLE_CLOUD_LOCATION'] || undefined;
 
   const openAiApiKey = process.env['OPENAI_API_KEY'] || undefined;
@@ -131,10 +127,7 @@ export async function createContentGeneratorConfig(
   };
 
   // If we are using Google auth or we are in Cloud Shell, there is nothing else to validate for now
-  if (
-    authType === AuthType.LOGIN_WITH_GOOGLE ||
-    authType === AuthType.COMPUTE_ADC
-  ) {
+  if (authType === AuthType.LOGIN_WITH_GOOGLE || authType === AuthType.COMPUTE_ADC) {
     return contentGeneratorConfig;
   }
 
@@ -145,10 +138,7 @@ export async function createContentGeneratorConfig(
     return contentGeneratorConfig;
   }
 
-  if (
-    authType === AuthType.USE_VERTEX_AI &&
-    (googleApiKey || (googleCloudProject && googleCloudLocation))
-  ) {
+  if (authType === AuthType.USE_VERTEX_AI && (googleApiKey || (googleCloudProject && googleCloudLocation))) {
     contentGeneratorConfig.apiKey = googleApiKey;
     contentGeneratorConfig.vertexai = true;
 
@@ -177,13 +167,11 @@ export async function createContentGeneratorConfig(
 export async function createContentGenerator(
   config: ContentGeneratorConfig,
   gcConfig: Config,
-  sessionId?: string,
+  sessionId?: string
 ): Promise<ContentGenerator> {
   const generator = await (async () => {
     if (gcConfig.fakeResponses) {
-      const fakeGenerator = await FakeContentGenerator.fromFile(
-        gcConfig.fakeResponses,
-      );
+      const fakeGenerator = await FakeContentGenerator.fromFile(gcConfig.fakeResponses);
       return new LoggingContentGenerator(fakeGenerator, gcConfig);
     }
     const version = await getVersion();
@@ -191,14 +179,12 @@ export async function createContentGenerator(
       gcConfig.getModel(),
       config.authType === AuthType.USE_GEMINI ||
         config.authType === AuthType.USE_VERTEX_AI ||
-        ((await gcConfig.getGemini31Launched?.()) ?? false),
+        ((await gcConfig.getGemini31Launched?.()) ?? false)
     );
-    const customHeadersEnv =
-      process.env['GEMINI_CLI_CUSTOM_HEADERS'] || undefined;
+    const customHeadersEnv = process.env['GEMINI_CLI_CUSTOM_HEADERS'] || undefined;
     const userAgent = `GeminiCLI/${version}/${model} (${process.platform}; ${process.arch})`;
     const customHeadersMap = parseCustomHeaders(customHeadersEnv);
-    const apiKeyAuthMechanism =
-      process.env['GEMINI_API_KEY_AUTH_MECHANISM'] || 'x-goog-api-key';
+    const apiKeyAuthMechanism = process.env['GEMINI_API_KEY_AUTH_MECHANISM'] || 'x-goog-api-key';
     const apiVersionEnv = process.env['GOOGLE_GENAI_API_VERSION'];
 
     const baseHeaders: Record<string, string> = {
@@ -208,32 +194,20 @@ export async function createContentGenerator(
 
     if (
       apiKeyAuthMechanism === 'bearer' &&
-      (config.authType === AuthType.USE_GEMINI ||
-        config.authType === AuthType.USE_VERTEX_AI) &&
+      (config.authType === AuthType.USE_GEMINI || config.authType === AuthType.USE_VERTEX_AI) &&
       config.apiKey
     ) {
       baseHeaders['Authorization'] = `Bearer ${config.apiKey}`;
     }
-    if (
-      config.authType === AuthType.LOGIN_WITH_GOOGLE ||
-      config.authType === AuthType.COMPUTE_ADC
-    ) {
+    if (config.authType === AuthType.LOGIN_WITH_GOOGLE || config.authType === AuthType.COMPUTE_ADC) {
       const httpOptions = { headers: baseHeaders };
       return new LoggingContentGenerator(
-        await createCodeAssistContentGenerator(
-          httpOptions,
-          config.authType,
-          gcConfig,
-          sessionId,
-        ),
-        gcConfig,
+        await createCodeAssistContentGenerator(httpOptions, config.authType, gcConfig, sessionId),
+        gcConfig
       );
     }
 
-    if (
-      config.authType === AuthType.USE_GEMINI ||
-      config.authType === AuthType.USE_VERTEX_AI
-    ) {
+    if (config.authType === AuthType.USE_GEMINI || config.authType === AuthType.USE_VERTEX_AI) {
       let headers: Record<string, string> = { ...baseHeaders };
       if (gcConfig?.getUsageStatisticsEnabled()) {
         const installationManager = new InstallationManager();
@@ -261,14 +235,12 @@ export async function createContentGenerator(
       }
 
       // Import OpenAIContentGenerator dynamically to avoid circular dependencies
-      const { OpenAIContentGenerator } = await import(
-        './openaiContentGenerator.js'
-      );
+      const { OpenAIContentGenerator } = await import('./openaiContentGenerator.js');
 
       return new OpenAIContentGenerator(
         config.apiKey,
         config.model || gcConfig.getModel() || DEFAULT_GEMINI_MODEL,
-        gcConfig,
+        gcConfig
       );
     }
 
@@ -279,29 +251,22 @@ export async function createContentGenerator(
       }
 
       // Import AnthropicContentGenerator dynamically to avoid circular dependencies
-      const { AnthropicContentGenerator } = await import(
-        './anthropicContentGenerator.js'
-      );
+      const { AnthropicContentGenerator } = await import('./anthropicContentGenerator.js');
 
       return new AnthropicContentGenerator(
         config.apiKey,
         config.model || gcConfig.getModel() || 'claude-sonnet-4-20250514',
-        gcConfig,
+        gcConfig
       );
     }
 
     // Handle Bedrock authType
     if (config.authType === AuthType.USE_BEDROCK) {
-      const { BedrockContentGenerator } = await import(
-        './bedrockContentGenerator.js'
-      );
-      const { DEFAULT_BEDROCK_MODEL, validateBedrockModelRegion } =
-        await import('../config/models.js');
+      const { BedrockContentGenerator } = await import('./bedrockContentGenerator.js');
+      const { DEFAULT_BEDROCK_MODEL, validateBedrockModelRegion } = await import('../config/models.js');
 
-      const model =
-        config.model || gcConfig.getModel() || DEFAULT_BEDROCK_MODEL;
-      const region =
-        config.awsRegion || process.env['AWS_REGION'] || 'us-east-1';
+      const model = config.model || gcConfig.getModel() || DEFAULT_BEDROCK_MODEL;
+      const region = config.awsRegion || process.env['AWS_REGION'] || 'us-east-1';
 
       // Validate model availability in region
       const validation = validateBedrockModelRegion(model, region);
@@ -319,13 +284,11 @@ export async function createContentGenerator(
           model,
           region,
         }),
-        gcConfig,
+        gcConfig
       );
     }
 
-    throw new Error(
-      `Error creating contentGenerator: Unsupported authType: ${config.authType}`,
-    );
+    throw new Error(`Error creating contentGenerator: Unsupported authType: ${config.authType}`);
   })();
 
   if (gcConfig.recordResponses) {

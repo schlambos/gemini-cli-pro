@@ -6,13 +6,7 @@
 
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import {
-  debugLogger,
-  sanitizeFilenamePart,
-  Storage,
-  TOOL_OUTPUTS_DIR,
-  type Config,
-} from '@google/gemini-cli-core';
+import { debugLogger, sanitizeFilenamePart, Storage, TOOL_OUTPUTS_DIR, type Config } from '@google/gemini-cli-core';
 import type { Settings, SessionRetentionSettings } from '../config/settings.js';
 import { getAllSessionFiles, type SessionFileEntry } from './sessionUtils.js';
 
@@ -40,10 +34,7 @@ export interface CleanupResult {
 /**
  * Main entry point for session cleanup during CLI startup
  */
-export async function cleanupExpiredSessions(
-  config: Config,
-  settings: Settings,
-): Promise<CleanupResult> {
+export async function cleanupExpiredSessions(config: Config, settings: Settings): Promise<CleanupResult> {
   const result: CleanupResult = {
     disabled: false,
     scanned: 0,
@@ -62,10 +53,7 @@ export async function cleanupExpiredSessions(
     const chatsDir = path.join(config.storage.getProjectTempDir(), 'chats');
 
     // Validate retention configuration
-    const validationErrorMessage = validateRetentionConfig(
-      config,
-      retentionConfig,
-    );
+    const validationErrorMessage = validateRetentionConfig(config, retentionConfig);
     if (validationErrorMessage) {
       // Log validation errors to console for visibility
       debugLogger.warn(`Session cleanup disabled: ${validationErrorMessage}`);
@@ -81,10 +69,7 @@ export async function cleanupExpiredSessions(
     }
 
     // Determine which sessions to delete (corrupted and expired)
-    const sessionsToDelete = await identifySessionsToDelete(
-      allFiles,
-      retentionConfig,
-    );
+    const sessionsToDelete = await identifySessionsToDelete(allFiles, retentionConfig);
 
     // Delete all sessions that need to be deleted
     for (const sessionToDelete of sessionsToDelete) {
@@ -108,7 +93,7 @@ export async function cleanupExpiredSessions(
           const toolOutputDir = path.join(
             config.storage.getProjectTempDir(),
             TOOL_OUTPUTS_DIR,
-            `session-${safeSessionId}`,
+            `session-${safeSessionId}`
           );
           try {
             await fs.rm(toolOutputDir, { recursive: true, force: true });
@@ -119,35 +104,24 @@ export async function cleanupExpiredSessions(
 
         if (config.getDebugMode()) {
           if (sessionToDelete.sessionInfo === null) {
-            debugLogger.debug(
-              `Deleted corrupted session file: ${sessionToDelete.fileName}`,
-            );
+            debugLogger.debug(`Deleted corrupted session file: ${sessionToDelete.fileName}`);
           } else {
             debugLogger.debug(
-              `Deleted expired session: ${sessionToDelete.sessionInfo.id} (${sessionToDelete.sessionInfo.lastUpdated})`,
+              `Deleted expired session: ${sessionToDelete.sessionInfo.id} (${sessionToDelete.sessionInfo.lastUpdated})`
             );
           }
         }
         result.deleted++;
       } catch (error) {
         // Ignore ENOENT errors (file already deleted)
-        if (
-          error instanceof Error &&
-          'code' in error &&
-          error.code === 'ENOENT'
-        ) {
+        if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
           // File already deleted, do nothing.
         } else {
           // Log error directly to console
           const sessionId =
-            sessionToDelete.sessionInfo === null
-              ? sessionToDelete.fileName
-              : sessionToDelete.sessionInfo.id;
-          const errorMessage =
-            error instanceof Error ? error.message : 'Unknown error';
-          debugLogger.warn(
-            `Failed to delete session ${sessionId}: ${errorMessage}`,
-          );
+            sessionToDelete.sessionInfo === null ? sessionToDelete.fileName : sessionToDelete.sessionInfo.id;
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          debugLogger.warn(`Failed to delete session ${sessionId}: ${errorMessage}`);
           result.failed++;
         }
       }
@@ -157,13 +131,12 @@ export async function cleanupExpiredSessions(
 
     if (config.getDebugMode() && result.deleted > 0) {
       debugLogger.debug(
-        `Session cleanup: deleted ${result.deleted}, skipped ${result.skipped}, failed ${result.failed}`,
+        `Session cleanup: deleted ${result.deleted}, skipped ${result.skipped}, failed ${result.failed}`
       );
     }
   } catch (error) {
     // Global error handler - don't let cleanup failures break startup
-    const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error';
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     debugLogger.warn(`Session cleanup failed: ${errorMessage}`);
     result.failed++;
   }
@@ -179,14 +152,12 @@ export async function cleanupExpiredSessions(
  */
 export async function identifySessionsToDelete(
   allFiles: SessionFileEntry[],
-  retentionConfig: SessionRetentionSettings,
+  retentionConfig: SessionRetentionSettings
 ): Promise<SessionFileEntry[]> {
   const sessionsToDelete: SessionFileEntry[] = [];
 
   // All corrupted files should be deleted
-  sessionsToDelete.push(
-    ...allFiles.filter((entry) => entry.sessionInfo === null),
-  );
+  sessionsToDelete.push(...allFiles.filter((entry) => entry.sessionInfo === null));
 
   // Now handle valid sessions based on retention policy
   const validSessions = allFiles.filter((entry) => entry.sessionInfo !== null);
@@ -211,24 +182,16 @@ export async function identifySessionsToDelete(
 
   // Sort valid sessions by lastUpdated (newest first) for count-based retention
   const sortedValidSessions = [...validSessions].sort(
-    (a, b) =>
-      new Date(b.sessionInfo!.lastUpdated).getTime() -
-      new Date(a.sessionInfo!.lastUpdated).getTime(),
+    (a, b) => new Date(b.sessionInfo!.lastUpdated).getTime() - new Date(a.sessionInfo!.lastUpdated).getTime()
   );
 
   // Separate deletable sessions from the active session
-  const deletableSessions = sortedValidSessions.filter(
-    (entry) => !entry.sessionInfo!.isCurrentSession,
-  );
+  const deletableSessions = sortedValidSessions.filter((entry) => !entry.sessionInfo!.isCurrentSession);
 
   // Calculate how many deletable sessions to keep (accounting for the active session)
-  const hasActiveSession = sortedValidSessions.some(
-    (e) => e.sessionInfo!.isCurrentSession,
-  );
+  const hasActiveSession = sortedValidSessions.some((e) => e.sessionInfo!.isCurrentSession);
   const maxDeletableSessions =
-    retentionConfig.maxCount && hasActiveSession
-      ? Math.max(0, retentionConfig.maxCount - 1)
-      : retentionConfig.maxCount;
+    retentionConfig.maxCount && hasActiveSession ? Math.max(0, retentionConfig.maxCount - 1) : retentionConfig.maxCount;
 
   for (let i = 0; i < deletableSessions.length; i++) {
     const entry = deletableSessions[i];
@@ -262,7 +225,7 @@ function parseRetentionPeriod(period: string): number {
   const match = period.match(/^(\d+)([dhwm])$/);
   if (!match) {
     throw new Error(
-      `Invalid retention period format: ${period}. Expected format: <number><unit> where unit is h, d, w, or m`,
+      `Invalid retention period format: ${period}. Expected format: <number><unit> where unit is h, d, w, or m`
     );
   }
 
@@ -271,9 +234,7 @@ function parseRetentionPeriod(period: string): number {
 
   // Reject zero values as they're semantically invalid
   if (value === 0) {
-    throw new Error(
-      `Invalid retention period: ${period}. Value must be greater than 0`,
-    );
+    throw new Error(`Invalid retention period: ${period}. Value must be greater than 0`);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
@@ -283,10 +244,7 @@ function parseRetentionPeriod(period: string): number {
 /**
  * Validates retention configuration
  */
-function validateRetentionConfig(
-  config: Config,
-  retentionConfig: SessionRetentionSettings,
-): string | null {
+function validateRetentionConfig(config: Config, retentionConfig: SessionRetentionSettings): string | null {
   if (!retentionConfig.enabled) {
     return 'Retention not enabled';
   }
@@ -351,7 +309,7 @@ export interface ToolOutputCleanupResult {
 export async function cleanupToolOutputFiles(
   settings: Settings,
   debugMode: boolean = false,
-  projectTempDir?: string,
+  projectTempDir?: string
 ): Promise<ToolOutputCleanupResult> {
   const result: ToolOutputCleanupResult = {
     disabled: false,
@@ -402,15 +360,13 @@ export async function cleanupToolOutputFiles(
           return { name: file.name, mtime: stat.mtime };
         } catch (error) {
           debugLogger.debug(
-            `Failed to stat file ${file.name}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            `Failed to stat file ${file.name}: ${error instanceof Error ? error.message : 'Unknown error'}`
           );
           return null;
         }
-      }),
+      })
     );
-    const fileStats = fileStatsResults.filter(
-      (f): f is { name: string; mtime: Date } => f !== null,
-    );
+    const fileStats = fileStatsResults.filter((f): f is { name: string; mtime: Date } => f !== null);
 
     // Sort by mtime (oldest first)
     fileStats.sort((a, b) => a.mtime.getTime() - b.mtime.getTime());
@@ -431,7 +387,7 @@ export async function cleanupToolOutputFiles(
         }
       } catch (error) {
         debugLogger.debug(
-          `Invalid maxAge format, skipping age-based cleanup: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          `Invalid maxAge format, skipping age-based cleanup: ${error instanceof Error ? error.message : 'Unknown error'}`
         );
       }
     }
@@ -441,9 +397,7 @@ export async function cleanupToolOutputFiles(
     // This ensures we keep at most maxCount files, preferring newer ones.
     if (retentionConfig.maxCount !== undefined) {
       // Filter out files already marked for deletion by age-based cleanup
-      const remainingFiles = fileStats.filter(
-        (f) => !filesToDelete.includes(f.name),
-      );
+      const remainingFiles = fileStats.filter((f) => !filesToDelete.includes(f.name));
       if (remainingFiles.length > retentionConfig.maxCount) {
         // Calculate how many excess files need to be deleted
         const excessCount = remainingFiles.length - retentionConfig.maxCount;
@@ -456,17 +410,13 @@ export async function cleanupToolOutputFiles(
 
     // For now, continue to cleanup individual files in the root tool-outputs dir
     // but also scan and cleanup expired session subdirectories.
-    const subdirs = entries.filter(
-      (e) => e.isDirectory() && e.name.startsWith('session-'),
-    );
+    const subdirs = entries.filter((e) => e.isDirectory() && e.name.startsWith('session-'));
     for (const subdir of subdirs) {
       try {
         // Security: Validate that the subdirectory name is a safe filename part
         // and doesn't attempt path traversal.
         if (subdir.name !== sanitizeFilenamePart(subdir.name)) {
-          debugLogger.debug(
-            `Skipping unsafe tool-output subdirectory: ${subdir.name}`,
-          );
+          debugLogger.debug(`Skipping unsafe tool-output subdirectory: ${subdir.name}`);
           continue;
         }
 
@@ -499,21 +449,18 @@ export async function cleanupToolOutputFiles(
         result.deleted++;
       } catch (error) {
         debugLogger.debug(
-          `Failed to delete file ${fileName}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          `Failed to delete file ${fileName}: ${error instanceof Error ? error.message : 'Unknown error'}`
         );
         result.failed++;
       }
     }
 
     if (debugMode && result.deleted > 0) {
-      debugLogger.debug(
-        `Tool output cleanup: deleted ${result.deleted}, failed ${result.failed}`,
-      );
+      debugLogger.debug(`Tool output cleanup: deleted ${result.deleted}, failed ${result.failed}`);
     }
   } catch (error) {
     // Global error handler - don't let cleanup failures break startup
-    const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error';
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     debugLogger.warn(`Tool output cleanup failed: ${errorMessage}`);
     result.failed++;
   }

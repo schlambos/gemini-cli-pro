@@ -7,18 +7,11 @@
 import { z } from 'zod';
 import type { BaseLlmClient } from '../../core/baseLlmClient.js';
 import { getPromptIdWithFallback } from '../../utils/promptIdContext.js';
-import type {
-  RoutingContext,
-  RoutingDecision,
-  RoutingStrategy,
-} from '../routingStrategy.js';
+import type { RoutingContext, RoutingDecision, RoutingStrategy } from '../routingStrategy.js';
 import { resolveClassifierModel, isGemini3Model } from '../../config/models.js';
 import { createUserContent, Type } from '@google/genai';
 import type { Config } from '../../config/config.js';
-import {
-  isFunctionCall,
-  isFunctionResponse,
-} from '../../utils/messageInspectors.js';
+import { isFunctionCall, isFunctionResponse } from '../../utils/messageInspectors.js';
 import { debugLogger } from '../../utils/debugLogger.js';
 import { LlmRole } from '../../telemetry/types.js';
 import { AuthType } from '../../core/contentGenerator.js';
@@ -109,8 +102,7 @@ const RESPONSE_SCHEMA = {
   properties: {
     reasoning: {
       type: Type.STRING,
-      description:
-        'A brief, step-by-step explanation for the model choice, referencing the rubric.',
+      description: 'A brief, step-by-step explanation for the model choice, referencing the rubric.',
     },
     model_choice: {
       type: Type.STRING,
@@ -128,18 +120,11 @@ const ClassifierResponseSchema = z.object({
 export class ClassifierStrategy implements RoutingStrategy {
   readonly name = 'classifier';
 
-  async route(
-    context: RoutingContext,
-    config: Config,
-    baseLlmClient: BaseLlmClient,
-  ): Promise<RoutingDecision | null> {
+  async route(context: RoutingContext, config: Config, baseLlmClient: BaseLlmClient): Promise<RoutingDecision | null> {
     const startTime = Date.now();
     try {
       const model = context.requestedModel ?? config.getModel();
-      if (
-        (await config.getNumericalRoutingEnabled()) &&
-        isGemini3Model(model)
-      ) {
+      if ((await config.getNumericalRoutingEnabled()) && isGemini3Model(model)) {
         return null;
       }
 
@@ -149,9 +134,7 @@ export class ClassifierStrategy implements RoutingStrategy {
 
       // Filter out tool-related turns.
       // TODO - Consider using function req/res if they help accuracy.
-      const cleanHistory = historySlice.filter(
-        (content) => !isFunctionCall(content) && !isFunctionResponse(content),
-      );
+      const cleanHistory = historySlice.filter((content) => !isFunctionCall(content) && !isFunctionResponse(content));
 
       // Take the last N turns from the *cleaned* history.
       const finalHistory = cleanHistory.slice(-HISTORY_TURNS_FOR_CONTEXT);
@@ -171,14 +154,12 @@ export class ClassifierStrategy implements RoutingStrategy {
       const reasoning = routerResponse.reasoning;
       const latencyMs = Date.now() - startTime;
       const useGemini3_1 = (await config.getGemini31Launched?.()) ?? false;
-      const useCustomToolModel =
-        useGemini3_1 &&
-        config.getContentGeneratorConfig().authType === AuthType.USE_GEMINI;
+      const useCustomToolModel = useGemini3_1 && config.getContentGeneratorConfig().authType === AuthType.USE_GEMINI;
       const selectedModel = resolveClassifierModel(
         model,
         routerResponse.model_choice,
         useGemini3_1,
-        useCustomToolModel,
+        useCustomToolModel
       );
 
       return {

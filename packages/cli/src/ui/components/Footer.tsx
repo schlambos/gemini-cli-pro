@@ -7,11 +7,7 @@
 import type React from 'react';
 import { Box, Text } from 'ink';
 import { theme } from '../semantic-colors.js';
-import {
-  shortenPath,
-  tildeifyPath,
-  getDisplayString,
-} from '@google/gemini-cli-core';
+import { shortenPath, tildeifyPath, getDisplayString } from '@google/gemini-cli-core';
 import { ConsoleSummaryDisplay } from './ConsoleSummaryDisplay.js';
 import process from 'node:process';
 import { MemoryUsageDisplay } from './MemoryUsageDisplay.js';
@@ -58,8 +54,7 @@ export const Footer: React.FC = () => {
     quotaStats: uiState.quota.stats,
   };
 
-  const showMemoryUsage =
-    config.getDebugMode() || settings.merged.ui.showMemoryUsage;
+  const showMemoryUsage = config.getDebugMode() || settings.merged.ui.showMemoryUsage;
   const hideCWD = settings.merged.ui.footer.hideCWD;
   const hideSandboxStatus = settings.merged.ui.footer.hideSandboxStatus;
   const hideModelInfo = settings.merged.ui.footer.hideModelInfo;
@@ -74,63 +69,36 @@ export const Footer: React.FC = () => {
   const showDebugProfiler = debugMode || isDevelopment;
 
   return (
-    <Box
-      justifyContent={justifyContent}
-      width={terminalWidth}
-      flexDirection="row"
-      alignItems="center"
-      paddingX={1}
-    >
+    <Box justifyContent={justifyContent} width={terminalWidth} flexDirection='row' alignItems='center' paddingX={1}>
       {(showDebugProfiler || displayVimMode || !hideCWD) && (
         <Box>
           {showDebugProfiler && <DebugProfiler />}
-          {displayVimMode && (
-            <Text color={theme.text.secondary}>[{displayVimMode}] </Text>
-          )}
+          {displayVimMode && <Text color={theme.text.secondary}>[{displayVimMode}] </Text>}
           {!hideCWD && (
             <Text color={theme.text.primary}>
               {displayPath}
-              {branchName && (
-                <Text color={theme.text.secondary}> ({branchName}*)</Text>
-              )}
+              {branchName && <Text color={theme.text.secondary}> ({branchName}*)</Text>}
             </Text>
           )}
-          {debugMode && (
-            <Text color={theme.status.error}>
-              {' ' + (debugMessage || '--debug')}
-            </Text>
-          )}
+          {debugMode && <Text color={theme.status.error}>{' ' + (debugMessage || '--debug')}</Text>}
         </Box>
       )}
 
       {/* Middle Section: Centered Trust/Sandbox Info */}
       {!hideSandboxStatus && (
-        <Box
-          flexGrow={1}
-          alignItems="center"
-          justifyContent="center"
-          display="flex"
-        >
+        <Box flexGrow={1} alignItems='center' justifyContent='center' display='flex'>
           {isTrustedFolder === false ? (
             <Text color={theme.status.warning}>untrusted</Text>
-          ) : process.env['SANDBOX'] &&
-            process.env['SANDBOX'] !== 'sandbox-exec' ? (
-            <Text color="green">
-              {process.env['SANDBOX'].replace(/^gemini-(?:cli-)?/, '')}
-            </Text>
+          ) : process.env['SANDBOX'] && process.env['SANDBOX'] !== 'sandbox-exec' ? (
+            <Text color='green'>{process.env['SANDBOX'].replace(/^gemini-(?:cli-)?/, '')}</Text>
           ) : process.env['SANDBOX'] === 'sandbox-exec' ? (
             <Text color={theme.status.warning}>
-              macOS Seatbelt{' '}
-              <Text color={theme.text.secondary}>
-                ({process.env['SEATBELT_PROFILE']})
-              </Text>
+              macOS Seatbelt <Text color={theme.text.secondary}>({process.env['SEATBELT_PROFILE']})</Text>
             </Text>
           ) : (
             <Text color={theme.status.error}>
               no sandbox
-              {terminalWidth >= 100 && (
-                <Text color={theme.text.secondary}> (see /docs)</Text>
-              )}
+              {terminalWidth >= 100 && <Text color={theme.text.secondary}> (see /docs)</Text>}
             </Text>
           )}
         </Box>
@@ -138,8 +106,8 @@ export const Footer: React.FC = () => {
 
       {/* Right Section: Gemini Label and Console Summary */}
       {!hideModelInfo && (
-        <Box alignItems="center" justifyContent="flex-end">
-          <Box alignItems="center">
+        <Box alignItems='center' justifyContent='flex-end'>
+          <Box alignItems='center'>
             <Text color={theme.text.primary}>
               <Text color={theme.text.secondary}>/model </Text>
               {getDisplayString(model)}
@@ -167,9 +135,9 @@ export const Footer: React.FC = () => {
             </Text>
             {showMemoryUsage && <MemoryUsageDisplay />}
           </Box>
-          <Box alignItems="center">
+          <Box alignItems='center'>
             {corgiMode && (
-              <Box paddingLeft={1} flexDirection="row">
+              <Box paddingLeft={1} flexDirection='row'>
                 <Text>
                   <Text color={theme.ui.symbol}>| </Text>
                   <Text color={theme.status.error}>▼</Text>
@@ -181,7 +149,7 @@ export const Footer: React.FC = () => {
               </Box>
             )}
             {!showErrorDetails && errorCount > 0 && (
-              <Box paddingLeft={1} flexDirection="row">
+              <Box paddingLeft={1} flexDirection='row'>
                 <Text color={theme.ui.comment}>| </Text>
                 <ConsoleSummaryDisplay errorCount={errorCount} />
               </Box>

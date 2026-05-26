@@ -20,19 +20,14 @@ const { validateSkill } = require('./validate_skill.cjs');
 async function main() {
   const args = process.argv.slice(2);
   if (args.length < 1) {
-    console.log(
-      'Usage: node package_skill.js <path/to/skill-folder> [output-directory]',
-    );
+    console.log('Usage: node package_skill.js <path/to/skill-folder> [output-directory]');
     process.exit(1);
   }
 
   const skillPathArg = args[0];
   const outputDirArg = args[1];
 
-  if (
-    skillPathArg.includes('..') ||
-    (outputDirArg && outputDirArg.includes('..'))
-  ) {
+  if (skillPathArg.includes('..') || (outputDirArg && outputDirArg.includes('..'))) {
     console.error('❌ Error: Path traversal detected in arguments.');
     process.exit(1);
   }
@@ -76,14 +71,10 @@ async function main() {
     if (zipProcess.error || zipProcess.status !== 0) {
       // Fallback to tar --format=zip if zip is not available (common on Windows)
       console.log('zip command not found, falling back to tar...');
-      zipProcess = spawnSync(
-        'tar',
-        ['-a', '-c', '--format=zip', '-f', outputFilename, '.'],
-        {
-          cwd: skillPath,
-          stdio: 'inherit',
-        },
-      );
+      zipProcess = spawnSync('tar', ['-a', '-c', '--format=zip', '-f', outputFilename, '.'], {
+        cwd: skillPath,
+        stdio: 'inherit',
+      });
     }
 
     if (zipProcess.error) {
@@ -91,9 +82,7 @@ async function main() {
     }
 
     if (zipProcess.status !== 0) {
-      throw new Error(
-        `Packaging command failed with exit code ${zipProcess.status}`,
-      );
+      throw new Error(`Packaging command failed with exit code ${zipProcess.status}`);
     }
 
     console.log(`✅ Successfully packaged skill to: ${outputFilename}`);

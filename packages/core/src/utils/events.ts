@@ -9,10 +9,7 @@ import type { AgentDefinition } from '../agents/types.js';
 import type { McpClient } from '../tools/mcp-client.js';
 import type { ExtensionEvents } from './extensionLoader.js';
 import type { EditorType } from './editor.js';
-import type {
-  TokenStorageInitializationEvent,
-  KeychainAvailabilityEvent,
-} from '../telemetry/types.js';
+import type { TokenStorageInitializationEvent, KeychainAvailabilityEvent } from '../telemetry/types.js';
 
 /**
  * Defines the severity level for user-facing feedback.
@@ -223,10 +220,7 @@ export class CoreEventEmitter extends EventEmitter<CoreEvents> {
     super();
   }
 
-  private _emitOrQueue<K extends keyof CoreEvents>(
-    event: K,
-    ...args: CoreEvents[K]
-  ): void {
+  private _emitOrQueue<K extends keyof CoreEvents>(event: K, ...args: CoreEvents[K]): void {
     if (this.listenerCount(event) === 0) {
       if (this._eventBacklog.length >= CoreEventEmitter.MAX_BACKLOG_SIZE) {
         this._eventBacklog.shift();
@@ -235,10 +229,7 @@ export class CoreEventEmitter extends EventEmitter<CoreEvents> {
       this._eventBacklog.push({ event, args } as EventBacklogItem);
     } else {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-      (this.emit as (event: K, ...args: CoreEvents[K]) => boolean)(
-        event,
-        ...args,
-      );
+      (this.emit as (event: K, ...args: CoreEvents[K]) => boolean)(event, ...args);
     }
   }
 
@@ -246,11 +237,7 @@ export class CoreEventEmitter extends EventEmitter<CoreEvents> {
    * Sends actionable feedback to the user.
    * Buffers automatically if the UI hasn't subscribed yet.
    */
-  emitFeedback(
-    severity: FeedbackSeverity,
-    message: string,
-    error?: unknown,
-  ): void {
+  emitFeedback(severity: FeedbackSeverity, message: string, error?: unknown): void {
     const payload: UserFeedbackPayload = { severity, message, error };
     this._emitOrQueue(CoreEvent.UserFeedback, payload);
   }
@@ -258,10 +245,7 @@ export class CoreEventEmitter extends EventEmitter<CoreEvents> {
   /**
    * Broadcasts a console log message.
    */
-  emitConsoleLog(
-    type: 'log' | 'warn' | 'error' | 'debug' | 'info',
-    content: string,
-  ): void {
+  emitConsoleLog(type: 'log' | 'warn' | 'error' | 'debug' | 'info', content: string): void {
     const payload: ConsoleLogPayload = { type, content };
     this._emitOrQueue(CoreEvent.ConsoleLog, payload);
   }
@@ -269,11 +253,7 @@ export class CoreEventEmitter extends EventEmitter<CoreEvents> {
   /**
    * Broadcasts stdout/stderr output.
    */
-  emitOutput(
-    isStderr: boolean,
-    chunk: Uint8Array | string,
-    encoding?: BufferEncoding,
-  ): void {
+  emitOutput(isStderr: boolean, chunk: Uint8Array | string, encoding?: BufferEncoding): void {
     const payload: OutputPayload = { isStderr, chunk, encoding };
     this._emitOrQueue(CoreEvent.Output, payload);
   }
@@ -351,11 +331,7 @@ export class CoreEventEmitter extends EventEmitter<CoreEvents> {
   /**
    * Notifies subscribers that the quota has changed.
    */
-  emitQuotaChanged(
-    remaining: number | undefined,
-    limit: number | undefined,
-    resetTime?: string,
-  ): void {
+  emitQuotaChanged(remaining: number | undefined, limit: number | undefined, resetTime?: string): void {
     const payload: QuotaChangedPayload = { remaining, limit, resetTime };
     this.emit(CoreEvent.QuotaChanged, payload);
   }
@@ -369,10 +345,7 @@ export class CoreEventEmitter extends EventEmitter<CoreEvents> {
     this._eventBacklog.length = 0; // Clear in-place
     for (const item of backlog) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-      (this.emit as (event: keyof CoreEvents, ...args: unknown[]) => boolean)(
-        item.event,
-        ...item.args,
-      );
+      (this.emit as (event: keyof CoreEvents, ...args: unknown[]) => boolean)(item.event, ...item.args);
     }
   }
 

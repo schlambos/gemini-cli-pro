@@ -11,8 +11,7 @@ import { saveClipboardImage } from './clipboardUtils.js';
 // Mock dependencies
 vi.mock('node:fs/promises');
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     spawnAsync: vi.fn(),

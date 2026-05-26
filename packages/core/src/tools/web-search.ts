@@ -61,16 +61,13 @@ export interface WebSearchToolResult extends ToolResult {
     : GroundingChunkItem[];
 }
 
-class WebSearchToolInvocation extends BaseToolInvocation<
-  WebSearchToolParams,
-  WebSearchToolResult
-> {
+class WebSearchToolInvocation extends BaseToolInvocation<WebSearchToolParams, WebSearchToolResult> {
   constructor(
     private readonly config: Config,
     params: WebSearchToolParams,
     messageBus: MessageBus,
     _toolName?: string,
-    _toolDisplayName?: string,
+    _toolDisplayName?: string
   ) {
     super(params, messageBus, _toolName, _toolDisplayName);
   }
@@ -87,18 +84,14 @@ class WebSearchToolInvocation extends BaseToolInvocation<
         { model: 'web-search' },
         [{ role: 'user', parts: [{ text: this.params.query }] }],
         signal,
-        LlmRole.UTILITY_TOOL,
+        LlmRole.UTILITY_TOOL
       );
 
       const responseText = getResponseText(response);
       const groundingMetadata = response.candidates?.[0]?.groundingMetadata;
-      const sources = groundingMetadata?.groundingChunks as
-        | GroundingChunkItem[]
-        | undefined;
+      const sources = groundingMetadata?.groundingChunks as GroundingChunkItem[] | undefined;
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-      const groundingSupports = groundingMetadata?.groundingSupports as
-        | GroundingSupportItem[]
-        | undefined;
+      const groundingSupports = groundingMetadata?.groundingSupports as GroundingSupportItem[] | undefined;
 
       if (!responseText || !responseText.trim()) {
         return {
@@ -159,8 +152,7 @@ class WebSearchToolInvocation extends BaseToolInvocation<
         }
 
         if (sourceListFormatted.length > 0) {
-          modifiedResponseText +=
-            '\n\nSources:\n' + sourceListFormatted.join('\n');
+          modifiedResponseText += '\n\nSources:\n' + sourceListFormatted.join('\n');
         }
       }
 
@@ -170,9 +162,7 @@ class WebSearchToolInvocation extends BaseToolInvocation<
         sources,
       };
     } catch (error: unknown) {
-      const errorMessage = `Error during web search for query "${
-        this.params.query
-      }": ${getErrorMessage(error)}`;
+      const errorMessage = `Error during web search for query "${this.params.query}": ${getErrorMessage(error)}`;
       debugLogger.warn(errorMessage, error);
       return {
         llmContent: `Error: ${errorMessage}`,
@@ -189,15 +179,12 @@ class WebSearchToolInvocation extends BaseToolInvocation<
 /**
  * A tool to perform web searches using Google Search via the Gemini API.
  */
-export class WebSearchTool extends BaseDeclarativeTool<
-  WebSearchToolParams,
-  WebSearchToolResult
-> {
+export class WebSearchTool extends BaseDeclarativeTool<WebSearchToolParams, WebSearchToolResult> {
   static readonly Name = WEB_SEARCH_TOOL_NAME;
 
   constructor(
     private readonly config: Config,
-    messageBus: MessageBus,
+    messageBus: MessageBus
   ) {
     super(
       WebSearchTool.Name,
@@ -207,7 +194,7 @@ export class WebSearchTool extends BaseDeclarativeTool<
       WEB_SEARCH_DEFINITION.base.parametersJsonSchema,
       messageBus,
       true, // isOutputMarkdown
-      false, // canUpdateOutput
+      false // canUpdateOutput
     );
   }
 
@@ -216,9 +203,7 @@ export class WebSearchTool extends BaseDeclarativeTool<
    * @param params The parameters to validate
    * @returns An error message string if validation fails, null if valid
    */
-  protected override validateToolParamValues(
-    params: WebSearchToolParams,
-  ): string | null {
+  protected override validateToolParamValues(params: WebSearchToolParams): string | null {
     if (!params.query || params.query.trim() === '') {
       return "The 'query' parameter cannot be empty.";
     }
@@ -229,15 +214,9 @@ export class WebSearchTool extends BaseDeclarativeTool<
     params: WebSearchToolParams,
     messageBus: MessageBus,
     _toolName?: string,
-    _toolDisplayName?: string,
+    _toolDisplayName?: string
   ): ToolInvocation<WebSearchToolParams, WebSearchToolResult> {
-    return new WebSearchToolInvocation(
-      this.config,
-      params,
-      messageBus ?? this.messageBus,
-      _toolName,
-      _toolDisplayName,
-    );
+    return new WebSearchToolInvocation(this.config, params, messageBus ?? this.messageBus, _toolName, _toolDisplayName);
   }
 
   override getSchema(modelId?: string) {

@@ -6,17 +6,11 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { render, Box, Text, useInput, useStdout } from 'ink';
-import {
-  ScrollableList,
-  type ScrollableListRef,
-} from '../src/ui/components/shared/ScrollableList.js';
+import { ScrollableList, type ScrollableListRef } from '../src/ui/components/shared/ScrollableList.js';
 import { ScrollProvider } from '../src/ui/contexts/ScrollProvider.js';
 import { MouseProvider } from '../src/ui/contexts/MouseContext.js';
 import { KeypressProvider } from '../src/ui/contexts/KeypressContext.js';
-import {
-  enableMouseEvents,
-  disableMouseEvents,
-} from '../src/ui/utils/mouse.js';
+import { enableMouseEvents, disableMouseEvents } from '../src/ui/utils/mouse.js';
 
 interface Item {
   id: string;
@@ -54,17 +48,14 @@ const Demo = () => {
     Array.from({ length: 1000 }, (_, i) => ({
       id: String(i),
       title: `Item ${i + 1}`,
-    })),
+    }))
   );
 
   const listRef = useRef<ScrollableListRef<Item>>(null);
 
   useInput((input, key) => {
     if (input === 'a' || input === 'A') {
-      setItems((prev) => [
-        ...prev,
-        { id: String(prev.length), title: `Item ${prev.length + 1}` },
-      ]);
+      setItems((prev) => [...prev, { id: String(prev.length), title: `Item ${prev.length + 1}` }]);
     }
     if ((input === 'e' || input === 'E') && !key.ctrl) {
       setItems((prev) => {
@@ -89,49 +80,39 @@ const Demo = () => {
     <MouseProvider mouseEventsEnabled={true}>
       <KeypressProvider>
         <ScrollProvider>
-          <Box
-            flexDirection="column"
-            width={size.columns}
-            height={size.rows - 1}
-            padding={1}
-          >
+          <Box flexDirection='column' width={size.columns} height={size.rows - 1} padding={1}>
             <Text>
-              Press &apos;A&apos; to add an item. Press &apos;E&apos; to edit
-              last item. Press &apos;Ctrl+E&apos; to scroll to end. Press
-              &apos;Esc&apos; to exit. Mouse wheel or Shift+Up/Down to scroll.
+              Press &apos;A&apos; to add an item. Press &apos;E&apos; to edit last item. Press &apos;Ctrl+E&apos; to
+              scroll to end. Press &apos;Esc&apos; to exit. Mouse wheel or Shift+Up/Down to scroll.
             </Text>
-            <Box flexGrow={1} borderStyle="round" borderColor="cyan">
+            <Box flexGrow={1} borderStyle='round' borderColor='cyan'>
               <ScrollableList
                 ref={listRef}
                 data={items}
                 renderItem={({ item, index }) => (
-                  <Box flexDirection="column" paddingBottom={2}>
+                  <Box flexDirection='column' paddingBottom={2}>
                     <Box
                       sticky
-                      flexDirection="column"
+                      flexDirection='column'
                       width={size.columns - 2}
                       opaque
                       stickyChildren={
-                        <Box
-                          flexDirection="column"
-                          width={size.columns - 2}
-                          opaque
-                        >
+                        <Box flexDirection='column' width={size.columns - 2} opaque>
                           <Text>{item.title}</Text>
                           <Box
-                            borderStyle="single"
+                            borderStyle='single'
                             borderTop={true}
                             borderBottom={false}
                             borderLeft={false}
                             borderRight={false}
-                            borderColor="gray"
+                            borderColor='gray'
                           />
                         </Box>
                       }
                     >
                       <Text>{item.title}</Text>
                     </Box>
-                    <Text color="gray">{getLorem(index)}</Text>
+                    <Text color='gray'>{getLorem(index)}</Text>
                   </Box>
                 )}
                 estimatedItemHeight={() => 14}

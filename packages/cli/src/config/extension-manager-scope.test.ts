@@ -10,16 +10,12 @@ import * as path from 'node:path';
 import * as os from 'node:os';
 import { ExtensionManager } from './extension-manager.js';
 import { createTestMergedSettings } from './settings.js';
-import {
-  loadAgentsFromDirectory,
-  loadSkillsFromDir,
-} from '@google/gemini-cli-core';
+import { loadAgentsFromDirectory, loadSkillsFromDir } from '@google/gemini-cli-core';
 
 let currentTempHome = '';
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     homedir: () => currentTempHome,
@@ -48,12 +44,8 @@ describe('ExtensionManager Settings Scope', () => {
       errors: [],
     });
     vi.mocked(loadSkillsFromDir).mockResolvedValue([]);
-    currentTempHome = fs.mkdtempSync(
-      path.join(os.tmpdir(), 'gemini-cli-test-home-'),
-    );
-    tempWorkspace = fs.mkdtempSync(
-      path.join(os.tmpdir(), 'gemini-cli-test-workspace-'),
-    );
+    currentTempHome = fs.mkdtempSync(path.join(os.tmpdir(), 'gemini-cli-test-home-'));
+    tempWorkspace = fs.mkdtempSync(path.join(os.tmpdir(), 'gemini-cli-test-workspace-'));
     extensionsDir = path.join(currentTempHome, '.gemini', 'extensions');
     extensionDir = path.join(extensionsDir, extensionName);
 
@@ -71,20 +63,14 @@ describe('ExtensionManager Settings Scope', () => {
         },
       ],
     };
-    fs.writeFileSync(
-      path.join(extensionDir, 'gemini-extension.json'),
-      JSON.stringify(extensionConfig),
-    );
+    fs.writeFileSync(path.join(extensionDir, 'gemini-extension.json'), JSON.stringify(extensionConfig));
 
     // Create install metadata
     const installMetadata = {
       source: extensionDir,
       type: 'local',
     };
-    fs.writeFileSync(
-      path.join(extensionDir, 'install-metadata.json'),
-      JSON.stringify(installMetadata),
-    );
+    fs.writeFileSync(path.join(extensionDir, 'install-metadata.json'), JSON.stringify(installMetadata));
   });
 
   afterEach(() => {
@@ -118,9 +104,7 @@ describe('ExtensionManager Settings Scope', () => {
     expect(extension).toBeDefined();
 
     // Verify resolved settings
-    const setting = extension?.resolvedSettings?.find(
-      (s) => s.envVar === 'TEST_SETTING',
-    );
+    const setting = extension?.resolvedSettings?.find((s) => s.envVar === 'TEST_SETTING');
     expect(setting).toBeDefined();
     expect(setting?.value).toBe('workspace-value');
     expect(setting?.scope).toBe('workspace');
@@ -128,9 +112,7 @@ describe('ExtensionManager Settings Scope', () => {
 
     // Verify output string contains (Workspace - <path>)
     const output = extensionManager.toOutputString(extension!);
-    expect(output).toContain(
-      `Test Setting: workspace-value (Workspace - ${workspaceSettingsPath})`,
-    );
+    expect(output).toContain(`Test Setting: workspace-value (Workspace - ${workspaceSettingsPath})`);
   });
 
   it('should fallback to user settings if workspace setting is missing', async () => {
@@ -157,21 +139,15 @@ describe('ExtensionManager Settings Scope', () => {
     expect(extension).toBeDefined();
 
     // Verify resolved settings
-    const setting = extension?.resolvedSettings?.find(
-      (s) => s.envVar === 'TEST_SETTING',
-    );
+    const setting = extension?.resolvedSettings?.find((s) => s.envVar === 'TEST_SETTING');
     expect(setting).toBeDefined();
     expect(setting?.value).toBe('user-value');
     expect(setting?.scope).toBe('user');
-    expect(setting?.source?.endsWith(path.join(extensionName, '.env'))).toBe(
-      true,
-    );
+    expect(setting?.source?.endsWith(path.join(extensionName, '.env'))).toBe(true);
 
     // Verify output string contains (User - <path>)
     const output = extensionManager.toOutputString(extension!);
-    expect(output).toContain(
-      `Test Setting: user-value (User - ${userSettingsPath})`,
-    );
+    expect(output).toContain(`Test Setting: user-value (User - ${userSettingsPath})`);
   });
 
   it('should report unset if neither is present', async () => {
@@ -194,9 +170,7 @@ describe('ExtensionManager Settings Scope', () => {
     expect(extension).toBeDefined();
 
     // Verify resolved settings
-    const setting = extension?.resolvedSettings?.find(
-      (s) => s.envVar === 'TEST_SETTING',
-    );
+    const setting = extension?.resolvedSettings?.find((s) => s.envVar === 'TEST_SETTING');
     expect(setting).toBeDefined();
     expect(setting?.value).toBeUndefined();
     expect(setting?.scope).toBeUndefined();

@@ -16,9 +16,7 @@ export const ShortcutsHint: React.FC = () => {
     return <Text color={theme.text.secondary}> press tab twice for more </Text>;
   }
 
-  const highlightColor = shortcutsHelpVisible
-    ? theme.text.accent
-    : theme.text.secondary;
+  const highlightColor = shortcutsHelpVisible ? theme.text.accent : theme.text.secondary;
 
   return <Text color={highlightColor}> ? for shortcuts </Text>;
 };

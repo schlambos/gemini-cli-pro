@@ -7,10 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { PromptProvider } from './promptProvider.js';
 import type { Config } from '../config/config.js';
-import {
-  getAllGeminiMdFilenames,
-  DEFAULT_CONTEXT_FILENAME,
-} from '../tools/memoryTool.js';
+import { getAllGeminiMdFilenames, DEFAULT_CONTEXT_FILENAME } from '../tools/memoryTool.js';
 import { PREVIEW_GEMINI_MODEL } from '../config/models.js';
 
 vi.mock('../tools/memoryTool.js', async (importOriginal) => {
@@ -38,9 +35,7 @@ describe('PromptProvider', () => {
       getEnableShellOutputEfficiency: vi.fn().mockReturnValue(true),
       storage: {
         getProjectTempDir: vi.fn().mockReturnValue('/tmp/project-temp'),
-        getProjectTempPlansDir: vi
-          .fn()
-          .mockReturnValue('/tmp/project-temp/plans'),
+        getProjectTempPlansDir: vi.fn().mockReturnValue('/tmp/project-temp/plans'),
       },
       isInteractive: vi.fn().mockReturnValue(true),
       isInteractiveShellEnabled: vi.fn().mockReturnValue(true),
@@ -57,36 +52,24 @@ describe('PromptProvider', () => {
   });
 
   it('should handle multiple context filenames in the system prompt', () => {
-    vi.mocked(getAllGeminiMdFilenames).mockReturnValue([
-      DEFAULT_CONTEXT_FILENAME,
-      'CUSTOM.md',
-      'ANOTHER.md',
-    ]);
+    vi.mocked(getAllGeminiMdFilenames).mockReturnValue([DEFAULT_CONTEXT_FILENAME, 'CUSTOM.md', 'ANOTHER.md']);
 
     const provider = new PromptProvider();
     const prompt = provider.getCoreSystemPrompt(mockConfig);
 
     // Verify renderCoreMandates usage
     expect(prompt).toContain(
-      `Instructions found in \`${DEFAULT_CONTEXT_FILENAME}\`, \`CUSTOM.md\` or \`ANOTHER.md\` files are foundational mandates.`,
+      `Instructions found in \`${DEFAULT_CONTEXT_FILENAME}\`, \`CUSTOM.md\` or \`ANOTHER.md\` files are foundational mandates.`
     );
   });
 
   it('should handle multiple context filenames in user memory section', () => {
-    vi.mocked(getAllGeminiMdFilenames).mockReturnValue([
-      DEFAULT_CONTEXT_FILENAME,
-      'CUSTOM.md',
-    ]);
+    vi.mocked(getAllGeminiMdFilenames).mockReturnValue([DEFAULT_CONTEXT_FILENAME, 'CUSTOM.md']);
 
     const provider = new PromptProvider();
-    const prompt = provider.getCoreSystemPrompt(
-      mockConfig,
-      'Some memory content',
-    );
+    const prompt = provider.getCoreSystemPrompt(mockConfig, 'Some memory content');
 
     // Verify renderUserMemory usage
-    expect(prompt).toContain(
-      `# Contextual Instructions (${DEFAULT_CONTEXT_FILENAME}, CUSTOM.md)`,
-    );
+    expect(prompt).toContain(`# Contextual Instructions (${DEFAULT_CONTEXT_FILENAME}, CUSTOM.md)`);
   });
 });

@@ -7,20 +7,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { SubagentTool } from './subagent-tool.js';
 import { SubagentToolWrapper } from './subagent-tool-wrapper.js';
-import type {
-  LocalAgentDefinition,
-  RemoteAgentDefinition,
-  AgentInputs,
-} from './types.js';
+import type { LocalAgentDefinition, RemoteAgentDefinition, AgentInputs } from './types.js';
 import { makeFakeConfig } from '../test-utils/config.js';
 import { createMockMessageBus } from '../test-utils/mock-message-bus.js';
 import type { Config } from '../config/config.js';
 import type { MessageBus } from '../confirmation-bus/message-bus.js';
-import type {
-  ToolCallConfirmationDetails,
-  ToolInvocation,
-  ToolResult,
-} from '../tools/tools.js';
+import type { ToolCallConfirmationDetails, ToolInvocation, ToolResult } from '../tools/tools.js';
 
 vi.mock('./subagent-tool-wrapper.js');
 
@@ -63,9 +55,7 @@ describe('SubAgentInvocation', () => {
       toolLocations: vi.fn(),
     };
 
-    MockSubagentToolWrapper.prototype.build = vi
-      .fn()
-      .mockReturnValue(mockInnerInvocation);
+    MockSubagentToolWrapper.prototype.build = vi.fn().mockReturnValue(mockInnerInvocation);
   });
 
   it('should delegate shouldConfirmExecute to the inner sub-invocation (local)', async () => {
@@ -74,30 +64,18 @@ describe('SubAgentInvocation', () => {
     // @ts-expect-error - accessing protected method for testing
     const invocation = tool.createInvocation(params, mockMessageBus);
 
-    vi.mocked(mockInnerInvocation.shouldConfirmExecute).mockResolvedValue(
-      false,
-    );
+    vi.mocked(mockInnerInvocation.shouldConfirmExecute).mockResolvedValue(false);
 
     const abortSignal = new AbortController().signal;
     const result = await invocation.shouldConfirmExecute(abortSignal);
 
     expect(result).toBe(false);
-    expect(mockInnerInvocation.shouldConfirmExecute).toHaveBeenCalledWith(
-      abortSignal,
-    );
-    expect(MockSubagentToolWrapper).toHaveBeenCalledWith(
-      testDefinition,
-      mockConfig,
-      mockMessageBus,
-    );
+    expect(mockInnerInvocation.shouldConfirmExecute).toHaveBeenCalledWith(abortSignal);
+    expect(MockSubagentToolWrapper).toHaveBeenCalledWith(testDefinition, mockConfig, mockMessageBus);
   });
 
   it('should delegate shouldConfirmExecute to the inner sub-invocation (remote)', async () => {
-    const tool = new SubagentTool(
-      testRemoteDefinition,
-      mockConfig,
-      mockMessageBus,
-    );
+    const tool = new SubagentTool(testRemoteDefinition, mockConfig, mockMessageBus);
     const params = { query: 'test' };
     // @ts-expect-error - accessing protected method for testing
     const invocation = tool.createInvocation(params, mockMessageBus);
@@ -109,21 +87,15 @@ describe('SubAgentInvocation', () => {
       onConfirm: vi.fn(),
     } as const;
     vi.mocked(mockInnerInvocation.shouldConfirmExecute).mockResolvedValue(
-      confirmationDetails as unknown as ToolCallConfirmationDetails,
+      confirmationDetails as unknown as ToolCallConfirmationDetails
     );
 
     const abortSignal = new AbortController().signal;
     const result = await invocation.shouldConfirmExecute(abortSignal);
 
     expect(result).toBe(confirmationDetails);
-    expect(mockInnerInvocation.shouldConfirmExecute).toHaveBeenCalledWith(
-      abortSignal,
-    );
-    expect(MockSubagentToolWrapper).toHaveBeenCalledWith(
-      testRemoteDefinition,
-      mockConfig,
-      mockMessageBus,
-    );
+    expect(mockInnerInvocation.shouldConfirmExecute).toHaveBeenCalledWith(abortSignal);
+    expect(MockSubagentToolWrapper).toHaveBeenCalledWith(testRemoteDefinition, mockConfig, mockMessageBus);
   });
 
   it('should delegate execute to the inner sub-invocation', async () => {
@@ -143,9 +115,6 @@ describe('SubAgentInvocation', () => {
     const result = await invocation.execute(abortSignal, updateOutput);
 
     expect(result).toBe(mockResult);
-    expect(mockInnerInvocation.execute).toHaveBeenCalledWith(
-      abortSignal,
-      updateOutput,
-    );
+    expect(mockInnerInvocation.execute).toHaveBeenCalledWith(abortSignal, updateOutput);
   });
 });

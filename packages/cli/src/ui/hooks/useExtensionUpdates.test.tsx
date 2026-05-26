@@ -10,18 +10,11 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { createExtension } from '../../test-utils/createExtension.js';
 import { useExtensionUpdates } from './useExtensionUpdates.js';
-import {
-  GEMINI_DIR,
-  loadAgentsFromDirectory,
-  loadSkillsFromDir,
-} from '@google/gemini-cli-core';
+import { GEMINI_DIR, loadAgentsFromDirectory, loadSkillsFromDir } from '@google/gemini-cli-core';
 import { render } from '../../test-utils/render.js';
 import { waitFor } from '../../test-utils/async.js';
 import { MessageType } from '../types.js';
-import {
-  checkForAllExtensionUpdates,
-  updateExtension,
-} from '../../config/extensions/update.js';
+import { checkForAllExtensionUpdates, updateExtension } from '../../config/extensions/update.js';
 import { ExtensionUpdateState } from '../state/extensions.js';
 import { ExtensionManager } from '../../config/extension-manager.js';
 import { loadSettings } from '../../config/settings.js';
@@ -35,14 +28,11 @@ vi.mock('os', async (importOriginal) => {
 });
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     homedir: () => os.homedir(),
-    loadAgentsFromDirectory: vi
-      .fn()
-      .mockResolvedValue({ agents: [], errors: [] }),
+    loadAgentsFromDirectory: vi.fn().mockResolvedValue({ agents: [], errors: [] }),
     loadSkillsFromDir: vi.fn().mockResolvedValue([]),
   };
 });
@@ -64,13 +54,9 @@ describe('useExtensionUpdates', () => {
       errors: [],
     });
     vi.mocked(loadSkillsFromDir).mockResolvedValue([]);
-    tempHomeDir = fs.mkdtempSync(
-      path.join(os.tmpdir(), 'gemini-cli-test-home-'),
-    );
+    tempHomeDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gemini-cli-test-home-'));
     vi.mocked(os.homedir).mockReturnValue(tempHomeDir);
-    tempWorkspaceDir = fs.mkdtempSync(
-      path.join(tempHomeDir, 'gemini-cli-test-workspace-'),
-    );
+    tempWorkspaceDir = fs.mkdtempSync(path.join(tempHomeDir, 'gemini-cli-test-workspace-'));
     vi.spyOn(process, 'cwd').mockReturnValue(tempWorkspaceDir);
     userExtensionsDir = path.join(tempHomeDir, GEMINI_DIR, 'extensions');
     fs.mkdirSync(userExtensionsDir, { recursive: true });
@@ -106,17 +92,15 @@ describe('useExtensionUpdates', () => {
     ]);
     const addItem = vi.fn();
 
-    vi.mocked(checkForAllExtensionUpdates).mockImplementation(
-      async (_extensions, _extensionManager, dispatch) => {
-        dispatch({
-          type: 'SET_STATE',
-          payload: {
-            name: 'test-extension',
-            state: ExtensionUpdateState.UPDATE_AVAILABLE,
-          },
-        });
-      },
-    );
+    vi.mocked(checkForAllExtensionUpdates).mockImplementation(async (_extensions, _extensionManager, dispatch) => {
+      dispatch({
+        type: 'SET_STATE',
+        payload: {
+          name: 'test-extension',
+          state: ExtensionUpdateState.UPDATE_AVAILABLE,
+        },
+      });
+    });
 
     function TestComponent() {
       useExtensionUpdates(extensionManager, addItem, false);
@@ -131,7 +115,7 @@ describe('useExtensionUpdates', () => {
           type: MessageType.INFO,
           text: `You have 1 extension with an update available. Run "/extensions update test-extension".`,
         },
-        expect.any(Number),
+        expect.any(Number)
       );
     });
   });
@@ -150,17 +134,15 @@ describe('useExtensionUpdates', () => {
     await extensionManager.loadExtensions();
     const addItem = vi.fn();
 
-    vi.mocked(checkForAllExtensionUpdates).mockImplementation(
-      async (_extensions, _extensionManager, dispatch) => {
-        dispatch({
-          type: 'SET_STATE',
-          payload: {
-            name: 'test-extension',
-            state: ExtensionUpdateState.UPDATE_AVAILABLE,
-          },
-        });
-      },
-    );
+    vi.mocked(checkForAllExtensionUpdates).mockImplementation(async (_extensions, _extensionManager, dispatch) => {
+      dispatch({
+        type: 'SET_STATE',
+        payload: {
+          name: 'test-extension',
+          state: ExtensionUpdateState.UPDATE_AVAILABLE,
+        },
+      });
+    });
 
     vi.mocked(updateExtension).mockResolvedValue({
       originalVersion: '1.0.0',
@@ -182,10 +164,10 @@ describe('useExtensionUpdates', () => {
             type: MessageType.INFO,
             text: 'Extension "test-extension" successfully updated: 1.0.0 → 1.1.0.',
           },
-          expect.any(Number),
+          expect.any(Number)
         );
       },
-      { timeout: 4000 },
+      { timeout: 4000 }
     );
   });
 
@@ -215,24 +197,22 @@ describe('useExtensionUpdates', () => {
 
     const addItem = vi.fn();
 
-    vi.mocked(checkForAllExtensionUpdates).mockImplementation(
-      async (_extensions, _extensionManager, dispatch) => {
-        dispatch({
-          type: 'SET_STATE',
-          payload: {
-            name: 'test-extension-1',
-            state: ExtensionUpdateState.UPDATE_AVAILABLE,
-          },
-        });
-        dispatch({
-          type: 'SET_STATE',
-          payload: {
-            name: 'test-extension-2',
-            state: ExtensionUpdateState.UPDATE_AVAILABLE,
-          },
-        });
-      },
-    );
+    vi.mocked(checkForAllExtensionUpdates).mockImplementation(async (_extensions, _extensionManager, dispatch) => {
+      dispatch({
+        type: 'SET_STATE',
+        payload: {
+          name: 'test-extension-1',
+          state: ExtensionUpdateState.UPDATE_AVAILABLE,
+        },
+      });
+      dispatch({
+        type: 'SET_STATE',
+        payload: {
+          name: 'test-extension-2',
+          state: ExtensionUpdateState.UPDATE_AVAILABLE,
+        },
+      });
+    });
 
     vi.mocked(updateExtension)
       .mockResolvedValueOnce({
@@ -261,17 +241,17 @@ describe('useExtensionUpdates', () => {
             type: MessageType.INFO,
             text: 'Extension "test-extension-1" successfully updated: 1.0.0 → 1.1.0.',
           },
-          expect.any(Number),
+          expect.any(Number)
         );
         expect(addItem).toHaveBeenCalledWith(
           {
             type: MessageType.INFO,
             text: 'Extension "test-extension-2" successfully updated: 2.0.0 → 2.1.0.',
           },
-          expect.any(Number),
+          expect.any(Number)
         );
       },
-      { timeout: 4000 },
+      { timeout: 4000 }
     );
   });
 
@@ -307,27 +287,25 @@ describe('useExtensionUpdates', () => {
     ]);
     const addItem = vi.fn();
 
-    vi.mocked(checkForAllExtensionUpdates).mockImplementation(
-      async (_extensions, _extensionManager, dispatch) => {
-        dispatch({ type: 'BATCH_CHECK_START' });
-        dispatch({
-          type: 'SET_STATE',
-          payload: {
-            name: 'test-extension-1',
-            state: ExtensionUpdateState.UPDATE_AVAILABLE,
-          },
-        });
-        await new Promise((r) => setTimeout(r, 50));
-        dispatch({
-          type: 'SET_STATE',
-          payload: {
-            name: 'test-extension-2',
-            state: ExtensionUpdateState.UPDATE_AVAILABLE,
-          },
-        });
-        dispatch({ type: 'BATCH_CHECK_END' });
-      },
-    );
+    vi.mocked(checkForAllExtensionUpdates).mockImplementation(async (_extensions, _extensionManager, dispatch) => {
+      dispatch({ type: 'BATCH_CHECK_START' });
+      dispatch({
+        type: 'SET_STATE',
+        payload: {
+          name: 'test-extension-1',
+          state: ExtensionUpdateState.UPDATE_AVAILABLE,
+        },
+      });
+      await new Promise((r) => setTimeout(r, 50));
+      dispatch({
+        type: 'SET_STATE',
+        payload: {
+          name: 'test-extension-2',
+          state: ExtensionUpdateState.UPDATE_AVAILABLE,
+        },
+      });
+      dispatch({ type: 'BATCH_CHECK_END' });
+    });
 
     function TestComponent() {
       useExtensionUpdates(extensionManager, addItem, false);
@@ -343,7 +321,7 @@ describe('useExtensionUpdates', () => {
           type: MessageType.INFO,
           text: `You have 2 extensions with an update available. Run "/extensions update test-extension-1 test-extension-2".`,
         },
-        expect.any(Number),
+        expect.any(Number)
       );
     });
   });

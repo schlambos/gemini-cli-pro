@@ -5,11 +5,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  coreEvents,
-  type Config,
-  type ResumedSessionData,
-} from '@google/gemini-cli-core';
+import { coreEvents, type Config, type ResumedSessionData } from '@google/gemini-cli-core';
 import type { Part } from '@google/genai';
 import type { HistoryItemWithoutId } from '../types.js';
 import type { UseHistoryManagerReturn } from './useHistoryManager.js';
@@ -54,7 +50,7 @@ export function useSessionResume({
     async (
       uiHistory: HistoryItemWithoutId[],
       clientHistory: Array<{ role: 'user' | 'model'; parts: Part[] }>,
-      resumedData: ResumedSessionData,
+      resumedData: ResumedSessionData
     ) => {
       // Wait for the client.
       if (!isGeminiClientInitialized) {
@@ -72,10 +68,7 @@ export function useSessionResume({
         refreshStaticRef.current(); // Force Static component to re-render with the updated history.
 
         // Restore directories from the resumed session
-        if (
-          resumedData.conversation.directories &&
-          resumedData.conversation.directories.length > 0
-        ) {
+        if (resumedData.conversation.directories && resumedData.conversation.directories.length > 0) {
           const workspaceContext = config.getWorkspaceContext();
           // Add back any directories that were saved in the session
           // but filter out ones that no longer exist
@@ -85,44 +78,24 @@ export function useSessionResume({
         // Give the history to the Gemini client.
         await config.getGeminiClient()?.resumeChat(clientHistory, resumedData);
       } catch (error) {
-        coreEvents.emitFeedback(
-          'error',
-          'Failed to resume session. Please try again.',
-          error,
-        );
+        coreEvents.emitFeedback('error', 'Failed to resume session. Please try again.', error);
       } finally {
         setIsResuming(false);
       }
     },
-    [config, isGeminiClientInitialized, setQuittingMessages],
+    [config, isGeminiClientInitialized, setQuittingMessages]
   );
 
   // Handle interactive resume from the command line (-r/--resume without -p/--prompt-interactive).
   // Only if we're not authenticating and the client is initialized, though.
   const hasLoadedResumedSession = useRef(false);
   useEffect(() => {
-    if (
-      resumedSessionData &&
-      !isAuthenticating &&
-      isGeminiClientInitialized &&
-      !hasLoadedResumedSession.current
-    ) {
+    if (resumedSessionData && !isAuthenticating && isGeminiClientInitialized && !hasLoadedResumedSession.current) {
       hasLoadedResumedSession.current = true;
-      const historyData = convertSessionToHistoryFormats(
-        resumedSessionData.conversation.messages,
-      );
-      void loadHistoryForResume(
-        historyData.uiHistory,
-        historyData.clientHistory,
-        resumedSessionData,
-      );
+      const historyData = convertSessionToHistoryFormats(resumedSessionData.conversation.messages);
+      void loadHistoryForResume(historyData.uiHistory, historyData.clientHistory, resumedSessionData);
     }
-  }, [
-    resumedSessionData,
-    isAuthenticating,
-    isGeminiClientInitialized,
-    loadHistoryForResume,
-  ]);
+  }, [resumedSessionData, isAuthenticating, isGeminiClientInitialized, loadHistoryForResume]);
 
   return { loadHistoryForResume, isResuming };
 }

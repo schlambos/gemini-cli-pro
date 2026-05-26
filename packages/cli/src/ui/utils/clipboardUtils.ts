@@ -8,25 +8,13 @@ import * as fs from 'node:fs/promises';
 import { createWriteStream, existsSync, statSync } from 'node:fs';
 import { execSync, spawn } from 'node:child_process';
 import * as path from 'node:path';
-import {
-  debugLogger,
-  spawnAsync,
-  escapePath,
-  Storage,
-} from '@google/gemini-cli-core';
+import { debugLogger, spawnAsync, escapePath, Storage } from '@google/gemini-cli-core';
 
 /**
  * Supported image file extensions based on Gemini API.
  * See: https://ai.google.dev/gemini-api/docs/image-understanding
  */
-export const IMAGE_EXTENSIONS = [
-  '.png',
-  '.jpg',
-  '.jpeg',
-  '.webp',
-  '.heic',
-  '.heif',
-];
+export const IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp', '.heic', '.heif'];
 
 /** Matches strings that start with a path prefix (/, ~, ., Windows drive letter, or UNC path) */
 const PATH_PREFIX_PATTERN = /^([/~.]|[a-zA-Z]:|\\\\)/;
@@ -61,11 +49,7 @@ function getUserLinuxClipboardTool(): typeof linuxClipboardTool {
 /**
  * Helper to save command stdout to a file while preventing shell injections and race conditions
  */
-async function saveFromCommand(
-  command: string,
-  args: string[],
-  destination: string,
-): Promise<boolean> {
+async function saveFromCommand(command: string, args: string[], destination: string): Promise<boolean> {
   return new Promise((resolve) => {
     const child = spawn(command, args);
     const fileStream = createWriteStream(destination);
@@ -94,9 +78,7 @@ async function saveFromCommand(
       if (resolved) return;
 
       if (code !== 0) {
-        debugLogger.debug(
-          `${command} exited with code ${code}. Args: ${args.join(' ')}`,
-        );
+        debugLogger.debug(`${command} exited with code ${code}. Args: ${args.join(' ')}`);
         safeResolve(false);
         return;
       }
@@ -143,13 +125,7 @@ async function checkWlPasteForImage() {
  */
 async function checkXclipForImage() {
   try {
-    const { stdout } = await spawnAsync('xclip', [
-      '-selection',
-      'clipboard',
-      '-t',
-      'TARGETS',
-      '-o',
-    ]);
+    const { stdout } = await spawnAsync('xclip', ['-selection', 'clipboard', '-t', 'TARGETS', '-o']);
     return stdout.includes('image/');
   } catch (e) {
     debugLogger.warn('Error checking xclip for image:', e);
@@ -193,8 +169,7 @@ export async function clipboardHasImage(): Promise<boolean> {
   try {
     // Use osascript to check clipboard type
     const { stdout } = await spawnAsync('osascript', ['-e', 'clipboard info']);
-    const imageRegex =
-      /«class PNGf»|TIFF picture|JPEG picture|GIF picture|«class JPEG»|«class TIFF»/;
+    const imageRegex = /«class PNGf»|TIFF picture|JPEG picture|GIF picture|«class JPEG»|«class TIFF»/;
     return imageRegex.test(stdout);
   } catch (error) {
     debugLogger.warn('Error checking clipboard for image:', error);
@@ -206,11 +181,7 @@ export async function clipboardHasImage(): Promise<boolean> {
  * Saves clipboard content to a file using wl-paste (Wayland).
  */
 async function saveFileWithWlPaste(tempFilePath: string) {
-  const success = await saveFromCommand(
-    'wl-paste',
-    ['--no-newline', '--type', 'image/png'],
-    tempFilePath,
-  );
+  const success = await saveFromCommand('wl-paste', ['--no-newline', '--type', 'image/png'], tempFilePath);
   if (success) {
     return true;
   }
@@ -227,11 +198,7 @@ async function saveFileWithWlPaste(tempFilePath: string) {
  * Saves clipboard content to a file using xclip (X11).
  */
 const saveFileWithXclip = async (tempFilePath: string) => {
-  const success = await saveFromCommand(
-    'xclip',
-    ['-selection', 'clipboard', '-t', 'image/png', '-o'],
-    tempFilePath,
-  );
+  const success = await saveFromCommand('xclip', ['-selection', 'clipboard', '-t', 'image/png', '-o'], tempFilePath);
   if (success) {
     return true;
   }
@@ -255,9 +222,7 @@ const saveFileWithXclip = async (tempFilePath: string) => {
  * @param targetDir The root directory of the current project.
  * @returns The absolute path to the images directory.
  */
-async function getProjectClipboardImagesDir(
-  targetDir: string,
-): Promise<string> {
+async function getProjectClipboardImagesDir(targetDir: string): Promise<string> {
   const storage = new Storage(targetDir);
   await storage.initialize();
   const baseDir = storage.getProjectTempDir();
@@ -269,9 +234,7 @@ async function getProjectClipboardImagesDir(
  * @param targetDir The target directory to create temp files within
  * @returns The path to the saved image file, or null if no image or error
  */
-export async function saveClipboardImage(
-  targetDir: string,
-): Promise<string | null> {
+export async function saveClipboardImage(targetDir: string): Promise<string | null> {
   try {
     const tempDir = await getProjectClipboardImagesDir(targetDir);
     await fs.mkdir(tempDir, { recursive: true });
@@ -309,11 +272,7 @@ export async function saveClipboardImage(
         }
       `;
 
-      const { stdout } = await spawnAsync('powershell', [
-        '-NoProfile',
-        '-Command',
-        script,
-      ]);
+      const { stdout } = await spawnAsync('powershell', ['-NoProfile', '-Command', script]);
 
       if (stdout.trim() === 'success') {
         try {
@@ -336,10 +295,7 @@ export async function saveClipboardImage(
     ];
 
     for (const format of formats) {
-      const tempFilePath = path.join(
-        tempDir,
-        `clipboard-${timestamp}.${format.extension}`,
-      );
+      const tempFilePath = path.join(tempDir, `clipboard-${timestamp}.${format.extension}`);
 
       // Try to save clipboard as this format
       const script = `
@@ -394,9 +350,7 @@ export async function saveClipboardImage(
  * Removes files older than 1 hour
  * @param targetDir The target directory where temp files are stored
  */
-export async function cleanupOldClipboardImages(
-  targetDir: string,
-): Promise<void> {
+export async function cleanupOldClipboardImages(targetDir: string): Promise<void> {
   try {
     const tempDir = await getProjectClipboardImagesDir(targetDir);
     const files = await fs.readdir(tempDir);

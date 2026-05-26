@@ -23,12 +23,7 @@ describe('Core System Prompt Substitution', () => {
     vi.stubEnv('GEMINI_SYSTEM_MD', 'true');
     mockConfig = {
       getToolRegistry: vi.fn().mockReturnValue({
-        getAllToolNames: vi
-          .fn()
-          .mockReturnValue([
-            toolNames.WRITE_FILE_TOOL_NAME,
-            toolNames.READ_FILE_TOOL_NAME,
-          ]),
+        getAllToolNames: vi.fn().mockReturnValue([toolNames.WRITE_FILE_TOOL_NAME, toolNames.READ_FILE_TOOL_NAME]),
       }),
       getEnableShellOutputEfficiency: vi.fn().mockReturnValue(true),
       storage: {
@@ -61,9 +56,7 @@ describe('Core System Prompt Substitution', () => {
     ];
     vi.mocked(mockConfig.getSkillManager().getSkills).mockReturnValue(skills);
     vi.mocked(fs.existsSync).mockReturnValue(true);
-    vi.mocked(fs.readFileSync).mockReturnValue(
-      'Skills go here: ${AgentSkills}',
-    );
+    vi.mocked(fs.readFileSync).mockReturnValue('Skills go here: ${AgentSkills}');
 
     const prompt = getCoreSystemPrompt(mockConfig);
 
@@ -98,32 +91,24 @@ describe('Core System Prompt Substitution', () => {
 
     const prompt = getCoreSystemPrompt(mockConfig);
 
-    expect(prompt).toContain(
-      `Tools:\n- ${toolNames.WRITE_FILE_TOOL_NAME}\n- ${toolNames.READ_FILE_TOOL_NAME}`,
-    );
+    expect(prompt).toContain(`Tools:\n- ${toolNames.WRITE_FILE_TOOL_NAME}\n- ${toolNames.READ_FILE_TOOL_NAME}`);
     expect(prompt).not.toContain('${AvailableTools}');
   });
 
   it('should substitute tool names using the ${toolName}_ToolName pattern', () => {
     vi.mocked(fs.existsSync).mockReturnValue(true);
-    vi.mocked(fs.readFileSync).mockReturnValue(
-      'Use ${write_file_ToolName} and ${read_file_ToolName}.',
-    );
+    vi.mocked(fs.readFileSync).mockReturnValue('Use ${write_file_ToolName} and ${read_file_ToolName}.');
 
     const prompt = getCoreSystemPrompt(mockConfig);
 
-    expect(prompt).toContain(
-      `Use ${toolNames.WRITE_FILE_TOOL_NAME} and ${toolNames.READ_FILE_TOOL_NAME}.`,
-    );
+    expect(prompt).toContain(`Use ${toolNames.WRITE_FILE_TOOL_NAME} and ${toolNames.READ_FILE_TOOL_NAME}.`);
     expect(prompt).not.toContain('${write_file_ToolName}');
     expect(prompt).not.toContain('${read_file_ToolName}');
   });
 
   it('should not substitute old patterns', () => {
     vi.mocked(fs.existsSync).mockReturnValue(true);
-    vi.mocked(fs.readFileSync).mockReturnValue(
-      '${WriteFileToolName} and ${WRITE_FILE_TOOL_NAME}',
-    );
+    vi.mocked(fs.readFileSync).mockReturnValue('${WriteFileToolName} and ${WRITE_FILE_TOOL_NAME}');
 
     const prompt = getCoreSystemPrompt(mockConfig);
 

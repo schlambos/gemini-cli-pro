@@ -14,15 +14,12 @@ import type { HookActionResult } from './hookSettings.js';
  */
 export function renderHookActionFeedback(
   result: HookActionResult,
-  formatScope: (label: string, path: string) => string,
+  formatScope: (label: string, path: string) => string
 ): string {
   const { hookName, action, status, error } = result;
 
   if (status === 'error') {
-    return (
-      error ||
-      `An error occurred while attempting to ${action} hook "${hookName}".`
-    );
+    return error || `An error occurred while attempting to ${action} hook "${hookName}".`;
   }
 
   if (status === 'no-op') {
@@ -31,20 +28,14 @@ export function renderHookActionFeedback(
 
   const isEnable = action === 'enable';
   const actionVerb = isEnable ? 'enabled' : 'disabled';
-  const preposition = isEnable
-    ? 'by removing it from the disabled list in'
-    : 'by adding it to the disabled list in';
+  const preposition = isEnable ? 'by removing it from the disabled list in' : 'by adding it to the disabled list in';
 
   const formatScopeItem = (s: { scope: SettingScope; path: string }) => {
-    const label =
-      s.scope === SettingScope.Workspace ? 'workspace' : s.scope.toLowerCase();
+    const label = s.scope === SettingScope.Workspace ? 'workspace' : s.scope.toLowerCase();
     return formatScope(label, s.path);
   };
 
-  const totalAffectedScopes = [
-    ...result.modifiedScopes,
-    ...result.alreadyInStateScopes,
-  ];
+  const totalAffectedScopes = [...result.modifiedScopes, ...result.alreadyInStateScopes];
 
   if (totalAffectedScopes.length === 0) {
     // This case should ideally not happen, but as a safeguard, return a generic message.

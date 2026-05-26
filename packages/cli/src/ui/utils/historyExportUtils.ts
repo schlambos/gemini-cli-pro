@@ -21,20 +21,10 @@ export function serializeHistoryToMarkdown(history: Content[]): string {
               return part.text;
             }
             if (part.functionCall) {
-              return (
-                `**Tool Command**:\n` +
-                '```json\n' +
-                JSON.stringify(part.functionCall, null, 2) +
-                '\n```'
-              );
+              return `**Tool Command**:\n` + '```json\n' + JSON.stringify(part.functionCall, null, 2) + '\n```';
             }
             if (part.functionResponse) {
-              return (
-                `**Tool Response**:\n` +
-                '```json\n' +
-                JSON.stringify(part.functionResponse, null, 2) +
-                '\n```'
-              );
+              return `**Tool Response**:\n` + '```json\n' + JSON.stringify(part.functionResponse, null, 2) + '\n```';
             }
             return '';
           })
@@ -56,9 +46,7 @@ export interface ExportHistoryOptions {
 /**
  * Exports chat history to a file (JSON or Markdown).
  */
-export async function exportHistoryToFile(
-  options: ExportHistoryOptions,
-): Promise<void> {
+export async function exportHistoryToFile(options: ExportHistoryOptions): Promise<void> {
   const { history, filePath } = options;
   const extension = path.extname(filePath).toLowerCase();
 
@@ -68,9 +56,7 @@ export async function exportHistoryToFile(
   } else if (extension === '.md') {
     content = serializeHistoryToMarkdown(history);
   } else {
-    throw new Error(
-      `Unsupported file extension: ${extension}. Use .json or .md.`,
-    );
+    throw new Error(`Unsupported file extension: ${extension}. Use .json or .md.`);
   }
 
   const dir = path.dirname(filePath);

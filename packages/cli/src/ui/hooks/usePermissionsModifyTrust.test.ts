@@ -4,15 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  afterEach,
-  type Mock,
-} from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 import { act } from 'react';
 import { renderHook } from '../../test-utils/render.js';
 import { usePermissionsModifyTrust } from './usePermissionsModifyTrust.js';
@@ -100,9 +92,7 @@ describe('usePermissionsModifyTrust', () => {
         source: 'file',
       });
 
-      const { result } = renderHook(() =>
-        usePermissionsModifyTrust(mockOnExit, mockAddItem, mockedCwd()),
-      );
+      const { result } = renderHook(() => usePermissionsModifyTrust(mockOnExit, mockAddItem, mockedCwd()));
 
       expect(result.current.currentTrustLevel).toBe(TrustLevel.TRUST_FOLDER);
     });
@@ -117,9 +107,7 @@ describe('usePermissionsModifyTrust', () => {
         source: 'file',
       });
 
-      const { result } = renderHook(() =>
-        usePermissionsModifyTrust(mockOnExit, mockAddItem, mockedCwd()),
-      );
+      const { result } = renderHook(() => usePermissionsModifyTrust(mockOnExit, mockAddItem, mockedCwd()));
 
       expect(result.current.isInheritedTrustFromParent).toBe(true);
       expect(result.current.isInheritedTrustFromIde).toBe(false);
@@ -134,9 +122,7 @@ describe('usePermissionsModifyTrust', () => {
         source: 'ide',
       });
 
-      const { result } = renderHook(() =>
-        usePermissionsModifyTrust(mockOnExit, mockAddItem, mockedCwd()),
-      );
+      const { result } = renderHook(() => usePermissionsModifyTrust(mockOnExit, mockAddItem, mockedCwd()));
 
       expect(result.current.isInheritedTrustFromIde).toBe(true);
       expect(result.current.isInheritedTrustFromParent).toBe(false);
@@ -153,9 +139,7 @@ describe('usePermissionsModifyTrust', () => {
         .mockReturnValueOnce({ isTrusted: false, source: 'file' })
         .mockReturnValueOnce({ isTrusted: true, source: 'file' });
 
-      const { result } = renderHook(() =>
-        usePermissionsModifyTrust(mockOnExit, mockAddItem, mockedCwd()),
-      );
+      const { result } = renderHook(() => usePermissionsModifyTrust(mockOnExit, mockAddItem, mockedCwd()));
 
       await act(async () => {
         await result.current.updateTrustLevel(TrustLevel.TRUST_FOLDER);
@@ -177,19 +161,14 @@ describe('usePermissionsModifyTrust', () => {
         source: 'file',
       });
 
-      const { result } = renderHook(() =>
-        usePermissionsModifyTrust(mockOnExit, mockAddItem, mockedCwd()),
-      );
+      const { result } = renderHook(() => usePermissionsModifyTrust(mockOnExit, mockAddItem, mockedCwd()));
 
       await act(async () => {
         await result.current.updateTrustLevel(TrustLevel.TRUST_PARENT);
       });
 
       expect(result.current.needsRestart).toBe(false);
-      expect(mockSetValue).toHaveBeenCalledWith(
-        '/test/dir',
-        TrustLevel.TRUST_PARENT,
-      );
+      expect(mockSetValue).toHaveBeenCalledWith('/test/dir', TrustLevel.TRUST_PARENT);
       expect(mockOnExit).toHaveBeenCalled();
     });
 
@@ -204,9 +183,7 @@ describe('usePermissionsModifyTrust', () => {
         .mockReturnValueOnce({ isTrusted: false, source: 'file' })
         .mockReturnValueOnce({ isTrusted: true, source: 'file' });
 
-      const { result } = renderHook(() =>
-        usePermissionsModifyTrust(mockOnExit, mockAddItem, mockedCwd()),
-      );
+      const { result } = renderHook(() => usePermissionsModifyTrust(mockOnExit, mockAddItem, mockedCwd()));
 
       await act(async () => {
         await result.current.updateTrustLevel(TrustLevel.TRUST_FOLDER);
@@ -218,10 +195,7 @@ describe('usePermissionsModifyTrust', () => {
         await result.current.commitTrustLevelChange();
       });
 
-      expect(mockSetValue).toHaveBeenCalledWith(
-        '/test/dir',
-        TrustLevel.TRUST_FOLDER,
-      );
+      expect(mockSetValue).toHaveBeenCalledWith('/test/dir', TrustLevel.TRUST_FOLDER);
     });
 
     it('should add warning when setting DO_NOT_TRUST but still trusted by parent', async () => {
@@ -234,9 +208,7 @@ describe('usePermissionsModifyTrust', () => {
         source: 'file',
       });
 
-      const { result } = renderHook(() =>
-        usePermissionsModifyTrust(mockOnExit, mockAddItem, mockedCwd()),
-      );
+      const { result } = renderHook(() => usePermissionsModifyTrust(mockOnExit, mockAddItem, mockedCwd()));
 
       await act(async () => {
         await result.current.updateTrustLevel(TrustLevel.DO_NOT_TRUST);
@@ -247,7 +219,7 @@ describe('usePermissionsModifyTrust', () => {
           type: 'warning',
           text: 'Note: This folder is still trusted because a parent folder is trusted.',
         },
-        expect.any(Number),
+        expect.any(Number)
       );
     });
 
@@ -261,9 +233,7 @@ describe('usePermissionsModifyTrust', () => {
         source: 'ide',
       });
 
-      const { result } = renderHook(() =>
-        usePermissionsModifyTrust(mockOnExit, mockAddItem, mockedCwd()),
-      );
+      const { result } = renderHook(() => usePermissionsModifyTrust(mockOnExit, mockAddItem, mockedCwd()));
 
       await act(async () => {
         await result.current.updateTrustLevel(TrustLevel.DO_NOT_TRUST);
@@ -274,7 +244,7 @@ describe('usePermissionsModifyTrust', () => {
           type: 'warning',
           text: 'Note: This folder is still trusted because the connected IDE workspace is trusted.',
         },
-        expect.any(Number),
+        expect.any(Number)
       );
     });
   });
@@ -291,9 +261,7 @@ describe('usePermissionsModifyTrust', () => {
         source: 'file',
       });
 
-      const { result } = renderHook(() =>
-        usePermissionsModifyTrust(mockOnExit, mockAddItem, otherDirectory),
-      );
+      const { result } = renderHook(() => usePermissionsModifyTrust(mockOnExit, mockAddItem, otherDirectory));
 
       expect(result.current.isInheritedTrustFromParent).toBe(false);
       expect(result.current.isInheritedTrustFromIde).toBe(false);
@@ -310,19 +278,14 @@ describe('usePermissionsModifyTrust', () => {
         source: 'file',
       });
 
-      const { result } = renderHook(() =>
-        usePermissionsModifyTrust(mockOnExit, mockAddItem, otherDirectory),
-      );
+      const { result } = renderHook(() => usePermissionsModifyTrust(mockOnExit, mockAddItem, otherDirectory));
 
       await act(async () => {
         await result.current.updateTrustLevel(TrustLevel.TRUST_FOLDER);
       });
 
       expect(result.current.needsRestart).toBe(false);
-      expect(mockSetValue).toHaveBeenCalledWith(
-        otherDirectory,
-        TrustLevel.TRUST_FOLDER,
-      );
+      expect(mockSetValue).toHaveBeenCalledWith(otherDirectory, TrustLevel.TRUST_FOLDER);
       expect(mockOnExit).toHaveBeenCalled();
     });
 
@@ -336,9 +299,7 @@ describe('usePermissionsModifyTrust', () => {
         source: 'file',
       });
 
-      const { result } = renderHook(() =>
-        usePermissionsModifyTrust(mockOnExit, mockAddItem, otherDirectory),
-      );
+      const { result } = renderHook(() => usePermissionsModifyTrust(mockOnExit, mockAddItem, otherDirectory));
 
       await act(async () => {
         await result.current.updateTrustLevel(TrustLevel.DO_NOT_TRUST);
@@ -364,9 +325,7 @@ describe('usePermissionsModifyTrust', () => {
 
     const emitFeedbackSpy = vi.spyOn(coreEvents, 'emitFeedback');
 
-    const { result } = renderHook(() =>
-      usePermissionsModifyTrust(mockOnExit, mockAddItem, mockedCwd()),
-    );
+    const { result } = renderHook(() => usePermissionsModifyTrust(mockOnExit, mockAddItem, mockedCwd()));
 
     await act(async () => {
       await result.current.updateTrustLevel(TrustLevel.TRUST_PARENT);
@@ -374,7 +333,7 @@ describe('usePermissionsModifyTrust', () => {
 
     expect(emitFeedbackSpy).toHaveBeenCalledWith(
       'error',
-      'Failed to save trust settings. Your changes may not persist.',
+      'Failed to save trust settings. Your changes may not persist.'
     );
     expect(mockOnExit).toHaveBeenCalled();
   });
@@ -394,9 +353,7 @@ describe('usePermissionsModifyTrust', () => {
 
     const emitFeedbackSpy = vi.spyOn(coreEvents, 'emitFeedback');
 
-    const { result } = renderHook(() =>
-      usePermissionsModifyTrust(mockOnExit, mockAddItem, mockedCwd()),
-    );
+    const { result } = renderHook(() => usePermissionsModifyTrust(mockOnExit, mockAddItem, mockedCwd()));
 
     await act(async () => {
       await result.current.updateTrustLevel(TrustLevel.TRUST_FOLDER);
@@ -409,7 +366,7 @@ describe('usePermissionsModifyTrust', () => {
 
     expect(emitFeedbackSpy).toHaveBeenCalledWith(
       'error',
-      'Failed to save trust settings. Your changes may not persist.',
+      'Failed to save trust settings. Your changes may not persist.'
     );
     expect(result.current.needsRestart).toBe(false);
   });

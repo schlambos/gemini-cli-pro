@@ -4,16 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  afterEach,
-  type Mock,
-  type MockInstance,
-} from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock, type MockInstance } from 'vitest';
 import * as fs from 'node:fs';
 import { loadSettings, SettingScope } from '../../config/settings.js';
 import { debugLogger } from '@google/gemini-cli-core';
@@ -45,12 +36,8 @@ describe('migrate command', () => {
     vi.resetAllMocks();
 
     mockSetValue = vi.fn();
-    debugLoggerLogSpy = vi
-      .spyOn(debugLogger, 'log')
-      .mockImplementation(() => {});
-    debugLoggerErrorSpy = vi
-      .spyOn(debugLogger, 'error')
-      .mockImplementation(() => {});
+    debugLoggerLogSpy = vi.spyOn(debugLogger, 'log').mockImplementation(() => {});
+    debugLoggerErrorSpy = vi.spyOn(debugLogger, 'error').mockImplementation(() => {});
 
     // Mock process.cwd()
     originalCwd = process.cwd;
@@ -76,7 +63,7 @@ describe('migrate command', () => {
     await handleMigrateFromClaude();
 
     expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
-      'No Claude Code settings found in .claude directory. Expected settings.json or settings.local.json',
+      'No Claude Code settings found in .claude directory. Expected settings.json or settings.local.json'
     );
     expect(mockSetValue).not.toHaveBeenCalled();
   });
@@ -99,9 +86,7 @@ describe('migrate command', () => {
       },
     };
 
-    mockedFs.existsSync.mockImplementation((path) =>
-      path.toString().endsWith('settings.json'),
-    );
+    mockedFs.existsSync.mockImplementation((path) => path.toString().endsWith('settings.json'));
 
     mockedFs.readFileSync.mockReturnValue(JSON.stringify(claudeSettings));
 
@@ -123,18 +108,12 @@ describe('migrate command', () => {
             ]),
           }),
         ]),
-      }),
+      })
     );
 
-    expect(debugLoggerLogSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Found Claude Code settings'),
-    );
-    expect(debugLoggerLogSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Migrating 1 hook event'),
-    );
-    expect(debugLoggerLogSpy).toHaveBeenCalledWith(
-      '✓ Hooks successfully migrated to .gemini/settings.json',
-    );
+    expect(debugLoggerLogSpy).toHaveBeenCalledWith(expect.stringContaining('Found Claude Code settings'));
+    expect(debugLoggerLogSpy).toHaveBeenCalledWith(expect.stringContaining('Migrating 1 hook event'));
+    expect(debugLoggerLogSpy).toHaveBeenCalledWith('✓ Hooks successfully migrated to .gemini/settings.json');
   });
 
   it('should prefer settings.local.json over settings.json', async () => {
@@ -158,16 +137,13 @@ describe('migrate command', () => {
 
     await handleMigrateFromClaude();
 
-    expect(mockedFs.readFileSync).toHaveBeenCalledWith(
-      expect.stringContaining('settings.local.json'),
-      'utf-8',
-    );
+    expect(mockedFs.readFileSync).toHaveBeenCalledWith(expect.stringContaining('settings.local.json'), 'utf-8');
     expect(mockSetValue).toHaveBeenCalledWith(
       SettingScope.Workspace,
       'hooks',
       expect.objectContaining({
         SessionStart: expect.any(Array),
-      }),
+      })
     );
   });
 
@@ -221,9 +197,7 @@ describe('migrate command', () => {
     await handleMigrateFromClaude();
 
     const migratedHooks = mockSetValue.mock.calls[0][2];
-    expect(migratedHooks.BeforeTool[0].matcher).toBe(
-      'replace|run_shell_command|read_file|write_file|glob|grep',
-    );
+    expect(migratedHooks.BeforeTool[0].matcher).toBe('replace|run_shell_command|read_file|write_file|glob|grep');
   });
 
   it('should replace $CLAUDE_PROJECT_DIR with $GEMINI_PROJECT_DIR', async () => {
@@ -248,9 +222,7 @@ describe('migrate command', () => {
     await handleMigrateFromClaude();
 
     const migratedHooks = mockSetValue.mock.calls[0][2];
-    expect(migratedHooks.BeforeTool[0].hooks[0].command).toBe(
-      'cd $GEMINI_PROJECT_DIR && ls',
-    );
+    expect(migratedHooks.BeforeTool[0].hooks[0].command).toBe('cd $GEMINI_PROJECT_DIR && ls');
   });
 
   it('should preserve sequential flag', async () => {
@@ -365,7 +337,7 @@ describe('migrate command', () => {
       'hooks',
       expect.objectContaining({
         BeforeTool: expect.any(Array),
-      }),
+      })
     );
   });
 
@@ -375,9 +347,7 @@ describe('migrate command', () => {
 
     await handleMigrateFromClaude();
 
-    expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Error reading'),
-    );
+    expect(debugLoggerErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Error reading'));
     expect(mockSetValue).not.toHaveBeenCalled();
   });
 
@@ -391,9 +361,7 @@ describe('migrate command', () => {
 
     await handleMigrateFromClaude();
 
-    expect(debugLoggerLogSpy).toHaveBeenCalledWith(
-      'No hooks found in Claude Code settings to migrate.',
-    );
+    expect(debugLoggerLogSpy).toHaveBeenCalledWith('No hooks found in Claude Code settings to migrate.');
     expect(mockSetValue).not.toHaveBeenCalled();
   });
 
@@ -416,9 +384,7 @@ describe('migrate command', () => {
 
     await handleMigrateFromClaude();
 
-    expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
-      'Error saving migrated hooks: Failed to save',
-    );
+    expect(debugLoggerErrorSpy).toHaveBeenCalledWith('Error saving migrated hooks: Failed to save');
   });
 
   it('should handle hooks with matcher but no command', async () => {
@@ -505,11 +471,9 @@ describe('migrate command', () => {
 
     await handleMigrateFromClaude();
 
+    expect(debugLoggerLogSpy).toHaveBeenCalledWith('✓ Hooks successfully migrated to .gemini/settings.json');
     expect(debugLoggerLogSpy).toHaveBeenCalledWith(
-      '✓ Hooks successfully migrated to .gemini/settings.json',
-    );
-    expect(debugLoggerLogSpy).toHaveBeenCalledWith(
-      '\nMigration complete! Please review the migrated hooks in .gemini/settings.json',
+      '\nMigration complete! Please review the migrated hooks in .gemini/settings.json'
     );
   });
 });

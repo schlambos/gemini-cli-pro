@@ -68,15 +68,8 @@ function getNumericExitCode(errorCode: string | number): number {
  * In streaming JSON mode, emits a result event with error status.
  * In text mode, outputs error message and re-throws.
  */
-export function handleError(
-  error: unknown,
-  config: Config,
-  customErrorCode?: string | number,
-): never {
-  const errorMessage = parseAndFormatApiError(
-    error,
-    config.getContentGeneratorConfig()?.authType,
-  );
+export function handleError(error: unknown, config: Config, customErrorCode?: string | number): never {
+  const errorMessage = parseAndFormatApiError(error, config.getContentGeneratorConfig()?.authType);
 
   if (config.getOutputFormat() === OutputFormat.STREAM_JSON) {
     const streamFormatter = new StreamJsonFormatter();
@@ -103,7 +96,7 @@ export function handleError(
     const formattedError = formatter.formatError(
       error instanceof Error ? error : new Error(getErrorMessage(error)),
       errorCode,
-      config.getSessionId(),
+      config.getSessionId()
     );
 
     coreEvents.emitFeedback('error', formattedError);
@@ -129,7 +122,7 @@ export function handleToolError(
   toolError: Error,
   config: Config,
   errorType?: string,
-  resultDisplay?: string,
+  resultDisplay?: string
 ): void {
   const errorMessage = `Error executing tool ${toolName}: ${resultDisplay || toolError.message}`;
 
@@ -155,7 +148,7 @@ export function handleToolError(
       const formattedError = formatter.formatError(
         toolExecutionError,
         errorType ?? toolExecutionError.exitCode,
-        config.getSessionId(),
+        config.getSessionId()
       );
       coreEvents.emitFeedback('error', formattedError);
     } else {
@@ -192,11 +185,7 @@ export function handleCancellationError(config: Config): never {
     process.exit(cancellationError.exitCode);
   } else if (config.getOutputFormat() === OutputFormat.JSON) {
     const formatter = new JsonFormatter();
-    const formattedError = formatter.formatError(
-      cancellationError,
-      cancellationError.exitCode,
-      config.getSessionId(),
-    );
+    const formattedError = formatter.formatError(cancellationError, cancellationError.exitCode, config.getSessionId());
 
     coreEvents.emitFeedback('error', formattedError);
     runSyncCleanup();
@@ -213,7 +202,7 @@ export function handleCancellationError(config: Config): never {
  */
 export function handleMaxTurnsExceededError(config: Config): never {
   const maxTurnsError = new FatalTurnLimitedError(
-    'Reached max session turns for this session. Increase the number of turns by specifying maxSessionTurns in settings.json.',
+    'Reached max session turns for this session. Increase the number of turns by specifying maxSessionTurns in settings.json.'
   );
 
   if (config.getOutputFormat() === OutputFormat.STREAM_JSON) {
@@ -233,11 +222,7 @@ export function handleMaxTurnsExceededError(config: Config): never {
     process.exit(maxTurnsError.exitCode);
   } else if (config.getOutputFormat() === OutputFormat.JSON) {
     const formatter = new JsonFormatter();
-    const formattedError = formatter.formatError(
-      maxTurnsError,
-      maxTurnsError.exitCode,
-      config.getSessionId(),
-    );
+    const formattedError = formatter.formatError(maxTurnsError, maxTurnsError.exitCode, config.getSessionId());
 
     coreEvents.emitFeedback('error', formattedError);
     runSyncCleanup();

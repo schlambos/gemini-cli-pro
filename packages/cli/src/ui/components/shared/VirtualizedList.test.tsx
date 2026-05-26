@@ -7,14 +7,7 @@
 import { render } from '../../../test-utils/render.js';
 import { VirtualizedList, type VirtualizedListRef } from './VirtualizedList.js';
 import { Text, Box } from 'ink';
-import {
-  createRef,
-  act,
-  useEffect,
-  createContext,
-  useContext,
-  useState,
-} from 'react';
+import { createRef, act, useEffect, createContext, useContext, useState } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { UIState } from '../../contexts/UIStateContext.js';
 
@@ -57,38 +50,35 @@ describe('<VirtualizedList />', () => {
         visible: ['Item 99', 'Item 92'],
         notVisible: ['Item 91', 'Item 85', 'Item 50', 'Item 0'],
       },
-    ])(
-      'renders only visible items ($name)',
-      async ({ initialScrollIndex, visible, notVisible }) => {
-        const { lastFrame } = render(
-          <Box height={10} width={100} borderStyle="round">
-            <VirtualizedList
-              data={longData}
-              renderItem={renderItem1px}
-              keyExtractor={keyExtractor}
-              estimatedItemHeight={() => itemHeight}
-              initialScrollIndex={initialScrollIndex}
-            />
-          </Box>,
-        );
-        await act(async () => {
-          await delay(0);
-        });
+    ])('renders only visible items ($name)', async ({ initialScrollIndex, visible, notVisible }) => {
+      const { lastFrame } = render(
+        <Box height={10} width={100} borderStyle='round'>
+          <VirtualizedList
+            data={longData}
+            renderItem={renderItem1px}
+            keyExtractor={keyExtractor}
+            estimatedItemHeight={() => itemHeight}
+            initialScrollIndex={initialScrollIndex}
+          />
+        </Box>
+      );
+      await act(async () => {
+        await delay(0);
+      });
 
-        const frame = lastFrame();
-        visible.forEach((item) => {
-          expect(frame).toContain(item);
-        });
-        notVisible.forEach((item) => {
-          expect(frame).not.toContain(item);
-        });
-        expect(frame).toMatchSnapshot();
-      },
-    );
+      const frame = lastFrame();
+      visible.forEach((item) => {
+        expect(frame).toContain(item);
+      });
+      notVisible.forEach((item) => {
+        expect(frame).not.toContain(item);
+      });
+      expect(frame).toMatchSnapshot();
+    });
 
     it('sticks to bottom when new items added', async () => {
       const { lastFrame, rerender } = render(
-        <Box height={10} width={100} borderStyle="round">
+        <Box height={10} width={100} borderStyle='round'>
           <VirtualizedList
             data={longData}
             renderItem={renderItem1px}
@@ -96,7 +86,7 @@ describe('<VirtualizedList />', () => {
             estimatedItemHeight={() => itemHeight}
             initialScrollIndex={99}
           />
-        </Box>,
+        </Box>
       );
       await act(async () => {
         await delay(0);
@@ -107,7 +97,7 @@ describe('<VirtualizedList />', () => {
       // Add items
       const newData = [...longData, 'Item 100', 'Item 101'];
       rerender(
-        <Box height={10} width={100} borderStyle="round">
+        <Box height={10} width={100} borderStyle='round'>
           <VirtualizedList
             data={newData}
             renderItem={renderItem1px}
@@ -116,7 +106,7 @@ describe('<VirtualizedList />', () => {
             // We don't need to pass initialScrollIndex again for it to stick,
             // but passing it doesn't hurt. The component should auto-stick because it was at bottom.
           />
-        </Box>,
+        </Box>
       );
       await act(async () => {
         await delay(0);
@@ -130,7 +120,7 @@ describe('<VirtualizedList />', () => {
     it('scrolls down to show new items when requested via ref', async () => {
       const ref = createRef<VirtualizedListRef<string>>();
       const { lastFrame } = render(
-        <Box height={10} width={100} borderStyle="round">
+        <Box height={10} width={100} borderStyle='round'>
           <VirtualizedList
             ref={ref}
             data={longData}
@@ -138,7 +128,7 @@ describe('<VirtualizedList />', () => {
             keyExtractor={keyExtractor}
             estimatedItemHeight={() => itemHeight}
           />
-        </Box>,
+        </Box>
       );
       await act(async () => {
         await delay(0);
@@ -179,23 +169,18 @@ describe('<VirtualizedList />', () => {
           );
         };
 
-        const veryLongData = Array.from(
-          { length: 1000 },
-          (_, i) => `Item ${i}`,
-        );
+        const veryLongData = Array.from({ length: 1000 }, (_, i) => `Item ${i}`);
 
         const { lastFrame } = render(
-          <Box height={20} width={100} borderStyle="round">
+          <Box height={20} width={100} borderStyle='round'>
             <VirtualizedList
               data={veryLongData}
-              renderItem={({ item }) => (
-                <ItemWithEffect key={item} item={item} />
-              )}
+              renderItem={({ item }) => <ItemWithEffect key={item} item={item} />}
               keyExtractor={keyExtractor}
               estimatedItemHeight={() => tallItemHeight}
               initialScrollIndex={initialScrollIndex}
             />
-          </Box>,
+          </Box>
         );
         await act(async () => {
           await delay(0);
@@ -204,7 +189,7 @@ describe('<VirtualizedList />', () => {
         const frame = lastFrame();
         expect(mountedCount).toBe(expectedMountedCount);
         expect(frame).toMatchSnapshot();
-      },
+      }
     );
   });
 
@@ -221,13 +206,7 @@ describe('<VirtualizedList />', () => {
       id: `Item ${i}`,
     }));
 
-    const ItemWithContext = ({
-      item,
-      index,
-    }: {
-      item: { id: string };
-      index: number;
-    }) => {
+    const ItemWithContext = ({ item, index }: { item: { id: string }; index: number }) => {
       const { firstItemHeight } = useContext(SizeContext);
       const height = index === 0 ? firstItemHeight : 1;
       return (
@@ -244,9 +223,7 @@ describe('<VirtualizedList />', () => {
           <Box height={10} width={100}>
             <VirtualizedList
               data={items}
-              renderItem={({ item, index }) => (
-                <ItemWithContext item={item} index={index} />
-              )}
+              renderItem={({ item, index }) => <ItemWithContext item={item} index={index} />}
               keyExtractor={(item) => item.id}
               estimatedItemHeight={() => 1}
             />
@@ -258,11 +235,7 @@ describe('<VirtualizedList />', () => {
     };
 
     let setHeightFn: (h: number) => void = () => {};
-    const TestControl = ({
-      setFirstItemHeight,
-    }: {
-      setFirstItemHeight: (h: number) => void;
-    }) => {
+    const TestControl = ({ setFirstItemHeight }: { setFirstItemHeight: (h: number) => void }) => {
       setHeightFn = setFirstItemHeight;
       return null;
     };
@@ -300,7 +273,7 @@ describe('<VirtualizedList />', () => {
     const keyExtractor = (item: string) => item;
 
     render(
-      <Box height={10} width={100} borderStyle="round">
+      <Box height={10} width={100} borderStyle='round'>
         <VirtualizedList
           ref={ref}
           data={longData}
@@ -308,7 +281,7 @@ describe('<VirtualizedList />', () => {
           keyExtractor={keyExtractor}
           estimatedItemHeight={() => itemHeight}
         />
-      </Box>,
+      </Box>
     );
     await act(async () => {
       await delay(0);
@@ -353,7 +326,7 @@ describe('<VirtualizedList />', () => {
           estimatedItemHeight={() => 1}
           initialScrollIndex={50}
         />
-      </Box>,
+      </Box>
     );
     await act(async () => {
       await delay(0);

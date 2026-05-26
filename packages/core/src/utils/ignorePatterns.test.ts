@@ -5,11 +5,7 @@
  */
 
 import { describe, it, expect, vi } from 'vitest';
-import {
-  FileExclusions,
-  BINARY_EXTENSIONS,
-  extractExtensionsFromPatterns,
-} from './ignorePatterns.js';
+import { FileExclusions, BINARY_EXTENSIONS, extractExtensionsFromPatterns } from './ignorePatterns.js';
 import type { Config } from '../config/config.js';
 
 // Mock the memoryTool module
@@ -218,30 +214,16 @@ describe('BINARY_EXTENSIONS', () => {
 
   it('should not contain invalid extensions from brace patterns', () => {
     // If brace expansion was not handled correctly, we would see invalid extensions like '.{jpg,png}'
-    const invalidExtensions = BINARY_EXTENSIONS.filter(
-      (ext) => ext.includes('{') || ext.includes('}'),
-    );
+    const invalidExtensions = BINARY_EXTENSIONS.filter((ext) => ext.includes('{') || ext.includes('}'));
     expect(invalidExtensions).toHaveLength(0);
   });
 });
 
 describe('extractExtensionsFromPatterns', () => {
   it.each([
-    [
-      'simple extensions',
-      ['**/*.exe', '**/*.jar', '**/*.zip'],
-      ['.exe', '.jar', '.zip'],
-    ],
-    [
-      'compound extensions',
-      ['**/*.tar.gz', '**/*.min.js', '**/*.d.ts'],
-      ['.gz', '.js', '.ts'],
-    ],
-    [
-      'dotfiles',
-      ['**/*.gitignore', '**/*.profile', '**/*.bashrc'],
-      ['.bashrc', '.gitignore', '.profile'],
-    ],
+    ['simple extensions', ['**/*.exe', '**/*.jar', '**/*.zip'], ['.exe', '.jar', '.zip']],
+    ['compound extensions', ['**/*.tar.gz', '**/*.min.js', '**/*.d.ts'], ['.gz', '.js', '.ts']],
+    ['dotfiles', ['**/*.gitignore', '**/*.profile', '**/*.bashrc'], ['.bashrc', '.gitignore', '.profile']],
   ])('should extract %s', (_, patterns, expected) => {
     const result = extractExtensionsFromPatterns(patterns);
     expect(result).toEqual(expected);

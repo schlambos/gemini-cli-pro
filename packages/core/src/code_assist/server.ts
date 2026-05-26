@@ -23,10 +23,7 @@ import type {
   StreamingLatency,
   RecordCodeAssistMetricsRequest,
 } from './types.js';
-import type {
-  ListExperimentsRequest,
-  ListExperimentsResponse,
-} from './experiments/types.js';
+import type { ListExperimentsRequest, ListExperimentsResponse } from './experiments/types.js';
 import type {
   CountTokensParameters,
   CountTokensResponse,
@@ -38,20 +35,14 @@ import type {
 import * as readline from 'node:readline';
 import type { ContentGenerator } from '../core/contentGenerator.js';
 import { UserTierId } from './types.js';
-import type {
-  CaCountTokenResponse,
-  CaGenerateContentResponse,
-} from './converter.js';
+import type { CaCountTokenResponse, CaGenerateContentResponse } from './converter.js';
 import {
   fromCountTokenResponse,
   fromGenerateContentResponse,
   toCountTokenRequest,
   toGenerateContentRequest,
 } from './converter.js';
-import {
-  formatProtoJsonDuration,
-  recordConversationOffered,
-} from './telemetry.js';
+import { formatProtoJsonDuration, recordConversationOffered } from './telemetry.js';
 import { getClientMetadata } from './experiments/client_metadata.js';
 import type { LlmRole } from '../telemetry/types.js';
 /** HTTP options to be used in each of the requests. */
@@ -70,45 +61,33 @@ export class CodeAssistServer implements ContentGenerator {
     readonly httpOptions: HttpOptions = {},
     readonly sessionId?: string,
     readonly userTier?: UserTierId,
-    readonly userTierName?: string,
+    readonly userTierName?: string
   ) {}
 
   async generateContentStream(
     req: GenerateContentParameters,
     userPromptId: string,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    role: LlmRole,
+    role: LlmRole
   ): Promise<AsyncGenerator<GenerateContentResponse>> {
-    const responses =
-      await this.requestStreamingPost<CaGenerateContentResponse>(
-        'streamGenerateContent',
-        toGenerateContentRequest(
-          req,
-          userPromptId,
-          this.projectId,
-          this.sessionId,
-        ),
-        req.config?.abortSignal,
-      );
+    const responses = await this.requestStreamingPost<CaGenerateContentResponse>(
+      'streamGenerateContent',
+      toGenerateContentRequest(req, userPromptId, this.projectId, this.sessionId),
+      req.config?.abortSignal
+    );
 
     const streamingLatency: StreamingLatency = {};
     const start = Date.now();
     let isFirst = true;
 
-    return (async function* (
-      server: CodeAssistServer,
-    ): AsyncGenerator<GenerateContentResponse> {
+    return (async function* (server: CodeAssistServer): AsyncGenerator<GenerateContentResponse> {
       for await (const response of responses) {
         if (isFirst) {
-          streamingLatency.firstMessageLatency = formatProtoJsonDuration(
-            Date.now() - start,
-          );
+          streamingLatency.firstMessageLatency = formatProtoJsonDuration(Date.now() - start);
           isFirst = false;
         }
 
-        streamingLatency.totalLatency = formatProtoJsonDuration(
-          Date.now() - start,
-        );
+        streamingLatency.totalLatency = formatProtoJsonDuration(Date.now() - start);
 
         const translatedResponse = fromGenerateContentResponse(response);
 
@@ -117,7 +96,7 @@ export class CodeAssistServer implements ContentGenerator {
           response.traceId,
           translatedResponse,
           streamingLatency,
-          req.config?.abortSignal,
+          req.config?.abortSignal
         );
 
         yield translatedResponse;
@@ -129,18 +108,13 @@ export class CodeAssistServer implements ContentGenerator {
     req: GenerateContentParameters,
     userPromptId: string,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    role: LlmRole,
+    role: LlmRole
   ): Promise<GenerateContentResponse> {
     const start = Date.now();
     const response = await this.requestPost<CaGenerateContentResponse>(
       'generateContent',
-      toGenerateContentRequest(
-        req,
-        userPromptId,
-        this.projectId,
-        this.sessionId,
-      ),
-      req.config?.abortSignal,
+      toGenerateContentRequest(req, userPromptId, this.projectId, this.sessionId),
+      req.config?.abortSignal
     );
     const duration = formatProtoJsonDuration(Date.now() - start);
     const streamingLatency: StreamingLatency = {
@@ -155,15 +129,13 @@ export class CodeAssistServer implements ContentGenerator {
       response.traceId,
       translatedResponse,
       streamingLatency,
-      req.config?.abortSignal,
+      req.config?.abortSignal
     );
 
     return translatedResponse;
   }
 
-  async onboardUser(
-    req: OnboardUserRequest,
-  ): Promise<LongRunningOperationResponse> {
+  async onboardUser(req: OnboardUserRequest): Promise<LongRunningOperationResponse> {
     return this.requestPost<LongRunningOperationResponse>('onboardUser', req);
   }
 
@@ -171,14 +143,9 @@ export class CodeAssistServer implements ContentGenerator {
     return this.requestGetOperation<LongRunningOperationResponse>(name);
   }
 
-  async loadCodeAssist(
-    req: LoadCodeAssistRequest,
-  ): Promise<LoadCodeAssistResponse> {
+  async loadCodeAssist(req: LoadCodeAssistRequest): Promise<LoadCodeAssistResponse> {
     try {
-      return await this.requestPost<LoadCodeAssistResponse>(
-        'loadCodeAssist',
-        req,
-      );
+      return await this.requestPost<LoadCodeAssistResponse>('loadCodeAssist', req);
     } catch (e) {
       if (isVpcScAffectedUser(e)) {
         return {
@@ -190,47 +157,30 @@ export class CodeAssistServer implements ContentGenerator {
     }
   }
 
-  async fetchAdminControls(
-    req: FetchAdminControlsRequest,
-  ): Promise<FetchAdminControlsResponse> {
-    return this.requestPost<FetchAdminControlsResponse>(
-      'fetchAdminControls',
-      req,
-    );
+  async fetchAdminControls(req: FetchAdminControlsRequest): Promise<FetchAdminControlsResponse> {
+    return this.requestPost<FetchAdminControlsResponse>('fetchAdminControls', req);
   }
 
   async getCodeAssistGlobalUserSetting(): Promise<CodeAssistGlobalUserSettingResponse> {
-    return this.requestGet<CodeAssistGlobalUserSettingResponse>(
-      'getCodeAssistGlobalUserSetting',
-    );
+    return this.requestGet<CodeAssistGlobalUserSettingResponse>('getCodeAssistGlobalUserSetting');
   }
 
   async setCodeAssistGlobalUserSetting(
-    req: SetCodeAssistGlobalUserSettingRequest,
+    req: SetCodeAssistGlobalUserSettingRequest
   ): Promise<CodeAssistGlobalUserSettingResponse> {
-    return this.requestPost<CodeAssistGlobalUserSettingResponse>(
-      'setCodeAssistGlobalUserSetting',
-      req,
-    );
+    return this.requestPost<CodeAssistGlobalUserSettingResponse>('setCodeAssistGlobalUserSetting', req);
   }
 
   async countTokens(req: CountTokensParameters): Promise<CountTokensResponse> {
-    const resp = await this.requestPost<CaCountTokenResponse>(
-      'countTokens',
-      toCountTokenRequest(req),
-    );
+    const resp = await this.requestPost<CaCountTokenResponse>('countTokens', toCountTokenRequest(req));
     return fromCountTokenResponse(resp);
   }
 
-  async embedContent(
-    _req: EmbedContentParameters,
-  ): Promise<EmbedContentResponse> {
+  async embedContent(_req: EmbedContentParameters): Promise<EmbedContentResponse> {
     throw Error();
   }
 
-  async listExperiments(
-    metadata: ClientMetadata,
-  ): Promise<ListExperimentsResponse> {
+  async listExperiments(metadata: ClientMetadata): Promise<ListExperimentsResponse> {
     if (!this.projectId) {
       throw new Error('projectId is not defined for CodeAssistServer.');
     }
@@ -242,18 +192,11 @@ export class CodeAssistServer implements ContentGenerator {
     return this.requestPost<ListExperimentsResponse>('listExperiments', req);
   }
 
-  async retrieveUserQuota(
-    req: RetrieveUserQuotaRequest,
-  ): Promise<RetrieveUserQuotaResponse> {
-    return this.requestPost<RetrieveUserQuotaResponse>(
-      'retrieveUserQuota',
-      req,
-    );
+  async retrieveUserQuota(req: RetrieveUserQuotaRequest): Promise<RetrieveUserQuotaResponse> {
+    return this.requestPost<RetrieveUserQuotaResponse>('retrieveUserQuota', req);
   }
 
-  async recordConversationOffered(
-    conversationOffered: ConversationOffered,
-  ): Promise<void> {
+  async recordConversationOffered(conversationOffered: ConversationOffered): Promise<void> {
     if (!this.projectId) {
       return;
     }
@@ -265,9 +208,7 @@ export class CodeAssistServer implements ContentGenerator {
     });
   }
 
-  async recordConversationInteraction(
-    interaction: ConversationInteraction,
-  ): Promise<void> {
+  async recordConversationInteraction(interaction: ConversationInteraction): Promise<void> {
     if (!this.projectId) {
       return;
     }
@@ -284,17 +225,11 @@ export class CodeAssistServer implements ContentGenerator {
     });
   }
 
-  async recordCodeAssistMetrics(
-    request: RecordCodeAssistMetricsRequest,
-  ): Promise<void> {
+  async recordCodeAssistMetrics(request: RecordCodeAssistMetricsRequest): Promise<void> {
     return this.requestPost<void>('recordCodeAssistMetrics', request);
   }
 
-  async requestPost<T>(
-    method: string,
-    req: object,
-    signal?: AbortSignal,
-  ): Promise<T> {
+  async requestPost<T>(method: string, req: object, signal?: AbortSignal): Promise<T> {
     const res = await this.client.request({
       url: this.getMethodUrl(method),
       method: 'POST',
@@ -310,10 +245,7 @@ export class CodeAssistServer implements ContentGenerator {
     return res.data as T;
   }
 
-  private async makeGetRequest<T>(
-    url: string,
-    signal?: AbortSignal,
-  ): Promise<T> {
+  private async makeGetRequest<T>(url: string, signal?: AbortSignal): Promise<T> {
     const res = await this.client.request({
       url,
       method: 'GET',
@@ -336,11 +268,7 @@ export class CodeAssistServer implements ContentGenerator {
     return this.makeGetRequest<T>(this.getOperationUrl(name), signal);
   }
 
-  async requestStreamingPost<T>(
-    method: string,
-    req: object,
-    signal?: AbortSignal,
-  ): Promise<AsyncGenerator<T>> {
+  async requestStreamingPost<T>(method: string, req: object, signal?: AbortSignal): Promise<AsyncGenerator<T>> {
     const res = await this.client.request({
       url: this.getMethodUrl(method),
       method: 'POST',
@@ -381,10 +309,8 @@ export class CodeAssistServer implements ContentGenerator {
   }
 
   private getBaseUrl(): string {
-    const endpoint =
-      process.env['CODE_ASSIST_ENDPOINT'] ?? CODE_ASSIST_ENDPOINT;
-    const version =
-      process.env['CODE_ASSIST_API_VERSION'] || CODE_ASSIST_API_VERSION;
+    const endpoint = process.env['CODE_ASSIST_ENDPOINT'] ?? CODE_ASSIST_ENDPOINT;
+    const version = process.env['CODE_ASSIST_API_VERSION'] || CODE_ASSIST_API_VERSION;
     return `${endpoint}/${version}`;
   }
 
@@ -406,13 +332,9 @@ function isVpcScAffectedUser(error: unknown): boolean {
       };
     };
     // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-    const response = gaxiosError.response?.data as
-      | GoogleRpcResponse
-      | undefined;
+    const response = gaxiosError.response?.data as GoogleRpcResponse | undefined;
     if (Array.isArray(response?.error?.details)) {
-      return response.error.details.some(
-        (detail) => detail.reason === 'SECURITY_POLICY_VIOLATED',
-      );
+      return response.error.details.some((detail) => detail.reason === 'SECURITY_POLICY_VIOLATED');
     }
   }
   return false;

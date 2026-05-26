@@ -53,7 +53,7 @@ const MarkdownDisplayInternal: React.FC<MarkdownDisplayProps> = ({
       hideLineNumbers: true,
     });
     return (
-      <Box paddingLeft={CODE_BLOCK_PREFIX_PADDING} flexDirection="column">
+      <Box paddingLeft={CODE_BLOCK_PREFIX_PADDING} flexDirection='column'>
         {colorizedMarkdown}
       </Box>
     );
@@ -90,22 +90,16 @@ const MarkdownDisplayInternal: React.FC<MarkdownDisplayProps> = ({
 
     if (inCodeBlock) {
       const fenceMatch = line.match(codeFenceRegex);
-      if (
-        fenceMatch &&
-        fenceMatch[1].startsWith(codeBlockFence[0]) &&
-        fenceMatch[1].length >= codeBlockFence.length
-      ) {
+      if (fenceMatch && fenceMatch[1].startsWith(codeBlockFence[0]) && fenceMatch[1].length >= codeBlockFence.length) {
         addContentBlock(
           <RenderCodeBlock
             key={key}
             content={codeBlockContent}
             lang={codeBlockLang}
             isPending={isPending}
-            availableTerminalHeight={
-              isAlternateBuffer ? undefined : availableTerminalHeight
-            }
+            availableTerminalHeight={isAlternateBuffer ? undefined : availableTerminalHeight}
             terminalWidth={terminalWidth}
-          />,
+          />
         );
         inCodeBlock = false;
         codeBlockContent = [];
@@ -131,10 +125,7 @@ const MarkdownDisplayInternal: React.FC<MarkdownDisplayProps> = ({
       codeBlockLang = codeFenceMatch[2] || null;
     } else if (tableRowMatch && !inTable) {
       // Potential table start - check if next line is separator
-      if (
-        index + 1 < lines.length &&
-        lines[index + 1].match(tableSeparatorRegex)
-      ) {
+      if (index + 1 < lines.length && lines[index + 1].match(tableSeparatorRegex)) {
         inTable = true;
         tableHeaders = tableRowMatch[1].split('|').map((cell) => cell.trim());
         tableRows = [];
@@ -142,10 +133,10 @@ const MarkdownDisplayInternal: React.FC<MarkdownDisplayProps> = ({
         // Not a table, treat as regular text
         addContentBlock(
           <Box key={key}>
-            <Text wrap="wrap" color={responseColor}>
+            <Text wrap='wrap' color={responseColor}>
               <RenderInline text={line} defaultColor={responseColor} />
             </Text>
-          </Box>,
+          </Box>
         );
       }
     } else if (inTable && tableSeparatorMatch) {
@@ -170,7 +161,7 @@ const MarkdownDisplayInternal: React.FC<MarkdownDisplayProps> = ({
             headers={tableHeaders}
             rows={tableRows}
             terminalWidth={terminalWidth}
-          />,
+          />
         );
       }
       inTable = false;
@@ -181,17 +172,17 @@ const MarkdownDisplayInternal: React.FC<MarkdownDisplayProps> = ({
       if (line.trim().length > 0) {
         addContentBlock(
           <Box key={key}>
-            <Text wrap="wrap" color={responseColor}>
+            <Text wrap='wrap' color={responseColor}>
               <RenderInline text={line} defaultColor={responseColor} />
             </Text>
-          </Box>,
+          </Box>
         );
       }
     } else if (hrMatch) {
       addContentBlock(
         <Box key={key}>
           <Text dimColor>---</Text>
-        </Box>,
+        </Box>
       );
     } else if (headerMatch) {
       const level = headerMatch[1].length;
@@ -222,10 +213,7 @@ const MarkdownDisplayInternal: React.FC<MarkdownDisplayProps> = ({
         case 4:
           headerNode = (
             <Text italic color={theme.text.secondary}>
-              <RenderInline
-                text={headerText}
-                defaultColor={theme.text.secondary}
-              />
+              <RenderInline text={headerText} defaultColor={theme.text.secondary} />
             </Text>
           );
           break;
@@ -243,42 +231,28 @@ const MarkdownDisplayInternal: React.FC<MarkdownDisplayProps> = ({
       const marker = ulMatch[2];
       const itemText = ulMatch[3];
       addContentBlock(
-        <RenderListItem
-          key={key}
-          itemText={itemText}
-          type="ul"
-          marker={marker}
-          leadingWhitespace={leadingWhitespace}
-        />,
+        <RenderListItem key={key} itemText={itemText} type='ul' marker={marker} leadingWhitespace={leadingWhitespace} />
       );
     } else if (olMatch) {
       const leadingWhitespace = olMatch[1];
       const marker = olMatch[2];
       const itemText = olMatch[3];
       addContentBlock(
-        <RenderListItem
-          key={key}
-          itemText={itemText}
-          type="ol"
-          marker={marker}
-          leadingWhitespace={leadingWhitespace}
-        />,
+        <RenderListItem key={key} itemText={itemText} type='ol' marker={marker} leadingWhitespace={leadingWhitespace} />
       );
     } else {
       if (line.trim().length === 0 && !inCodeBlock) {
         if (!lastLineEmpty) {
-          contentBlocks.push(
-            <Box key={`spacer-${index}`} height={EMPTY_LINE_HEIGHT} />,
-          );
+          contentBlocks.push(<Box key={`spacer-${index}`} height={EMPTY_LINE_HEIGHT} />);
           lastLineEmpty = true;
         }
       } else {
         addContentBlock(
           <Box key={key}>
-            <Text wrap="wrap" color={responseColor}>
+            <Text wrap='wrap' color={responseColor}>
               <RenderInline text={line} defaultColor={responseColor} />
             </Text>
-          </Box>,
+          </Box>
         );
       }
     }
@@ -287,15 +261,13 @@ const MarkdownDisplayInternal: React.FC<MarkdownDisplayProps> = ({
   if (inCodeBlock) {
     addContentBlock(
       <RenderCodeBlock
-        key="line-eof"
+        key='line-eof'
         content={codeBlockContent}
         lang={codeBlockLang}
         isPending={isPending}
-        availableTerminalHeight={
-          isAlternateBuffer ? undefined : availableTerminalHeight
-        }
+        availableTerminalHeight={isAlternateBuffer ? undefined : availableTerminalHeight}
         terminalWidth={terminalWidth}
-      />,
+      />
     );
   }
 
@@ -307,7 +279,7 @@ const MarkdownDisplayInternal: React.FC<MarkdownDisplayProps> = ({
         headers={tableHeaders}
         rows={tableRows}
         terminalWidth={terminalWidth}
-      />,
+      />
     );
   }
 
@@ -338,24 +310,15 @@ const RenderCodeBlockInternal: React.FC<RenderCodeBlockProps> = ({
 
   // When not in alternate buffer mode we need to be careful that we don't
   // trigger flicker when the pending code is to long to fit in the terminal
-  if (
-    !isAlternateBuffer &&
-    isPending &&
-    availableTerminalHeight !== undefined
-  ) {
-    const MAX_CODE_LINES_WHEN_PENDING = Math.max(
-      0,
-      availableTerminalHeight - RESERVED_LINES,
-    );
+  if (!isAlternateBuffer && isPending && availableTerminalHeight !== undefined) {
+    const MAX_CODE_LINES_WHEN_PENDING = Math.max(0, availableTerminalHeight - RESERVED_LINES);
 
     if (content.length > MAX_CODE_LINES_WHEN_PENDING) {
       if (MAX_CODE_LINES_WHEN_PENDING < MIN_LINES_FOR_MESSAGE) {
         // Not enough space to even show the message meaningfully
         return (
           <Box paddingLeft={CODE_BLOCK_PREFIX_PADDING}>
-            <Text color={theme.text.secondary}>
-              ... code is being written ...
-            </Text>
+            <Text color={theme.text.secondary}>... code is being written ...</Text>
           </Box>
         );
       }
@@ -368,7 +331,7 @@ const RenderCodeBlockInternal: React.FC<RenderCodeBlockProps> = ({
         settings,
       });
       return (
-        <Box paddingLeft={CODE_BLOCK_PREFIX_PADDING} flexDirection="column">
+        <Box paddingLeft={CODE_BLOCK_PREFIX_PADDING} flexDirection='column'>
           {colorizedTruncatedCode}
           <Text color={theme.text.secondary}>... generating more ...</Text>
         </Box>
@@ -386,12 +349,7 @@ const RenderCodeBlockInternal: React.FC<RenderCodeBlockProps> = ({
   });
 
   return (
-    <Box
-      paddingLeft={CODE_BLOCK_PREFIX_PADDING}
-      flexDirection="column"
-      width={terminalWidth}
-      flexShrink={0}
-    >
+    <Box paddingLeft={CODE_BLOCK_PREFIX_PADDING} flexDirection='column' width={terminalWidth} flexShrink={0}>
       {colorizedCode}
     </Box>
   );
@@ -406,27 +364,19 @@ interface RenderListItemProps {
   leadingWhitespace?: string;
 }
 
-const RenderListItemInternal: React.FC<RenderListItemProps> = ({
-  itemText,
-  type,
-  marker,
-  leadingWhitespace = '',
-}) => {
+const RenderListItemInternal: React.FC<RenderListItemProps> = ({ itemText, type, marker, leadingWhitespace = '' }) => {
   const prefix = type === 'ol' ? `${marker}. ` : `${marker} `;
   const prefixWidth = prefix.length;
   const indentation = leadingWhitespace.length;
   const listResponseColor = theme.text.response ?? theme.text.primary;
 
   return (
-    <Box
-      paddingLeft={indentation + LIST_ITEM_PREFIX_PADDING}
-      flexDirection="row"
-    >
+    <Box paddingLeft={indentation + LIST_ITEM_PREFIX_PADDING} flexDirection='row'>
       <Box width={prefixWidth}>
         <Text color={listResponseColor}>{prefix}</Text>
       </Box>
       <Box flexGrow={LIST_ITEM_TEXT_FLEX_GROW}>
-        <Text wrap="wrap" color={listResponseColor}>
+        <Text wrap='wrap' color={listResponseColor}>
           <RenderInline text={itemText} defaultColor={listResponseColor} />
         </Text>
       </Box>
@@ -442,11 +392,7 @@ interface RenderTableProps {
   terminalWidth: number;
 }
 
-const RenderTableInternal: React.FC<RenderTableProps> = ({
-  headers,
-  rows,
-  terminalWidth,
-}) => (
+const RenderTableInternal: React.FC<RenderTableProps> = ({ headers, rows, terminalWidth }) => (
   <TableRenderer headers={headers} rows={rows} terminalWidth={terminalWidth} />
 );
 

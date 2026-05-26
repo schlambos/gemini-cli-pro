@@ -19,10 +19,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const projectRoot = path.resolve(__dirname, '..');
-const projectHash = crypto
-  .createHash('sha256')
-  .update(projectRoot)
-  .digest('hex');
+const projectHash = crypto.createHash('sha256').update(projectRoot).digest('hex');
 
 // Returns the home directory, respecting GEMINI_CLI_HOME
 const homedir = () => process.env['GEMINI_CLI_HOME'] || os.homedir();
@@ -37,22 +34,15 @@ export const OTEL_DIR = path.join(USER_GEMINI_DIR, 'tmp', projectHash, 'otel');
 export const BIN_DIR = path.join(OTEL_DIR, 'bin');
 
 // Workspace settings remain in the project's .gemini directory
-export const WORKSPACE_SETTINGS_FILE = path.join(
-  WORKSPACE_GEMINI_DIR,
-  'settings.json',
-);
+export const WORKSPACE_SETTINGS_FILE = path.join(WORKSPACE_GEMINI_DIR, 'settings.json');
 
 export function getJson(url) {
-  const tmpFile = path.join(
-    os.tmpdir(),
-    `gemini-cli-releases-${Date.now()}.json`,
-  );
+  const tmpFile = path.join(os.tmpdir(), `gemini-cli-releases-${Date.now()}.json`);
   try {
-    const result = spawnSync(
-      'curl',
-      ['-sL', '-H', 'User-Agent: gemini-cli-dev-script', '-o', tmpFile, url],
-      { stdio: 'pipe', encoding: 'utf-8' },
-    );
+    const result = spawnSync('curl', ['-sL', '-H', 'User-Agent: gemini-cli-dev-script', '-o', tmpFile, url], {
+      stdio: 'pipe',
+      encoding: 'utf-8',
+    });
     if (result.status !== 0) {
       throw new Error(result.stderr);
     }
@@ -171,13 +161,7 @@ export function waitForPort(port, timeout = 10000) {
   });
 }
 
-export async function ensureBinary(
-  executableName,
-  repo,
-  assetNameCallback,
-  binaryNameInArchive,
-  isJaeger = false,
-) {
+export async function ensureBinary(executableName, repo, assetNameCallback, binaryNameInArchive, isJaeger = false) {
   const executablePath = path.join(BIN_DIR, executableName);
   if (fileExists(executablePath)) {
     console.log(`✅ ${executableName} already exists at ${executablePath}`);
@@ -191,9 +175,7 @@ export async function ensureBinary(
   const ext = platform === 'windows' ? 'zip' : 'tar.gz';
 
   if (isJaeger && platform === 'windows' && arch === 'arm64') {
-    console.warn(
-      `⚠️ Jaeger does not have a release for Windows on ARM64. Skipping.`,
-    );
+    console.warn(`⚠️ Jaeger does not have a release for Windows on ARM64. Skipping.`);
     return null;
   }
 
@@ -216,47 +198,33 @@ export async function ensureBinary(
       });
 
     for (const r of sortedReleases) {
-      const expectedSuffix =
-        platform === 'windows'
-          ? `-${platform}-${arch}.zip`
-          : `-${platform}-${arch}.tar.gz`;
-      const foundAsset = r.assets.find(
-        (a) =>
-          a.name.startsWith('jaeger-2.') && a.name.endsWith(expectedSuffix),
-      );
+      const expectedSuffix = platform === 'windows' ? `-${platform}-${arch}.zip` : `-${platform}-${arch}.tar.gz`;
+      const foundAsset = r.assets.find((a) => a.name.startsWith('jaeger-2.') && a.name.endsWith(expectedSuffix));
 
       if (foundAsset) {
         release = r;
         asset = foundAsset;
-        console.log(
-          `⬇️  Found ${asset.name} in release ${r.tag_name}, downloading...`,
-        );
+        console.log(`⬇️  Found ${asset.name} in release ${r.tag_name}, downloading...`);
         break;
       }
     }
     if (!asset) {
-      throw new Error(
-        `Could not find a suitable Jaeger v2 asset for platform ${platform}/${arch}.`,
-      );
+      throw new Error(`Could not find a suitable Jaeger v2 asset for platform ${platform}/${arch}.`);
     }
   } else {
     release = getJson(`https://api.github.com/repos/${repo}/releases/latest`);
-    const version = release.tag_name.startsWith('v')
-      ? release.tag_name.substring(1)
-      : release.tag_name;
+    const version = release.tag_name.startsWith('v') ? release.tag_name.substring(1) : release.tag_name;
     const assetName = assetNameCallback(version, platform, arch, ext);
     asset = release.assets.find((a) => a.name === assetName);
     if (!asset) {
       throw new Error(
-        `Could not find a suitable asset for ${repo} (version ${version}) on platform ${platform}/${arch}. Searched for: ${assetName}`,
+        `Could not find a suitable asset for ${repo} (version ${version}) on platform ${platform}/${arch}. Searched for: ${assetName}`
       );
     }
   }
 
   const downloadUrl = asset.browser_download_url;
-  const tmpDir = fs.mkdtempSync(
-    path.join(os.tmpdir(), 'gemini-cli-telemetry-'),
-  );
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gemini-cli-telemetry-'));
   const archivePath = path.join(tmpDir, asset.name);
 
   try {
@@ -292,7 +260,7 @@ export async function ensureBinary(
 
     if (!foundBinaryPath) {
       throw new Error(
-        `Could not find binary "${nameToFind}" in extracted archive at ${tmpDir}. Contents: ${fs.readdirSync(tmpDir).join(', ')}`,
+        `Could not find binary "${nameToFind}" in extracted archive at ${tmpDir}. Contents: ${fs.readdirSync(tmpDir).join(', ')}`
       );
     }
 
@@ -317,7 +285,7 @@ export function manageTelemetrySettings(
   oTelEndpoint = 'http://localhost:4317',
   target = 'local',
   originalSandboxSettingToRestore,
-  otlpProtocol = 'grpc',
+  otlpProtocol = 'grpc'
 ) {
   const workspaceSettings = readJsonFile(WORKSPACE_SETTINGS_FILE);
   const currentSandboxSetting = workspaceSettings.sandbox;
@@ -395,17 +363,13 @@ export function manageTelemetrySettings(
     console.log(
       enable
         ? '✅ Workspace settings are already configured for telemetry.'
-        : '✅ Workspace settings already reflect telemetry disabled.',
+        : '✅ Workspace settings already reflect telemetry disabled.'
     );
   }
   return currentSandboxSetting;
 }
 
-export function registerCleanup(
-  getProcesses,
-  getLogFileDescriptors,
-  originalSandboxSetting,
-) {
+export function registerCleanup(getProcesses, getLogFileDescriptors, originalSandboxSetting) {
   let cleanedUp = false;
   const cleanup = () => {
     if (cleanedUp) return;
@@ -431,9 +395,7 @@ export function registerCleanup(
       }
     });
 
-    const logFileDescriptors = getLogFileDescriptors
-      ? getLogFileDescriptors()
-      : [];
+    const logFileDescriptors = getLogFileDescriptors ? getLogFileDescriptors() : [];
     logFileDescriptors.forEach((fd) => {
       if (fd) {
         try {

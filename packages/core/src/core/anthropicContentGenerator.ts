@@ -62,7 +62,7 @@ export class AnthropicContentGenerator implements ContentGenerator {
   async generateContent(
     request: GenerateContentParameters,
     _userPromptId: string,
-    _role?: LlmRole,
+    _role?: LlmRole
   ): Promise<GenerateContentResponse> {
     const { systemMessage, messages } = this.convertToAnthropicFormat(request);
 
@@ -94,7 +94,7 @@ export class AnthropicContentGenerator implements ContentGenerator {
   async generateContentStream(
     request: GenerateContentParameters,
     userPromptId: string,
-    _role?: LlmRole,
+    _role?: LlmRole
   ): Promise<AsyncGenerator<GenerateContentResponse>> {
     // For now, use non-streaming API and wrap in generator
     // This ensures compatibility while we can improve streaming later
@@ -203,7 +203,8 @@ export class AnthropicContentGenerator implements ContentGenerator {
       contentBlocks.push({
         type: 'tool_result',
         tool_use_id: funcResponse.id || '',
-        content: typeof funcResponse.response === 'string' ? funcResponse.response : JSON.stringify(funcResponse.response),
+        content:
+          typeof funcResponse.response === 'string' ? funcResponse.response : JSON.stringify(funcResponse.response),
       });
     }
 
@@ -227,8 +228,14 @@ export class AnthropicContentGenerator implements ContentGenerator {
         if (typeof lastContent === 'string' && typeof newContent === 'string') {
           lastMsg.content = lastContent + '\n' + newContent;
         } else {
-          const lastArray = typeof lastContent === 'string' ? [{ type: 'text' as const, text: lastContent }] : (lastContent as Anthropic.ContentBlockParam[]);
-          const newArray = typeof newContent === 'string' ? [{ type: 'text' as const, text: newContent }] : (newContent as Anthropic.ContentBlockParam[]);
+          const lastArray =
+            typeof lastContent === 'string'
+              ? [{ type: 'text' as const, text: lastContent }]
+              : (lastContent as Anthropic.ContentBlockParam[]);
+          const newArray =
+            typeof newContent === 'string'
+              ? [{ type: 'text' as const, text: newContent }]
+              : (newContent as Anthropic.ContentBlockParam[]);
           lastMsg.content = [...lastArray, ...newArray];
         }
       } else {
@@ -253,12 +260,14 @@ export class AnthropicContentGenerator implements ContentGenerator {
       let actualTool: unknown;
 
       if ('tool' in (tool as object)) {
-        actualTool = await ((tool as { tool: () => Promise<unknown> }).tool)();
+        actualTool = await (tool as { tool: () => Promise<unknown> }).tool();
       } else {
         actualTool = tool;
       }
 
-      const toolObj = actualTool as { functionDeclarations?: Array<{ name?: string; description?: string; parameters?: unknown }> };
+      const toolObj = actualTool as {
+        functionDeclarations?: Array<{ name?: string; description?: string; parameters?: unknown }>;
+      };
       if (toolObj.functionDeclarations) {
         for (const func of toolObj.functionDeclarations) {
           if (func.name) {
@@ -340,8 +349,14 @@ export class AnthropicContentGenerator implements ContentGenerator {
     const configSamplingParams = this.config.getContentGeneratorConfig()?.samplingParams;
 
     return {
-      temperature: configSamplingParams?.temperature !== undefined ? configSamplingParams.temperature : request.config?.temperature,
-      max_tokens: configSamplingParams?.max_tokens !== undefined ? configSamplingParams.max_tokens : request.config?.maxOutputTokens,
+      temperature:
+        configSamplingParams?.temperature !== undefined
+          ? configSamplingParams.temperature
+          : request.config?.temperature,
+      max_tokens:
+        configSamplingParams?.max_tokens !== undefined
+          ? configSamplingParams.max_tokens
+          : request.config?.maxOutputTokens,
       top_p: configSamplingParams?.top_p !== undefined ? configSamplingParams.top_p : request.config?.topP,
     };
   }

@@ -9,11 +9,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Text } from 'ink';
 import type { Key } from '../hooks/useKeypress.js';
 import { theme } from '../semantic-colors.js';
-import type {
-  LoadableSettingScope,
-  LoadedSettings,
-  Settings,
-} from '../../config/settings.js';
+import type { LoadableSettingScope, LoadedSettings, Settings } from '../../config/settings.js';
 import { SettingScope } from '../../config/settings.js';
 import { getScopeMessageForSetting } from '../../utils/dialogScopeUtils.js';
 import {
@@ -31,16 +27,10 @@ import {
   getEffectiveValue,
 } from '../../utils/settingsUtils.js';
 import { useVimMode } from '../contexts/VimModeContext.js';
-import {
-  type SettingsValue,
-  TOGGLE_TYPES,
-} from '../../config/settingsSchema.js';
+import { type SettingsValue, TOGGLE_TYPES } from '../../config/settingsSchema.js';
 import { coreEvents, debugLogger } from '@google/gemini-cli-core';
 import type { Config } from '@google/gemini-cli-core';
-import {
-  type SettingsDialogItem,
-  BaseSettingsDialog,
-} from './shared/BaseSettingsDialog.js';
+import { type SettingsDialogItem, BaseSettingsDialog } from './shared/BaseSettingsDialog.js';
 import { useFuzzyList } from '../hooks/useFuzzyList.js';
 
 interface SettingsDialogProps {
@@ -64,33 +54,25 @@ export function SettingsDialog({
   const { vimEnabled, toggleVimEnabled } = useVimMode();
 
   // Scope selector state (User by default)
-  const [selectedScope, setSelectedScope] = useState<LoadableSettingScope>(
-    SettingScope.User,
-  );
+  const [selectedScope, setSelectedScope] = useState<LoadableSettingScope>(SettingScope.User);
 
   const [showRestartPrompt, setShowRestartPrompt] = useState(false);
 
   // Local pending settings state for the selected scope
   const [pendingSettings, setPendingSettings] = useState<Settings>(() =>
     // Deep clone to avoid mutation
-    structuredClone(settings.forScope(selectedScope).settings),
+    structuredClone(settings.forScope(selectedScope).settings)
   );
 
   // Track which settings have been modified by the user
-  const [modifiedSettings, setModifiedSettings] = useState<Set<string>>(
-    new Set(),
-  );
+  const [modifiedSettings, setModifiedSettings] = useState<Set<string>>(new Set());
 
   // Preserve pending changes across scope switches
   type PendingValue = boolean | number | string;
-  const [globalPendingChanges, setGlobalPendingChanges] = useState<
-    Map<string, PendingValue>
-  >(new Map());
+  const [globalPendingChanges, setGlobalPendingChanges] = useState<Map<string, PendingValue>>(new Map());
 
   // Track restart-required settings across scope changes
-  const [_restartRequiredSettings, setRestartRequiredSettings] = useState<
-    Set<string>
-  >(new Set());
+  const [_restartRequiredSettings, setRestartRequiredSettings] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     // Base settings for selected scope
@@ -128,20 +110,10 @@ export function SettingsDialog({
       const type = definition?.type ?? 'string';
 
       // Get the display value (with * indicator if modified)
-      const displayValue = getDisplayValue(
-        key,
-        scopeSettings,
-        mergedSettings,
-        modifiedSettings,
-        pendingSettings,
-      );
+      const displayValue = getDisplayValue(key, scopeSettings, mergedSettings, modifiedSettings, pendingSettings);
 
       // Get the scope message (e.g., "(Modified in Workspace)")
-      const scopeMessage = getScopeMessageForSetting(
-        key,
-        selectedScope,
-        settings,
-      );
+      const scopeMessage = getScopeMessageForSetting(key, selectedScope, settings);
 
       // Check if the value is at default (grey it out)
       const isGreyedOut = isDefaultValue(key, scopeSettings);
@@ -187,51 +159,31 @@ export function SettingsDialog({
         newValue = !(currentValue as boolean);
         setPendingSettings((prev) =>
           // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-          setPendingSettingValue(key, newValue as boolean, prev),
+          setPendingSettingValue(key, newValue as boolean, prev)
         );
       } else if (definition?.type === 'enum' && definition.options) {
         const options = definition.options;
-        const currentIndex = options?.findIndex(
-          (opt) => opt.value === currentValue,
-        );
+        const currentIndex = options?.findIndex((opt) => opt.value === currentValue);
         if (currentIndex !== -1 && currentIndex < options.length - 1) {
           newValue = options[currentIndex + 1].value;
         } else {
           newValue = options[0].value; // loop back to start.
         }
-        setPendingSettings((prev) =>
-          setPendingSettingValueAny(key, newValue, prev),
-        );
+        setPendingSettings((prev) => setPendingSettingValueAny(key, newValue, prev));
       }
 
       if (!requiresRestart(key)) {
         const immediateSettings = new Set([key]);
         const currentScopeSettings = settings.forScope(selectedScope).settings;
-        const immediateSettingsObject = setPendingSettingValueAny(
-          key,
-          newValue,
-          currentScopeSettings,
-        );
-        debugLogger.log(
-          `[DEBUG SettingsDialog] Saving ${key} immediately with value:`,
-          newValue,
-        );
-        saveModifiedSettings(
-          immediateSettings,
-          immediateSettingsObject,
-          settings,
-          selectedScope,
-        );
+        const immediateSettingsObject = setPendingSettingValueAny(key, newValue, currentScopeSettings);
+        debugLogger.log(`[DEBUG SettingsDialog] Saving ${key} immediately with value:`, newValue);
+        saveModifiedSettings(immediateSettings, immediateSettingsObject, settings, selectedScope);
 
         // Special handling for vim mode to sync with VimModeContext
         if (key === 'general.vimMode' && newValue !== vimEnabled) {
           // Call toggleVimEnabled to sync the VimModeContext local state
           toggleVimEnabled().catch((error) => {
-            coreEvents.emitFeedback(
-              'error',
-              'Failed to toggle vim mode:',
-              error,
-            );
+            coreEvents.emitFeedback('error', 'Failed to toggle vim mode:', error);
           });
         }
 
@@ -265,13 +217,11 @@ export function SettingsDialog({
             `[DEBUG SettingsDialog] Modified settings:`,
             Array.from(updated),
             'Needs restart:',
-            needsRestart,
+            needsRestart
           );
           if (needsRestart) {
             setShowRestartPrompt(true);
-            setRestartRequiredSettings((prevRestart) =>
-              new Set(prevRestart).add(key),
-            );
+            setRestartRequiredSettings((prevRestart) => new Set(prevRestart).add(key));
           }
           return updated;
         });
@@ -285,7 +235,7 @@ export function SettingsDialog({
         });
       }
     },
-    [pendingSettings, settings, selectedScope, vimEnabled, toggleVimEnabled],
+    [pendingSettings, settings, selectedScope, vimEnabled, toggleVimEnabled]
   );
 
   // Edit commit handler
@@ -313,24 +263,13 @@ export function SettingsDialog({
       }
 
       // Update pending
-      setPendingSettings((prev) =>
-        setPendingSettingValueAny(key, parsed, prev),
-      );
+      setPendingSettings((prev) => setPendingSettingValueAny(key, parsed, prev));
 
       if (!requiresRestart(key)) {
         const immediateSettings = new Set([key]);
         const currentScopeSettings = settings.forScope(selectedScope).settings;
-        const immediateSettingsObject = setPendingSettingValueAny(
-          key,
-          parsed,
-          currentScopeSettings,
-        );
-        saveModifiedSettings(
-          immediateSettings,
-          immediateSettingsObject,
-          settings,
-          selectedScope,
-        );
+        const immediateSettingsObject = setPendingSettingValueAny(key, parsed, currentScopeSettings);
+        saveModifiedSettings(immediateSettings, immediateSettingsObject, settings, selectedScope);
 
         // Remove from modified sets if present
         setModifiedSettings((prev) => {
@@ -358,9 +297,7 @@ export function SettingsDialog({
           const needsRestart = hasRestartRequiredSettings(updated);
           if (needsRestart) {
             setShowRestartPrompt(true);
-            setRestartRequiredSettings((prevRestart) =>
-              new Set(prevRestart).add(key),
-            );
+            setRestartRequiredSettings((prevRestart) => new Set(prevRestart).add(key));
           }
           return updated;
         });
@@ -373,7 +310,7 @@ export function SettingsDialog({
         });
       }
     },
-    [settings, selectedScope],
+    [settings, selectedScope]
   );
 
   // Clear/reset handler - removes the value from settings.json so it falls back to default
@@ -383,16 +320,9 @@ export function SettingsDialog({
 
       // Update local pending state to show the default value
       if (typeof defaultValue === 'boolean') {
-        setPendingSettings((prev) =>
-          setPendingSettingValue(key, defaultValue, prev),
-        );
-      } else if (
-        typeof defaultValue === 'number' ||
-        typeof defaultValue === 'string'
-      ) {
-        setPendingSettings((prev) =>
-          setPendingSettingValueAny(key, defaultValue, prev),
-        );
+        setPendingSettings((prev) => setPendingSettingValue(key, defaultValue, prev));
+      } else if (typeof defaultValue === 'number' || typeof defaultValue === 'string') {
+        setPendingSettings((prev) => setPendingSettingValueAny(key, defaultValue, prev));
       }
 
       // Clear the value from settings.json (set to undefined to remove the key)
@@ -401,15 +331,10 @@ export function SettingsDialog({
 
         // Special handling for vim mode
         if (key === 'general.vimMode') {
-          const booleanDefaultValue =
-            typeof defaultValue === 'boolean' ? defaultValue : false;
+          const booleanDefaultValue = typeof defaultValue === 'boolean' ? defaultValue : false;
           if (booleanDefaultValue !== vimEnabled) {
             toggleVimEnabled().catch((error) => {
-              coreEvents.emitFeedback(
-                'error',
-                'Failed to toggle vim mode:',
-                error,
-              );
+              coreEvents.emitFeedback('error', 'Failed to toggle vim mode:', error);
             });
           }
         }
@@ -439,28 +364,15 @@ export function SettingsDialog({
         return remaining.filter((k) => k !== key).length > 0;
       });
     },
-    [
-      config,
-      settings,
-      selectedScope,
-      vimEnabled,
-      toggleVimEnabled,
-      modifiedSettings,
-    ],
+    [config, settings, selectedScope, vimEnabled, toggleVimEnabled, modifiedSettings]
   );
 
   const saveRestartRequiredSettings = useCallback(() => {
-    const restartRequiredSettings =
-      getRestartRequiredFromModified(modifiedSettings);
+    const restartRequiredSettings = getRestartRequiredFromModified(modifiedSettings);
     const restartRequiredSet = new Set(restartRequiredSettings);
 
     if (restartRequiredSet.size > 0) {
-      saveModifiedSettings(
-        restartRequiredSet,
-        pendingSettings,
-        settings,
-        selectedScope,
-      );
+      saveModifiedSettings(restartRequiredSet, pendingSettings, settings, selectedScope);
 
       // Remove saved keys from global pending changes
       setGlobalPendingChanges((prev) => {
@@ -495,102 +407,87 @@ export function SettingsDialog({
       }
       return false;
     },
-    [showRestartPrompt, onRestartRequest, saveRestartRequiredSettings],
+    [showRestartPrompt, onRestartRequest, saveRestartRequiredSettings]
   );
 
   // Calculate effective max items and scope visibility based on terminal height
-  const { effectiveMaxItemsToShow, showScopeSelection, showSearch } =
-    useMemo(() => {
-      // Only show scope selector if we have a workspace
-      const hasWorkspace = settings.workspace.path !== undefined;
+  const { effectiveMaxItemsToShow, showScopeSelection, showSearch } = useMemo(() => {
+    // Only show scope selector if we have a workspace
+    const hasWorkspace = settings.workspace.path !== undefined;
 
-      // Search box is hidden when restart prompt is shown to save space and avoid key conflicts
-      const shouldShowSearch = !showRestartPrompt;
+    // Search box is hidden when restart prompt is shown to save space and avoid key conflicts
+    const shouldShowSearch = !showRestartPrompt;
 
-      if (!availableTerminalHeight) {
-        return {
-          effectiveMaxItemsToShow: Math.min(MAX_ITEMS_TO_SHOW, items.length),
-          showScopeSelection: hasWorkspace,
-          showSearch: shouldShowSearch,
-        };
-      }
-
-      // Layout constants based on BaseSettingsDialog structure:
-      // 4 for border (2) and padding (2)
-      const DIALOG_PADDING = 4;
-      const SETTINGS_TITLE_HEIGHT = 1;
-      // 3 for box + 1 for marginTop + 1 for spacing after
-      const SEARCH_SECTION_HEIGHT = shouldShowSearch ? 5 : 0;
-      const SCROLL_ARROWS_HEIGHT = 2;
-      const ITEMS_SPACING_AFTER = 1;
-      // 1 for Label + 3 for Scope items + 1 for spacing after
-      const SCOPE_SECTION_HEIGHT = hasWorkspace ? 5 : 0;
-      const HELP_TEXT_HEIGHT = 1;
-      const RESTART_PROMPT_HEIGHT = showRestartPrompt ? 1 : 0;
-      const ITEM_HEIGHT = 3; // Label + description + spacing
-
-      const currentAvailableHeight = availableTerminalHeight - DIALOG_PADDING;
-
-      const baseFixedHeight =
-        SETTINGS_TITLE_HEIGHT +
-        SEARCH_SECTION_HEIGHT +
-        SCROLL_ARROWS_HEIGHT +
-        ITEMS_SPACING_AFTER +
-        HELP_TEXT_HEIGHT +
-        RESTART_PROMPT_HEIGHT;
-
-      // Calculate max items with scope selector
-      const heightWithScope = baseFixedHeight + SCOPE_SECTION_HEIGHT;
-      const availableForItemsWithScope =
-        currentAvailableHeight - heightWithScope;
-      const maxItemsWithScope = Math.max(
-        1,
-        Math.floor(availableForItemsWithScope / ITEM_HEIGHT),
-      );
-
-      // Calculate max items without scope selector
-      const availableForItemsWithoutScope =
-        currentAvailableHeight - baseFixedHeight;
-      const maxItemsWithoutScope = Math.max(
-        1,
-        Math.floor(availableForItemsWithoutScope / ITEM_HEIGHT),
-      );
-
-      // In small terminals, hide scope selector if it would allow more items to show
-      let shouldShowScope = hasWorkspace;
-      let maxItems = maxItemsWithScope;
-
-      if (hasWorkspace && availableTerminalHeight < 25) {
-        // Hide scope selector if it gains us more than 1 extra item
-        if (maxItemsWithoutScope > maxItemsWithScope + 1) {
-          shouldShowScope = false;
-          maxItems = maxItemsWithoutScope;
-        }
-      }
-
+    if (!availableTerminalHeight) {
       return {
-        effectiveMaxItemsToShow: Math.min(maxItems, items.length),
-        showScopeSelection: shouldShowScope,
+        effectiveMaxItemsToShow: Math.min(MAX_ITEMS_TO_SHOW, items.length),
+        showScopeSelection: hasWorkspace,
         showSearch: shouldShowSearch,
       };
-    }, [
-      availableTerminalHeight,
-      items.length,
-      settings.workspace.path,
-      showRestartPrompt,
-    ]);
+    }
+
+    // Layout constants based on BaseSettingsDialog structure:
+    // 4 for border (2) and padding (2)
+    const DIALOG_PADDING = 4;
+    const SETTINGS_TITLE_HEIGHT = 1;
+    // 3 for box + 1 for marginTop + 1 for spacing after
+    const SEARCH_SECTION_HEIGHT = shouldShowSearch ? 5 : 0;
+    const SCROLL_ARROWS_HEIGHT = 2;
+    const ITEMS_SPACING_AFTER = 1;
+    // 1 for Label + 3 for Scope items + 1 for spacing after
+    const SCOPE_SECTION_HEIGHT = hasWorkspace ? 5 : 0;
+    const HELP_TEXT_HEIGHT = 1;
+    const RESTART_PROMPT_HEIGHT = showRestartPrompt ? 1 : 0;
+    const ITEM_HEIGHT = 3; // Label + description + spacing
+
+    const currentAvailableHeight = availableTerminalHeight - DIALOG_PADDING;
+
+    const baseFixedHeight =
+      SETTINGS_TITLE_HEIGHT +
+      SEARCH_SECTION_HEIGHT +
+      SCROLL_ARROWS_HEIGHT +
+      ITEMS_SPACING_AFTER +
+      HELP_TEXT_HEIGHT +
+      RESTART_PROMPT_HEIGHT;
+
+    // Calculate max items with scope selector
+    const heightWithScope = baseFixedHeight + SCOPE_SECTION_HEIGHT;
+    const availableForItemsWithScope = currentAvailableHeight - heightWithScope;
+    const maxItemsWithScope = Math.max(1, Math.floor(availableForItemsWithScope / ITEM_HEIGHT));
+
+    // Calculate max items without scope selector
+    const availableForItemsWithoutScope = currentAvailableHeight - baseFixedHeight;
+    const maxItemsWithoutScope = Math.max(1, Math.floor(availableForItemsWithoutScope / ITEM_HEIGHT));
+
+    // In small terminals, hide scope selector if it would allow more items to show
+    let shouldShowScope = hasWorkspace;
+    let maxItems = maxItemsWithScope;
+
+    if (hasWorkspace && availableTerminalHeight < 25) {
+      // Hide scope selector if it gains us more than 1 extra item
+      if (maxItemsWithoutScope > maxItemsWithScope + 1) {
+        shouldShowScope = false;
+        maxItems = maxItemsWithoutScope;
+      }
+    }
+
+    return {
+      effectiveMaxItemsToShow: Math.min(maxItems, items.length),
+      showScopeSelection: shouldShowScope,
+      showSearch: shouldShowSearch,
+    };
+  }, [availableTerminalHeight, items.length, settings.workspace.path, showRestartPrompt]);
 
   // Footer content for restart prompt
   const footerContent = showRestartPrompt ? (
     <Text color={theme.status.warning}>
-      To see changes, Gemini CLI must be restarted. Press r to exit and apply
-      changes now.
+      To see changes, Gemini CLI must be restarted. Press r to exit and apply changes now.
     </Text>
   ) : null;
 
   return (
     <BaseSettingsDialog
-      title="Settings"
+      title='Settings'
       borderColor={showRestartPrompt ? theme.status.warning : undefined}
       searchEnabled={showSearch}
       searchBuffer={searchBuffer}

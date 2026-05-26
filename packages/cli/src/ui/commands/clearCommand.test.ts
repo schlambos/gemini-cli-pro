@@ -62,9 +62,7 @@ describe('clearCommand', () => {
 
     await clearCommand.action(mockContext, '');
 
-    expect(mockContext.ui.setDebugMessage).toHaveBeenCalledWith(
-      'Clearing terminal and resetting chat.',
-    );
+    expect(mockContext.ui.setDebugMessage).toHaveBeenCalledWith('Clearing terminal and resetting chat.');
     expect(mockContext.ui.setDebugMessage).toHaveBeenCalledTimes(1);
 
     expect(mockResetChat).toHaveBeenCalledTimes(1);
@@ -73,14 +71,10 @@ describe('clearCommand', () => {
     expect(mockContext.ui.clear).toHaveBeenCalledTimes(1);
 
     // Check the order of operations.
-    const setDebugMessageOrder = (mockContext.ui.setDebugMessage as Mock).mock
-      .invocationCallOrder[0];
+    const setDebugMessageOrder = (mockContext.ui.setDebugMessage as Mock).mock.invocationCallOrder[0];
     const resetChatOrder = mockResetChat.mock.invocationCallOrder[0];
-    const resetTelemetryOrder = (
-      uiTelemetryService.setLastPromptTokenCount as Mock
-    ).mock.invocationCallOrder[0];
-    const clearOrder = (mockContext.ui.clear as Mock).mock
-      .invocationCallOrder[0];
+    const resetTelemetryOrder = (uiTelemetryService.setLastPromptTokenCount as Mock).mock.invocationCallOrder[0];
+    const clearOrder = (mockContext.ui.clear as Mock).mock.invocationCallOrder[0];
 
     expect(setDebugMessageOrder).toBeLessThan(resetChatOrder);
     expect(resetChatOrder).toBeLessThan(resetTelemetryOrder);
@@ -100,9 +94,7 @@ describe('clearCommand', () => {
 
     await clearCommand.action(nullConfigContext, '');
 
-    expect(nullConfigContext.ui.setDebugMessage).toHaveBeenCalledWith(
-      'Clearing terminal.',
-    );
+    expect(nullConfigContext.ui.setDebugMessage).toHaveBeenCalledWith('Clearing terminal.');
     expect(mockResetChat).not.toHaveBeenCalled();
     expect(uiTelemetryService.setLastPromptTokenCount).toHaveBeenCalledWith(0);
     expect(uiTelemetryService.setLastPromptTokenCount).toHaveBeenCalledTimes(1);

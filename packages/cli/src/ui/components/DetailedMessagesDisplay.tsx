@@ -9,10 +9,7 @@ import type React from 'react';
 import { Box, Text } from 'ink';
 import { theme } from '../semantic-colors.js';
 import type { ConsoleMessageItem } from '../types.js';
-import {
-  ScrollableList,
-  type ScrollableListRef,
-} from './shared/ScrollableList.js';
+import { ScrollableList, type ScrollableListRef } from './shared/ScrollableList.js';
 
 interface DetailedMessagesDisplayProps {
   messages: ConsoleMessageItem[];
@@ -23,9 +20,12 @@ interface DetailedMessagesDisplayProps {
 
 const iconBoxWidth = 3;
 
-export const DetailedMessagesDisplay: React.FC<
-  DetailedMessagesDisplayProps
-> = ({ messages, maxHeight, width, hasFocus }) => {
+export const DetailedMessagesDisplay: React.FC<DetailedMessagesDisplayProps> = ({
+  messages,
+  maxHeight,
+  width,
+  hasFocus,
+}) => {
   const scrollableListRef = useRef<ScrollableListRef<ConsoleMessageItem>>(null);
 
   const borderAndPadding = 3;
@@ -43,7 +43,7 @@ export const DetailedMessagesDisplay: React.FC<
       const lines = Math.ceil((msg.content?.length || 1) / textWidth);
       return Math.max(1, lines);
     },
-    [width, messages],
+    [width, messages]
   );
 
   if (messages.length === 0) {
@@ -52,16 +52,16 @@ export const DetailedMessagesDisplay: React.FC<
 
   return (
     <Box
-      flexDirection="column"
+      flexDirection='column'
       marginTop={1}
-      borderStyle="round"
+      borderStyle='round'
       borderColor={theme.border.default}
       paddingLeft={1}
       width={width}
       height={maxHeight}
       flexShrink={0}
       flexGrow={0}
-      overflow="hidden"
+      overflow='hidden'
     >
       <Box marginBottom={1}>
         <Text bold color={theme.text.primary}>
@@ -96,15 +96,13 @@ export const DetailedMessagesDisplay: React.FC<
             }
 
             return (
-              <Box flexDirection="row">
+              <Box flexDirection='row'>
                 <Box minWidth={iconBoxWidth} flexShrink={0}>
                   <Text color={textColor}>{icon}</Text>
                 </Box>
-                <Text color={textColor} wrap="wrap">
+                <Text color={textColor} wrap='wrap'>
                   {msg.content}
-                  {msg.count && msg.count > 1 && (
-                    <Text color={theme.text.secondary}> (x{msg.count})</Text>
-                  )}
+                  {msg.count && msg.count > 1 && <Text color={theme.text.secondary}> (x{msg.count})</Text>}
                 </Text>
               </Box>
             );

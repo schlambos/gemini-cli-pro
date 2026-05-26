@@ -36,11 +36,7 @@ export async function handleList(options?: { outputFormat?: 'text' | 'json' }) {
       debugLogger.log(JSON.stringify(extensions, null, 2));
     } else {
       debugLogger.log(
-        extensions
-          .map((extension, _): string =>
-            extensionManager.toOutputString(extension),
-          )
-          .join('\n\n'),
+        extensions.map((extension, _): string => extensionManager.toOutputString(extension)).join('\n\n')
       );
     }
   } catch (error) {

@@ -4,15 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  afterEach,
-  type Mock,
-} from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 import { GitService } from './gitService.js';
 import { Storage } from '../config/storage.js';
 import * as path from 'node:path';
@@ -157,15 +149,13 @@ describe('GitService', () => {
       (spawnAsync as Mock).mockRejectedValue(new Error('git not found'));
       const service = new GitService(projectRoot, storage);
       await expect(service.initialize()).rejects.toThrow(
-        'Checkpointing is enabled, but Git is not installed. Please install Git or disable checkpointing to continue.',
+        'Checkpointing is enabled, but Git is not installed. Please install Git or disable checkpointing to continue.'
       );
     });
 
     it('should call setupShadowGitRepository if Git is available', async () => {
       const service = new GitService(projectRoot, storage);
-      const setupSpy = vi
-        .spyOn(service, 'setupShadowGitRepository')
-        .mockResolvedValue(undefined);
+      const setupSpy = vi.spyOn(service, 'setupShadowGitRepository').mockResolvedValue(undefined);
 
       await service.initialize();
       expect(setupSpy).toHaveBeenCalled();
@@ -244,7 +234,7 @@ describe('GitService', () => {
       const service = new GitService(projectRoot, storage);
       // EISDIR is the expected error code on Unix-like systems
       await expect(service.setupShadowGitRepository()).rejects.toThrow(
-        /EISDIR: illegal operation on a directory, read|EBUSY: resource busy or locked, read/,
+        /EISDIR: illegal operation on a directory, read|EBUSY: resource busy or locked, read/
       );
     });
 
@@ -266,17 +256,13 @@ describe('GitService', () => {
 
     it('should handle checkIsRepo failure gracefully and initialize repo', async () => {
       // Simulate checkIsRepo failing (e.g., on certain Git versions like macOS 2.39.5)
-      hoistedMockCheckIsRepo.mockRejectedValue(
-        new Error('git rev-parse --is-inside-work-tree failed'),
-      );
+      hoistedMockCheckIsRepo.mockRejectedValue(new Error('git rev-parse --is-inside-work-tree failed'));
       const service = new GitService(projectRoot, storage);
       await service.setupShadowGitRepository();
       // Should proceed to initialize the repo since checkIsRepo failed
       expect(hoistedMockInit).toHaveBeenCalled();
       // Should log the error using debugLogger
-      expect(hoistedMockDebugLogger.debug).toHaveBeenCalledWith(
-        expect.stringContaining('checkIsRepo failed'),
-      );
+      expect(hoistedMockDebugLogger.debug).toHaveBeenCalledWith(expect.stringContaining('checkIsRepo failed'));
     });
 
     it('should configure git environment to use local gitconfig', async () => {
@@ -288,13 +274,10 @@ describe('GitService', () => {
         expect.objectContaining({
           GIT_CONFIG_GLOBAL: gitConfigPath,
           GIT_CONFIG_SYSTEM: path.join(repoDir, '.gitconfig_system_empty'),
-        }),
+        })
       );
 
-      const systemConfigContent = await fs.readFile(
-        path.join(repoDir, '.gitconfig_system_empty'),
-        'utf-8',
-      );
+      const systemConfigContent = await fs.readFile(path.join(repoDir, '.gitconfig_system_empty'), 'utf-8');
       expect(systemConfigContent).toBe('');
     });
   });

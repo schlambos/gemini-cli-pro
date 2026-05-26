@@ -20,10 +20,7 @@ import { VimModeProvider } from '../ui/contexts/VimModeContext.js';
 import { MouseProvider } from '../ui/contexts/MouseContext.js';
 import { ScrollProvider } from '../ui/contexts/ScrollProvider.js';
 import { StreamingContext } from '../ui/contexts/StreamingContext.js';
-import {
-  type UIActions,
-  UIActionsContext,
-} from '../ui/contexts/UIActionsContext.js';
+import { type UIActions, UIActionsContext } from '../ui/contexts/UIActionsContext.js';
 import { type HistoryItemToolGroup, StreamingState } from '../ui/types.js';
 import { ToolActionsProvider } from '../ui/contexts/ToolActionsContext.js';
 import { AskUserActionsProvider } from '../ui/contexts/AskUserActionsContext.js';
@@ -51,10 +48,7 @@ vi.mock('../ui/utils/terminalUtils.js', () => ({
 }));
 
 // Wrapper around ink-testing-library's render that ensures act() is called
-export const render = (
-  tree: React.ReactElement,
-  terminalWidth?: number,
-): ReturnType<typeof inkRender> => {
+export const render = (tree: React.ReactElement, terminalWidth?: number): ReturnType<typeof inkRender> => {
   let renderResult: ReturnType<typeof inkRender> =
     // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
     undefined as unknown as ReturnType<typeof inkRender>;
@@ -97,7 +91,7 @@ export const simulateClick = async (
   stdin: ReturnType<typeof inkRender>['stdin'],
   col: number,
   row: number,
-  button: 0 | 1 | 2 = 0, // 0 for left, 1 for middle, 2 for right
+  button: 0 | 1 | 2 = 0 // 0 for left, 1 for middle, 2 for right
 ) => {
   // Terminal mouse events are 1-based, so convert if necessary.
   const mouseEventString = `\x1b[<${button};${col};${row}M`;
@@ -122,8 +116,7 @@ const getMockConfigInternal = (): Config => {
 const configProxy = new Proxy({} as Config, {
   get(_target, prop) {
     if (prop === 'getTargetDir') {
-      return () =>
-        '/Users/test/project/foo/bar/and/some/more/directories/to/make/it/long';
+      return () => '/Users/test/project/foo/bar/and/some/more/directories/to/make/it/long';
     }
     if (prop === 'getUseBackgroundColor') {
       return () => true;
@@ -143,7 +136,7 @@ export const mockSettings = new LoadedSettings(
   { path: '', settings: {}, originalSettings: {} },
   { path: '', settings: {}, originalSettings: {} },
   true,
-  [],
+  []
 );
 
 // A minimal mock UIState to satisfy the context provider.
@@ -251,7 +244,7 @@ export const renderWithProviders = (
       set?: typeof persistentStateMock.set;
     };
     appState?: AppState;
-  } = {},
+  } = {}
 ): ReturnType<typeof render> & { simulateClick: typeof simulateClick } => {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
   const baseState: UIState = new Proxy(
@@ -271,7 +264,7 @@ export const renderWithProviders = (
         }
         throw new Error(`mockUiState does not have property ${String(prop)}`);
       },
-    },
+    }
   ) as UIState;
 
   if (persistentState?.get) {
@@ -308,7 +301,7 @@ export const renderWithProviders = (
     baseState.terminalBackgroundColor,
     themeManager.getAllThemes(),
     DEFAULT_THEME.name,
-    DefaultLight.name,
+    DefaultLight.name
   );
   themeManager.setActiveTheme(themeName);
 
@@ -326,31 +319,15 @@ export const renderWithProviders = (
             <VimModeProvider settings={finalSettings}>
               <ShellFocusContext.Provider value={shellFocus}>
                 <SessionStatsProvider>
-                  <StreamingContext.Provider
-                    value={finalUiState.streamingState}
-                  >
+                  <StreamingContext.Provider value={finalUiState.streamingState}>
                     <UIActionsContext.Provider value={finalUIActions}>
-                      <ToolActionsProvider
-                        config={config}
-                        toolCalls={allToolCalls}
-                      >
-                        <AskUserActionsProvider
-                          request={null}
-                          onSubmit={vi.fn()}
-                          onCancel={vi.fn()}
-                        >
+                      <ToolActionsProvider config={config} toolCalls={allToolCalls}>
+                        <AskUserActionsProvider request={null} onSubmit={vi.fn()} onCancel={vi.fn()}>
                           <KeypressProvider>
-                            <MouseProvider
-                              mouseEventsEnabled={mouseEventsEnabled}
-                            >
+                            <MouseProvider mouseEventsEnabled={mouseEventsEnabled}>
                               <TerminalProvider>
                                 <ScrollProvider>
-                                  <Box
-                                    width={terminalWidth}
-                                    flexShrink={0}
-                                    flexGrow={0}
-                                    flexDirection="column"
-                                  >
+                                  <Box width={terminalWidth} flexShrink={0} flexGrow={0} flexDirection='column'>
                                     {component}
                                   </Box>
                                 </ScrollProvider>
@@ -368,7 +345,7 @@ export const renderWithProviders = (
         </SettingsContext.Provider>
       </ConfigContext.Provider>
     </AppContext.Provider>,
-    terminalWidth,
+    terminalWidth
   );
 
   return { ...renderResult, simulateClick };
@@ -379,7 +356,7 @@ export function renderHook<Result, Props>(
   options?: {
     initialProps?: Props;
     wrapper?: React.ComponentType<{ children: React.ReactNode }>;
-  },
+  }
 ): {
   result: { current: Result };
   rerender: (props?: Props) => void;
@@ -390,13 +367,7 @@ export function renderHook<Result, Props>(
   // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
   let currentProps = options?.initialProps as Props;
 
-  function TestComponent({
-    renderCallback,
-    props,
-  }: {
-    renderCallback: (props: Props) => Result;
-    props: Props;
-  }) {
+  function TestComponent({ renderCallback, props }: { renderCallback: (props: Props) => Result; props: Props }) {
     result.current = renderCallback(props);
     return null;
   }
@@ -410,7 +381,7 @@ export function renderHook<Result, Props>(
     const renderResult = render(
       <Wrapper>
         <TestComponent renderCallback={renderCallback} props={currentProps} />
-      </Wrapper>,
+      </Wrapper>
     );
     inkRerender = renderResult.rerender;
     unmount = renderResult.unmount;
@@ -425,7 +396,7 @@ export function renderHook<Result, Props>(
       inkRerender(
         <Wrapper>
           <TestComponent renderCallback={renderCallback} props={currentProps} />
-        </Wrapper>,
+        </Wrapper>
       );
     });
   }
@@ -446,7 +417,7 @@ export function renderHookWithProviders<Result, Props>(
     mouseEventsEnabled?: boolean;
     config?: Config;
     useAlternateBuffer?: boolean;
-  } = {},
+  } = {}
 ): {
   result: { current: Result };
   rerender: (props?: Props) => void;
@@ -477,7 +448,7 @@ export function renderHookWithProviders<Result, Props>(
         {/* eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion */}
         <TestComponent initialProps={options.initialProps as Props} />
       </Wrapper>,
-      options,
+      options
     );
   });
 

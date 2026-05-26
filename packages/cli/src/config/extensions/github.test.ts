@@ -25,15 +25,11 @@ import * as extract from 'extract-zip';
 import type { ExtensionManager } from '../extension-manager.js';
 import { fetchJson } from './github_fetch.js';
 import { EventEmitter } from 'node:events';
-import type {
-  GeminiCLIExtension,
-  ExtensionInstallMetadata,
-} from '@google/gemini-cli-core';
+import type { GeminiCLIExtension, ExtensionInstallMetadata } from '@google/gemini-cli-core';
 import type { ExtensionConfig } from '../extension.js';
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     Storage: {
@@ -98,14 +94,10 @@ describe('github.ts', () => {
           source: 'https://github.com/owner/repo.git',
           ref: 'v1.0.0',
         },
-        '/dest',
+        '/dest'
       );
 
-      expect(mockGit.clone).toHaveBeenCalledWith(
-        'https://github.com/owner/repo.git',
-        './',
-        ['--depth', '1'],
-      );
+      expect(mockGit.clone).toHaveBeenCalledWith('https://github.com/owner/repo.git', './', ['--depth', '1']);
       expect(mockGit.fetch).toHaveBeenCalledWith('origin', 'v1.0.0');
       expect(mockGit.checkout).toHaveBeenCalledWith('FETCH_HEAD');
     });
@@ -113,17 +105,15 @@ describe('github.ts', () => {
     it('should throw if no remotes found', async () => {
       mockGit.getRemotes.mockResolvedValue([]);
 
-      await expect(
-        cloneFromGit({ type: 'git', source: 'src' }, '/dest'),
-      ).rejects.toThrow('Unable to find any remotes');
+      await expect(cloneFromGit({ type: 'git', source: 'src' }, '/dest')).rejects.toThrow('Unable to find any remotes');
     });
 
     it('should throw on clone error', async () => {
       mockGit.clone.mockRejectedValue(new Error('Clone failed'));
 
-      await expect(
-        cloneFromGit({ type: 'git', source: 'src' }, '/dest'),
-      ).rejects.toThrow('Failed to clone Git repository');
+      await expect(cloneFromGit({ type: 'git', source: 'src' }, '/dest')).rejects.toThrow(
+        'Failed to clone Git repository'
+      );
     });
   });
 
@@ -146,9 +136,7 @@ describe('github.ts', () => {
     });
 
     it('should throw for invalid formats', () => {
-      expect(() => tryParseGithubUrl('invalid')).toThrow(
-        'Invalid GitHub repository source',
-      );
+      expect(() => tryParseGithubUrl('invalid')).toThrow('Invalid GitHub repository source');
     });
   });
 
@@ -158,9 +146,7 @@ describe('github.ts', () => {
 
       await fetchReleaseFromGithub('owner', 'repo');
 
-      expect(fetchJson).toHaveBeenCalledWith(
-        'https://api.github.com/repos/owner/repo/releases/latest',
-      );
+      expect(fetchJson).toHaveBeenCalledWith('https://api.github.com/repos/owner/repo/releases/latest');
     });
 
     it('should fetch specific ref if provided', async () => {
@@ -168,20 +154,13 @@ describe('github.ts', () => {
 
       await fetchReleaseFromGithub('owner', 'repo', 'v1.0.0');
 
-      expect(fetchJson).toHaveBeenCalledWith(
-        'https://api.github.com/repos/owner/repo/releases/tags/v1.0.0',
-      );
+      expect(fetchJson).toHaveBeenCalledWith('https://api.github.com/repos/owner/repo/releases/tags/v1.0.0');
     });
 
     it('should handle pre-releases if allowed', async () => {
       vi.mocked(fetchJson).mockResolvedValueOnce([{ tag_name: 'v1.0.0-beta' }]);
 
-      const result = await fetchReleaseFromGithub(
-        'owner',
-        'repo',
-        undefined,
-        true,
-      );
+      const result = await fetchReleaseFromGithub('owner', 'repo', undefined, true);
 
       expect(result).toEqual({ tag_name: 'v1.0.0-beta' });
     });
@@ -189,12 +168,7 @@ describe('github.ts', () => {
     it('should return null if no releases found', async () => {
       vi.mocked(fetchJson).mockResolvedValueOnce([]);
 
-      const result = await fetchReleaseFromGithub(
-        'owner',
-        'repo',
-        undefined,
-        true,
-      );
+      const result = await fetchReleaseFromGithub('owner', 'repo', undefined, true);
 
       expect(result).toBeNull();
     });
@@ -224,21 +198,17 @@ describe('github.ts', () => {
       vi.mocked(mockExtensionManager.loadExtensionConfig).mockReturnValue(
         Promise.resolve({
           version: '1.0.0',
-        } as unknown as ExtensionConfig),
+        } as unknown as ExtensionConfig)
       );
 
       const linkExt = {
         installMetadata: { type: 'link' },
       } as unknown as GeminiCLIExtension;
-      expect(await checkForExtensionUpdate(linkExt, mockExtensionManager)).toBe(
-        ExtensionUpdateState.NOT_UPDATABLE,
-      );
+      expect(await checkForExtensionUpdate(linkExt, mockExtensionManager)).toBe(ExtensionUpdateState.NOT_UPDATABLE);
     });
 
     it('should return UPDATE_AVAILABLE if git remote hash differs', async () => {
-      mockGit.getRemotes.mockResolvedValue([
-        { name: 'origin', refs: { fetch: 'url' } },
-      ]);
+      mockGit.getRemotes.mockResolvedValue([{ name: 'origin', refs: { fetch: 'url' } }]);
       mockGit.listRemote.mockResolvedValue('remote-hash\tHEAD');
       mockGit.revparse.mockResolvedValue('local-hash');
 
@@ -246,15 +216,11 @@ describe('github.ts', () => {
         path: '/path',
         installMetadata: { type: 'git', source: 'url' },
       } as unknown as GeminiCLIExtension;
-      expect(await checkForExtensionUpdate(ext, mockExtensionManager)).toBe(
-        ExtensionUpdateState.UPDATE_AVAILABLE,
-      );
+      expect(await checkForExtensionUpdate(ext, mockExtensionManager)).toBe(ExtensionUpdateState.UPDATE_AVAILABLE);
     });
 
     it('should return UP_TO_DATE if git remote hash matches', async () => {
-      mockGit.getRemotes.mockResolvedValue([
-        { name: 'origin', refs: { fetch: 'url' } },
-      ]);
+      mockGit.getRemotes.mockResolvedValue([{ name: 'origin', refs: { fetch: 'url' } }]);
       mockGit.listRemote.mockResolvedValue('hash\tHEAD');
       mockGit.revparse.mockResolvedValue('hash');
 
@@ -262,17 +228,13 @@ describe('github.ts', () => {
         path: '/path',
         installMetadata: { type: 'git', source: 'url' },
       } as unknown as GeminiCLIExtension;
-      expect(await checkForExtensionUpdate(ext, mockExtensionManager)).toBe(
-        ExtensionUpdateState.UP_TO_DATE,
-      );
+      expect(await checkForExtensionUpdate(ext, mockExtensionManager)).toBe(ExtensionUpdateState.UP_TO_DATE);
     });
 
     it('should return NOT_UPDATABLE if local extension config cannot be loaded', async () => {
-      vi.mocked(mockExtensionManager.loadExtensionConfig).mockImplementation(
-        () => {
-          throw new Error('Config not found');
-        },
-      );
+      vi.mocked(mockExtensionManager.loadExtensionConfig).mockImplementation(() => {
+        throw new Error('Config not found');
+      });
 
       const ext = {
         name: 'local-ext',
@@ -281,9 +243,7 @@ describe('github.ts', () => {
         installMetadata: { type: 'local', source: '/path/to/source/ext' },
       } as unknown as GeminiCLIExtension;
 
-      expect(await checkForExtensionUpdate(ext, mockExtensionManager)).toBe(
-        ExtensionUpdateState.NOT_UPDATABLE,
-      );
+      expect(await checkForExtensionUpdate(ext, mockExtensionManager)).toBe(ExtensionUpdateState.NOT_UPDATABLE);
     });
   });
 
@@ -299,7 +259,7 @@ describe('github.ts', () => {
           ref: 'v1',
         } as unknown as ExtensionInstallMetadata,
         '/dest',
-        { owner: 'owner', repo: 'repo' },
+        { owner: 'owner', repo: 'repo' }
       );
 
       expect(result.success).toBe(false);
@@ -318,8 +278,7 @@ describe('github.ts', () => {
 
       // Mock https.get and fs.createWriteStream for downloadFile
       const mockReq = new EventEmitter();
-      const mockRes =
-        new EventEmitter() as unknown as import('node:http').IncomingMessage;
+      const mockRes = new EventEmitter() as unknown as import('node:http').IncomingMessage;
       Object.assign(mockRes, { statusCode: 200, pipe: vi.fn() });
 
       vi.mocked(https.get).mockImplementation((url, options, cb) => {
@@ -346,13 +305,11 @@ describe('github.ts', () => {
           ref: 'v1.0.0',
         } as unknown as ExtensionInstallMetadata,
         '/dest',
-        { owner: 'owner', repo: 'repo' },
+        { owner: 'owner', repo: 'repo' }
       );
 
       // Wait for downloadFile to be called and stream to be created
-      await vi.waitUntil(
-        () => vi.mocked(fs.createWriteStream).mock.calls.length > 0,
-      );
+      await vi.waitUntil(() => vi.mocked(fs.createWriteStream).mock.calls.length > 0);
 
       // Trigger stream events to complete download
       mockRes.emit('end');
@@ -367,7 +324,7 @@ describe('github.ts', () => {
             Accept: 'application/octet-stream',
           }),
         }),
-        expect.anything(),
+        expect.anything()
       );
     });
 
@@ -380,8 +337,7 @@ describe('github.ts', () => {
 
       // Mock https.get and fs.createWriteStream for downloadFile
       const mockReq = new EventEmitter();
-      const mockRes =
-        new EventEmitter() as unknown as import('node:http').IncomingMessage;
+      const mockRes = new EventEmitter() as unknown as import('node:http').IncomingMessage;
       Object.assign(mockRes, { statusCode: 200, pipe: vi.fn() });
 
       vi.mocked(https.get).mockImplementation((url, options, cb) => {
@@ -408,13 +364,11 @@ describe('github.ts', () => {
           ref: 'v1.0.0',
         } as unknown as ExtensionInstallMetadata,
         '/dest',
-        { owner: 'owner', repo: 'repo' },
+        { owner: 'owner', repo: 'repo' }
       );
 
       // Wait for downloadFile to be called and stream to be created
-      await vi.waitUntil(
-        () => vi.mocked(fs.createWriteStream).mock.calls.length > 0,
-      );
+      await vi.waitUntil(() => vi.mocked(fs.createWriteStream).mock.calls.length > 0);
 
       // Trigger stream events to complete download
       mockRes.emit('end');
@@ -429,7 +383,7 @@ describe('github.ts', () => {
             Accept: 'application/vnd.github+json',
           }),
         }),
-        expect.anything(),
+        expect.anything()
       );
     });
   });
@@ -455,8 +409,7 @@ describe('github.ts', () => {
   describe('downloadFile', () => {
     it('should download file successfully', async () => {
       const mockReq = new EventEmitter();
-      const mockRes =
-        new EventEmitter() as unknown as import('node:http').IncomingMessage;
+      const mockRes = new EventEmitter() as unknown as import('node:http').IncomingMessage;
       Object.assign(mockRes, { statusCode: 200, pipe: vi.fn() });
 
       vi.mocked(https.get).mockImplementation((url, options, cb) => {
@@ -480,8 +433,7 @@ describe('github.ts', () => {
 
     it('should fail on non-200 status', async () => {
       const mockReq = new EventEmitter();
-      const mockRes =
-        new EventEmitter() as unknown as import('node:http').IncomingMessage;
+      const mockRes = new EventEmitter() as unknown as import('node:http').IncomingMessage;
       Object.assign(mockRes, { statusCode: 404 });
 
       vi.mocked(https.get).mockImplementation((url, options, cb) => {
@@ -492,22 +444,18 @@ describe('github.ts', () => {
         return mockReq as unknown as import('node:http').ClientRequest;
       });
 
-      await expect(downloadFile('url', '/dest')).rejects.toThrow(
-        'Request failed with status code 404',
-      );
+      await expect(downloadFile('url', '/dest')).rejects.toThrow('Request failed with status code 404');
     });
 
     it('should follow redirects', async () => {
       const mockReq = new EventEmitter();
-      const mockResRedirect =
-        new EventEmitter() as unknown as import('node:http').IncomingMessage;
+      const mockResRedirect = new EventEmitter() as unknown as import('node:http').IncomingMessage;
       Object.assign(mockResRedirect, {
         statusCode: 302,
         headers: { location: 'new-url' },
       });
 
-      const mockResSuccess =
-        new EventEmitter() as unknown as import('node:http').IncomingMessage;
+      const mockResSuccess = new EventEmitter() as unknown as import('node:http').IncomingMessage;
       Object.assign(mockResSuccess, { statusCode: 200, pipe: vi.fn() });
 
       vi.mocked(https.get)
@@ -532,17 +480,12 @@ describe('github.ts', () => {
 
       await expect(promise).resolves.toBeUndefined();
       expect(https.get).toHaveBeenCalledTimes(2);
-      expect(https.get).toHaveBeenLastCalledWith(
-        'new-url',
-        expect.anything(),
-        expect.anything(),
-      );
+      expect(https.get).toHaveBeenLastCalledWith('new-url', expect.anything(), expect.anything());
     });
 
     it('should fail after too many redirects', async () => {
       const mockReq = new EventEmitter();
-      const mockResRedirect =
-        new EventEmitter() as unknown as import('node:http').IncomingMessage;
+      const mockResRedirect = new EventEmitter() as unknown as import('node:http').IncomingMessage;
       Object.assign(mockResRedirect, {
         statusCode: 302,
         headers: { location: 'new-url' },
@@ -554,15 +497,12 @@ describe('github.ts', () => {
         return mockReq as unknown as import('node:http').ClientRequest;
       });
 
-      await expect(downloadFile('url', '/dest')).rejects.toThrow(
-        'Too many redirects',
-      );
+      await expect(downloadFile('url', '/dest')).rejects.toThrow('Too many redirects');
     }, 10000); // Increase timeout for this test if needed, though with mocks it should be fast
 
     it('should fail if redirect location is missing', async () => {
       const mockReq = new EventEmitter();
-      const mockResRedirect =
-        new EventEmitter() as unknown as import('node:http').IncomingMessage;
+      const mockResRedirect = new EventEmitter() as unknown as import('node:http').IncomingMessage;
       Object.assign(mockResRedirect, {
         statusCode: 302,
         headers: {}, // No location
@@ -574,15 +514,12 @@ describe('github.ts', () => {
         return mockReq as unknown as import('node:http').ClientRequest;
       });
 
-      await expect(downloadFile('url', '/dest')).rejects.toThrow(
-        'Redirect response missing Location header',
-      );
+      await expect(downloadFile('url', '/dest')).rejects.toThrow('Redirect response missing Location header');
     });
 
     it('should pass custom headers', async () => {
       const mockReq = new EventEmitter();
-      const mockRes =
-        new EventEmitter() as unknown as import('node:http').IncomingMessage;
+      const mockRes = new EventEmitter() as unknown as import('node:http').IncomingMessage;
       Object.assign(mockRes, { statusCode: 200, pipe: vi.fn() });
 
       vi.mocked(https.get).mockImplementation((url, options, cb) => {
@@ -607,7 +544,7 @@ describe('github.ts', () => {
         expect.objectContaining({
           headers: expect.objectContaining({ 'X-Custom': 'value' }),
         }),
-        expect.anything(),
+        expect.anything()
       );
     });
   });
@@ -625,9 +562,7 @@ describe('github.ts', () => {
     });
 
     it('should throw for unsupported extensions', async () => {
-      await expect(extractFile('file.txt', '/dest')).rejects.toThrow(
-        'Unsupported file extension',
-      );
+      await expect(extractFile('file.txt', '/dest')).rejects.toThrow('Unsupported file extension');
     });
   });
 });

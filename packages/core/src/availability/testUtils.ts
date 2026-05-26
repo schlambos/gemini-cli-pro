@@ -5,16 +5,13 @@
  */
 
 import { vi } from 'vitest';
-import type {
-  ModelAvailabilityService,
-  ModelSelectionResult,
-} from './modelAvailabilityService.js';
+import type { ModelAvailabilityService, ModelSelectionResult } from './modelAvailabilityService.js';
 
 /**
  * Test helper to create a fully mocked ModelAvailabilityService.
  */
 export function createAvailabilityServiceMock(
-  selection: ModelSelectionResult = { selectedModel: null, skipped: [] },
+  selection: ModelSelectionResult = { selectedModel: null, skipped: [] }
 ): ModelAvailabilityService {
   const service = {
     markTerminal: vi.fn(),

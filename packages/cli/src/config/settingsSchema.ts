@@ -22,31 +22,16 @@ import {
 import type { SessionRetentionSettings } from './settings.js';
 import { DEFAULT_MIN_RETENTION } from '../utils/sessionCleanup.js';
 
-export type SettingsType =
-  | 'boolean'
-  | 'string'
-  | 'number'
-  | 'array'
-  | 'object'
-  | 'enum';
+export type SettingsType = 'boolean' | 'string' | 'number' | 'array' | 'object' | 'enum';
 
-export type SettingsValue =
-  | boolean
-  | string
-  | number
-  | string[]
-  | object
-  | undefined;
+export type SettingsValue = boolean | string | number | string[] | object | undefined;
 
 /**
  * Setting datatypes that "toggle" through a fixed list of options
  * (e.g. an enum or true/false) rather than allowing for free form input
  * (like a number or string).
  */
-export const TOGGLE_TYPES: ReadonlySet<SettingsType | undefined> = new Set([
-  'boolean',
-  'enum',
-]);
+export const TOGGLE_TYPES: ReadonlySet<SettingsType | undefined> = new Set(['boolean', 'enum']);
 
 export interface SettingEnumOption {
   value: string | number;
@@ -262,8 +247,7 @@ const SETTINGS_SCHEMA = {
         category: 'General',
         requiresRestart: true,
         default: false,
-        description:
-          'Enable AI-powered prompt completion suggestions while typing.',
+        description: 'Enable AI-powered prompt completion suggestions while typing.',
         showInDialog: true,
       },
       retryFetchErrors: {
@@ -272,8 +256,7 @@ const SETTINGS_SCHEMA = {
         category: 'General',
         requiresRestart: false,
         default: false,
-        description:
-          'Retry on "exception TypeError: fetch failed sending request" errors.',
+        description: 'Retry on "exception TypeError: fetch failed sending request" errors.',
         showInDialog: false,
       },
       debugKeystrokeLogging: {
@@ -308,8 +291,7 @@ const SETTINGS_SCHEMA = {
             category: 'General',
             requiresRestart: false,
             default: undefined as string | undefined,
-            description:
-              'Automatically delete chats older than this time period (e.g., "30d", "7d", "24h", "1w")',
+            description: 'Automatically delete chats older than this time period (e.g., "30d", "7d", "24h", "1w")',
             showInDialog: true,
           },
           maxCount: {
@@ -318,8 +300,7 @@ const SETTINGS_SCHEMA = {
             category: 'General',
             requiresRestart: false,
             default: undefined as number | undefined,
-            description:
-              'Alternative: Maximum number of sessions to keep (most recent)',
+            description: 'Alternative: Maximum number of sessions to keep (most recent)',
             showInDialog: false,
           },
           minRetention: {
@@ -338,8 +319,7 @@ const SETTINGS_SCHEMA = {
             requiresRestart: false,
             default: false,
             showInDialog: false,
-            description:
-              'INTERNAL: Whether the user has acknowledged the session retention warning',
+            description: 'INTERNAL: Whether the user has acknowledged the session retention warning',
           },
         },
         description: 'Settings for automatic session cleanup.',
@@ -386,8 +366,7 @@ const SETTINGS_SCHEMA = {
         category: 'UI',
         requiresRestart: false,
         default: undefined as string | undefined,
-        description:
-          'The color theme for the UI. See the CLI themes guide for available options.',
+        description: 'The color theme for the UI. See the CLI themes guide for available options.',
         showInDialog: false,
       },
       autoThemeSwitching: {
@@ -396,8 +375,7 @@ const SETTINGS_SCHEMA = {
         category: 'UI',
         requiresRestart: false,
         default: true,
-        description:
-          'Automatically switch between default light and dark themes based on terminal background color.',
+        description: 'Automatically switch between default light and dark themes based on terminal background color.',
         showInDialog: true,
       },
       terminalBackgroundPollingInterval: {
@@ -406,8 +384,7 @@ const SETTINGS_SCHEMA = {
         category: 'UI',
         requiresRestart: false,
         default: 60,
-        description:
-          'Interval in seconds to poll the terminal background color.',
+        description: 'Interval in seconds to poll the terminal background color.',
         showInDialog: true,
       },
       customThemes: {
@@ -451,8 +428,7 @@ const SETTINGS_SCHEMA = {
         category: 'UI',
         requiresRestart: false,
         default: false,
-        description:
-          'Show Gemini CLI model thoughts in the terminal window title during the working phase',
+        description: 'Show Gemini CLI model thoughts in the terminal window title during the working phase',
         showInDialog: true,
       },
       dynamicWindowTitle: {
@@ -471,8 +447,7 @@ const SETTINGS_SCHEMA = {
         category: 'UI',
         requiresRestart: true,
         default: true,
-        description:
-          'Show a warning when running Gemini CLI in the home directory.',
+        description: 'Show a warning when running Gemini CLI in the home directory.',
         showInDialog: true,
       },
       hideTips: {
@@ -508,8 +483,7 @@ const SETTINGS_SCHEMA = {
         category: 'UI',
         requiresRestart: false,
         default: false,
-        description:
-          'Hide the context summary (GEMINI.md, MCP servers) above the input.',
+        description: 'Hide the context summary (GEMINI.md, MCP servers) above the input.',
         showInDialog: true,
       },
       footer: {
@@ -527,8 +501,7 @@ const SETTINGS_SCHEMA = {
             category: 'UI',
             requiresRestart: false,
             default: false,
-            description:
-              'Hide the current working directory path in the footer.',
+            description: 'Hide the current working directory path in the footer.',
             showInDialog: true,
           },
           hideSandboxStatus: {
@@ -611,8 +584,7 @@ const SETTINGS_SCHEMA = {
         category: 'UI',
         requiresRestart: false,
         default: true,
-        description:
-          "Show the logged-in user's identity (e.g. email) in the UI.",
+        description: "Show the logged-in user's identity (e.g. email) in the UI.",
         showInDialog: true,
       },
       useAlternateBuffer: {
@@ -621,8 +593,7 @@ const SETTINGS_SCHEMA = {
         category: 'UI',
         requiresRestart: true,
         default: false,
-        description:
-          'Use an alternate screen buffer for the UI, preserving shell history.',
+        description: 'Use an alternate screen buffer for the UI, preserving shell history.',
         showInDialog: true,
       },
       useBackgroundColor: {
@@ -690,8 +661,7 @@ const SETTINGS_SCHEMA = {
             category: 'UI',
             requiresRestart: true,
             default: false,
-            description:
-              'Render output in plain-text to be more screen reader accessible',
+            description: 'Render output in plain-text to be more screen reader accessible',
             showInDialog: true,
           },
         },
@@ -785,8 +755,7 @@ const SETTINGS_SCHEMA = {
         category: 'Model',
         requiresRestart: false,
         default: -1,
-        description:
-          'Maximum number of user/model/tool turns to keep in a session. -1 means unlimited.',
+        description: 'Maximum number of user/model/tool turns to keep in a session. -1 means unlimited.',
         showInDialog: true,
       },
       summarizeToolOutput: {
@@ -794,9 +763,7 @@ const SETTINGS_SCHEMA = {
         label: 'Summarize Tool Output',
         category: 'Model',
         requiresRestart: false,
-        default: undefined as
-          | Record<string, { tokenBudget?: number }>
-          | undefined,
+        default: undefined as Record<string, { tokenBudget?: number }> | undefined,
         description: oneLine`
           Enables or disables summarization of tool output.
           Configure per-tool token budgets (for example {"run_shell_command": {"tokenBudget": 2000}}).
@@ -805,8 +772,7 @@ const SETTINGS_SCHEMA = {
         showInDialog: false,
         additionalProperties: {
           type: 'object',
-          description:
-            'Per-tool summarization settings with an optional tokenBudget.',
+          description: 'Per-tool summarization settings with an optional tokenBudget.',
           ref: 'SummarizeToolOutputSettings',
         },
       },
@@ -816,8 +782,7 @@ const SETTINGS_SCHEMA = {
         category: 'Model',
         requiresRestart: true,
         default: 0.5 as number,
-        description:
-          'The fraction of context usage at which to trigger context compression (e.g. 0.2, 0.3).',
+        description: 'The fraction of context usage at which to trigger context compression (e.g. 0.2, 0.3).',
         showInDialog: true,
       },
       disableLoopDetection: {
@@ -826,8 +791,7 @@ const SETTINGS_SCHEMA = {
         category: 'Model',
         requiresRestart: true,
         default: false,
-        description:
-          'Disable automatic detection and prevention of infinite loops.',
+        description: 'Disable automatic detection and prevention of infinite loops.',
         showInDialog: true,
       },
       skipNextSpeakerCheck: {
@@ -877,8 +841,7 @@ const SETTINGS_SCHEMA = {
         category: 'Model',
         requiresRestart: false,
         default: [],
-        description:
-          'Custom model config overrides. These are merged with (and added to) the built-in overrides.',
+        description: 'Custom model config overrides. These are merged with (and added to) the built-in overrides.',
         showInDialog: false,
       },
       overrides: {
@@ -1107,8 +1070,7 @@ const SETTINGS_SCHEMA = {
             category: 'Tools',
             requiresRestart: false,
             default: 'cat' as string | undefined,
-            description:
-              'The pager command to use for shell output. Defaults to `cat`.',
+            description: 'The pager command to use for shell output. Defaults to `cat`.',
             showInDialog: false,
           },
           showColor: {
@@ -1136,8 +1098,7 @@ const SETTINGS_SCHEMA = {
             category: 'Tools',
             requiresRestart: false,
             default: true,
-            description:
-              'Enable shell output efficiency optimizations for better performance.',
+            description: 'Enable shell output efficiency optimizations for better performance.',
             showInDialog: false,
           },
         },
@@ -1310,8 +1271,7 @@ const SETTINGS_SCHEMA = {
         category: 'Security',
         requiresRestart: false,
         default: false,
-        description:
-          'Enable the "Allow for all future sessions" option in tool confirmation dialogs.',
+        description: 'Enable the "Allow for all future sessions" option in tool confirmation dialogs.',
         showInDialog: true,
       },
       blockGitExtensions: {
@@ -1369,8 +1329,7 @@ const SETTINGS_SCHEMA = {
             category: 'Security',
             requiresRestart: true,
             default: [] as string[],
-            description:
-              'Environment variables to always allow (bypass redaction).',
+            description: 'Environment variables to always allow (bypass redaction).',
             showInDialog: false,
             items: { type: 'string' },
           },
@@ -1390,8 +1349,7 @@ const SETTINGS_SCHEMA = {
             category: 'Security',
             requiresRestart: true,
             default: false,
-            description:
-              'Enable redaction of environment variables that may contain secrets.',
+            description: 'Enable redaction of environment variables that may contain secrets.',
             showInDialog: true,
           },
         },
@@ -1505,8 +1463,7 @@ const SETTINGS_SCHEMA = {
         requiresRestart: true,
         ignoreInDocs: false,
         default: {},
-        description:
-          'Advanced settings for tool output masking to manage context window efficiency.',
+        description: 'Advanced settings for tool output masking to manage context window efficiency.',
         showInDialog: false,
         properties: {
           enabled: {
@@ -1524,8 +1481,7 @@ const SETTINGS_SCHEMA = {
             category: 'Experimental',
             requiresRestart: true,
             default: 50000,
-            description:
-              'Minimum number of tokens to protect from masking (most recent tool outputs).',
+            description: 'Minimum number of tokens to protect from masking (most recent tool outputs).',
             showInDialog: false,
           },
           minPrunableTokensThreshold: {
@@ -1534,8 +1490,7 @@ const SETTINGS_SCHEMA = {
             category: 'Experimental',
             requiresRestart: true,
             default: 30000,
-            description:
-              'Minimum prunable tokens required to trigger a masking pass.',
+            description: 'Minimum prunable tokens required to trigger a masking pass.',
             showInDialog: false,
           },
           protectLatestTurn: {
@@ -1544,8 +1499,7 @@ const SETTINGS_SCHEMA = {
             category: 'Experimental',
             requiresRestart: true,
             default: true,
-            description:
-              'Ensures the absolute latest turn is never masked, regardless of token count.',
+            description: 'Ensures the absolute latest turn is never masked, regardless of token count.',
             showInDialog: false,
           },
         },
@@ -1556,8 +1510,7 @@ const SETTINGS_SCHEMA = {
         category: 'Experimental',
         requiresRestart: true,
         default: false,
-        description:
-          'Enable local and remote subagents. Warning: Experimental feature, uses YOLO mode for subagents',
+        description: 'Enable local and remote subagents. Warning: Experimental feature, uses YOLO mode for subagents',
         showInDialog: false,
       },
       extensionManagement: {
@@ -1593,8 +1546,7 @@ const SETTINGS_SCHEMA = {
         category: 'Experimental',
         requiresRestart: true,
         default: false,
-        description:
-          'Enables extension loading/unloading within the CLI session.',
+        description: 'Enables extension loading/unloading within the CLI session.',
         showInDialog: false,
       },
       jitContext: {
@@ -1612,8 +1564,7 @@ const SETTINGS_SCHEMA = {
         category: 'Experimental',
         requiresRestart: false,
         default: false,
-        description:
-          'Use OSC 52 sequence for pasting instead of clipboardy (useful for remote sessions).',
+        description: 'Use OSC 52 sequence for pasting instead of clipboardy (useful for remote sessions).',
         showInDialog: true,
       },
       plan: {
@@ -1654,8 +1605,7 @@ const SETTINGS_SCHEMA = {
         category: 'Extensions',
         requiresRestart: false,
         default: [] as string[],
-        description:
-          'List of workspaces for which the migration nudge has been shown.',
+        description: 'List of workspaces for which the migration nudge has been shown.',
         showInDialog: false,
         items: { type: 'string' },
         mergeStrategy: MergeStrategy.UNION,
@@ -1701,8 +1651,7 @@ const SETTINGS_SCHEMA = {
     category: 'Advanced',
     requiresRestart: false,
     default: {},
-    description:
-      'Hook configurations for intercepting and customizing agent behavior.',
+    description: 'Hook configurations for intercepting and customizing agent behavior.',
     showInDialog: false,
     properties: {
       enabled: {
@@ -1711,8 +1660,7 @@ const SETTINGS_SCHEMA = {
         category: 'Advanced',
         requiresRestart: true,
         default: true,
-        description:
-          'Canonical toggle for the hooks system. When disabled, no hooks will be executed.',
+        description: 'Canonical toggle for the hooks system. When disabled, no hooks will be executed.',
         showInDialog: true,
       },
       disabled: {
@@ -1757,8 +1705,7 @@ const SETTINGS_SCHEMA = {
         category: 'Advanced',
         requiresRestart: false,
         default: [],
-        description:
-          'Hooks that execute before tool execution. Can intercept, validate, or modify tool calls.',
+        description: 'Hooks that execute before tool execution. Can intercept, validate, or modify tool calls.',
         showInDialog: false,
         ref: 'HookDefinitionArray',
         mergeStrategy: MergeStrategy.CONCAT,
@@ -1781,8 +1728,7 @@ const SETTINGS_SCHEMA = {
         category: 'Advanced',
         requiresRestart: false,
         default: [],
-        description:
-          'Hooks that execute before agent loop starts. Can set up context or initialize resources.',
+        description: 'Hooks that execute before agent loop starts. Can set up context or initialize resources.',
         showInDialog: false,
         ref: 'HookDefinitionArray',
         mergeStrategy: MergeStrategy.CONCAT,
@@ -1793,8 +1739,7 @@ const SETTINGS_SCHEMA = {
         category: 'Advanced',
         requiresRestart: false,
         default: [],
-        description:
-          'Hooks that execute after agent loop completes. Can perform cleanup or summarize results.',
+        description: 'Hooks that execute after agent loop completes. Can perform cleanup or summarize results.',
         showInDialog: false,
         ref: 'HookDefinitionArray',
         mergeStrategy: MergeStrategy.CONCAT,
@@ -1817,8 +1762,7 @@ const SETTINGS_SCHEMA = {
         category: 'Advanced',
         requiresRestart: false,
         default: [],
-        description:
-          'Hooks that execute when a session starts. Can initialize session-specific resources or state.',
+        description: 'Hooks that execute when a session starts. Can initialize session-specific resources or state.',
         showInDialog: false,
         ref: 'HookDefinitionArray',
         mergeStrategy: MergeStrategy.CONCAT,
@@ -1829,8 +1773,7 @@ const SETTINGS_SCHEMA = {
         category: 'Advanced',
         requiresRestart: false,
         default: [],
-        description:
-          'Hooks that execute when a session ends. Can perform cleanup or persist session data.',
+        description: 'Hooks that execute when a session ends. Can perform cleanup or persist session data.',
         showInDialog: false,
         ref: 'HookDefinitionArray',
         mergeStrategy: MergeStrategy.CONCAT,
@@ -1877,8 +1820,7 @@ const SETTINGS_SCHEMA = {
         category: 'Advanced',
         requiresRestart: false,
         default: [],
-        description:
-          'Hooks that execute before tool selection. Can filter or prioritize available tools dynamically.',
+        description: 'Hooks that execute before tool selection. Can filter or prioritize available tools dynamically.',
         showInDialog: false,
         ref: 'HookDefinitionArray',
         mergeStrategy: MergeStrategy.CONCAT,
@@ -1886,8 +1828,7 @@ const SETTINGS_SCHEMA = {
     },
     additionalProperties: {
       type: 'array',
-      description:
-        'Custom hook event arrays that contain hook definitions for user-defined events',
+      description: 'Custom hook event arrays that contain hook definitions for user-defined events',
       mergeStrategy: MergeStrategy.CONCAT,
     },
   },
@@ -1928,8 +1869,7 @@ const SETTINGS_SCHEMA = {
             category: 'Admin',
             requiresRestart: false,
             default: true,
-            description:
-              'If false, disallows extensions from being installed or used.',
+            description: 'If false, disallows extensions from being installed or used.',
             showInDialog: false,
             mergeStrategy: MergeStrategy.REPLACE,
           },
@@ -2001,14 +1941,10 @@ export type SettingsSchemaType = typeof SETTINGS_SCHEMA;
 
 export type SettingsJsonSchemaDefinition = Record<string, unknown>;
 
-export const SETTINGS_SCHEMA_DEFINITIONS: Record<
-  string,
-  SettingsJsonSchemaDefinition
-> = {
+export const SETTINGS_SCHEMA_DEFINITIONS: Record<string, SettingsJsonSchemaDefinition> = {
   MCPServerConfig: {
     type: 'object',
-    description:
-      'Definition of a Model Context Protocol (MCP) server configuration.',
+    description: 'Definition of a Model Context Protocol (MCP) server configuration.',
     additionalProperties: false,
     properties: {
       command: {
@@ -2031,8 +1967,7 @@ export const SETTINGS_SCHEMA_DEFINITIONS: Record<
       },
       url: {
         type: 'string',
-        description:
-          'URL for SSE or HTTP transport. Use with "type" field to specify transport type.',
+        description: 'URL for SSE or HTTP transport. Use with "type" field to specify transport type.',
       },
       httpUrl: {
         type: 'string',
@@ -2059,8 +1994,7 @@ export const SETTINGS_SCHEMA_DEFINITIONS: Record<
       },
       trust: {
         type: 'boolean',
-        description:
-          'Marks the server as trusted. Trusted servers may gain additional capabilities.',
+        description: 'Marks the server as trusted. Trusted servers may gain additional capabilities.',
       },
       description: {
         type: 'string',
@@ -2068,20 +2002,17 @@ export const SETTINGS_SCHEMA_DEFINITIONS: Record<
       },
       includeTools: {
         type: 'array',
-        description:
-          'Subset of tools that should be enabled for this server. When omitted all tools are enabled.',
+        description: 'Subset of tools that should be enabled for this server. When omitted all tools are enabled.',
         items: { type: 'string' },
       },
       excludeTools: {
         type: 'array',
-        description:
-          'Tools that should be disabled for this server even if exposed.',
+        description: 'Tools that should be disabled for this server even if exposed.',
         items: { type: 'string' },
       },
       extension: {
         type: 'object',
-        description:
-          'Metadata describing the Gemini CLI extension that owns this MCP server.',
+        description: 'Metadata describing the Gemini CLI extension that owns this MCP server.',
         additionalProperties: { type: ['string', 'boolean', 'number'] },
       },
       oauth: {
@@ -2091,23 +2022,16 @@ export const SETTINGS_SCHEMA_DEFINITIONS: Record<
       },
       authProviderType: {
         type: 'string',
-        description:
-          'Authentication provider used for acquiring credentials (for example `dynamic_discovery`).',
-        enum: [
-          'dynamic_discovery',
-          'google_credentials',
-          'service_account_impersonation',
-        ],
+        description: 'Authentication provider used for acquiring credentials (for example `dynamic_discovery`).',
+        enum: ['dynamic_discovery', 'google_credentials', 'service_account_impersonation'],
       },
       targetAudience: {
         type: 'string',
-        description:
-          'OAuth target audience (CLIENT_ID.apps.googleusercontent.com).',
+        description: 'OAuth target audience (CLIENT_ID.apps.googleusercontent.com).',
       },
       targetServiceAccount: {
         type: 'string',
-        description:
-          'Service account email to impersonate (name@project.iam.gserviceaccount.com).',
+        description: 'Service account email to impersonate (name@project.iam.gserviceaccount.com).',
       },
     },
   },
@@ -2122,8 +2046,7 @@ export const SETTINGS_SCHEMA_DEFINITIONS: Record<
       },
       target: {
         type: 'string',
-        description:
-          'Telemetry destination (for example `stderr`, `stdout`, or `otlp`).',
+        description: 'Telemetry destination (for example `stderr`, `stdout`, or `otlp`).',
       },
       otlpEndpoint: {
         type: 'string',
@@ -2148,8 +2071,7 @@ export const SETTINGS_SCHEMA_DEFINITIONS: Record<
       },
       useCliAuth: {
         type: 'boolean',
-        description:
-          'Whether to use CLI authentication for telemetry (only for in-process exporters).',
+        description: 'Whether to use CLI authentication for telemetry (only for in-process exporters).',
       },
     },
   },
@@ -2160,22 +2082,19 @@ export const SETTINGS_SCHEMA_DEFINITIONS: Record<
     properties: {
       urlTemplate: {
         type: 'string',
-        description:
-          'Template used to open a bug report URL. Variables in the template are populated at runtime.',
+        description: 'Template used to open a bug report URL. Variables in the template are populated at runtime.',
       },
     },
     required: ['urlTemplate'],
   },
   SummarizeToolOutputSettings: {
     type: 'object',
-    description:
-      'Controls summarization behavior for individual tools. All properties are optional.',
+    description: 'Controls summarization behavior for individual tools. All properties are optional.',
     additionalProperties: false,
     properties: {
       tokenBudget: {
         type: 'number',
-        description:
-          'Maximum number of tokens used when summarizing tool output.',
+        description: 'Maximum number of tokens used when summarizing tool output.',
       },
     },
   },
@@ -2312,8 +2231,7 @@ export const SETTINGS_SCHEMA_DEFINITIONS: Record<
     description: 'Array of hook definition objects for a specific event.',
     items: {
       type: 'object',
-      description:
-        'Hook definition specifying matcher pattern and hook configurations.',
+      description: 'Hook definition specifying matcher pattern and hook configurations.',
       properties: {
         matcher: {
           type: 'string',
@@ -2333,8 +2251,7 @@ export const SETTINGS_SCHEMA_DEFINITIONS: Record<
               },
               type: {
                 type: 'string',
-                description:
-                  'Type of hook (currently only "command" supported).',
+                description: 'Type of hook (currently only "command" supported).',
               },
               command: {
                 type: 'string',

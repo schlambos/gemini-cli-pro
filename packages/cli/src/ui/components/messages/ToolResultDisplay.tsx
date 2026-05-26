@@ -56,7 +56,7 @@ export const ToolResultDisplay: React.FC<ToolResultDisplayProps> = ({
   let availableHeight = availableTerminalHeight
     ? Math.max(
         availableTerminalHeight - STATIC_HEIGHT - RESERVED_LINE_COUNT,
-        MIN_LINES_SHOWN + 1, // enforce minimum lines shown
+        MIN_LINES_SHOWN + 1 // enforce minimum lines shown
       )
     : undefined;
 
@@ -67,18 +67,15 @@ export const ToolResultDisplay: React.FC<ToolResultDisplayProps> = ({
   const combinedPaddingAndBorderWidth = 4;
   const childWidth = terminalWidth - combinedPaddingAndBorderWidth;
 
-  const keyExtractor = React.useCallback(
-    (_: AnsiLine, index: number) => index.toString(),
-    [],
-  );
+  const keyExtractor = React.useCallback((_: AnsiLine, index: number) => index.toString(), []);
 
   const renderVirtualizedAnsiLine = React.useCallback(
     ({ item }: { item: AnsiLine }) => (
-      <Box height={1} overflow="hidden">
+      <Box height={1} overflow='hidden'>
         <AnsiLineText line={item} />
       </Box>
     ),
-    [],
+    []
   );
 
   const truncatedResultDisplay = React.useMemo(() => {
@@ -94,9 +91,7 @@ export const ToolResultDisplay: React.FC<ToolResultDisplayProps> = ({
         const contentText = hasTrailingNewline ? text.slice(0, -1) : text;
         const lines = contentText.split('\n');
         if (lines.length > maxLines) {
-          text =
-            lines.slice(-maxLines).join('\n') +
-            (hasTrailingNewline ? '\n' : '');
+          text = lines.slice(-maxLines).join('\n') + (hasTrailingNewline ? '\n' : '');
         }
       }
       return text;
@@ -107,10 +102,7 @@ export const ToolResultDisplay: React.FC<ToolResultDisplayProps> = ({
   if (!truncatedResultDisplay) return null;
 
   // 1. Early return for background tools (Todos)
-  if (
-    typeof truncatedResultDisplay === 'object' &&
-    'todos' in truncatedResultDisplay
-  ) {
+  if (typeof truncatedResultDisplay === 'object' && 'todos' in truncatedResultDisplay) {
     // display nothing, as the TodoTray will handle rendering todos
     return null;
   }
@@ -123,11 +115,11 @@ export const ToolResultDisplay: React.FC<ToolResultDisplayProps> = ({
     const listHeight = Math.min(
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
       (truncatedResultDisplay as AnsiOutput).length,
-      limit,
+      limit
     );
 
     return (
-      <Box width={childWidth} flexDirection="column" maxHeight={listHeight}>
+      <Box width={childWidth} flexDirection='column' maxHeight={listHeight}>
         <ScrollableList
           width={childWidth}
           // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
@@ -144,10 +136,7 @@ export const ToolResultDisplay: React.FC<ToolResultDisplayProps> = ({
 
   // 3. Compute content node for non-virtualized paths
   // Check if string content is valid JSON and pretty-print it
-  const prettyJSON =
-    typeof truncatedResultDisplay === 'string'
-      ? tryParseJSON(truncatedResultDisplay)
-      : null;
+  const prettyJSON = typeof truncatedResultDisplay === 'string' ? tryParseJSON(truncatedResultDisplay) : null;
   const formattedJSON = prettyJSON ? JSON.stringify(prettyJSON, null, 2) : null;
 
   let content: React.ReactNode;
@@ -155,14 +144,11 @@ export const ToolResultDisplay: React.FC<ToolResultDisplayProps> = ({
   if (formattedJSON) {
     // Render pretty-printed JSON
     content = (
-      <Text wrap="wrap" color={theme.text.primary}>
+      <Text wrap='wrap' color={theme.text.primary}>
         {formattedJSON}
       </Text>
     );
-  } else if (
-    typeof truncatedResultDisplay === 'string' &&
-    renderOutputAsMarkdown
-  ) {
+  } else if (typeof truncatedResultDisplay === 'string' && renderOutputAsMarkdown) {
     content = (
       <MarkdownDisplay
         text={truncatedResultDisplay}
@@ -171,19 +157,13 @@ export const ToolResultDisplay: React.FC<ToolResultDisplayProps> = ({
         isPending={false}
       />
     );
-  } else if (
-    typeof truncatedResultDisplay === 'string' &&
-    !renderOutputAsMarkdown
-  ) {
+  } else if (typeof truncatedResultDisplay === 'string' && !renderOutputAsMarkdown) {
     content = (
-      <Text wrap="wrap" color={theme.text.primary}>
+      <Text wrap='wrap' color={theme.text.primary}>
         {truncatedResultDisplay}
       </Text>
     );
-  } else if (
-    typeof truncatedResultDisplay === 'object' &&
-    'fileDiff' in truncatedResultDisplay
-  ) {
+  } else if (typeof truncatedResultDisplay === 'object' && 'fileDiff' in truncatedResultDisplay) {
     content = (
       <DiffRenderer
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
@@ -196,16 +176,13 @@ export const ToolResultDisplay: React.FC<ToolResultDisplayProps> = ({
     );
   } else {
     const shouldDisableTruncation =
-      isAlternateBuffer ||
-      (availableTerminalHeight === undefined && maxLines === undefined);
+      isAlternateBuffer || (availableTerminalHeight === undefined && maxLines === undefined);
 
     content = (
       <AnsiOutputText
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
         data={truncatedResultDisplay as AnsiOutput}
-        availableTerminalHeight={
-          isAlternateBuffer ? undefined : availableHeight
-        }
+        availableTerminalHeight={isAlternateBuffer ? undefined : availableHeight}
         width={childWidth}
         maxLines={isAlternateBuffer ? undefined : maxLines}
         disableTruncation={shouldDisableTruncation}
@@ -228,7 +205,7 @@ export const ToolResultDisplay: React.FC<ToolResultDisplayProps> = ({
   }
 
   return (
-    <Box width={childWidth} flexDirection="column">
+    <Box width={childWidth} flexDirection='column'>
       <MaxSizedBox maxHeight={availableHeight} maxWidth={childWidth}>
         {content}
       </MaxSizedBox>

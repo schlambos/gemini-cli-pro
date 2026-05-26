@@ -5,13 +5,7 @@
  */
 
 import { CommandKind, type SlashCommand } from './types.js';
-import {
-  ApprovalMode,
-  coreEvents,
-  debugLogger,
-  processSingleFileContent,
-  partToString,
-} from '@google/gemini-cli-core';
+import { ApprovalMode, coreEvents, debugLogger, processSingleFileContent, partToString } from '@google/gemini-cli-core';
 import { MessageType } from '../types.js';
 import * as path from 'node:path';
 
@@ -44,7 +38,7 @@ export const planCommand: SlashCommand = {
       const content = await processSingleFileContent(
         approvedPlanPath,
         config.storage.getProjectTempPlansDir(),
-        config.getFileSystemService(),
+        config.getFileSystemService()
       );
       const fileName = path.basename(approvedPlanPath);
 
@@ -55,11 +49,7 @@ export const planCommand: SlashCommand = {
         text: partToString(content.llmContent),
       });
     } catch (error) {
-      coreEvents.emitFeedback(
-        'error',
-        `Failed to read approved plan at ${approvedPlanPath}: ${error}`,
-        error,
-      );
+      coreEvents.emitFeedback('error', `Failed to read approved plan at ${approvedPlanPath}: ${error}`, error);
     }
   },
 };

@@ -12,26 +12,16 @@ import { z } from 'zod';
 import type { Config } from '@google/gemini-cli-core';
 import { Storage, coreEvents } from '@google/gemini-cli-core';
 import type { ICommandLoader } from './types.js';
-import type {
-  CommandContext,
-  SlashCommand,
-  SlashCommandActionReturn,
-} from '../ui/commands/types.js';
+import type { CommandContext, SlashCommand, SlashCommandActionReturn } from '../ui/commands/types.js';
 import { CommandKind } from '../ui/commands/types.js';
 import { DefaultArgumentProcessor } from './prompt-processors/argumentProcessor.js';
-import type {
-  IPromptProcessor,
-  PromptPipelineContent,
-} from './prompt-processors/types.js';
+import type { IPromptProcessor, PromptPipelineContent } from './prompt-processors/types.js';
 import {
   SHORTHAND_ARGS_PLACEHOLDER,
   SHELL_INJECTION_TRIGGER,
   AT_FILE_INJECTION_TRIGGER,
 } from './prompt-processors/types.js';
-import {
-  ConfirmationRequiredError,
-  ShellProcessor,
-} from './prompt-processors/shellProcessor.js';
+import { ConfirmationRequiredError, ShellProcessor } from './prompt-processors/shellProcessor.js';
 import { AtFileProcessor } from './prompt-processors/atFileProcessor.js';
 import { sanitizeForDisplay } from '../ui/utils/textUtils.js';
 
@@ -112,13 +102,11 @@ export class FileCommandLoader implements ICommandLoader {
             path.join(dirInfo.path, file),
             dirInfo.path,
             dirInfo.extensionName,
-            dirInfo.extensionId,
-          ),
+            dirInfo.extensionId
+          )
         );
 
-        const commands = (await Promise.all(commandPromises)).filter(
-          (cmd): cmd is SlashCommand => cmd !== null,
-        );
+        const commands = (await Promise.all(commandPromises)).filter((cmd): cmd is SlashCommand => cmd !== null);
 
         // Add all commands without deduplication
         allCommands.push(...commands);
@@ -128,11 +116,7 @@ export class FileCommandLoader implements ICommandLoader {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
           (error as { code?: string })?.code !== 'ENOENT'
         ) {
-          coreEvents.emitFeedback(
-            'error',
-            `[FileCommandLoader] Error loading commands from ${dirInfo.path}:`,
-            error,
-          );
+          coreEvents.emitFeedback('error', `[FileCommandLoader] Error loading commands from ${dirInfo.path}:`, error);
         }
       }
     }
@@ -186,7 +170,7 @@ export class FileCommandLoader implements ICommandLoader {
     filePath: string,
     baseDir: string,
     extensionName?: string,
-    extensionId?: string,
+    extensionId?: string
   ): Promise<SlashCommand | null> {
     let fileContent: string;
     try {
@@ -195,7 +179,7 @@ export class FileCommandLoader implements ICommandLoader {
       coreEvents.emitFeedback(
         'error',
         `[FileCommandLoader] Failed to read file ${filePath}:`,
-        error instanceof Error ? error.message : String(error),
+        error instanceof Error ? error.message : String(error)
       );
       return null;
     }
@@ -207,7 +191,7 @@ export class FileCommandLoader implements ICommandLoader {
       coreEvents.emitFeedback(
         'error',
         `[FileCommandLoader] Failed to parse TOML file ${filePath}:`,
-        error instanceof Error ? error.message : String(error),
+        error instanceof Error ? error.message : String(error)
       );
       return null;
     }
@@ -218,7 +202,7 @@ export class FileCommandLoader implements ICommandLoader {
       coreEvents.emitFeedback(
         'error',
         `[FileCommandLoader] Skipping invalid command file: ${filePath}. Validation errors:`,
-        validationResult.error.flatten(),
+        validationResult.error.flatten()
       );
       return null;
     }
@@ -228,7 +212,7 @@ export class FileCommandLoader implements ICommandLoader {
     const relativePathWithExt = path.relative(baseDir, filePath);
     const relativePath = relativePathWithExt.substring(
       0,
-      relativePathWithExt.length - 5, // length of '.toml'
+      relativePathWithExt.length - 5 // length of '.toml'
     );
     const baseCommandName = relativePath
       .split(path.sep)
@@ -257,12 +241,8 @@ export class FileCommandLoader implements ICommandLoader {
 
     const processors: IPromptProcessor[] = [];
     const usesArgs = validDef.prompt.includes(SHORTHAND_ARGS_PLACEHOLDER);
-    const usesShellInjection = validDef.prompt.includes(
-      SHELL_INJECTION_TRIGGER,
-    );
-    const usesAtFileInjection = validDef.prompt.includes(
-      AT_FILE_INJECTION_TRIGGER,
-    );
+    const usesShellInjection = validDef.prompt.includes(SHELL_INJECTION_TRIGGER);
+    const usesAtFileInjection = validDef.prompt.includes(AT_FILE_INJECTION_TRIGGER);
 
     // 1. @-File Injection (Security First).
     // This runs first to ensure we're not executing shell commands that
@@ -289,14 +269,11 @@ export class FileCommandLoader implements ICommandLoader {
       kind: CommandKind.FILE,
       extensionName,
       extensionId,
-      action: async (
-        context: CommandContext,
-        _args: string,
-      ): Promise<SlashCommandActionReturn> => {
+      action: async (context: CommandContext, _args: string): Promise<SlashCommandActionReturn> => {
         if (!context.invocation) {
           coreEvents.emitFeedback(
             'error',
-            `[FileCommandLoader] Critical error: Command '${baseCommandName}' was executed without invocation context.`,
+            `[FileCommandLoader] Critical error: Command '${baseCommandName}' was executed without invocation context.`
           );
           return {
             type: 'submit_prompt',
@@ -305,14 +282,9 @@ export class FileCommandLoader implements ICommandLoader {
         }
 
         try {
-          let processedContent: PromptPipelineContent = [
-            { text: validDef.prompt },
-          ];
+          let processedContent: PromptPipelineContent = [{ text: validDef.prompt }];
           for (const processor of processors) {
-            processedContent = await processor.process(
-              processedContent,
-              context,
-            );
+            processedContent = await processor.process(processedContent, context);
           }
 
           return {

@@ -9,11 +9,7 @@ import { LocalAgentExecutor } from './local-executor.js';
 import type { AnsiOutput } from '../utils/terminalSerializer.js';
 import { BaseToolInvocation, type ToolResult } from '../tools/tools.js';
 import { ToolErrorType } from '../tools/tool-error.js';
-import type {
-  LocalAgentDefinition,
-  AgentInputs,
-  SubagentActivityEvent,
-} from './types.js';
+import type { LocalAgentDefinition, AgentInputs, SubagentActivityEvent } from './types.js';
 import type { MessageBus } from '../confirmation-bus/message-bus.js';
 
 const INPUT_PREVIEW_MAX_LENGTH = 50;
@@ -29,10 +25,7 @@ const DESCRIPTION_MAX_LENGTH = 200;
  * live output stream.
  * 4. Formatting the final result into a {@link ToolResult}.
  */
-export class LocalSubagentInvocation extends BaseToolInvocation<
-  AgentInputs,
-  ToolResult
-> {
+export class LocalSubagentInvocation extends BaseToolInvocation<AgentInputs, ToolResult> {
   /**
    * @param definition The definition object that configures the agent.
    * @param config The global runtime configuration.
@@ -45,14 +38,9 @@ export class LocalSubagentInvocation extends BaseToolInvocation<
     params: AgentInputs,
     messageBus: MessageBus,
     _toolName?: string,
-    _toolDisplayName?: string,
+    _toolDisplayName?: string
   ) {
-    super(
-      params,
-      messageBus,
-      _toolName ?? definition.name,
-      _toolDisplayName ?? definition.displayName,
-    );
+    super(params, messageBus, _toolName ?? definition.name, _toolDisplayName ?? definition.displayName);
   }
 
   /**
@@ -61,10 +49,7 @@ export class LocalSubagentInvocation extends BaseToolInvocation<
    */
   getDescription(): string {
     const inputSummary = Object.entries(this.params)
-      .map(
-        ([key, value]) =>
-          `${key}: ${String(value).slice(0, INPUT_PREVIEW_MAX_LENGTH)}`,
-      )
+      .map(([key, value]) => `${key}: ${String(value).slice(0, INPUT_PREVIEW_MAX_LENGTH)}`)
       .join(', ');
 
     const description = `Running subagent '${this.definition.name}' with inputs: { ${inputSummary} }`;
@@ -79,10 +64,7 @@ export class LocalSubagentInvocation extends BaseToolInvocation<
    * agent's thoughts, to the user interface.
    * @returns A `Promise` that resolves with the final `ToolResult`.
    */
-  async execute(
-    signal: AbortSignal,
-    updateOutput?: (output: string | AnsiOutput) => void,
-  ): Promise<ToolResult> {
+  async execute(signal: AbortSignal, updateOutput?: (output: string | AnsiOutput) => void): Promise<ToolResult> {
     try {
       if (updateOutput) {
         updateOutput('Subagent starting...\n');
@@ -93,19 +75,12 @@ export class LocalSubagentInvocation extends BaseToolInvocation<
       const onActivity = (activity: SubagentActivityEvent): void => {
         if (!updateOutput) return;
 
-        if (
-          activity.type === 'THOUGHT_CHUNK' &&
-          typeof activity.data['text'] === 'string'
-        ) {
+        if (activity.type === 'THOUGHT_CHUNK' && typeof activity.data['text'] === 'string') {
           updateOutput(`🤖💭 ${activity.data['text']}`);
         }
       };
 
-      const executor = await LocalAgentExecutor.create(
-        this.definition,
-        this.config,
-        onActivity,
-      );
+      const executor = await LocalAgentExecutor.create(this.definition, this.config, onActivity);
 
       const output = await executor.run(this.params, signal);
 
@@ -128,8 +103,7 @@ ${output.result}
         returnDisplay: displayContent,
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
 
       return {
         llmContent: `Subagent '${this.definition.name}' failed. Error: ${errorMessage}`,

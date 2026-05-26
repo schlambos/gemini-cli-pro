@@ -9,9 +9,7 @@ import { RELAUNCH_EXIT_CODE, relaunchApp } from './processUtils.js';
 import * as cleanup from './cleanup.js';
 
 describe('processUtils', () => {
-  const processExit = vi
-    .spyOn(process, 'exit')
-    .mockReturnValue(undefined as never);
+  const processExit = vi.spyOn(process, 'exit').mockReturnValue(undefined as never);
   const runExitCleanup = vi.spyOn(cleanup, 'runExitCleanup');
 
   it('should run cleanup and exit with the relaunch code', async () => {

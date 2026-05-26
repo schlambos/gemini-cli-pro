@@ -4,23 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  afterEach,
-  type Mock,
-} from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 import * as fs from 'node:fs/promises';
-import {
-  createWriteStream,
-  existsSync,
-  statSync,
-  type Stats,
-  type WriteStream,
-} from 'node:fs';
+import { createWriteStream, existsSync, statSync, type Stats, type WriteStream } from 'node:fs';
 import { spawn, execSync, type ChildProcess } from 'node:child_process';
 import EventEmitter from 'node:events';
 import { Stream } from 'node:stream';
@@ -42,8 +28,7 @@ vi.mock('node:child_process', async (importOriginal) => {
   };
 });
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     spawnAsync: vi.fn(),
@@ -60,11 +45,7 @@ vi.mock('@google/gemini-cli-core', async (importOriginal) => {
 
 import { spawnAsync } from '@google/gemini-cli-core';
 // Keep static imports for stateless functions
-import {
-  cleanupOldClipboardImages,
-  splitDragAndDropPaths,
-  parsePastedPaths,
-} from './clipboardUtils.js';
+import { cleanupOldClipboardImages, splitDragAndDropPaths, parsePastedPaths } from './clipboardUtils.js';
 
 const mockPlatform = (platform: string) => {
   vi.stubGlobal(
@@ -73,7 +54,7 @@ const mockPlatform = (platform: string) => {
       platform: {
         get: () => platform,
       },
-    }),
+    })
   );
 };
 
@@ -120,10 +101,7 @@ describe('clipboardUtils', () => {
       const result = await clipboardUtils.clipboardHasImage();
 
       expect(result).toBe(true);
-      expect(execSync).toHaveBeenCalledWith(
-        expect.stringContaining('wl-paste'),
-        expect.anything(),
-      );
+      expect(execSync).toHaveBeenCalledWith(expect.stringContaining('wl-paste'), expect.anything());
       expect(spawnAsync).toHaveBeenCalledWith('wl-paste', ['--list-types']);
     });
 
@@ -139,17 +117,8 @@ describe('clipboardUtils', () => {
       const result = await clipboardUtils.clipboardHasImage();
 
       expect(result).toBe(true);
-      expect(execSync).toHaveBeenCalledWith(
-        expect.stringContaining('xclip'),
-        expect.anything(),
-      );
-      expect(spawnAsync).toHaveBeenCalledWith('xclip', [
-        '-selection',
-        'clipboard',
-        '-t',
-        'TARGETS',
-        '-o',
-      ]);
+      expect(execSync).toHaveBeenCalledWith(expect.stringContaining('xclip'), expect.anything());
+      expect(spawnAsync).toHaveBeenCalledWith('xclip', ['-selection', 'clipboard', '-t', 'TARGETS', '-o']);
     });
 
     it('should return false if tool fails', async () => {
@@ -200,10 +169,7 @@ describe('clipboardUtils', () => {
       vi.mocked(fs.unlink).mockResolvedValue(undefined);
     });
 
-    const createMockChildProcess = (
-      shouldSucceed: boolean,
-      exitCode: number = 0,
-    ) => {
+    const createMockChildProcess = (shouldSucceed: boolean, exitCode: number = 0) => {
       const child = new EventEmitter() as EventEmitter & {
         stdout: Stream & { pipe: Mock };
       };
@@ -223,10 +189,7 @@ describe('clipboardUtils', () => {
     };
 
     // Helper to prime the internal linuxClipboardTool state
-    const primeClipboardTool = async (
-      type: 'wayland' | 'x11',
-      hasImage = true,
-    ) => {
+    const primeClipboardTool = async (type: 'wayland' | 'x11', hasImage = true) => {
       process.env['XDG_SESSION_TYPE'] = type;
       vi.mocked(execSync).mockReturnValue(Buffer.from(''));
       vi.mocked(spawnAsync).mockResolvedValueOnce({
@@ -246,18 +209,14 @@ describe('clipboardUtils', () => {
 
       // Mock spawn to return a successful process for wl-paste
       const mockChild = createMockChildProcess(true, 0);
-      vi.mocked(spawn).mockReturnValueOnce(
-        mockChild as unknown as ChildProcess,
-      );
+      vi.mocked(spawn).mockReturnValueOnce(mockChild as unknown as ChildProcess);
 
       // Mock createWriteStream
       const mockStream = new EventEmitter() as EventEmitter & {
         writableFinished: boolean;
       };
       mockStream.writableFinished = false;
-      vi.mocked(createWriteStream).mockReturnValue(
-        mockStream as unknown as WriteStream,
-      );
+      vi.mocked(createWriteStream).mockReturnValue(mockStream as unknown as WriteStream);
 
       // Use dynamic instance
       const promise = clipboardUtils.saveClipboardImage(mockTargetDir);
@@ -287,9 +246,7 @@ describe('clipboardUtils', () => {
       const mockStream1 = new EventEmitter() as EventEmitter & {
         writableFinished: boolean;
       };
-      vi.mocked(createWriteStream).mockReturnValueOnce(
-        mockStream1 as unknown as WriteStream,
-      );
+      vi.mocked(createWriteStream).mockReturnValueOnce(mockStream1 as unknown as WriteStream);
 
       const promise = clipboardUtils.saveClipboardImage(mockTargetDir);
 
@@ -311,18 +268,14 @@ describe('clipboardUtils', () => {
 
       // Mock spawn to return a successful process for xclip
       const mockChild = createMockChildProcess(true, 0);
-      vi.mocked(spawn).mockReturnValueOnce(
-        mockChild as unknown as ChildProcess,
-      );
+      vi.mocked(spawn).mockReturnValueOnce(mockChild as unknown as ChildProcess);
 
       // Mock createWriteStream
       const mockStream = new EventEmitter() as EventEmitter & {
         writableFinished: boolean;
       };
       mockStream.writableFinished = false;
-      vi.mocked(createWriteStream).mockReturnValue(
-        mockStream as unknown as WriteStream,
-      );
+      vi.mocked(createWriteStream).mockReturnValue(mockStream as unknown as WriteStream);
 
       const promise = clipboardUtils.saveClipboardImage(mockTargetDir);
 
@@ -351,15 +304,11 @@ describe('clipboardUtils', () => {
     const mockTargetDir = '/tmp/target';
     it('should not throw errors', async () => {
       // Should handle missing directories gracefully
-      await expect(
-        cleanupOldClipboardImages(mockTargetDir),
-      ).resolves.not.toThrow();
+      await expect(cleanupOldClipboardImages(mockTargetDir)).resolves.not.toThrow();
     });
 
     it('should complete without errors on valid directory', async () => {
-      await expect(
-        cleanupOldClipboardImages(mockTargetDir),
-      ).resolves.not.toThrow();
+      await expect(cleanupOldClipboardImages(mockTargetDir)).resolves.not.toThrow();
     });
   });
 
@@ -370,49 +319,17 @@ describe('clipboardUtils', () => {
       it.each([
         ['empty string', '', []],
         ['single path no spaces', '/path/to/image.png', ['/path/to/image.png']],
-        [
-          'simple space-separated paths',
-          '/img1.png /img2.png',
-          ['/img1.png', '/img2.png'],
-        ],
-        [
-          'three paths',
-          '/a.png /b.jpg /c.heic',
-          ['/a.png', '/b.jpg', '/c.heic'],
-        ],
+        ['simple space-separated paths', '/img1.png /img2.png', ['/img1.png', '/img2.png']],
+        ['three paths', '/a.png /b.jpg /c.heic', ['/a.png', '/b.jpg', '/c.heic']],
         ['escaped spaces', '/my\\ image.png', ['/my image.png']],
-        [
-          'multiple paths with escaped spaces',
-          '/my\\ img1.png /my\\ img2.png',
-          ['/my img1.png', '/my img2.png'],
-        ],
-        [
-          'multiple escaped spaces',
-          '/path/to/my\\ cool\\ image.png',
-          ['/path/to/my cool image.png'],
-        ],
-        [
-          'consecutive spaces',
-          '/img1.png   /img2.png',
-          ['/img1.png', '/img2.png'],
-        ],
-        [
-          'trailing/leading whitespace',
-          '  /img1.png /img2.png  ',
-          ['/img1.png', '/img2.png'],
-        ],
+        ['multiple paths with escaped spaces', '/my\\ img1.png /my\\ img2.png', ['/my img1.png', '/my img2.png']],
+        ['multiple escaped spaces', '/path/to/my\\ cool\\ image.png', ['/path/to/my cool image.png']],
+        ['consecutive spaces', '/img1.png   /img2.png', ['/img1.png', '/img2.png']],
+        ['trailing/leading whitespace', '  /img1.png /img2.png  ', ['/img1.png', '/img2.png']],
         ['whitespace only', '   ', []],
         ['quoted path with spaces', '"/my image.png"', ['/my image.png']],
-        [
-          'mixed quoted and unquoted',
-          '"/my img1.png" /my\\ img2.png',
-          ['/my img1.png', '/my img2.png'],
-        ],
-        [
-          'quoted with escaped quotes',
-          "'/derp/my '\\''cool'\\'' image.png'",
-          ["/derp/my 'cool' image.png"],
-        ],
+        ['mixed quoted and unquoted', '"/my img1.png" /my\\ img2.png', ['/my img1.png', '/my img2.png']],
+        ['quoted with escaped quotes', "'/derp/my '\\''cool'\\'' image.png'", ["/derp/my 'cool' image.png"]],
       ])('should escape %s', (_, input, expected) => {
         expect([...splitDragAndDropPaths(input)]).toEqual(expected);
       });
@@ -423,23 +340,11 @@ describe('clipboardUtils', () => {
 
       it.each([
         ['double quoted path', '"C:\\my image.png"', ['C:\\my image.png']],
-        [
-          'multiple double quoted paths',
-          '"C:\\img 1.png" "D:\\img 2.png"',
-          ['C:\\img 1.png', 'D:\\img 2.png'],
-        ],
+        ['multiple double quoted paths', '"C:\\img 1.png" "D:\\img 2.png"', ['C:\\img 1.png', 'D:\\img 2.png']],
         ['unquoted path', 'C:\\img.png', ['C:\\img.png']],
-        [
-          'mixed quoted and unquoted',
-          '"C:\\img 1.png" D:\\img2.png',
-          ['C:\\img 1.png', 'D:\\img2.png'],
-        ],
+        ['mixed quoted and unquoted', '"C:\\img 1.png" D:\\img2.png', ['C:\\img 1.png', 'D:\\img2.png']],
         ['single quoted path', "'C:\\my image.png'", ['C:\\my image.png']],
-        [
-          'mixed single and double quoted',
-          '"C:\\img 1.png" \'D:\\img 2.png\'',
-          ['C:\\img 1.png', 'D:\\img 2.png'],
-        ],
+        ['mixed single and double quoted', '"C:\\img 1.png" \'D:\\img 2.png\'', ['C:\\img 1.png', 'D:\\img 2.png']],
       ])('should split %s', (_, input, expected) => {
         expect([...splitDragAndDropPaths(input)]).toEqual(expected);
       });
@@ -467,9 +372,7 @@ describe('clipboardUtils', () => {
 
     it('should add @ prefix to all valid paths', () => {
       const validPaths = new Set(['/path/to/file1.txt', '/path/to/file2.txt']);
-      vi.mocked(existsSync).mockImplementation((p) =>
-        validPaths.has(p as string),
-      );
+      vi.mocked(existsSync).mockImplementation((p) => validPaths.has(p as string));
       vi.mocked(statSync).mockReturnValue(MOCK_FILE_STATS);
 
       const result = parsePastedPaths('/path/to/file1.txt /path/to/file2.txt');
@@ -477,9 +380,7 @@ describe('clipboardUtils', () => {
     });
 
     it('should return null if any path is invalid', () => {
-      vi.mocked(existsSync).mockImplementation((p) =>
-        (p as string).endsWith('.txt'),
-      );
+      vi.mocked(existsSync).mockImplementation((p) => (p as string).endsWith('.txt'));
       vi.mocked(statSync).mockReturnValue(MOCK_FILE_STATS);
 
       const result = parsePastedPaths('/valid/file.txt /invalid/file.jpg');
@@ -499,14 +400,10 @@ describe('clipboardUtils', () => {
 
       it('should handle paths with escaped spaces', () => {
         const validPaths = new Set(['/path/to/my file.txt', '/other/path.txt']);
-        vi.mocked(existsSync).mockImplementation((p) =>
-          validPaths.has(p as string),
-        );
+        vi.mocked(existsSync).mockImplementation((p) => validPaths.has(p as string));
         vi.mocked(statSync).mockReturnValue(MOCK_FILE_STATS);
 
-        const result = parsePastedPaths(
-          '/path/to/my\\ file.txt /other/path.txt',
-        );
+        const result = parsePastedPaths('/path/to/my\\ file.txt /other/path.txt');
         expect(result).toBe('@/path/to/my\\ file.txt @/other/path.txt ');
       });
 
@@ -521,11 +418,7 @@ describe('clipboardUtils', () => {
 
         parsePastedPaths('/my\\ file.txt /other.txt');
         // First checks entire string, then individual unescaped segments
-        expect(validatedPaths).toEqual([
-          '/my\\ file.txt /other.txt',
-          '/my file.txt',
-          '/other.txt',
-        ]);
+        expect(validatedPaths).toEqual(['/my\\ file.txt /other.txt', '/my file.txt', '/other.txt']);
       });
 
       it('should handle single path with unescaped spaces from copy-paste', () => {
@@ -537,9 +430,7 @@ describe('clipboardUtils', () => {
       });
 
       it('should handle single-quoted with escaped quote', () => {
-        const validPaths = new Set([
-          "/usr/test/my file with 'single quotes'.txt",
-        ]);
+        const validPaths = new Set(["/usr/test/my file with 'single quotes'.txt"]);
         const validatedPaths: string[] = [];
         vi.mocked(existsSync).mockImplementation((p) => {
           validatedPaths.push(p as string);
@@ -547,16 +438,10 @@ describe('clipboardUtils', () => {
         });
         vi.mocked(statSync).mockReturnValue(MOCK_FILE_STATS);
 
-        const result = parsePastedPaths(
-          "'/usr/test/my file with '\\''single quotes'\\''.txt'",
-        );
-        expect(result).toBe(
-          "@/usr/test/my\\ file\\ with\\ \\'single\\ quotes\\'.txt ",
-        );
+        const result = parsePastedPaths("'/usr/test/my file with '\\''single quotes'\\''.txt'");
+        expect(result).toBe("@/usr/test/my\\ file\\ with\\ \\'single\\ quotes\\'.txt ");
 
-        expect(validatedPaths).toEqual([
-          "/usr/test/my file with 'single quotes'.txt",
-        ]);
+        expect(validatedPaths).toEqual(["/usr/test/my file with 'single quotes'.txt"]);
       });
     });
 
@@ -580,9 +465,7 @@ describe('clipboardUtils', () => {
       });
       it('should handle multiple Windows paths', () => {
         const validPaths = new Set(['C:\\file1.txt', 'D:\\file2.txt']);
-        vi.mocked(existsSync).mockImplementation((p) =>
-          validPaths.has(p as string),
-        );
+        vi.mocked(existsSync).mockImplementation((p) => validPaths.has(p as string));
         vi.mocked(statSync).mockReturnValue(MOCK_FILE_STATS);
 
         const result = parsePastedPaths('C:\\file1.txt D:\\file2.txt');

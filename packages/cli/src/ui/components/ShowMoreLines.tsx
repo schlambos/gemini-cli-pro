@@ -22,17 +22,14 @@ export const ShowMoreLines = ({ constrainHeight }: ShowMoreLinesProps) => {
     overflowState === undefined ||
     overflowState.overflowingIds.size === 0 ||
     !constrainHeight ||
-    !(
-      streamingState === StreamingState.Idle ||
-      streamingState === StreamingState.WaitingForConfirmation
-    )
+    !(streamingState === StreamingState.Idle || streamingState === StreamingState.WaitingForConfirmation)
   ) {
     return null;
   }
 
   return (
     <Box paddingX={1}>
-      <Text color={theme.text.secondary} wrap="truncate">
+      <Text color={theme.text.secondary} wrap='truncate'>
         Press ctrl-o to show more lines
       </Text>
     </Box>

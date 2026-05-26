@@ -39,10 +39,7 @@ describe('resolveToolDeclaration', () => {
       },
     };
 
-    const result = resolveToolDeclaration(
-      definitionWithOverride,
-      'special-model',
-    );
+    const result = resolveToolDeclaration(definitionWithOverride, 'special-model');
     expect(result.description).toBe('Overridden description');
     expect(result.name).toBe(mockDefinition.base.name);
   });
@@ -58,10 +55,7 @@ describe('resolveToolDeclaration', () => {
       },
     };
 
-    const result = resolveToolDeclaration(
-      definitionWithOverride,
-      'regular-model',
-    );
+    const result = resolveToolDeclaration(definitionWithOverride, 'regular-model');
     expect(result.description).toBe(mockDefinition.base.description);
   });
 

@@ -5,10 +5,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import {
-  resolveEnvVarsInString,
-  resolveEnvVarsInObject,
-} from './envVarResolver.js';
+import { resolveEnvVarsInString, resolveEnvVarsInObject } from './envVarResolver.js';
 
 describe('resolveEnvVarsInString', () => {
   let originalEnv: NodeJS.ProcessEnv;

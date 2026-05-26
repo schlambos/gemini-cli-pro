@@ -34,7 +34,7 @@ export class WorkspaceContext {
    */
   constructor(
     readonly targetDir: string,
-    additionalDirectories: string[] = [],
+    additionalDirectories: string[] = []
   ) {
     this.addDirectory(targetDir);
     this.addDirectories(additionalDirectories);
@@ -60,9 +60,7 @@ export class WorkspaceContext {
         listener();
       } catch (e) {
         // Don't let one listener break others.
-        debugLogger.warn(
-          `Error in WorkspaceContext listener: (${e instanceof Error ? e.message : String(e)})`,
-        );
+        debugLogger.warn(`Error in WorkspaceContext listener: (${e instanceof Error ? e.message : String(e)})`);
       }
     }
   }
@@ -100,9 +98,7 @@ export class WorkspaceContext {
         result.added.push(directory);
       } catch (err) {
         const error = err instanceof Error ? err : new Error(String(err));
-        debugLogger.warn(
-          `[WARN] Skipping unreadable directory: ${directory} (${error.message})`,
-        );
+        debugLogger.warn(`[WARN] Skipping unreadable directory: ${directory} (${error.message})`);
         result.failed.push({ path: directory, error });
       }
     }
@@ -164,10 +160,7 @@ export class WorkspaceContext {
       newDirectories.add(this.resolveAndValidateDir(dir));
     }
 
-    if (
-      newDirectories.size !== this.directories.size ||
-      ![...newDirectories].every((d) => this.directories.has(d))
-    ) {
+    if (newDirectories.size !== this.directories.size || ![...newDirectories].every((d) => this.directories.has(d))) {
       this.directories = newDirectories;
       this.notifyDirectoriesChanged();
     }
@@ -208,10 +201,7 @@ export class WorkspaceContext {
 
       for (const allowedPath of this.readOnlyPaths) {
         // Allow exact matches or subpaths (if allowedPath is a directory)
-        if (
-          fullyResolvedPath === allowedPath ||
-          this.isPathWithinRoot(fullyResolvedPath, allowedPath)
-        ) {
+        if (fullyResolvedPath === allowedPath || this.isPathWithinRoot(fullyResolvedPath, allowedPath)) {
           return true;
         }
       }
@@ -251,16 +241,9 @@ export class WorkspaceContext {
    * @param rootDirectory The absolute root directory
    * @returns True if the path is within the root directory, false otherwise
    */
-  private isPathWithinRoot(
-    pathToCheck: string,
-    rootDirectory: string,
-  ): boolean {
+  private isPathWithinRoot(pathToCheck: string, rootDirectory: string): boolean {
     const relative = path.relative(rootDirectory, pathToCheck);
-    return (
-      !relative.startsWith(`..${path.sep}`) &&
-      relative !== '..' &&
-      !path.isAbsolute(relative)
-    );
+    return !relative.startsWith(`..${path.sep}`) && relative !== '..' && !path.isAbsolute(relative);
   }
 
   /**

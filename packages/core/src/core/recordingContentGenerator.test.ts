@@ -42,45 +42,31 @@ describe('RecordingContentGenerator', () => {
 
   it('should record generateContent responses', async () => {
     const mockResponse = {
-      candidates: [
-        { content: { parts: [{ text: 'response' }], role: 'model' } },
-      ],
+      candidates: [{ content: { parts: [{ text: 'response' }], role: 'model' } }],
       usageMetadata: { totalTokenCount: 10 },
     } as GenerateContentResponse;
     (mockRealGenerator.generateContent as Mock).mockResolvedValue(mockResponse);
 
-    const response = await recorder.generateContent(
-      {} as GenerateContentParameters,
-      'id1',
-      LlmRole.MAIN,
-    );
+    const response = await recorder.generateContent({} as GenerateContentParameters, 'id1', LlmRole.MAIN);
     expect(response).toEqual(mockResponse);
-    expect(mockRealGenerator.generateContent).toHaveBeenCalledWith(
-      {},
-      'id1',
-      LlmRole.MAIN,
-    );
+    expect(mockRealGenerator.generateContent).toHaveBeenCalledWith({}, 'id1', LlmRole.MAIN);
 
     expect(appendFileSync).toHaveBeenCalledWith(
       filePath,
       safeJsonStringify({
         method: 'generateContent',
         response: mockResponse,
-      }) + '\n',
+      }) + '\n'
     );
   });
 
   it('should record generateContentStream responses', async () => {
     const mockResponse1 = {
-      candidates: [
-        { content: { parts: [{ text: 'response1' }], role: 'model' } },
-      ],
+      candidates: [{ content: { parts: [{ text: 'response1' }], role: 'model' } }],
       usageMetadata: { totalTokenCount: 10 },
     } as GenerateContentResponse;
     const mockResponse2 = {
-      candidates: [
-        { content: { parts: [{ text: 'response2' }], role: 'model' } },
-      ],
+      candidates: [{ content: { parts: [{ text: 'response2' }], role: 'model' } }],
       usageMetadata: { totalTokenCount: 20 },
     } as GenerateContentResponse;
 
@@ -89,33 +75,23 @@ describe('RecordingContentGenerator', () => {
       yield mockResponse2;
     }
 
-    (mockRealGenerator.generateContentStream as Mock).mockResolvedValue(
-      mockStream(),
-    );
+    (mockRealGenerator.generateContentStream as Mock).mockResolvedValue(mockStream());
 
-    const stream = await recorder.generateContentStream(
-      {} as GenerateContentParameters,
-      'id1',
-      LlmRole.MAIN,
-    );
+    const stream = await recorder.generateContentStream({} as GenerateContentParameters, 'id1', LlmRole.MAIN);
     const responses = [];
     for await (const response of stream) {
       responses.push(response);
     }
 
     expect(responses).toEqual([mockResponse1, mockResponse2]);
-    expect(mockRealGenerator.generateContentStream).toHaveBeenCalledWith(
-      {},
-      'id1',
-      LlmRole.MAIN,
-    );
+    expect(mockRealGenerator.generateContentStream).toHaveBeenCalledWith({}, 'id1', LlmRole.MAIN);
 
     expect(appendFileSync).toHaveBeenCalledWith(
       filePath,
       safeJsonStringify({
         method: 'generateContentStream',
         response: responses,
-      }) + '\n',
+      }) + '\n'
     );
   });
 
@@ -135,7 +111,7 @@ describe('RecordingContentGenerator', () => {
       safeJsonStringify({
         method: 'countTokens',
         response: mockResponse,
-      }) + '\n',
+      }) + '\n'
     );
   });
 
@@ -153,7 +129,7 @@ describe('RecordingContentGenerator', () => {
       safeJsonStringify({
         method: 'embedContent',
         response: mockResponse,
-      }) + '\n',
+      }) + '\n'
     );
   });
 });

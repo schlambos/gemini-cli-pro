@@ -5,16 +5,8 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import type {
-  SerializableConfirmationDetails,
-  ToolEditConfirmationDetails,
-} from '@google/gemini-cli-core';
-import {
-  escapeAnsiCtrlCodes,
-  stripUnsafeCharacters,
-  getCachedStringWidth,
-  sanitizeForDisplay,
-} from './textUtils.js';
+import type { SerializableConfirmationDetails, ToolEditConfirmationDetails } from '@google/gemini-cli-core';
+import { escapeAnsiCtrlCodes, stripUnsafeCharacters, getCachedStringWidth, sanitizeForDisplay } from './textUtils.js';
 
 describe('textUtils', () => {
   describe('sanitizeForListDisplay', () => {
@@ -97,9 +89,7 @@ describe('textUtils', () => {
 
       it('should preserve emojis', () => {
         const input = '🎉 Celebration! 🚀 Launch! 💯';
-        expect(stripUnsafeCharacters(input)).toBe(
-          '🎉 Celebration! 🚀 Launch! 💯',
-        );
+        expect(stripUnsafeCharacters(input)).toBe('🎉 Celebration! 🚀 Launch! 💯');
       });
 
       it('should preserve complex emoji sequences (ZWJ)', () => {
@@ -335,11 +325,8 @@ describe('textUtils', () => {
     describe('performance: regex vs array-based', () => {
       it('should handle real-world terminal output with control chars', () => {
         // Simulate terminal output with various control sequences
-        const terminalOutput =
-          '\x1b[32mSuccess:\x1b[0m File saved\x07\n\x1b[?25hDone';
-        expect(stripUnsafeCharacters(terminalOutput)).toBe(
-          'Success: File saved\nDone',
-        );
+        const terminalOutput = '\x1b[32mSuccess:\x1b[0m File saved\x07\n\x1b[?25hDone';
+        expect(stripUnsafeCharacters(terminalOutput)).toBe('Success: File saved\nDone');
       });
     });
   });
@@ -379,9 +366,7 @@ describe('textUtils', () => {
           if (sanitized.type === 'exec') {
             expect(sanitized.title).toBe('\\u001b[34mfake-title\\u001b[0m');
             expect(sanitized.command).toBe('\\u001b[31mmls -l\\u001b[0m');
-            expect(sanitized.rootCommand).toBe(
-              '\\u001b[32msudo apt-get update\\u001b[0m',
-            );
+            expect(sanitized.rootCommand).toBe('\\u001b[32msudo apt-get update\\u001b[0m');
           }
         });
 
@@ -391,8 +376,7 @@ describe('textUtils', () => {
             title: '\u001b[34mEdit File\u001b[0m',
             fileName: '\u001b[31mfile.txt\u001b[0m',
             filePath: '/path/to/\u001b[32mfile.txt\u001b[0m',
-            fileDiff:
-              'diff --git a/file.txt b/file.txt\n--- a/\u001b[33mfile.txt\u001b[0m\n+++ b/file.txt',
+            fileDiff: 'diff --git a/file.txt b/file.txt\n--- a/\u001b[33mfile.txt\u001b[0m\n+++ b/file.txt',
           } as unknown as ToolEditConfirmationDetails;
 
           const sanitized = escapeAnsiCtrlCodes(details);
@@ -400,11 +384,9 @@ describe('textUtils', () => {
           if (sanitized.type === 'edit') {
             expect(sanitized.title).toBe('\\u001b[34mEdit File\\u001b[0m');
             expect(sanitized.fileName).toBe('\\u001b[31mfile.txt\\u001b[0m');
-            expect(sanitized.filePath).toBe(
-              '/path/to/\\u001b[32mfile.txt\\u001b[0m',
-            );
+            expect(sanitized.filePath).toBe('/path/to/\\u001b[32mfile.txt\\u001b[0m');
             expect(sanitized.fileDiff).toBe(
-              'diff --git a/file.txt b/file.txt\n--- a/\\u001b[33mfile.txt\\u001b[0m\n+++ b/file.txt',
+              'diff --git a/file.txt b/file.txt\n--- a/\\u001b[33mfile.txt\\u001b[0m\n+++ b/file.txt'
             );
           }
         });
@@ -424,9 +406,7 @@ describe('textUtils', () => {
             expect(sanitized.title).toBe('\\u001b[34mCloud Run\\u001b[0m');
             expect(sanitized.serverName).toBe('\\u001b[31mmy-server\\u001b[0m');
             expect(sanitized.toolName).toBe('\\u001b[32mdeploy\\u001b[0m');
-            expect(sanitized.toolDisplayName).toBe(
-              '\\u001b[33mDeploy Service\\u001b[0m',
-            );
+            expect(sanitized.toolDisplayName).toBe('\\u001b[33mDeploy Service\\u001b[0m');
           }
         });
 
@@ -442,12 +422,8 @@ describe('textUtils', () => {
 
           if (sanitized.type === 'info') {
             expect(sanitized.title).toBe('\\u001b[34mWeb Search\\u001b[0m');
-            expect(sanitized.prompt).toBe(
-              '\\u001b[31mSearch for cats\\u001b[0m',
-            );
-            expect(sanitized.urls?.[0]).toBe(
-              'https://\\u001b[32mgoogle.com\\u001b[0m',
-            );
+            expect(sanitized.prompt).toBe('\\u001b[31mSearch for cats\\u001b[0m');
+            expect(sanitized.urls?.[0]).toBe('https://\\u001b[32mgoogle.com\\u001b[0m');
           }
         });
       });

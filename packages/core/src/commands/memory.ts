@@ -27,9 +27,7 @@ export function showMemory(config: Config): MessageActionReturn {
   };
 }
 
-export function addMemory(
-  args?: string,
-): MessageActionReturn | ToolActionReturn {
+export function addMemory(args?: string): MessageActionReturn | ToolActionReturn {
   if (!args || args.trim() === '') {
     return {
       type: 'message',
@@ -44,9 +42,7 @@ export function addMemory(
   };
 }
 
-export async function refreshMemory(
-  config: Config,
-): Promise<MessageActionReturn> {
+export async function refreshMemory(config: Config): Promise<MessageActionReturn> {
   let memoryContent = '';
   let fileCount = 0;
 
@@ -82,9 +78,7 @@ export function listMemoryFiles(config: Config): MessageActionReturn {
   let content: string;
 
   if (fileCount > 0) {
-    content = `There are ${fileCount} GEMINI.md file(s) in use:\n\n${filePaths.join(
-      '\n',
-    )}`;
+    content = `There are ${fileCount} GEMINI.md file(s) in use:\n\n${filePaths.join('\n')}`;
   } else {
     content = 'No GEMINI.md files in use.';
   }

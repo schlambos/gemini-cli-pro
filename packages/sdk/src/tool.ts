@@ -36,20 +36,14 @@ export interface Tool<T extends z.ZodTypeAny> extends ToolDefinition<T> {
   action: (params: z.infer<T>, context?: SessionContext) => Promise<unknown>;
 }
 
-class SdkToolInvocation<T extends z.ZodTypeAny> extends BaseToolInvocation<
-  z.infer<T>,
-  ToolResult
-> {
+class SdkToolInvocation<T extends z.ZodTypeAny> extends BaseToolInvocation<z.infer<T>, ToolResult> {
   constructor(
     params: z.infer<T>,
     messageBus: MessageBus,
-    private readonly action: (
-      params: z.infer<T>,
-      context?: SessionContext,
-    ) => Promise<unknown>,
+    private readonly action: (params: z.infer<T>, context?: SessionContext) => Promise<unknown>,
     private readonly context: SessionContext | undefined,
     toolName: string,
-    private readonly sendErrorsToModel: boolean = false,
+    private readonly sendErrorsToModel: boolean = false
   ) {
     super(params, messageBus, toolName);
   }
@@ -58,22 +52,17 @@ class SdkToolInvocation<T extends z.ZodTypeAny> extends BaseToolInvocation<
     return `Executing ${this._toolName}...`;
   }
 
-  async execute(
-    _signal: AbortSignal,
-    _updateOutput?: (output: string) => void,
-  ): Promise<ToolResult> {
+  async execute(_signal: AbortSignal, _updateOutput?: (output: string) => void): Promise<ToolResult> {
     try {
       const result = await this.action(this.params, this.context);
-      const output =
-        typeof result === 'string' ? result : JSON.stringify(result, null, 2);
+      const output = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
       return {
         llmContent: output,
         returnDisplay: output,
       };
     } catch (error) {
       if (this.sendErrorsToModel || error instanceof ModelVisibleError) {
-        const errorMessage =
-          error instanceof Error ? error.message : String(error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
         return {
           llmContent: `Error: ${errorMessage}`,
           returnDisplay: `Error: ${errorMessage}`,
@@ -87,15 +76,12 @@ class SdkToolInvocation<T extends z.ZodTypeAny> extends BaseToolInvocation<
   }
 }
 
-export class SdkTool<T extends z.ZodTypeAny> extends BaseDeclarativeTool<
-  z.infer<T>,
-  ToolResult
-> {
+export class SdkTool<T extends z.ZodTypeAny> extends BaseDeclarativeTool<z.infer<T>, ToolResult> {
   constructor(
     private readonly definition: Tool<T>,
     messageBus: MessageBus,
     _agent?: unknown,
-    private readonly context?: SessionContext,
+    private readonly context?: SessionContext
   ) {
     super(
       definition.name,
@@ -103,7 +89,7 @@ export class SdkTool<T extends z.ZodTypeAny> extends BaseDeclarativeTool<
       definition.description,
       Kind.Other,
       zodToJsonSchema(definition.inputSchema),
-      messageBus,
+      messageBus
     );
   }
 
@@ -115,7 +101,7 @@ export class SdkTool<T extends z.ZodTypeAny> extends BaseDeclarativeTool<
     params: z.infer<T>,
     messageBus: MessageBus,
     context: SessionContext | undefined,
-    toolName?: string,
+    toolName?: string
   ): ToolInvocation<z.infer<T>, ToolResult> {
     return new SdkToolInvocation(
       params,
@@ -123,14 +109,14 @@ export class SdkTool<T extends z.ZodTypeAny> extends BaseDeclarativeTool<
       this.definition.action,
       context || this.context,
       toolName || this.name,
-      this.definition.sendErrorsToModel,
+      this.definition.sendErrorsToModel
     );
   }
 
   protected createInvocation(
     params: z.infer<T>,
     messageBus: MessageBus,
-    toolName?: string,
+    toolName?: string
   ): ToolInvocation<z.infer<T>, ToolResult> {
     return new SdkToolInvocation(
       params,
@@ -138,14 +124,14 @@ export class SdkTool<T extends z.ZodTypeAny> extends BaseDeclarativeTool<
       this.definition.action,
       this.context,
       toolName || this.name,
-      this.definition.sendErrorsToModel,
+      this.definition.sendErrorsToModel
     );
   }
 }
 
 export function tool<T extends z.ZodTypeAny>(
   definition: ToolDefinition<T>,
-  action: (params: z.infer<T>, context?: SessionContext) => Promise<unknown>,
+  action: (params: z.infer<T>, context?: SessionContext) => Promise<unknown>
 ): Tool<T> {
   return {
     ...definition,

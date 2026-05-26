@@ -36,12 +36,8 @@ describe('skill install command', () => {
 
   describe('installCommand', () => {
     it('should have correct command and describe', () => {
-      expect(installCommand.command).toBe(
-        'install <source> [--scope] [--path]',
-      );
-      expect(installCommand.describe).toBe(
-        'Installs an agent skill from a git repository URL or a local path.',
-      );
+      expect(installCommand.command).toBe('install <source> [--scope] [--path]');
+      expect(installCommand.describe).toBe('Installs an agent skill from a git repository URL or a local path.');
     });
   });
 
@@ -61,17 +57,11 @@ describe('skill install command', () => {
       'user',
       undefined,
       expect.any(Function),
-      expect.any(Function),
+      expect.any(Function)
     );
-    expect(debugLogger.log).toHaveBeenCalledWith(
-      expect.stringContaining('Successfully installed skill: test-skill'),
-    );
-    expect(debugLogger.log).toHaveBeenCalledWith(
-      expect.stringContaining('location: /mock/user/skills/test-skill'),
-    );
-    expect(mockRequestConsentNonInteractive).toHaveBeenCalledWith(
-      'Mock Consent String',
-    );
+    expect(debugLogger.log).toHaveBeenCalledWith(expect.stringContaining('Successfully installed skill: test-skill'));
+    expect(debugLogger.log).toHaveBeenCalledWith(expect.stringContaining('location: /mock/user/skills/test-skill'));
+    expect(mockRequestConsentNonInteractive).toHaveBeenCalledWith('Mock Consent String');
   });
 
   it('should skip prompt and log consent when --consent is provided', async () => {
@@ -86,9 +76,7 @@ describe('skill install command', () => {
     });
 
     expect(mockRequestConsentNonInteractive).not.toHaveBeenCalled();
-    expect(debugLogger.log).toHaveBeenCalledWith(
-      'You have consented to the following:',
-    );
+    expect(debugLogger.log).toHaveBeenCalledWith('You have consented to the following:');
     expect(debugLogger.log).toHaveBeenCalledWith('Mock Consent String');
     expect(mockInstallSkill).toHaveBeenCalled();
   });
@@ -106,16 +94,12 @@ describe('skill install command', () => {
       source: 'https://example.com/repo.git',
     });
 
-    expect(debugLogger.error).toHaveBeenCalledWith(
-      'Skill installation cancelled by user.',
-    );
+    expect(debugLogger.error).toHaveBeenCalledWith('Skill installation cancelled by user.');
     expect(process.exit).toHaveBeenCalledWith(1);
   });
 
   it('should call installSkill with correct arguments for workspace scope and subpath', async () => {
-    mockInstallSkill.mockResolvedValue([
-      { name: 'test-skill', location: '/mock/workspace/skills/test-skill' },
-    ]);
+    mockInstallSkill.mockResolvedValue([{ name: 'test-skill', location: '/mock/workspace/skills/test-skill' }]);
 
     await handleInstall({
       source: 'https://example.com/repo.git',
@@ -128,7 +112,7 @@ describe('skill install command', () => {
       'workspace',
       'my-skills-dir',
       expect.any(Function),
-      expect.any(Function),
+      expect.any(Function)
     );
   });
 

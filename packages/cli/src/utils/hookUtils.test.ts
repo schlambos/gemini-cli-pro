@@ -11,8 +11,7 @@ import { SettingScope } from '../config/settings.js';
 
 describe('hookUtils', () => {
   describe('renderHookActionFeedback', () => {
-    const mockFormatScope = (label: string, path: string) =>
-      `${label} (${path})`;
+    const mockFormatScope = (label: string, path: string) => `${label} (${path})`;
 
     it('should render error message', () => {
       const result: HookActionResult = {
@@ -38,9 +37,7 @@ describe('hookUtils', () => {
       };
 
       const message = renderHookActionFeedback(result, mockFormatScope);
-      expect(message).toBe(
-        'An error occurred while attempting to enable hook "test-hook".',
-      );
+      expect(message).toBe('An error occurred while attempting to enable hook "test-hook".');
     });
 
     it('should render no-op message for enable', () => {
@@ -75,14 +72,12 @@ describe('hookUtils', () => {
         hookName: 'test-hook',
         action: 'enable',
         modifiedScopes: [{ scope: SettingScope.User, path: '/path/user.json' }],
-        alreadyInStateScopes: [
-          { scope: SettingScope.Workspace, path: '/path/workspace.json' },
-        ],
+        alreadyInStateScopes: [{ scope: SettingScope.Workspace, path: '/path/workspace.json' }],
       };
 
       const message = renderHookActionFeedback(result, mockFormatScope);
       expect(message).toBe(
-        'Hook "test-hook" enabled by removing it from the disabled list in user (/path/user.json) and workspace (/path/workspace.json) settings.',
+        'Hook "test-hook" enabled by removing it from the disabled list in user (/path/user.json) and workspace (/path/workspace.json) settings.'
       );
     });
 
@@ -98,7 +93,7 @@ describe('hookUtils', () => {
 
       const message = renderHookActionFeedback(result, mockFormatScope);
       expect(message).toBe(
-        'Hook "test-hook" enabled by removing it from the disabled list in user (/path/user.json) settings.',
+        'Hook "test-hook" enabled by removing it from the disabled list in user (/path/user.json) settings.'
       );
     });
 
@@ -107,15 +102,13 @@ describe('hookUtils', () => {
         status: 'success',
         hookName: 'test-hook',
         action: 'disable',
-        modifiedScopes: [
-          { scope: SettingScope.Workspace, path: '/path/workspace.json' },
-        ],
+        modifiedScopes: [{ scope: SettingScope.Workspace, path: '/path/workspace.json' }],
         alreadyInStateScopes: [],
       };
 
       const message = renderHookActionFeedback(result, mockFormatScope);
       expect(message).toBe(
-        'Hook "test-hook" disabled by adding it to the disabled list in workspace (/path/workspace.json) settings.',
+        'Hook "test-hook" disabled by adding it to the disabled list in workspace (/path/workspace.json) settings.'
       );
     });
 
@@ -125,17 +118,13 @@ describe('hookUtils', () => {
         status: 'success',
         hookName: 'test-hook',
         action: 'disable',
-        modifiedScopes: [
-          { scope: SettingScope.Workspace, path: '/path/workspace.json' },
-        ],
-        alreadyInStateScopes: [
-          { scope: SettingScope.User, path: '/path/user.json' },
-        ],
+        modifiedScopes: [{ scope: SettingScope.Workspace, path: '/path/workspace.json' }],
+        alreadyInStateScopes: [{ scope: SettingScope.User, path: '/path/user.json' }],
       };
 
       const message = renderHookActionFeedback(result, mockFormatScope);
       expect(message).toBe(
-        'Hook "test-hook" is now disabled in both workspace (/path/workspace.json) and user (/path/user.json) settings.',
+        'Hook "test-hook" is now disabled in both workspace (/path/workspace.json) and user (/path/user.json) settings.'
       );
     });
   });

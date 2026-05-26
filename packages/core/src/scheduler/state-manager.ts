@@ -27,10 +27,7 @@ import type {
   AnyDeclarativeTool,
 } from '../tools/tools.js';
 import type { MessageBus } from '../confirmation-bus/message-bus.js';
-import {
-  MessageBusType,
-  type SerializableConfirmationDetails,
-} from '../confirmation-bus/types.js';
+import { MessageBusType, type SerializableConfirmationDetails } from '../confirmation-bus/types.js';
 
 /**
  * Handler for terminal tool calls.
@@ -49,7 +46,7 @@ export class SchedulerStateManager {
   constructor(
     private readonly messageBus: MessageBus,
     private readonly schedulerId: string = ROOT_SCHEDULER_ID,
-    private readonly onTerminalCall?: TerminalCallHandler,
+    private readonly onTerminalCall?: TerminalCallHandler
   ) {}
 
   addToolCalls(calls: ToolCall[]): void {
@@ -97,16 +94,8 @@ export class SchedulerStateManager {
   /**
    * Updates the status of a tool call with specific auxiliary data required for certain states.
    */
-  updateStatus(
-    callId: string,
-    status: CoreToolCallStatus.Success,
-    data: ToolCallResponseInfo,
-  ): void;
-  updateStatus(
-    callId: string,
-    status: CoreToolCallStatus.Error,
-    data: ToolCallResponseInfo,
-  ): void;
+  updateStatus(callId: string, status: CoreToolCallStatus.Success, data: ToolCallResponseInfo): void;
+  updateStatus(callId: string, status: CoreToolCallStatus.Error, data: ToolCallResponseInfo): void;
   updateStatus(
     callId: string,
     status: CoreToolCallStatus.AwaitingApproval,
@@ -115,22 +104,11 @@ export class SchedulerStateManager {
       | {
           correlationId: string;
           confirmationDetails: SerializableConfirmationDetails;
-        },
+        }
   ): void;
-  updateStatus(
-    callId: string,
-    status: CoreToolCallStatus.Cancelled,
-    data: string,
-  ): void;
-  updateStatus(
-    callId: string,
-    status: CoreToolCallStatus.Executing,
-    data?: Partial<ExecutingToolCall>,
-  ): void;
-  updateStatus(
-    callId: string,
-    status: CoreToolCallStatus.Scheduled | CoreToolCallStatus.Validating,
-  ): void;
+  updateStatus(callId: string, status: CoreToolCallStatus.Cancelled, data: string): void;
+  updateStatus(callId: string, status: CoreToolCallStatus.Executing, data?: Partial<ExecutingToolCall>): void;
+  updateStatus(callId: string, status: CoreToolCallStatus.Scheduled | CoreToolCallStatus.Validating): void;
   updateStatus(callId: string, status: Status, auxiliaryData?: unknown): void {
     const call = this.activeCalls.get(callId);
     if (!call) return;
@@ -154,11 +132,7 @@ export class SchedulerStateManager {
     }
   }
 
-  updateArgs(
-    callId: string,
-    newArgs: Record<string, unknown>,
-    newInvocation: AnyToolInvocation,
-  ): void {
+  updateArgs(callId: string, newArgs: Record<string, unknown>, newInvocation: AnyToolInvocation): void {
     const call = this.activeCalls.get(callId);
     if (!call || call.status === CoreToolCallStatus.Error) return;
 
@@ -167,7 +141,7 @@ export class SchedulerStateManager {
       this.patchCall(call, {
         request: { ...call.request, args: newArgs },
         invocation: newInvocation,
-      }),
+      })
     );
     this.emitUpdate();
   }
@@ -200,11 +174,7 @@ export class SchedulerStateManager {
   }
 
   getSnapshot(): ToolCall[] {
-    return [
-      ...this._completedBatch,
-      ...Array.from(this.activeCalls.values()),
-      ...this.queue,
-    ];
+    return [...this._completedBatch, ...Array.from(this.activeCalls.values()), ...this.queue];
   }
 
   clearBatch(): void {
@@ -237,33 +207,23 @@ export class SchedulerStateManager {
     );
   }
 
-  private transitionCall(
-    call: ToolCall,
-    newStatus: Status,
-    auxiliaryData?: unknown,
-  ): ToolCall {
+  private transitionCall(call: ToolCall, newStatus: Status, auxiliaryData?: unknown): ToolCall {
     switch (newStatus) {
       case CoreToolCallStatus.Success: {
         if (!this.isToolCallResponseInfo(auxiliaryData)) {
-          throw new Error(
-            `Invalid data for 'success' transition (callId: ${call.request.callId})`,
-          );
+          throw new Error(`Invalid data for 'success' transition (callId: ${call.request.callId})`);
         }
         return this.toSuccess(call, auxiliaryData);
       }
       case CoreToolCallStatus.Error: {
         if (!this.isToolCallResponseInfo(auxiliaryData)) {
-          throw new Error(
-            `Invalid data for 'error' transition (callId: ${call.request.callId})`,
-          );
+          throw new Error(`Invalid data for 'error' transition (callId: ${call.request.callId})`);
         }
         return this.toError(call, auxiliaryData);
       }
       case CoreToolCallStatus.AwaitingApproval: {
         if (!auxiliaryData) {
-          throw new Error(
-            `Missing data for 'awaiting_approval' transition (callId: ${call.request.callId})`,
-          );
+          throw new Error(`Missing data for 'awaiting_approval' transition (callId: ${call.request.callId})`);
         }
         return this.toAwaitingApproval(call, auxiliaryData);
       }
@@ -271,22 +231,15 @@ export class SchedulerStateManager {
         return this.toScheduled(call);
       case CoreToolCallStatus.Cancelled: {
         if (typeof auxiliaryData !== 'string') {
-          throw new Error(
-            `Invalid reason (string) for 'cancelled' transition (callId: ${call.request.callId})`,
-          );
+          throw new Error(`Invalid reason (string) for 'cancelled' transition (callId: ${call.request.callId})`);
         }
         return this.toCancelled(call, auxiliaryData);
       }
       case CoreToolCallStatus.Validating:
         return this.toValidating(call);
       case CoreToolCallStatus.Executing: {
-        if (
-          auxiliaryData !== undefined &&
-          !this.isExecutingToolCallPatch(auxiliaryData)
-        ) {
-          throw new Error(
-            `Invalid patch for 'executing' transition (callId: ${call.request.callId})`,
-          );
+        if (auxiliaryData !== undefined && !this.isExecutingToolCallPatch(auxiliaryData)) {
+          throw new Error(`Invalid patch for 'executing' transition (callId: ${call.request.callId})`);
         }
         return this.toExecuting(call, auxiliaryData);
       }
@@ -298,17 +251,10 @@ export class SchedulerStateManager {
   }
 
   private isToolCallResponseInfo(data: unknown): data is ToolCallResponseInfo {
-    return (
-      typeof data === 'object' &&
-      data !== null &&
-      'callId' in data &&
-      'responseParts' in data
-    );
+    return typeof data === 'object' && data !== null && 'callId' in data && 'responseParts' in data;
   }
 
-  private isExecutingToolCallPatch(
-    data: unknown,
-  ): data is Partial<ExecutingToolCall> {
+  private isExecutingToolCallPatch(data: unknown): data is Partial<ExecutingToolCall> {
     // A partial can be an empty object, but it must be a non-null object.
     return typeof data === 'object' && data !== null;
   }
@@ -321,24 +267,19 @@ export class SchedulerStateManager {
    */
   private validateHasToolAndInvocation(
     call: ToolCall,
-    targetStatus: Status,
+    targetStatus: Status
   ): asserts call is ToolCall & {
     tool: AnyDeclarativeTool;
     invocation: AnyToolInvocation;
   } {
-    if (
-      !('tool' in call && call.tool && 'invocation' in call && call.invocation)
-    ) {
+    if (!('tool' in call && call.tool && 'invocation' in call && call.invocation)) {
       throw new Error(
-        `Invalid state transition: cannot transition to ${targetStatus} without tool/invocation (callId: ${call.request.callId})`,
+        `Invalid state transition: cannot transition to ${targetStatus} without tool/invocation (callId: ${call.request.callId})`
       );
     }
   }
 
-  private toSuccess(
-    call: ToolCall,
-    response: ToolCallResponseInfo,
-  ): SuccessfulToolCall {
+  private toSuccess(call: ToolCall, response: ToolCallResponseInfo): SuccessfulToolCall {
     this.validateHasToolAndInvocation(call, CoreToolCallStatus.Success);
     const startTime = 'startTime' in call ? call.startTime : undefined;
     return {
@@ -354,10 +295,7 @@ export class SchedulerStateManager {
     };
   }
 
-  private toError(
-    call: ToolCall,
-    response: ToolCallResponseInfo,
-  ): ErroredToolCall {
+  private toError(call: ToolCall, response: ToolCallResponseInfo): ErroredToolCall {
     const startTime = 'startTime' in call ? call.startTime : undefined;
     return {
       request: call.request,
@@ -372,14 +310,9 @@ export class SchedulerStateManager {
   }
 
   private toAwaitingApproval(call: ToolCall, data: unknown): WaitingToolCall {
-    this.validateHasToolAndInvocation(
-      call,
-      CoreToolCallStatus.AwaitingApproval,
-    );
+    this.validateHasToolAndInvocation(call, CoreToolCallStatus.AwaitingApproval);
 
-    let confirmationDetails:
-      | ToolCallConfirmationDetails
-      | SerializableConfirmationDetails;
+    let confirmationDetails: ToolCallConfirmationDetails | SerializableConfirmationDetails;
     let correlationId: string | undefined;
 
     if (this.isEventDrivenApprovalData(data)) {
@@ -409,12 +342,7 @@ export class SchedulerStateManager {
     correlationId: string;
     confirmationDetails: SerializableConfirmationDetails;
   } {
-    return (
-      typeof data === 'object' &&
-      data !== null &&
-      'correlationId' in data &&
-      'confirmationDetails' in data
-    );
+    return typeof data === 'object' && data !== null && 'correlationId' in data && 'confirmationDetails' in data;
   }
 
   private toScheduled(call: ToolCall): ScheduledToolCall {
@@ -513,9 +441,7 @@ export class SchedulerStateManager {
     this.validateHasToolAndInvocation(call, CoreToolCallStatus.Executing);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
     const execData = data as Partial<ExecutingToolCall> | undefined;
-    const liveOutput =
-      execData?.liveOutput ??
-      ('liveOutput' in call ? call.liveOutput : undefined);
+    const liveOutput = execData?.liveOutput ?? ('liveOutput' in call ? call.liveOutput : undefined);
     const pid = execData?.pid ?? ('pid' in call ? call.pid : undefined);
 
     return {

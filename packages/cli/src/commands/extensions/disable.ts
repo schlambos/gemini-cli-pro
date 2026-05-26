@@ -30,16 +30,11 @@ export async function handleDisable(args: DisableArgs) {
 
   try {
     if (args.scope?.toLowerCase() === 'workspace') {
-      await extensionManager.disableExtension(
-        args.name,
-        SettingScope.Workspace,
-      );
+      await extensionManager.disableExtension(args.name, SettingScope.Workspace);
     } else {
       await extensionManager.disableExtension(args.name, SettingScope.User);
     }
-    debugLogger.log(
-      `Extension "${args.name}" successfully disabled for scope "${args.scope}".`,
-    );
+    debugLogger.log(`Extension "${args.name}" successfully disabled for scope "${args.scope}".`);
   } catch (error) {
     debugLogger.error(getErrorMessage(error));
     process.exit(1);
@@ -68,11 +63,9 @@ export const disableCommand: CommandModule = {
             .includes(argv.scope.toLowerCase())
         ) {
           throw new Error(
-            `Invalid scope: ${argv.scope}. Please use one of ${Object.values(
-              SettingScope,
-            )
+            `Invalid scope: ${argv.scope}. Please use one of ${Object.values(SettingScope)
               .map((s) => s.toLowerCase())
-              .join(', ')}.`,
+              .join(', ')}.`
           );
         }
         return true;

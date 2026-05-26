@@ -1142,10 +1142,7 @@ of v0.3.0:
     "theme": "GitHub",
     "hideBanner": true,
     "hideTips": false,
-    "customWittyPhrases": [
-      "You forget a thousand things every day. Make sure this is one of ’em",
-      "Connecting to AGI"
-    ]
+    "customWittyPhrases": ["You forget a thousand things every day. Make sure this is one of ’em", "Connecting to AGI"]
   },
   "tools": {
     "sandbox": "docker",

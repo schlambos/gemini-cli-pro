@@ -4,16 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  afterEach,
-  type Mock,
-  type Mocked,
-} from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock, type Mocked } from 'vitest';
 import { GeminiAgent, Session } from './zedIntegration.js';
 import * as acp from '@agentclientprotocol/sdk';
 import {
@@ -27,11 +18,7 @@ import {
   type MessageBus,
   LlmRole,
 } from '@google/gemini-cli-core';
-import {
-  SettingScope,
-  type LoadedSettings,
-  loadSettings,
-} from '../config/settings.js';
+import { SettingScope, type LoadedSettings, loadSettings } from '../config/settings.js';
 import { loadCliConfig, type CliArgs } from '../config/config.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
@@ -62,30 +49,25 @@ vi.mock('node:path', async (importOriginal) => {
 });
 
 // Mock ReadManyFilesTool
-vi.mock(
-  '@google/gemini-cli-core',
-  async (
-    importOriginal: () => Promise<typeof import('@google/gemini-cli-core')>,
-  ) => {
-    const actual = await importOriginal();
-    return {
-      ...actual,
-      ReadManyFilesTool: vi.fn().mockImplementation(() => ({
-        name: 'read_many_files',
-        kind: 'native',
-        build: vi.fn().mockReturnValue({
-          getDescription: () => 'Read files',
-          toolLocations: () => [],
-          execute: vi.fn().mockResolvedValue({
-            llmContent: ['--- file.txt ---\n\nFile content\n\n'],
-          }),
+vi.mock('@google/gemini-cli-core', async (importOriginal: () => Promise<typeof import('@google/gemini-cli-core')>) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    ReadManyFilesTool: vi.fn().mockImplementation(() => ({
+      name: 'read_many_files',
+      kind: 'native',
+      build: vi.fn().mockReturnValue({
+        getDescription: () => 'Read files',
+        toolLocations: () => [],
+        execute: vi.fn().mockResolvedValue({
+          llmContent: ['--- file.txt ---\n\nFile content\n\n'],
         }),
-      })),
-      logToolCall: vi.fn(),
-      isWithinRoot: vi.fn().mockReturnValue(true),
-    };
-  },
-);
+      }),
+    })),
+    logToolCall: vi.fn(),
+    isWithinRoot: vi.fn().mockReturnValue(true),
+  };
+});
 
 // Helper to create mock streams
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -160,13 +142,11 @@ describe('GeminiAgent', () => {
       methodId: AuthType.LOGIN_WITH_GOOGLE,
     });
 
-    expect(mockConfig.refreshAuth).toHaveBeenCalledWith(
-      AuthType.LOGIN_WITH_GOOGLE,
-    );
+    expect(mockConfig.refreshAuth).toHaveBeenCalledWith(AuthType.LOGIN_WITH_GOOGLE);
     expect(mockSettings.setValue).toHaveBeenCalledWith(
       SettingScope.User,
       'security.auth.selectedType',
-      AuthType.LOGIN_WITH_GOOGLE,
+      AuthType.LOGIN_WITH_GOOGLE
     );
   });
 
@@ -201,7 +181,7 @@ describe('GeminiAgent', () => {
       agent.newSession({
         cwd: '/tmp',
         mcpServers: [],
-      }),
+      })
     ).rejects.toMatchObject({
       message: 'Gemini API key is missing or not configured.',
     });
@@ -234,7 +214,7 @@ describe('GeminiAgent', () => {
       }),
       'test-session-id',
       mockArgv,
-      { cwd: '/tmp' },
+      { cwd: '/tmp' }
     );
   });
 
@@ -247,7 +227,7 @@ describe('GeminiAgent', () => {
       agent.newSession({
         cwd: '/tmp',
         mcpServers: [],
-      }),
+      })
     ).rejects.toMatchObject({
       message: 'Auth failed',
     });
@@ -273,9 +253,7 @@ describe('GeminiAgent', () => {
   it('should cancel a session', async () => {
     await agent.newSession({ cwd: '/tmp', mcpServers: [] });
     // Mock the session's cancelPendingPrompt
-    const session = (
-      agent as unknown as { sessions: Map<string, Session> }
-    ).sessions.get('test-session-id');
+    const session = (agent as unknown as { sessions: Map<string, Session> }).sessions.get('test-session-id');
     if (!session) throw new Error('Session not found');
     session.cancelPendingPrompt = vi.fn();
 
@@ -285,16 +263,12 @@ describe('GeminiAgent', () => {
   });
 
   it('should throw error when cancelling non-existent session', async () => {
-    await expect(agent.cancel({ sessionId: 'unknown' })).rejects.toThrow(
-      'Session not found',
-    );
+    await expect(agent.cancel({ sessionId: 'unknown' })).rejects.toThrow('Session not found');
   });
 
   it('should delegate prompt to session', async () => {
     await agent.newSession({ cwd: '/tmp', mcpServers: [] });
-    const session = (
-      agent as unknown as { sessions: Map<string, Session> }
-    ).sessions.get('test-session-id');
+    const session = (agent as unknown as { sessions: Map<string, Session> }).sessions.get('test-session-id');
     if (!session) throw new Error('Session not found');
     session.prompt = vi.fn().mockResolvedValue({ stopReason: 'end_turn' });
 
@@ -411,9 +385,7 @@ describe('Session', () => {
       },
     ]);
 
-    mockChat.sendMessageStream
-      .mockResolvedValueOnce(stream1)
-      .mockResolvedValueOnce(stream2);
+    mockChat.sendMessageStream.mockResolvedValueOnce(stream1).mockResolvedValueOnce(stream2);
 
     const result = await session.prompt({
       sessionId: 'session-1',
@@ -428,7 +400,7 @@ describe('Session', () => {
           sessionUpdate: 'tool_call',
           status: 'in_progress',
         }),
-      }),
+      })
     );
     expect(mockConnection.sessionUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -436,7 +408,7 @@ describe('Session', () => {
           sessionUpdate: 'tool_call_update',
           status: 'completed',
         }),
-      }),
+      })
     );
     expect(result).toEqual({ stopReason: 'end_turn' });
   });
@@ -475,9 +447,7 @@ describe('Session', () => {
       },
     ]);
 
-    mockChat.sendMessageStream
-      .mockResolvedValueOnce(stream1)
-      .mockResolvedValueOnce(stream2);
+    mockChat.sendMessageStream.mockResolvedValueOnce(stream1).mockResolvedValueOnce(stream2);
 
     await session.prompt({
       sessionId: 'session-1',
@@ -485,9 +455,7 @@ describe('Session', () => {
     });
 
     expect(mockConnection.requestPermission).toHaveBeenCalled();
-    expect(confirmationDetails.onConfirm).toHaveBeenCalledWith(
-      ToolConfirmationOutcome.ProceedOnce,
-    );
+    expect(confirmationDetails.onConfirm).toHaveBeenCalledWith(ToolConfirmationOutcome.ProceedOnce);
   });
 
   it('should handle tool call cancellation by user', async () => {
@@ -521,9 +489,7 @@ describe('Session', () => {
       },
     ]);
 
-    mockChat.sendMessageStream
-      .mockResolvedValueOnce(stream1)
-      .mockResolvedValueOnce(stream2);
+    mockChat.sendMessageStream.mockResolvedValueOnce(stream1).mockResolvedValueOnce(stream2);
 
     await session.prompt({
       sessionId: 'session-1',
@@ -544,7 +510,7 @@ describe('Session', () => {
             },
           }),
         }),
-      ]),
+      ])
     );
   });
 
@@ -590,7 +556,7 @@ describe('Session', () => {
       ]),
       expect.anything(),
       expect.any(AbortSignal),
-      LlmRole.MAIN,
+      LlmRole.MAIN
     );
   });
 
@@ -658,7 +624,7 @@ describe('Session', () => {
       session.prompt({
         sessionId: 'session-1',
         prompt: [{ type: 'text', text: 'Hi' }],
-      }),
+      })
     ).rejects.toMatchObject({
       code: 429,
       message: 'Rate limit exceeded. Try again later.',
@@ -688,9 +654,7 @@ describe('Session', () => {
       },
     ]);
 
-    mockChat.sendMessageStream
-      .mockResolvedValueOnce(stream1)
-      .mockResolvedValueOnce(stream2);
+    mockChat.sendMessageStream.mockResolvedValueOnce(stream1).mockResolvedValueOnce(stream2);
 
     await session.prompt({
       sessionId: 'session-1',
@@ -708,7 +672,7 @@ describe('Session', () => {
             }),
           ]),
         }),
-      }),
+      })
     );
   });
 
@@ -730,9 +694,7 @@ describe('Session', () => {
       },
     ]);
 
-    mockChat.sendMessageStream
-      .mockResolvedValueOnce(stream1)
-      .mockResolvedValueOnce(stream2);
+    mockChat.sendMessageStream.mockResolvedValueOnce(stream1).mockResolvedValueOnce(stream2);
 
     await session.prompt({
       sessionId: 'session-1',
@@ -752,14 +714,12 @@ describe('Session', () => {
             },
           }),
         }),
-      ]),
+      ])
     );
   });
 
   it('should ignore files based on configuration', async () => {
-    (
-      mockConfig.getFileService().shouldIgnoreFile as unknown as Mock
-    ).mockReturnValue(true);
+    (mockConfig.getFileService().shouldIgnoreFile as unknown as Mock).mockReturnValue(true);
     const stream = createMockStream([
       {
         type: StreamEventType.CHUNK,
@@ -781,9 +741,7 @@ describe('Session', () => {
     });
 
     // Should not read file
-    expect(mockToolRegistry.getTool).not.toHaveBeenCalledWith(
-      'read_many_files',
-    );
+    expect(mockToolRegistry.getTool).not.toHaveBeenCalledWith('read_many_files');
   });
 
   it('should handle directory resolution with glob', async () => {
@@ -816,10 +774,7 @@ describe('Session', () => {
     // Should use glob
     // ReadManyFilesTool is instantiated directly, so we check if the mock instance's build method was called
     const MockReadManyFilesTool = ReadManyFilesTool as unknown as Mock;
-    const mockInstance =
-      MockReadManyFilesTool.mock.results[
-        MockReadManyFilesTool.mock.results.length - 1
-      ].value;
+    const mockInstance = MockReadManyFilesTool.mock.results[MockReadManyFilesTool.mock.results.length - 1].value;
     expect(mockInstance.build).toHaveBeenCalled();
   });
 });

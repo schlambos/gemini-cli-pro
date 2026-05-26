@@ -14,19 +14,14 @@ vi.mock('../telemetry/loggers.js', () => ({
   logApiError,
 }));
 
-const runInDevTraceSpan = vi.hoisted(() =>
-  vi.fn(async (meta, fn) => fn({ metadata: {}, endSpan: vi.fn() })),
-);
+const runInDevTraceSpan = vi.hoisted(() => vi.fn(async (meta, fn) => fn({ metadata: {}, endSpan: vi.fn() })));
 
 vi.mock('../telemetry/trace.js', () => ({
   runInDevTraceSpan,
 }));
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type {
-  GenerateContentResponse,
-  EmbedContentResponse,
-} from '@google/genai';
+import type { GenerateContentResponse, EmbedContentResponse } from '@google/genai';
 import type { ContentGenerator } from './contentGenerator.js';
 import { LoggingContentGenerator } from './loggingContentGenerator.js';
 import type { Config } from '../config/config.js';
@@ -86,25 +81,14 @@ describe('LoggingContentGenerator', () => {
       const startTime = new Date('2025-01-01T00:00:00.000Z');
       vi.setSystemTime(startTime);
 
-      const promise = loggingContentGenerator.generateContent(
-        req,
-        userPromptId,
-        LlmRole.MAIN,
-      );
+      const promise = loggingContentGenerator.generateContent(req, userPromptId, LlmRole.MAIN);
 
       vi.advanceTimersByTime(1000);
 
       await promise;
 
-      expect(wrapped.generateContent).toHaveBeenCalledWith(
-        req,
-        userPromptId,
-        LlmRole.MAIN,
-      );
-      expect(logApiRequest).toHaveBeenCalledWith(
-        config,
-        expect.any(ApiRequestEvent),
-      );
+      expect(wrapped.generateContent).toHaveBeenCalledWith(req, userPromptId, LlmRole.MAIN);
+      expect(logApiRequest).toHaveBeenCalledWith(config, expect.any(ApiRequestEvent));
       const responseEvent = vi.mocked(logApiResponse).mock.calls[0][1];
       expect(responseEvent.duration_ms).toBe(1000);
     });
@@ -120,20 +104,13 @@ describe('LoggingContentGenerator', () => {
       const startTime = new Date('2025-01-01T00:00:00.000Z');
       vi.setSystemTime(startTime);
 
-      const promise = loggingContentGenerator.generateContent(
-        req,
-        userPromptId,
-        LlmRole.MAIN,
-      );
+      const promise = loggingContentGenerator.generateContent(req, userPromptId, LlmRole.MAIN);
 
       vi.advanceTimersByTime(1000);
 
       await expect(promise).rejects.toThrow(error);
 
-      expect(logApiRequest).toHaveBeenCalledWith(
-        config,
-        expect.any(ApiRequestEvent),
-      );
+      expect(logApiRequest).toHaveBeenCalledWith(config, expect.any(ApiRequestEvent));
       const errorEvent = vi.mocked(logApiError).mock.calls[0][1];
       expect(errorEvent.duration_ms).toBe(1000);
     });
@@ -159,9 +136,7 @@ describe('LoggingContentGenerator', () => {
         yield response;
       }
 
-      vi.mocked(wrapped.generateContentStream).mockResolvedValue(
-        createAsyncGenerator(),
-      );
+      vi.mocked(wrapped.generateContentStream).mockResolvedValue(createAsyncGenerator());
 
       const startTime = new Date('2025-01-01T00:00:00.000Z');
 
@@ -172,7 +147,7 @@ describe('LoggingContentGenerator', () => {
 
         userPromptId,
 
-        LlmRole.MAIN,
+        LlmRole.MAIN
       );
 
       vi.advanceTimersByTime(1000);
@@ -181,15 +156,8 @@ describe('LoggingContentGenerator', () => {
         // consume stream
       }
 
-      expect(wrapped.generateContentStream).toHaveBeenCalledWith(
-        req,
-        userPromptId,
-        LlmRole.MAIN,
-      );
-      expect(logApiRequest).toHaveBeenCalledWith(
-        config,
-        expect.any(ApiRequestEvent),
-      );
+      expect(wrapped.generateContentStream).toHaveBeenCalledWith(req, userPromptId, LlmRole.MAIN);
+      expect(logApiRequest).toHaveBeenCalledWith(config, expect.any(ApiRequestEvent));
       const responseEvent = vi.mocked(logApiResponse).mock.calls[0][1];
       expect(responseEvent.duration_ms).toBe(1000);
     });
@@ -206,17 +174,11 @@ describe('LoggingContentGenerator', () => {
         yield Promise.reject(error);
       }
 
-      vi.mocked(wrapped.generateContentStream).mockResolvedValue(
-        createAsyncGenerator(),
-      );
+      vi.mocked(wrapped.generateContentStream).mockResolvedValue(createAsyncGenerator());
       const startTime = new Date('2025-01-01T00:00:00.000Z');
       vi.setSystemTime(startTime);
 
-      const stream = await loggingContentGenerator.generateContentStream(
-        req,
-        userPromptId,
-        LlmRole.MAIN,
-      );
+      const stream = await loggingContentGenerator.generateContentStream(req, userPromptId, LlmRole.MAIN);
 
       vi.advanceTimersByTime(1000);
 
@@ -226,10 +188,7 @@ describe('LoggingContentGenerator', () => {
         }
       }).rejects.toThrow(error);
 
-      expect(logApiRequest).toHaveBeenCalledWith(
-        config,
-        expect.any(ApiRequestEvent),
-      );
+      expect(logApiRequest).toHaveBeenCalledWith(config, expect.any(ApiRequestEvent));
       const errorEvent = vi.mocked(logApiError).mock.calls[0][1];
       expect(errorEvent.duration_ms).toBe(1000);
     });
@@ -246,15 +205,9 @@ describe('LoggingContentGenerator', () => {
       async function* createAsyncGenerator() {
         yield { candidates: [] } as unknown as GenerateContentResponse;
       }
-      vi.mocked(wrapped.generateContentStream).mockResolvedValue(
-        createAsyncGenerator(),
-      );
+      vi.mocked(wrapped.generateContentStream).mockResolvedValue(createAsyncGenerator());
 
-      await loggingContentGenerator.generateContentStream(
-        req,
-        mainAgentPromptId,
-        LlmRole.MAIN,
-      );
+      await loggingContentGenerator.generateContentStream(req, mainAgentPromptId, LlmRole.MAIN);
 
       expect(config.setLatestApiRequest).toHaveBeenCalledWith(req);
     });
@@ -271,15 +224,9 @@ describe('LoggingContentGenerator', () => {
       async function* createAsyncGenerator() {
         yield { candidates: [] } as unknown as GenerateContentResponse;
       }
-      vi.mocked(wrapped.generateContentStream).mockResolvedValue(
-        createAsyncGenerator(),
-      );
+      vi.mocked(wrapped.generateContentStream).mockResolvedValue(createAsyncGenerator());
 
-      await loggingContentGenerator.generateContentStream(
-        req,
-        subAgentPromptId,
-        LlmRole.SUBAGENT,
-      );
+      await loggingContentGenerator.generateContentStream(req, subAgentPromptId, LlmRole.SUBAGENT);
 
       expect(config.setLatestApiRequest).not.toHaveBeenCalled();
     });

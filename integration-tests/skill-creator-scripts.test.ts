@@ -12,15 +12,9 @@ import { execSync } from 'node:child_process';
 
 describe('skill-creator scripts e2e', () => {
   let rig: TestRig;
-  const initScript = path.resolve(
-    'packages/core/src/skills/builtin/skill-creator/scripts/init_skill.cjs',
-  );
-  const validateScript = path.resolve(
-    'packages/core/src/skills/builtin/skill-creator/scripts/validate_skill.cjs',
-  );
-  const packageScript = path.resolve(
-    'packages/core/src/skills/builtin/skill-creator/scripts/package_skill.cjs',
-  );
+  const initScript = path.resolve('packages/core/src/skills/builtin/skill-creator/scripts/init_skill.cjs');
+  const validateScript = path.resolve('packages/core/src/skills/builtin/skill-creator/scripts/validate_skill.cjs');
+  const packageScript = path.resolve('packages/core/src/skills/builtin/skill-creator/scripts/package_skill.cjs');
 
   beforeEach(() => {
     rig = new TestRig();
@@ -43,15 +37,10 @@ describe('skill-creator scripts e2e', () => {
 
     expect(fs.existsSync(skillDir)).toBe(true);
     expect(fs.existsSync(path.join(skillDir, 'SKILL.md'))).toBe(true);
-    expect(
-      fs.existsSync(path.join(skillDir, 'scripts/example_script.cjs')),
-    ).toBe(true);
+    expect(fs.existsSync(path.join(skillDir, 'scripts/example_script.cjs'))).toBe(true);
 
     // 2. Validate (should have warning initially due to TODOs)
-    const validateOutputInitial = execSync(
-      `node "${validateScript}" "${skillDir}" 2>&1`,
-      { encoding: 'utf8' },
-    );
+    const validateOutputInitial = execSync(`node "${validateScript}" "${skillDir}" 2>&1`, { encoding: 'utf8' });
     expect(validateOutputInitial).toContain('⚠️  Found unresolved TODO');
 
     // 3. Package (should fail due to TODOs)

@@ -19,9 +19,7 @@ describe('AskUserTool Helpers', () => {
     });
 
     it('returns true for Success status', () => {
-      expect(isCompletedAskUserTool(ASK_USER_DISPLAY_NAME, 'Success')).toBe(
-        true,
-      );
+      expect(isCompletedAskUserTool(ASK_USER_DISPLAY_NAME, 'Success')).toBe(true);
     });
 
     it('returns true for Error status', () => {
@@ -29,18 +27,12 @@ describe('AskUserTool Helpers', () => {
     });
 
     it('returns true for Canceled status', () => {
-      expect(isCompletedAskUserTool(ASK_USER_DISPLAY_NAME, 'Canceled')).toBe(
-        true,
-      );
+      expect(isCompletedAskUserTool(ASK_USER_DISPLAY_NAME, 'Canceled')).toBe(true);
     });
 
     it('returns false for in-progress statuses', () => {
-      expect(isCompletedAskUserTool(ASK_USER_DISPLAY_NAME, 'Executing')).toBe(
-        false,
-      );
-      expect(isCompletedAskUserTool(ASK_USER_DISPLAY_NAME, 'Pending')).toBe(
-        false,
-      );
+      expect(isCompletedAskUserTool(ASK_USER_DISPLAY_NAME, 'Executing')).toBe(false);
+      expect(isCompletedAskUserTool(ASK_USER_DISPLAY_NAME, 'Pending')).toBe(false);
     });
   });
 });
@@ -127,9 +119,7 @@ describe('AskUserTool', () => {
           },
         ],
       });
-      expect(result).toContain(
-        "type='choice' requires 'options' array with 2-4 items",
-      );
+      expect(result).toContain("type='choice' requires 'options' array with 2-4 items");
     });
 
     it('should return error if options has more than 4 items', () => {
@@ -285,10 +275,7 @@ describe('AskUserTool', () => {
         ],
       };
 
-      const result = await tool.validateBuildAndExecute(
-        params,
-        new AbortController().signal,
-      );
+      const result = await tool.validateBuildAndExecute(params, new AbortController().signal);
 
       expect(result.error).toBeDefined();
       expect(result.error?.type).toBe(ToolErrorType.INVALID_TOOL_PARAMS);
@@ -296,14 +283,10 @@ describe('AskUserTool', () => {
     });
 
     it('should NOT hide non-validation errors (if any were to occur)', async () => {
-      const validateParamsSpy = vi
-        .spyOn(tool, 'validateToolParams')
-        .mockReturnValue(null);
+      const validateParamsSpy = vi.spyOn(tool, 'validateToolParams').mockReturnValue(null);
 
       const params = {
-        questions: [
-          { question: 'Valid?', header: 'Valid', type: QuestionType.TEXT },
-        ],
+        questions: [{ question: 'Valid?', header: 'Valid', type: QuestionType.TEXT }],
       };
 
       const mockInvocation = {
@@ -316,10 +299,7 @@ describe('AskUserTool', () => {
 
       const buildSpy = vi.spyOn(tool, 'build').mockReturnValue(mockInvocation);
 
-      const result = await tool.validateBuildAndExecute(
-        params,
-        new AbortController().signal,
-      );
+      const result = await tool.validateBuildAndExecute(params, new AbortController().signal);
 
       expect(result.error).toBeDefined();
       expect(result.error?.type).toBe(ToolErrorType.EXECUTION_FAILED);
@@ -340,13 +320,11 @@ describe('AskUserTool', () => {
           options: [
             {
               label: 'Quick fix (Recommended)',
-              description:
-                'Apply the most direct solution to resolve the immediate issue.',
+              description: 'Apply the most direct solution to resolve the immediate issue.',
             },
             {
               label: 'Comprehensive refactor',
-              description:
-                'Restructure the affected code for better long-term maintainability.',
+              description: 'Restructure the affected code for better long-term maintainability.',
             },
           ],
           multiSelect: false,
@@ -354,9 +332,7 @@ describe('AskUserTool', () => {
       ];
 
       const invocation = tool.build({ questions });
-      const details = await invocation.shouldConfirmExecute(
-        new AbortController().signal,
-      );
+      const details = await invocation.shouldConfirmExecute(new AbortController().signal);
 
       expect(details).not.toBe(false);
       if (details && details.type === 'ask_user') {
@@ -383,9 +359,7 @@ describe('AskUserTool', () => {
       ];
 
       const invocation = tool.build({ questions });
-      const details = await invocation.shouldConfirmExecute(
-        new AbortController().signal,
-      );
+      const details = await invocation.shouldConfirmExecute(new AbortController().signal);
 
       if (details && details.type === 'ask_user') {
         expect(details.questions[0].type).toBe(QuestionType.CHOICE);
@@ -403,13 +377,11 @@ describe('AskUserTool', () => {
           options: [
             {
               label: 'Quick fix (Recommended)',
-              description:
-                'Apply the most direct solution to resolve the immediate issue.',
+              description: 'Apply the most direct solution to resolve the immediate issue.',
             },
             {
               label: 'Comprehensive refactor',
-              description:
-                'Restructure the affected code for better long-term maintainability.',
+              description: 'Restructure the affected code for better long-term maintainability.',
             },
           ],
           multiSelect: false,
@@ -417,9 +389,7 @@ describe('AskUserTool', () => {
       ];
 
       const invocation = tool.build({ questions });
-      const details = await invocation.shouldConfirmExecute(
-        new AbortController().signal,
-      );
+      const details = await invocation.shouldConfirmExecute(new AbortController().signal);
 
       // Simulate confirmation with answers
       if (details && 'onConfirm' in details) {
@@ -431,9 +401,7 @@ describe('AskUserTool', () => {
 
       const result = await invocation.execute(new AbortController().signal);
       expect(result.returnDisplay).toContain('User answered:');
-      expect(result.returnDisplay).toContain(
-        '  Approach → Quick fix (Recommended)',
-      );
+      expect(result.returnDisplay).toContain('  Approach → Quick fix (Recommended)');
       expect(JSON.parse(result.llmContent as string)).toEqual({
         answers: { '0': 'Quick fix (Recommended)' },
       });
@@ -461,9 +429,7 @@ describe('AskUserTool', () => {
       ];
 
       const invocation = tool.build({ questions });
-      const details = await invocation.shouldConfirmExecute(
-        new AbortController().signal,
-      );
+      const details = await invocation.shouldConfirmExecute(new AbortController().signal);
 
       // Simulate confirmation with empty answers
       if (details && 'onConfirm' in details) {
@@ -473,9 +439,7 @@ describe('AskUserTool', () => {
       }
 
       const result = await invocation.execute(new AbortController().signal);
-      expect(result.returnDisplay).toBe(
-        'User submitted without answering questions.',
-      );
+      expect(result.returnDisplay).toBe('User submitted without answering questions.');
       expect(JSON.parse(result.llmContent as string)).toEqual({ answers: {} });
       expect(result.data).toEqual({
         ask_user: {
@@ -509,9 +473,7 @@ describe('AskUserTool', () => {
         ],
       });
 
-      const details = await invocation.shouldConfirmExecute(
-        new AbortController().signal,
-      );
+      const details = await invocation.shouldConfirmExecute(new AbortController().signal);
 
       // Simulate cancellation
       if (details && 'onConfirm' in details) {
@@ -520,9 +482,7 @@ describe('AskUserTool', () => {
 
       const result = await invocation.execute(new AbortController().signal);
       expect(result.returnDisplay).toBe('User dismissed dialog');
-      expect(result.llmContent).toBe(
-        'User dismissed ask_user dialog without answering.',
-      );
+      expect(result.llmContent).toBe('User dismissed ask_user dialog without answering.');
       expect(result.data).toEqual({
         ask_user: {
           question_types: [QuestionType.CHOICE],

@@ -4,11 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  SettingScope,
-  isLoadableSettingScope,
-  type LoadedSettings,
-} from '../config/settings.js';
+import { SettingScope, isLoadableSettingScope, type LoadedSettings } from '../config/settings.js';
 import { getErrorMessage } from '@google/gemini-cli-core';
 import type { ModifiedScope } from './skillSettings.js';
 
@@ -32,10 +28,7 @@ export interface HookActionResult {
 /**
  * Enables a hook by removing it from all writable disabled lists (User and Workspace).
  */
-export function enableHook(
-  settings: LoadedSettings,
-  hookName: string,
-): HookActionResult {
+export function enableHook(settings: LoadedSettings, hookName: string): HookActionResult {
   const writableScopes = [SettingScope.Workspace, SettingScope.User];
   const foundInDisabledScopes: ModifiedScope[] = [];
   const alreadyEnabledScopes: ModifiedScope[] = [];
@@ -43,8 +36,7 @@ export function enableHook(
   for (const scope of writableScopes) {
     if (isLoadableSettingScope(scope)) {
       const scopePath = settings.forScope(scope).path;
-      const scopeDisabled =
-        settings.forScope(scope).settings.hooksConfig?.disabled;
+      const scopeDisabled = settings.forScope(scope).settings.hooksConfig?.disabled;
       if (scopeDisabled?.includes(hookName)) {
         foundInDisabledScopes.push({ scope, path: scopePath });
       } else {
@@ -67,11 +59,8 @@ export function enableHook(
   try {
     for (const { scope, path } of foundInDisabledScopes) {
       if (isLoadableSettingScope(scope)) {
-        const currentScopeDisabled =
-          settings.forScope(scope).settings.hooksConfig?.disabled ?? [];
-        const newDisabled = currentScopeDisabled.filter(
-          (name) => name !== hookName,
-        );
+        const currentScopeDisabled = settings.forScope(scope).settings.hooksConfig?.disabled ?? [];
+        const newDisabled = currentScopeDisabled.filter((name) => name !== hookName);
         settings.setValue(scope, 'hooksConfig.disabled', newDisabled);
         modifiedScopes.push({ scope, path });
       }
@@ -99,11 +88,7 @@ export function enableHook(
 /**
  * Disables a hook by adding it to the disabled list in the specified scope.
  */
-export function disableHook(
-  settings: LoadedSettings,
-  hookName: string,
-  scope: SettingScope,
-): HookActionResult {
+export function disableHook(settings: LoadedSettings, hookName: string, scope: SettingScope): HookActionResult {
   if (!isLoadableSettingScope(scope)) {
     return {
       status: 'error',
@@ -116,8 +101,7 @@ export function disableHook(
   }
 
   const scopePath = settings.forScope(scope).path;
-  const currentScopeDisabled =
-    settings.forScope(scope).settings.hooksConfig?.disabled ?? [];
+  const currentScopeDisabled = settings.forScope(scope).settings.hooksConfig?.disabled ?? [];
 
   if (currentScopeDisabled.includes(hookName)) {
     return {
@@ -130,15 +114,11 @@ export function disableHook(
   }
 
   // Check if it's already disabled in the other writable scope
-  const otherScope =
-    scope === SettingScope.Workspace
-      ? SettingScope.User
-      : SettingScope.Workspace;
+  const otherScope = scope === SettingScope.Workspace ? SettingScope.User : SettingScope.Workspace;
   const alreadyDisabledInOther: ModifiedScope[] = [];
 
   if (isLoadableSettingScope(otherScope)) {
-    const otherScopeDisabled =
-      settings.forScope(otherScope).settings.hooksConfig?.disabled;
+    const otherScopeDisabled = settings.forScope(otherScope).settings.hooksConfig?.disabled;
     if (otherScopeDisabled?.includes(hookName)) {
       alreadyDisabledInOther.push({
         scope: otherScope,

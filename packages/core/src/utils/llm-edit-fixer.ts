@@ -85,15 +85,12 @@ const SearchReplaceEditSchema = {
   required: ['search', 'replace', 'explanation'],
 };
 
-const editCorrectionWithInstructionCache = new LRUCache<
-  string,
-  SearchReplaceEdit
->(MAX_CACHE_SIZE);
+const editCorrectionWithInstructionCache = new LRUCache<string, SearchReplaceEdit>(MAX_CACHE_SIZE);
 
 async function generateJsonWithTimeout<T>(
   client: BaseLlmClient,
   params: Parameters<BaseLlmClient['generateJson']>[0],
-  timeoutMs: number,
+  timeoutMs: number
 ): Promise<T | null> {
   try {
     // Create a signal that aborts automatically after the specified timeout.
@@ -103,18 +100,12 @@ async function generateJsonWithTimeout<T>(
       ...params,
       // The operation will be aborted if either the original signal is aborted
       // or if the timeout is reached.
-      abortSignal: AbortSignal.any([
-        params.abortSignal ?? new AbortController().signal,
-        timeoutSignal,
-      ]),
+      abortSignal: AbortSignal.any([params.abortSignal ?? new AbortController().signal, timeoutSignal]),
     });
     // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
     return result as T;
   } catch (err) {
-    debugLogger.debug(
-      '[LLM Edit Fixer] Timeout or error during generateJson',
-      err,
-    );
+    debugLogger.debug('[LLM Edit Fixer] Timeout or error during generateJson', err);
     // An AbortError will be thrown on timeout.
     // We catch it and return null to signal that the operation timed out.
     return null;
@@ -140,20 +131,12 @@ export async function FixLLMEditWithInstruction(
   error: string,
   current_content: string,
   baseLlmClient: BaseLlmClient,
-  abortSignal: AbortSignal,
+  abortSignal: AbortSignal
 ): Promise<SearchReplaceEdit | null> {
   const promptId = getPromptIdWithFallback('llm-fixer');
 
   const cacheKey = createHash('sha256')
-    .update(
-      JSON.stringify([
-        current_content,
-        old_string,
-        new_string,
-        instruction,
-        error,
-      ]),
-    )
+    .update(JSON.stringify([current_content, old_string, new_string, instruction, error]))
     .digest('hex');
   const cachedResult = editCorrectionWithInstructionCache.get(cacheKey);
   if (cachedResult) {
@@ -184,7 +167,7 @@ export async function FixLLMEditWithInstruction(
       maxAttempts: 1,
       role: LlmRole.UTILITY_EDIT_CORRECTOR,
     },
-    GENERATE_JSON_TIMEOUT_MS,
+    GENERATE_JSON_TIMEOUT_MS
   );
 
   if (result) {

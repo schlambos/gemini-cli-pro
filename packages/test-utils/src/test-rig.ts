@@ -27,20 +27,14 @@ export function getDefaultTimeout() {
   return 15000; // 15s locally
 }
 
-export async function poll(
-  predicate: () => boolean,
-  timeout: number,
-  interval: number,
-): Promise<boolean> {
+export async function poll(predicate: () => boolean, timeout: number, interval: number): Promise<boolean> {
   const startTime = Date.now();
   let attempts = 0;
   while (Date.now() - startTime < timeout) {
     attempts++;
     const result = predicate();
     if (env['VERBOSE'] === 'true' && attempts % 5 === 0) {
-      console.log(
-        `Poll attempt ${attempts}: ${result ? 'success' : 'waiting...'}`,
-      );
+      console.log(`Poll attempt ${attempts}: ${result ? 'success' : 'waiting...'}`);
     }
     if (result) {
       return true;
@@ -61,14 +55,8 @@ export function sanitizeTestName(name: string) {
 }
 
 // Helper to create detailed error messages
-export function createToolCallErrorMessage(
-  expectedTools: string | string[],
-  foundTools: string[],
-  result: string,
-) {
-  const expectedStr = Array.isArray(expectedTools)
-    ? expectedTools.join(' or ')
-    : expectedTools;
+export function createToolCallErrorMessage(expectedTools: string | string[], foundTools: string[], result: string) {
+  const expectedStr = Array.isArray(expectedTools) ? expectedTools.join(' or ') : expectedTools;
   return (
     `Expected to find ${expectedStr} tool call(s). ` +
     `Found: ${foundTools.length > 0 ? foundTools.join(', ') : 'none'}. ` +
@@ -77,18 +65,11 @@ export function createToolCallErrorMessage(
 }
 
 // Helper to print debug information when tests fail
-export function printDebugInfo(
-  rig: TestRig,
-  result: string,
-  context: Record<string, unknown> = {},
-) {
+export function printDebugInfo(rig: TestRig, result: string, context: Record<string, unknown> = {}) {
   console.error('Test failed - Debug info:');
   console.error('Result length:', result.length);
   console.error('Result (first 500 chars):', result.substring(0, 500));
-  console.error(
-    'Result (last 500 chars):',
-    result.substring(result.length - 500),
-  );
+  console.error('Result (last 500 chars):', result.substring(result.length - 500));
 
   // Print any additional context provided
   Object.entries(context).forEach(([key, value]) => {
@@ -99,7 +80,7 @@ export function printDebugInfo(
   const allTools = rig.readToolLogs();
   console.error(
     'All tool calls found:',
-    allTools.map((t) => t.toolRequest.name),
+    allTools.map((t) => t.toolRequest.name)
   );
 
   return allTools;
@@ -124,7 +105,7 @@ function contentExists(result: string, content: string | RegExp): boolean {
 function findMismatchedContent(
   result: string,
   content: string | (string | RegExp)[],
-  shouldExist: boolean,
+  shouldExist: boolean
 ): (string | RegExp)[] {
   const contents = Array.isArray(content) ? content : [content];
   return contents.filter((c) => contentExists(result, c) !== shouldExist);
@@ -134,16 +115,13 @@ function logContentWarning(
   problematicContent: (string | RegExp)[],
   isMissing: boolean,
   originalContent: string | (string | RegExp)[] | null | undefined,
-  result: string,
+  result: string
 ) {
   const message = isMissing
     ? 'LLM did not include expected content in response'
     : 'LLM included forbidden content in response';
 
-  console.warn(
-    `Warning: ${message}: ${problematicContent.join(', ')}.`,
-    'This is not ideal but not a test failure.',
-  );
+  console.warn(`Warning: ${message}: ${problematicContent.join(', ')}.`, 'This is not ideal but not a test failure.');
 
   const label = isMissing ? 'Expected content' : 'Forbidden content';
   console.warn(`${label}:`, originalContent);
@@ -161,7 +139,7 @@ export function checkModelOutputContent(
     expectedContent?: string | (string | RegExp)[] | null;
     testName?: string;
     forbiddenContent?: string | (string | RegExp)[] | null;
-  } = {},
+  } = {}
 ): boolean {
   let isValid = true;
 
@@ -236,11 +214,7 @@ export class InteractiveRun {
     if (!timeout) {
       timeout = getDefaultTimeout();
     }
-    await poll(
-      () => stripAnsi(this.output).toLowerCase().includes(text.toLowerCase()),
-      timeout,
-      200,
-    );
+    await poll(() => stripAnsi(this.output).toLowerCase().includes(text.toLowerCase()), timeout, 200);
     expect(stripAnsi(this.output).toLowerCase()).toContain(text.toLowerCase());
   }
 
@@ -262,14 +236,14 @@ export class InteractiveRun {
       const found = await poll(
         () => stripAnsi(this.output).includes(typedSoFar),
         5000, // 5s timeout per character (generous for CI)
-        10, // check frequently
+        10 // check frequently
       );
 
       if (!found) {
         throw new Error(
           `Timed out waiting for typed text to appear in output: "${typedSoFar}".\nStripped output:\n${stripAnsi(
-            this.output,
-          )}`,
+            this.output
+          )}`
         );
       }
     }
@@ -297,13 +271,7 @@ export class InteractiveRun {
 
   expectExit(): Promise<number> {
     return new Promise((resolve, reject) => {
-      const timer = setTimeout(
-        () =>
-          reject(
-            new Error(`Test timed out: process did not exit within a minute.`),
-          ),
-        60000,
-      );
+      const timer = setTimeout(() => reject(new Error(`Test timed out: process did not exit within a minute.`)), 60000);
       this.ptyProcess.onExit(({ exitCode }) => {
         clearTimeout(timer);
         resolve(exitCode);
@@ -352,12 +320,11 @@ export class TestRig {
     options: {
       settings?: Record<string, unknown>;
       fakeResponsesPath?: string;
-    } = {},
+    } = {}
   ) {
     this.testName = testName;
     const sanitizedName = sanitizeTestName(testName);
-    const testFileDir =
-      env['INTEGRATION_TEST_FILE_DIR'] || join(os.tmpdir(), 'gemini-cli-tests');
+    const testFileDir = env['INTEGRATION_TEST_FILE_DIR'] || join(os.tmpdir(), 'gemini-cli-tests');
     this.testDir = join(testFileDir, sanitizedName);
     this.homeDir = join(testFileDir, sanitizedName + '-home');
 
@@ -390,10 +357,7 @@ export class TestRig {
           return;
         } catch (err) {
           if (i === 9) {
-            console.error(
-              `Failed to clean directory ${dir} after 10 attempts:`,
-              err,
-            );
+            console.error(`Failed to clean directory ${dir} after 10 attempts:`, err);
             throw err;
           }
           const delay = Math.min(Math.pow(2, i) * 1000, 10000); // Max 10s delay
@@ -454,21 +418,14 @@ export class TestRig {
               },
             }
           : {}),
-        sandbox:
-          env['GEMINI_SANDBOX'] !== 'false' ? env['GEMINI_SANDBOX'] : false,
+        sandbox: env['GEMINI_SANDBOX'] !== 'false' ? env['GEMINI_SANDBOX'] : false,
         // Don't show the IDE connection dialog when running from VsCode
         ide: { enabled: false, hasSeenNudge: true },
       },
-      overrideSettings ?? {},
+      overrideSettings ?? {}
     );
-    writeFileSync(
-      join(projectGeminiDir, 'settings.json'),
-      JSON.stringify(settings, null, 2),
-    );
-    writeFileSync(
-      join(userGeminiDir, 'settings.json'),
-      JSON.stringify(settings, null, 2),
-    );
+    writeFileSync(join(projectGeminiDir, 'settings.json'), JSON.stringify(settings, null, 2));
+    writeFileSync(join(userGeminiDir, 'settings.json'), JSON.stringify(settings, null, 2));
   }
 
   createFile(fileName: string, content: string) {
@@ -496,13 +453,10 @@ export class TestRig {
     command: string;
     initialArgs: string[];
   } {
-    const isNpmReleaseTest =
-      env['INTEGRATION_TEST_USE_INSTALLED_GEMINI'] === 'true';
+    const isNpmReleaseTest = env['INTEGRATION_TEST_USE_INSTALLED_GEMINI'] === 'true';
     const geminiCommand = os.platform() === 'win32' ? 'gemini.cmd' : 'gemini';
     const command = isNpmReleaseTest ? geminiCommand : 'node';
-    const initialArgs = isNpmReleaseTest
-      ? extraInitialArgs
-      : [BUNDLE_PATH, ...extraInitialArgs];
+    const initialArgs = isNpmReleaseTest ? extraInitialArgs : [BUNDLE_PATH, ...extraInitialArgs];
     if (this.fakeResponsesPath) {
       if (process.env['REGENERATE_MODEL_GOLDENS'] === 'true') {
         initialArgs.push('--record-responses', this.fakeResponsesPath);
@@ -515,18 +469,14 @@ export class TestRig {
 
   createScript(fileName: string, content: string) {
     if (!this.testDir) {
-      throw new Error(
-        'TestRig.setup must be called before creating files or scripts',
-      );
+      throw new Error('TestRig.setup must be called before creating files or scripts');
     }
     const scriptPath = join(this.testDir, fileName);
     writeFileSync(scriptPath, content);
     return normalizePath(scriptPath);
   }
 
-  private _getCleanEnv(
-    extraEnv?: Record<string, string | undefined>,
-  ): Record<string, string | undefined> {
+  private _getCleanEnv(extraEnv?: Record<string, string | undefined>): Record<string, string | undefined> {
     const cleanEnv: Record<string, string | undefined> = { ...process.env };
 
     // Clear all GEMINI_ environment variables that might interfere with tests
@@ -563,9 +513,7 @@ export class TestRig {
     env?: Record<string, string | undefined>;
   }): Promise<string> {
     const approvalMode = options.approvalMode ?? 'yolo';
-    const { command, initialArgs } = this._getCommandAndArgs([
-      `--approval-mode=${approvalMode}`,
-    ]);
+    const { command, initialArgs } = this._getCommandAndArgs([`--approval-mode=${approvalMode}`]);
     const commandArgs = [...initialArgs];
     const execOptions: {
       cwd: string;
@@ -627,11 +575,7 @@ export class TestRig {
     const promise = new Promise<string>((resolve, reject) => {
       const timer = setTimeout(() => {
         child.kill('SIGKILL');
-        reject(
-          new Error(
-            `Process timed out after ${timeout}ms.\nStdout:\n${stdout}\nStderr:\n${stderr}`,
-          ),
-        );
+        reject(new Error(`Process timed out after ${timeout}ms.\nStdout:\n${stdout}\nStderr:\n${stderr}`));
       }, timeout);
 
       child.on('error', (err) => {
@@ -651,15 +595,10 @@ export class TestRig {
 
           // Check if this is a JSON output test - if so, don't include stderr
           // as it would corrupt the JSON
-          const isJsonOutput =
-            commandArgs.includes('--output-format') &&
-            commandArgs.includes('json');
+          const isJsonOutput = commandArgs.includes('--output-format') && commandArgs.includes('json');
 
           // If we have stderr output and it's not a JSON test, include that also
-          const finalResult =
-            stderr && !isJsonOutput
-              ? `${result}\n\nStdErr:\n${stderr}`
-              : result;
+          const finalResult = stderr && !isJsonOutput ? `${result}\n\nStdErr:\n${stderr}` : result;
 
           resolve(finalResult);
         } else {
@@ -716,12 +655,10 @@ export class TestRig {
    */
   runWithStreams(
     args: string[],
-    options?: { signal?: AbortSignal },
+    options?: { signal?: AbortSignal }
   ): Promise<{ stdout: string; stderr: string; exitCode: number | null }> {
     return new Promise((resolve, reject) => {
-      const { command, initialArgs } = this._getCommandAndArgs([
-        '--approval-mode=yolo',
-      ]);
+      const { command, initialArgs } = this._getCommandAndArgs(['--approval-mode=yolo']);
 
       const allArgs = [...initialArgs, ...args];
 
@@ -758,7 +695,7 @@ export class TestRig {
       stdin?: string;
       timeout?: number;
       env?: Record<string, string | undefined>;
-    } = {},
+    } = {}
   ): Promise<string> {
     const { command, initialArgs } = this._getCommandAndArgs();
     const commandArgs = [...initialArgs, ...args];
@@ -798,11 +735,7 @@ export class TestRig {
     const promise = new Promise<string>((resolve, reject) => {
       const timer = setTimeout(() => {
         child.kill('SIGKILL');
-        reject(
-          new Error(
-            `Process timed out after ${timeout}ms.\nStdout:\n${stdout}\nStderr:\n${stderr}`,
-          ),
-        );
+        reject(new Error(`Process timed out after ${timeout}ms.\nStdout:\n${stdout}\nStderr:\n${stderr}`));
       }, timeout);
 
       child.on('error', (err) => {
@@ -819,14 +752,9 @@ export class TestRig {
 
           // Check if this is a JSON output test - if so, don't include stderr
           // as it would corrupt the JSON
-          const isJsonOutput =
-            commandArgs.includes('--output-format') &&
-            commandArgs.includes('json');
+          const isJsonOutput = commandArgs.includes('--output-format') && commandArgs.includes('json');
 
-          const finalResult =
-            stderr && !isJsonOutput
-              ? `${result}\n\nStdErr:\n${stderr}`
-              : result;
+          const finalResult = stderr && !isJsonOutput ? `${result}\n\nStdErr:\n${stderr}` : result;
           resolve(finalResult);
         } else {
           reject(new Error(`Process exited with code ${code}:\n${stderr}`));
@@ -878,20 +806,14 @@ export class TestRig {
           child.kill('SIGKILL');
         } catch (error) {
           if (env['VERBOSE'] === 'true') {
-            console.warn(
-              'Failed to kill spawned process during cleanup:',
-              error,
-            );
+            console.warn('Failed to kill spawned process during cleanup:', error);
           }
         }
       }
     }
     this._spawnedProcesses = [];
 
-    if (
-      process.env['REGENERATE_MODEL_GOLDENS'] === 'true' &&
-      this.fakeResponsesPath
-    ) {
+    if (process.env['REGENERATE_MODEL_GOLDENS'] === 'true' && this.fakeResponsesPath) {
       fs.copyFileSync(this.fakeResponsesPath, this.originalFakeResponsesPath!);
     }
     // Clean up test directory and home directory
@@ -936,7 +858,7 @@ export class TestRig {
         }
       },
       2000, // 2 seconds max - reduced since telemetry should flush on exit now
-      100, // check every 100ms
+      100 // check every 100ms
     );
   }
 
@@ -951,21 +873,15 @@ export class TestRig {
       () => {
         const logs = this._readAndParseTelemetryLog();
         return logs.some(
-          (logData) =>
-            logData.attributes &&
-            logData.attributes['event.name'] === `gemini_cli.${eventName}`,
+          (logData) => logData.attributes && logData.attributes['event.name'] === `gemini_cli.${eventName}`
         );
       },
       timeout,
-      100,
+      100
     );
   }
 
-  async waitForToolCall(
-    toolName: string,
-    timeout?: number,
-    matchArgs?: (args: string) => boolean,
-  ) {
+  async waitForToolCall(toolName: string, timeout?: number, matchArgs?: (args: string) => boolean) {
     // Use environment-specific timeout
     if (!timeout) {
       timeout = getDefaultTimeout();
@@ -978,21 +894,15 @@ export class TestRig {
       () => {
         const toolLogs = this.readToolLogs();
         return toolLogs.some(
-          (log) =>
-            log.toolRequest.name === toolName &&
-            (matchArgs?.call(this, log.toolRequest.args) ?? true),
+          (log) => log.toolRequest.name === toolName && (matchArgs?.call(this, log.toolRequest.args) ?? true)
         );
       },
       timeout,
-      100,
+      100
     );
   }
 
-  async expectToolCallSuccess(
-    toolNames: string[],
-    timeout?: number,
-    matchArgs?: (args: string) => boolean,
-  ) {
+  async expectToolCallSuccess(toolNames: string[], timeout?: number, matchArgs?: (args: string) => boolean) {
     // Use environment-specific timeout
     if (!timeout) {
       timeout = getDefaultTimeout();
@@ -1009,18 +919,15 @@ export class TestRig {
             (log) =>
               log.toolRequest.name === name &&
               log.toolRequest.success &&
-              (matchArgs?.call(this, log.toolRequest.args) ?? true),
-          ),
+              (matchArgs?.call(this, log.toolRequest.args) ?? true)
+          )
         );
       },
       timeout,
-      100,
+      100
     );
 
-    expect(
-      success,
-      `Expected to find successful toolCalls for ${JSON.stringify(toolNames)}`,
-    ).toBe(true);
+    expect(success, `Expected to find successful toolCalls for ${JSON.stringify(toolNames)}`).toBe(true);
   }
 
   async waitForAnyToolCall(toolNames: string[], timeout?: number) {
@@ -1034,12 +941,10 @@ export class TestRig {
     return poll(
       () => {
         const toolLogs = this.readToolLogs();
-        return toolNames.some((name) =>
-          toolLogs.some((log) => log.toolRequest.name === name),
-        );
+        return toolNames.some((name) => toolLogs.some((log) => log.toolRequest.name === name));
       },
       timeout,
-      100,
+      100
     );
   }
 
@@ -1057,8 +962,7 @@ export class TestRig {
     // The console output from Podman is JavaScript object notation, not JSON
     // Look for tool call events in the output
     // Updated regex to handle tool names with hyphens and underscores
-    const toolCallPattern =
-      /body:\s*'Tool call:\s*([\w-]+)\..*?Success:\s*(\w+)\..*?Duration:\s*(\d+)ms\.'/g;
+    const toolCallPattern = /body:\s*'Tool call:\s*([\w-]+)\..*?Success:\s*(\w+)\..*?Duration:\s*(\d+)ms\.'/g;
     const matches = [...stdout.matchAll(toolCallPattern)];
 
     for (const match of matches) {
@@ -1124,11 +1028,7 @@ export class TestRig {
               const obj = JSON.parse(currentObject);
 
               // Check for tool call in different formats
-              if (
-                obj.body &&
-                obj.body.includes('Tool call:') &&
-                obj.attributes
-              ) {
+              if (obj.body && obj.body.includes('Tool call:') && obj.attributes) {
                 const bodyMatch = obj.body.match(/Tool call: (\w+)\./);
                 if (bodyMatch) {
                   logs.push({
@@ -1141,10 +1041,7 @@ export class TestRig {
                     },
                   });
                 }
-              } else if (
-                obj.attributes &&
-                obj.attributes['event.name'] === 'gemini_cli.tool_call'
-              ) {
+              } else if (obj.attributes && obj.attributes['event.name'] === 'gemini_cli.tool_call') {
                 logs.push({
                   timestamp: obj.attributes['event.timestamp'],
                   toolRequest: {
@@ -1247,10 +1144,7 @@ export class TestRig {
 
     for (const logData of parsedLogs) {
       // Look for tool call logs
-      if (
-        logData.attributes &&
-        logData.attributes['event.name'] === 'gemini_cli.tool_call'
-      ) {
+      if (logData.attributes && logData.attributes['event.name'] === 'gemini_cli.tool_call') {
         const toolName = logData.attributes.function_name!;
         logs.push({
           toolRequest: {
@@ -1269,9 +1163,7 @@ export class TestRig {
   readAllApiRequest(): ParsedLog[] {
     const logs = this._readAndParseTelemetryLog();
     const apiRequests = logs.filter(
-      (logData) =>
-        logData.attributes &&
-        logData.attributes['event.name'] === `gemini_cli.api_request`,
+      (logData) => logData.attributes && logData.attributes['event.name'] === `gemini_cli.api_request`
     );
     return apiRequests;
   }
@@ -1279,9 +1171,7 @@ export class TestRig {
   readLastApiRequest(): ParsedLog | null {
     const logs = this._readAndParseTelemetryLog();
     const apiRequests = logs.filter(
-      (logData) =>
-        logData.attributes &&
-        logData.attributes['event.name'] === `gemini_cli.api_request`,
+      (logData) => logData.attributes && logData.attributes['event.name'] === `gemini_cli.api_request`
     );
     return apiRequests.pop() || null;
   }
@@ -1289,9 +1179,7 @@ export class TestRig {
   async waitForMetric(metricName: string, timeout?: number) {
     await this.waitForTelemetryReady();
 
-    const fullName = metricName.startsWith('gemini_cli.')
-      ? metricName
-      : `gemini_cli.${metricName}`;
+    const fullName = metricName.startsWith('gemini_cli.') ? metricName : `gemini_cli.${metricName}`;
 
     return poll(
       () => {
@@ -1310,7 +1198,7 @@ export class TestRig {
         return false;
       },
       timeout ?? getDefaultTimeout(),
-      100,
+      100
     );
   }
 
@@ -1336,23 +1224,14 @@ export class TestRig {
     env?: Record<string, string | undefined>;
   }): Promise<InteractiveRun> {
     const approvalMode = options?.approvalMode ?? 'yolo';
-    const { command, initialArgs } = this._getCommandAndArgs([
-      `--approval-mode=${approvalMode}`,
-    ]);
+    const { command, initialArgs } = this._getCommandAndArgs([`--approval-mode=${approvalMode}`]);
     const commandArgs = [...initialArgs];
 
     const envVars = this._getCleanEnv(options?.env);
 
     // node-pty on windows often needs these to spawn correctly
     if (process.platform === 'win32') {
-      const windowsCriticalVars = [
-        'SystemRoot',
-        'COMSPEC',
-        'windir',
-        'PATHEXT',
-        'TEMP',
-        'TMP',
-      ];
+      const windowsCriticalVars = ['SystemRoot', 'COMSPEC', 'windir', 'PATHEXT', 'TEMP', 'TMP'];
       for (const v of windowsCriticalVars) {
         if (process.env[v] && !envVars[v]) {
           envVars[v] = process.env[v]!;
@@ -1365,9 +1244,7 @@ export class TestRig {
       cols: 80,
       rows: 80,
       cwd: this.testDir!,
-      env: Object.fromEntries(
-        Object.entries(envVars).filter(([, v]) => v !== undefined),
-      ) as { [key: string]: string },
+      env: Object.fromEntries(Object.entries(envVars).filter(([, v]) => v !== undefined)) as { [key: string]: string },
     };
 
     const executable = command === 'node' ? process.execPath : command;
@@ -1399,10 +1276,7 @@ export class TestRig {
 
     for (const logData of parsedLogs) {
       // Look for tool call logs
-      if (
-        logData.attributes &&
-        logData.attributes['event.name'] === 'gemini_cli.hook_call'
-      ) {
+      if (logData.attributes && logData.attributes['event.name'] === 'gemini_cli.hook_call') {
         logs.push({
           hookCall: {
             hook_event_name: logData.attributes.hook_event_name ?? '',
@@ -1427,7 +1301,7 @@ export class TestRig {
     commandFn: () => Promise<void>,
     predicateFn: () => boolean,
     timeout: number = 30000,
-    interval: number = 1000,
+    interval: number = 1000
   ) {
     const startTime = Date.now();
     while (Date.now() - startTime < timeout) {

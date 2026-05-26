@@ -8,13 +8,7 @@ import { debugLogger, type Config } from '@google/gemini-cli-core';
 import { useStdin } from 'ink';
 import { MultiMap } from 'mnemonist';
 import type React from 'react';
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-} from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef } from 'react';
 
 import { ESC } from '../utils/input.js';
 import { parseMouseEvent } from '../utils/mouse.js';
@@ -35,10 +29,7 @@ export enum KeypressPriority {
 }
 
 // Parse the key itself
-const KEY_INFO_MAP: Record<
-  string,
-  { name: string; shift?: boolean; ctrl?: boolean }
-> = {
+const KEY_INFO_MAP: Record<string, { name: string; shift?: boolean; ctrl?: boolean }> = {
   '[200~': { name: 'paste-start' },
   '[201~': { name: 'paste-end' },
   '[[A': { name: 'f1' },
@@ -143,15 +134,9 @@ const MAC_ALT_KEY_CHARACTER_MAP: Record<string, string> = {
   '\u00B8': 'Z', // "¸" Option+Shift+z
 };
 
-function nonKeyboardEventFilter(
-  keypressHandler: KeypressHandler,
-): KeypressHandler {
+function nonKeyboardEventFilter(keypressHandler: KeypressHandler): KeypressHandler {
   return (key: Key) => {
-    if (
-      !parseMouseEvent(key.sequence) &&
-      key.sequence !== FOCUS_IN &&
-      key.sequence !== FOCUS_OUT
-    ) {
+    if (!parseMouseEvent(key.sequence) && key.sequence !== FOCUS_IN && key.sequence !== FOCUS_OUT) {
       keypressHandler(key);
     }
   };
@@ -190,9 +175,7 @@ function bufferFastReturn(keypressHandler: KeypressHandler): KeypressHandler {
  * Will flush the buffer if no data is received for DRAG_COMPLETION_TIMEOUT_MS
  * or when a null key is received.
  */
-function bufferBackslashEnter(
-  keypressHandler: KeypressHandler,
-): KeypressHandler {
+function bufferBackslashEnter(keypressHandler: KeypressHandler): KeypressHandler {
   const bufferer = (function* (): Generator<void, void, Key | null> {
     while (true) {
       const key = yield;
@@ -204,10 +187,7 @@ function bufferBackslashEnter(
         continue;
       }
 
-      const timeoutId = setTimeout(
-        () => bufferer.next(null),
-        BACKSLASH_ENTER_TIMEOUT,
-      );
+      const timeoutId = setTimeout(() => bufferer.next(null), BACKSLASH_ENTER_TIMEOUT);
       const nextKey = yield;
       clearTimeout(timeoutId);
 
@@ -313,9 +293,7 @@ function createDataListener(keypressHandler: KeypressHandler) {
  * Buffers escape sequences until a full sequence is received or
  * until an empty string is sent to indicate a timeout.
  */
-function* emitKeys(
-  keypressHandler: KeypressHandler,
-): Generator<void, void, string> {
+function* emitKeys(keypressHandler: KeypressHandler): Generator<void, void, string> {
   const lang = process.env['LANG'] || '';
   const lcAll = process.env['LC_ALL'] || '';
   const isGreek = lang.startsWith('el') || lcAll.startsWith('el');
@@ -538,16 +516,10 @@ function* emitKeys(
         }
       } else {
         name = 'undefined';
-        if (
-          (ctrl || cmd || alt) &&
-          (code.endsWith('u') || code.endsWith('~'))
-        ) {
+        if ((ctrl || cmd || alt) && (code.endsWith('u') || code.endsWith('~'))) {
           // CSI-u or tilde-coded functional keys: ESC [ <code> ; <mods> (u|~)
           const codeNumber = parseInt(code.slice(1, -1), 10);
-          if (
-            codeNumber >= 'a'.charCodeAt(0) &&
-            codeNumber <= 'z'.charCodeAt(0)
-          ) {
+          if (codeNumber >= 'a'.charCodeAt(0) && codeNumber <= 'z'.charCodeAt(0)) {
             name = String.fromCharCode(codeNumber);
           }
         }
@@ -622,10 +594,7 @@ function* emitKeys(
       insertable = true;
     }
 
-    if (
-      (sequence.length !== 0 && (name !== undefined || escaped)) ||
-      charLengthAt(sequence, 0) === sequence.length
-    ) {
+    if ((sequence.length !== 0 && (name !== undefined || escaped)) || charLengthAt(sequence, 0) === sequence.length) {
       keypressHandler({
         name: name || '',
         shift,
@@ -653,23 +622,16 @@ export interface Key {
 export type KeypressHandler = (key: Key) => boolean | void;
 
 interface KeypressContextValue {
-  subscribe: (
-    handler: KeypressHandler,
-    priority?: KeypressPriority | boolean,
-  ) => void;
+  subscribe: (handler: KeypressHandler, priority?: KeypressPriority | boolean) => void;
   unsubscribe: (handler: KeypressHandler) => void;
 }
 
-const KeypressContext = createContext<KeypressContextValue | undefined>(
-  undefined,
-);
+const KeypressContext = createContext<KeypressContextValue | undefined>(undefined);
 
 export function useKeypressContext() {
   const context = useContext(KeypressContext);
   if (!context) {
-    throw new Error(
-      'useKeypressContext must be used within a KeypressProvider',
-    );
+    throw new Error('useKeypressContext must be used within a KeypressProvider');
   }
   return context;
 }
@@ -685,25 +647,13 @@ export function KeypressProvider({
 }) {
   const { stdin, setRawMode } = useStdin();
 
-  const subscribersToPriority = useRef<Map<KeypressHandler, number>>(
-    new Map(),
-  ).current;
-  const subscribers = useRef(
-    new MultiMap<number, KeypressHandler>(Set),
-  ).current;
+  const subscribersToPriority = useRef<Map<KeypressHandler, number>>(new Map()).current;
+  const subscribers = useRef(new MultiMap<number, KeypressHandler>(Set)).current;
   const sortedPriorities = useRef<number[]>([]);
 
   const subscribe = useCallback(
-    (
-      handler: KeypressHandler,
-      priority: KeypressPriority | boolean = KeypressPriority.Normal,
-    ) => {
-      const p =
-        typeof priority === 'boolean'
-          ? priority
-            ? KeypressPriority.High
-            : KeypressPriority.Normal
-          : priority;
+    (handler: KeypressHandler, priority: KeypressPriority | boolean = KeypressPriority.Normal) => {
+      const p = typeof priority === 'boolean' ? (priority ? KeypressPriority.High : KeypressPriority.Normal) : priority;
 
       subscribersToPriority.set(handler, p);
       const hadPriority = subscribers.has(p);
@@ -711,12 +661,10 @@ export function KeypressProvider({
 
       if (!hadPriority) {
         // Cache sorted priorities only when a new priority level is added
-        sortedPriorities.current = Array.from(subscribers.keys()).sort(
-          (a, b) => b - a,
-        );
+        sortedPriorities.current = Array.from(subscribers.keys()).sort((a, b) => b - a);
       }
     },
-    [subscribers, subscribersToPriority],
+    [subscribers, subscribersToPriority]
   );
 
   const unsubscribe = useCallback(
@@ -728,13 +676,11 @@ export function KeypressProvider({
 
         if (!subscribers.has(p)) {
           // Cache sorted priorities only when a priority level is completely removed
-          sortedPriorities.current = Array.from(subscribers.keys()).sort(
-            (a, b) => b - a,
-          );
+          sortedPriorities.current = Array.from(subscribers.keys()).sort((a, b) => b - a);
         }
       }
     },
-    [subscribers, subscribersToPriority],
+    [subscribers, subscribersToPriority]
   );
 
   const broadcast = useCallback(
@@ -753,7 +699,7 @@ export function KeypressProvider({
         }
       }
     },
-    [subscribers],
+    [subscribers]
   );
 
   useEffect(() => {
@@ -791,9 +737,5 @@ export function KeypressProvider({
     };
   }, [stdin, setRawMode, config, debugKeystrokeLogging, broadcast]);
 
-  return (
-    <KeypressContext.Provider value={{ subscribe, unsubscribe }}>
-      {children}
-    </KeypressContext.Provider>
-  );
+  return <KeypressContext.Provider value={{ subscribe, unsubscribe }}>{children}</KeypressContext.Provider>;
 }

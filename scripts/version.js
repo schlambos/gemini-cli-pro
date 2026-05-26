@@ -38,23 +38,17 @@ run(`npm version ${versionType} --no-git-tag-version --allow-same-version`);
 const workspacesToExclude = [];
 let lsOutput;
 try {
-  lsOutput = JSON.parse(
-    execSync('npm ls --workspaces --json --depth=0').toString(),
-  );
+  lsOutput = JSON.parse(execSync('npm ls --workspaces --json --depth=0').toString());
 } catch (e) {
   // `npm ls` can exit with a non-zero status code if there are issues
   // with dependencies, but it will still produce the JSON output we need.
   // We'll try to parse the stdout from the error object.
   if (e.stdout) {
-    console.warn(
-      'Warning: `npm ls` exited with a non-zero status code. Attempting to proceed with the output.',
-    );
+    console.warn('Warning: `npm ls` exited with a non-zero status code. Attempting to proceed with the output.');
     try {
       lsOutput = JSON.parse(e.stdout.toString());
     } catch (parseError) {
-      console.error(
-        'Error: Failed to parse JSON from `npm ls` output even after `npm ls` failed.',
-      );
+      console.error('Error: Failed to parse JSON from `npm ls` output even after `npm ls` failed.');
       console.error('npm ls stderr:', e.stderr.toString());
       console.error('Parse error:', parseError);
       process.exit(1);
@@ -66,14 +60,10 @@ try {
   }
 }
 const allWorkspaces = Object.keys(lsOutput.dependencies || {});
-const workspacesToVersion = allWorkspaces.filter(
-  (wsName) => !workspacesToExclude.includes(wsName),
-);
+const workspacesToVersion = allWorkspaces.filter((wsName) => !workspacesToExclude.includes(wsName));
 
 for (const workspaceName of workspacesToVersion) {
-  run(
-    `npm version ${versionType} --workspace ${workspaceName} --no-git-tag-version --allow-same-version`,
-  );
+  run(`npm version ${versionType} --workspace ${workspaceName} --no-git-tag-version --allow-same-version`);
 }
 
 // 4. Get the new version number from the root package.json
@@ -83,8 +73,7 @@ const newVersion = readJson(rootPackageJsonPath).version;
 // 4. Update the sandboxImageUri in the root package.json
 const rootPackageJson = readJson(rootPackageJsonPath);
 if (rootPackageJson.config?.sandboxImageUri) {
-  rootPackageJson.config.sandboxImageUri =
-    rootPackageJson.config.sandboxImageUri.replace(/:.*$/, `:${newVersion}`);
+  rootPackageJson.config.sandboxImageUri = rootPackageJson.config.sandboxImageUri.replace(/:.*$/, `:${newVersion}`);
   console.log(`Updated sandboxImageUri in root to use version ${newVersion}`);
   writeJson(rootPackageJsonPath, rootPackageJson);
 }
@@ -93,17 +82,12 @@ if (rootPackageJson.config?.sandboxImageUri) {
 const cliPackageJsonPath = resolve(process.cwd(), 'packages/cli/package.json');
 const cliPackageJson = readJson(cliPackageJsonPath);
 if (cliPackageJson.config?.sandboxImageUri) {
-  cliPackageJson.config.sandboxImageUri =
-    cliPackageJson.config.sandboxImageUri.replace(/:.*$/, `:${newVersion}`);
-  console.log(
-    `Updated sandboxImageUri in cli package to use version ${newVersion}`,
-  );
+  cliPackageJson.config.sandboxImageUri = cliPackageJson.config.sandboxImageUri.replace(/:.*$/, `:${newVersion}`);
+  console.log(`Updated sandboxImageUri in cli package to use version ${newVersion}`);
   writeJson(cliPackageJsonPath, cliPackageJson);
 }
 
 // 6. Run `npm install` to update package-lock.json.
-run(
-  'npm install --workspace packages/cli --workspace packages/core --package-lock-only',
-);
+run('npm install --workspace packages/cli --workspace packages/core --package-lock-only');
 
 console.log(`Successfully bumped versions to v${newVersion}.`);

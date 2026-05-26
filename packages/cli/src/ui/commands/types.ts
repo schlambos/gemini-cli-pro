@@ -5,25 +5,12 @@
  */
 
 import type { ReactNode } from 'react';
-import type {
-  HistoryItemWithoutId,
-  HistoryItem,
-  ConfirmationRequest,
-} from '../types.js';
-import type {
-  Config,
-  GitService,
-  Logger,
-  CommandActionReturn,
-  AgentDefinition,
-} from '@google/gemini-cli-core';
+import type { HistoryItemWithoutId, HistoryItem, ConfirmationRequest } from '../types.js';
+import type { Config, GitService, Logger, CommandActionReturn, AgentDefinition } from '@google/gemini-cli-core';
 import type { LoadedSettings } from '../../config/settings.js';
 import type { UseHistoryManagerReturn } from '../hooks/useHistoryManager.js';
 import type { SessionStatsState } from '../contexts/SessionContext.js';
-import type {
-  ExtensionUpdateAction,
-  ExtensionUpdateStatus,
-} from '../state/extensions.js';
+import type { ExtensionUpdateAction, ExtensionUpdateStatus } from '../state/extensions.js';
 
 // Grouped dependencies for clarity and easier mocking
 export interface CommandContext {
@@ -75,11 +62,7 @@ export interface CommandContext {
     toggleDebugProfiler: () => void;
     toggleVimEnabled: () => Promise<boolean>;
     reloadCommands: () => void;
-    openAgentConfigDialog: (
-      name: string,
-      displayName: string,
-      definition: AgentDefinition,
-    ) => void;
+    openAgentConfigDialog: (name: string, displayName: string, definition: AgentDefinition) => void;
     extensionsUpdateState: Map<string, ExtensionUpdateStatus>;
     dispatchExtensionStateUpdate: (action: ExtensionUpdateAction) => void;
     addConfirmUpdateExtensionRequest: (value: ConfirmationRequest) => void;
@@ -206,17 +189,11 @@ export interface SlashCommand {
   // The action to run. Optional for parent commands that only group sub-commands.
   action?: (
     context: CommandContext,
-    args: string, // TODO: Remove args. CommandContext now contains the complete invocation.
-  ) =>
-    | void
-    | SlashCommandActionReturn
-    | Promise<void | SlashCommandActionReturn>;
+    args: string // TODO: Remove args. CommandContext now contains the complete invocation.
+  ) => void | SlashCommandActionReturn | Promise<void | SlashCommandActionReturn>;
 
   // Provides argument completion (e.g., completing a tag for `/chat resume <tag>`).
-  completion?: (
-    context: CommandContext,
-    partialArg: string,
-  ) => Promise<string[]> | string[];
+  completion?: (context: CommandContext, partialArg: string) => Promise<string[]> | string[];
 
   /**
    * Whether to show the loading indicator while fetching completions.

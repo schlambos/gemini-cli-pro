@@ -8,15 +8,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import {
-  ToolOutputMaskingService,
-  MASKING_INDICATOR_TAG,
-} from './toolOutputMaskingService.js';
-import {
-  SHELL_TOOL_NAME,
-  ACTIVATE_SKILL_TOOL_NAME,
-  MEMORY_TOOL_NAME,
-} from '../tools/tool-names.js';
+import { ToolOutputMaskingService, MASKING_INDICATOR_TAG } from './toolOutputMaskingService.js';
+import { SHELL_TOOL_NAME, ACTIVATE_SKILL_TOOL_NAME, MEMORY_TOOL_NAME } from '../tools/tool-names.js';
 import { estimateTokenCountSync } from '../utils/tokenCalculation.js';
 import type { Config } from '../config/config.js';
 import type { Content, Part } from '@google/genai';
@@ -33,9 +26,7 @@ describe('ToolOutputMaskingService', () => {
   const mockedEstimateTokenCountSync = vi.mocked(estimateTokenCountSync);
 
   beforeEach(async () => {
-    testTempDir = await fs.promises.mkdtemp(
-      path.join(os.tmpdir(), 'tool-masking-test-'),
-    );
+    testTempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'tool-masking-test-'));
 
     service = new ToolOutputMaskingService();
     mockConfig = {
@@ -86,10 +77,7 @@ describe('ToolOutputMaskingService', () => {
     ];
 
     mockedEstimateTokenCountSync.mockImplementation((parts) => {
-      const resp = parts[0].functionResponse?.response as Record<
-        string,
-        unknown
-      >;
+      const resp = parts[0].functionResponse?.response as Record<string, unknown>;
       const content = (resp?.['output'] as string) ?? JSON.stringify(resp);
       return content.includes(MASKING_INDICATOR_TAG) ? 10 : 200;
     });
@@ -125,9 +113,7 @@ describe('ToolOutputMaskingService', () => {
   });
 
   const getToolResponse = (part: Part | undefined): string => {
-    const resp = part?.functionResponse?.response as
-      | { output: string }
-      | undefined;
+    const resp = part?.functionResponse?.response as { output: string } | undefined;
     return resp?.output ?? (resp as unknown as string) ?? '';
   };
 
@@ -174,10 +160,7 @@ describe('ToolOutputMaskingService', () => {
 
     mockedEstimateTokenCountSync.mockImplementation((parts: Part[]) => {
       const toolName = parts[0].functionResponse?.name;
-      const resp = parts[0].functionResponse?.response as Record<
-        string,
-        unknown
-      >;
+      const resp = parts[0].functionResponse?.response as Record<string, unknown>;
       const content = (resp?.['output'] as string) ?? JSON.stringify(resp);
       if (content.includes(`<${MASKING_INDICATOR_TAG}`)) return 100;
 
@@ -194,15 +177,9 @@ describe('ToolOutputMaskingService', () => {
     const result = await service.mask(history, mockConfig);
 
     expect(result.maskedCount).toBe(1);
-    expect(getToolResponse(result.newHistory[0].parts?.[0])).toContain(
-      `<${MASKING_INDICATOR_TAG}`,
-    );
-    expect(getToolResponse(result.newHistory[1].parts?.[0])).toEqual(
-      'B'.repeat(20000),
-    );
-    expect(getToolResponse(result.newHistory[2].parts?.[0])).toEqual(
-      'C'.repeat(10000),
-    );
+    expect(getToolResponse(result.newHistory[0].parts?.[0])).toContain(`<${MASKING_INDICATOR_TAG}`);
+    expect(getToolResponse(result.newHistory[1].parts?.[0])).toEqual('B'.repeat(20000));
+    expect(getToolResponse(result.newHistory[2].parts?.[0])).toEqual('C'.repeat(10000));
   });
 
   it('should perform global aggregation for many small parts once boundary is hit', async () => {
@@ -228,14 +205,8 @@ describe('ToolOutputMaskingService', () => {
     }));
 
     mockedEstimateTokenCountSync.mockImplementation((parts: Part[]) => {
-      const resp = parts[0].functionResponse?.response as
-        | { output?: string; result?: string }
-        | string
-        | undefined;
-      const content =
-        typeof resp === 'string'
-          ? resp
-          : resp?.output || resp?.result || JSON.stringify(resp);
+      const resp = parts[0].functionResponse?.response as { output?: string; result?: string } | string | undefined;
+      const content = typeof resp === 'string' ? resp : resp?.output || resp?.result || JSON.stringify(resp);
       if (content?.includes(`<${MASKING_INDICATOR_TAG}`)) return 100;
       return content?.length || 0;
     });
@@ -255,8 +226,7 @@ describe('ToolOutputMaskingService', () => {
             functionResponse: {
               name: SHELL_TOOL_NAME,
               response: {
-                output:
-                  'Output: line1\nline2\nline3\nline4\nline5\nError: failed\nExit Code: 1',
+                output: 'Output: line1\nline2\nline3\nline4\nline5\nError: failed\nExit Code: 1',
               },
             },
           },
@@ -283,10 +253,7 @@ describe('ToolOutputMaskingService', () => {
 
     mockedEstimateTokenCountSync.mockImplementation((parts: Part[]) => {
       const name = parts[0].functionResponse?.name;
-      const resp = parts[0].functionResponse?.response as Record<
-        string,
-        unknown
-      >;
+      const resp = parts[0].functionResponse?.response as Record<string, unknown>;
       const content = (resp?.['output'] as string) ?? JSON.stringify(resp);
       if (content.includes(`<${MASKING_INDICATOR_TAG}`)) return 100;
 
@@ -364,22 +331,15 @@ describe('ToolOutputMaskingService', () => {
     ];
 
     mockedEstimateTokenCountSync.mockImplementation((parts: Part[]) => {
-      const resp = parts[0].functionResponse?.response as Record<
-        string,
-        unknown
-      >;
-      const content =
-        (resp?.['output'] as string) ??
-        (resp?.['result'] as string) ??
-        JSON.stringify(resp);
+      const resp = parts[0].functionResponse?.response as Record<string, unknown>;
+      const content = (resp?.['output'] as string) ?? (resp?.['result'] as string) ?? JSON.stringify(resp);
       if (content.includes(`<${MASKING_INDICATOR_TAG}`)) return 100;
       return 60000;
     });
 
     const result = await service.mask(history, mockConfig);
     expect(result.maskedCount).toBe(2); // both t1 and p are prunable (cumulative 60k and 120k)
-    const responseObj = result.newHistory[0].parts?.[0].functionResponse
-      ?.response as Record<string, unknown>;
+    const responseObj = result.newHistory[0].parts?.[0].functionResponse?.response as Record<string, unknown>;
     expect(Object.keys(responseObj)).toEqual(['output']);
   });
 
@@ -419,10 +379,7 @@ describe('ToolOutputMaskingService', () => {
     ];
 
     mockedEstimateTokenCountSync.mockImplementation((parts: Part[]) => {
-      const resp = parts[0].functionResponse?.response as Record<
-        string,
-        unknown
-      >;
+      const resp = parts[0].functionResponse?.response as Record<string, unknown>;
       const content = (resp?.['output'] as string) ?? JSON.stringify(resp);
       if (content.includes(`<${MASKING_INDICATOR_TAG}`)) return 100;
 
@@ -436,14 +393,9 @@ describe('ToolOutputMaskingService', () => {
     expect(result.maskedCount).toBe(2); //Both t1 and p are prunable (cumulative 60k each > 50k protection)
     expect(result.newHistory[0].parts).toHaveLength(2);
     expect(result.newHistory[0].parts?.[0].functionResponse).toBeDefined();
-    expect(
-      (
-        result.newHistory[0].parts?.[0].functionResponse?.response as Record<
-          string,
-          unknown
-        >
-      )['output'],
-    ).toContain(`<${MASKING_INDICATOR_TAG}`);
+    expect((result.newHistory[0].parts?.[0].functionResponse?.response as Record<string, unknown>)['output']).toContain(
+      `<${MASKING_INDICATOR_TAG}`
+    );
     expect(result.newHistory[0].parts?.[1].inlineData).toEqual({
       data: 'base64data',
       mimeType: 'image/png',
@@ -482,10 +434,7 @@ describe('ToolOutputMaskingService', () => {
     ];
 
     mockedEstimateTokenCountSync.mockImplementation((parts: Part[]) => {
-      const resp = parts[0].functionResponse?.response as Record<
-        string,
-        unknown
-      >;
+      const resp = parts[0].functionResponse?.response as Record<string, unknown>;
       const content = (resp?.['output'] as string) ?? JSON.stringify(resp);
       if (content.includes(`<${MASKING_INDICATOR_TAG}`)) return 100;
 
@@ -497,8 +446,7 @@ describe('ToolOutputMaskingService', () => {
     const result = await service.mask(history, mockConfig);
 
     // Verify complete masking: only 'output' key should exist
-    const responseObj = result.newHistory[0].parts?.[0].functionResponse
-      ?.response as Record<string, unknown>;
+    const responseObj = result.newHistory[0].parts?.[0].functionResponse?.response as Record<string, unknown>;
     expect(Object.keys(responseObj)).toEqual(['output']);
 
     const response = responseObj['output'] as string;
@@ -508,10 +456,7 @@ describe('ToolOutputMaskingService', () => {
     const normalizedResponse = response.replace(/\\/g, '/');
     const deterministicResponse = normalizedResponse
       .replace(new RegExp(testTempDir.replace(/\\/g, '/'), 'g'), '/mock/temp')
-      .replace(
-        new RegExp(`${SHELL_TOOL_NAME}_[^\\s"]+\\.txt`, 'g'),
-        `${SHELL_TOOL_NAME}_deterministic.txt`,
-      );
+      .replace(new RegExp(`${SHELL_TOOL_NAME}_[^\\s"]+\\.txt`, 'g'), `${SHELL_TOOL_NAME}_deterministic.txt`);
 
     expect(deterministicResponse).toMatchSnapshot();
   });
@@ -605,10 +550,7 @@ describe('ToolOutputMaskingService', () => {
     ];
 
     mockedEstimateTokenCountSync.mockImplementation((parts: Part[]) => {
-      const resp = parts[0].functionResponse?.response as Record<
-        string,
-        unknown
-      >;
+      const resp = parts[0].functionResponse?.response as Record<string, unknown>;
       const content = (resp?.['output'] as string) ?? JSON.stringify(resp);
       if (content.includes(`<${MASKING_INDICATOR_TAG}`)) return 100;
 
@@ -626,40 +568,19 @@ describe('ToolOutputMaskingService', () => {
     // 'padding' (Index 3) crosses the 50k protection boundary immediately.
     // ACTIVATE_SKILL and MEMORY are exempt.
     expect(result.maskedCount).toBe(2);
-    expect(result.newHistory[0].parts?.[0].functionResponse?.name).toBe(
-      ACTIVATE_SKILL_TOOL_NAME,
+    expect(result.newHistory[0].parts?.[0].functionResponse?.name).toBe(ACTIVATE_SKILL_TOOL_NAME);
+    expect((result.newHistory[0].parts?.[0].functionResponse?.response as Record<string, unknown>)['output']).toBe(
+      'High value instructions for skill'
     );
-    expect(
-      (
-        result.newHistory[0].parts?.[0].functionResponse?.response as Record<
-          string,
-          unknown
-        >
-      )['output'],
-    ).toBe('High value instructions for skill');
 
-    expect(result.newHistory[1].parts?.[0].functionResponse?.name).toBe(
-      MEMORY_TOOL_NAME,
+    expect(result.newHistory[1].parts?.[0].functionResponse?.name).toBe(MEMORY_TOOL_NAME);
+    expect((result.newHistory[1].parts?.[0].functionResponse?.response as Record<string, unknown>)['output']).toBe(
+      'Important user preference'
     );
-    expect(
-      (
-        result.newHistory[1].parts?.[0].functionResponse?.response as Record<
-          string,
-          unknown
-        >
-      )['output'],
-    ).toBe('Important user preference');
 
-    expect(result.newHistory[2].parts?.[0].functionResponse?.name).toBe(
-      'bulky_tool',
+    expect(result.newHistory[2].parts?.[0].functionResponse?.name).toBe('bulky_tool');
+    expect((result.newHistory[2].parts?.[0].functionResponse?.response as Record<string, unknown>)['output']).toContain(
+      MASKING_INDICATOR_TAG
     );
-    expect(
-      (
-        result.newHistory[2].parts?.[0].functionResponse?.response as Record<
-          string,
-          unknown
-        >
-      )['output'],
-    ).toContain(MASKING_INDICATOR_TAG);
   });
 });

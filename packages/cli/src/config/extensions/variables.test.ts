@@ -5,12 +5,7 @@
  */
 
 import { expect, describe, it } from 'vitest';
-import {
-  hydrateString,
-  recursivelyHydrateStrings,
-  validateVariables,
-  type VariableContext,
-} from './variables.js';
+import { hydrateString, recursivelyHydrateStrings, validateVariables, type VariableContext } from './variables.js';
 
 describe('validateVariables', () => {
   it('should not throw if all required variables are present', () => {
@@ -26,9 +21,7 @@ describe('validateVariables', () => {
       extensionPath: { type: 'string', description: 'test', required: true },
     } as const;
     const context = {};
-    expect(() => validateVariables(context, schema)).toThrow(
-      'Missing required variable: extensionPath',
-    );
+    expect(() => validateVariables(context, schema)).toThrow('Missing required variable: extensionPath');
   });
 });
 
@@ -46,10 +39,7 @@ describe('hydrateString', () => {
       extensionPath: 'path/my-extension',
       workspacePath: '/ws',
     };
-    const result = hydrateString(
-      'Ext: ${extensionPath}, WS: ${workspacePath}',
-      context,
-    );
+    const result = hydrateString('Ext: ${extensionPath}, WS: ${workspacePath}', context);
     expect(result).toBe('Ext: path/my-extension, WS: /ws');
   });
 
@@ -65,10 +55,7 @@ describe('hydrateString', () => {
     const context: VariableContext = {
       extensionPath: undefined,
     };
-    const result = hydrateString(
-      'Ext: ${extensionPath}, WS: ${workspacePath}',
-      context,
-    );
+    const result = hydrateString('Ext: ${extensionPath}, WS: ${workspacePath}', context);
     expect(result).toBe('Ext: ${extensionPath}, WS: ${workspacePath}');
   });
 });

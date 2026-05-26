@@ -9,42 +9,36 @@ import { Box, Text } from 'ink';
 import { theme } from '../semantic-colors.js';
 import { checkExhaustive } from '@google/gemini-cli-core';
 
-export type ChecklistStatus =
-  | 'pending'
-  | 'in_progress'
-  | 'completed'
-  | 'cancelled';
+export type ChecklistStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled';
 
 export interface ChecklistItemData {
   status: ChecklistStatus;
   label: string;
 }
 
-const ChecklistStatusDisplay: React.FC<{ status: ChecklistStatus }> = ({
-  status,
-}) => {
+const ChecklistStatusDisplay: React.FC<{ status: ChecklistStatus }> = ({ status }) => {
   switch (status) {
     case 'completed':
       return (
-        <Text color={theme.status.success} aria-label="Completed">
+        <Text color={theme.status.success} aria-label='Completed'>
           ✓
         </Text>
       );
     case 'in_progress':
       return (
-        <Text color={theme.text.accent} aria-label="In Progress">
+        <Text color={theme.text.accent} aria-label='In Progress'>
           »
         </Text>
       );
     case 'pending':
       return (
-        <Text color={theme.text.secondary} aria-label="Pending">
+        <Text color={theme.text.secondary} aria-label='Pending'>
           ☐
         </Text>
       );
     case 'cancelled':
       return (
-        <Text color={theme.status.error} aria-label="Cancelled">
+        <Text color={theme.status.error} aria-label='Cancelled'>
           ✗
         </Text>
       );
@@ -59,11 +53,7 @@ export interface ChecklistItemProps {
   role?: 'listitem';
 }
 
-export const ChecklistItem: React.FC<ChecklistItemProps> = ({
-  item,
-  wrap,
-  role: ariaRole,
-}) => {
+export const ChecklistItem: React.FC<ChecklistItemProps> = ({ item, wrap, role: ariaRole }) => {
   const textColor = (() => {
     switch (item.status) {
       case 'in_progress':
@@ -80,7 +70,7 @@ export const ChecklistItem: React.FC<ChecklistItemProps> = ({
   const strikethrough = item.status === 'cancelled';
 
   return (
-    <Box flexDirection="row" columnGap={1} aria-role={ariaRole}>
+    <Box flexDirection='row' columnGap={1} aria-role={ariaRole}>
       <ChecklistStatusDisplay status={item.status} />
       <Box flexShrink={1}>
         <Text color={textColor} wrap={wrap} strikethrough={strikethrough}>

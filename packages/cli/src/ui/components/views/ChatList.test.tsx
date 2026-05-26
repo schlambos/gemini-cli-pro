@@ -41,9 +41,7 @@ describe('<ChatList />', () => {
         mtime: 'an-invalid-date-string',
       },
     ];
-    const { lastFrame, unmount } = render(
-      <ChatList chats={mockChatsWithInvalidDate} />,
-    );
+    const { lastFrame, unmount } = render(<ChatList chats={mockChatsWithInvalidDate} />);
     expect(lastFrame()).toContain('(Invalid Date)');
     expect(lastFrame()).toMatchSnapshot();
     unmount();

@@ -8,10 +8,7 @@ import { StreamingState } from '../types.js';
 import { useTimer } from './useTimer.js';
 import { usePhraseCycler } from './usePhraseCycler.js';
 import { useState, useEffect, useRef } from 'react';
-import {
-  getDisplayString,
-  type RetryAttemptPayload,
-} from '@google/gemini-cli-core';
+import { getDisplayString, type RetryAttemptPayload } from '@google/gemini-cli-core';
 
 export interface UseLoadingIndicatorProps {
   streamingState: StreamingState;
@@ -37,7 +34,7 @@ export const useLoadingIndicator = ({
     isPhraseCyclingActive,
     isWaiting,
     shouldShowFocusHint,
-    customWittyPhrases,
+    customWittyPhrases
   );
 
   const [retainedElapsedTime, setRetainedElapsedTime] = useState(0);
@@ -50,10 +47,7 @@ export const useLoadingIndicator = ({
     ) {
       setTimerResetKey((prevKey) => prevKey + 1);
       setRetainedElapsedTime(0); // Clear retained time when going back to responding
-    } else if (
-      streamingState === StreamingState.Idle &&
-      prevStreamingStateRef.current === StreamingState.Responding
-    ) {
+    } else if (streamingState === StreamingState.Idle && prevStreamingStateRef.current === StreamingState.Responding) {
       setTimerResetKey((prevKey) => prevKey + 1); // Reset timer when becoming idle from responding
       setRetainedElapsedTime(0);
     } else if (streamingState === StreamingState.WaitingForConfirmation) {
@@ -70,10 +64,7 @@ export const useLoadingIndicator = ({
     : null;
 
   return {
-    elapsedTime:
-      streamingState === StreamingState.WaitingForConfirmation
-        ? retainedElapsedTime
-        : elapsedTimeFromTimer,
+    elapsedTime: streamingState === StreamingState.WaitingForConfirmation ? retainedElapsedTime : elapsedTimeFromTimer,
     currentLoadingPhrase: retryPhrase || currentLoadingPhrase,
   };
 };

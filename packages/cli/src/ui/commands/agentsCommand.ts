@@ -4,11 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type {
-  SlashCommand,
-  CommandContext,
-  SlashCommandActionReturn,
-} from './types.js';
+import type { SlashCommand, CommandContext, SlashCommandActionReturn } from './types.js';
 import { CommandKind } from './types.js';
 import { MessageType, type HistoryItemAgentsList } from '../types.js';
 import { SettingScope } from '../../config/settings.js';
@@ -57,10 +53,7 @@ const agentsListCommand: SlashCommand = {
   },
 };
 
-async function enableAction(
-  context: CommandContext,
-  args: string,
-): Promise<SlashCommandActionReturn | void> {
+async function enableAction(context: CommandContext, args: string): Promise<SlashCommandActionReturn | void> {
   const { config, settings } = context.services;
   if (!config) {
     return {
@@ -90,9 +83,7 @@ async function enableAction(
 
   const allAgents = agentRegistry.getAllAgentNames();
   const overrides = settings.merged.agents.overrides;
-  const disabledAgents = Object.keys(overrides).filter(
-    (name) => overrides[name]?.enabled === false,
-  );
+  const disabledAgents = Object.keys(overrides).filter((name) => overrides[name]?.enabled === false);
 
   if (allAgents.includes(agentName) && !disabledAgents.includes(agentName)) {
     return {
@@ -133,10 +124,7 @@ async function enableAction(
   };
 }
 
-async function disableAction(
-  context: CommandContext,
-  args: string,
-): Promise<SlashCommandActionReturn | void> {
+async function disableAction(context: CommandContext, args: string): Promise<SlashCommandActionReturn | void> {
   const { config, settings } = context.services;
   if (!config) {
     return {
@@ -166,9 +154,7 @@ async function disableAction(
 
   const allAgents = agentRegistry.getAllAgentNames();
   const overrides = settings.merged.agents.overrides;
-  const disabledAgents = Object.keys(overrides).filter(
-    (name) => overrides[name]?.enabled === false,
-  );
+  const disabledAgents = Object.keys(overrides).filter((name) => overrides[name]?.enabled === false);
 
   if (disabledAgents.includes(agentName)) {
     return {
@@ -186,9 +172,7 @@ async function disableAction(
     };
   }
 
-  const scope = context.services.settings.workspace.path
-    ? SettingScope.Workspace
-    : SettingScope.User;
+  const scope = context.services.settings.workspace.path ? SettingScope.Workspace : SettingScope.User;
   const result = disableAgent(settings, agentName, scope);
 
   if (result.status === 'no-op') {
@@ -212,10 +196,7 @@ async function disableAction(
   };
 }
 
-async function configAction(
-  context: CommandContext,
-  args: string,
-): Promise<SlashCommandActionReturn | void> {
+async function configAction(context: CommandContext, args: string): Promise<SlashCommandActionReturn | void> {
   const { config } = context.services;
   if (!config) {
     return {
@@ -357,13 +338,7 @@ export const agentsCommand: SlashCommand = {
   name: 'agents',
   description: 'Manage agents',
   kind: CommandKind.BUILT_IN,
-  subCommands: [
-    agentsListCommand,
-    agentsRefreshCommand,
-    enableCommand,
-    disableCommand,
-    configCommand,
-  ],
+  subCommands: [agentsListCommand, agentsRefreshCommand, enableCommand, disableCommand, configCommand],
   action: async (context: CommandContext, args) =>
     // Default to list if no subcommand is provided
     agentsListCommand.action!(context, args),

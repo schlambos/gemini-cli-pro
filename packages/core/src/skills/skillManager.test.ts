@@ -27,9 +27,7 @@ describe('SkillManager', () => {
   let testRootDir: string;
 
   beforeEach(async () => {
-    testRootDir = await fs.mkdtemp(
-      path.join(os.tmpdir(), 'skill-manager-test-'),
-    );
+    testRootDir = await fs.mkdtemp(path.join(os.tmpdir(), 'skill-manager-test-'));
   });
 
   afterEach(async () => {
@@ -49,7 +47,7 @@ describe('SkillManager', () => {
 name: skill-user
 description: user-desc
 ---
-`,
+`
     );
     await fs.writeFile(
       path.join(projectDir, 'skill-b', 'SKILL.md'),
@@ -57,7 +55,7 @@ description: user-desc
 name: skill-project
 description: project-desc
 ---
-`,
+`
     );
 
     const mockExtension: GeminiCLIExtension = {
@@ -78,14 +76,10 @@ description: project-desc
     };
 
     vi.spyOn(Storage, 'getUserSkillsDir').mockReturnValue(userDir);
-    vi.spyOn(Storage, 'getUserAgentSkillsDir').mockReturnValue(
-      '/non-existent-user-agent',
-    );
+    vi.spyOn(Storage, 'getUserAgentSkillsDir').mockReturnValue('/non-existent-user-agent');
     const storage = new Storage('/dummy');
     vi.spyOn(storage, 'getProjectSkillsDir').mockReturnValue(projectDir);
-    vi.spyOn(storage, 'getProjectAgentSkillsDir').mockReturnValue(
-      '/non-existent-project-agent',
-    );
+    vi.spyOn(storage, 'getProjectAgentSkillsDir').mockReturnValue('/non-existent-project-agent');
 
     const service = new SkillManager();
     // @ts-expect-error accessing private method for testing
@@ -112,7 +106,7 @@ description: project-desc
 name: same-name
 description: user-desc
 ---
-`,
+`
     );
     await fs.writeFile(
       path.join(projectDir, 'skill', 'SKILL.md'),
@@ -120,7 +114,7 @@ description: user-desc
 name: same-name
 description: project-desc
 ---
-`,
+`
     );
 
     const mockExtension: GeminiCLIExtension = {
@@ -141,14 +135,10 @@ description: project-desc
     };
 
     vi.spyOn(Storage, 'getUserSkillsDir').mockReturnValue(userDir);
-    vi.spyOn(Storage, 'getUserAgentSkillsDir').mockReturnValue(
-      '/non-existent-user-agent',
-    );
+    vi.spyOn(Storage, 'getUserAgentSkillsDir').mockReturnValue('/non-existent-user-agent');
     const storage = new Storage('/dummy');
     vi.spyOn(storage, 'getProjectSkillsDir').mockReturnValue(projectDir);
-    vi.spyOn(storage, 'getProjectAgentSkillsDir').mockReturnValue(
-      '/non-existent-project-agent',
-    );
+    vi.spyOn(storage, 'getProjectAgentSkillsDir').mockReturnValue('/non-existent-project-agent');
 
     const service = new SkillManager();
     // @ts-expect-error accessing private method for testing
@@ -203,18 +193,14 @@ description: project-desc
 name: skill1
 description: desc1
 ---
-body1`,
+body1`
     );
 
     const storage = new Storage('/dummy');
     vi.spyOn(storage, 'getProjectSkillsDir').mockReturnValue(testRootDir);
-    vi.spyOn(storage, 'getProjectAgentSkillsDir').mockReturnValue(
-      '/non-existent-project-agent',
-    );
+    vi.spyOn(storage, 'getProjectAgentSkillsDir').mockReturnValue('/non-existent-project-agent');
     vi.spyOn(Storage, 'getUserSkillsDir').mockReturnValue('/non-existent');
-    vi.spyOn(Storage, 'getUserAgentSkillsDir').mockReturnValue(
-      '/non-existent-user-agent',
-    );
+    vi.spyOn(Storage, 'getUserAgentSkillsDir').mockReturnValue('/non-existent-user-agent');
 
     const service = new SkillManager();
     // @ts-expect-error accessing private method for testing
@@ -237,18 +223,14 @@ body1`,
 name: skill-project
 description: project-desc
 ---
-`,
+`
     );
 
     const storage = new Storage('/dummy');
     vi.spyOn(storage, 'getProjectSkillsDir').mockReturnValue(projectDir);
-    vi.spyOn(storage, 'getProjectAgentSkillsDir').mockReturnValue(
-      '/non-existent-project-agent',
-    );
+    vi.spyOn(storage, 'getProjectAgentSkillsDir').mockReturnValue('/non-existent-project-agent');
     vi.spyOn(Storage, 'getUserSkillsDir').mockReturnValue('/non-existent');
-    vi.spyOn(Storage, 'getUserAgentSkillsDir').mockReturnValue(
-      '/non-existent-user-agent',
-    );
+    vi.spyOn(Storage, 'getUserAgentSkillsDir').mockReturnValue('/non-existent-user-agent');
 
     const service = new SkillManager();
     // @ts-expect-error accessing private method for testing
@@ -355,14 +337,10 @@ description: project-desc
       });
 
       vi.spyOn(Storage, 'getUserSkillsDir').mockReturnValue(userDir);
-      vi.spyOn(Storage, 'getUserAgentSkillsDir').mockReturnValue(
-        '/non-existent-user-agent',
-      );
+      vi.spyOn(Storage, 'getUserAgentSkillsDir').mockReturnValue('/non-existent-user-agent');
       const storage = new Storage('/dummy');
       vi.spyOn(storage, 'getProjectSkillsDir').mockReturnValue(projectDir);
-      vi.spyOn(storage, 'getProjectAgentSkillsDir').mockReturnValue(
-        '/non-existent-project-agent',
-      );
+      vi.spyOn(storage, 'getProjectAgentSkillsDir').mockReturnValue('/non-existent-project-agent');
 
       const service = new SkillManager();
       // @ts-expect-error accessing private method for testing
@@ -373,8 +351,8 @@ description: project-desc
       expect(emitFeedbackSpy).toHaveBeenCalledWith(
         'warning',
         expect.stringContaining(
-          `Skill conflict detected: "${skillName}" from "${projectSkillPath}" is overriding the same skill from "${userSkillPath}".`,
-        ),
+          `Skill conflict detected: "${skillName}" from "${projectSkillPath}" is overriding the same skill from "${userSkillPath}".`
+        )
       );
     });
 
@@ -414,14 +392,10 @@ description: project-desc
       });
 
       vi.spyOn(Storage, 'getUserSkillsDir').mockReturnValue(userDir);
-      vi.spyOn(Storage, 'getUserAgentSkillsDir').mockReturnValue(
-        '/non-existent-user-agent',
-      );
+      vi.spyOn(Storage, 'getUserAgentSkillsDir').mockReturnValue('/non-existent-user-agent');
       const storage = new Storage('/dummy');
       vi.spyOn(storage, 'getProjectSkillsDir').mockReturnValue('/non-existent');
-      vi.spyOn(storage, 'getProjectAgentSkillsDir').mockReturnValue(
-        '/non-existent-project-agent',
-      );
+      vi.spyOn(storage, 'getProjectAgentSkillsDir').mockReturnValue('/non-existent-project-agent');
 
       const service = new SkillManager();
 
@@ -432,9 +406,7 @@ description: project-desc
 
       // Debug warning should be called
       expect(debugWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining(
-          `Skill "${skillName}" from "${userSkillPath}" is overriding the built-in skill.`,
-        ),
+        expect.stringContaining(`Skill "${skillName}" from "${userSkillPath}" is overriding the built-in skill.`)
       );
     });
   });

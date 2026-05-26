@@ -3,15 +3,7 @@
  * Copyright 2026 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  afterEach,
-  type Mock,
-} from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 import { configureCommand } from './configure.js';
 import yargs from 'yargs';
 import { debugLogger } from '@google/gemini-cli-core';
@@ -23,20 +15,19 @@ import {
 import prompts from 'prompts';
 import * as fs from 'node:fs';
 
-const { mockExtensionManager, mockGetExtensionManager, mockLoadSettings } =
-  vi.hoisted(() => {
-    const extensionManager = {
-      loadExtensionConfig: vi.fn(),
-      getExtensions: vi.fn(),
-      loadExtensions: vi.fn(),
-      getSettings: vi.fn(),
-    };
-    return {
-      mockExtensionManager: extensionManager,
-      mockGetExtensionManager: vi.fn(),
-      mockLoadSettings: vi.fn().mockReturnValue({ merged: {} }),
-    };
-  });
+const { mockExtensionManager, mockGetExtensionManager, mockLoadSettings } = vi.hoisted(() => {
+  const extensionManager = {
+    loadExtensionConfig: vi.fn(),
+    getExtensions: vi.fn(),
+    loadExtensions: vi.fn(),
+    getSettings: vi.fn(),
+  };
+  return {
+    mockExtensionManager: extensionManager,
+    mockGetExtensionManager: vi.fn(),
+    mockLoadSettings: vi.fn().mockReturnValue({ merged: {} }),
+  };
+});
 
 vi.mock('../../config/extension-manager.js', () => ({
   ExtensionManager: vi.fn().mockImplementation(() => mockExtensionManager),
@@ -89,9 +80,7 @@ describe('extensions configure command', () => {
     // Default behaviors
     mockLoadSettings.mockReturnValue({ merged: {} });
     mockGetExtensionManager.mockResolvedValue(mockExtensionManager);
-    (ExtensionManager as unknown as Mock).mockImplementation(
-      () => mockExtensionManager,
-    );
+    (ExtensionManager as unknown as Mock).mockImplementation(() => mockExtensionManager);
   });
 
   afterEach(() => {
@@ -107,7 +96,7 @@ describe('extensions configure command', () => {
     name: string,
     settings: Array<Partial<ExtensionSetting>> = [],
     id = 'test-id',
-    path = '/test/path',
+    path = '/test/path'
   ) => {
     const extension = { name, path, id };
 
@@ -121,9 +110,7 @@ describe('extensions configure command', () => {
 
   describe('Specific setting configuration', () => {
     it('should configure a specific setting', async () => {
-      setupExtension('test-ext', [
-        { name: 'Test Setting', envVar: 'TEST_VAR' },
-      ]);
+      setupExtension('test-ext', [{ name: 'Test Setting', envVar: 'TEST_VAR' }]);
       (updateSetting as Mock).mockResolvedValue(undefined);
 
       await runCommand('config test-ext TEST_VAR');
@@ -134,7 +121,7 @@ describe('extensions configure command', () => {
         'TEST_VAR',
         expect.any(Function),
         'user',
-        tempWorkspaceDir,
+        tempWorkspaceDir
       );
     });
 
@@ -148,14 +135,10 @@ describe('extensions configure command', () => {
 
     it('should reject invalid extension names', async () => {
       await runCommand('config ../invalid TEST_VAR');
-      expect(debugLogger.error).toHaveBeenCalledWith(
-        expect.stringContaining('Invalid extension name'),
-      );
+      expect(debugLogger.error).toHaveBeenCalledWith(expect.stringContaining('Invalid extension name'));
 
       await runCommand('config ext/with/slash TEST_VAR');
-      expect(debugLogger.error).toHaveBeenCalledWith(
-        expect.stringContaining('Invalid extension name'),
-      );
+      expect(debugLogger.error).toHaveBeenCalledWith(expect.stringContaining('Invalid extension name'));
     });
   });
 
@@ -168,28 +151,24 @@ describe('extensions configure command', () => {
 
       await runCommand('config test-ext');
 
-      expect(debugLogger.log).toHaveBeenCalledWith(
-        'Configuring settings for "test-ext"...',
-      );
+      expect(debugLogger.log).toHaveBeenCalledWith('Configuring settings for "test-ext"...');
       expect(updateSetting).toHaveBeenCalledWith(
         expect.objectContaining({ name: 'test-ext' }),
         'test-id',
         'VAR_1',
         expect.any(Function),
         'user',
-        tempWorkspaceDir,
+        tempWorkspaceDir
       );
     });
 
     it('should verify overwrite if setting is already set', async () => {
       const settings = [{ name: 'Setting 1', envVar: 'VAR_1' }];
       setupExtension('test-ext', settings);
-      (getScopedEnvContents as Mock).mockImplementation(
-        async (_config, _id, scope) => {
-          if (scope === 'user') return { VAR_1: 'existing' };
-          return {};
-        },
-      );
+      (getScopedEnvContents as Mock).mockImplementation(async (_config, _id, scope) => {
+        if (scope === 'user') return { VAR_1: 'existing' };
+        return {};
+      });
       (prompts as unknown as Mock).mockResolvedValue({ confirm: true });
       (updateSetting as Mock).mockResolvedValue(undefined);
 
@@ -199,7 +178,7 @@ describe('extensions configure command', () => {
         expect.objectContaining({
           type: 'confirm',
           message: expect.stringContaining('is already set. Overwrite?'),
-        }),
+        })
       );
       expect(updateSetting).toHaveBeenCalled();
     });
@@ -207,18 +186,16 @@ describe('extensions configure command', () => {
     it('should note if setting is configured in workspace', async () => {
       const settings = [{ name: 'Setting 1', envVar: 'VAR_1' }];
       setupExtension('test-ext', settings);
-      (getScopedEnvContents as Mock).mockImplementation(
-        async (_config, _id, scope) => {
-          if (scope === 'workspace') return { VAR_1: 'workspace_value' };
-          return {};
-        },
-      );
+      (getScopedEnvContents as Mock).mockImplementation(async (_config, _id, scope) => {
+        if (scope === 'workspace') return { VAR_1: 'workspace_value' };
+        return {};
+      });
       (updateSetting as Mock).mockResolvedValue(undefined);
 
       await runCommand('config test-ext');
 
       expect(debugLogger.log).toHaveBeenCalledWith(
-        expect.stringContaining('is already configured in the workspace scope'),
+        expect.stringContaining('is already configured in the workspace scope')
       );
     });
 
@@ -251,27 +228,19 @@ describe('extensions configure command', () => {
       };
       mockExtensionManager.getExtensions.mockReturnValue([ext1, ext2]);
 
-      mockExtensionManager.loadExtensionConfig.mockImplementation(
-        async (path) => {
-          if (path === '/p1')
-            return { name: 'ext1', settings: [{ name: 'S1', envVar: 'V1' }] };
-          if (path === '/p2')
-            return { name: 'ext2', settings: [{ name: 'S2', envVar: 'V2' }] };
-          return null;
-        },
-      );
+      mockExtensionManager.loadExtensionConfig.mockImplementation(async (path) => {
+        if (path === '/p1') return { name: 'ext1', settings: [{ name: 'S1', envVar: 'V1' }] };
+        if (path === '/p2') return { name: 'ext2', settings: [{ name: 'S2', envVar: 'V2' }] };
+        return null;
+      });
 
       (getScopedEnvContents as Mock).mockResolvedValue({});
       (updateSetting as Mock).mockResolvedValue(undefined);
 
       await runCommand('config');
 
-      expect(debugLogger.log).toHaveBeenCalledWith(
-        expect.stringContaining('Configuring settings for "ext1"'),
-      );
-      expect(debugLogger.log).toHaveBeenCalledWith(
-        expect.stringContaining('Configuring settings for "ext2"'),
-      );
+      expect(debugLogger.log).toHaveBeenCalledWith(expect.stringContaining('Configuring settings for "ext1"'));
+      expect(debugLogger.log).toHaveBeenCalledWith(expect.stringContaining('Configuring settings for "ext2"'));
       expect(updateSetting).toHaveBeenCalledTimes(2);
     });
 

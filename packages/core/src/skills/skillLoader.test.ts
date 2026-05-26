@@ -16,9 +16,7 @@ describe('skillLoader', () => {
   let testRootDir: string;
 
   beforeEach(async () => {
-    testRootDir = await fs.mkdtemp(
-      path.join(os.tmpdir(), 'skill-loader-test-'),
-    );
+    testRootDir = await fs.mkdtemp(path.join(os.tmpdir(), 'skill-loader-test-'));
     vi.spyOn(coreEvents, 'emitFeedback');
     vi.spyOn(debugLogger, 'debug').mockImplementation(() => {});
   });
@@ -34,7 +32,7 @@ describe('skillLoader', () => {
     const skillFile = path.join(skillDir, 'SKILL.md');
     await fs.writeFile(
       skillFile,
-      `---\nname: my-skill\ndescription: A test skill\n---\n# Instructions\nDo something.\n`,
+      `---\nname: my-skill\ndescription: A test skill\n---\n# Instructions\nDo something.\n`
     );
 
     const skills = await loadSkillsFromDir(testRootDir);
@@ -55,9 +53,7 @@ describe('skillLoader', () => {
     const skills = await loadSkillsFromDir(testRootDir);
 
     expect(skills).toHaveLength(0);
-    expect(debugLogger.debug).toHaveBeenCalledWith(
-      expect.stringContaining('Failed to load skills from'),
-    );
+    expect(debugLogger.debug).toHaveBeenCalledWith(expect.stringContaining('Failed to load skills from'));
   });
 
   it('should ignore empty directories and not emit feedback', async () => {
@@ -90,9 +86,7 @@ describe('skillLoader', () => {
     const skills = await loadSkillsFromDir(testRootDir);
 
     expect(skills).toHaveLength(0);
-    expect(debugLogger.debug).toHaveBeenCalledWith(
-      expect.stringContaining('Failed to load skills from'),
-    );
+    expect(debugLogger.debug).toHaveBeenCalledWith(expect.stringContaining('Failed to load skills from'));
   });
 
   it('should return empty array for non-existent directory', async () => {
@@ -113,7 +107,7 @@ description: Simple story generation assistant for fiction writing. Use for crea
 ---
 # Instructions
 Do something.
-`,
+`
     );
 
     const skills = await loadSkillsFromDir(testRootDir);
@@ -135,7 +129,7 @@ description: Use this for tasks like: coding, reviewing, testing. Keywords: asyn
 ---
 # Instructions
 Do something.
-`,
+`
     );
 
     const skills = await loadSkillsFromDir(testRootDir);
@@ -158,16 +152,14 @@ description: "A skill with colons: like this one: and another."
 ---
 # Instructions
 Do something.
-`,
+`
     );
 
     const skills = await loadSkillsFromDir(testRootDir);
 
     expect(skills).toHaveLength(1);
     expect(skills[0].name).toBe('quoted-skill');
-    expect(skills[0].description).toBe(
-      'A skill with colons: like this one: and another.',
-    );
+    expect(skills[0].description).toBe('A skill with colons: like this one: and another.');
   });
 
   it('should parse skill with multi-line YAML description', async () => {
@@ -184,7 +176,7 @@ description:
 ---
 # Instructions
 Do something.
-`,
+`
     );
 
     const skills = await loadSkillsFromDir(testRootDir);
@@ -205,7 +197,7 @@ Do something.
 name: 
 description: 
 ---
-`,
+`
     );
 
     const skills = await loadSkillsFromDir(testRootDir);
@@ -225,7 +217,7 @@ description:
   name: indented-name
   description: indented-desc
 ---
-`,
+`
     );
 
     const skills = await loadSkillsFromDir(testRootDir);
@@ -245,7 +237,7 @@ description:
 name:no-space-name
 description:no-space-desc
 ---
-`,
+`
     );
 
     const skills = await loadSkillsFromDir(testRootDir);
@@ -263,7 +255,7 @@ description:no-space-desc
 name: gke:prs-troubleshooter
 description: Test sanitization
 ---
-`,
+`
     );
 
     const skills = await loadSkillsFromDir(testRootDir);

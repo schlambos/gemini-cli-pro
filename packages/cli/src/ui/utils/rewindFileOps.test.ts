@@ -6,17 +6,8 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import fs from 'node:fs/promises';
-import {
-  calculateTurnStats,
-  calculateRewindImpact,
-  revertFileChanges,
-} from './rewindFileOps.js';
-import {
-  coreEvents,
-  type ConversationRecord,
-  type MessageRecord,
-  type ToolCallRecord,
-} from '@google/gemini-cli-core';
+import { calculateTurnStats, calculateRewindImpact, revertFileChanges } from './rewindFileOps.js';
+import { coreEvents, type ConversationRecord, type MessageRecord, type ToolCallRecord } from '@google/gemini-cli-core';
 
 // Mock fs/promises
 vi.mock('node:fs/promises', () => ({
@@ -30,8 +21,7 @@ vi.mock('node:fs/promises', () => ({
 
 // Mock @google/gemini-cli-core
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     debugLogger: {
@@ -55,15 +45,9 @@ describe('rewindFileOps', () => {
     it('returns null if no edits found after user message', () => {
       const userMsg = { type: 'user' } as unknown as MessageRecord;
       const conversation = {
-        messages: [
-          userMsg,
-          { type: 'gemini', text: 'Hello' } as unknown as MessageRecord,
-        ],
+        messages: [userMsg, { type: 'gemini', text: 'Hello' } as unknown as MessageRecord],
       };
-      const result = calculateTurnStats(
-        conversation as unknown as ConversationRecord,
-        userMsg,
-      );
+      const result = calculateTurnStats(conversation as unknown as ConversationRecord, userMsg);
       expect(result).toBeNull();
     });
 
@@ -110,10 +94,7 @@ describe('rewindFileOps', () => {
         ],
       };
 
-      const result = calculateTurnStats(
-        conversation as unknown as ConversationRecord,
-        userMsg,
-      );
+      const result = calculateTurnStats(conversation as unknown as ConversationRecord, userMsg);
       expect(result).toEqual({
         fileCount: 1,
         addedLines: 3,
@@ -194,10 +175,7 @@ describe('rewindFileOps', () => {
         ],
       };
 
-      const result = calculateRewindImpact(
-        conversation as unknown as ConversationRecord,
-        userMsg,
-      );
+      const result = calculateRewindImpact(conversation as unknown as ConversationRecord, userMsg);
       expect(result).toEqual({
         fileCount: 2,
         addedLines: 9, // 5 + 4
@@ -212,17 +190,12 @@ describe('rewindFileOps', () => {
 
   describe('revertFileChanges', () => {
     it('does nothing if message not found', async () => {
-      await revertFileChanges(
-        { messages: [] } as unknown as ConversationRecord,
-        'missing',
-      );
+      await revertFileChanges({ messages: [] } as unknown as ConversationRecord, 'missing');
       expect(fs.writeFile).not.toHaveBeenCalled();
     });
 
     it('reverts exact match', async () => {
-      const { getFileDiffFromResultDisplay } = await import(
-        '@google/gemini-cli-core'
-      );
+      const { getFileDiffFromResultDisplay } = await import('@google/gemini-cli-core');
       vi.mocked(getFileDiffFromResultDisplay).mockReturnValue({
         filePath: '/abs/path/test.ts',
         fileName: 'test.ts',
@@ -258,21 +231,13 @@ describe('rewindFileOps', () => {
 
       vi.mocked(fs.readFile).mockResolvedValue('NEW_CONTENT');
 
-      await revertFileChanges(
-        conversation as unknown as ConversationRecord,
-        'target',
-      );
+      await revertFileChanges(conversation as unknown as ConversationRecord, 'target');
 
-      expect(fs.writeFile).toHaveBeenCalledWith(
-        '/abs/path/test.ts',
-        'ORIGINAL_CONTENT',
-      );
+      expect(fs.writeFile).toHaveBeenCalledWith('/abs/path/test.ts', 'ORIGINAL_CONTENT');
     });
 
     it('deletes new file on revert', async () => {
-      const { getFileDiffFromResultDisplay } = await import(
-        '@google/gemini-cli-core'
-      );
+      const { getFileDiffFromResultDisplay } = await import('@google/gemini-cli-core');
       vi.mocked(getFileDiffFromResultDisplay).mockReturnValue({
         filePath: '/abs/path/new.ts',
         fileName: 'new.ts',
@@ -308,18 +273,13 @@ describe('rewindFileOps', () => {
 
       vi.mocked(fs.readFile).mockResolvedValue('SOME_CONTENT');
 
-      await revertFileChanges(
-        conversation as unknown as ConversationRecord,
-        'target',
-      );
+      await revertFileChanges(conversation as unknown as ConversationRecord, 'target');
 
       expect(fs.unlink).toHaveBeenCalledWith('/abs/path/new.ts');
     });
 
     it('handles smart revert (patching) successfully', async () => {
-      const { getFileDiffFromResultDisplay } = await import(
-        '@google/gemini-cli-core'
-      );
+      const { getFileDiffFromResultDisplay } = await import('@google/gemini-cli-core');
       vi.mocked(getFileDiffFromResultDisplay).mockReturnValue({
         filePath: '/abs/path/test.ts',
         fileName: 'test.ts',
@@ -356,22 +316,14 @@ describe('rewindFileOps', () => {
       // Current content has FURTHER changes
       vi.mocked(fs.readFile).mockResolvedValue('LINE1\nEDITED\nLINE3\nNEWLINE');
 
-      await revertFileChanges(
-        conversation as unknown as ConversationRecord,
-        'target',
-      );
+      await revertFileChanges(conversation as unknown as ConversationRecord, 'target');
 
       // Should have successfully patched it back to ORIGINAL state but kept the NEWLINE
-      expect(fs.writeFile).toHaveBeenCalledWith(
-        '/abs/path/test.ts',
-        'LINE1\nLINE2\nLINE3\nNEWLINE',
-      );
+      expect(fs.writeFile).toHaveBeenCalledWith('/abs/path/test.ts', 'LINE1\nLINE2\nLINE3\nNEWLINE');
     });
 
     it('emits warning on smart revert failure', async () => {
-      const { getFileDiffFromResultDisplay } = await import(
-        '@google/gemini-cli-core'
-      );
+      const { getFileDiffFromResultDisplay } = await import('@google/gemini-cli-core');
       vi.mocked(getFileDiffFromResultDisplay).mockReturnValue({
         filePath: '/abs/path/test.ts',
         fileName: 'test.ts',
@@ -408,22 +360,17 @@ describe('rewindFileOps', () => {
       // Current content is completely unrelated - diff won't apply
       vi.mocked(fs.readFile).mockResolvedValue('UNRELATED');
 
-      await revertFileChanges(
-        conversation as unknown as ConversationRecord,
-        'target',
-      );
+      await revertFileChanges(conversation as unknown as ConversationRecord, 'target');
 
       expect(fs.writeFile).not.toHaveBeenCalled();
       expect(coreEvents.emitFeedback).toHaveBeenCalledWith(
         'warning',
-        expect.stringContaining('Smart revert for test.ts failed'),
+        expect.stringContaining('Smart revert for test.ts failed')
       );
     });
 
     it('emits error if fs.readFile fails with a generic error', async () => {
-      const { getFileDiffFromResultDisplay } = await import(
-        '@google/gemini-cli-core'
-      );
+      const { getFileDiffFromResultDisplay } = await import('@google/gemini-cli-core');
       vi.mocked(getFileDiffFromResultDisplay).mockReturnValue({
         filePath: '/abs/path/test.ts',
         fileName: 'test.ts',
@@ -459,17 +406,12 @@ describe('rewindFileOps', () => {
 
       vi.mocked(fs.readFile).mockRejectedValue(new Error('disk failure'));
 
-      await revertFileChanges(
-        conversation as unknown as ConversationRecord,
-        'target',
-      );
+      await revertFileChanges(conversation as unknown as ConversationRecord, 'target');
 
       expect(coreEvents.emitFeedback).toHaveBeenCalledWith(
         'error',
-        expect.stringContaining(
-          'Error reading test.ts during revert: disk failure',
-        ),
-        expect.any(Error),
+        expect.stringContaining('Error reading test.ts during revert: disk failure'),
+        expect.any(Error)
       );
     });
   });

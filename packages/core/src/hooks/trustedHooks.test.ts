@@ -80,26 +80,19 @@ describe('TrustedHooksManager', () => {
       };
 
       // Initially both are untrusted
-      expect(manager.getUntrustedHooks('/project', projectHooks)).toEqual([
-        'trusted-hook',
-        'new-hook',
-      ]);
+      expect(manager.getUntrustedHooks('/project', projectHooks)).toEqual(['trusted-hook', 'new-hook']);
 
       // Trust one
       manager.trustHooks('/project', {
         [HookEventName.BeforeTool]: [
           {
-            hooks: [
-              { name: 'trusted-hook', type: HookType.Command, command: 'cmd1' },
-            ],
+            hooks: [{ name: 'trusted-hook', type: HookType.Command, command: 'cmd1' }],
           },
         ],
       });
 
       // Only the other one is untrusted
-      expect(manager.getUntrustedHooks('/project', projectHooks)).toEqual([
-        'new-hook',
-      ]);
+      expect(manager.getUntrustedHooks('/project', projectHooks)).toEqual(['new-hook']);
     });
 
     it('should use command if name is missing', () => {
@@ -114,9 +107,7 @@ describe('TrustedHooksManager', () => {
         ],
       };
 
-      expect(manager.getUntrustedHooks('/project', projectHooks)).toEqual([
-        './script.sh',
-      ]);
+      expect(manager.getUntrustedHooks('/project', projectHooks)).toEqual(['./script.sh']);
     });
 
     it('should detect change in command as untrusted', () => {
@@ -126,27 +117,21 @@ describe('TrustedHooksManager', () => {
       const originalHook = {
         [HookEventName.BeforeTool]: [
           {
-            hooks: [
-              { name: 'my-hook', type: HookType.Command, command: 'old-cmd' },
-            ],
+            hooks: [{ name: 'my-hook', type: HookType.Command, command: 'old-cmd' }],
           },
         ],
       };
       const updatedHook = {
         [HookEventName.BeforeTool]: [
           {
-            hooks: [
-              { name: 'my-hook', type: HookType.Command, command: 'new-cmd' },
-            ],
+            hooks: [{ name: 'my-hook', type: HookType.Command, command: 'new-cmd' }],
           },
         ],
       };
 
       manager.trustHooks('/project', originalHook);
 
-      expect(manager.getUntrustedHooks('/project', updatedHook)).toEqual([
-        'my-hook',
-      ]);
+      expect(manager.getUntrustedHooks('/project', updatedHook)).toEqual(['my-hook']);
     });
   });
 
@@ -165,7 +150,7 @@ describe('TrustedHooksManager', () => {
 
       expect(fs.writeFileSync).toHaveBeenCalledWith(
         expect.stringContaining('trusted_hooks.json'),
-        expect.stringContaining('hook1:cmd1'),
+        expect.stringContaining('hook1:cmd1')
       );
     });
 

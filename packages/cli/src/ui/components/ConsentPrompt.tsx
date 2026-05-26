@@ -21,19 +21,9 @@ export const ConsentPrompt = (props: ConsentPromptProps) => {
   const { prompt, onConfirm, terminalWidth } = props;
 
   return (
-    <Box
-      borderStyle="round"
-      borderColor={theme.border.default}
-      flexDirection="column"
-      paddingTop={1}
-      paddingX={2}
-    >
+    <Box borderStyle='round' borderColor={theme.border.default} flexDirection='column' paddingTop={1} paddingX={2}>
       {typeof prompt === 'string' ? (
-        <MarkdownDisplay
-          isPending={true}
-          text={prompt}
-          terminalWidth={terminalWidth}
-        />
+        <MarkdownDisplay isPending={true} text={prompt} terminalWidth={terminalWidth} />
       ) : (
         prompt
       )}

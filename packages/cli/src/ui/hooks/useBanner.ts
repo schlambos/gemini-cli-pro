@@ -18,19 +18,13 @@ interface BannerData {
 export function useBanner(bannerData: BannerData) {
   const { defaultText, warningText } = bannerData;
 
-  const [bannerCounts] = useState(
-    () => persistentState.get('defaultBannerShownCount') || {},
-  );
+  const [bannerCounts] = useState(() => persistentState.get('defaultBannerShownCount') || {});
 
-  const hashedText = crypto
-    .createHash('sha256')
-    .update(defaultText)
-    .digest('hex');
+  const hashedText = crypto.createHash('sha256').update(defaultText).digest('hex');
 
   const currentBannerCount = bannerCounts[hashedText] || 0;
 
-  const showDefaultBanner =
-    warningText === '' && currentBannerCount < DEFAULT_MAX_BANNER_SHOWN_COUNT;
+  const showDefaultBanner = warningText === '' && currentBannerCount < DEFAULT_MAX_BANNER_SHOWN_COUNT;
 
   const rawBannerText = showDefaultBanner ? defaultText : warningText;
   const bannerText = rawBannerText.replace(/\\n/g, '\n');

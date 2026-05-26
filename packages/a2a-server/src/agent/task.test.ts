@@ -4,15 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  afterEach,
-  type Mock,
-} from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 import { Task } from './task.js';
 import {
   GeminiEventType,
@@ -31,8 +23,7 @@ import type { ToolCall } from '@google/gemini-cli-core';
 const mockProcessRestorableToolCalls = vi.hoisted(() => vi.fn());
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const original =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const original = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...original,
     processRestorableToolCalls: mockProcessRestorableToolCalls,
@@ -54,12 +45,7 @@ describe('Task', () => {
 
     // The Task constructor is private. We'll bypass it for this unit test.
     // @ts-expect-error - Calling private constructor for test purposes.
-    const task = new Task(
-      'task-id',
-      'context-id',
-      mockConfig as Config,
-      mockEventBus,
-    );
+    const task = new Task('task-id', 'context-id', mockConfig as Config, mockEventBus);
 
     task['setTaskStateAndPublishUpdate'] = vi.fn();
     task['getProposedContent'] = vi.fn().mockResolvedValue('new content');
@@ -103,12 +89,7 @@ describe('Task', () => {
 
     it('should not create a checkpoint if no restorable tools are called', async () => {
       // @ts-expect-error - Calling private constructor for test purposes.
-      const task = new Task(
-        'task-id',
-        'context-id',
-        mockConfig as Config,
-        mockEventBus,
-      );
+      const task = new Task('task-id', 'context-id', mockConfig as Config, mockEventBus);
       const requests: ToolCallRequestInfo[] = [
         {
           callId: '1',
@@ -134,12 +115,7 @@ describe('Task', () => {
         errors: [],
       });
       // @ts-expect-error - Calling private constructor for test purposes.
-      const task = new Task(
-        'task-id',
-        'context-id',
-        mockConfig as Config,
-        mockEventBus,
-      );
+      const task = new Task('task-id', 'context-id', mockConfig as Config, mockEventBus);
       const requests: ToolCallRequestInfo[] = [
         {
           callId: '1',
@@ -175,12 +151,7 @@ describe('Task', () => {
         errors: [],
       });
       // @ts-expect-error - Calling private constructor for test purposes.
-      const task = new Task(
-        'task-id',
-        'context-id',
-        mockConfig as Config,
-        mockEventBus,
-      );
+      const task = new Task('task-id', 'context-id', mockConfig as Config, mockEventBus);
       const requests: ToolCallRequestInfo[] = [
         {
           callId: '1',
@@ -211,12 +182,9 @@ describe('Task', () => {
       const abortController = new AbortController();
       await task.scheduleToolCalls(requests, abortController.signal);
       expect(mockProcessRestorableToolCalls).toHaveBeenCalledExactlyOnceWith(
-        [
-          expect.objectContaining({ callId: '1' }),
-          expect.objectContaining({ callId: '2' }),
-        ],
+        [expect.objectContaining({ callId: '1' }), expect.objectContaining({ callId: '2' })],
         expect.anything(),
-        expect.anything(),
+        expect.anything()
       );
     });
   });
@@ -234,12 +202,7 @@ describe('Task', () => {
       };
 
       // @ts-expect-error - Calling private constructor for test purposes.
-      const task = new Task(
-        'task-id',
-        'context-id',
-        mockConfig as Config,
-        mockEventBus,
-      );
+      const task = new Task('task-id', 'context-id', mockConfig as Config, mockEventBus);
 
       const event = {
         type: 'content',
@@ -254,7 +217,7 @@ describe('Task', () => {
           metadata: expect.objectContaining({
             traceId: 'test-trace-id',
           }),
-        }),
+        })
       );
     });
 
@@ -270,12 +233,7 @@ describe('Task', () => {
       };
 
       // @ts-expect-error - Calling private constructor for test purposes.
-      const task = new Task(
-        'task-id',
-        'context-id',
-        mockConfig as Config,
-        mockEventBus,
-      );
+      const task = new Task('task-id', 'context-id', mockConfig as Config, mockEventBus);
 
       const citationText = 'Source: example.com';
       const citationEvent = {
@@ -290,9 +248,7 @@ describe('Task', () => {
 
       expect(publishedEvent.kind).toBe('status-update');
       expect(publishedEvent.taskId).toBe('task-id');
-      expect(publishedEvent.metadata.coderAgent.kind).toBe(
-        CoderAgentEvent.CitationEvent,
-      );
+      expect(publishedEvent.metadata.coderAgent.kind).toBe(CoderAgentEvent.CitationEvent);
       expect(publishedEvent.status.message).toBeDefined();
       expect(publishedEvent.status.message.parts).toEqual([
         {
@@ -314,12 +270,7 @@ describe('Task', () => {
       };
 
       // @ts-expect-error - Calling private constructor for test purposes.
-      const task = new Task(
-        'task-id',
-        'context-id',
-        mockConfig as Config,
-        mockEventBus,
-      );
+      const task = new Task('task-id', 'context-id', mockConfig as Config, mockEventBus);
 
       const modelInfoEvent = {
         type: GeminiEventType.ModelInfo,
@@ -335,58 +286,46 @@ describe('Task', () => {
       expect(metadata.model).toBe('new-model-name');
 
       // Check status update
-      task.setTaskStateAndPublishUpdate(
-        'working',
-        { kind: CoderAgentEvent.StateChangeEvent },
-        'Working...',
-      );
+      task.setTaskStateAndPublishUpdate('working', { kind: CoderAgentEvent.StateChangeEvent }, 'Working...');
 
       expect(mockEventBus.publish).toHaveBeenCalledWith(
         expect.objectContaining({
           metadata: expect.objectContaining({
             model: 'new-model-name',
           }),
-        }),
+        })
       );
     });
 
     it.each([
       { eventType: GeminiEventType.Retry, eventName: 'Retry' },
       { eventType: GeminiEventType.InvalidStream, eventName: 'InvalidStream' },
-    ])(
-      'should handle $eventName event without triggering error handling',
-      async ({ eventType }) => {
-        const mockConfig = createMockConfig();
-        const mockEventBus: ExecutionEventBus = {
-          publish: vi.fn(),
-          on: vi.fn(),
-          off: vi.fn(),
-          once: vi.fn(),
-          removeAllListeners: vi.fn(),
-          finished: vi.fn(),
-        };
+    ])('should handle $eventName event without triggering error handling', async ({ eventType }) => {
+      const mockConfig = createMockConfig();
+      const mockEventBus: ExecutionEventBus = {
+        publish: vi.fn(),
+        on: vi.fn(),
+        off: vi.fn(),
+        once: vi.fn(),
+        removeAllListeners: vi.fn(),
+        finished: vi.fn(),
+      };
 
-        // @ts-expect-error - Calling private constructor
-        const task = new Task(
-          'task-id',
-          'context-id',
-          mockConfig as Config,
-          mockEventBus,
-        );
+      // @ts-expect-error - Calling private constructor
+      const task = new Task('task-id', 'context-id', mockConfig as Config, mockEventBus);
 
-        const cancelPendingToolsSpy = vi.spyOn(task, 'cancelPendingTools');
-        const setTaskStateSpy = vi.spyOn(task, 'setTaskStateAndPublishUpdate');
+      const cancelPendingToolsSpy = vi.spyOn(task, 'cancelPendingTools');
+      const setTaskStateSpy = vi.spyOn(task, 'setTaskStateAndPublishUpdate');
 
-        const event = {
-          type: eventType,
-        };
+      const event = {
+        type: eventType,
+      };
 
-        await task.acceptAgentMessage(event);
+      await task.acceptAgentMessage(event);
 
-        expect(cancelPendingToolsSpy).not.toHaveBeenCalled();
-        expect(setTaskStateSpy).not.toHaveBeenCalled();
-      },
-    );
+      expect(cancelPendingToolsSpy).not.toHaveBeenCalled();
+      expect(setTaskStateSpy).not.toHaveBeenCalled();
+    });
   });
 
   describe('_schedulerToolCallsUpdate', () => {
@@ -411,10 +350,7 @@ describe('Task', () => {
       task = new Task('task-id', 'context-id', mockConfig, mockEventBus);
 
       // Spy on the method we want to check calls for
-      setTaskStateAndPublishUpdateSpy = vi.spyOn(
-        task,
-        'setTaskStateAndPublishUpdate',
-      );
+      setTaskStateAndPublishUpdateSpy = vi.spyOn(task, 'setTaskStateAndPublishUpdate');
     });
 
     afterEach(() => {
@@ -422,9 +358,7 @@ describe('Task', () => {
     });
 
     it('should set state to input-required when a tool is awaiting approval and none are executing', () => {
-      const toolCalls = [
-        { request: { callId: '1' }, status: 'awaiting_approval' },
-      ] as ToolCall[];
+      const toolCalls = [{ request: { callId: '1' }, status: 'awaiting_approval' }] as ToolCall[];
 
       // @ts-expect-error - Calling private method
       task._schedulerToolCallsUpdate(toolCalls);
@@ -435,7 +369,7 @@ describe('Task', () => {
         { kind: 'state-change' },
         undefined,
         undefined,
-        true, // final: true
+        true // final: true
       );
     });
 
@@ -449,9 +383,7 @@ describe('Task', () => {
       task._schedulerToolCallsUpdate(toolCalls);
 
       // It will be called for status updates, but not with final: true
-      const finalCall = setTaskStateAndPublishUpdateSpy.mock.calls.find(
-        (call) => call[4] === true,
-      );
+      const finalCall = setTaskStateAndPublishUpdateSpy.mock.calls.find((call) => call[4] === true);
       expect(finalCall).toBeUndefined();
     });
 
@@ -464,9 +396,7 @@ describe('Task', () => {
       task._schedulerToolCallsUpdate(initialToolCalls);
 
       // No final call yet
-      let finalCall = setTaskStateAndPublishUpdateSpy.mock.calls.find(
-        (call) => call[4] === true,
-      );
+      let finalCall = setTaskStateAndPublishUpdateSpy.mock.calls.find((call) => call[4] === true);
       expect(finalCall).toBeUndefined();
 
       // Now, the executing tool finishes. The scheduler would call _resolveToolCall for it.
@@ -474,32 +404,24 @@ describe('Task', () => {
       task._resolveToolCall('2');
 
       // Then another update comes in for the awaiting tool (e.g., a re-check)
-      const subsequentToolCalls = [
-        { request: { callId: '1' }, status: 'awaiting_approval' },
-      ] as ToolCall[];
+      const subsequentToolCalls = [{ request: { callId: '1' }, status: 'awaiting_approval' }] as ToolCall[];
       // @ts-expect-error - Calling private method
       task._schedulerToolCallsUpdate(subsequentToolCalls);
 
       // NOW we should get the final call
-      finalCall = setTaskStateAndPublishUpdateSpy.mock.calls.find(
-        (call) => call[4] === true,
-      );
+      finalCall = setTaskStateAndPublishUpdateSpy.mock.calls.find((call) => call[4] === true);
       expect(finalCall).toBeDefined();
       expect(finalCall?.[0]).toBe('input-required');
     });
 
     it('should NOT set state to input-required if skipFinalTrueAfterInlineEdit is true', () => {
       task.skipFinalTrueAfterInlineEdit = true;
-      const toolCalls = [
-        { request: { callId: '1' }, status: 'awaiting_approval' },
-      ] as ToolCall[];
+      const toolCalls = [{ request: { callId: '1' }, status: 'awaiting_approval' }] as ToolCall[];
 
       // @ts-expect-error - Calling private method
       task._schedulerToolCallsUpdate(toolCalls);
 
-      const finalCall = setTaskStateAndPublishUpdateSpy.mock.calls.find(
-        (call) => call[4] === true,
-      );
+      const finalCall = setTaskStateAndPublishUpdateSpy.mock.calls.find((call) => call[4] === true);
       expect(finalCall).toBeUndefined();
     });
 
@@ -518,9 +440,7 @@ describe('Task', () => {
         // @ts-expect-error - Calling private method
         task._schedulerToolCallsUpdate(toolCalls);
 
-        expect(onConfirmSpy).toHaveBeenCalledWith(
-          ToolConfirmationOutcome.ProceedOnce,
-        );
+        expect(onConfirmSpy).toHaveBeenCalledWith(ToolConfirmationOutcome.ProceedOnce);
       });
 
       it('should auto-approve tool calls when approval mode is YOLO', () => {
@@ -538,16 +458,12 @@ describe('Task', () => {
         // @ts-expect-error - Calling private method
         task._schedulerToolCallsUpdate(toolCalls);
 
-        expect(onConfirmSpy).toHaveBeenCalledWith(
-          ToolConfirmationOutcome.ProceedOnce,
-        );
+        expect(onConfirmSpy).toHaveBeenCalledWith(ToolConfirmationOutcome.ProceedOnce);
       });
 
       it('should NOT auto-approve when autoExecute is false and mode is not YOLO', () => {
         task.autoExecute = false;
-        (mockConfig.getApprovalMode as Mock).mockReturnValue(
-          ApprovalMode.DEFAULT,
-        );
+        (mockConfig.getApprovalMode as Mock).mockReturnValue(ApprovalMode.DEFAULT);
         const onConfirmSpy = vi.fn();
         const toolCalls = [
           {
@@ -583,12 +499,7 @@ describe('Task', () => {
       };
 
       // @ts-expect-error - Calling private constructor
-      const task = new Task(
-        'task-id',
-        'context-id',
-        mockConfig as Config,
-        mockEventBus,
-      );
+      const task = new Task('task-id', 'context-id', mockConfig as Config, mockEventBus);
 
       // Initial state
       expect(task.currentPromptId).toBeUndefined();
@@ -601,10 +512,7 @@ describe('Task', () => {
         },
       } as RequestContext;
       const abortController1 = new AbortController();
-      for await (const _ of task.acceptUserMessage(
-        userMessage1,
-        abortController1.signal,
-      )) {
+      for await (const _ of task.acceptUserMessage(userMessage1, abortController1.signal)) {
         // no-op
       }
 
@@ -619,10 +527,7 @@ describe('Task', () => {
         },
       } as RequestContext;
       const abortController2 = new AbortController();
-      for await (const _ of task.acceptUserMessage(
-        userMessage2,
-        abortController2.signal,
-      )) {
+      for await (const _ of task.acceptUserMessage(userMessage2, abortController2.signal)) {
         // no-op
       }
 
@@ -636,10 +541,7 @@ describe('Task', () => {
         response: { responseParts: [{ text: 'tool output' }] },
       } as CompletedToolCall;
       const abortController3 = new AbortController();
-      for await (const _ of task.sendCompletedToolsToLlm(
-        [completedTool],
-        abortController3.signal,
-      )) {
+      for await (const _ of task.sendCompletedToolsToLlm([completedTool], abortController3.signal)) {
         // no-op
       }
 

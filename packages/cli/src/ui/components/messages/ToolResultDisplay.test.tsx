@@ -12,8 +12,7 @@ import type { AnsiOutput } from '@google/gemini-cli-core';
 // Mock UIStateContext partially
 const mockUseUIState = vi.fn();
 vi.mock('../../contexts/UIStateContext.js', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('../../contexts/UIStateContext.js')>();
+  const actual = await importOriginal<typeof import('../../contexts/UIStateContext.js')>();
   return {
     ...actual,
     useUIState: () => mockUseUIState(),
@@ -53,13 +52,7 @@ describe('ToolResultDisplay', () => {
         },
       ],
     ];
-    const { lastFrame } = render(
-      <ToolResultDisplay
-        resultDisplay={ansiResult}
-        terminalWidth={80}
-        maxLines={10}
-      />,
-    );
+    const { lastFrame } = render(<ToolResultDisplay resultDisplay={ansiResult} terminalWidth={80} maxLines={10} />);
     const output = lastFrame();
 
     expect(output).toContain(content);
@@ -68,11 +61,7 @@ describe('ToolResultDisplay', () => {
   it('uses Scrollable for non-ANSI output in alternate buffer mode', () => {
     mockUseAlternateBuffer.mockReturnValue(true);
     const { lastFrame } = render(
-      <ToolResultDisplay
-        resultDisplay="**Markdown content**"
-        terminalWidth={80}
-        maxLines={10}
-      />,
+      <ToolResultDisplay resultDisplay='**Markdown content**' terminalWidth={80} maxLines={10} />
     );
     const output = lastFrame();
 
@@ -82,21 +71,13 @@ describe('ToolResultDisplay', () => {
 
   it('passes hasFocus prop to scrollable components', () => {
     mockUseAlternateBuffer.mockReturnValue(true);
-    const { lastFrame } = render(
-      <ToolResultDisplay
-        resultDisplay="Some result"
-        terminalWidth={80}
-        hasFocus={true}
-      />,
-    );
+    const { lastFrame } = render(<ToolResultDisplay resultDisplay='Some result' terminalWidth={80} hasFocus={true} />);
 
     expect(lastFrame()).toContain('Some result');
   });
 
   it('renders string result as markdown by default', () => {
-    const { lastFrame } = render(
-      <ToolResultDisplay resultDisplay="**Some result**" terminalWidth={80} />,
-    );
+    const { lastFrame } = render(<ToolResultDisplay resultDisplay='**Some result**' terminalWidth={80} />);
     const output = lastFrame();
 
     expect(output).toMatchSnapshot();
@@ -105,11 +86,11 @@ describe('ToolResultDisplay', () => {
   it('renders string result as plain text when renderOutputAsMarkdown is false', () => {
     const { lastFrame } = render(
       <ToolResultDisplay
-        resultDisplay="**Some result**"
+        resultDisplay='**Some result**'
         terminalWidth={80}
         availableTerminalHeight={20}
         renderOutputAsMarkdown={false}
-      />,
+      />
     );
     const output = lastFrame();
 
@@ -119,11 +100,7 @@ describe('ToolResultDisplay', () => {
   it('truncates very long string results', { timeout: 20000 }, () => {
     const longString = 'a'.repeat(1000005);
     const { lastFrame } = render(
-      <ToolResultDisplay
-        resultDisplay={longString}
-        terminalWidth={80}
-        availableTerminalHeight={20}
-      />,
+      <ToolResultDisplay resultDisplay={longString} terminalWidth={80} availableTerminalHeight={20} />
     );
     const output = lastFrame();
 
@@ -136,11 +113,7 @@ describe('ToolResultDisplay', () => {
       fileName: 'test.ts',
     };
     const { lastFrame } = render(
-      <ToolResultDisplay
-        resultDisplay={diffResult}
-        terminalWidth={80}
-        availableTerminalHeight={20}
-      />,
+      <ToolResultDisplay resultDisplay={diffResult} terminalWidth={80} availableTerminalHeight={20} />
     );
     const output = lastFrame();
 
@@ -167,7 +140,7 @@ describe('ToolResultDisplay', () => {
         resultDisplay={ansiResult as unknown as AnsiOutput}
         terminalWidth={80}
         availableTerminalHeight={20}
-      />,
+      />
     );
     const output = lastFrame();
 
@@ -179,11 +152,7 @@ describe('ToolResultDisplay', () => {
       todos: [],
     };
     const { lastFrame } = render(
-      <ToolResultDisplay
-        resultDisplay={todoResult}
-        terminalWidth={80}
-        availableTerminalHeight={20}
-      />,
+      <ToolResultDisplay resultDisplay={todoResult} terminalWidth={80} availableTerminalHeight={20} />
     );
     const output = lastFrame();
 
@@ -195,11 +164,11 @@ describe('ToolResultDisplay', () => {
     // availableHeight calculation: 20 - 1 - 5 = 14 > 3
     const { lastFrame } = render(
       <ToolResultDisplay
-        resultDisplay="**Some result**"
+        resultDisplay='**Some result**'
         terminalWidth={80}
         availableTerminalHeight={20}
         renderOutputAsMarkdown={true}
-      />,
+      />
     );
     const output = lastFrame();
     expect(output).toMatchSnapshot();
@@ -209,11 +178,11 @@ describe('ToolResultDisplay', () => {
     mockUseAlternateBuffer.mockReturnValue(true);
     const { lastFrame } = render(
       <ToolResultDisplay
-        resultDisplay="**Some result**"
+        resultDisplay='**Some result**'
         terminalWidth={80}
         availableTerminalHeight={20}
         renderOutputAsMarkdown={true}
-      />,
+      />
     );
     const output = lastFrame();
 
@@ -260,12 +229,7 @@ describe('ToolResultDisplay', () => {
       ],
     ];
     const { lastFrame } = render(
-      <ToolResultDisplay
-        resultDisplay={ansiResult}
-        terminalWidth={80}
-        availableTerminalHeight={20}
-        maxLines={2}
-      />,
+      <ToolResultDisplay resultDisplay={ansiResult} terminalWidth={80} availableTerminalHeight={20} maxLines={2} />
     );
     const output = lastFrame();
 
@@ -293,7 +257,7 @@ describe('ToolResultDisplay', () => {
         terminalWidth={80}
         maxLines={25}
         availableTerminalHeight={undefined}
-      />,
+      />
     );
     const output = lastFrame();
 

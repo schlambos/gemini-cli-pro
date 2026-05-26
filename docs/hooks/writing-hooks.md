@@ -170,7 +170,7 @@ async function main() {
             allowedFunctionNames: allowed,
           },
         },
-      }),
+      })
     );
   } else {
     console.log(JSON.stringify({}));
@@ -336,7 +336,7 @@ console.error('Initializing assistant...');
 console.log(
   JSON.stringify({
     systemMessage: '🧠 Smart Assistant Loaded',
-  }),
+  })
 );
 ```
 
@@ -357,7 +357,7 @@ async function main() {
         hookEventName: 'BeforeAgent',
         additionalContext: `\n## Relevant Memories\n${memories}`,
       },
-    }),
+    })
   );
 }
 main();
@@ -377,7 +377,7 @@ if (content.includes('SECRET_KEY')) {
       decision: 'deny',
       reason: 'Found SECRET_KEY in content',
       systemMessage: '🚨 Blocked sensitive commit',
-    }),
+    })
   );
   process.exit(0);
 }
@@ -394,10 +394,7 @@ const path = require('path');
 
 const input = JSON.parse(fs.readFileSync(0));
 const { llm_request, llm_response } = input;
-const logFile = path.join(
-  process.env.GEMINI_PROJECT_DIR,
-  '.gemini/memory/session.jsonl',
-);
+const logFile = path.join(process.env.GEMINI_PROJECT_DIR, '.gemini/memory/session.jsonl');
 
 fs.appendFileSync(
   logFile,
@@ -405,7 +402,7 @@ fs.appendFileSync(
     request: llm_request,
     response: llm_response,
     timestamp: new Date().toISOString(),
-  }) + '\n',
+  }) + '\n'
 );
 
 console.log(JSON.stringify({}));
@@ -426,7 +423,7 @@ if (!response.includes('Summary:')) {
       decision: 'block', // Triggers an automatic retry turn
       reason: 'Your response is missing a Summary section. Please add one.',
       systemMessage: '🔄 Requesting missing summary...',
-    }),
+    })
   );
   process.exit(0);
 }

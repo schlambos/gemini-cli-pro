@@ -6,11 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { Config } from '../config/config.js';
-import {
-  initializeTelemetry,
-  shutdownTelemetry,
-  bufferTelemetryEvent,
-} from './sdk.js';
+import { initializeTelemetry, shutdownTelemetry, bufferTelemetryEvent } from './sdk.js';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
 import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-grpc';
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-grpc';
@@ -20,11 +16,7 @@ import { OTLPMetricExporter as OTLPMetricExporterHttp } from '@opentelemetry/exp
 import { ConsoleSpanExporter } from '@opentelemetry/sdk-trace-node';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { GoogleAuth, type JWTInput } from 'google-auth-library';
-import {
-  GcpTraceExporter,
-  GcpLogExporter,
-  GcpMetricExporter,
-} from './gcp-exporters.js';
+import { GcpTraceExporter, GcpLogExporter, GcpMetricExporter } from './gcp-exporters.js';
 import { TelemetryTarget } from './index.js';
 
 import * as os from 'node:os';
@@ -62,7 +54,7 @@ describe('Telemetry SDK', () => {
       () =>
         ({
           getApplicationDefault: mockGetApplicationDefault,
-        }) as unknown as GoogleAuth,
+        }) as unknown as GoogleAuth
     );
     mockConfig = {
       getTelemetryEnabled: () => true,
@@ -105,9 +97,7 @@ describe('Telemetry SDK', () => {
   it('should use HTTP exporters when protocol is http', async () => {
     vi.spyOn(mockConfig, 'getTelemetryEnabled').mockReturnValue(true);
     vi.spyOn(mockConfig, 'getTelemetryOtlpProtocol').mockReturnValue('http');
-    vi.spyOn(mockConfig, 'getTelemetryOtlpEndpoint').mockReturnValue(
-      'http://localhost:4318',
-    );
+    vi.spyOn(mockConfig, 'getTelemetryOtlpEndpoint').mockReturnValue('http://localhost:4318');
 
     await initializeTelemetry(mockConfig);
 
@@ -124,31 +114,21 @@ describe('Telemetry SDK', () => {
   });
 
   it('should parse gRPC endpoint correctly', async () => {
-    vi.spyOn(mockConfig, 'getTelemetryOtlpEndpoint').mockReturnValue(
-      'https://my-collector.com',
-    );
+    vi.spyOn(mockConfig, 'getTelemetryOtlpEndpoint').mockReturnValue('https://my-collector.com');
     await initializeTelemetry(mockConfig);
-    expect(OTLPTraceExporter).toHaveBeenCalledWith(
-      expect.objectContaining({ url: 'https://my-collector.com' }),
-    );
+    expect(OTLPTraceExporter).toHaveBeenCalledWith(expect.objectContaining({ url: 'https://my-collector.com' }));
   });
 
   it('should parse HTTP endpoint correctly', async () => {
     vi.spyOn(mockConfig, 'getTelemetryOtlpProtocol').mockReturnValue('http');
-    vi.spyOn(mockConfig, 'getTelemetryOtlpEndpoint').mockReturnValue(
-      'https://my-collector.com',
-    );
+    vi.spyOn(mockConfig, 'getTelemetryOtlpEndpoint').mockReturnValue('https://my-collector.com');
     await initializeTelemetry(mockConfig);
-    expect(OTLPTraceExporterHttp).toHaveBeenCalledWith(
-      expect.objectContaining({ url: 'https://my-collector.com/' }),
-    );
+    expect(OTLPTraceExporterHttp).toHaveBeenCalledWith(expect.objectContaining({ url: 'https://my-collector.com/' }));
   });
 
   it('should use direct GCP exporters when target is gcp, project ID is set, and useCollector is false', async () => {
     mockGetApplicationDefault.mockResolvedValue(undefined); // Simulate ADC available
-    vi.spyOn(mockConfig, 'getTelemetryTarget').mockReturnValue(
-      TelemetryTarget.GCP,
-    );
+    vi.spyOn(mockConfig, 'getTelemetryTarget').mockReturnValue(TelemetryTarget.GCP);
     vi.spyOn(mockConfig, 'getTelemetryUseCollector').mockReturnValue(false);
     vi.spyOn(mockConfig, 'getTelemetryOtlpEndpoint').mockReturnValue('');
 
@@ -172,9 +152,7 @@ describe('Telemetry SDK', () => {
   });
 
   it('should use OTLP exporters when target is gcp but useCollector is true', async () => {
-    vi.spyOn(mockConfig, 'getTelemetryTarget').mockReturnValue(
-      TelemetryTarget.GCP,
-    );
+    vi.spyOn(mockConfig, 'getTelemetryTarget').mockReturnValue(TelemetryTarget.GCP);
     vi.spyOn(mockConfig, 'getTelemetryUseCollector').mockReturnValue(true);
 
     await initializeTelemetry(mockConfig);
@@ -195,9 +173,7 @@ describe('Telemetry SDK', () => {
 
   it('should use GCP exporters even when project ID environment variable is not set', async () => {
     mockGetApplicationDefault.mockResolvedValue(undefined); // Simulate ADC available
-    vi.spyOn(mockConfig, 'getTelemetryTarget').mockReturnValue(
-      TelemetryTarget.GCP,
-    );
+    vi.spyOn(mockConfig, 'getTelemetryTarget').mockReturnValue(TelemetryTarget.GCP);
     vi.spyOn(mockConfig, 'getTelemetryUseCollector').mockReturnValue(false);
     vi.spyOn(mockConfig, 'getTelemetryOtlpEndpoint').mockReturnValue('');
 
@@ -225,9 +201,7 @@ describe('Telemetry SDK', () => {
 
   it('should use GOOGLE_CLOUD_PROJECT as fallback when OTLP_GOOGLE_CLOUD_PROJECT is not set', async () => {
     mockGetApplicationDefault.mockResolvedValue(undefined); // Simulate ADC available
-    vi.spyOn(mockConfig, 'getTelemetryTarget').mockReturnValue(
-      TelemetryTarget.GCP,
-    );
+    vi.spyOn(mockConfig, 'getTelemetryTarget').mockReturnValue(TelemetryTarget.GCP);
     vi.spyOn(mockConfig, 'getTelemetryUseCollector').mockReturnValue(false);
     vi.spyOn(mockConfig, 'getTelemetryOtlpEndpoint').mockReturnValue('');
 
@@ -239,18 +213,9 @@ describe('Telemetry SDK', () => {
     try {
       await initializeTelemetry(mockConfig);
 
-      expect(GcpTraceExporter).toHaveBeenCalledWith(
-        'fallback-project',
-        undefined,
-      );
-      expect(GcpLogExporter).toHaveBeenCalledWith(
-        'fallback-project',
-        undefined,
-      );
-      expect(GcpMetricExporter).toHaveBeenCalledWith(
-        'fallback-project',
-        undefined,
-      );
+      expect(GcpTraceExporter).toHaveBeenCalledWith('fallback-project', undefined);
+      expect(GcpLogExporter).toHaveBeenCalledWith('fallback-project', undefined);
+      expect(GcpMetricExporter).toHaveBeenCalledWith('fallback-project', undefined);
       expect(NodeSDK.prototype.start).toHaveBeenCalled();
     } finally {
       if (originalOtlpEnv) {
@@ -265,9 +230,7 @@ describe('Telemetry SDK', () => {
   });
 
   it('should not use OTLP exporters when telemetryOutfile is set', async () => {
-    vi.spyOn(mockConfig, 'getTelemetryOutfile').mockReturnValue(
-      path.join(os.tmpdir(), 'test.log'),
-    );
+    vi.spyOn(mockConfig, 'getTelemetryOutfile').mockReturnValue(path.join(os.tmpdir(), 'test.log'));
     await initializeTelemetry(mockConfig);
 
     expect(OTLPTraceExporter).not.toHaveBeenCalled();
@@ -281,9 +244,7 @@ describe('Telemetry SDK', () => {
 
   it('should defer initialization when useCliAuth is true and no credentials are provided', async () => {
     vi.spyOn(mockConfig, 'getTelemetryUseCliAuth').mockReturnValue(true);
-    vi.spyOn(mockConfig, 'getTelemetryTarget').mockReturnValue(
-      TelemetryTarget.GCP,
-    );
+    vi.spyOn(mockConfig, 'getTelemetryTarget').mockReturnValue(TelemetryTarget.GCP);
     vi.spyOn(mockConfig, 'getTelemetryOtlpEndpoint').mockReturnValue('');
 
     // 1. Initial state: No credentials.
@@ -295,16 +256,12 @@ describe('Telemetry SDK', () => {
     expect(GcpTraceExporter).not.toHaveBeenCalled();
 
     // Verify deferral log
-    expect(debugLogger.log).toHaveBeenCalledWith(
-      expect.stringContaining('deferring telemetry initialization'),
-    );
+    expect(debugLogger.log).toHaveBeenCalledWith(expect.stringContaining('deferring telemetry initialization'));
   });
 
   it('should initialize with GCP exporters when credentials are provided via post_auth', async () => {
     vi.spyOn(mockConfig, 'getTelemetryUseCliAuth').mockReturnValue(true);
-    vi.spyOn(mockConfig, 'getTelemetryTarget').mockReturnValue(
-      TelemetryTarget.GCP,
-    );
+    vi.spyOn(mockConfig, 'getTelemetryTarget').mockReturnValue(TelemetryTarget.GCP);
     vi.spyOn(mockConfig, 'getTelemetryOtlpEndpoint').mockReturnValue('');
 
     // 1. Initial state: No credentials.
@@ -329,15 +286,10 @@ describe('Telemetry SDK', () => {
     // Wait for the event handler to process.
     await vi.waitFor(() => {
       // Check if debugLogger was called, which indicates the listener ran
-      expect(debugLogger.log).toHaveBeenCalledWith(
-        'Telemetry reinit with credentials.',
-      );
+      expect(debugLogger.log).toHaveBeenCalledWith('Telemetry reinit with credentials.');
 
       // Should use GCP exporters now with the project ID
-      expect(GcpTraceExporter).toHaveBeenCalledWith(
-        'test-project',
-        mockCredentials,
-      );
+      expect(GcpTraceExporter).toHaveBeenCalledWith('test-project', mockCredentials);
     });
   });
 
@@ -367,9 +319,7 @@ describe('Telemetry SDK', () => {
     await initializeTelemetry(mockConfig);
 
     expect(debugLogger.error).toHaveBeenCalledWith(
-      expect.stringContaining(
-        'Telemetry configuration error: "useCollector" and "useCliAuth" cannot both be true',
-      ),
+      expect.stringContaining('Telemetry configuration error: "useCollector" and "useCliAuth" cannot both be true')
     );
     expect(NodeSDK.prototype.start).not.toHaveBeenCalled();
   });
@@ -385,9 +335,7 @@ describe('Telemetry SDK', () => {
 
     // 3. Verify error log
     expect(debugLogger.error).toHaveBeenCalledWith(
-      expect.stringContaining(
-        'Telemetry credentials have changed (from user1@example.com to user2@example.com)',
-      ),
+      expect.stringContaining('Telemetry credentials have changed (from user1@example.com to user2@example.com)')
     );
   });
 
@@ -401,8 +349,6 @@ describe('Telemetry SDK', () => {
     await initializeTelemetry(mockConfig, creds1 as JWTInput);
 
     // 3. Verify NO error log
-    expect(debugLogger.error).not.toHaveBeenCalledWith(
-      expect.stringContaining('Telemetry credentials have changed'),
-    );
+    expect(debugLogger.error).not.toHaveBeenCalledWith(expect.stringContaining('Telemetry credentials have changed'));
   });
 });

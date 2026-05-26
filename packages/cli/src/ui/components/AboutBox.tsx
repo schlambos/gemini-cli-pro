@@ -39,20 +39,20 @@ export const AboutBox: React.FC<AboutBoxProps> = ({
 
   return (
     <Box
-      borderStyle="round"
+      borderStyle='round'
       borderColor={theme.border.default}
-      flexDirection="column"
+      flexDirection='column'
       padding={1}
       marginY={1}
-      width="100%"
+      width='100%'
     >
       <Box marginBottom={1}>
         <Text bold color={theme.text.accent}>
           About Gemini CLI
         </Text>
       </Box>
-      <Box flexDirection="row">
-        <Box width="35%">
+      <Box flexDirection='row'>
+        <Box width='35%'>
           <Text bold color={theme.text.link}>
             CLI Version
           </Text>
@@ -62,8 +62,8 @@ export const AboutBox: React.FC<AboutBoxProps> = ({
         </Box>
       </Box>
       {GIT_COMMIT_INFO && !['N/A'].includes(GIT_COMMIT_INFO) && (
-        <Box flexDirection="row">
-          <Box width="35%">
+        <Box flexDirection='row'>
+          <Box width='35%'>
             <Text bold color={theme.text.link}>
               Git Commit
             </Text>
@@ -73,20 +73,18 @@ export const AboutBox: React.FC<AboutBoxProps> = ({
           </Box>
         </Box>
       )}
-      <Box flexDirection="row">
-        <Box width="35%">
+      <Box flexDirection='row'>
+        <Box width='35%'>
           <Text bold color={theme.text.link}>
             Model
           </Text>
         </Box>
         <Box>
-          <Text color={theme.text.primary}>
-            {getDisplayString(modelVersion)}
-          </Text>
+          <Text color={theme.text.primary}>{getDisplayString(modelVersion)}</Text>
         </Box>
       </Box>
-      <Box flexDirection="row">
-        <Box width="35%">
+      <Box flexDirection='row'>
+        <Box width='35%'>
           <Text bold color={theme.text.link}>
             Sandbox
           </Text>
@@ -95,8 +93,8 @@ export const AboutBox: React.FC<AboutBoxProps> = ({
           <Text color={theme.text.primary}>{sandboxEnv}</Text>
         </Box>
       </Box>
-      <Box flexDirection="row">
-        <Box width="35%">
+      <Box flexDirection='row'>
+        <Box width='35%'>
           <Text bold color={theme.text.link}>
             OS
           </Text>
@@ -106,8 +104,8 @@ export const AboutBox: React.FC<AboutBoxProps> = ({
         </Box>
       </Box>
       {showUserIdentity && (
-        <Box flexDirection="row">
-          <Box width="35%">
+        <Box flexDirection='row'>
+          <Box width='35%'>
             <Text bold color={theme.text.link}>
               Auth Method
             </Text>
@@ -124,8 +122,8 @@ export const AboutBox: React.FC<AboutBoxProps> = ({
         </Box>
       )}
       {showUserIdentity && tier && (
-        <Box flexDirection="row">
-          <Box width="35%">
+        <Box flexDirection='row'>
+          <Box width='35%'>
             <Text bold color={theme.text.link}>
               Tier
             </Text>
@@ -136,8 +134,8 @@ export const AboutBox: React.FC<AboutBoxProps> = ({
         </Box>
       )}
       {gcpProject && (
-        <Box flexDirection="row">
-          <Box width="35%">
+        <Box flexDirection='row'>
+          <Box width='35%'>
             <Text bold color={theme.text.link}>
               GCP Project
             </Text>
@@ -148,8 +146,8 @@ export const AboutBox: React.FC<AboutBoxProps> = ({
         </Box>
       )}
       {ideClient && (
-        <Box flexDirection="row">
-          <Box width="35%">
+        <Box flexDirection='row'>
+          <Box width='35%'>
             <Text bold color={theme.text.link}>
               IDE Client
             </Text>

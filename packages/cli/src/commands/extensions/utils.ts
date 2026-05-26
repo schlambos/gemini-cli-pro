@@ -6,10 +6,7 @@
 import { ExtensionManager } from '../../config/extension-manager.js';
 import { loadSettings } from '../../config/settings.js';
 import { requestConsentNonInteractive } from '../../config/extensions/consent.js';
-import {
-  debugLogger,
-  type ResolvedExtensionSetting,
-} from '@google/gemini-cli-core';
+import { debugLogger, type ResolvedExtensionSetting } from '@google/gemini-cli-core';
 import type { ExtensionConfig } from '../../config/extension.js';
 import prompts from 'prompts';
 import {
@@ -25,9 +22,7 @@ export interface ConfigLogger {
   error(message: string): void;
 }
 
-export type RequestSettingCallback = (
-  setting: ExtensionSetting,
-) => Promise<string>;
+export type RequestSettingCallback = (setting: ExtensionSetting) => Promise<string>;
 export type RequestConfirmationCallback = (message: string) => Promise<boolean>;
 
 const defaultLogger: ConfigLogger = {
@@ -35,12 +30,9 @@ const defaultLogger: ConfigLogger = {
   error: (message: string) => debugLogger.error(message),
 };
 
-const defaultRequestSetting: RequestSettingCallback = async (setting) =>
-  promptForSetting(setting);
+const defaultRequestSetting: RequestSettingCallback = async (setting) => promptForSetting(setting);
 
-const defaultRequestConfirmation: RequestConfirmationCallback = async (
-  message,
-) => {
+const defaultRequestConfirmation: RequestConfirmationCallback = async (message) => {
   const response = await prompts({
     type: 'confirm',
     name: 'confirm',
@@ -65,11 +57,9 @@ export async function getExtensionManager() {
 export async function getExtensionAndManager(
   extensionManager: ExtensionManager,
   name: string,
-  logger: ConfigLogger = defaultLogger,
+  logger: ConfigLogger = defaultLogger
 ) {
-  const extension = extensionManager
-    .getExtensions()
-    .find((ext) => ext.name === name);
+  const extension = extensionManager.getExtensions().find((ext) => ext.name === name);
 
   if (!extension) {
     logger.error(`Extension "${name}" is not installed.`);
@@ -85,34 +75,19 @@ export async function configureSpecificSetting(
   settingKey: string,
   scope: ExtensionSettingScope,
   logger: ConfigLogger = defaultLogger,
-  requestSetting: RequestSettingCallback = defaultRequestSetting,
+  requestSetting: RequestSettingCallback = defaultRequestSetting
 ) {
-  const { extension } = await getExtensionAndManager(
-    extensionManager,
-    extensionName,
-    logger,
-  );
+  const { extension } = await getExtensionAndManager(extensionManager, extensionName, logger);
   if (!extension) {
     return;
   }
-  const extensionConfig = await extensionManager.loadExtensionConfig(
-    extension.path,
-  );
+  const extensionConfig = await extensionManager.loadExtensionConfig(extension.path);
   if (!extensionConfig) {
-    logger.error(
-      `Could not find configuration for extension "${extensionName}".`,
-    );
+    logger.error(`Could not find configuration for extension "${extensionName}".`);
     return;
   }
 
-  await updateSetting(
-    extensionConfig,
-    extension.id,
-    settingKey,
-    requestSetting,
-    scope,
-    process.cwd(),
-  );
+  await updateSetting(extensionConfig, extension.id, settingKey, requestSetting, scope, process.cwd());
 
   logger.log(`Setting "${settingKey}" updated.`);
 }
@@ -123,37 +98,20 @@ export async function configureExtension(
   scope: ExtensionSettingScope,
   logger: ConfigLogger = defaultLogger,
   requestSetting: RequestSettingCallback = defaultRequestSetting,
-  requestConfirmation: RequestConfirmationCallback = defaultRequestConfirmation,
+  requestConfirmation: RequestConfirmationCallback = defaultRequestConfirmation
 ) {
-  const { extension } = await getExtensionAndManager(
-    extensionManager,
-    extensionName,
-    logger,
-  );
+  const { extension } = await getExtensionAndManager(extensionManager, extensionName, logger);
   if (!extension) {
     return;
   }
-  const extensionConfig = await extensionManager.loadExtensionConfig(
-    extension.path,
-  );
-  if (
-    !extensionConfig ||
-    !extensionConfig.settings ||
-    extensionConfig.settings.length === 0
-  ) {
+  const extensionConfig = await extensionManager.loadExtensionConfig(extension.path);
+  if (!extensionConfig || !extensionConfig.settings || extensionConfig.settings.length === 0) {
     logger.log(`Extension "${extensionName}" has no settings to configure.`);
     return;
   }
 
   logger.log(`Configuring settings for "${extensionName}"...`);
-  await configureExtensionSettings(
-    extensionConfig,
-    extension.id,
-    scope,
-    logger,
-    requestSetting,
-    requestConfirmation,
-  );
+  await configureExtensionSettings(extensionConfig, extension.id, scope, logger, requestSetting, requestConfirmation);
 }
 
 export async function configureAllExtensions(
@@ -161,7 +119,7 @@ export async function configureAllExtensions(
   scope: ExtensionSettingScope,
   logger: ConfigLogger = defaultLogger,
   requestSetting: RequestSettingCallback = defaultRequestSetting,
-  requestConfirmation: RequestConfirmationCallback = defaultRequestConfirmation,
+  requestConfirmation: RequestConfirmationCallback = defaultRequestConfirmation
 ) {
   const extensions = extensionManager.getExtensions();
 
@@ -171,14 +129,8 @@ export async function configureAllExtensions(
   }
 
   for (const extension of extensions) {
-    const extensionConfig = await extensionManager.loadExtensionConfig(
-      extension.path,
-    );
-    if (
-      extensionConfig &&
-      extensionConfig.settings &&
-      extensionConfig.settings.length > 0
-    ) {
+    const extensionConfig = await extensionManager.loadExtensionConfig(extension.path);
+    if (extensionConfig && extensionConfig.settings && extensionConfig.settings.length > 0) {
       logger.log(`\nConfiguring settings for "${extension.name}"...`);
       await configureExtensionSettings(
         extensionConfig,
@@ -186,7 +138,7 @@ export async function configureAllExtensions(
         scope,
         logger,
         requestSetting,
-        requestConfirmation,
+        requestConfirmation
       );
     }
   }
@@ -198,14 +150,9 @@ export async function configureExtensionSettings(
   scope: ExtensionSettingScope,
   logger: ConfigLogger = defaultLogger,
   requestSetting: RequestSettingCallback = defaultRequestSetting,
-  requestConfirmation: RequestConfirmationCallback = defaultRequestConfirmation,
+  requestConfirmation: RequestConfirmationCallback = defaultRequestConfirmation
 ) {
-  const currentScopedSettings = await getScopedEnvContents(
-    extensionConfig,
-    extensionId,
-    scope,
-    process.cwd(),
-  );
+  const currentScopedSettings = await getScopedEnvContents(extensionConfig, extensionId, scope, process.cwd());
 
   let workspaceSettings: Record<string, string> = {};
   if (scope === ExtensionSettingScope.USER) {
@@ -213,7 +160,7 @@ export async function configureExtensionSettings(
       extensionConfig,
       extensionId,
       ExtensionSettingScope.WORKSPACE,
-      process.cwd(),
+      process.cwd()
     );
   }
 
@@ -224,14 +171,12 @@ export async function configureExtensionSettings(
     const workspaceValue = workspaceSettings[setting.envVar];
 
     if (workspaceValue !== undefined) {
-      logger.log(
-        `Note: Setting "${setting.name}" is already configured in the workspace scope.`,
-      );
+      logger.log(`Note: Setting "${setting.name}" is already configured in the workspace scope.`);
     }
 
     if (currentValue !== undefined) {
       const confirmed = await requestConfirmation(
-        `Setting "${setting.name}" (${setting.envVar}) is already set. Overwrite?`,
+        `Setting "${setting.name}" (${setting.envVar}) is already set. Overwrite?`
       );
 
       if (!confirmed) {
@@ -239,20 +184,11 @@ export async function configureExtensionSettings(
       }
     }
 
-    await updateSetting(
-      extensionConfig,
-      extensionId,
-      setting.envVar,
-      requestSetting,
-      scope,
-      process.cwd(),
-    );
+    await updateSetting(extensionConfig, extensionId, setting.envVar, requestSetting, scope, process.cwd());
   }
 }
 
-export function getFormattedSettingValue(
-  setting: ResolvedExtensionSetting,
-): string {
+export function getFormattedSettingValue(setting: ResolvedExtensionSetting): string {
   if (!setting.value) {
     return '[not set]';
   }

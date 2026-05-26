@@ -5,13 +5,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import {
-  createCustomTheme,
-  validateCustomTheme,
-  pickDefaultThemeName,
-  darkTheme,
-  type Theme,
-} from './theme.js';
+import { createCustomTheme, validateCustomTheme, pickDefaultThemeName, darkTheme, type Theme } from './theme.js';
 import { themeManager } from './theme-manager.js';
 import type { CustomTheme } from '@google/gemini-cli-core';
 
@@ -180,32 +174,22 @@ describe('pickDefaultThemeName', () => {
   ] as unknown as Theme[];
 
   it('should return exact match if found', () => {
-    expect(
-      pickDefaultThemeName('#0000ff', mockThemes, 'Dark Theme', 'Light Theme'),
-    ).toBe('Blue Theme');
+    expect(pickDefaultThemeName('#0000ff', mockThemes, 'Dark Theme', 'Light Theme')).toBe('Blue Theme');
   });
 
   it('should return exact match (case insensitive)', () => {
-    expect(
-      pickDefaultThemeName('#FFFFFF', mockThemes, 'Dark Theme', 'Light Theme'),
-    ).toBe('Light Theme');
+    expect(pickDefaultThemeName('#FFFFFF', mockThemes, 'Dark Theme', 'Light Theme')).toBe('Light Theme');
   });
 
   it('should return default light theme for light background if no match', () => {
-    expect(
-      pickDefaultThemeName('#eeeeee', mockThemes, 'Dark Theme', 'Light Theme'),
-    ).toBe('Light Theme');
+    expect(pickDefaultThemeName('#eeeeee', mockThemes, 'Dark Theme', 'Light Theme')).toBe('Light Theme');
   });
 
   it('should return default dark theme for dark background if no match', () => {
-    expect(
-      pickDefaultThemeName('#111111', mockThemes, 'Dark Theme', 'Light Theme'),
-    ).toBe('Dark Theme');
+    expect(pickDefaultThemeName('#111111', mockThemes, 'Dark Theme', 'Light Theme')).toBe('Dark Theme');
   });
 
   it('should return default dark theme if background is undefined', () => {
-    expect(
-      pickDefaultThemeName(undefined, mockThemes, 'Dark Theme', 'Light Theme'),
-    ).toBe('Dark Theme');
+    expect(pickDefaultThemeName(undefined, mockThemes, 'Dark Theme', 'Light Theme')).toBe('Dark Theme');
   });
 });

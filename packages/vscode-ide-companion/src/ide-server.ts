@@ -13,11 +13,7 @@ import {
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
-import express, {
-  type Request,
-  type Response,
-  type NextFunction,
-} from 'express';
+import express, { type Request, type Response, type NextFunction } from 'express';
 import cors from 'cors';
 import { randomUUID } from 'node:crypto';
 import { type Server as HTTPServer } from 'node:http';
@@ -61,18 +57,9 @@ async function writePortAndWorkspace({
       ? workspaceFolders.map((folder) => folder.uri.fsPath).join(path.delimiter)
       : '';
 
-  context.environmentVariableCollection.replace(
-    IDE_SERVER_PORT_ENV_VAR,
-    port.toString(),
-  );
-  context.environmentVariableCollection.replace(
-    IDE_WORKSPACE_PATH_ENV_VAR,
-    workspacePath,
-  );
-  context.environmentVariableCollection.replace(
-    IDE_AUTH_TOKEN_ENV_VAR,
-    authToken,
-  );
+  context.environmentVariableCollection.replace(IDE_SERVER_PORT_ENV_VAR, port.toString());
+  context.environmentVariableCollection.replace(IDE_WORKSPACE_PATH_ENV_VAR, workspacePath);
+  context.environmentVariableCollection.replace(IDE_AUTH_TOKEN_ENV_VAR, authToken);
 
   if (!portFile) {
     log('Missing portFile, cannot write port and workspace info.');
@@ -98,7 +85,7 @@ async function writePortAndWorkspace({
 function sendIdeContextUpdateNotification(
   transport: StreamableHTTPServerTransport,
   log: (message: string) => void,
-  openFilesManager: OpenFilesManager,
+  openFilesManager: OpenFilesManager
 ) {
   const ideContext = openFilesManager.state;
 
@@ -125,8 +112,7 @@ export class IDEServer {
 
   private port: number | undefined;
   private authToken: string | undefined;
-  private transports: { [sessionId: string]: StreamableHTTPServerTransport } =
-    {};
+  private transports: { [sessionId: string]: StreamableHTTPServerTransport } = {};
   private openFilesManager: OpenFilesManager | undefined;
   diffManager: DiffManager;
 
@@ -151,20 +137,14 @@ export class IDEServer {
             if (!origin) {
               return callback(null, true);
             }
-            return callback(
-              new CORSError('Request denied by CORS policy.'),
-              false,
-            );
+            return callback(new CORSError('Request denied by CORS policy.'), false);
           },
-        }),
+        })
       );
 
       app.use((req, res, next) => {
         const host = req.headers.host || '';
-        const allowedHosts = [
-          `localhost:${this.port}`,
-          `127.0.0.1:${this.port}`,
-        ];
+        const allowedHosts = [`localhost:${this.port}`, `127.0.0.1:${this.port}`];
         if (!allowedHosts.includes(host)) {
           return res.status(403).json({ error: 'Invalid Host header' });
         }
@@ -200,14 +180,12 @@ export class IDEServer {
         this.broadcastIdeContextUpdate();
       });
       context.subscriptions.push(onDidChangeSubscription);
-      const onDidChangeDiffSubscription = this.diffManager.onDidChange(
-        (notification) => {
-          for (const transport of Object.values(this.transports)) {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            transport.send(notification);
-          }
-        },
-      );
+      const onDidChangeDiffSubscription = this.diffManager.onDidChange((notification) => {
+        for (const transport of Object.values(this.transports)) {
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+          transport.send(notification);
+        }
+      });
       context.subscriptions.push(onDidChangeDiffSubscription);
 
       app.post('/mcp', async (req: Request, res: Response) => {
@@ -235,11 +213,11 @@ export class IDEServer {
               .catch((error) => {
                 missedPings++;
                 this.log(
-                  `Failed to send keep-alive ping for session ${sessionId}. Missed pings: ${missedPings}. Error: ${error.message}`,
+                  `Failed to send keep-alive ping for session ${sessionId}. Missed pings: ${missedPings}. Error: ${error.message}`
                 );
                 if (missedPings >= 3) {
                   this.log(
-                    `Session ${sessionId} missed ${missedPings} pings. Closing connection and cleaning up interval.`,
+                    `Session ${sessionId} missed ${missedPings} pings. Closing connection and cleaning up interval.`
                   );
                   clearInterval(keepAlive);
                 }
@@ -258,15 +236,12 @@ export class IDEServer {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           mcpServer.connect(transport);
         } else {
-          this.log(
-            'Bad Request: No valid session ID provided for non-initialize request.',
-          );
+          this.log('Bad Request: No valid session ID provided for non-initialize request.');
           res.status(400).json({
             jsonrpc: '2.0',
             error: {
               code: -32000,
-              message:
-                'Bad Request: No valid session ID provided for non-initialize request.',
+              message: 'Bad Request: No valid session ID provided for non-initialize request.',
             },
             id: null,
           });
@@ -276,8 +251,7 @@ export class IDEServer {
         try {
           await transport.handleRequest(req, res, req.body);
         } catch (error) {
-          const errorMessage =
-            error instanceof Error ? error.message : 'Unknown error';
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
           this.log(`Error handling MCP request: ${errorMessage}`);
           if (!res.headersSent) {
             res.status(500).json({
@@ -304,23 +278,15 @@ export class IDEServer {
         try {
           await transport.handleRequest(req, res);
         } catch (error) {
-          const errorMessage =
-            error instanceof Error ? error.message : 'Unknown error';
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
           this.log(`Error handling session request: ${errorMessage}`);
           if (!res.headersSent) {
             res.status(400).send('Bad Request');
           }
         }
 
-        if (
-          this.openFilesManager &&
-          !sessionsWithInitialNotification.has(sessionId)
-        ) {
-          sendIdeContextUpdateNotification(
-            transport,
-            this.log.bind(this),
-            this.openFilesManager,
-          );
+        if (this.openFilesManager && !sessionsWithInitialNotification.has(sessionId)) {
+          sendIdeContextUpdateNotification(transport, this.log.bind(this), this.openFilesManager);
           sessionsWithInitialNotification.add(sessionId);
         }
       };
@@ -346,10 +312,7 @@ export class IDEServer {
           try {
             const portDir = path.join(tmpdir(), 'gemini', 'ide');
             await fs.mkdir(portDir, { recursive: true });
-            portFile = path.join(
-              portDir,
-              `gemini-ide-server-${process.ppid}-${this.port}.json`,
-            );
+            portFile = path.join(portDir, `gemini-ide-server-${process.ppid}-${this.port}.json`);
             this.portFile = portFile;
           } catch (err) {
             const message = err instanceof Error ? err.message : String(err);
@@ -382,11 +345,7 @@ export class IDEServer {
       return;
     }
     for (const transport of Object.values(this.transports)) {
-      sendIdeContextUpdateNotification(
-        transport,
-        this.log.bind(this),
-        this.openFilesManager,
-      );
+      sendIdeContextUpdateNotification(transport, this.log.bind(this), this.openFilesManager);
     }
   }
 
@@ -431,16 +390,13 @@ export class IDEServer {
   }
 }
 
-const createMcpServer = (
-  diffManager: DiffManager,
-  log: (message: string) => void,
-) => {
+const createMcpServer = (diffManager: DiffManager, log: (message: string) => void) => {
   const server = new McpServer(
     {
       name: 'gemini-cli-companion-mcp-server',
       version: '1.0.0',
     },
-    { capabilities: { logging: {} } },
+    { capabilities: { logging: {} } }
   );
   server.registerTool(
     'openDiff',
@@ -453,7 +409,7 @@ const createMcpServer = (
       log(`Received openDiff request for filePath: ${filePath}`);
       await diffManager.showDiff(filePath, newContent);
       return { content: [] };
-    },
+    }
   );
   server.registerTool(
     'closeDiff',
@@ -473,7 +429,7 @@ const createMcpServer = (
           },
         ],
       };
-    },
+    }
   );
   return server;
 };

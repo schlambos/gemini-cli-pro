@@ -36,10 +36,7 @@ const mockSnapshot: LoadedSettingsSnapshot = {
   }),
 };
 
-class ErrorBoundary extends Component<
-  { children: ReactNode; onError: (error: Error) => void },
-  { hasError: boolean }
-> {
+class ErrorBoundary extends Component<{ children: ReactNode; onError: (error: Error) => void }, { hasError: boolean }> {
   constructor(props: { children: ReactNode; onError: (error: Error) => void }) {
     super(props);
     this.state = { hasError: false };
@@ -86,9 +83,7 @@ describe('SettingsContext', () => {
   });
 
   const wrapper = ({ children }: { children: React.ReactNode }) => (
-    <SettingsContext.Provider value={mockLoadedSettings}>
-      {children}
-    </SettingsContext.Provider>
+    <SettingsContext.Provider value={mockLoadedSettings}>{children}</SettingsContext.Provider>
   );
 
   it('should provide the correct initial state', () => {
@@ -104,9 +99,7 @@ describe('SettingsContext', () => {
     const userSettings = result.current.settings.forScope(SettingScope.User);
     expect(userSettings).toBe(mockSnapshot.user);
 
-    const workspaceSettings = result.current.settings.forScope(
-      SettingScope.Workspace,
-    );
+    const workspaceSettings = result.current.settings.forScope(SettingScope.Workspace);
     expect(workspaceSettings).toBe(mockSnapshot.workspace);
   });
 
@@ -119,9 +112,7 @@ describe('SettingsContext', () => {
       ...mockSnapshot,
       merged: { ui: { theme: 'new-theme' } },
     };
-    (
-      mockLoadedSettings.getSnapshot as ReturnType<typeof vi.fn>
-    ).mockReturnValue(newSnapshot);
+    (mockLoadedSettings.getSnapshot as ReturnType<typeof vi.fn>).mockReturnValue(newSnapshot);
 
     // Trigger the listeners (simulate coreEvents emission)
     act(() => {
@@ -138,11 +129,7 @@ describe('SettingsContext', () => {
       result.current.setSetting(SettingScope.User, 'ui.theme', 'dark');
     });
 
-    expect(mockLoadedSettings.setValue).toHaveBeenCalledWith(
-      SettingScope.User,
-      'ui.theme',
-      'dark',
-    );
+    expect(mockLoadedSettings.setValue).toHaveBeenCalledWith(SettingScope.User, 'ui.theme', 'dark');
   });
 
   it('should throw error if used outside provider', () => {
@@ -153,13 +140,13 @@ describe('SettingsContext', () => {
     render(
       <ErrorBoundary onError={onError}>
         <TestHarness />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     expect(onError).toHaveBeenCalledWith(
       expect.objectContaining({
         message: 'useSettingsStore must be used within a SettingsProvider',
-      }),
+      })
     );
 
     consoleSpy.mockRestore();

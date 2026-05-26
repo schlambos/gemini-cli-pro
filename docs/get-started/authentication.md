@@ -245,10 +245,7 @@ Before using AWS Bedrock authentication:
      "Statement": [
        {
          "Effect": "Allow",
-         "Action": [
-           "bedrock:InvokeModel",
-           "bedrock:InvokeModelWithResponseStream"
-         ],
+         "Action": ["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream"],
          "Resource": "arn:aws:bedrock:*::foundation-model/anthropic.claude-*"
        }
      ]

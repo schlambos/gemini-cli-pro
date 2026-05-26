@@ -30,7 +30,7 @@ export class IgnoreFileParser implements IgnoreFileFilter {
     // The order matters: files listed earlier have higher priority.
     // It can be a single file name/pattern or an array of file names/patterns.
     input: string | string[],
-    isPatterns = false,
+    isPatterns = false
   ) {
     this.projectRoot = path.resolve(projectRoot);
     if (isPatterns) {
@@ -60,9 +60,7 @@ export class IgnoreFileParser implements IgnoreFileFilter {
     try {
       content = fs.readFileSync(patternsFilePath, 'utf-8');
     } catch (_error) {
-      debugLogger.debug(
-        `Ignore file not found: ${patternsFilePath}, continue without it.`,
-      );
+      debugLogger.debug(`Ignore file not found: ${patternsFilePath}, continue without it.`);
       return [];
     }
 
@@ -83,11 +81,7 @@ export class IgnoreFileParser implements IgnoreFileFilter {
       return false;
     }
 
-    if (
-      filePath.startsWith('\\') ||
-      filePath === '/' ||
-      filePath.includes('\0')
-    ) {
+    if (filePath.startsWith('\\') || filePath === '/' || filePath.includes('\0')) {
       return false;
     }
 

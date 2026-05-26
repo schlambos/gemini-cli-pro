@@ -151,19 +151,11 @@ describe('detectIde', () => {
     });
 
     it.each([
-      [
-        'IntelliJ IDEA',
-        '/Applications/IntelliJ IDEA.app',
-        IDE_DEFINITIONS.intellijidea,
-      ],
+      ['IntelliJ IDEA', '/Applications/IntelliJ IDEA.app', IDE_DEFINITIONS.intellijidea],
       ['WebStorm', '/Applications/WebStorm.app', IDE_DEFINITIONS.webstorm],
       ['PyCharm', '/Applications/PyCharm.app', IDE_DEFINITIONS.pycharm],
       ['GoLand', '/Applications/GoLand.app', IDE_DEFINITIONS.goland],
-      [
-        'Android Studio',
-        '/Applications/Android Studio.app',
-        IDE_DEFINITIONS.androidstudio,
-      ],
+      ['Android Studio', '/Applications/Android Studio.app', IDE_DEFINITIONS.androidstudio],
       ['CLion', '/Applications/CLion.app', IDE_DEFINITIONS.clion],
       ['RustRover', '/Applications/RustRover.app', IDE_DEFINITIONS.rustrover],
       ['DataGrip', '/Applications/DataGrip.app', IDE_DEFINITIONS.datagrip],
@@ -226,9 +218,7 @@ describe('detectIde with ideInfoFromFile', () => {
     vi.stubEnv('TERM_PROGRAM', 'vscode');
     vi.stubEnv('CURSOR_TRACE_ID', '');
     vi.stubEnv('POSITRON', '');
-    expect(detectIde(ideProcessInfo, ideInfoFromFile)).toBe(
-      IDE_DEFINITIONS.vscode,
-    );
+    expect(detectIde(ideProcessInfo, ideInfoFromFile)).toBe(IDE_DEFINITIONS.vscode);
   });
 
   it('should fall back to env detection if displayName is missing', () => {
@@ -236,8 +226,6 @@ describe('detectIde with ideInfoFromFile', () => {
     vi.stubEnv('TERM_PROGRAM', 'vscode');
     vi.stubEnv('CURSOR_TRACE_ID', '');
     vi.stubEnv('POSITRON', '');
-    expect(detectIde(ideProcessInfo, ideInfoFromFile)).toBe(
-      IDE_DEFINITIONS.vscode,
-    );
+    expect(detectIde(ideProcessInfo, ideInfoFromFile)).toBe(IDE_DEFINITIONS.vscode);
   });
 });

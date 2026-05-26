@@ -30,10 +30,7 @@ const _ExpandableText: React.FC<ExpandableTextProps> = ({
   maxLines,
 }) => {
   const hasMatch =
-    matchedIndex !== undefined &&
-    matchedIndex >= 0 &&
-    matchedIndex < label.length &&
-    userInput.length > 0;
+    matchedIndex !== undefined && matchedIndex >= 0 && matchedIndex < label.length && userInput.length > 0;
 
   // Render the plain label if there's no match
   if (!hasMatch) {
@@ -59,7 +56,7 @@ const _ExpandableText: React.FC<ExpandableTextProps> = ({
     }
 
     return (
-      <Text wrap="wrap" color={textColor}>
+      <Text wrap='wrap' color={textColor}>
         {display}
       </Text>
     );
@@ -115,7 +112,7 @@ const _ExpandableText: React.FC<ExpandableTextProps> = ({
   }
 
   return (
-    <Text color={textColor} wrap="wrap">
+    <Text color={textColor} wrap='wrap'>
       {before}
       {match
         ? match.split(/(\s+)/).map((part, index) => (

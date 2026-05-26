@@ -28,8 +28,7 @@ const ROOT_ISSUES = [
 ];
 
 const TARGET_LABEL = '🔒 maintainer only';
-const isDryRun =
-  process.argv.includes('--dry-run') || process.env.DRY_RUN === 'true';
+const isDryRun = process.argv.includes('--dry-run') || process.env.DRY_RUN === 'true';
 
 const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN,
@@ -51,16 +50,14 @@ function extractTaskListLinks(text, contextOwner, contextRepo) {
   };
 
   // 1. Full URLs in task lists
-  const urlRegex =
-    /-\s+\[[ x]\].*https:\/\/github\.com\/([a-zA-Z0-9._-]+)\/([a-zA-Z0-9._-]+)\/issues\/(\d+)\b/g;
+  const urlRegex = /-\s+\[[ x]\].*https:\/\/github\.com\/([a-zA-Z0-9._-]+)\/([a-zA-Z0-9._-]+)\/issues\/(\d+)\b/g;
   let match;
   while ((match = urlRegex.exec(text)) !== null) {
     add(match[1], match[2], match[3]);
   }
 
   // 2. Cross-repo refs in task lists: owner/repo#123
-  const crossRepoRegex =
-    /-\s+\[[ x]\].*([a-zA-Z0-9._-]+)\/([a-zA-Z0-9._-]+)#(\d+)\b/g;
+  const crossRepoRegex = /-\s+\[[ x]\].*([a-zA-Z0-9._-]+)\/([a-zA-Z0-9._-]+)#(\d+)\b/g;
   while ((match = crossRepoRegex.exec(text)) !== null) {
     add(match[1], match[2], match[3]);
   }
@@ -131,7 +128,7 @@ async function fetchIssueData(owner, repo, number) {
         number,
         'subIssues',
         'number repository { name owner { login } }',
-        data.subIssues.pageInfo.endCursor,
+        data.subIssues.pageInfo.endCursor
       );
       issue.subIssues.push(...moreSubIssues);
     }
@@ -145,7 +142,7 @@ async function fetchIssueData(owner, repo, number) {
         'labels',
         'name',
         data.labels.pageInfo.endCursor,
-        (n) => n.name,
+        (n) => n.name
       );
       issue.labels.push(...moreLabels);
     }
@@ -175,7 +172,7 @@ async function paginateConnection(
   connectionName,
   nodeFields,
   initialCursor,
-  transformNode = (n) => n,
+  transformNode = (n) => n
 ) {
   let additionalNodes = [];
   let hasNext = true;
@@ -240,11 +237,7 @@ async function getAllDescendants(roots) {
     const currentKey = `${current.owner}/${current.repo}#${current.number}`;
 
     try {
-      const issueData = await fetchIssueData(
-        current.owner,
-        current.repo,
-        current.number,
-      );
+      const issueData = await fetchIssueData(current.owner, current.repo, current.number);
 
       if (!shouldProcess(issueData)) {
         continue;
@@ -253,11 +246,7 @@ async function getAllDescendants(roots) {
       // ONLY add to labeling list if it's in the PUBLIC repository
       if (current.repo === PUBLIC_REPO) {
         // Don't label the roots themselves
-        if (
-          !ROOT_ISSUES.some(
-            (r) => r.number === current.number && r.repo === current.repo,
-          )
-        ) {
+        if (!ROOT_ISSUES.some((r) => r.number === current.number && r.repo === current.repo)) {
           allDescendants.set(currentKey, {
             ...current,
             title: issueData.title,
@@ -291,11 +280,7 @@ async function getAllDescendants(roots) {
         }
       }
 
-      const taskListLinks = extractTaskListLinks(
-        combinedText,
-        current.owner,
-        current.repo,
-      );
+      const taskListLinks = extractTaskListLinks(combinedText, current.owner, current.repo);
       for (const link of taskListLinks) {
         const key = `${link.owner}/${link.repo}#${link.number}`;
         children.set(key, link);
@@ -322,9 +307,7 @@ async function run() {
   }
 
   const descendants = await getAllDescendants(ROOT_ISSUES);
-  console.log(
-    `\nFound ${descendants.length} total unique open descendant issues in ${PUBLIC_REPO}.`,
-  );
+  console.log(`\nFound ${descendants.length} total unique open descendant issues in ${PUBLIC_REPO}.`);
 
   for (const issueInfo of descendants) {
     const issueKey = `${issueInfo.owner}/${issueInfo.repo}#${issueInfo.number}`;
@@ -334,9 +317,7 @@ async function run() {
 
       if (!hasLabel) {
         if (isDryRun) {
-          console.log(
-            `[DRY RUN] Would label ${issueKey}: "${issueInfo.title}"`,
-          );
+          console.log(`[DRY RUN] Would label ${issueKey}: "${issueInfo.title}"`);
         } else {
           console.log(`Labeling ${issueKey}: "${issueInfo.title}"...`);
           await octokit.rest.issues.addLabels({

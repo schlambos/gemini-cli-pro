@@ -48,13 +48,8 @@ describe('AskUserDialog', () => {
 
   it('renders question and options', () => {
     const { lastFrame } = renderWithProviders(
-      <AskUserDialog
-        questions={authQuestion}
-        onSubmit={vi.fn()}
-        onCancel={vi.fn()}
-        width={120}
-      />,
-      { width: 120 },
+      <AskUserDialog questions={authQuestion} onSubmit={vi.fn()} onCancel={vi.fn()} width={120} />,
+      { width: 120 }
     );
 
     expect(lastFrame()).toMatchSnapshot();
@@ -114,13 +109,8 @@ describe('AskUserDialog', () => {
     it(`submits correct values for ${name}`, async () => {
       const onSubmit = vi.fn();
       const { stdin } = renderWithProviders(
-        <AskUserDialog
-          questions={questions}
-          onSubmit={onSubmit}
-          onCancel={vi.fn()}
-          width={120}
-        />,
-        { width: 120 },
+        <AskUserDialog questions={questions} onSubmit={onSubmit} onCancel={vi.fn()} width={120} />,
+        { width: 120 }
       );
 
       actions(stdin);
@@ -134,13 +124,8 @@ describe('AskUserDialog', () => {
   it('handles custom option in single select with inline typing', async () => {
     const onSubmit = vi.fn();
     const { stdin, lastFrame } = renderWithProviders(
-      <AskUserDialog
-        questions={authQuestion}
-        onSubmit={onSubmit}
-        onCancel={vi.fn()}
-        width={120}
-      />,
-      { width: 120 },
+      <AskUserDialog questions={authQuestion} onSubmit={onSubmit} onCancel={vi.fn()} width={120} />,
+      { width: 120 }
     );
 
     // Move down to custom option
@@ -181,13 +166,8 @@ describe('AskUserDialog', () => {
 
     const onSubmit = vi.fn();
     const { stdin, lastFrame } = renderWithProviders(
-      <AskUserDialog
-        questions={authQuestionWithOther}
-        onSubmit={onSubmit}
-        onCancel={vi.fn()}
-        width={120}
-      />,
-      { width: 120 },
+      <AskUserDialog questions={authQuestionWithOther} onSubmit={onSubmit} onCancel={vi.fn()} width={120} />,
+      { width: 120 }
     );
 
     // Navigate to "Other" option
@@ -223,57 +203,49 @@ describe('AskUserDialog', () => {
   describe.each([
     { useAlternateBuffer: true, expectedArrows: false },
     { useAlternateBuffer: false, expectedArrows: true },
-  ])(
-    'Scroll Arrows (useAlternateBuffer: $useAlternateBuffer)',
-    ({ useAlternateBuffer, expectedArrows }) => {
-      it(`shows scroll arrows correctly when useAlternateBuffer is ${useAlternateBuffer}`, async () => {
-        const questions: Question[] = [
-          {
-            question: 'Choose an option',
-            header: 'Scroll Test',
-            type: QuestionType.CHOICE,
-            options: Array.from({ length: 15 }, (_, i) => ({
-              label: `Option ${i + 1}`,
-              description: `Description ${i + 1}`,
-            })),
-            multiSelect: false,
-          },
-        ];
+  ])('Scroll Arrows (useAlternateBuffer: $useAlternateBuffer)', ({ useAlternateBuffer, expectedArrows }) => {
+    it(`shows scroll arrows correctly when useAlternateBuffer is ${useAlternateBuffer}`, async () => {
+      const questions: Question[] = [
+        {
+          question: 'Choose an option',
+          header: 'Scroll Test',
+          type: QuestionType.CHOICE,
+          options: Array.from({ length: 15 }, (_, i) => ({
+            label: `Option ${i + 1}`,
+            description: `Description ${i + 1}`,
+          })),
+          multiSelect: false,
+        },
+      ];
 
-        const { lastFrame } = renderWithProviders(
-          <AskUserDialog
-            questions={questions}
-            onSubmit={vi.fn()}
-            onCancel={vi.fn()}
-            width={80}
-            availableHeight={10} // Small height to force scrolling
-          />,
-          { useAlternateBuffer },
-        );
+      const { lastFrame } = renderWithProviders(
+        <AskUserDialog
+          questions={questions}
+          onSubmit={vi.fn()}
+          onCancel={vi.fn()}
+          width={80}
+          availableHeight={10} // Small height to force scrolling
+        />,
+        { useAlternateBuffer }
+      );
 
-        await waitFor(() => {
-          if (expectedArrows) {
-            expect(lastFrame()).toContain('▲');
-            expect(lastFrame()).toContain('▼');
-          } else {
-            expect(lastFrame()).not.toContain('▲');
-            expect(lastFrame()).not.toContain('▼');
-          }
-          expect(lastFrame()).toMatchSnapshot();
-        });
+      await waitFor(() => {
+        if (expectedArrows) {
+          expect(lastFrame()).toContain('▲');
+          expect(lastFrame()).toContain('▼');
+        } else {
+          expect(lastFrame()).not.toContain('▲');
+          expect(lastFrame()).not.toContain('▼');
+        }
+        expect(lastFrame()).toMatchSnapshot();
       });
-    },
-  );
+    });
+  });
 
   it('navigates to custom option when typing unbound characters (Type-to-Jump)', async () => {
     const { stdin, lastFrame } = renderWithProviders(
-      <AskUserDialog
-        questions={authQuestion}
-        onSubmit={vi.fn()}
-        onCancel={vi.fn()}
-        width={120}
-      />,
-      { width: 120 },
+      <AskUserDialog questions={authQuestion} onSubmit={vi.fn()} onCancel={vi.fn()} width={120} />,
+      { width: 120 }
     );
 
     // Type a character without navigating down
@@ -320,13 +292,8 @@ describe('AskUserDialog', () => {
     ];
 
     const { lastFrame } = renderWithProviders(
-      <AskUserDialog
-        questions={multiQuestions}
-        onSubmit={vi.fn()}
-        onCancel={vi.fn()}
-        width={120}
-      />,
-      { width: 120 },
+      <AskUserDialog questions={multiQuestions} onSubmit={vi.fn()} onCancel={vi.fn()} width={120} />,
+      { width: 120 }
     );
 
     expect(lastFrame()).toMatchSnapshot();
@@ -334,13 +301,8 @@ describe('AskUserDialog', () => {
 
   it('hides progress header for single question', () => {
     const { lastFrame } = renderWithProviders(
-      <AskUserDialog
-        questions={authQuestion}
-        onSubmit={vi.fn()}
-        onCancel={vi.fn()}
-        width={120}
-      />,
-      { width: 120 },
+      <AskUserDialog questions={authQuestion} onSubmit={vi.fn()} onCancel={vi.fn()} width={120} />,
+      { width: 120 }
     );
 
     expect(lastFrame()).toMatchSnapshot();
@@ -348,13 +310,8 @@ describe('AskUserDialog', () => {
 
   it('shows keyboard hints', () => {
     const { lastFrame } = renderWithProviders(
-      <AskUserDialog
-        questions={authQuestion}
-        onSubmit={vi.fn()}
-        onCancel={vi.fn()}
-        width={120}
-      />,
-      { width: 120 },
+      <AskUserDialog questions={authQuestion} onSubmit={vi.fn()} onCancel={vi.fn()} width={120} />,
+      { width: 120 }
     );
 
     expect(lastFrame()).toMatchSnapshot();
@@ -373,21 +330,14 @@ describe('AskUserDialog', () => {
         question: 'Which CI provider?',
         header: 'CI',
         type: QuestionType.CHOICE,
-        options: [
-          { label: 'GitHub Actions', description: 'Built into GitHub' },
-        ],
+        options: [{ label: 'GitHub Actions', description: 'Built into GitHub' }],
         multiSelect: false,
       },
     ];
 
     const { stdin, lastFrame } = renderWithProviders(
-      <AskUserDialog
-        questions={multiQuestions}
-        onSubmit={vi.fn()}
-        onCancel={vi.fn()}
-        width={120}
-      />,
-      { width: 120 },
+      <AskUserDialog questions={multiQuestions} onSubmit={vi.fn()} onCancel={vi.fn()} width={120} />,
+      { width: 120 }
     );
 
     expect(lastFrame()).toContain('Which testing framework?');
@@ -425,13 +375,8 @@ describe('AskUserDialog', () => {
 
     const onSubmit = vi.fn();
     const { stdin, lastFrame } = renderWithProviders(
-      <AskUserDialog
-        questions={multiQuestions}
-        onSubmit={onSubmit}
-        onCancel={vi.fn()}
-        width={120}
-      />,
-      { width: 120 },
+      <AskUserDialog questions={multiQuestions} onSubmit={onSubmit} onCancel={vi.fn()} width={120} />,
+      { width: 120 }
     );
 
     // Answer first question (should auto-advance)
@@ -495,13 +440,8 @@ describe('AskUserDialog', () => {
     ];
 
     const { lastFrame } = renderWithProviders(
-      <AskUserDialog
-        questions={multiQuestions}
-        onSubmit={vi.fn()}
-        onCancel={vi.fn()}
-        width={120}
-      />,
-      { width: 120 },
+      <AskUserDialog questions={multiQuestions} onSubmit={vi.fn()} onCancel={vi.fn()} width={120} />,
+      { width: 120 }
     );
 
     expect(lastFrame()).toMatchSnapshot();
@@ -526,13 +466,8 @@ describe('AskUserDialog', () => {
     ];
 
     const { stdin, lastFrame } = renderWithProviders(
-      <AskUserDialog
-        questions={multiQuestions}
-        onSubmit={vi.fn()}
-        onCancel={vi.fn()}
-        width={120}
-      />,
-      { width: 120 },
+      <AskUserDialog questions={multiQuestions} onSubmit={vi.fn()} onCancel={vi.fn()} width={120} />,
+      { width: 120 }
     );
 
     writeKey(stdin, '\x1b[C'); // Right arrow
@@ -573,13 +508,8 @@ describe('AskUserDialog', () => {
     ];
 
     const { stdin, lastFrame } = renderWithProviders(
-      <AskUserDialog
-        questions={multiQuestions}
-        onSubmit={vi.fn()}
-        onCancel={vi.fn()}
-        width={120}
-      />,
-      { width: 120 },
+      <AskUserDialog questions={multiQuestions} onSubmit={vi.fn()} onCancel={vi.fn()} width={120} />,
+      { width: 120 }
     );
 
     // Navigate directly to Review tab without answering
@@ -611,13 +541,8 @@ describe('AskUserDialog', () => {
 
     const onSubmit = vi.fn();
     const { stdin } = renderWithProviders(
-      <AskUserDialog
-        questions={multiQuestions}
-        onSubmit={onSubmit}
-        onCancel={vi.fn()}
-        width={120}
-      />,
-      { width: 120 },
+      <AskUserDialog questions={multiQuestions} onSubmit={onSubmit} onCancel={vi.fn()} width={120} />,
+      { width: 120 }
     );
 
     // Answer only first question
@@ -644,13 +569,8 @@ describe('AskUserDialog', () => {
       ];
 
       const { lastFrame } = renderWithProviders(
-        <AskUserDialog
-          questions={textQuestion}
-          onSubmit={vi.fn()}
-          onCancel={vi.fn()}
-          width={120}
-        />,
-        { width: 120 },
+        <AskUserDialog questions={textQuestion} onSubmit={vi.fn()} onCancel={vi.fn()} width={120} />,
+        { width: 120 }
       );
 
       expect(lastFrame()).toMatchSnapshot();
@@ -666,13 +586,8 @@ describe('AskUserDialog', () => {
       ];
 
       const { lastFrame } = renderWithProviders(
-        <AskUserDialog
-          questions={textQuestion}
-          onSubmit={vi.fn()}
-          onCancel={vi.fn()}
-          width={120}
-        />,
-        { width: 120 },
+        <AskUserDialog questions={textQuestion} onSubmit={vi.fn()} onCancel={vi.fn()} width={120} />,
+        { width: 120 }
       );
 
       expect(lastFrame()).toMatchSnapshot();
@@ -688,13 +603,8 @@ describe('AskUserDialog', () => {
       ];
 
       const { stdin, lastFrame } = renderWithProviders(
-        <AskUserDialog
-          questions={textQuestion}
-          onSubmit={vi.fn()}
-          onCancel={vi.fn()}
-          width={120}
-        />,
-        { width: 120 },
+        <AskUserDialog questions={textQuestion} onSubmit={vi.fn()} onCancel={vi.fn()} width={120} />,
+        { width: 120 }
       );
 
       for (const char of 'abc') {
@@ -723,13 +633,8 @@ describe('AskUserDialog', () => {
       ];
 
       const { lastFrame } = renderWithProviders(
-        <AskUserDialog
-          questions={textQuestion}
-          onSubmit={vi.fn()}
-          onCancel={vi.fn()}
-          width={120}
-        />,
-        { width: 120 },
+        <AskUserDialog questions={textQuestion} onSubmit={vi.fn()} onCancel={vi.fn()} width={120} />,
+        { width: 120 }
       );
 
       expect(lastFrame()).toMatchSnapshot();
@@ -755,13 +660,8 @@ describe('AskUserDialog', () => {
       ];
 
       const { stdin, lastFrame } = renderWithProviders(
-        <AskUserDialog
-          questions={mixedQuestions}
-          onSubmit={vi.fn()}
-          onCancel={vi.fn()}
-          width={120}
-        />,
-        { width: 120 },
+        <AskUserDialog questions={mixedQuestions} onSubmit={vi.fn()} onCancel={vi.fn()} width={120} />,
+        { width: 120 }
       );
 
       for (const char of 'useAuth') {
@@ -803,13 +703,8 @@ describe('AskUserDialog', () => {
 
       const onSubmit = vi.fn();
       const { stdin, lastFrame } = renderWithProviders(
-        <AskUserDialog
-          questions={mixedQuestions}
-          onSubmit={onSubmit}
-          onCancel={vi.fn()}
-          width={120}
-        />,
-        { width: 120 },
+        <AskUserDialog questions={mixedQuestions} onSubmit={onSubmit} onCancel={vi.fn()} width={120} />,
+        { width: 120 }
       );
 
       for (const char of 'DataTable') {
@@ -853,13 +748,8 @@ describe('AskUserDialog', () => {
 
       const onSubmit = vi.fn();
       const { stdin } = renderWithProviders(
-        <AskUserDialog
-          questions={textQuestion}
-          onSubmit={onSubmit}
-          onCancel={vi.fn()}
-          width={120}
-        />,
-        { width: 120 },
+        <AskUserDialog questions={textQuestion} onSubmit={onSubmit} onCancel={vi.fn()} width={120} />,
+        { width: 120 }
       );
 
       writeKey(stdin, '\r');
@@ -880,13 +770,8 @@ describe('AskUserDialog', () => {
 
       const onCancel = vi.fn();
       const { stdin, lastFrame } = renderWithProviders(
-        <AskUserDialog
-          questions={textQuestion}
-          onSubmit={vi.fn()}
-          onCancel={onCancel}
-          width={120}
-        />,
-        { width: 120 },
+        <AskUserDialog questions={textQuestion} onSubmit={vi.fn()} onCancel={onCancel} width={120} />,
+        { width: 120 }
       );
 
       for (const char of 'SomeText') {
@@ -927,13 +812,8 @@ describe('AskUserDialog', () => {
       ];
 
       const { stdin, lastFrame } = renderWithProviders(
-        <AskUserDialog
-          questions={multiQuestions}
-          onSubmit={vi.fn()}
-          onCancel={vi.fn()}
-          width={120}
-        />,
-        { width: 120 },
+        <AskUserDialog questions={multiQuestions} onSubmit={vi.fn()} onCancel={vi.fn()} width={120} />,
+        { width: 120 }
       );
 
       // 1. Move to Text Q (Right arrow works for Choice Q)
@@ -988,13 +868,8 @@ describe('AskUserDialog', () => {
 
       const onSubmit = vi.fn();
       const { stdin, lastFrame } = renderWithProviders(
-        <AskUserDialog
-          questions={multiQuestions}
-          onSubmit={onSubmit}
-          onCancel={vi.fn()}
-          width={120}
-        />,
-        { width: 120 },
+        <AskUserDialog questions={multiQuestions} onSubmit={onSubmit} onCancel={vi.fn()} width={120} />,
+        { width: 120 }
       );
 
       // Answer Q1 and Q2 sequentialy
@@ -1038,14 +913,8 @@ describe('AskUserDialog', () => {
       ];
 
       const { lastFrame } = renderWithProviders(
-        <AskUserDialog
-          questions={questions}
-          onSubmit={vi.fn()}
-          onCancel={vi.fn()}
-          width={120}
-          availableHeight={40}
-        />,
-        { width: 120 },
+        <AskUserDialog questions={questions} onSubmit={vi.fn()} onCancel={vi.fn()} width={120} availableHeight={40} />,
+        { width: 120 }
       );
 
       await waitFor(() => {
@@ -1067,14 +936,8 @@ describe('AskUserDialog', () => {
       ];
 
       const { lastFrame } = renderWithProviders(
-        <AskUserDialog
-          questions={questions}
-          onSubmit={vi.fn()}
-          onCancel={vi.fn()}
-          width={120}
-          availableHeight={40}
-        />,
-        { width: 120 },
+        <AskUserDialog questions={questions} onSubmit={vi.fn()} onCancel={vi.fn()} width={120} availableHeight={40} />,
+        { width: 120 }
       );
 
       await waitFor(() => {
@@ -1099,14 +962,8 @@ describe('AskUserDialog', () => {
       ];
 
       const { lastFrame } = renderWithProviders(
-        <AskUserDialog
-          questions={questions}
-          onSubmit={vi.fn()}
-          onCancel={vi.fn()}
-          width={120}
-          availableHeight={40}
-        />,
-        { width: 120 },
+        <AskUserDialog questions={questions} onSubmit={vi.fn()} onCancel={vi.fn()} width={120} availableHeight={40} />,
+        { width: 120 }
       );
 
       await waitFor(() => {
@@ -1129,14 +986,8 @@ describe('AskUserDialog', () => {
       ];
 
       const { lastFrame } = renderWithProviders(
-        <AskUserDialog
-          questions={questions}
-          onSubmit={vi.fn()}
-          onCancel={vi.fn()}
-          width={120}
-          availableHeight={40}
-        />,
-        { width: 120 },
+        <AskUserDialog questions={questions} onSubmit={vi.fn()} onCancel={vi.fn()} width={120} availableHeight={40} />,
+        { width: 120 }
       );
 
       await waitFor(() => {
@@ -1168,14 +1019,9 @@ describe('AskUserDialog', () => {
 
     const { lastFrame } = renderWithProviders(
       <UIStateContext.Provider value={mockUIState}>
-        <AskUserDialog
-          questions={questions}
-          onSubmit={vi.fn()}
-          onCancel={vi.fn()}
-          width={80}
-        />
+        <AskUserDialog questions={questions} onSubmit={vi.fn()} onCancel={vi.fn()} width={80} />
       </UIStateContext.Provider>,
-      { useAlternateBuffer: false },
+      { useAlternateBuffer: false }
     );
 
     // With height 5 and alternate buffer disabled, it should show scroll arrows (▲)
@@ -1184,8 +1030,7 @@ describe('AskUserDialog', () => {
   });
 
   it('does NOT truncate the question when in alternate buffer mode even with small height', () => {
-    const longQuestion =
-      'This is a very long question ' + 'with many words '.repeat(10);
+    const longQuestion = 'This is a very long question ' + 'with many words '.repeat(10);
     const questions: Question[] = [
       {
         question: longQuestion,
@@ -1209,7 +1054,7 @@ describe('AskUserDialog', () => {
           width={40} // Small width to force wrapping
         />
       </UIStateContext.Provider>,
-      { useAlternateBuffer: true },
+      { useAlternateBuffer: true }
     );
 
     // Should NOT contain the truncation message
@@ -1235,13 +1080,8 @@ describe('AskUserDialog', () => {
       ];
 
       const { stdin, lastFrame } = renderWithProviders(
-        <AskUserDialog
-          questions={questions}
-          onSubmit={vi.fn()}
-          onCancel={vi.fn()}
-          width={80}
-        />,
-        { width: 80 },
+        <AskUserDialog questions={questions} onSubmit={vi.fn()} onCancel={vi.fn()} width={80} />,
+        { width: 80 }
       );
 
       // Navigate to the "Other" option
@@ -1268,13 +1108,8 @@ describe('AskUserDialog', () => {
       ];
 
       const { stdin, lastFrame } = renderWithProviders(
-        <AskUserDialog
-          questions={questions}
-          onSubmit={vi.fn()}
-          onCancel={vi.fn()}
-          width={80}
-        />,
-        { width: 80 },
+        <AskUserDialog questions={questions} onSubmit={vi.fn()} onCancel={vi.fn()} width={80} />,
+        { width: 80 }
       );
 
       // Navigate to the "Other" option

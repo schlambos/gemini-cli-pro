@@ -12,12 +12,7 @@ import { sanitizeFilenamePart } from '../utils/fileUtils.js';
 import path from 'node:path';
 import fs from 'node:fs';
 import { randomUUID } from 'node:crypto';
-import type {
-  Content,
-  Part,
-  PartListUnion,
-  GenerateContentResponseUsageMetadata,
-} from '@google/genai';
+import type { Content, Part, PartListUnion, GenerateContentResponseUsageMetadata } from '@google/genai';
 import { debugLogger } from '../utils/debugLogger.js';
 import type { ToolResultDisplay } from '../tools/tools.js';
 
@@ -158,20 +153,11 @@ export class ChatRecordingService {
         this.cachedLastConvData = null;
       } else {
         // Create new session
-        const chatsDir = path.join(
-          this.config.storage.getProjectTempDir(),
-          'chats',
-        );
+        const chatsDir = path.join(this.config.storage.getProjectTempDir(), 'chats');
         fs.mkdirSync(chatsDir, { recursive: true });
 
-        const timestamp = new Date()
-          .toISOString()
-          .slice(0, 16)
-          .replace(/:/g, '-');
-        const filename = `${SESSION_FILE_PREFIX}${timestamp}-${this.sessionId.slice(
-          0,
-          8,
-        )}.json`;
+        const timestamp = new Date().toISOString().slice(0, 16).replace(/:/g, '-');
+        const filename = `${SESSION_FILE_PREFIX}${timestamp}-${this.sessionId.slice(0, 8)}.json`;
         this.conversationFile = path.join(chatsDir, filename);
 
         this.writeConversation({
@@ -203,16 +189,14 @@ export class ChatRecordingService {
     }
   }
 
-  private getLastMessage(
-    conversation: ConversationRecord,
-  ): MessageRecord | undefined {
+  private getLastMessage(conversation: ConversationRecord): MessageRecord | undefined {
     return conversation.messages.at(-1);
   }
 
   private newMessage(
     type: ConversationRecordExtra['type'],
     content: PartListUnion,
-    displayContent?: PartListUnion,
+    displayContent?: PartListUnion
   ): MessageRecord {
     return {
       id: randomUUID(),
@@ -236,11 +220,7 @@ export class ChatRecordingService {
 
     try {
       this.updateConversation((conversation) => {
-        const msg = this.newMessage(
-          message.type,
-          message.content,
-          message.displayContent,
-        );
+        const msg = this.newMessage(message.type, message.content, message.displayContent);
         if (msg.type === 'gemini') {
           // If it's a new Gemini message then incorporate any queued thoughts.
           conversation.messages.push({
@@ -282,9 +262,7 @@ export class ChatRecordingService {
   /**
    * Updates the tokens for the last message in the conversation (which should be by Gemini).
    */
-  recordMessageTokens(
-    respUsageMetadata: GenerateContentResponseUsageMetadata,
-  ): void {
+  recordMessageTokens(respUsageMetadata: GenerateContentResponseUsageMetadata): void {
     if (!this.conversationFile) return;
 
     try {
@@ -308,10 +286,7 @@ export class ChatRecordingService {
         }
       });
     } catch (error) {
-      debugLogger.error(
-        'Error updating message tokens in chat history.',
-        error,
-      );
+      debugLogger.error('Error updating message tokens in chat history.', error);
       throw error;
     }
   }
@@ -345,11 +320,7 @@ export class ChatRecordingService {
         // Also if there are any queued thoughts, it means this tool call(s) is from a new Gemini
         // message--because it's thought some more since we last, if ever, created a new Gemini
         // message from tool calls, when we dequeued the thoughts.
-        if (
-          !lastMsg ||
-          lastMsg.type !== 'gemini' ||
-          this.queuedThoughts.length > 0
-        ) {
+        if (!lastMsg || lastMsg.type !== 'gemini' || this.queuedThoughts.length > 0) {
           const newMsg: MessageRecord = {
             ...this.newMessage('gemini' as const, ''),
             // This isn't strictly necessary, but TypeScript apparently can't
@@ -381,9 +352,7 @@ export class ChatRecordingService {
           }
           lastMsg.toolCalls = lastMsg.toolCalls.map((toolCall) => {
             // If there are multiple tool calls with the same ID, this will take the first one.
-            const incomingToolCall = toolCalls.find(
-              (tc) => tc.id === toolCall.id,
-            );
+            const incomingToolCall = toolCalls.find((tc) => tc.id === toolCall.id);
             if (incomingToolCall) {
               // Merge in the new data to keep preserve thoughts, etc., that were assigned to older
               // versions of the tool call.
@@ -395,9 +364,7 @@ export class ChatRecordingService {
 
           // Add any new tools calls that aren't in the message yet.
           for (const toolCall of enrichedToolCalls) {
-            const existingToolCall = lastMsg.toolCalls.find(
-              (tc) => tc.id === toolCall.id,
-            );
+            const existingToolCall = lastMsg.toolCalls.find((tc) => tc.id === toolCall.id);
             if (!existingToolCall) {
               lastMsg.toolCalls.push(toolCall);
             }
@@ -405,10 +372,7 @@ export class ChatRecordingService {
         }
       });
     } catch (error) {
-      debugLogger.error(
-        'Error adding tool call to message in chat history.',
-        error,
-      );
+      debugLogger.error('Error adding tool call to message in chat history.', error);
       throw error;
     }
   }
@@ -443,7 +407,7 @@ export class ChatRecordingService {
    */
   private writeConversation(
     conversation: ConversationRecord,
-    { allowEmpty = false }: { allowEmpty?: boolean } = {},
+    { allowEmpty = false }: { allowEmpty?: boolean } = {}
   ): void {
     try {
       if (!this.conversationFile) return;
@@ -478,9 +442,7 @@ export class ChatRecordingService {
    * Convenient helper for updating the conversation without file reading and writing and time
    * updating boilerplate.
    */
-  private updateConversation(
-    updateFn: (conversation: ConversationRecord) => void,
-  ) {
+  private updateConversation(updateFn: (conversation: ConversationRecord) => void) {
     const conversation = this.readConversation();
     updateFn(conversation);
     this.writeConversation(conversation);
@@ -555,18 +517,11 @@ export class ChatRecordingService {
 
       // Cleanup tool outputs for this session
       const safeSessionId = sanitizeFilenamePart(sessionId);
-      const toolOutputDir = path.join(
-        tempDir,
-        'tool-outputs',
-        `session-${safeSessionId}`,
-      );
+      const toolOutputDir = path.join(tempDir, 'tool-outputs', `session-${safeSessionId}`);
 
       // Robustness: Ensure the path is strictly within the tool-outputs base
       const toolOutputsBase = path.join(tempDir, 'tool-outputs');
-      if (
-        fs.existsSync(toolOutputDir) &&
-        toolOutputDir.startsWith(toolOutputsBase)
-      ) {
+      if (fs.existsSync(toolOutputDir) && toolOutputDir.startsWith(toolOutputsBase)) {
         fs.rmSync(toolOutputDir, { recursive: true, force: true });
       }
     } catch (error) {
@@ -584,14 +539,10 @@ export class ChatRecordingService {
       return null;
     }
     const conversation = this.readConversation();
-    const messageIndex = conversation.messages.findIndex(
-      (m) => m.id === messageId,
-    );
+    const messageIndex = conversation.messages.findIndex((m) => m.id === messageId);
 
     if (messageIndex === -1) {
-      debugLogger.error(
-        'Message to rewind to not found in conversation history',
-      );
+      debugLogger.error('Message to rewind to not found in conversation history');
       return conversation;
     }
 
@@ -616,9 +567,7 @@ export class ChatRecordingService {
         for (const content of history) {
           if (content.role === 'user' && content.parts) {
             // Find all unique call IDs in this message
-            const callIds = content.parts
-              .map((p) => p.functionResponse?.id)
-              .filter((id): id is string => !!id);
+            const callIds = content.parts.map((p) => p.functionResponse?.id).filter((id): id is string => !!id);
 
             if (callIds.length === 0) continue;
 
@@ -654,10 +603,7 @@ export class ChatRecordingService {
         }
       });
     } catch (error) {
-      debugLogger.error(
-        'Error updating conversation history from memory.',
-        error,
-      );
+      debugLogger.error('Error updating conversation history from memory.', error);
       throw error;
     }
   }

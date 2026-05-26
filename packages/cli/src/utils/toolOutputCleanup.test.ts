@@ -224,11 +224,7 @@ describe('Tool Output Cleanup', () => {
       // Set file modification times
       await fs.utimes(file1, oneDayAgo / 1000, oneDayAgo / 1000);
       await fs.utimes(file2, twoDaysAgo / 1000, twoDaysAgo / 1000);
-      await fs.utimes(
-        file3,
-        twoAndHalfDaysAgo / 1000,
-        twoAndHalfDaysAgo / 1000,
-      );
+      await fs.utimes(file3, twoAndHalfDaysAgo / 1000, twoAndHalfDaysAgo / 1000);
       await fs.utimes(file4, fiveDaysAgo / 1000, fiveDaysAgo / 1000);
       await fs.utimes(file5, tenDaysAgo / 1000, tenDaysAgo / 1000);
 
@@ -269,15 +265,11 @@ describe('Tool Output Cleanup', () => {
       await fs.writeFile(oldFile, 'old content');
       await fs.utimes(oldFile, tenDaysAgo / 1000, tenDaysAgo / 1000);
 
-      const debugSpy = vi
-        .spyOn(debugLogger, 'debug')
-        .mockImplementation(() => {});
+      const debugSpy = vi.spyOn(debugLogger, 'debug').mockImplementation(() => {});
 
       await cleanupToolOutputFiles(settings, true, testTempDir);
 
-      expect(debugSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Tool output cleanup: deleted'),
-      );
+      expect(debugSpy).toHaveBeenCalledWith(expect.stringContaining('Tool output cleanup: deleted'));
 
       debugSpy.mockRestore();
     });
@@ -334,15 +326,11 @@ describe('Tool Output Cleanup', () => {
       const unsafeDir = path.join(toolOutputDir, 'session-.._.._danger');
       await fs.mkdir(unsafeDir, { recursive: true });
 
-      const debugSpy = vi
-        .spyOn(debugLogger, 'debug')
-        .mockImplementation(() => {});
+      const debugSpy = vi.spyOn(debugLogger, 'debug').mockImplementation(() => {});
 
       await cleanupToolOutputFiles(settings, false, testTempDir);
 
-      expect(debugSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Skipping unsafe tool-output subdirectory'),
-      );
+      expect(debugSpy).toHaveBeenCalledWith(expect.stringContaining('Skipping unsafe tool-output subdirectory'));
 
       // Directory should still exist (it was skipped, not deleted)
       const entries = await fs.readdir(toolOutputDir);

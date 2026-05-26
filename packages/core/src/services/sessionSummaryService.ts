@@ -51,14 +51,8 @@ export class SessionSummaryService {
    * Generate a 1-line summary of a chat session focusing on user intent.
    * Returns null if generation fails for any reason.
    */
-  async generateSummary(
-    options: GenerateSummaryOptions,
-  ): Promise<string | null> {
-    const {
-      messages,
-      maxMessages = DEFAULT_MAX_MESSAGES,
-      timeout = DEFAULT_TIMEOUT_MS,
-    } = options;
+  async generateSummary(options: GenerateSummaryOptions): Promise<string | null> {
+    const { messages, maxMessages = DEFAULT_MAX_MESSAGES, timeout = DEFAULT_TIMEOUT_MS } = options;
 
     try {
       // Filter to user/gemini messages only (exclude system messages)
@@ -97,9 +91,7 @@ export class SessionSummaryService {
           const content = partListUnionToString(msg.content);
           // Truncate very long messages to avoid token limit
           const truncated =
-            content.length > MAX_MESSAGE_LENGTH
-              ? content.slice(0, MAX_MESSAGE_LENGTH) + '...'
-              : content;
+            content.length > MAX_MESSAGE_LENGTH ? content.slice(0, MAX_MESSAGE_LENGTH) + '...' : content;
           return `${role}: ${truncated}`;
         })
         .join('\n\n');
@@ -155,7 +147,7 @@ export class SessionSummaryService {
         debugLogger.debug('[SessionSummary] Timeout generating summary');
       } else {
         debugLogger.debug(
-          `[SessionSummary] Error generating summary: ${error instanceof Error ? error.message : String(error)}`,
+          `[SessionSummary] Error generating summary: ${error instanceof Error ? error.message : String(error)}`
         );
       }
       return null;

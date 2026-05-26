@@ -6,10 +6,7 @@
 
 import type { Config } from '../config/config.js';
 import { Scheduler } from '../scheduler/scheduler.js';
-import type {
-  ToolCallRequestInfo,
-  CompletedToolCall,
-} from '../scheduler/types.js';
+import type { ToolCallRequestInfo, CompletedToolCall } from '../scheduler/types.js';
 import type { ToolRegistry } from '../tools/tool-registry.js';
 import type { EditorType } from '../utils/editor.js';
 
@@ -42,16 +39,9 @@ export interface AgentSchedulingOptions {
 export async function scheduleAgentTools(
   config: Config,
   requests: ToolCallRequestInfo[],
-  options: AgentSchedulingOptions,
+  options: AgentSchedulingOptions
 ): Promise<CompletedToolCall[]> {
-  const {
-    schedulerId,
-    parentCallId,
-    toolRegistry,
-    signal,
-    getPreferredEditor,
-    onWaitingForConfirmation,
-  } = options;
+  const { schedulerId, parentCallId, toolRegistry, signal, getPreferredEditor, onWaitingForConfirmation } = options;
 
   // Create a proxy/override of the config to provide the agent-specific tool registry.
   const agentConfig: Config = Object.create(config);

@@ -5,11 +5,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import {
-  parseBooleanEnvFlag,
-  parseTelemetryTargetValue,
-  resolveTelemetrySettings,
-} from './config.js';
+import { parseBooleanEnvFlag, parseTelemetryTargetValue, resolveTelemetrySettings } from './config.js';
 import { TelemetryTarget } from './index.js';
 
 describe('telemetry/config helpers', () => {
@@ -39,12 +35,8 @@ describe('telemetry/config helpers', () => {
     });
 
     it('accepts enum values', () => {
-      expect(parseTelemetryTargetValue(TelemetryTarget.LOCAL)).toBe(
-        TelemetryTarget.LOCAL,
-      );
-      expect(parseTelemetryTargetValue(TelemetryTarget.GCP)).toBe(
-        TelemetryTarget.GCP,
-      );
+      expect(parseTelemetryTargetValue(TelemetryTarget.LOCAL)).toBe(TelemetryTarget.LOCAL);
+      expect(parseTelemetryTargetValue(TelemetryTarget.GCP)).toBe(TelemetryTarget.GCP);
     });
 
     it('returns undefined for unknown', () => {
@@ -161,23 +153,13 @@ describe('telemetry/config helpers', () => {
     });
 
     it('throws on unknown protocol values', async () => {
-      const env = { GEMINI_TELEMETRY_OTLP_PROTOCOL: 'unknown' } as Record<
-        string,
-        string
-      >;
-      await expect(resolveTelemetrySettings({ env })).rejects.toThrow(
-        /Invalid telemetry OTLP protocol/i,
-      );
+      const env = { GEMINI_TELEMETRY_OTLP_PROTOCOL: 'unknown' } as Record<string, string>;
+      await expect(resolveTelemetrySettings({ env })).rejects.toThrow(/Invalid telemetry OTLP protocol/i);
     });
 
     it('throws on unknown target values', async () => {
-      const env = { GEMINI_TELEMETRY_TARGET: 'unknown' } as Record<
-        string,
-        string
-      >;
-      await expect(resolveTelemetrySettings({ env })).rejects.toThrow(
-        /Invalid telemetry target/i,
-      );
+      const env = { GEMINI_TELEMETRY_TARGET: 'unknown' } as Record<string, string>;
+      await expect(resolveTelemetrySettings({ env })).rejects.toThrow(/Invalid telemetry target/i);
     });
   });
 });

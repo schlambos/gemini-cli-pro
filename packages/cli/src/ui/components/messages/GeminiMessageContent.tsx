@@ -36,7 +36,7 @@ export const GeminiMessageContent: React.FC<GeminiMessageContentProps> = ({
   const prefixWidth = originalPrefix.length;
 
   return (
-    <Box flexDirection="column" paddingLeft={prefixWidth}>
+    <Box flexDirection='column' paddingLeft={prefixWidth}>
       <MarkdownDisplay
         text={text}
         isPending={isPending}
@@ -48,13 +48,8 @@ export const GeminiMessageContent: React.FC<GeminiMessageContentProps> = ({
         terminalWidth={Math.max(terminalWidth - prefixWidth, 0)}
         renderMarkdown={renderMarkdown}
       />
-      <Box
-        marginTop={isAlternateBuffer ? 0 : 1}
-        marginBottom={isAlternateBuffer ? 1 : 0}
-      >
-        <ShowMoreLines
-          constrainHeight={availableTerminalHeight !== undefined}
-        />
+      <Box marginTop={isAlternateBuffer ? 0 : 1} marginBottom={isAlternateBuffer ? 1 : 0}>
+        <ShowMoreLines constrainHeight={availableTerminalHeight !== undefined} />
       </Box>
     </Box>
   );

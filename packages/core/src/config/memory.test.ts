@@ -25,21 +25,21 @@ describe('memory', () => {
     it('should return content with headers even if only global memory is present', () => {
       expect(flattenMemory({ global: 'global content' })).toBe(
         `--- Global ---
-global content`,
+global content`
       );
     });
 
     it('should return content with headers even if only extension memory is present', () => {
       expect(flattenMemory({ extension: 'extension content' })).toBe(
         `--- Extension ---
-extension content`,
+extension content`
       );
     });
 
     it('should return content with headers even if only project memory is present', () => {
       expect(flattenMemory({ project: 'project content' })).toBe(
         `--- Project ---
-project content`,
+project content`
       );
     });
 
@@ -72,7 +72,7 @@ global content
 extension content
 
 --- Project ---
-project content`,
+project content`
       );
     });
 
@@ -87,7 +87,7 @@ project content`,
 trimmed global
 
 --- Project ---
-project`,
+project`
       );
     });
 
@@ -97,7 +97,7 @@ project`,
           global: '  ',
           extension: '\n',
           project: ' 	 ',
-        }),
+        })
       ).toBe('');
     });
   });

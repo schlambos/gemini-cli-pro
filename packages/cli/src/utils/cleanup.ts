@@ -6,11 +6,7 @@
 
 import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
-import {
-  Storage,
-  shutdownTelemetry,
-  isTelemetrySdkInitialized,
-} from '@google/gemini-cli-core';
+import { Storage, shutdownTelemetry, isTelemetrySdkInitialized } from '@google/gemini-cli-core';
 import type { Config } from '@google/gemini-cli-core';
 
 const cleanupFunctions: Array<(() => void) | (() => Promise<void>)> = [];

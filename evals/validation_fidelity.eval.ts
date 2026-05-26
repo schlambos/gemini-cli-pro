@@ -54,17 +54,14 @@ test('formats log correctly', () => {
         },
       }),
     },
-    prompt:
-      "Refactor the 'LogEntry' interface in 'src/types.ts' to rename the 'message' field to 'payload'.",
+    prompt: "Refactor the 'LogEntry' interface in 'src/types.ts' to rename the 'message' field to 'payload'.",
     timeout: 600000,
     assert: async (rig) => {
       // The goal of this eval is to see if the agent realizes it needs to update usages
       // AND run 'npm run build' or 'tsc' autonomously to ensure project-wide structural integrity.
 
       const toolLogs = rig.readToolLogs();
-      const shellCalls = toolLogs.filter(
-        (log) => log.toolRequest.name === 'run_shell_command',
-      );
+      const shellCalls = toolLogs.filter((log) => log.toolRequest.name === 'run_shell_command');
 
       const hasBuildOrTsc = shellCalls.some((log) => {
         const cmd = JSON.parse(log.toolRequest.args).command.toLowerCase();
@@ -78,7 +75,7 @@ test('formats log correctly', () => {
 
       expect(
         hasBuildOrTsc,
-        'Expected the agent to autonomously run a build or type-check command to verify the refactoring',
+        'Expected the agent to autonomously run a build or type-check command to verify the refactoring'
       ).toBe(true);
     },
   });

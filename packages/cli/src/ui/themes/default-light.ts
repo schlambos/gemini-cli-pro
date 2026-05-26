@@ -102,5 +102,5 @@ export const DefaultLight: Theme = new Theme(
       fontWeight: 'bold',
     },
   },
-  lightTheme,
+  lightTheme
 );

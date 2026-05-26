@@ -29,7 +29,7 @@ export const ShellInputPrompt: React.FC<ShellInputPromptProps> = ({
         ShellExecutionService.writeToPty(activeShellPtyId, input);
       }
     },
-    [activeShellPtyId],
+    [activeShellPtyId]
   );
 
   const handleInput = useCallback(
@@ -73,7 +73,7 @@ export const ShellInputPrompt: React.FC<ShellInputPromptProps> = ({
 
       return false;
     },
-    [focus, handleShellInputSubmit, activeShellPtyId, scrollPageSize],
+    [focus, handleShellInputSubmit, activeShellPtyId, scrollPageSize]
   );
 
   useKeypress(handleInput, { isActive: focus });

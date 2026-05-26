@@ -30,9 +30,7 @@ describe('getFolderStructure', () => {
   }
 
   beforeEach(async () => {
-    testRootDir = await fsPromises.mkdtemp(
-      path.join(os.tmpdir(), 'folder-structure-test-'),
-    );
+    testRootDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'folder-structure-test-'));
   });
 
   afterEach(async () => {
@@ -54,7 +52,7 @@ ${testRootDir}${path.sep}
 ├───fileA2.js
 └───subfolderB${path.sep}
     └───fileB1.md
-`.trim(),
+`.trim()
     );
   });
 
@@ -67,7 +65,7 @@ Showing up to 200 items (files + folders).
 ${testRootDir}${path.sep}
 `
         .trim()
-        .trim(),
+        .trim()
     );
   });
 
@@ -95,7 +93,7 @@ ${testRootDir}${path.sep}
     ├───fileA2.js
     └───subfolderB${path.sep}
         └───fileB1.md
-`.trim(),
+`.trim()
     );
   });
 
@@ -202,9 +200,7 @@ ${testRootDir}${path.sep}
   it('should handle non-existent directory', async () => {
     const nonExistentPath = path.join(testRootDir, 'non-existent');
     const structure = await getFolderStructure(nonExistentPath);
-    expect(structure).toContain(
-      `Error: Could not read directory "${nonExistentPath}". Check path and permissions.`,
-    );
+    expect(structure).toContain(`Error: Could not read directory "${nonExistentPath}". Check path and permissions.`);
   });
 
   it('should handle deep folder structure within limits', async () => {
@@ -252,7 +248,7 @@ ${testRootDir}${path.sep}
     it('should ignore files and folders specified in .gitignore', async () => {
       await fsPromises.writeFile(
         nodePath.join(testRootDir, '.gitignore'),
-        'ignored.txt\nnode_modules/\n.gemini/*\n!/.gemini/config.yaml',
+        'ignored.txt\nnode_modules/\n.gemini/*\n!/.gemini/config.yaml'
       );
       await createTestFile('file1.txt');
       await createTestFile('node_modules', 'some-package', 'index.js');
@@ -273,10 +269,7 @@ ${testRootDir}${path.sep}
     });
 
     it('should not ignore files if respectGitIgnore is false', async () => {
-      await fsPromises.writeFile(
-        nodePath.join(testRootDir, '.gitignore'),
-        'ignored.txt',
-      );
+      await fsPromises.writeFile(nodePath.join(testRootDir, '.gitignore'), 'ignored.txt');
       await createTestFile('file1.txt');
       await createTestFile('ignored.txt');
 
@@ -299,7 +292,7 @@ ${testRootDir}${path.sep}
     it('should ignore geminiignore files by default', async () => {
       await fsPromises.writeFile(
         nodePath.join(testRootDir, GEMINI_IGNORE_FILE_NAME),
-        'ignored.txt\nnode_modules/\n.gemini/\n!/.gemini/config.yaml',
+        'ignored.txt\nnode_modules/\n.gemini/\n!/.gemini/config.yaml'
       );
       await createTestFile('file1.txt');
       await createTestFile('node_modules', 'some-package', 'index.js');
@@ -319,7 +312,7 @@ ${testRootDir}${path.sep}
     it('should not ignore files if respectGeminiIgnore is false', async () => {
       await fsPromises.writeFile(
         nodePath.join(testRootDir, GEMINI_IGNORE_FILE_NAME),
-        'ignored.txt\nnode_modules/\n.gemini/\n!/.gemini/config.yaml',
+        'ignored.txt\nnode_modules/\n.gemini/\n!/.gemini/config.yaml'
       );
       await createTestFile('file1.txt');
       await createTestFile('node_modules', 'some-package', 'index.js');

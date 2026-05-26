@@ -56,16 +56,13 @@ export const uninstallCommand: CommandModule = {
   builder: (yargs) =>
     yargs
       .positional('names', {
-        describe:
-          'The name(s) or source path(s) of the extension(s) to uninstall.',
+        describe: 'The name(s) or source path(s) of the extension(s) to uninstall.',
         type: 'string',
         array: true,
       })
       .check((argv) => {
         if (!argv.names || argv.names.length === 0) {
-          throw new Error(
-            'Please include at least one extension name to uninstall as a positional argument.',
-          );
+          throw new Error('Please include at least one extension name to uninstall as a positional argument.');
         }
         return true;
       }),

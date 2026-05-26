@@ -5,10 +5,7 @@
  */
 
 import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
-import type {
-  JSONRPCMessage,
-  JSONRPCResponse,
-} from '@modelcontextprotocol/sdk/types.js';
+import type { JSONRPCMessage, JSONRPCResponse } from '@modelcontextprotocol/sdk/types.js';
 import { EventEmitter } from 'node:events';
 
 /**
@@ -20,10 +17,7 @@ import { EventEmitter } from 'node:events';
  *
  * Fix: Parse the text content as JSON and populate `structuredContent`.
  */
-export class XcodeMcpBridgeFixTransport
-  extends EventEmitter
-  implements Transport
-{
+export class XcodeMcpBridgeFixTransport extends EventEmitter implements Transport {
   constructor(private readonly transport: Transport) {
     super();
 
@@ -79,12 +73,7 @@ export class XcodeMcpBridgeFixTransport
     const result = response.result as any;
 
     // Check if we have content but missing structuredContent
-    if (
-      result.content &&
-      Array.isArray(result.content) &&
-      result.content.length > 0 &&
-      !result.structuredContent
-    ) {
+    if (result.content && Array.isArray(result.content) && result.content.length > 0 && !result.structuredContent) {
       const firstItem = result.content[0];
       if (firstItem.type === 'text' && typeof firstItem.text === 'string') {
         try {

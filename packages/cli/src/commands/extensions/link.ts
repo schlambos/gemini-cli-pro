@@ -6,16 +6,10 @@
 
 import type { CommandModule } from 'yargs';
 import chalk from 'chalk';
-import {
-  debugLogger,
-  type ExtensionInstallMetadata,
-} from '@google/gemini-cli-core';
+import { debugLogger, type ExtensionInstallMetadata } from '@google/gemini-cli-core';
 
 import { getErrorMessage } from '../../utils/errors.js';
-import {
-  INSTALL_WARNING_MESSAGE,
-  requestConsentNonInteractive,
-} from '../../config/extensions/consent.js';
+import { INSTALL_WARNING_MESSAGE, requestConsentNonInteractive } from '../../config/extensions/consent.js';
 import { ExtensionManager } from '../../config/extension-manager.js';
 import { loadSettings } from '../../config/settings.js';
 import { promptForSetting } from '../../config/extensions/extensionSettings.js';
@@ -32,9 +26,7 @@ export async function handleLink(args: InstallArgs) {
       source: args.path,
       type: 'link',
     };
-    const requestConsent = args.consent
-      ? () => Promise.resolve(true)
-      : requestConsentNonInteractive;
+    const requestConsent = args.consent ? () => Promise.resolve(true) : requestConsentNonInteractive;
     if (args.consent) {
       debugLogger.log('You have consented to the following:');
       debugLogger.log(INSTALL_WARNING_MESSAGE);
@@ -47,13 +39,8 @@ export async function handleLink(args: InstallArgs) {
       settings: loadSettings(workspaceDir).merged,
     });
     await extensionManager.loadExtensions();
-    const extension =
-      await extensionManager.installOrUpdateExtension(installMetadata);
-    debugLogger.log(
-      chalk.green(
-        `Extension "${extension.name}" linked successfully and enabled.`,
-      ),
-    );
+    const extension = await extensionManager.installOrUpdateExtension(installMetadata);
+    debugLogger.log(chalk.green(`Extension "${extension.name}" linked successfully and enabled.`));
   } catch (error) {
     debugLogger.error(getErrorMessage(error));
     process.exit(1);
@@ -62,8 +49,7 @@ export async function handleLink(args: InstallArgs) {
 
 export const linkCommand: CommandModule = {
   command: 'link <path>',
-  describe:
-    'Links an extension from a local path. Updates made to the local path will always be reflected.',
+  describe: 'Links an extension from a local path. Updates made to the local path will always be reflected.',
   builder: (yargs) =>
     yargs
       .positional('path', {
@@ -71,8 +57,7 @@ export const linkCommand: CommandModule = {
         type: 'string',
       })
       .option('consent', {
-        describe:
-          'Acknowledge the security risks of installing an extension and skip the confirmation prompt.',
+        describe: 'Acknowledge the security risks of installing an extension and skip the confirmation prompt.',
         type: 'boolean',
         default: false,
       })

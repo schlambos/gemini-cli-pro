@@ -47,8 +47,7 @@ describe('validateAuthMethod', () => {
       expected: null,
     },
     {
-      description:
-        'should return an error message for USE_GEMINI if GEMINI_API_KEY is not set',
+      description: 'should return an error message for USE_GEMINI if GEMINI_API_KEY is not set',
       authType: AuthType.USE_GEMINI,
       envs: {},
       expected:
@@ -56,8 +55,7 @@ describe('validateAuthMethod', () => {
         'Update your environment and try again (no reload needed if using .env)!',
     },
     {
-      description:
-        'should return null for USE_VERTEX_AI if GOOGLE_CLOUD_PROJECT and GOOGLE_CLOUD_LOCATION are set',
+      description: 'should return null for USE_VERTEX_AI if GOOGLE_CLOUD_PROJECT and GOOGLE_CLOUD_LOCATION are set',
       authType: AuthType.USE_VERTEX_AI,
       envs: {
         GOOGLE_CLOUD_PROJECT: 'test-project',
@@ -66,15 +64,13 @@ describe('validateAuthMethod', () => {
       expected: null,
     },
     {
-      description:
-        'should return null for USE_VERTEX_AI if GOOGLE_API_KEY is set',
+      description: 'should return null for USE_VERTEX_AI if GOOGLE_API_KEY is set',
       authType: AuthType.USE_VERTEX_AI,
       envs: { GOOGLE_API_KEY: 'test-api-key' },
       expected: null,
     },
     {
-      description:
-        'should return an error message for USE_VERTEX_AI if no required environment variables are set',
+      description: 'should return an error message for USE_VERTEX_AI if no required environment variables are set',
       authType: AuthType.USE_VERTEX_AI,
       envs: {},
       expected:

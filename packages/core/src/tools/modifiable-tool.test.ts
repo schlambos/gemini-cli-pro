@@ -5,14 +5,8 @@
  */
 
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-import type {
-  ModifyContext,
-  ModifiableDeclarativeTool,
-} from './modifiable-tool.js';
-import {
-  modifyWithEditor,
-  isModifiableDeclarativeTool,
-} from './modifiable-tool.js';
+import type { ModifyContext, ModifiableDeclarativeTool } from './modifiable-tool.js';
+import { modifyWithEditor, isModifiableDeclarativeTool } from './modifiable-tool.js';
 import { DEFAULT_GUI_EDITOR } from '../utils/editor.js';
 import fs from 'node:fs';
 import fsp from 'node:fs/promises';
@@ -54,9 +48,7 @@ describe('modifyWithEditor', () => {
   beforeEach(async () => {
     vi.resetAllMocks();
 
-    testProjectDir = await fsp.mkdtemp(
-      path.join(os.tmpdir(), 'modifiable-tool-test-'),
-    );
+    testProjectDir = await fsp.mkdtemp(path.join(os.tmpdir(), 'modifiable-tool-test-'));
     abortSignal = new AbortController().signal;
 
     currentContent = 'original content\nline 2\nline 3';
@@ -71,13 +63,11 @@ describe('modifyWithEditor', () => {
       getFilePath: vi.fn().mockReturnValue(mockParams.filePath),
       getCurrentContent: vi.fn().mockResolvedValue(currentContent),
       getProposedContent: vi.fn().mockResolvedValue(proposedContent),
-      createUpdatedParams: vi
-        .fn()
-        .mockImplementation((oldContent, modifiedContent, originalParams) => ({
-          ...originalParams,
-          modifiedContent,
-          oldContent,
-        })),
+      createUpdatedParams: vi.fn().mockImplementation((oldContent, modifiedContent, originalParams) => ({
+        ...originalParams,
+        modifiedContent,
+        oldContent,
+      })),
     };
 
     mockOpenDiff.mockImplementation(async (_oldPath, newPath) => {
@@ -104,29 +94,16 @@ describe('modifyWithEditor', () => {
     };
 
     it('should successfully modify content with VSCode editor', async () => {
-      const result = await modifyWithEditor(
-        mockParams,
-        mockModifyContext,
-        DEFAULT_GUI_EDITOR,
-        abortSignal,
-      );
+      const result = await modifyWithEditor(mockParams, mockModifyContext, DEFAULT_GUI_EDITOR, abortSignal);
 
-      expect(mockModifyContext.getCurrentContent).toHaveBeenCalledWith(
-        mockParams,
-      );
-      expect(mockModifyContext.getProposedContent).toHaveBeenCalledWith(
-        mockParams,
-      );
+      expect(mockModifyContext.getCurrentContent).toHaveBeenCalledWith(mockParams);
+      expect(mockModifyContext.getProposedContent).toHaveBeenCalledWith(mockParams);
       expect(mockModifyContext.getFilePath).toHaveBeenCalledWith(mockParams);
 
       expect(mockOpenDiff).toHaveBeenCalledOnce();
       const [oldFilePath, newFilePath] = mockOpenDiff.mock.calls[0];
 
-      expect(mockModifyContext.createUpdatedParams).toHaveBeenCalledWith(
-        currentContent,
-        modifiedContent,
-        mockParams,
-      );
+      expect(mockModifyContext.createUpdatedParams).toHaveBeenCalledWith(currentContent, modifiedContent, mockParams);
 
       expect(mockCreatePatch).toHaveBeenCalledWith(
         path.basename(mockParams.filePath),
@@ -137,7 +114,7 @@ describe('modifyWithEditor', () => {
         expect.objectContaining({
           context: 3,
           ignoreWhitespace: false,
-        }),
+        })
       );
 
       // Check that temp files are deleted.
@@ -170,12 +147,7 @@ describe('modifyWithEditor', () => {
         await fsp.writeFile(newPath, modifiedContent, 'utf8');
       });
 
-      await modifyWithEditor(
-        mockParams,
-        mockModifyContext,
-        DEFAULT_GUI_EDITOR,
-        abortSignal,
-      );
+      await modifyWithEditor(mockParams, mockModifyContext, DEFAULT_GUI_EDITOR, abortSignal);
 
       const [oldFilePath] = mockOpenDiff.mock.calls[0];
       const diffDir = path.dirname(oldFilePath);
@@ -190,12 +162,7 @@ describe('modifyWithEditor', () => {
       await fsp.unlink(oldPath);
     });
 
-    const result = await modifyWithEditor(
-      mockParams,
-      mockModifyContext,
-      DEFAULT_GUI_EDITOR,
-      abortSignal,
-    );
+    const result = await modifyWithEditor(mockParams, mockModifyContext, DEFAULT_GUI_EDITOR, abortSignal);
 
     expect(mockCreatePatch).toHaveBeenCalledWith(
       path.basename(mockParams.filePath),
@@ -206,7 +173,7 @@ describe('modifyWithEditor', () => {
       expect.objectContaining({
         context: 3,
         ignoreWhitespace: false,
-      }),
+      })
     );
 
     expect(result.updatedParams).toBeDefined();
@@ -218,12 +185,7 @@ describe('modifyWithEditor', () => {
       await fsp.unlink(newPath);
     });
 
-    const result = await modifyWithEditor(
-      mockParams,
-      mockModifyContext,
-      DEFAULT_GUI_EDITOR,
-      abortSignal,
-    );
+    const result = await modifyWithEditor(mockParams, mockModifyContext, DEFAULT_GUI_EDITOR, abortSignal);
 
     expect(mockCreatePatch).toHaveBeenCalledWith(
       path.basename(mockParams.filePath),
@@ -234,7 +196,7 @@ describe('modifyWithEditor', () => {
       expect.objectContaining({
         context: 3,
         ignoreWhitespace: false,
-      }),
+      })
     );
 
     expect(result.updatedParams).toBeDefined();
@@ -247,16 +209,10 @@ describe('modifyWithEditor', () => {
     mockModifyContext.getCurrentContent = vi.fn();
     mockModifyContext.getProposedContent = vi.fn();
 
-    await modifyWithEditor(
-      mockParams,
-      mockModifyContext,
-      DEFAULT_GUI_EDITOR,
-      abortSignal,
-      {
-        currentContent: overrideCurrent,
-        proposedContent: overrideProposed,
-      },
-    );
+    await modifyWithEditor(mockParams, mockModifyContext, DEFAULT_GUI_EDITOR, abortSignal, {
+      currentContent: overrideCurrent,
+      proposedContent: overrideProposed,
+    });
 
     expect(mockModifyContext.getCurrentContent).not.toHaveBeenCalled();
     expect(mockModifyContext.getProposedContent).not.toHaveBeenCalled();
@@ -266,7 +222,7 @@ describe('modifyWithEditor', () => {
       modifiedContent,
       'Current',
       'Proposed',
-      expect.any(Object),
+      expect.any(Object)
     );
   });
 
@@ -274,16 +230,10 @@ describe('modifyWithEditor', () => {
     mockModifyContext.getCurrentContent = vi.fn();
     mockModifyContext.getProposedContent = vi.fn();
 
-    await modifyWithEditor(
-      mockParams,
-      mockModifyContext,
-      DEFAULT_GUI_EDITOR,
-      abortSignal,
-      {
-        currentContent: null,
-        proposedContent: 'override proposed content',
-      },
-    );
+    await modifyWithEditor(mockParams, mockModifyContext, DEFAULT_GUI_EDITOR, abortSignal, {
+      currentContent: null,
+      proposedContent: 'override proposed content',
+    });
 
     expect(mockModifyContext.getCurrentContent).not.toHaveBeenCalled();
     expect(mockModifyContext.getProposedContent).not.toHaveBeenCalled();
@@ -293,7 +243,7 @@ describe('modifyWithEditor', () => {
       modifiedContent,
       'Current',
       'Proposed',
-      expect.any(Object),
+      expect.any(Object)
     );
   });
 
@@ -303,14 +253,9 @@ describe('modifyWithEditor', () => {
 
     const writeSpy = vi.spyOn(fs, 'writeFileSync');
 
-    await expect(
-      modifyWithEditor(
-        mockParams,
-        mockModifyContext,
-        DEFAULT_GUI_EDITOR,
-        abortSignal,
-      ),
-    ).rejects.toThrow('Editor failed to open');
+    await expect(modifyWithEditor(mockParams, mockModifyContext, DEFAULT_GUI_EDITOR, abortSignal)).rejects.toThrow(
+      'Editor failed to open'
+    );
 
     expect(writeSpy).toHaveBeenCalledTimes(2);
     const oldFilePath = writeSpy.mock.calls[0][0] as string;
@@ -323,9 +268,7 @@ describe('modifyWithEditor', () => {
   });
 
   it('should handle temp file cleanup errors gracefully', async () => {
-    const consoleErrorSpy = vi
-      .spyOn(debugLogger, 'error')
-      .mockImplementation(() => {});
+    const consoleErrorSpy = vi.spyOn(debugLogger, 'error').mockImplementation(() => {});
     vi.spyOn(fs, 'unlinkSync').mockImplementation(() => {
       throw new Error('Failed to delete file');
     });
@@ -333,38 +276,20 @@ describe('modifyWithEditor', () => {
       throw new Error('Failed to delete directory');
     });
 
-    await modifyWithEditor(
-      mockParams,
-      mockModifyContext,
-      DEFAULT_GUI_EDITOR,
-      abortSignal,
-    );
+    await modifyWithEditor(mockParams, mockModifyContext, DEFAULT_GUI_EDITOR, abortSignal);
 
     expect(consoleErrorSpy).toHaveBeenCalledTimes(3);
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Error deleting temp diff file:'),
-    );
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Error deleting temp diff directory:'),
-    );
+    expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Error deleting temp diff file:'));
+    expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Error deleting temp diff directory:'));
 
     consoleErrorSpy.mockRestore();
   });
 
   it('should create temp files with correct naming with extension', async () => {
-    const testFilePath = path.join(
-      testProjectDir,
-      'subfolder',
-      'test-file.txt',
-    );
+    const testFilePath = path.join(testProjectDir, 'subfolder', 'test-file.txt');
     mockModifyContext.getFilePath = vi.fn().mockReturnValue(testFilePath);
 
-    await modifyWithEditor(
-      mockParams,
-      mockModifyContext,
-      DEFAULT_GUI_EDITOR,
-      abortSignal,
-    );
+    await modifyWithEditor(mockParams, mockModifyContext, DEFAULT_GUI_EDITOR, abortSignal);
 
     expect(mockOpenDiff).toHaveBeenCalledOnce();
     const [oldFilePath, newFilePath] = mockOpenDiff.mock.calls[0];
@@ -380,12 +305,7 @@ describe('modifyWithEditor', () => {
     const testFilePath = path.join(testProjectDir, 'subfolder', 'test-file');
     mockModifyContext.getFilePath = vi.fn().mockReturnValue(testFilePath);
 
-    await modifyWithEditor(
-      mockParams,
-      mockModifyContext,
-      DEFAULT_GUI_EDITOR,
-      abortSignal,
-    );
+    await modifyWithEditor(mockParams, mockModifyContext, DEFAULT_GUI_EDITOR, abortSignal);
 
     expect(mockOpenDiff).toHaveBeenCalledOnce();
     const [oldFilePath, newFilePath] = mockOpenDiff.mock.calls[0];

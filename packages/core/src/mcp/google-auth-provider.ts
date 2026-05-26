@@ -37,23 +37,17 @@ export class GoogleCredentialProvider implements McpAuthProvider {
   constructor(private readonly config?: MCPServerConfig) {
     const url = this.config?.url || this.config?.httpUrl;
     if (!url) {
-      throw new Error(
-        'URL must be provided in the config for Google Credentials provider',
-      );
+      throw new Error('URL must be provided in the config for Google Credentials provider');
     }
 
     const hostname = new URL(url).hostname;
     if (!ALLOWED_HOSTS.some((pattern) => pattern.test(hostname))) {
-      throw new Error(
-        `Host "${hostname}" is not an allowed host for Google Credential provider.`,
-      );
+      throw new Error(`Host "${hostname}" is not an allowed host for Google Credential provider.`);
     }
 
     const scopes = this.config?.oauth?.scopes;
     if (!scopes || scopes.length === 0) {
-      throw new Error(
-        'Scopes must be provided in the oauth config for Google Credentials provider',
-      );
+      throw new Error('Scopes must be provided in the oauth config for Google Credentials provider');
     }
     this.auth = new GoogleAuth({
       scopes,
@@ -70,11 +64,7 @@ export class GoogleCredentialProvider implements McpAuthProvider {
 
   async tokens(): Promise<OAuthTokens | undefined> {
     // check for a valid, non-expired cached token.
-    if (
-      this.cachedToken &&
-      this.tokenExpiryTime &&
-      Date.now() < this.tokenExpiryTime - FIVE_MIN_BUFFER_MS
-    ) {
+    if (this.cachedToken && this.tokenExpiryTime && Date.now() < this.tokenExpiryTime - FIVE_MIN_BUFFER_MS) {
       return this.cachedToken;
     }
 
@@ -86,10 +76,7 @@ export class GoogleCredentialProvider implements McpAuthProvider {
     const accessTokenResponse = await client.getAccessToken();
 
     if (!accessTokenResponse.token) {
-      coreEvents.emitFeedback(
-        'error',
-        'Failed to get access token from Google ADC',
-      );
+      coreEvents.emitFeedback('error', 'Failed to get access token from Google ADC');
       return undefined;
     }
 
@@ -137,9 +124,7 @@ export class GoogleCredentialProvider implements McpAuthProvider {
   async getRequestHeaders(): Promise<Record<string, string>> {
     const headers: Record<string, string> = {};
     const configHeaders = this.config?.headers ?? {};
-    const userProjectHeaderKey = Object.keys(configHeaders).find(
-      (key) => key.toLowerCase() === 'x-goog-user-project',
-    );
+    const userProjectHeaderKey = Object.keys(configHeaders).find((key) => key.toLowerCase() === 'x-goog-user-project');
 
     // If the header is present in the config (case-insensitive check), use the
     // config's key and value. This prevents duplicate headers (e.g.

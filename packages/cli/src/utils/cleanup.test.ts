@@ -108,13 +108,10 @@ describe('cleanup', () => {
   describe('cleanupCheckpoints', () => {
     it('should remove checkpoints directory', async () => {
       await cleanupCheckpoints();
-      expect(fs.rm).toHaveBeenCalledWith(
-        path.join('/tmp/project', 'checkpoints'),
-        {
-          recursive: true,
-          force: true,
-        },
-      );
+      expect(fs.rm).toHaveBeenCalledWith(path.join('/tmp/project', 'checkpoints'), {
+        recursive: true,
+        force: true,
+      });
     });
 
     it('should ignore errors during checkpoint removal', async () => {

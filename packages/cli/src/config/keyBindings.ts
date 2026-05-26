@@ -142,15 +142,9 @@ export const defaultKeyBindings: KeyBindingConfig = {
     { key: 'e', ctrl: true },
     { key: 'end', shift: false, ctrl: false },
   ],
-  [Command.MOVE_UP]: [
-    { key: 'up', shift: false, alt: false, ctrl: false, cmd: false },
-  ],
-  [Command.MOVE_DOWN]: [
-    { key: 'down', shift: false, alt: false, ctrl: false, cmd: false },
-  ],
-  [Command.MOVE_LEFT]: [
-    { key: 'left', shift: false, alt: false, ctrl: false, cmd: false },
-  ],
+  [Command.MOVE_UP]: [{ key: 'up', shift: false, alt: false, ctrl: false, cmd: false }],
+  [Command.MOVE_DOWN]: [{ key: 'down', shift: false, alt: false, ctrl: false, cmd: false }],
+  [Command.MOVE_LEFT]: [{ key: 'left', shift: false, alt: false, ctrl: false, cmd: false }],
   [Command.MOVE_RIGHT]: [
     { key: 'right', shift: false, alt: false, ctrl: false, cmd: false },
     { key: 'f', ctrl: true },
@@ -280,9 +274,7 @@ export const defaultKeyBindings: KeyBindingConfig = {
   [Command.KILL_BACKGROUND_SHELL]: [{ key: 'k', ctrl: true }],
   [Command.UNFOCUS_BACKGROUND_SHELL]: [{ key: 'tab', shift: true }],
   [Command.UNFOCUS_BACKGROUND_SHELL_LIST]: [{ key: 'tab', shift: false }],
-  [Command.SHOW_BACKGROUND_SHELL_UNFOCUS_WARNING]: [
-    { key: 'tab', shift: false },
-  ],
+  [Command.SHOW_BACKGROUND_SHELL_UNFOCUS_WARNING]: [{ key: 'tab', shift: false }],
   [Command.SHOW_SHELL_INPUT_UNFOCUS_WARNING]: [{ key: 'tab', shift: false }],
   [Command.BACKGROUND_SHELL_SELECT]: [{ key: 'return' }],
   [Command.BACKGROUND_SHELL_ESCAPE]: [{ key: 'escape' }],
@@ -380,12 +372,7 @@ export const commandCategories: readonly CommandCategory[] = [
   },
   {
     title: 'Text Input',
-    commands: [
-      Command.SUBMIT,
-      Command.NEWLINE,
-      Command.OPEN_EXTERNAL_EDITOR,
-      Command.PASTE_CLIPBOARD,
-    ],
+    commands: [Command.SUBMIT, Command.NEWLINE, Command.OPEN_EXTERNAL_EDITOR, Command.PASTE_CLIPBOARD],
   },
   {
     title: 'App Controls',
@@ -424,8 +411,7 @@ export const commandDescriptions: Readonly<Record<Command, string>> = {
   // Basic Controls
   [Command.RETURN]: 'Confirm the current selection or choice.',
   [Command.ESCAPE]: 'Dismiss dialogs or cancel the current focus.',
-  [Command.QUIT]:
-    'Cancel the current request or quit the CLI when input is empty.',
+  [Command.QUIT]: 'Cancel the current request or quit the CLI when input is empty.',
   [Command.EXIT]: 'Exit the CLI when the input buffer is empty.',
 
   // Cursor Movement
@@ -462,8 +448,7 @@ export const commandDescriptions: Readonly<Record<Command, string>> = {
   [Command.HISTORY_DOWN]: 'Show the next entry in history.',
   [Command.REVERSE_SEARCH]: 'Start reverse search through history.',
   [Command.SUBMIT_REVERSE_SEARCH]: 'Submit the selected reverse-search match.',
-  [Command.ACCEPT_SUGGESTION_REVERSE_SEARCH]:
-    'Accept a suggestion while reverse searching.',
+  [Command.ACCEPT_SUGGESTION_REVERSE_SEARCH]: 'Accept a suggestion while reverse searching.',
   [Command.REWIND]: 'Browse and rewind previous interactions.',
 
   // Navigation
@@ -484,8 +469,7 @@ export const commandDescriptions: Readonly<Record<Command, string>> = {
   // Text Input
   [Command.SUBMIT]: 'Submit the current prompt.',
   [Command.NEWLINE]: 'Insert a newline without submitting.',
-  [Command.OPEN_EXTERNAL_EDITOR]:
-    'Open the current prompt in an external editor.',
+  [Command.OPEN_EXTERNAL_EDITOR]: 'Open the current prompt in an external editor.',
   [Command.PASTE_CLIPBOARD]: 'Paste from the clipboard.',
 
   // App Controls
@@ -497,25 +481,17 @@ export const commandDescriptions: Readonly<Record<Command, string>> = {
   [Command.TOGGLE_YOLO]: 'Toggle YOLO (auto-approval) mode for tool calls.',
   [Command.CYCLE_APPROVAL_MODE]:
     'Cycle through approval modes: default (prompt), auto_edit (auto-approve edits), and plan (read-only). Plan mode is skipped when the agent is busy.',
-  [Command.SHOW_MORE_LINES]:
-    'Expand and collapse blocks of content when not in alternate buffer mode.',
-  [Command.EXPAND_PASTE]:
-    'Expand or collapse a paste placeholder when cursor is over placeholder.',
-  [Command.BACKGROUND_SHELL_SELECT]:
-    'Confirm selection in background shell list.',
+  [Command.SHOW_MORE_LINES]: 'Expand and collapse blocks of content when not in alternate buffer mode.',
+  [Command.EXPAND_PASTE]: 'Expand or collapse a paste placeholder when cursor is over placeholder.',
+  [Command.BACKGROUND_SHELL_SELECT]: 'Confirm selection in background shell list.',
   [Command.BACKGROUND_SHELL_ESCAPE]: 'Dismiss background shell list.',
-  [Command.TOGGLE_BACKGROUND_SHELL]:
-    'Toggle current background shell visibility.',
+  [Command.TOGGLE_BACKGROUND_SHELL]: 'Toggle current background shell visibility.',
   [Command.TOGGLE_BACKGROUND_SHELL_LIST]: 'Toggle background shell list.',
   [Command.KILL_BACKGROUND_SHELL]: 'Kill the active background shell.',
-  [Command.UNFOCUS_BACKGROUND_SHELL]:
-    'Move focus from background shell to Gemini.',
-  [Command.UNFOCUS_BACKGROUND_SHELL_LIST]:
-    'Move focus from background shell list to Gemini.',
-  [Command.SHOW_BACKGROUND_SHELL_UNFOCUS_WARNING]:
-    'Show warning when trying to move focus away from background shell.',
-  [Command.SHOW_SHELL_INPUT_UNFOCUS_WARNING]:
-    'Show warning when trying to move focus away from shell input.',
+  [Command.UNFOCUS_BACKGROUND_SHELL]: 'Move focus from background shell to Gemini.',
+  [Command.UNFOCUS_BACKGROUND_SHELL_LIST]: 'Move focus from background shell list to Gemini.',
+  [Command.SHOW_BACKGROUND_SHELL_UNFOCUS_WARNING]: 'Show warning when trying to move focus away from background shell.',
+  [Command.SHOW_SHELL_INPUT_UNFOCUS_WARNING]: 'Show warning when trying to move focus away from shell input.',
   [Command.FOCUS_SHELL_INPUT]: 'Move focus from Gemini to the active shell.',
   [Command.UNFOCUS_SHELL_INPUT]: 'Move focus from the shell back to Gemini.',
   [Command.CLEAR_SCREEN]: 'Clear the terminal screen and redraw the UI.',

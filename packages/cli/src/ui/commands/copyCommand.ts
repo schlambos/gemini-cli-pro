@@ -19,9 +19,7 @@ export const copyCommand: SlashCommand = {
     const history = chat?.getHistory();
 
     // Get the last message from the AI (model role)
-    const lastAiMessage = history
-      ? history.filter((item) => item.role === 'model').pop()
-      : undefined;
+    const lastAiMessage = history ? history.filter((item) => item.role === 'model').pop() : undefined;
 
     if (!lastAiMessage) {
       return {

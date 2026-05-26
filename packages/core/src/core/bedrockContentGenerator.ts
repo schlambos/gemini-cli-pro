@@ -70,7 +70,7 @@ export class BedrockContentGenerator implements ContentGenerator {
       `[Bedrock] Initialized:\n` +
         `  Model: ${this.model}\n` +
         `  Region: ${this.region}\n` +
-        `  Credentials: ${credentialSource}`,
+        `  Credentials: ${credentialSource}`
     );
   }
 
@@ -114,7 +114,7 @@ export class BedrockContentGenerator implements ContentGenerator {
   async generateContent(
     request: GenerateContentParameters,
     _userPromptId: string,
-    _role?: LlmRole,
+    _role?: LlmRole
   ): Promise<GenerateContentResponse> {
     const startTime = Date.now();
     const { messages, system } = this.convertToBedrockMessages(request);
@@ -141,7 +141,7 @@ export class BedrockContentGenerator implements ContentGenerator {
             `[Bedrock] Sending request:\n` +
               `  Model: ${this.model}\n` +
               `  Messages: ${messages.length}\n` +
-              `  System: ${system ? 'yes' : 'no'}`,
+              `  System: ${system ? 'yes' : 'no'}`
           );
 
           const response = await this.client.send(command);
@@ -151,7 +151,7 @@ export class BedrockContentGenerator implements ContentGenerator {
             `[Bedrock] Response received (${elapsedTime}ms):\n` +
               `  Stop Reason: ${response.stopReason}\n` +
               `  Input Tokens: ${response.usage?.inputTokens || 0}\n` +
-              `  Output Tokens: ${response.usage?.outputTokens || 0}`,
+              `  Output Tokens: ${response.usage?.outputTokens || 0}`
           );
 
           return this.convertToGeminiFormat(response);
@@ -165,14 +165,14 @@ export class BedrockContentGenerator implements ContentGenerator {
         initialDelayMs: 1000,
         maxDelayMs: 10000,
         authType: 'bedrock',
-      },
+      }
     );
   }
 
   async generateContentStream(
     request: GenerateContentParameters,
     _userPromptId: string,
-    _role?: LlmRole,
+    _role?: LlmRole
   ): Promise<AsyncGenerator<GenerateContentResponse>> {
     const startTime = Date.now();
     const { messages, system } = this.convertToBedrockMessages(request);
@@ -201,7 +201,7 @@ export class BedrockContentGenerator implements ContentGenerator {
               `  Model: ${this.model}\n` +
               `  Messages: ${messages.length}\n` +
               `  System: ${system ? 'yes' : 'no'}\n` +
-              `  Tools: ${toolConfig?.tools?.length || 0}`,
+              `  Tools: ${toolConfig?.tools?.length || 0}`
           );
 
           const response = await this.client.send(command);
@@ -221,19 +221,15 @@ export class BedrockContentGenerator implements ContentGenerator {
         initialDelayMs: 1000,
         maxDelayMs: 10000,
         authType: 'bedrock',
-      },
+      }
     );
 
     return this.streamGenerator(stream, startTime);
   }
 
-  async countTokens(
-    request: CountTokensParameters,
-  ): Promise<CountTokensResponse> {
+  async countTokens(request: CountTokensParameters): Promise<CountTokensResponse> {
     // Handle both array and single content
-    const contents = Array.isArray(request.contents)
-      ? request.contents
-      : [request.contents];
+    const contents = Array.isArray(request.contents) ? request.contents : [request.contents];
 
     const textParts: string[] = [];
 
@@ -256,9 +252,7 @@ export class BedrockContentGenerator implements ContentGenerator {
     return { totalTokens };
   }
 
-  async embedContent(
-    _request: EmbedContentParameters,
-  ): Promise<EmbedContentResponse> {
+  async embedContent(_request: EmbedContentParameters): Promise<EmbedContentResponse> {
     throw new Error('Embedding is not supported for Claude models on Bedrock.');
   }
 
@@ -268,7 +262,7 @@ export class BedrockContentGenerator implements ContentGenerator {
    */
   private async *streamGenerator(
     stream: AsyncIterable<ConverseStreamOutput>,
-    startTime: number,
+    startTime: number
   ): AsyncGenerator<GenerateContentResponse> {
     // Reset accumulator for new stream
     this.streamingToolUses.clear();
@@ -290,9 +284,7 @@ export class BedrockContentGenerator implements ContentGenerator {
               input: '',
             });
 
-            debugLogger.log(
-              `[Bedrock] Tool use started: ${toolUse?.name} (index ${currentBlockIndex})`,
-            );
+            debugLogger.log(`[Bedrock] Tool use started: ${toolUse?.name} (index ${currentBlockIndex})`);
           }
         }
 
@@ -308,9 +300,7 @@ export class BedrockContentGenerator implements ContentGenerator {
               const accumulated = this.streamingToolUses.get(index);
               if (accumulated && delta.delta.toolUse.input) {
                 accumulated.input += delta.delta.toolUse.input;
-                debugLogger.log(
-                  `[Bedrock] Tool input fragment (${accumulated.input.length} chars)`,
-                );
+                debugLogger.log(`[Bedrock] Tool input fragment (${accumulated.input.length} chars)`);
               }
             }
 
@@ -334,8 +324,7 @@ export class BedrockContentGenerator implements ContentGenerator {
 
         // 3. Handle content block stop - emit complete tool call
         if (event.contentBlockStop) {
-          const index =
-            event.contentBlockStop?.contentBlockIndex ?? currentBlockIndex;
+          const index = event.contentBlockStop?.contentBlockIndex ?? currentBlockIndex;
           const accumulated = this.streamingToolUses.get(index);
 
           if (accumulated?.toolUseId && accumulated.name) {
@@ -343,10 +332,7 @@ export class BedrockContentGenerator implements ContentGenerator {
               // Parse complete JSON input
               const args = JSON.parse(accumulated.input || '{}');
 
-              debugLogger.log(
-                `[Bedrock] Tool use complete: ${accumulated.name}`,
-                JSON.stringify(args, null, 2),
-              );
+              debugLogger.log(`[Bedrock] Tool use complete: ${accumulated.name}`, JSON.stringify(args, null, 2));
 
               const response = new GenerateContentResponse();
               response.candidates = [
@@ -375,10 +361,10 @@ export class BedrockContentGenerator implements ContentGenerator {
               debugLogger.error(
                 `[Bedrock] Failed to parse tool input for ${accumulated.name}:`,
                 accumulated.input,
-                error,
+                error
               );
               throw new Error(
-                `Invalid JSON in tool call ${accumulated.name}: ${error instanceof Error ? error.message : String(error)}`,
+                `Invalid JSON in tool call ${accumulated.name}: ${error instanceof Error ? error.message : String(error)}`
               );
             }
           }
@@ -400,16 +386,14 @@ export class BedrockContentGenerator implements ContentGenerator {
             debugLogger.log(
               `[Bedrock] Stream complete (${elapsedTime}ms):\n` +
                 `  Input Tokens: ${usage.inputTokens || 0}\n` +
-                `  Output Tokens: ${usage.outputTokens || 0}`,
+                `  Output Tokens: ${usage.outputTokens || 0}`
             );
           }
         }
 
         // 5. Handle message stop (finish reason)
         if (event.messageStop) {
-          debugLogger.log(
-            `[Bedrock] Message stop: ${event.messageStop.stopReason}`,
-          );
+          debugLogger.log(`[Bedrock] Message stop: ${event.messageStop.stopReason}`);
         }
       }
     } finally {
@@ -433,16 +417,12 @@ export class BedrockContentGenerator implements ContentGenerator {
       const sysInstr = request.config.systemInstruction;
       // Type guard: Only pass if it's string, Content, or Content[]
       if (typeof sysInstr === 'string' || this.isContentOrArray(sysInstr)) {
-        system = this.convertSystemInstruction(
-          sysInstr as string | Content | Content[],
-        );
+        system = this.convertSystemInstruction(sysInstr as string | Content | Content[]);
       }
     }
 
     // Handle contents
-    const contents = Array.isArray(request.contents)
-      ? request.contents
-      : [request.contents];
+    const contents = Array.isArray(request.contents) ? request.contents : [request.contents];
 
     for (const content of contents) {
       if (typeof content === 'string') {
@@ -489,21 +469,16 @@ export class BedrockContentGenerator implements ContentGenerator {
 
       // Handle function responses (tool results)
       if (functionResponses.length > 0) {
-        const toolResultBlocks: ContentBlock[] = functionResponses.map(
-          (fr) => ({
-            toolResult: {
-              toolUseId: fr.id || '',
-              content: [
-                {
-                  text:
-                    typeof fr.response === 'string'
-                      ? fr.response
-                      : JSON.stringify(fr.response),
-                },
-              ],
-            },
-          }),
-        );
+        const toolResultBlocks: ContentBlock[] = functionResponses.map((fr) => ({
+          toolResult: {
+            toolUseId: fr.id || '',
+            content: [
+              {
+                text: typeof fr.response === 'string' ? fr.response : JSON.stringify(fr.response),
+              },
+            ],
+          },
+        }));
 
         if (textParts.length > 0) {
           toolResultBlocks.unshift({ text: textParts.join('\n') });
@@ -555,9 +530,7 @@ export class BedrockContentGenerator implements ContentGenerator {
    */
   private isContentOrArray(value: unknown): value is Content | Content[] {
     if (Array.isArray(value)) {
-      return value.every(
-        (item) => typeof item === 'object' && item !== null && 'parts' in item,
-      );
+      return value.every((item) => typeof item === 'object' && item !== null && 'parts' in item);
     }
     return typeof value === 'object' && value !== null && 'parts' in value;
   }
@@ -565,9 +538,7 @@ export class BedrockContentGenerator implements ContentGenerator {
   /**
    * Convert system instruction to Bedrock format.
    */
-  private convertSystemInstruction(
-    systemInstruction: string | Content | Content[],
-  ): SystemContentBlock[] {
+  private convertSystemInstruction(systemInstruction: string | Content | Content[]): SystemContentBlock[] {
     let systemText = '';
 
     if (Array.isArray(systemInstruction)) {
@@ -576,9 +547,7 @@ export class BedrockContentGenerator implements ContentGenerator {
           if (typeof content === 'string') return content;
           if ('parts' in content) {
             return (content.parts || [])
-              .map((p: Part) =>
-                typeof p === 'string' ? p : 'text' in p ? p.text : '',
-              )
+              .map((p: Part) => (typeof p === 'string' ? p : 'text' in p ? p.text : ''))
               .join('\n');
           }
           return '';
@@ -588,9 +557,7 @@ export class BedrockContentGenerator implements ContentGenerator {
       systemText = systemInstruction;
     } else if ('parts' in systemInstruction) {
       systemText = (systemInstruction.parts || [])
-        .map((p: Part) =>
-          typeof p === 'string' ? p : 'text' in p ? p.text : '',
-        )
+        .map((p: Part) => (typeof p === 'string' ? p : 'text' in p ? p.text : ''))
         .join('\n');
     }
 
@@ -600,9 +567,7 @@ export class BedrockContentGenerator implements ContentGenerator {
   /**
    * Convert Bedrock response to Gemini format.
    */
-  private convertToGeminiFormat(
-    bedrockResponse: ConverseCommandOutput,
-  ): GenerateContentResponse {
+  private convertToGeminiFormat(bedrockResponse: ConverseCommandOutput): GenerateContentResponse {
     const response = new GenerateContentResponse();
     const parts: Part[] = [];
     let finishReason = FinishReason.STOP;
@@ -675,9 +640,7 @@ export class BedrockContentGenerator implements ContentGenerator {
   /**
    * Convert Gemini Tools to Bedrock ToolConfiguration format.
    */
-  private async convertToolsToBedrockFormat(
-    geminiTools: ToolListUnion,
-  ): Promise<ToolConfiguration> {
+  private async convertToolsToBedrockFormat(geminiTools: ToolListUnion): Promise<ToolConfiguration> {
     const bedrockTools: BedrockTool[] = [];
 
     for (const tool of geminiTools) {
@@ -710,9 +673,7 @@ export class BedrockContentGenerator implements ContentGenerator {
       }
     }
 
-    debugLogger.log(
-      `[Bedrock] Converted ${bedrockTools.length} tools for Bedrock`,
-    );
+    debugLogger.log(`[Bedrock] Converted ${bedrockTools.length} tools for Bedrock`);
 
     return {
       tools: bedrockTools,
@@ -735,9 +696,7 @@ export class BedrockContentGenerator implements ContentGenerator {
       sanitized.type = 'object';
     } else if (sanitized.type !== 'object') {
       // If root type is not object, wrap the schema
-      debugLogger.warn(
-        `[Bedrock] Schema root type is "${sanitized.type}", wrapping in object`,
-      );
+      debugLogger.warn(`[Bedrock] Schema root type is "${sanitized.type}", wrapping in object`);
       return {
         type: 'object',
         properties: {
@@ -788,22 +747,19 @@ export class BedrockContentGenerator implements ContentGenerator {
           'Required permissions:\n' +
           '  - bedrock:InvokeModel\n' +
           '  - bedrock:InvokeModelWithResponseStream\n\n' +
-          'See: https://docs.aws.amazon.com/bedrock/latest/userguide/security-iam.html',
+          'See: https://docs.aws.amazon.com/bedrock/latest/userguide/security-iam.html'
       );
     }
 
     // Model not found
-    if (
-      errorName === 'ResourceNotFoundException' ||
-      errorName === 'ModelNotFoundException'
-    ) {
+    if (errorName === 'ResourceNotFoundException' || errorName === 'ModelNotFoundException') {
       return new Error(
         `Model ${this.model} not available in region ${this.region}.\n\n` +
           `List available models:\n` +
           `  aws bedrock list-foundation-models --region ${this.region} --by-provider Anthropic\n\n` +
           `Or use a different region:\n` +
           `  export AWS_REGION="us-east-1"\n` +
-          `  npm run start`,
+          `  npm run start`
       );
     }
 
@@ -811,7 +767,7 @@ export class BedrockContentGenerator implements ContentGenerator {
     if (errorName === 'ValidationException') {
       return new Error(
         `Bedrock validation error: ${errorMessage}\n` +
-          'This usually indicates incompatible parameters or schema issues.',
+          'This usually indicates incompatible parameters or schema issues.'
       );
     }
 
@@ -822,7 +778,7 @@ export class BedrockContentGenerator implements ContentGenerator {
           'Solutions:\n' +
           '  1. Wait and retry\n' +
           '  2. Request quota increase: https://console.aws.amazon.com/servicequotas/\n' +
-          '  3. Use a different region',
+          '  3. Use a different region'
       );
     }
 
@@ -830,7 +786,7 @@ export class BedrockContentGenerator implements ContentGenerator {
     if (errorName === 'ServiceQuotaExceededException') {
       return new Error(
         'AWS service quota exceeded.\n' +
-          `Request quota increase: https://console.aws.amazon.com/servicequotas/home/services/bedrock/quotas`,
+          `Request quota increase: https://console.aws.amazon.com/servicequotas/home/services/bedrock/quotas`
       );
     }
 

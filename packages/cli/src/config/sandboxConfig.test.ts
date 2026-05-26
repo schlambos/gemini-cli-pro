@@ -97,25 +97,21 @@ describe('loadSandboxConfig', () => {
     it('should throw if GEMINI_SANDBOX is an invalid command', async () => {
       process.env['GEMINI_SANDBOX'] = 'invalid-command';
       await expect(loadSandboxConfig({}, {})).rejects.toThrow(
-        "Invalid sandbox command 'invalid-command'. Must be one of docker, podman, sandbox-exec",
+        "Invalid sandbox command 'invalid-command'. Must be one of docker, podman, sandbox-exec"
       );
     });
 
     it('should throw if GEMINI_SANDBOX command does not exist', async () => {
       process.env['GEMINI_SANDBOX'] = 'docker';
       mockedCommandExistsSync.mockReturnValue(false);
-      await expect(loadSandboxConfig({}, {})).rejects.toThrow(
-        "Missing sandbox command 'docker' (from GEMINI_SANDBOX)",
-      );
+      await expect(loadSandboxConfig({}, {})).rejects.toThrow("Missing sandbox command 'docker' (from GEMINI_SANDBOX)");
     });
   });
 
   describe('with sandbox: true', () => {
     it('should use sandbox-exec on darwin if available', async () => {
       mockedOsPlatform.mockReturnValue('darwin');
-      mockedCommandExistsSync.mockImplementation(
-        (cmd) => cmd === 'sandbox-exec',
-      );
+      mockedCommandExistsSync.mockImplementation((cmd) => cmd === 'sandbox-exec');
       const config = await loadSandboxConfig({}, { sandbox: true });
       expect(config).toEqual({
         command: 'sandbox-exec',
@@ -152,7 +148,7 @@ describe('loadSandboxConfig', () => {
       mockedCommandExistsSync.mockReturnValue(false);
       await expect(loadSandboxConfig({}, { sandbox: true })).rejects.toThrow(
         'GEMINI_SANDBOX is true but failed to determine command for sandbox; ' +
-          'install docker or podman or specify command in GEMINI_SANDBOX',
+          'install docker or podman or specify command in GEMINI_SANDBOX'
       );
     });
   });
@@ -167,18 +163,14 @@ describe('loadSandboxConfig', () => {
 
     it('should throw if the specified command does not exist', async () => {
       mockedCommandExistsSync.mockReturnValue(false);
-      await expect(
-        loadSandboxConfig({}, { sandbox: 'podman' }),
-      ).rejects.toThrow(
-        "Missing sandbox command 'podman' (from GEMINI_SANDBOX)",
+      await expect(loadSandboxConfig({}, { sandbox: 'podman' })).rejects.toThrow(
+        "Missing sandbox command 'podman' (from GEMINI_SANDBOX)"
       );
     });
 
     it('should throw if the specified command is invalid', async () => {
-      await expect(
-        loadSandboxConfig({}, { sandbox: 'invalid-command' }),
-      ).rejects.toThrow(
-        "Invalid sandbox command 'invalid-command'. Must be one of docker, podman, sandbox-exec",
+      await expect(loadSandboxConfig({}, { sandbox: 'invalid-command' })).rejects.toThrow(
+        "Invalid sandbox command 'invalid-command'. Must be one of docker, podman, sandbox-exec"
       );
     });
   });
@@ -214,21 +206,15 @@ describe('loadSandboxConfig', () => {
       mockedCommandExistsSync.mockImplementation((cmd) => cmd === 'docker');
     });
 
-    it.each([true, 'true', '1'])(
-      'should enable sandbox for value: %s',
-      async (value) => {
-        const config = await loadSandboxConfig({}, { sandbox: value });
-        expect(config).toEqual({ command: 'docker', image: 'default/image' });
-      },
-    );
+    it.each([true, 'true', '1'])('should enable sandbox for value: %s', async (value) => {
+      const config = await loadSandboxConfig({}, { sandbox: value });
+      expect(config).toEqual({ command: 'docker', image: 'default/image' });
+    });
 
-    it.each([false, 'false', '0', undefined, null, ''])(
-      'should disable sandbox for value: %s',
-      async (value) => {
-        // \`null\` is not a valid type for the arg, but good to test falsiness
-        const config = await loadSandboxConfig({}, { sandbox: value });
-        expect(config).toBeUndefined();
-      },
-    );
+    it.each([false, 'false', '0', undefined, null, ''])('should disable sandbox for value: %s', async (value) => {
+      // \`null\` is not a valid type for the arg, but good to test falsiness
+      const config = await loadSandboxConfig({}, { sandbox: value });
+      expect(config).toBeUndefined();
+    });
   });
 });

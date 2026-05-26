@@ -51,9 +51,7 @@ for (const [location, details] of Object.entries(packages)) {
     continue;
   }
   // 2) Git and file dependencies only need a "resolved" field.
-  const isGitOrFileDep =
-    details.resolved?.startsWith('git') ||
-    details.resolved?.startsWith('file:');
+  const isGitOrFileDep = details.resolved?.startsWith('git') || details.resolved?.startsWith('file:');
   if (isGitOrFileDep) {
     continue;
   }
@@ -64,7 +62,7 @@ for (const [location, details] of Object.entries(packages)) {
 
 if (invalidPackages.length > 0) {
   console.error(
-    '\nError: The following dependencies in package-lock.json are missing the "resolved" or "integrity" field:',
+    '\nError: The following dependencies in package-lock.json are missing the "resolved" or "integrity" field:'
   );
   invalidPackages.forEach((pkg) => console.error(`- ${pkg}`));
   process.exitCode = 1;

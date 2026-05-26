@@ -33,15 +33,11 @@ describe('ShowMoreLines', () => {
   ])(
     'renders nothing when: overflow=%s, streaming=%s, constrain=%s',
     (overflowingIds, streamingState, constrainHeight) => {
-      mockUseOverflowState.mockReturnValue({ overflowingIds } as NonNullable<
-        ReturnType<typeof useOverflowState>
-      >);
+      mockUseOverflowState.mockReturnValue({ overflowingIds } as NonNullable<ReturnType<typeof useOverflowState>>);
       mockUseStreamingContext.mockReturnValue(streamingState);
-      const { lastFrame } = render(
-        <ShowMoreLines constrainHeight={constrainHeight} />,
-      );
+      const { lastFrame } = render(<ShowMoreLines constrainHeight={constrainHeight} />);
       expect(lastFrame()).toBe('');
-    },
+    }
   );
 
   it.each([[StreamingState.Idle], [StreamingState.WaitingForConfirmation]])(
@@ -53,6 +49,6 @@ describe('ShowMoreLines', () => {
       mockUseStreamingContext.mockReturnValue(streamingState);
       const { lastFrame } = render(<ShowMoreLines constrainHeight={true} />);
       expect(lastFrame()).toContain('Press ctrl-o to show more lines');
-    },
+    }
   );
 });

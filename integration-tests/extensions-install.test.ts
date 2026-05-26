@@ -33,27 +33,16 @@ describe('extension install', () => {
     const testServerPath = join(rig.testDir!, 'gemini-extension.json');
     writeFileSync(testServerPath, extension);
     try {
-      const result = await rig.runCommand(
-        ['extensions', 'install', `${rig.testDir!}`],
-        { stdin: 'y\n' },
-      );
+      const result = await rig.runCommand(['extensions', 'install', `${rig.testDir!}`], { stdin: 'y\n' });
       expect(result).toContain('test-extension-install');
 
       const listResult = await rig.runCommand(['extensions', 'list']);
       expect(listResult).toContain('test-extension-install');
       writeFileSync(testServerPath, extensionUpdate);
-      const updateResult = await rig.runCommand([
-        'extensions',
-        'update',
-        `test-extension-install`,
-      ]);
+      const updateResult = await rig.runCommand(['extensions', 'update', `test-extension-install`]);
       expect(updateResult).toContain('0.0.2');
     } finally {
-      await rig.runCommand([
-        'extensions',
-        'uninstall',
-        'test-extension-install',
-      ]);
+      await rig.runCommand(['extensions', 'uninstall', 'test-extension-install']);
     }
   });
 });

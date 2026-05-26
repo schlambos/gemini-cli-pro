@@ -26,13 +26,11 @@ export async function handleUninstall(args: UninstallArgs) {
     if (result) {
       debugLogger.log(
         chalk.green(
-          `Successfully uninstalled skill: ${chalk.bold(name)} (scope: ${scope}, location: ${result.location})`,
-        ),
+          `Successfully uninstalled skill: ${chalk.bold(name)} (scope: ${scope}, location: ${result.location})`
+        )
       );
     } else {
-      debugLogger.error(
-        `Skill "${name}" is not installed in the ${scope} scope.`,
-      );
+      debugLogger.error(`Skill "${name}" is not installed in the ${scope} scope.`);
     }
   } catch (error) {
     debugLogger.error(getErrorMessage(error));
@@ -51,8 +49,7 @@ export const uninstallCommand: CommandModule = {
         demandOption: true,
       })
       .option('scope', {
-        describe:
-          'The scope to uninstall the skill from. Defaults to "user" (global).',
+        describe: 'The scope to uninstall the skill from. Defaults to "user" (global).',
         choices: ['user', 'workspace'],
         default: 'user',
       })

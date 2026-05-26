@@ -18,10 +18,7 @@ import { useUIState } from '../contexts/UIStateContext.js';
  * @param rootUiRef A ref to the root UI element.
  * @param terminalHeight The height of the terminal.
  */
-export function useFlickerDetector(
-  rootUiRef: React.RefObject<DOMElement | null>,
-  terminalHeight: number,
-) {
+export function useFlickerDetector(rootUiRef: React.RefObject<DOMElement | null>, terminalHeight: number) {
   const config = useConfig();
   const { constrainHeight } = useUIState();
 

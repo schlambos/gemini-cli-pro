@@ -123,9 +123,7 @@ describe('copyCommand', () => {
       content: 'Last output copied to the clipboard',
     });
 
-    expect(mockCopyToClipboard).toHaveBeenCalledWith(
-      'Hi there! How can I help you?',
-    );
+    expect(mockCopyToClipboard).toHaveBeenCalledWith('Hi there! How can I help you?');
   });
 
   it('should handle multiple text parts in AI message', async () => {

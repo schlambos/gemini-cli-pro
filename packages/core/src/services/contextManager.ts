@@ -45,14 +45,9 @@ export class ContextManager {
   private async discoverMemoryPaths(debugMode: boolean) {
     const [global, extension, project] = await Promise.all([
       getGlobalMemoryPaths(debugMode),
-      Promise.resolve(
-        getExtensionMemoryPaths(this.config.getExtensionLoader()),
-      ),
+      Promise.resolve(getExtensionMemoryPaths(this.config.getExtensionLoader())),
       this.config.isTrustedFolder()
-        ? getEnvironmentMemoryPaths(
-            [...this.config.getWorkspaceContext().getDirectories()],
-            debugMode,
-          )
+        ? getEnvironmentMemoryPaths([...this.config.getWorkspaceContext().getDirectories()], debugMode)
         : Promise.resolve([]),
     ]);
 
@@ -61,61 +56,38 @@ export class ContextManager {
 
   private async loadMemoryContents(
     paths: { global: string[]; extension: string[]; project: string[] },
-    debugMode: boolean,
+    debugMode: boolean
   ) {
-    const allPaths = Array.from(
-      new Set([...paths.global, ...paths.extension, ...paths.project]),
-    );
+    const allPaths = Array.from(new Set([...paths.global, ...paths.extension, ...paths.project]));
 
-    const allContents = await readGeminiMdFiles(
-      allPaths,
-      debugMode,
-      this.config.getImportFormat(),
-    );
+    const allContents = await readGeminiMdFiles(allPaths, debugMode, this.config.getImportFormat());
 
-    this.markAsLoaded(
-      allContents.filter((c) => c.content !== null).map((c) => c.filePath),
-    );
+    this.markAsLoaded(allContents.filter((c) => c.content !== null).map((c) => c.filePath));
 
     return new Map(allContents.map((c) => [c.filePath, c]));
   }
 
   private categorizeMemoryContents(
     paths: { global: string[]; extension: string[]; project: string[] },
-    contentsMap: Map<string, GeminiFileContent>,
+    contentsMap: Map<string, GeminiFileContent>
   ) {
     const workingDir = this.config.getWorkingDir();
-    const hierarchicalMemory = categorizeAndConcatenate(
-      paths,
-      contentsMap,
-      workingDir,
-    );
+    const hierarchicalMemory = categorizeAndConcatenate(paths, contentsMap, workingDir);
 
     this.globalMemory = hierarchicalMemory.global || '';
     this.extensionMemory = hierarchicalMemory.extension || '';
 
-    const mcpInstructions =
-      this.config.getMcpClientManager()?.getMcpInstructions() || '';
-    const projectMemoryWithMcp = [
-      hierarchicalMemory.project,
-      mcpInstructions.trimStart(),
-    ]
-      .filter(Boolean)
-      .join('\n\n');
+    const mcpInstructions = this.config.getMcpClientManager()?.getMcpInstructions() || '';
+    const projectMemoryWithMcp = [hierarchicalMemory.project, mcpInstructions.trimStart()].filter(Boolean).join('\n\n');
 
-    this.projectMemory = this.config.isTrustedFolder()
-      ? projectMemoryWithMcp
-      : '';
+    this.projectMemory = this.config.isTrustedFolder() ? projectMemoryWithMcp : '';
   }
 
   /**
    * Discovers and loads context for a specific accessed path (Tier 3 - JIT).
    * Traverses upwards from the accessed path to the project root.
    */
-  async discoverContext(
-    accessedPath: string,
-    trustedRoots: string[],
-  ): Promise<string> {
+  async discoverContext(accessedPath: string, trustedRoots: string[]): Promise<string> {
     if (!this.config.isTrustedFolder()) {
       return '';
     }
@@ -123,7 +95,7 @@ export class ContextManager {
       accessedPath,
       trustedRoots,
       this.loadedPaths,
-      this.config.getDebugMode(),
+      this.config.getDebugMode()
     );
 
     if (result.files.length === 0) {
@@ -133,7 +105,7 @@ export class ContextManager {
     this.markAsLoaded(result.files.map((f) => f.path));
     return concatenateInstructions(
       result.files.map((f) => ({ filePath: f.path, content: f.content })),
-      this.config.getWorkingDir(),
+      this.config.getWorkingDir()
     );
   }
 

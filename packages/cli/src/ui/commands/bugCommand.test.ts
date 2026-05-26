@@ -17,8 +17,7 @@ import { formatBytes } from '../utils/formatters.js';
 vi.mock('open');
 vi.mock('../utils/formatters.js');
 vi.mock('../utils/historyExportUtils.js', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('../utils/historyExportUtils.js')>();
+  const actual = await importOriginal<typeof import('../utils/historyExportUtils.js')>();
   return {
     ...actual,
     exportHistoryToFile: vi.fn(),
@@ -27,8 +26,7 @@ vi.mock('../utils/historyExportUtils.js', async (importOriginal) => {
 import { exportHistoryToFile } from '../utils/historyExportUtils.js';
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     IdeClient: {
@@ -146,10 +144,7 @@ describe('bugCommand', () => {
     if (!bugCommand.action) throw new Error('Action is not defined');
     await bugCommand.action(mockContext, 'Bug with history');
 
-    const expectedPath = path.join(
-      '/tmp/gemini',
-      'bug-report-history-1704067200000.json',
-    );
+    const expectedPath = path.join('/tmp/gemini', 'bug-report-history-1704067200000.json');
     expect(exportHistoryToFile).toHaveBeenCalledWith({
       history,
       filePath: expectedPath,
@@ -168,8 +163,7 @@ describe('bugCommand', () => {
   });
 
   it('should use a custom URL template from config if provided', async () => {
-    const customTemplate =
-      'https://internal.bug-tracker.com/new?desc={title}&details={info}';
+    const customTemplate = 'https://internal.bug-tracker.com/new?desc={title}&details={info}';
     const mockContext = createMockCommandContext({
       services: {
         config: {

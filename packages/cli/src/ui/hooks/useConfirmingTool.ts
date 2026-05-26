@@ -6,10 +6,7 @@
 
 import { useMemo } from 'react';
 import { useUIState } from '../contexts/UIStateContext.js';
-import {
-  type IndividualToolCallDisplay,
-  type HistoryItemToolGroup,
-} from '../types.js';
+import { type IndividualToolCallDisplay, type HistoryItemToolGroup } from '../types.js';
 import { CoreToolCallStatus } from '@google/gemini-cli-core';
 
 export interface ConfirmingToolState {
@@ -30,15 +27,11 @@ export function useConfirmingTool(): ConfirmingToolState | null {
   return useMemo(() => {
     // 1. Flatten all pending tools from all pending history groups
     const allPendingTools = pendingHistoryItems
-      .filter(
-        (item): item is HistoryItemToolGroup => item.type === 'tool_group',
-      )
+      .filter((item): item is HistoryItemToolGroup => item.type === 'tool_group')
       .flatMap((group) => group.tools);
 
     // 2. Filter for those requiring confirmation
-    const confirmingTools = allPendingTools.filter(
-      (t) => t.status === CoreToolCallStatus.AwaitingApproval,
-    );
+    const confirmingTools = allPendingTools.filter((t) => t.status === CoreToolCallStatus.AwaitingApproval);
 
     if (confirmingTools.length === 0) {
       return null;
@@ -49,9 +42,7 @@ export function useConfirmingTool(): ConfirmingToolState | null {
 
     // 4. Calculate progress based on the full tool list
     // This gives the user context of where they are in the current batch.
-    const headIndexInFullList = allPendingTools.findIndex(
-      (t) => t.callId === head.callId,
-    );
+    const headIndexInFullList = allPendingTools.findIndex((t) => t.callId === head.callId);
 
     return {
       tool: head,

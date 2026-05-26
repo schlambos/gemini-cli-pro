@@ -32,14 +32,12 @@ export function ScopeSelector({
     key: item.value,
   }));
 
-  const initialIndex = scopeItems.findIndex(
-    (item) => item.value === initialScope,
-  );
+  const initialIndex = scopeItems.findIndex((item) => item.value === initialScope);
   const safeInitialIndex = initialIndex >= 0 ? initialIndex : 0;
 
   return (
-    <Box flexDirection="column">
-      <Text bold={isFocused} wrap="truncate">
+    <Box flexDirection='column'>
+      <Text bold={isFocused} wrap='truncate'>
         {isFocused ? '> ' : '  '}Apply To
       </Text>
       <RadioButtonSelect

@@ -19,8 +19,7 @@ const mockLoggerInfo = vi.hoisted(() => vi.fn());
 const mockGetCheckpointInfoList = vi.hoisted(() => vi.fn());
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const original =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const original = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...original,
     performRestore: mockPerformRestore,
@@ -78,7 +77,7 @@ describe('RestoreCommand', () => {
     mockPerformRestore.mockReturnValue(
       (async function* () {
         yield restoreContent;
-      })(),
+      })()
     );
     const result = await command.execute(mockConfig, ['checkpoint1.json']);
     expect(result.data).toEqual([restoreContent]);
@@ -101,9 +100,7 @@ describe('RestoreCommand', () => {
     const command = new RestoreCommand();
     mockFs.readFile.mockResolvedValue('invalid json');
     const result = await command.execute(mockConfig, ['checkpoint1.json']);
-    expect((result.data as { content: string }).content).toContain(
-      'An unexpected error occurred during restore.',
-    );
+    expect((result.data as { content: string }).content).toContain('An unexpected error occurred during restore.');
   });
 });
 
@@ -116,14 +113,10 @@ describe('ListCheckpointsCommand', () => {
     const command = new ListCheckpointsCommand();
     const checkpointInfo = [{ file: 'checkpoint1.json', description: 'Test' }];
     mockFs.readdir.mockResolvedValue(['checkpoint1.json']);
-    mockFs.readFile.mockResolvedValue(
-      JSON.stringify({ toolCall: { name: 'Test', args: {} } }),
-    );
+    mockFs.readFile.mockResolvedValue(JSON.stringify({ toolCall: { name: 'Test', args: {} } }));
     mockGetCheckpointInfoList.mockReturnValue(checkpointInfo);
     const result = await command.execute(mockConfig);
-    expect((result.data as { content: string }).content).toEqual(
-      JSON.stringify(checkpointInfo),
-    );
+    expect((result.data as { content: string }).content).toEqual(JSON.stringify(checkpointInfo));
   });
 
   it('should handle errors when listing checkpoints', async () => {
@@ -131,7 +124,7 @@ describe('ListCheckpointsCommand', () => {
     mockFs.readdir.mockRejectedValue(new Error('Read error'));
     const result = await command.execute(mockConfig);
     expect((result.data as { content: string }).content).toContain(
-      'An unexpected error occurred while listing checkpoints.',
+      'An unexpected error occurred while listing checkpoints.'
     );
   });
 });

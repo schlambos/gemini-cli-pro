@@ -4,13 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  useCallback,
-  useMemo,
-  useEffect,
-  useState,
-  createElement,
-} from 'react';
+import { useCallback, useMemo, useEffect, useState, createElement } from 'react';
 import { type PartListUnion } from '@google/genai';
 import process from 'node:process';
 import type { UseHistoryManagerReturn } from './useHistoryManager.js';
@@ -53,14 +47,8 @@ import { BuiltinCommandLoader } from '../../services/BuiltinCommandLoader.js';
 import { FileCommandLoader } from '../../services/FileCommandLoader.js';
 import { McpPromptLoader } from '../../services/McpPromptLoader.js';
 import { parseSlashCommand } from '../../utils/commands.js';
-import {
-  type ExtensionUpdateAction,
-  type ExtensionUpdateStatus,
-} from '../state/extensions.js';
-import {
-  LogoutConfirmationDialog,
-  LogoutChoice,
-} from '../components/LogoutConfirmationDialog.js';
+import { type ExtensionUpdateAction, type ExtensionUpdateStatus } from '../state/extensions.js';
+import { LogoutConfirmationDialog, LogoutChoice } from '../components/LogoutConfirmationDialog.js';
 import { runExitCleanup } from '../../utils/cleanup.js';
 
 interface SlashCommandProcessorActions {
@@ -71,11 +59,7 @@ interface SlashCommandProcessorActions {
   openSettingsDialog: () => void;
   openSessionBrowser: () => void;
   openModelDialog: () => void;
-  openAgentConfigDialog: (
-    name: string,
-    displayName: string,
-    definition: AgentDefinition,
-  ) => void;
+  openAgentConfigDialog: (name: string, displayName: string, definition: AgentDefinition) => void;
   openPermissionsDialog: (props?: { targetDirectory?: string }) => void;
   quit: (messages: HistoryItem[]) => void;
   setDebugMessage: (message: string) => void;
@@ -104,12 +88,10 @@ export const useSlashCommandProcessor = (
   extensionsUpdateState: Map<string, ExtensionUpdateStatus>,
   isConfigInitialized: boolean,
   setBannerVisible: (visible: boolean) => void,
-  setCustomDialog: (dialog: React.ReactNode | null) => void,
+  setCustomDialog: (dialog: React.ReactNode | null) => void
 ) => {
   const session = useSessionStats();
-  const [commands, setCommands] = useState<readonly SlashCommand[] | undefined>(
-    undefined,
-  );
+  const [commands, setCommands] = useState<readonly SlashCommand[] | undefined>(undefined);
   const [reloadTrigger, setReloadTrigger] = useState(0);
 
   const reloadCommands = useCallback(() => {
@@ -120,9 +102,7 @@ export const useSlashCommandProcessor = (
     onConfirm: (confirmed: boolean) => void;
   }>(null);
 
-  const [sessionShellAllowlist, setSessionShellAllowlist] = useState(
-    new Set<string>(),
-  );
+  const [sessionShellAllowlist, setSessionShellAllowlist] = useState(new Set<string>());
   const gitService = useMemo(() => {
     if (!config?.getProjectRoot()) {
       return;
@@ -131,18 +111,13 @@ export const useSlashCommandProcessor = (
   }, [config]);
 
   const logger = useMemo(() => {
-    const l = new Logger(
-      config?.getSessionId() || '',
-      config?.storage ?? new Storage(process.cwd()),
-    );
+    const l = new Logger(config?.getSessionId() || '', config?.storage ?? new Storage(process.cwd()));
     // The logger's initialize is async, but we can create the instance
     // synchronously. Commands that use it will await its initialization.
     return l;
   }, [config]);
 
-  const [pendingItem, setPendingItem] = useState<HistoryItemWithoutId | null>(
-    null,
-  );
+  const [pendingItem, setPendingItem] = useState<HistoryItemWithoutId | null>(null);
 
   const pendingHistoryItems = useMemo(() => {
     const items: HistoryItemWithoutId[] = [];
@@ -203,7 +178,7 @@ export const useSlashCommandProcessor = (
       }
       addItem(historyItemContent, message.timestamp.getTime());
     },
-    [addItem],
+    [addItem]
   );
   const commandContext = useMemo(
     (): CommandContext => ({
@@ -237,8 +212,7 @@ export const useSlashCommandProcessor = (
         openAgentConfigDialog: actions.openAgentConfigDialog,
         extensionsUpdateState,
         dispatchExtensionStateUpdate: actions.dispatchExtensionStateUpdate,
-        addConfirmUpdateExtensionRequest:
-          actions.addConfirmUpdateExtensionRequest,
+        addConfirmUpdateExtensionRequest: actions.addConfirmUpdateExtensionRequest,
         setConfirmationRequest,
         removeComponent: () => setCustomDialog(null),
         toggleBackgroundShell: actions.toggleBackgroundShell,
@@ -269,7 +243,7 @@ export const useSlashCommandProcessor = (
       extensionsUpdateState,
       setBannerVisible,
       setCustomDialog,
-    ],
+    ]
   );
 
   useEffect(() => {
@@ -295,9 +269,7 @@ export const useSlashCommandProcessor = (
     // but the CommandService today is not conducive to that since it isn't a
     // long lived service but instead gets fully re-created based on reload
     // events within this hook.
-    const extensionEventListener = (
-      _event: ExtensionsStartingEvent | ExtensionsStoppingEvent,
-    ) => {
+    const extensionEventListener = (_event: ExtensionsStartingEvent | ExtensionsStoppingEvent) => {
       // We only care once at least one extension has completed
       // starting/stopping
       reloadCommands();
@@ -323,12 +295,8 @@ export const useSlashCommandProcessor = (
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     (async () => {
       const commandService = await CommandService.create(
-        [
-          new McpPromptLoader(config),
-          new BuiltinCommandLoader(config),
-          new FileCommandLoader(config),
-        ],
-        controller.signal,
+        [new McpPromptLoader(config), new BuiltinCommandLoader(config), new FileCommandLoader(config)],
+        controller.signal
       );
 
       if (controller.signal.aborted) {
@@ -348,7 +316,7 @@ export const useSlashCommandProcessor = (
       rawQuery: PartListUnion,
       oneTimeShellAllowlist?: Set<string>,
       overwriteConfirmed?: boolean,
-      addToHistory: boolean = true,
+      addToHistory: boolean = true
     ): Promise<SlashCommandProcessorResult | false> => {
       if (!commands) {
         return false;
@@ -366,23 +334,13 @@ export const useSlashCommandProcessor = (
 
       if (addToHistory) {
         const userMessageTimestamp = Date.now();
-        addItem(
-          { type: MessageType.USER, text: trimmed },
-          userMessageTimestamp,
-        );
+        addItem({ type: MessageType.USER, text: trimmed }, userMessageTimestamp);
       }
 
       let hasError = false;
-      const {
-        commandToExecute,
-        args,
-        canonicalPath: resolvedCommandPath,
-      } = parseSlashCommand(trimmed, commands);
+      const { commandToExecute, args, canonicalPath: resolvedCommandPath } = parseSlashCommand(trimmed, commands);
 
-      const subcommand =
-        resolvedCommandPath.length > 1
-          ? resolvedCommandPath.slice(1).join(' ')
-          : undefined;
+      const subcommand = resolvedCommandPath.length > 1 ? resolvedCommandPath.slice(1).join(' ') : undefined;
 
       try {
         if (commandToExecute) {
@@ -408,10 +366,7 @@ export const useSlashCommandProcessor = (
                 ]),
               };
             }
-            const result = await commandToExecute.action(
-              fullCommandContext,
-              args,
-            );
+            const result = await commandToExecute.action(fullCommandContext, args);
 
             if (result) {
               switch (result.type) {
@@ -424,13 +379,10 @@ export const useSlashCommandProcessor = (
                 case 'message':
                   addItem(
                     {
-                      type:
-                        result.messageType === 'error'
-                          ? MessageType.ERROR
-                          : MessageType.INFO,
+                      type: result.messageType === 'error' ? MessageType.ERROR : MessageType.INFO,
                       text: result.content,
                     },
-                    Date.now(),
+                    Date.now()
                   );
                   return { type: 'handled' };
                 case 'logout':
@@ -446,7 +398,7 @@ export const useSlashCommandProcessor = (
                           process.exit(0);
                         }
                       },
-                    }),
+                    })
                   );
                   return { type: 'handled' };
                 case 'dialog':
@@ -481,32 +433,28 @@ export const useSlashCommandProcessor = (
                         typeof props['displayName'] !== 'string' ||
                         !props['definition']
                       ) {
-                        throw new Error(
-                          'Received invalid properties for agentConfig dialog action.',
-                        );
+                        throw new Error('Received invalid properties for agentConfig dialog action.');
                       }
 
                       actions.openAgentConfigDialog(
                         props['name'],
                         props['displayName'],
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-                        props['definition'] as AgentDefinition,
+                        props['definition'] as AgentDefinition
                       );
                       return { type: 'handled' };
                     }
                     case 'permissions':
                       actions.openPermissionsDialog(
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-                        result.props as { targetDirectory?: string },
+                        result.props as { targetDirectory?: string }
                       );
                       return { type: 'handled' };
                     case 'help':
                       return { type: 'handled' };
                     default: {
                       const unhandled: never = result.dialog;
-                      throw new Error(
-                        `Unhandled slash command result: ${unhandled}`,
-                      );
+                      throw new Error(`Unhandled slash command result: ${unhandled}`);
                     }
                   }
                 case 'load_history': {
@@ -544,9 +492,7 @@ export const useSlashCommandProcessor = (
                         resolve({
                           outcome: resolvedOutcome,
                           approvedCommands:
-                            resolvedOutcome === ToolConfirmationOutcome.Cancel
-                              ? []
-                              : result.commandsToConfirm,
+                            resolvedOutcome === ToolConfirmationOutcome.Cancel ? [] : result.commandsToConfirm,
                         });
                       },
                     };
@@ -578,15 +524,13 @@ export const useSlashCommandProcessor = (
                         type: MessageType.INFO,
                         text: 'Slash command shell execution declined.',
                       },
-                      Date.now(),
+                      Date.now()
                     );
                     return { type: 'handled' };
                   }
 
                   if (outcome === ToolConfirmationOutcome.ProceedAlways) {
-                    setSessionShellAllowlist(
-                      (prev) => new Set([...prev, ...approvedCommands]),
-                    );
+                    setSessionShellAllowlist((prev) => new Set([...prev, ...approvedCommands]));
                   }
 
                   return await handleSlashCommand(
@@ -594,7 +538,7 @@ export const useSlashCommandProcessor = (
                     // Pass the approved commands as a one-time grant for this execution.
                     new Set(approvedCommands),
                     undefined,
-                    false, // Do not add to history again
+                    false // Do not add to history again
                   );
                 }
                 case 'confirm_action': {
@@ -616,16 +560,12 @@ export const useSlashCommandProcessor = (
                         type: MessageType.INFO,
                         text: 'Operation cancelled.',
                       },
-                      Date.now(),
+                      Date.now()
                     );
                     return { type: 'handled' };
                   }
 
-                  return await handleSlashCommand(
-                    result.originalInvocation.raw,
-                    undefined,
-                    true,
-                  );
+                  return await handleSlashCommand(result.originalInvocation.raw, undefined, true);
                 }
                 case 'custom_dialog': {
                   setCustomDialog(result.component);
@@ -633,9 +573,7 @@ export const useSlashCommandProcessor = (
                 }
                 default: {
                   const unhandled: never = result;
-                  throw new Error(
-                    `Unhandled slash command result: ${unhandled}`,
-                  );
+                  throw new Error(`Unhandled slash command result: ${unhandled}`);
                 }
               }
             }
@@ -654,9 +592,7 @@ export const useSlashCommandProcessor = (
           }
         }
 
-        const isMcpLoading =
-          config?.getMcpClientManager()?.getDiscoveryState() ===
-          MCPDiscoveryState.IN_PROGRESS;
+        const isMcpLoading = config?.getMcpClientManager()?.getDiscoveryState() === MCPDiscoveryState.IN_PROGRESS;
         const errorMessage = isMcpLoading
           ? `Unknown command: ${trimmed}. Command might have been from an MCP server but MCP servers are not done loading.`
           : `Unknown command: ${trimmed}`;
@@ -684,7 +620,7 @@ export const useSlashCommandProcessor = (
             type: MessageType.ERROR,
             text: e instanceof Error ? e.message : String(e),
           },
-          Date.now(),
+          Date.now()
         );
         return { type: 'handled' };
       } finally {
@@ -711,7 +647,7 @@ export const useSlashCommandProcessor = (
       setIsProcessing,
       setConfirmationRequest,
       setCustomDialog,
-    ],
+    ]
   );
 
   return {

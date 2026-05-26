@@ -28,8 +28,7 @@ vi.mock('node:os', async (importOriginal) => {
 });
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   const path = await import('node:path');
   const os = await import('node:os');
   return {
@@ -45,10 +44,7 @@ vi.mock('@google/gemini-cli-core', async (importOriginal) => {
 
 describe('loadSettings', () => {
   const mockHomeDir = path.join(os.tmpdir(), `gemini-home-${mocks.suffix}`);
-  const mockWorkspaceDir = path.join(
-    os.tmpdir(),
-    `gemini-workspace-${mocks.suffix}`,
-  );
+  const mockWorkspaceDir = path.join(os.tmpdir(), `gemini-workspace-${mocks.suffix}`);
   const mockGeminiHomeDir = path.join(mockHomeDir, '.gemini');
   const mockGeminiWorkspaceDir = path.join(mockWorkspaceDir, '.gemini');
 
@@ -66,10 +62,7 @@ describe('loadSettings', () => {
     if (fs.existsSync(USER_SETTINGS_PATH)) {
       fs.rmSync(USER_SETTINGS_PATH);
     }
-    const workspaceSettingsPath = path.join(
-      mockGeminiWorkspaceDir,
-      'settings.json',
-    );
+    const workspaceSettingsPath = path.join(mockGeminiWorkspaceDir, 'settings.json');
     if (fs.existsSync(workspaceSettingsPath)) {
       fs.rmSync(workspaceSettingsPath);
     }
@@ -128,10 +121,7 @@ describe('loadSettings', () => {
         respectGitIgnore: false,
       },
     };
-    const workspaceSettingsPath = path.join(
-      mockGeminiWorkspaceDir,
-      'settings.json',
-    );
+    const workspaceSettingsPath = path.join(mockGeminiWorkspaceDir, 'settings.json');
     fs.writeFileSync(workspaceSettingsPath, JSON.stringify(workspaceSettings));
 
     const result = loadSettings(mockWorkspaceDir);

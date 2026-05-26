@@ -20,9 +20,7 @@ export interface SecurityCheckResult {
  * @param dirPath The path to the directory to check.
  * @returns A promise that resolves to a SecurityCheckResult.
  */
-export async function isDirectorySecure(
-  dirPath: string,
-): Promise<SecurityCheckResult> {
+export async function isDirectorySecure(dirPath: string): Promise<SecurityCheckResult> {
   try {
     const stats = await fs.stat(dirPath);
 
@@ -47,12 +45,7 @@ export async function isDirectorySecure(
           Write-Output ($insecureIdentity -join ', ');
         `;
 
-        const { stdout } = await spawnAsync('powershell', [
-          '-NoProfile',
-          '-NonInteractive',
-          '-Command',
-          script,
-        ]);
+        const { stdout } = await spawnAsync('powershell', ['-NoProfile', '-NonInteractive', '-Command', script]);
 
         const insecureGroups = stdout.trim();
         if (insecureGroups) {
@@ -87,7 +80,7 @@ export async function isDirectorySecure(
       return {
         secure: false,
         reason: `Directory '${dirPath}' is writable by group or others (mode: ${mode.toString(
-          8,
+          8
         )}). To fix this, run: sudo chmod g-w,o-w "${dirPath}"`,
       };
     }

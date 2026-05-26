@@ -48,8 +48,7 @@ describe('terminalSetupCommand', () => {
 
     expect(result).toEqual({
       type: 'message',
-      content:
-        'Terminal configured successfully\n\nPlease restart your terminal for the changes to take effect.',
+      content: 'Terminal configured successfully\n\nPlease restart your terminal for the changes to take effect.',
       messageType: 'info',
     });
   });
@@ -70,9 +69,7 @@ describe('terminalSetupCommand', () => {
   });
 
   it('should handle exceptions from terminal setup', async () => {
-    vi.spyOn(terminalSetupModule, 'terminalSetup').mockRejectedValue(
-      new Error('Unexpected error'),
-    );
+    vi.spyOn(terminalSetupModule, 'terminalSetup').mockRejectedValue(new Error('Unexpected error'));
 
     const result = await terminalSetupCommand.action!({} as CommandContext, '');
 

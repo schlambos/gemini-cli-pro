@@ -54,10 +54,7 @@ describe('parseSlashCommand', () => {
   });
 
   it('should parse a simple command with arguments', () => {
-    const result = parseSlashCommand(
-      '/commit -m "Initial commit"',
-      mockCommands,
-    );
+    const result = parseSlashCommand('/commit -m "Initial commit"', mockCommands);
     expect(result.commandToExecute?.name).toBe('commit');
     expect(result.args).toBe('-m "Initial commit"');
     expect(result.canonicalPath).toEqual(['commit']);
@@ -71,10 +68,7 @@ describe('parseSlashCommand', () => {
   });
 
   it('should parse a subcommand with arguments', () => {
-    const result = parseSlashCommand(
-      '/memory add some important data',
-      mockCommands,
-    );
+    const result = parseSlashCommand('/memory add some important data', mockCommands);
     expect(result.commandToExecute?.name).toBe('add');
     expect(result.args).toBe('some important data');
     expect(result.canonicalPath).toEqual(['memory', 'add']);
@@ -102,20 +96,14 @@ describe('parseSlashCommand', () => {
   });
 
   it('should return the parent command if subcommand is unknown', () => {
-    const result = parseSlashCommand(
-      '/memory unknownsub some args',
-      mockCommands,
-    );
+    const result = parseSlashCommand('/memory unknownsub some args', mockCommands);
     expect(result.commandToExecute?.name).toBe('memory');
     expect(result.args).toBe('unknownsub some args');
     expect(result.canonicalPath).toEqual(['memory']);
   });
 
   it('should handle extra whitespace', () => {
-    const result = parseSlashCommand(
-      '  /memory   add  some data  ',
-      mockCommands,
-    );
+    const result = parseSlashCommand('  /memory   add  some data  ', mockCommands);
     expect(result.commandToExecute?.name).toBe('add');
     expect(result.args).toBe('some data');
     expect(result.canonicalPath).toEqual(['memory', 'add']);

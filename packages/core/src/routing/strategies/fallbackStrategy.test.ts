@@ -10,11 +10,7 @@ import type { RoutingContext } from '../routingStrategy.js';
 import type { BaseLlmClient } from '../../core/baseLlmClient.js';
 import type { Config } from '../../config/config.js';
 import type { ModelAvailabilityService } from '../../availability/modelAvailabilityService.js';
-import {
-  DEFAULT_GEMINI_MODEL,
-  DEFAULT_GEMINI_FLASH_MODEL,
-  DEFAULT_GEMINI_MODEL_AUTO,
-} from '../../config/models.js';
+import { DEFAULT_GEMINI_MODEL, DEFAULT_GEMINI_FLASH_MODEL, DEFAULT_GEMINI_MODEL_AUTO } from '../../config/models.js';
 import { selectModelForAvailability } from '../../availability/policyHelpers.js';
 
 vi.mock('../../availability/policyHelpers.js', () => ({
@@ -91,9 +87,7 @@ describe('FallbackStrategy', () => {
     expect(decision).not.toBeNull();
     expect(decision?.model).toBe(DEFAULT_GEMINI_FLASH_MODEL);
     expect(decision?.metadata.source).toBe('fallback');
-    expect(decision?.metadata.reasoning).toContain(
-      `Model ${DEFAULT_GEMINI_MODEL} is unavailable`,
-    );
+    expect(decision?.metadata.reasoning).toContain(`Model ${DEFAULT_GEMINI_MODEL} is unavailable`);
   });
 
   it('should correctly handle "auto" alias by resolving it before checking availability', async () => {
@@ -118,11 +112,7 @@ describe('FallbackStrategy', () => {
       requestedModel,
     } as RoutingContext;
 
-    const decision = await strategy.route(
-      contextWithRequestedModel,
-      mockConfig,
-      mockClient,
-    );
+    const decision = await strategy.route(contextWithRequestedModel, mockConfig, mockClient);
 
     expect(decision).toBeNull();
     // Should check availability of the requested model from context

@@ -52,8 +52,7 @@ vi.mock('../themes/theme-manager.js', async () => {
   return {
     ...actual,
     themeManager: {
-      isDefaultTheme: (name: string) =>
-        name === 'default' || name === 'default-light',
+      isDefaultTheme: (name: string) => name === 'default' || name === 'default-light',
       setTerminalBackground: vi.fn(),
     },
     DEFAULT_THEME: { name: 'default' },
@@ -96,9 +95,7 @@ describe('useTerminalTheme', () => {
   });
 
   it('should unsubscribe on unmount', () => {
-    const { unmount } = renderHook(() =>
-      useTerminalTheme(mockHandleThemeSelect, config, vi.fn()),
-    );
+    const { unmount } = renderHook(() => useTerminalTheme(mockHandleThemeSelect, config, vi.fn()));
     unmount();
     expect(mockUnsubscribe).toHaveBeenCalled();
   });
@@ -120,9 +117,7 @@ describe('useTerminalTheme', () => {
 
   it('should switch to light theme when background is light and not call refreshStatic directly', () => {
     const refreshStatic = vi.fn();
-    renderHook(() =>
-      useTerminalTheme(mockHandleThemeSelect, config, refreshStatic),
-    );
+    renderHook(() => useTerminalTheme(mockHandleThemeSelect, config, refreshStatic));
 
     const handler = mockSubscribe.mock.calls[0][0];
 
@@ -131,10 +126,7 @@ describe('useTerminalTheme', () => {
     expect(config.setTerminalBackground).toHaveBeenCalledWith('#ffffff');
     expect(themeManager.setTerminalBackground).toHaveBeenCalledWith('#ffffff');
     expect(refreshStatic).not.toHaveBeenCalled();
-    expect(mockHandleThemeSelect).toHaveBeenCalledWith(
-      'default-light',
-      expect.anything(),
-    );
+    expect(mockHandleThemeSelect).toHaveBeenCalledWith('default-light', expect.anything());
   });
 
   it('should switch to dark theme when background is dark', () => {
@@ -143,9 +135,7 @@ describe('useTerminalTheme', () => {
     config.setTerminalBackground('#ffffff');
 
     const refreshStatic = vi.fn();
-    renderHook(() =>
-      useTerminalTheme(mockHandleThemeSelect, config, refreshStatic),
-    );
+    renderHook(() => useTerminalTheme(mockHandleThemeSelect, config, refreshStatic));
 
     const handler = mockSubscribe.mock.calls[0][0];
 
@@ -154,19 +144,14 @@ describe('useTerminalTheme', () => {
     expect(config.setTerminalBackground).toHaveBeenCalledWith('#000000');
     expect(themeManager.setTerminalBackground).toHaveBeenCalledWith('#000000');
     expect(refreshStatic).not.toHaveBeenCalled();
-    expect(mockHandleThemeSelect).toHaveBeenCalledWith(
-      'default',
-      expect.anything(),
-    );
+    expect(mockHandleThemeSelect).toHaveBeenCalledWith('default', expect.anything());
 
     mockSettings.merged.ui.theme = 'default';
   });
 
   it('should not update config or call refreshStatic on repeated identical background reports', () => {
     const refreshStatic = vi.fn();
-    renderHook(() =>
-      useTerminalTheme(mockHandleThemeSelect, config, refreshStatic),
-    );
+    renderHook(() => useTerminalTheme(mockHandleThemeSelect, config, refreshStatic));
 
     const handler = mockSubscribe.mock.calls[0][0];
 

@@ -17,9 +17,7 @@ import { spawnAsync as mockSpawnAsync } from '@google/gemini-cli-core';
 
 // Mock @google/gemini-cli-core
 vi.mock('@google/gemini-cli-core', async () => {
-  const original = await vi.importActual<
-    typeof import('@google/gemini-cli-core')
-  >('@google/gemini-cli-core');
+  const original = await vi.importActual<typeof import('@google/gemini-cli-core')>('@google/gemini-cli-core');
   return {
     ...original,
     spawnAsync: vi.fn(),
@@ -74,11 +72,9 @@ describe('useGitBranchName', () => {
   };
 
   it('should return branch name', async () => {
-    (mockSpawnAsync as MockedFunction<typeof mockSpawnAsync>).mockResolvedValue(
-      {
-        stdout: 'main\n',
-      } as { stdout: string; stderr: string },
-    );
+    (mockSpawnAsync as MockedFunction<typeof mockSpawnAsync>).mockResolvedValue({
+      stdout: 'main\n',
+    } as { stdout: string; stderr: string });
     const { result, rerender } = renderGitBranchNameHook(CWD);
 
     await act(async () => {
@@ -89,9 +85,7 @@ describe('useGitBranchName', () => {
   });
 
   it('should return undefined if git command fails', async () => {
-    (mockSpawnAsync as MockedFunction<typeof mockSpawnAsync>).mockRejectedValue(
-      new Error('Git error'),
-    );
+    (mockSpawnAsync as MockedFunction<typeof mockSpawnAsync>).mockRejectedValue(new Error('Git error'));
 
     const { result, rerender } = renderGitBranchNameHook(CWD);
     expect(result.current).toBeUndefined();
@@ -103,16 +97,16 @@ describe('useGitBranchName', () => {
   });
 
   it('should return short commit hash if branch is HEAD (detached state)', async () => {
-    (
-      mockSpawnAsync as MockedFunction<typeof mockSpawnAsync>
-    ).mockImplementation(async (command: string, args: string[]) => {
-      if (args.includes('--abbrev-ref')) {
-        return { stdout: 'HEAD\n' } as { stdout: string; stderr: string };
-      } else if (args.includes('--short')) {
-        return { stdout: 'a1b2c3d\n' } as { stdout: string; stderr: string };
+    (mockSpawnAsync as MockedFunction<typeof mockSpawnAsync>).mockImplementation(
+      async (command: string, args: string[]) => {
+        if (args.includes('--abbrev-ref')) {
+          return { stdout: 'HEAD\n' } as { stdout: string; stderr: string };
+        } else if (args.includes('--short')) {
+          return { stdout: 'a1b2c3d\n' } as { stdout: string; stderr: string };
+        }
+        return { stdout: '' } as { stdout: string; stderr: string };
       }
-      return { stdout: '' } as { stdout: string; stderr: string };
-    });
+    );
 
     const { result, rerender } = renderGitBranchNameHook(CWD);
     await act(async () => {
@@ -122,16 +116,16 @@ describe('useGitBranchName', () => {
   });
 
   it('should return undefined if branch is HEAD and getting commit hash fails', async () => {
-    (
-      mockSpawnAsync as MockedFunction<typeof mockSpawnAsync>
-    ).mockImplementation(async (command: string, args: string[]) => {
-      if (args.includes('--abbrev-ref')) {
-        return { stdout: 'HEAD\n' } as { stdout: string; stderr: string };
-      } else if (args.includes('--short')) {
-        throw new Error('Git error');
+    (mockSpawnAsync as MockedFunction<typeof mockSpawnAsync>).mockImplementation(
+      async (command: string, args: string[]) => {
+        if (args.includes('--abbrev-ref')) {
+          return { stdout: 'HEAD\n' } as { stdout: string; stderr: string };
+        } else if (args.includes('--short')) {
+          throw new Error('Git error');
+        }
+        return { stdout: '' } as { stdout: string; stderr: string };
       }
-      return { stdout: '' } as { stdout: string; stderr: string };
-    });
+    );
 
     const { result, rerender } = renderGitBranchNameHook(CWD);
     await act(async () => {
@@ -181,11 +175,9 @@ describe('useGitBranchName', () => {
     // Remove .git/logs/HEAD to cause an error in fs.watch setup
     vol.unlinkSync(GIT_LOGS_HEAD_PATH);
 
-    (mockSpawnAsync as MockedFunction<typeof mockSpawnAsync>).mockResolvedValue(
-      {
-        stdout: 'main\n',
-      } as { stdout: string; stderr: string },
-    );
+    (mockSpawnAsync as MockedFunction<typeof mockSpawnAsync>).mockResolvedValue({
+      stdout: 'main\n',
+    } as { stdout: string; stderr: string });
 
     const { result, rerender } = renderGitBranchNameHook(CWD);
 
@@ -195,9 +187,7 @@ describe('useGitBranchName', () => {
 
     expect(result.current).toBe('main'); // Branch name should still be fetched initially
 
-    (
-      mockSpawnAsync as MockedFunction<typeof mockSpawnAsync>
-    ).mockResolvedValueOnce({
+    (mockSpawnAsync as MockedFunction<typeof mockSpawnAsync>).mockResolvedValueOnce({
       stdout: 'develop\n',
     } as { stdout: string; stderr: string });
 
@@ -224,11 +214,9 @@ describe('useGitBranchName', () => {
       close: closeMock,
     } as unknown as ReturnType<typeof fs.watch>);
 
-    (mockSpawnAsync as MockedFunction<typeof mockSpawnAsync>).mockResolvedValue(
-      {
-        stdout: 'main\n',
-      } as { stdout: string; stderr: string },
-    );
+    (mockSpawnAsync as MockedFunction<typeof mockSpawnAsync>).mockResolvedValue({
+      stdout: 'main\n',
+    } as { stdout: string; stderr: string });
 
     const { unmount, rerender } = renderGitBranchNameHook(CWD);
 
@@ -238,10 +226,7 @@ describe('useGitBranchName', () => {
 
     // Wait for watcher to be set up BEFORE unmounting
     await waitFor(() => {
-      expect(watchMock).toHaveBeenCalledWith(
-        GIT_LOGS_HEAD_PATH,
-        expect.any(Function),
-      );
+      expect(watchMock).toHaveBeenCalledWith(GIT_LOGS_HEAD_PATH, expect.any(Function));
     });
 
     unmount();

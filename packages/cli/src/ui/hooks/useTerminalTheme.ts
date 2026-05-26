@@ -5,11 +5,7 @@
  */
 
 import { useEffect } from 'react';
-import {
-  getLuminance,
-  parseColor,
-  shouldSwitchTheme,
-} from '../themes/color-utils.js';
+import { getLuminance, parseColor, shouldSwitchTheme } from '../themes/color-utils.js';
 import { themeManager, DEFAULT_THEME } from '../themes/theme-manager.js';
 import { DefaultLight } from '../themes/default-light.js';
 import { useSettings } from '../contexts/SettingsContext.js';
@@ -21,11 +17,10 @@ import type { UIActions } from '../contexts/UIActionsContext.js';
 export function useTerminalTheme(
   handleThemeSelect: UIActions['handleThemeSelect'],
   config: Config,
-  refreshStatic: () => void,
+  refreshStatic: () => void
 ) {
   const settings = useSettings();
-  const { subscribe, unsubscribe, queryTerminalBackground } =
-    useTerminalContext();
+  const { subscribe, unsubscribe, queryTerminalBackground } = useTerminalContext();
 
   useEffect(() => {
     if (settings.merged.ui.autoThemeSwitching === false) {
@@ -49,10 +44,7 @@ export function useTerminalTheme(
 
     const handleTerminalBackground = (colorStr: string) => {
       // Parse the response "rgb:rrrr/gggg/bbbb"
-      const match =
-        /^rgb:([0-9a-fA-F]{1,4})\/([0-9a-fA-F]{1,4})\/([0-9a-fA-F]{1,4})$/.exec(
-          colorStr,
-        );
+      const match = /^rgb:([0-9a-fA-F]{1,4})\/([0-9a-fA-F]{1,4})\/([0-9a-fA-F]{1,4})$/.exec(colorStr);
       if (!match) return;
 
       const hexColor = parseColor(match[1], match[2], match[3]);
@@ -70,12 +62,7 @@ export function useTerminalTheme(
       const luminance = getLuminance(hexColor);
       const currentThemeName = settings.merged.ui.theme;
 
-      const newTheme = shouldSwitchTheme(
-        currentThemeName,
-        luminance,
-        DEFAULT_THEME.name,
-        DefaultLight.name,
-      );
+      const newTheme = shouldSwitchTheme(currentThemeName, luminance, DEFAULT_THEME.name, DefaultLight.name);
 
       if (newTheme) {
         void handleThemeSelect(newTheme, SettingScope.User);

@@ -5,27 +5,16 @@
  */
 
 import { useState, useCallback } from 'react';
-import type {
-  ConversationRecord,
-  MessageRecord,
-} from '@google/gemini-cli-core';
-import {
-  calculateTurnStats,
-  calculateRewindImpact,
-  type FileChangeStats,
-} from '../utils/rewindFileOps.js';
+import type { ConversationRecord, MessageRecord } from '@google/gemini-cli-core';
+import { calculateTurnStats, calculateRewindImpact, type FileChangeStats } from '../utils/rewindFileOps.js';
 
 export function useRewind(conversation: ConversationRecord) {
-  const [selectedMessageId, setSelectedMessageId] = useState<string | null>(
-    null,
-  );
-  const [confirmationStats, setConfirmationStats] =
-    useState<FileChangeStats | null>(null);
+  const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
+  const [confirmationStats, setConfirmationStats] = useState<FileChangeStats | null>(null);
 
   const getStats = useCallback(
-    (userMessage: MessageRecord) =>
-      calculateTurnStats(conversation, userMessage),
-    [conversation],
+    (userMessage: MessageRecord) => calculateTurnStats(conversation, userMessage),
+    [conversation]
   );
 
   const selectMessage = useCallback(
@@ -36,7 +25,7 @@ export function useRewind(conversation: ConversationRecord) {
         setConfirmationStats(calculateRewindImpact(conversation, msg));
       }
     },
-    [conversation],
+    [conversation]
   );
 
   const clearSelection = useCallback(() => {

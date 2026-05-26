@@ -6,32 +6,27 @@
 
 import { spawn } from 'node:child_process';
 import type { FunctionCall } from '@google/genai';
-import type {
-  SafetyCheckerConfig,
-  InProcessCheckerConfig,
-  ExternalCheckerConfig,
-} from '../policy/types.js';
+import type { SafetyCheckerConfig, InProcessCheckerConfig, ExternalCheckerConfig } from '../policy/types.js';
 import type { SafetyCheckInput, SafetyCheckResult } from './protocol.js';
 import { SafetyCheckDecision } from './protocol.js';
 import type { CheckerRegistry } from './registry.js';
 import type { ContextBuilder } from './context-builder.js';
 import { z } from 'zod';
 
-const SafetyCheckResultSchema: z.ZodType<SafetyCheckResult> =
-  z.discriminatedUnion('decision', [
-    z.object({
-      decision: z.literal(SafetyCheckDecision.ALLOW),
-      reason: z.string().optional(),
-    }),
-    z.object({
-      decision: z.literal(SafetyCheckDecision.DENY),
-      reason: z.string().min(1),
-    }),
-    z.object({
-      decision: z.literal(SafetyCheckDecision.ASK_USER),
-      reason: z.string().min(1),
-    }),
-  ]);
+const SafetyCheckResultSchema: z.ZodType<SafetyCheckResult> = z.discriminatedUnion('decision', [
+  z.object({
+    decision: z.literal(SafetyCheckDecision.ALLOW),
+    reason: z.string().optional(),
+  }),
+  z.object({
+    decision: z.literal(SafetyCheckDecision.DENY),
+    reason: z.string().min(1),
+  }),
+  z.object({
+    decision: z.literal(SafetyCheckDecision.ASK_USER),
+    reason: z.string().min(1),
+  }),
+]);
 
 /**
  * Configuration for the checker runner.
@@ -59,11 +54,7 @@ export class CheckerRunner {
   private readonly contextBuilder: ContextBuilder;
   private readonly timeout: number;
 
-  constructor(
-    contextBuilder: ContextBuilder,
-    registry: CheckerRegistry,
-    config: CheckerRunnerConfig,
-  ) {
+  constructor(contextBuilder: ContextBuilder, registry: CheckerRegistry, config: CheckerRunnerConfig) {
     this.contextBuilder = contextBuilder;
     this.registry = registry;
     this.timeout = config.timeout ?? CheckerRunner.DEFAULT_TIMEOUT;
@@ -72,10 +63,7 @@ export class CheckerRunner {
   /**
    * Runs a safety checker and returns the result.
    */
-  async runChecker(
-    toolCall: FunctionCall,
-    checkerConfig: SafetyCheckerConfig,
-  ): Promise<SafetyCheckResult> {
+  async runChecker(toolCall: FunctionCall, checkerConfig: SafetyCheckerConfig): Promise<SafetyCheckResult> {
     if (checkerConfig.type === 'in-process') {
       return this.runInProcessChecker(toolCall, checkerConfig);
     }
@@ -84,14 +72,12 @@ export class CheckerRunner {
 
   private async runInProcessChecker(
     toolCall: FunctionCall,
-    checkerConfig: InProcessCheckerConfig,
+    checkerConfig: InProcessCheckerConfig
   ): Promise<SafetyCheckResult> {
     try {
       const checker = this.registry.resolveInProcess(checkerConfig.name);
       const context = checkerConfig.required_context
-        ? this.contextBuilder.buildMinimalContext(
-            checkerConfig.required_context,
-          )
+        ? this.contextBuilder.buildMinimalContext(checkerConfig.required_context)
         : this.contextBuilder.buildFullContext();
 
       const input: SafetyCheckInput = {
@@ -116,7 +102,7 @@ export class CheckerRunner {
 
   private async runExternalChecker(
     toolCall: FunctionCall,
-    checkerConfig: ExternalCheckerConfig,
+    checkerConfig: ExternalCheckerConfig
   ): Promise<SafetyCheckResult> {
     try {
       // Resolve the checker executable path
@@ -124,9 +110,7 @@ export class CheckerRunner {
 
       // Build the appropriate context
       const context = checkerConfig.required_context
-        ? this.contextBuilder.buildMinimalContext(
-            checkerConfig.required_context,
-          )
+        ? this.contextBuilder.buildMinimalContext(checkerConfig.required_context)
         : this.contextBuilder.buildFullContext();
 
       // Create the input payload
@@ -138,11 +122,7 @@ export class CheckerRunner {
       };
 
       // Run the checker process
-      return await this.executeCheckerProcess(
-        checkerPath,
-        input,
-        checkerConfig.name,
-      );
+      return await this.executeCheckerProcess(checkerPath, input, checkerConfig.name);
     } catch (error) {
       // If anything goes wrong, deny the operation
       return {
@@ -160,7 +140,7 @@ export class CheckerRunner {
   private executeCheckerProcess(
     checkerPath: string,
     input: SafetyCheckInput,
-    checkerName: string,
+    checkerName: string
   ): Promise<SafetyCheckResult> {
     return new Promise((resolve) => {
       const child = spawn(checkerPath, [], {
@@ -220,9 +200,7 @@ export class CheckerRunner {
         if (code !== 0) {
           resolve({
             decision: SafetyCheckDecision.DENY,
-            reason: `Safety checker "${checkerName}" exited with code ${code}${
-              stderr ? `: ${stderr}` : ''
-            }`,
+            reason: `Safety checker "${checkerName}" exited with code ${code}${stderr ? `: ${stderr}` : ''}`,
           });
           return;
         }
@@ -237,9 +215,7 @@ export class CheckerRunner {
           resolve({
             decision: SafetyCheckDecision.DENY,
             reason: `Failed to parse output from safety checker "${checkerName}": ${
-              parseError instanceof Error
-                ? parseError.message
-                : String(parseError)
+              parseError instanceof Error ? parseError.message : String(parseError)
             }`,
           });
         }
@@ -276,9 +252,7 @@ export class CheckerRunner {
         resolve({
           decision: SafetyCheckDecision.DENY,
           reason: `Failed to write to stdin of safety checker "${checkerName}": ${
-            writeError instanceof Error
-              ? writeError.message
-              : String(writeError)
+            writeError instanceof Error ? writeError.message : String(writeError)
           }`,
         });
       }

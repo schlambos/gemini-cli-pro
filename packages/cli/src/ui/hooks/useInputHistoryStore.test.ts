@@ -34,10 +34,7 @@ describe('useInputHistoryStore', () => {
       result.current.addInput('test message 2');
     });
 
-    expect(result.current.inputHistory).toEqual([
-      'test message 1',
-      'test message 2',
-    ]);
+    expect(result.current.inputHistory).toEqual(['test message 1', 'test message 2']);
   });
 
   it('should not add empty or whitespace-only inputs', () => {
@@ -77,18 +74,12 @@ describe('useInputHistoryStore', () => {
       result.current.addInput('test message'); // Same as first, but not consecutive
     });
 
-    expect(result.current.inputHistory).toEqual([
-      'test message',
-      'different message',
-      'test message',
-    ]);
+    expect(result.current.inputHistory).toEqual(['test message', 'different message', 'test message']);
   });
 
   it('should initialize from logger successfully', async () => {
     const mockLogger = {
-      getPreviousUserMessages: vi
-        .fn()
-        .mockResolvedValue(['newest', 'middle', 'oldest']),
+      getPreviousUserMessages: vi.fn().mockResolvedValue(['newest', 'middle', 'oldest']),
     };
 
     const { result } = renderHook(() => useInputHistoryStore());
@@ -104,14 +95,10 @@ describe('useInputHistoryStore', () => {
 
   it('should handle logger initialization failure gracefully', async () => {
     const mockLogger = {
-      getPreviousUserMessages: vi
-        .fn()
-        .mockRejectedValue(new Error('Logger error')),
+      getPreviousUserMessages: vi.fn().mockRejectedValue(new Error('Logger error')),
     };
 
-    const consoleSpy = vi
-      .spyOn(debugLogger, 'warn')
-      .mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(debugLogger, 'warn').mockImplementation(() => {});
 
     const { result } = renderHook(() => useInputHistoryStore());
 
@@ -120,19 +107,14 @@ describe('useInputHistoryStore', () => {
     });
 
     expect(result.current.inputHistory).toEqual([]);
-    expect(consoleSpy).toHaveBeenCalledWith(
-      'Failed to initialize input history from logger:',
-      expect.any(Error),
-    );
+    expect(consoleSpy).toHaveBeenCalledWith('Failed to initialize input history from logger:', expect.any(Error));
 
     consoleSpy.mockRestore();
   });
 
   it('should initialize only once', async () => {
     const mockLogger = {
-      getPreviousUserMessages: vi
-        .fn()
-        .mockResolvedValue(['message1', 'message2']),
+      getPreviousUserMessages: vi.fn().mockResolvedValue(['message1', 'message2']),
     };
 
     const { result } = renderHook(() => useInputHistoryStore());
@@ -176,13 +158,7 @@ describe('useInputHistoryStore', () => {
       const mockLogger = {
         getPreviousUserMessages: vi
           .fn()
-          .mockResolvedValue([
-            'message1',
-            'message1',
-            'message2',
-            'message2',
-            'message3',
-          ]), // newest first with duplicates
+          .mockResolvedValue(['message1', 'message1', 'message2', 'message2', 'message3']), // newest first with duplicates
       };
 
       const { result } = renderHook(() => useInputHistoryStore());
@@ -192,11 +168,7 @@ describe('useInputHistoryStore', () => {
       });
 
       // Should deduplicate consecutive messages and reverse to oldest first
-      expect(result.current.inputHistory).toEqual([
-        'message3',
-        'message2',
-        'message1',
-      ]);
+      expect(result.current.inputHistory).toEqual(['message3', 'message2', 'message1']);
     });
 
     it('should deduplicate across session boundaries', async () => {
@@ -228,9 +200,7 @@ describe('useInputHistoryStore', () => {
 
     it('should preserve non-consecutive duplicates', async () => {
       const mockLogger = {
-        getPreviousUserMessages: vi
-          .fn()
-          .mockResolvedValue(['message2', 'message1', 'message2']), // newest first with non-consecutive duplicate
+        getPreviousUserMessages: vi.fn().mockResolvedValue(['message2', 'message1', 'message2']), // newest first with non-consecutive duplicate
       };
 
       const { result } = renderHook(() => useInputHistoryStore());
@@ -240,11 +210,7 @@ describe('useInputHistoryStore', () => {
       });
 
       // Non-consecutive duplicates should be preserved
-      expect(result.current.inputHistory).toEqual([
-        'message2',
-        'message1',
-        'message2',
-      ]);
+      expect(result.current.inputHistory).toEqual(['message2', 'message1', 'message2']);
     });
 
     it('should handle complex deduplication with current session', () => {
@@ -273,9 +239,7 @@ describe('useInputHistoryStore', () => {
 
     it('should maintain oldest-first order in final output', async () => {
       const mockLogger = {
-        getPreviousUserMessages: vi
-          .fn()
-          .mockResolvedValue(['newest', 'middle', 'oldest']), // newest first
+        getPreviousUserMessages: vi.fn().mockResolvedValue(['newest', 'middle', 'oldest']), // newest first
       };
 
       const { result } = renderHook(() => useInputHistoryStore());
@@ -293,13 +257,7 @@ describe('useInputHistoryStore', () => {
       });
 
       // Should maintain oldest-first order
-      expect(result.current.inputHistory).toEqual([
-        'oldest',
-        'middle',
-        'newest',
-        'current1',
-        'current2',
-      ]);
+      expect(result.current.inputHistory).toEqual(['oldest', 'middle', 'newest', 'current1', 'current2']);
     });
   });
 });

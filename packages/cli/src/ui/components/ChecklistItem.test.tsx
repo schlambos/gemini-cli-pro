@@ -23,13 +23,12 @@ describe('<ChecklistItem />', () => {
   it('truncates long text when wrap="truncate"', () => {
     const item: ChecklistItemData = {
       status: 'in_progress',
-      label:
-        'This is a very long text that should be truncated because the wrap prop is set to truncate',
+      label: 'This is a very long text that should be truncated because the wrap prop is set to truncate',
     };
     const { lastFrame } = render(
       <Box width={30}>
-        <ChecklistItem item={item} wrap="truncate" />
-      </Box>,
+        <ChecklistItem item={item} wrap='truncate' />
+      </Box>
     );
     expect(lastFrame()).toMatchSnapshot();
   });
@@ -37,13 +36,12 @@ describe('<ChecklistItem />', () => {
   it('wraps long text by default', () => {
     const item: ChecklistItemData = {
       status: 'in_progress',
-      label:
-        'This is a very long text that should wrap because the default behavior is wrapping',
+      label: 'This is a very long text that should wrap because the default behavior is wrapping',
     };
     const { lastFrame } = render(
       <Box width={30}>
         <ChecklistItem item={item} />
-      </Box>,
+      </Box>
     );
     expect(lastFrame()).toMatchSnapshot();
   });

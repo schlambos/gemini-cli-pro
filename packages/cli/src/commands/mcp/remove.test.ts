@@ -4,15 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  vi,
-  describe,
-  it,
-  expect,
-  beforeEach,
-  afterEach,
-  type Mock,
-} from 'vitest';
+import { vi, describe, it, expect, beforeEach, afterEach, type Mock } from 'vitest';
 import yargs, { type Argv } from 'yargs';
 import { SettingScope, type LoadedSettings } from '../../config/settings.js';
 import { removeCommand } from './remove.js';
@@ -67,10 +59,7 @@ describe('mcp remove command', () => {
         },
       };
 
-      vi.spyOn(
-        await import('../../config/settings.js'),
-        'loadSettings',
-      ).mockReturnValue({
+      vi.spyOn(await import('../../config/settings.js'), 'loadSettings').mockReturnValue({
         forScope: () => ({ settings: mockSettings }),
         setValue: mockSetValue,
         workspace: { path: '/path/to/project' },
@@ -84,23 +73,15 @@ describe('mcp remove command', () => {
     it('should remove a server from project settings', async () => {
       await parser.parseAsync('remove test-server');
 
-      expect(mockSetValue).toHaveBeenCalledWith(
-        SettingScope.Workspace,
-        'mcpServers',
-        {},
-      );
+      expect(mockSetValue).toHaveBeenCalledWith(SettingScope.Workspace, 'mcpServers', {});
     });
 
     it('should show a message if server not found', async () => {
-      const debugLogSpy = vi
-        .spyOn(debugLogger, 'log')
-        .mockImplementation(() => {});
+      const debugLogSpy = vi.spyOn(debugLogger, 'log').mockImplementation(() => {});
       await parser.parseAsync('remove non-existent-server');
 
       expect(mockSetValue).not.toHaveBeenCalled();
-      expect(debugLogSpy).toHaveBeenCalledWith(
-        'Server "non-existent-server" not found in project settings.',
-      );
+      expect(debugLogSpy).toHaveBeenCalledWith('Server "non-existent-server" not found in project settings.');
       debugLogSpy.mockRestore();
     });
   });
@@ -149,18 +130,14 @@ describe('mcp remove command', () => {
       }`;
       fs.writeFileSync(settingsPath, originalContent, 'utf-8');
 
-      const debugLogSpy = vi
-        .spyOn(debugLogger, 'log')
-        .mockImplementation(() => {});
+      const debugLogSpy = vi.spyOn(debugLogger, 'log').mockImplementation(() => {});
       await parser.parseAsync('remove server-to-remove');
 
       const updatedContent = fs.readFileSync(settingsPath, 'utf-8');
       expect(updatedContent).toContain('"server-to-keep"');
       expect(updatedContent).not.toContain('"server-to-remove"');
 
-      expect(debugLogSpy).toHaveBeenCalledWith(
-        'Server "server-to-remove" removed from project settings.',
-      );
+      expect(debugLogSpy).toHaveBeenCalledWith('Server "server-to-remove" removed from project settings.');
 
       debugLogSpy.mockRestore();
     });
@@ -182,9 +159,7 @@ describe('mcp remove command', () => {
       }`;
       fs.writeFileSync(settingsPath, originalContent, 'utf-8');
 
-      const debugLogSpy = vi
-        .spyOn(debugLogger, 'log')
-        .mockImplementation(() => {});
+      const debugLogSpy = vi.spyOn(debugLogger, 'log').mockImplementation(() => {});
       await parser.parseAsync('remove oldServer');
 
       const updatedContent = fs.readFileSync(settingsPath, 'utf-8');
@@ -207,9 +182,7 @@ describe('mcp remove command', () => {
       }`;
       fs.writeFileSync(settingsPath, originalContent, 'utf-8');
 
-      const debugLogSpy = vi
-        .spyOn(debugLogger, 'log')
-        .mockImplementation(() => {});
+      const debugLogSpy = vi.spyOn(debugLogger, 'log').mockImplementation(() => {});
       await parser.parseAsync('remove only-server');
 
       const updatedContent = fs.readFileSync(settingsPath, 'utf-8');
@@ -243,9 +216,7 @@ describe('mcp remove command', () => {
       }`;
       fs.writeFileSync(settingsPath, originalContent, 'utf-8');
 
-      const debugLogSpy = vi
-        .spyOn(debugLogger, 'log')
-        .mockImplementation(() => {});
+      const debugLogSpy = vi.spyOn(debugLogger, 'log').mockImplementation(() => {});
       await parser.parseAsync('remove server1');
 
       const updatedContent = fs.readFileSync(settingsPath, 'utf-8');

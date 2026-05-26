@@ -12,25 +12,17 @@ describe('LoopDetectionConfirmation', () => {
   const onComplete = vi.fn();
 
   it('renders correctly', () => {
-    const { lastFrame } = renderWithProviders(
-      <LoopDetectionConfirmation onComplete={onComplete} />,
-      { width: 101 },
-    );
+    const { lastFrame } = renderWithProviders(<LoopDetectionConfirmation onComplete={onComplete} />, { width: 101 });
     expect(lastFrame()).toMatchSnapshot();
   });
 
   it('contains the expected options', () => {
-    const { lastFrame } = renderWithProviders(
-      <LoopDetectionConfirmation onComplete={onComplete} />,
-      { width: 100 },
-    );
+    const { lastFrame } = renderWithProviders(<LoopDetectionConfirmation onComplete={onComplete} />, { width: 100 });
     const output = lastFrame()!.toString();
 
     expect(output).toContain('A potential loop was detected');
     expect(output).toContain('Keep loop detection enabled (esc)');
     expect(output).toContain('Disable loop detection for this session');
-    expect(output).toContain(
-      'This can happen due to repetitive tool calls or other model behavior',
-    );
+    expect(output).toContain('This can happen due to repetitive tool calls or other model behavior');
   });
 });

@@ -45,23 +45,11 @@ class Cell {
   fgColorMode: ColorMode = ColorMode.DEFAULT;
   bgColorMode: ColorMode = ColorMode.DEFAULT;
 
-  constructor(
-    cell: IBufferCell | null,
-    x: number,
-    y: number,
-    cursorX: number,
-    cursorY: number,
-  ) {
+  constructor(cell: IBufferCell | null, x: number, y: number, cursorX: number, cursorY: number) {
     this.update(cell, x, y, cursorX, cursorY);
   }
 
-  update(
-    cell: IBufferCell | null,
-    x: number,
-    y: number,
-    cursorX: number,
-    cursorY: number,
-  ) {
+  update(cell: IBufferCell | null, x: number, y: number, cursorX: number, cursorY: number) {
     this.cell = cell;
     this.x = x;
     this.y = y;
@@ -142,11 +130,7 @@ class Cell {
   }
 }
 
-export function serializeTerminalToObject(
-  terminal: Terminal,
-  startLine?: number,
-  endLine?: number,
-): AnsiOutput {
+export function serializeTerminalToObject(terminal: Terminal, startLine?: number, endLine?: number): AnsiOutput {
   const buffer = terminal.buffer.active;
   const cursorX = buffer.cursorX;
   const cursorY = buffer.cursorY;
@@ -186,8 +170,7 @@ export function serializeTerminalToObject(
             italic: lastCell.isAttribute(Attribute.italic),
             underline: lastCell.isAttribute(Attribute.underline),
             dim: lastCell.isAttribute(Attribute.dim),
-            inverse:
-              lastCell.isAttribute(Attribute.inverse) || lastCell.isCursor(),
+            inverse: lastCell.isAttribute(Attribute.inverse) || lastCell.isCursor(),
             fg: convertColorToHex(lastCell.fg, lastCell.fgColorMode, defaultFg),
             bg: convertColorToHex(lastCell.bg, lastCell.bgColorMode, defaultBg),
           };
@@ -481,18 +464,12 @@ const ANSI_COLORS = [
   '#eeeeee',
 ];
 
-export function convertColorToHex(
-  color: number,
-  colorMode: ColorMode,
-  defaultColor: string,
-): string {
+export function convertColorToHex(color: number, colorMode: ColorMode, defaultColor: string): string {
   if (colorMode === ColorMode.RGB) {
     const r = (color >> 16) & 255;
     const g = (color >> 8) & 255;
     const b = color & 255;
-    return `#${r.toString(16).padStart(2, '0')}${g
-      .toString(16)
-      .padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
   }
   if (colorMode === ColorMode.PALETTE) {
     return ANSI_COLORS[color] || defaultColor;

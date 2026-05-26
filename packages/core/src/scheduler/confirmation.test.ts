@@ -4,28 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  afterEach,
-  type Mocked,
-  type Mock,
-} from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mocked, type Mock } from 'vitest';
 import { EventEmitter } from 'node:events';
 import { resolveConfirmation } from './confirmation.js';
-import {
-  MessageBusType,
-  type ToolConfirmationResponse,
-} from '../confirmation-bus/types.js';
+import { MessageBusType, type ToolConfirmationResponse } from '../confirmation-bus/types.js';
 import type { MessageBus } from '../confirmation-bus/message-bus.js';
-import {
-  ToolConfirmationOutcome,
-  type AnyToolInvocation,
-  type AnyDeclarativeTool,
-} from '../tools/tools.js';
+import { ToolConfirmationOutcome, type AnyToolInvocation, type AnyDeclarativeTool } from '../tools/tools.js';
 import type { SchedulerStateManager } from './state-manager.js';
 import type { ToolModificationHandler } from './tool-modifier.js';
 import type { ValidatingToolCall, WaitingToolCall } from './types.js';
@@ -56,9 +40,7 @@ describe('confirmation.ts', () => {
     mockMessageBus.publish = vi.fn().mockResolvedValue(undefined);
     vi.spyOn(mockMessageBus, 'on');
     vi.spyOn(mockMessageBus, 'removeListener');
-    vi.mocked(randomUUID).mockReturnValue(
-      '123e4567-e89b-12d3-a456-426614174000',
-    );
+    vi.mocked(randomUUID).mockReturnValue('123e4567-e89b-12d3-a456-426614174000');
   });
 
   afterEach(() => {
@@ -148,9 +130,7 @@ describe('confirmation.ts', () => {
       // Default: state returns the current call
       mockState.getToolCall.mockReturnValue(toolCall);
       // Default: define firstActiveCall for modifiers
-      vi.spyOn(mockState, 'firstActiveCall', 'get').mockReturnValue(
-        toolCall as unknown as WaitingToolCall,
-      );
+      vi.spyOn(mockState, 'firstActiveCall', 'get').mockReturnValue(toolCall as unknown as WaitingToolCall);
     });
 
     it('should return ProceedOnce immediately if no confirmation needed', async () => {
@@ -169,7 +149,7 @@ describe('confirmation.ts', () => {
       expect(mockState.updateStatus).not.toHaveBeenCalledWith(
         expect.anything(),
         'awaiting_approval',
-        expect.anything(),
+        expect.anything()
       );
     });
 
@@ -183,9 +163,7 @@ describe('confirmation.ts', () => {
       invocationMock.shouldConfirmExecute.mockResolvedValue(details);
 
       // Wait for listener to attach
-      const listenerPromise = waitForListener(
-        MessageBusType.TOOL_CONFIRMATION_RESPONSE,
-      );
+      const listenerPromise = waitForListener(MessageBusType.TOOL_CONFIRMATION_RESPONSE);
       const promise = resolveConfirmation(toolCall, signal, {
         config: mockConfig,
         messageBus: mockMessageBus,
@@ -209,7 +187,7 @@ describe('confirmation.ts', () => {
         'awaiting_approval',
         expect.objectContaining({
           correlationId: '123e4567-e89b-12d3-a456-426614174000',
-        }),
+        })
       );
     });
 
@@ -239,14 +217,12 @@ describe('confirmation.ts', () => {
       });
       await promise;
 
-      expect(
-        mockConfig.getHookSystem()?.fireToolNotificationEvent,
-      ).toHaveBeenCalledWith(
+      expect(mockConfig.getHookSystem()?.fireToolNotificationEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           type: details.type,
           prompt: details.prompt,
           title: details.title,
-        }),
+        })
       );
     });
 
@@ -266,9 +242,7 @@ describe('confirmation.ts', () => {
       toolMock.build.mockReturnValue({} as unknown as AnyToolInvocation);
 
       // Start the confirmation flow
-      const listenerPromise1 = waitForListener(
-        MessageBusType.TOOL_CONFIRMATION_RESPONSE,
-      );
+      const listenerPromise1 = waitForListener(MessageBusType.TOOL_CONFIRMATION_RESPONSE);
       const promise = resolveConfirmation(toolCall, signal, {
         config: mockConfig,
         messageBus: mockMessageBus,
@@ -281,9 +255,7 @@ describe('confirmation.ts', () => {
       await listenerPromise1;
 
       // Prepare to detect when the loop re-subscribes after modification
-      const listenerPromise2 = waitForListener(
-        MessageBusType.TOOL_CONFIRMATION_RESPONSE,
-      );
+      const listenerPromise2 = waitForListener(MessageBusType.TOOL_CONFIRMATION_RESPONSE);
 
       // First response: User chooses to modify with editor
       emitResponse({
@@ -320,9 +292,7 @@ describe('confirmation.ts', () => {
       };
       invocationMock.shouldConfirmExecute.mockResolvedValue(details);
 
-      const listenerPromise = waitForListener(
-        MessageBusType.TOOL_CONFIRMATION_RESPONSE,
-      );
+      const listenerPromise = waitForListener(MessageBusType.TOOL_CONFIRMATION_RESPONSE);
       const promise = resolveConfirmation(toolCall, signal, {
         config: mockConfig,
         messageBus: mockMessageBus,
@@ -401,7 +371,7 @@ describe('confirmation.ts', () => {
           modifier: mockModifier,
           getPreferredEditor,
           schedulerId: ROOT_SCHEDULER_ID,
-        }),
+        })
       ).rejects.toThrow(/lost during confirmation loop/);
     });
   });

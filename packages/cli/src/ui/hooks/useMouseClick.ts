@@ -7,11 +7,7 @@
 import { getBoundingBox, type DOMElement } from 'ink';
 import type React from 'react';
 import { useCallback, useRef } from 'react';
-import {
-  useMouse,
-  type MouseEvent,
-  type MouseEventName,
-} from '../contexts/MouseContext.js';
+import { useMouse, type MouseEvent, type MouseEventName } from '../contexts/MouseContext.js';
 
 export const useMouseClick = (
   containerRef: React.RefObject<DOMElement | null>,
@@ -20,7 +16,7 @@ export const useMouseClick = (
     isActive?: boolean;
     button?: 'left' | 'right';
     name?: MouseEventName;
-  } = {},
+  } = {}
 ) => {
   const { isActive = true, button = 'left', name } = options;
   const handlerRef = useRef(handler);
@@ -28,8 +24,7 @@ export const useMouseClick = (
 
   const onMouse = useCallback(
     (event: MouseEvent) => {
-      const eventName =
-        name ?? (button === 'left' ? 'left-press' : 'right-release');
+      const eventName = name ?? (button === 'left' ? 'left-press' : 'right-release');
       if (event.name === eventName && containerRef.current) {
         const { x, y, width, height } = getBoundingBox(containerRef.current);
         // Terminal mouse events are 1-based, Ink layout is 0-based.
@@ -39,17 +34,12 @@ export const useMouseClick = (
         const relativeX = mouseX - x;
         const relativeY = mouseY - y;
 
-        if (
-          relativeX >= 0 &&
-          relativeX < width &&
-          relativeY >= 0 &&
-          relativeY < height
-        ) {
+        if (relativeX >= 0 && relativeX < width && relativeY >= 0 && relativeY < height) {
           handlerRef.current(event, relativeX, relativeY);
         }
       }
     },
-    [containerRef, button, name],
+    [containerRef, button, name]
   );
 
   useMouse(onMouse, { isActive });

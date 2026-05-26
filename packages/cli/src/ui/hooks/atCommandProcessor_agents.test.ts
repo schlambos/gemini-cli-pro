@@ -6,11 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { handleAtCommand } from './atCommandProcessor.js';
-import type {
-  Config,
-  AgentDefinition,
-  MessageBus,
-} from '@google/gemini-cli-core';
+import type { Config, AgentDefinition, MessageBus } from '@google/gemini-cli-core';
 import {
   FileDiscoveryService,
   GlobTool,
@@ -36,9 +32,7 @@ describe('handleAtCommand with Agents', () => {
   beforeEach(async () => {
     vi.resetAllMocks();
 
-    testRootDir = await fsPromises.mkdtemp(
-      path.join(os.tmpdir(), 'agent-test-'),
-    );
+    testRootDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'agent-test-'));
 
     abortController = new AbortController();
 
@@ -77,8 +71,7 @@ describe('handleAtCommand with Agents', () => {
       getFileSystemService: () => new StandardFileSystemService(),
       getEnableRecursiveFileSearch: vi.fn(() => true),
       getWorkspaceContext: () => ({
-        isPathWithinWorkspace: (p: string) =>
-          p.startsWith(testRootDir) || p.startsWith('/private' + testRootDir),
+        isPathWithinWorkspace: (p: string) => p.startsWith(testRootDir) || p.startsWith('/private' + testRootDir),
         getDirectories: () => [testRootDir],
       }),
       storage: {
@@ -96,10 +89,7 @@ describe('handleAtCommand with Agents', () => {
 
         const projectTempDir = this.storage.getProjectTempDir();
         const resolvedProjectTempDir = path.resolve(projectTempDir);
-        return (
-          absolutePath.startsWith(resolvedProjectTempDir + path.sep) ||
-          absolutePath === resolvedProjectTempDir
-        );
+        return absolutePath.startsWith(resolvedProjectTempDir + path.sep) || absolutePath === resolvedProjectTempDir;
       },
       validatePathAccess(this: Config, absolutePath: string): string | null {
         if (this.isPathAllowed(absolutePath)) {
@@ -170,14 +160,8 @@ describe('handleAtCommand with Agents', () => {
 
     // Check if the query text is preserved
     const firstPart = parts[0];
-    if (
-      typeof firstPart === 'object' &&
-      firstPart !== null &&
-      'text' in firstPart
-    ) {
-      expect((firstPart as { text: string }).text).toContain(
-        'Please help me @CodebaseInvestigator',
-      );
+    if (typeof firstPart === 'object' && firstPart !== null && 'text' in firstPart) {
+      expect((firstPart as { text: string }).text).toContain('Please help me @CodebaseInvestigator');
     } else {
       throw new Error('First part should be a text part');
     }
@@ -185,15 +169,12 @@ describe('handleAtCommand with Agents', () => {
     // Check if the nudge message is added
     const nudgePart = parts.find(
       (p) =>
-        typeof p === 'object' &&
-        p !== null &&
-        'text' in p &&
-        (p as { text: string }).text.includes('<system_note>'),
+        typeof p === 'object' && p !== null && 'text' in p && (p as { text: string }).text.includes('<system_note>')
     );
     expect(nudgePart).toBeDefined();
     if (nudgePart && typeof nudgePart === 'object' && 'text' in nudgePart) {
       expect((nudgePart as { text: string }).text).toContain(
-        'The user has explicitly selected the following agent(s): CodebaseInvestigator',
+        'The user has explicitly selected the following agent(s): CodebaseInvestigator'
       );
     }
   });
@@ -227,16 +208,11 @@ describe('handleAtCommand with Agents', () => {
 
     const nudgePart = parts.find(
       (p) =>
-        typeof p === 'object' &&
-        p !== null &&
-        'text' in p &&
-        (p as { text: string }).text.includes('<system_note>'),
+        typeof p === 'object' && p !== null && 'text' in p && (p as { text: string }).text.includes('<system_note>')
     );
     expect(nudgePart).toBeDefined();
     if (nudgePart && typeof nudgePart === 'object' && 'text' in nudgePart) {
-      expect((nudgePart as { text: string }).text).toContain(
-        'CodebaseInvestigator, AnotherAgent',
-      );
+      expect((nudgePart as { text: string }).text).toContain('CodebaseInvestigator, AnotherAgent');
     }
   });
 
@@ -263,10 +239,7 @@ describe('handleAtCommand with Agents', () => {
 
     const nudgePart = parts.find(
       (p) =>
-        typeof p === 'object' &&
-        p !== null &&
-        'text' in p &&
-        (p as { text: string }).text.includes('<system_note>'),
+        typeof p === 'object' && p !== null && 'text' in p && (p as { text: string }).text.includes('<system_note>')
     );
     expect(nudgePart).toBeUndefined();
   });

@@ -7,18 +7,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { executeToolWithHooks } from './coreToolHookTriggers.js';
 import { ToolErrorType } from '../tools/tool-error.js';
-import {
-  BaseToolInvocation,
-  type ToolResult,
-  type AnyDeclarativeTool,
-} from '../tools/tools.js';
+import { BaseToolInvocation, type ToolResult, type AnyDeclarativeTool } from '../tools/tools.js';
 import type { MessageBus } from '../confirmation-bus/message-bus.js';
 import type { HookSystem } from '../hooks/hookSystem.js';
 import type { Config } from '../config/config.js';
-import {
-  type DefaultHookOutput,
-  BeforeToolHookOutput,
-} from '../hooks/types.js';
+import { type DefaultHookOutput, BeforeToolHookOutput } from '../hooks/types.js';
 
 class MockInvocation extends BaseToolInvocation<{ key?: string }, ToolResult> {
   constructor(params: { key?: string }, messageBus: MessageBus) {
@@ -30,9 +23,7 @@ class MockInvocation extends BaseToolInvocation<{ key?: string }, ToolResult> {
   async execute() {
     return {
       llmContent: this.params.key ? `key: ${this.params.key}` : 'success',
-      returnDisplay: this.params.key
-        ? `key: ${this.params.key}`
-        : 'success display',
+      returnDisplay: this.params.key ? `key: ${this.params.key}` : 'success display',
     };
   }
 }
@@ -60,9 +51,7 @@ describe('executeToolWithHooks', () => {
       getMcpServers: vi.fn().mockReturnValue({}),
     } as unknown as Config;
     mockTool = {
-      build: vi
-        .fn()
-        .mockImplementation((params) => new MockInvocation(params, messageBus)),
+      build: vi.fn().mockImplementation((params) => new MockInvocation(params, messageBus)),
     } as unknown as AnyDeclarativeTool;
   });
 
@@ -87,7 +76,7 @@ describe('executeToolWithHooks', () => {
       undefined,
       undefined,
       undefined,
-      mockConfig,
+      mockConfig
     );
 
     expect(result.error?.type).toBe(ToolErrorType.STOP_EXECUTION);
@@ -112,7 +101,7 @@ describe('executeToolWithHooks', () => {
       undefined,
       undefined,
       undefined,
-      mockConfig,
+      mockConfig
     );
 
     expect(result.error?.type).toBe(ToolErrorType.EXECUTION_FAILED);
@@ -144,7 +133,7 @@ describe('executeToolWithHooks', () => {
       undefined,
       undefined,
       undefined,
-      mockConfig,
+      mockConfig
     );
 
     expect(result.error?.type).toBe(ToolErrorType.STOP_EXECUTION);
@@ -176,7 +165,7 @@ describe('executeToolWithHooks', () => {
       undefined,
       undefined,
       undefined,
-      mockConfig,
+      mockConfig
     );
 
     expect(result.error?.type).toBe(ToolErrorType.EXECUTION_FAILED);
@@ -196,9 +185,7 @@ describe('executeToolWithHooks', () => {
         tool_input: { key: 'modified' },
       },
     });
-    vi.mocked(mockHookSystem.fireBeforeToolEvent).mockResolvedValue(
-      mockBeforeOutput,
-    );
+    vi.mocked(mockHookSystem.fireBeforeToolEvent).mockResolvedValue(mockBeforeOutput);
 
     vi.mocked(mockHookSystem.fireAfterToolEvent).mockResolvedValue(undefined);
 
@@ -210,12 +197,12 @@ describe('executeToolWithHooks', () => {
       undefined,
       undefined,
       undefined,
-      mockConfig,
+      mockConfig
     );
 
     // Verify result reflects modified input
     expect(result.llmContent).toBe(
-      'key: modified\n\n[System] Tool input parameters (key) were modified by a hook before execution.',
+      'key: modified\n\n[System] Tool input parameters (key) were modified by a hook before execution.'
     );
     // Verify params object was modified in place
     expect(invocation.params.key).toBe('modified');
@@ -237,9 +224,7 @@ describe('executeToolWithHooks', () => {
         // No tool input
       },
     });
-    vi.mocked(mockHookSystem.fireBeforeToolEvent).mockResolvedValue(
-      mockBeforeOutput,
-    );
+    vi.mocked(mockHookSystem.fireBeforeToolEvent).mockResolvedValue(mockBeforeOutput);
 
     vi.mocked(mockHookSystem.fireAfterToolEvent).mockResolvedValue(undefined);
 
@@ -251,7 +236,7 @@ describe('executeToolWithHooks', () => {
       undefined,
       undefined,
       undefined,
-      mockConfig,
+      mockConfig
     );
 
     expect(result.llmContent).toBe('key: original');

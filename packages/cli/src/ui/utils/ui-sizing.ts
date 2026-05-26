@@ -7,10 +7,7 @@
 import { type LoadedSettings } from '../../config/settings.js';
 import { isAlternateBufferEnabled } from '../hooks/useAlternateBuffer.js';
 
-export const calculateMainAreaWidth = (
-  terminalWidth: number,
-  settings: LoadedSettings,
-): number => {
+export const calculateMainAreaWidth = (terminalWidth: number, settings: LoadedSettings): number => {
   if (isAlternateBufferEnabled(settings)) {
     return terminalWidth - 1;
   }

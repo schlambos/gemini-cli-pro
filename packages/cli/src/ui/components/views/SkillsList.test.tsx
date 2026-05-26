@@ -35,9 +35,7 @@ describe('SkillsList Component', () => {
   ];
 
   it('should render enabled and disabled skills separately', () => {
-    const { lastFrame, unmount } = render(
-      <SkillsList skills={mockSkills} showDescriptions={true} />,
-    );
+    const { lastFrame, unmount } = render(<SkillsList skills={mockSkills} showDescriptions={true} />);
     const output = lastFrame();
 
     expect(output).toContain('Available Agent Skills:');
@@ -54,9 +52,7 @@ describe('SkillsList Component', () => {
   });
 
   it('should not render descriptions when showDescriptions is false', () => {
-    const { lastFrame, unmount } = render(
-      <SkillsList skills={mockSkills} showDescriptions={false} />,
-    );
+    const { lastFrame, unmount } = render(<SkillsList skills={mockSkills} showDescriptions={false} />);
     const output = lastFrame();
 
     expect(output).toContain('skill1');
@@ -70,9 +66,7 @@ describe('SkillsList Component', () => {
   });
 
   it('should render "No skills available" when skills list is empty', () => {
-    const { lastFrame, unmount } = render(
-      <SkillsList skills={[]} showDescriptions={true} />,
-    );
+    const { lastFrame, unmount } = render(<SkillsList skills={[]} showDescriptions={true} />);
     const output = lastFrame();
 
     expect(output).toContain('No skills available');
@@ -82,9 +76,7 @@ describe('SkillsList Component', () => {
 
   it('should only render Available Agent Skills section when all skills are enabled', () => {
     const enabledOnly = mockSkills.filter((s) => !s.disabled);
-    const { lastFrame, unmount } = render(
-      <SkillsList skills={enabledOnly} showDescriptions={true} />,
-    );
+    const { lastFrame, unmount } = render(<SkillsList skills={enabledOnly} showDescriptions={true} />);
     const output = lastFrame();
 
     expect(output).toContain('Available Agent Skills:');
@@ -95,9 +87,7 @@ describe('SkillsList Component', () => {
 
   it('should only render Disabled Skills section when all skills are disabled', () => {
     const disabledOnly = mockSkills.filter((s) => s.disabled);
-    const { lastFrame, unmount } = render(
-      <SkillsList skills={disabledOnly} showDescriptions={true} />,
-    );
+    const { lastFrame, unmount } = render(<SkillsList skills={disabledOnly} showDescriptions={true} />);
     const output = lastFrame();
 
     expect(output).not.toContain('Available Agent Skills:');
@@ -116,9 +106,7 @@ describe('SkillsList Component', () => {
       isBuiltin: true,
     };
 
-    const { lastFrame, unmount } = render(
-      <SkillsList skills={[builtinSkill]} showDescriptions={true} />,
-    );
+    const { lastFrame, unmount } = render(<SkillsList skills={[builtinSkill]} showDescriptions={true} />);
     const output = lastFrame();
 
     expect(output).toContain('builtin-skill');

@@ -7,10 +7,7 @@
 import * as ClientLib from '@modelcontextprotocol/sdk/client/index.js';
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import * as SdkClientStdioLib from '@modelcontextprotocol/sdk/client/stdio.js';
-import {
-  StreamableHTTPClientTransport,
-  StreamableHTTPError,
-} from '@modelcontextprotocol/sdk/client/streamableHttp.js';
+import { StreamableHTTPClientTransport, StreamableHTTPError } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthProviderType, type Config } from '../config/config.js';
 import { GoogleCredentialProvider } from '../mcp/google-auth-provider.js';
@@ -67,9 +64,7 @@ describe('mcp-client', () => {
   beforeEach(() => {
     // create a tmp dir for this test
     // Create a unique temporary directory for the workspace to avoid conflicts
-    testWorkspace = fs.mkdtempSync(
-      path.join(os.tmpdir(), 'gemini-agent-test-'),
-    );
+    testWorkspace = fs.mkdtempSync(path.join(os.tmpdir(), 'gemini-agent-test-'));
     workspaceContext = new WorkspaceContext(testWorkspace);
   });
 
@@ -104,12 +99,8 @@ describe('mcp-client', () => {
         }),
         request: vi.fn().mockResolvedValue({}),
       };
-      vi.mocked(ClientLib.Client).mockReturnValue(
-        mockedClient as unknown as ClientLib.Client,
-      );
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.mocked(ClientLib.Client).mockReturnValue(mockedClient as unknown as ClientLib.Client);
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue({} as SdkClientStdioLib.StdioClientTransport);
       const mockedToolRegistry = {
         registerTool: vi.fn(),
         sortTools: vi.fn(),
@@ -134,20 +125,15 @@ describe('mcp-client', () => {
         workspaceContext,
         { sanitizationConfig: EMPTY_CONFIG } as Config,
         false,
-        '0.0.1',
+        '0.0.1'
       );
       await client.connect();
       await client.discover({} as Config);
-      expect(mockedClient.listTools).toHaveBeenCalledWith(
-        {},
-        { timeout: 600000 },
-      );
+      expect(mockedClient.listTools).toHaveBeenCalledWith({}, { timeout: 600000 });
     });
 
     it('should not skip tools even if a parameter is missing a type', async () => {
-      const consoleWarnSpy = vi
-        .spyOn(console, 'warn')
-        .mockImplementation(() => {});
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const mockedClient = {
         connect: vi.fn(),
         discover: vi.fn(),
@@ -185,12 +171,8 @@ describe('mcp-client', () => {
         }),
         request: vi.fn().mockResolvedValue({}),
       };
-      vi.mocked(ClientLib.Client).mockReturnValue(
-        mockedClient as unknown as ClientLib.Client,
-      );
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.mocked(ClientLib.Client).mockReturnValue(mockedClient as unknown as ClientLib.Client);
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue({} as SdkClientStdioLib.StdioClientTransport);
       const mockedToolRegistry = {
         registerTool: vi.fn(),
         sortTools: vi.fn(),
@@ -215,7 +197,7 @@ describe('mcp-client', () => {
         workspaceContext,
         { sanitizationConfig: EMPTY_CONFIG } as Config,
         false,
-        '0.0.1',
+        '0.0.1'
       );
       await client.connect();
       await client.discover({} as Config);
@@ -238,12 +220,8 @@ describe('mcp-client', () => {
         listPrompts: vi.fn().mockRejectedValue(new Error('Test error')),
         request: vi.fn().mockResolvedValue({}),
       };
-      vi.mocked(ClientLib.Client).mockReturnValue(
-        mockedClient as unknown as ClientLib.Client,
-      );
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.mocked(ClientLib.Client).mockReturnValue(mockedClient as unknown as ClientLib.Client);
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue({} as SdkClientStdioLib.StdioClientTransport);
       const mockedToolRegistry = {
         registerTool: vi.fn(),
         getMessageBus: vi.fn().mockReturnValue(undefined),
@@ -267,14 +245,14 @@ describe('mcp-client', () => {
         workspaceContext,
         { sanitizationConfig: EMPTY_CONFIG } as Config,
         false,
-        '0.0.1',
+        '0.0.1'
       );
       await client.connect();
       await expect(client.discover({} as Config)).rejects.toThrow('Test error');
       expect(coreEvents.emitFeedback).toHaveBeenCalledWith(
         'error',
         `Error discovering prompts from test-server: Test error`,
-        expect.any(Error),
+        expect.any(Error)
       );
     });
 
@@ -291,12 +269,8 @@ describe('mcp-client', () => {
         listPrompts: vi.fn().mockResolvedValue({ prompts: [] }),
         request: vi.fn().mockResolvedValue({}),
       };
-      vi.mocked(ClientLib.Client).mockReturnValue(
-        mockedClient as unknown as ClientLib.Client,
-      );
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.mocked(ClientLib.Client).mockReturnValue(mockedClient as unknown as ClientLib.Client);
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue({} as SdkClientStdioLib.StdioClientTransport);
       const mockedToolRegistry = {
         registerTool: vi.fn(),
         sortTools: vi.fn(),
@@ -321,11 +295,11 @@ describe('mcp-client', () => {
         workspaceContext,
         { sanitizationConfig: EMPTY_CONFIG } as Config,
         false,
-        '0.0.1',
+        '0.0.1'
       );
       await client.connect();
       await expect(client.discover({} as Config)).rejects.toThrow(
-        'No prompts, tools, or resources found on the server.',
+        'No prompts, tools, or resources found on the server.'
       );
     });
 
@@ -351,12 +325,8 @@ describe('mcp-client', () => {
         listPrompts: vi.fn().mockResolvedValue({ prompts: [] }),
         request: vi.fn().mockResolvedValue({}),
       };
-      vi.mocked(ClientLib.Client).mockReturnValue(
-        mockedClient as unknown as ClientLib.Client,
-      );
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.mocked(ClientLib.Client).mockReturnValue(mockedClient as unknown as ClientLib.Client);
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue({} as SdkClientStdioLib.StdioClientTransport);
       const mockedToolRegistry = {
         registerTool: vi.fn(),
         sortTools: vi.fn(),
@@ -381,7 +351,7 @@ describe('mcp-client', () => {
         workspaceContext,
         { sanitizationConfig: EMPTY_CONFIG } as Config,
         false,
-        '0.0.1',
+        '0.0.1'
       );
       await client.connect();
       await client.discover({} as Config);
@@ -411,12 +381,8 @@ describe('mcp-client', () => {
         listPrompts: vi.fn().mockResolvedValue({ prompts: [] }),
         request: vi.fn().mockResolvedValue({}),
       };
-      vi.mocked(ClientLib.Client).mockReturnValue(
-        mockedClient as unknown as ClientLib.Client,
-      );
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.mocked(ClientLib.Client).mockReturnValue(mockedClient as unknown as ClientLib.Client);
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue({} as SdkClientStdioLib.StdioClientTransport);
 
       const mockPolicyEngine = {
         addRule: vi.fn(),
@@ -449,7 +415,7 @@ describe('mcp-client', () => {
         workspaceContext,
         { sanitizationConfig: EMPTY_CONFIG } as Config,
         false,
-        '0.0.1',
+        '0.0.1'
       );
 
       await client.connect();
@@ -491,12 +457,8 @@ describe('mcp-client', () => {
         listPrompts: vi.fn().mockResolvedValue({ prompts: [] }),
         request: vi.fn().mockResolvedValue({}),
       };
-      vi.mocked(ClientLib.Client).mockReturnValue(
-        mockedClient as unknown as ClientLib.Client,
-      );
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.mocked(ClientLib.Client).mockReturnValue(mockedClient as unknown as ClientLib.Client);
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue({} as SdkClientStdioLib.StdioClientTransport);
 
       const mockPolicyEngine = {
         addRule: vi.fn(),
@@ -529,7 +491,7 @@ describe('mcp-client', () => {
         workspaceContext,
         { sanitizationConfig: EMPTY_CONFIG } as Config,
         false,
-        '0.0.1',
+        '0.0.1'
       );
 
       await client.connect();
@@ -576,12 +538,8 @@ describe('mcp-client', () => {
         }),
         request: vi.fn().mockResolvedValue({}),
       };
-      vi.mocked(ClientLib.Client).mockReturnValue(
-        mockedClient as unknown as ClientLib.Client,
-      );
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.mocked(ClientLib.Client).mockReturnValue(mockedClient as unknown as ClientLib.Client);
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue({} as SdkClientStdioLib.StdioClientTransport);
       const mockedToolRegistry = {
         registerTool: vi.fn(),
         sortTools: vi.fn(),
@@ -606,13 +564,12 @@ describe('mcp-client', () => {
         workspaceContext,
         { sanitizationConfig: EMPTY_CONFIG } as Config,
         false,
-        '0.0.1',
+        '0.0.1'
       );
       await client.connect();
       await client.discover({} as Config);
       expect(mockedToolRegistry.registerTool).toHaveBeenCalledOnce();
-      const registeredTool = vi.mocked(mockedToolRegistry.registerTool).mock
-        .calls[0][0];
+      const registeredTool = vi.mocked(mockedToolRegistry.registerTool).mock.calls[0][0];
       expect(registeredTool.schema.parametersJsonSchema).toEqual({
         type: 'object',
         properties: {
@@ -656,9 +613,7 @@ describe('mcp-client', () => {
         }),
       } as unknown as ClientLib.Client;
       vi.mocked(ClientLib.Client).mockReturnValue(mockedClient);
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue({} as SdkClientStdioLib.StdioClientTransport);
       const mockedToolRegistry = {
         registerTool: vi.fn(),
         sortTools: vi.fn(),
@@ -683,26 +638,21 @@ describe('mcp-client', () => {
         workspaceContext,
         { sanitizationConfig: EMPTY_CONFIG } as Config,
         false,
-        '0.0.1',
+        '0.0.1'
       );
       await client.connect();
       await client.discover({} as Config);
-      expect(resourceRegistry.setResourcesForServer).toHaveBeenCalledWith(
-        'test-server',
-        [
-          expect.objectContaining({
-            uri: 'file:///tmp/resource.txt',
-            name: 'resource',
-          }),
-        ],
-      );
+      expect(resourceRegistry.setResourcesForServer).toHaveBeenCalledWith('test-server', [
+        expect.objectContaining({
+          uri: 'file:///tmp/resource.txt',
+          name: 'resource',
+        }),
+      ]);
     });
 
     it('refreshes registry when resource list change notification is received', async () => {
       let listCallCount = 0;
-      let resourceListHandler:
-        | ((notification: unknown) => Promise<void> | void)
-        | undefined;
+      let resourceListHandler: ((notification: unknown) => Promise<void> | void) | undefined;
       const mockedClient = {
         connect: vi.fn(),
         discover: vi.fn(),
@@ -713,9 +663,7 @@ describe('mcp-client', () => {
         setNotificationHandler: vi.fn((_, handler) => {
           resourceListHandler = handler;
         }),
-        getServerCapabilities: vi
-          .fn()
-          .mockReturnValue({ resources: { listChanged: true } }),
+        getServerCapabilities: vi.fn().mockReturnValue({ resources: { listChanged: true } }),
         request: vi.fn().mockImplementation(({ method }) => {
           if (method === 'resources/list') {
             listCallCount += 1;
@@ -740,9 +688,7 @@ describe('mcp-client', () => {
         }),
       } as unknown as ClientLib.Client;
       vi.mocked(ClientLib.Client).mockReturnValue(mockedClient);
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue({} as SdkClientStdioLib.StdioClientTransport);
       const mockedToolRegistry = {
         registerTool: vi.fn(),
         sortTools: vi.fn(),
@@ -767,7 +713,7 @@ describe('mcp-client', () => {
         workspaceContext,
         { sanitizationConfig: EMPTY_CONFIG } as Config,
         false,
-        '0.0.1',
+        '0.0.1'
       );
       await client.connect();
       await client.discover({} as Config);
@@ -779,22 +725,16 @@ describe('mcp-client', () => {
         method: 'notifications/resources/list_changed',
       });
 
-      expect(resourceRegistry.setResourcesForServer).toHaveBeenLastCalledWith(
-        'test-server',
-        [expect.objectContaining({ uri: 'file:///tmp/two.txt' })],
-      );
+      expect(resourceRegistry.setResourcesForServer).toHaveBeenLastCalledWith('test-server', [
+        expect.objectContaining({ uri: 'file:///tmp/two.txt' }),
+      ]);
 
-      expect(coreEvents.emitFeedback).toHaveBeenCalledWith(
-        'info',
-        'Resources updated for server: test-server',
-      );
+      expect(coreEvents.emitFeedback).toHaveBeenCalledWith('info', 'Resources updated for server: test-server');
     });
 
     it('refreshes prompts when prompt list change notification is received', async () => {
       let listCallCount = 0;
-      let promptListHandler:
-        | ((notification: unknown) => Promise<void> | void)
-        | undefined;
+      let promptListHandler: ((notification: unknown) => Promise<void> | void) | undefined;
       const mockedClient = {
         connect: vi.fn(),
         discover: vi.fn(),
@@ -805,9 +745,7 @@ describe('mcp-client', () => {
         setNotificationHandler: vi.fn((_, handler) => {
           promptListHandler = handler;
         }),
-        getServerCapabilities: vi
-          .fn()
-          .mockReturnValue({ prompts: { listChanged: true } }),
+        getServerCapabilities: vi.fn().mockReturnValue({ prompts: { listChanged: true } }),
         listPrompts: vi.fn().mockImplementation(() => {
           listCallCount += 1;
           if (listCallCount === 1) {
@@ -822,9 +760,7 @@ describe('mcp-client', () => {
         request: vi.fn().mockResolvedValue({ prompts: [] }),
       } as unknown as ClientLib.Client;
       vi.mocked(ClientLib.Client).mockReturnValue(mockedClient);
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue({} as SdkClientStdioLib.StdioClientTransport);
       const mockedToolRegistry = {
         registerTool: vi.fn(),
         sortTools: vi.fn(),
@@ -849,7 +785,7 @@ describe('mcp-client', () => {
         workspaceContext,
         { sanitizationConfig: EMPTY_CONFIG } as Config,
         false,
-        '0.0.1',
+        '0.0.1'
       );
       await client.connect();
       await client.discover({ sanitizationConfig: EMPTY_CONFIG } as Config);
@@ -861,16 +797,9 @@ describe('mcp-client', () => {
         method: 'notifications/prompts/list_changed',
       });
 
-      expect(promptRegistry.removePromptsByServer).toHaveBeenCalledWith(
-        'test-server',
-      );
-      expect(promptRegistry.registerPrompt).toHaveBeenLastCalledWith(
-        expect.objectContaining({ name: 'two' }),
-      );
-      expect(coreEvents.emitFeedback).toHaveBeenCalledWith(
-        'info',
-        'Prompts updated for server: test-server',
-      );
+      expect(promptRegistry.removePromptsByServer).toHaveBeenCalledWith('test-server');
+      expect(promptRegistry.registerPrompt).toHaveBeenLastCalledWith(expect.objectContaining({ name: 'two' }));
+      expect(coreEvents.emitFeedback).toHaveBeenCalledWith('info', 'Prompts updated for server: test-server');
     });
 
     it('should remove tools and prompts on disconnect', async () => {
@@ -881,9 +810,7 @@ describe('mcp-client', () => {
         registerCapabilities: vi.fn(),
         setRequestHandler: vi.fn(),
         setNotificationHandler: vi.fn(),
-        getServerCapabilities: vi
-          .fn()
-          .mockReturnValue({ tools: {}, prompts: {} }),
+        getServerCapabilities: vi.fn().mockReturnValue({ tools: {}, prompts: {} }),
         listPrompts: vi.fn().mockResolvedValue({
           prompts: [{ id: 'prompt1', text: 'a prompt' }],
         }),
@@ -898,12 +825,8 @@ describe('mcp-client', () => {
           ],
         }),
       };
-      vi.mocked(ClientLib.Client).mockReturnValue(
-        mockedClient as unknown as ClientLib.Client,
-      );
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.mocked(ClientLib.Client).mockReturnValue(mockedClient as unknown as ClientLib.Client);
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue({} as SdkClientStdioLib.StdioClientTransport);
       const mockedToolRegistry = {
         registerTool: vi.fn(),
         unregisterTool: vi.fn(),
@@ -931,7 +854,7 @@ describe('mcp-client', () => {
         workspaceContext,
         { sanitizationConfig: EMPTY_CONFIG } as Config,
         false,
-        '0.0.1',
+        '0.0.1'
       );
       await client.connect();
       await client.discover({} as Config);
@@ -956,21 +879,15 @@ describe('mcp-client', () => {
         registerCapabilities: vi.fn(),
         setRequestHandler: vi.fn(),
         // Capability enables the listener
-        getServerCapabilities: vi
-          .fn()
-          .mockReturnValue({ tools: { listChanged: true } }),
+        getServerCapabilities: vi.fn().mockReturnValue({ tools: { listChanged: true } }),
         setNotificationHandler: vi.fn(),
         listTools: vi.fn().mockResolvedValue({ tools: [] }),
         listPrompts: vi.fn().mockResolvedValue({ prompts: [] }),
         request: vi.fn().mockResolvedValue({}),
       };
 
-      vi.mocked(ClientLib.Client).mockReturnValue(
-        mockedClient as unknown as ClientLib.Client,
-      );
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.mocked(ClientLib.Client).mockReturnValue(mockedClient as unknown as ClientLib.Client);
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue({} as SdkClientStdioLib.StdioClientTransport);
 
       const client = new McpClient(
         'test-server',
@@ -981,14 +898,14 @@ describe('mcp-client', () => {
         workspaceContext,
         { sanitizationConfig: EMPTY_CONFIG } as Config,
         false,
-        '0.0.1',
+        '0.0.1'
       );
 
       await client.connect();
 
       expect(mockedClient.setNotificationHandler).toHaveBeenCalledWith(
         ToolListChangedNotificationSchema,
-        expect.any(Function),
+        expect.any(Function)
       );
     });
 
@@ -1002,12 +919,8 @@ describe('mcp-client', () => {
         setRequestHandler: vi.fn().mockResolvedValue({}),
       };
 
-      vi.mocked(ClientLib.Client).mockReturnValue(
-        mockedClient as unknown as ClientLib.Client,
-      );
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.mocked(ClientLib.Client).mockReturnValue(mockedClient as unknown as ClientLib.Client);
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue({} as SdkClientStdioLib.StdioClientTransport);
 
       const client = new McpClient(
         'test-server',
@@ -1018,7 +931,7 @@ describe('mcp-client', () => {
         workspaceContext,
         { sanitizationConfig: EMPTY_CONFIG } as Config,
         false,
-        '0.0.1',
+        '0.0.1'
       );
 
       await client.connect();
@@ -1030,9 +943,7 @@ describe('mcp-client', () => {
       // Setup mocks
       const mockedClient = {
         connect: vi.fn(),
-        getServerCapabilities: vi
-          .fn()
-          .mockReturnValue({ tools: { listChanged: true } }),
+        getServerCapabilities: vi.fn().mockReturnValue({ tools: { listChanged: true } }),
         setNotificationHandler: vi.fn(),
         listTools: vi.fn().mockResolvedValue({
           tools: [
@@ -1048,12 +959,8 @@ describe('mcp-client', () => {
         setRequestHandler: vi.fn().mockResolvedValue({}),
       };
 
-      vi.mocked(ClientLib.Client).mockReturnValue(
-        mockedClient as unknown as ClientLib.Client,
-      );
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.mocked(ClientLib.Client).mockReturnValue(mockedClient as unknown as ClientLib.Client);
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue({} as SdkClientStdioLib.StdioClientTransport);
 
       const mockedToolRegistry = {
         removeMcpToolsByServer: vi.fn(),
@@ -1075,24 +982,21 @@ describe('mcp-client', () => {
         { sanitizationConfig: EMPTY_CONFIG } as Config,
         false,
         '0.0.1',
-        onToolsUpdatedSpy,
+        onToolsUpdatedSpy
       );
 
       // 1. Connect (sets up listener)
       await client.connect();
 
       // 2. Extract the callback passed to setNotificationHandler
-      const notificationCallback =
-        mockedClient.setNotificationHandler.mock.calls[0][1];
+      const notificationCallback = mockedClient.setNotificationHandler.mock.calls[0][1];
 
       // 3. Trigger the notification manually
       await notificationCallback();
 
       // 4. Assertions
       // It should clear old tools
-      expect(mockedToolRegistry.removeMcpToolsByServer).toHaveBeenCalledWith(
-        'test-server',
-      );
+      expect(mockedToolRegistry.removeMcpToolsByServer).toHaveBeenCalledWith('test-server');
 
       // It should fetch new tools (listTools called inside discoverTools)
       expect(mockedClient.listTools).toHaveBeenCalled();
@@ -1104,18 +1008,13 @@ describe('mcp-client', () => {
       expect(onToolsUpdatedSpy).toHaveBeenCalled();
 
       // It should emit feedback event
-      expect(coreEvents.emitFeedback).toHaveBeenCalledWith(
-        'info',
-        'Tools updated for server: test-server',
-      );
+      expect(coreEvents.emitFeedback).toHaveBeenCalledWith('info', 'Tools updated for server: test-server');
     });
 
     it('should handle errors during tool refresh gracefully', async () => {
       const mockedClient = {
         connect: vi.fn(),
-        getServerCapabilities: vi
-          .fn()
-          .mockReturnValue({ tools: { listChanged: true } }),
+        getServerCapabilities: vi.fn().mockReturnValue({ tools: { listChanged: true } }),
         setNotificationHandler: vi.fn(),
         // Simulate error during discovery
         listTools: vi.fn().mockRejectedValue(new Error('Network blip')),
@@ -1124,12 +1023,8 @@ describe('mcp-client', () => {
         setRequestHandler: vi.fn().mockResolvedValue({}),
       };
 
-      vi.mocked(ClientLib.Client).mockReturnValue(
-        mockedClient as unknown as ClientLib.Client,
-      );
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.mocked(ClientLib.Client).mockReturnValue(mockedClient as unknown as ClientLib.Client);
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue({} as SdkClientStdioLib.StdioClientTransport);
 
       const mockedToolRegistry = {
         removeMcpToolsByServer: vi.fn(),
@@ -1145,13 +1040,12 @@ describe('mcp-client', () => {
         workspaceContext,
         { sanitizationConfig: EMPTY_CONFIG } as Config,
         false,
-        '0.0.1',
+        '0.0.1'
       );
 
       await client.connect();
 
-      const notificationCallback =
-        mockedClient.setNotificationHandler.mock.calls[0][1];
+      const notificationCallback = mockedClient.setNotificationHandler.mock.calls[0][1];
 
       // Trigger notification - should fail internally but catch the error
       await notificationCallback();
@@ -1160,18 +1054,13 @@ describe('mcp-client', () => {
       expect(mockedToolRegistry.removeMcpToolsByServer).toHaveBeenCalled();
 
       // Should NOT emit success feedback
-      expect(coreEvents.emitFeedback).not.toHaveBeenCalledWith(
-        'info',
-        expect.stringContaining('Tools updated'),
-      );
+      expect(coreEvents.emitFeedback).not.toHaveBeenCalledWith('info', expect.stringContaining('Tools updated'));
     });
 
     it('should handle concurrent updates from multiple servers', async () => {
       const createMockSdkClient = (toolName: string) => ({
         connect: vi.fn(),
-        getServerCapabilities: vi
-          .fn()
-          .mockReturnValue({ tools: { listChanged: true } }),
+        getServerCapabilities: vi.fn().mockReturnValue({ tools: { listChanged: true } }),
         setNotificationHandler: vi.fn(),
         listTools: vi.fn().mockResolvedValue({
           tools: [
@@ -1194,9 +1083,7 @@ describe('mcp-client', () => {
         .mockReturnValueOnce(mockClientA as unknown as ClientLib.Client)
         .mockReturnValueOnce(mockClientB as unknown as ClientLib.Client);
 
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue({} as SdkClientStdioLib.StdioClientTransport);
 
       const mockedToolRegistry = {
         removeMcpToolsByServer: vi.fn(),
@@ -1217,7 +1104,7 @@ describe('mcp-client', () => {
         { sanitizationConfig: EMPTY_CONFIG } as Config,
         false,
         '0.0.1',
-        onToolsUpdatedSpy,
+        onToolsUpdatedSpy
       );
 
       const clientB = new McpClient(
@@ -1230,7 +1117,7 @@ describe('mcp-client', () => {
         { sanitizationConfig: EMPTY_CONFIG } as Config,
         false,
         '0.0.1',
-        onToolsUpdatedSpy,
+        onToolsUpdatedSpy
       );
 
       await clientA.connect();
@@ -1242,12 +1129,8 @@ describe('mcp-client', () => {
       // Trigger burst updates simultaneously
       await Promise.all([handlerA(), handlerB()]);
 
-      expect(mockedToolRegistry.removeMcpToolsByServer).toHaveBeenCalledWith(
-        'server-A',
-      );
-      expect(mockedToolRegistry.removeMcpToolsByServer).toHaveBeenCalledWith(
-        'server-B',
-      );
+      expect(mockedToolRegistry.removeMcpToolsByServer).toHaveBeenCalledWith('server-A');
+      expect(mockedToolRegistry.removeMcpToolsByServer).toHaveBeenCalledWith('server-B');
 
       // Verify fetching happened on both clients
       expect(mockClientA.listTools).toHaveBeenCalled();
@@ -1265,9 +1148,7 @@ describe('mcp-client', () => {
 
       const mockedClient = {
         connect: vi.fn(),
-        getServerCapabilities: vi
-          .fn()
-          .mockReturnValue({ tools: { listChanged: true } }),
+        getServerCapabilities: vi.fn().mockReturnValue({ tools: { listChanged: true } }),
         setNotificationHandler: vi.fn(),
         // Mock listTools to simulate a long running process that respects the abort signal
         listTools: vi.fn().mockImplementation(
@@ -1281,9 +1162,9 @@ describe('mcp-client', () => {
                 () => {
                   reject(new Error('Operation aborted'));
                 },
-                { once: true },
+                { once: true }
               );
-            }),
+            })
         ),
         listPrompts: vi.fn().mockResolvedValue({ prompts: [] }),
         request: vi.fn().mockResolvedValue({}),
@@ -1291,12 +1172,8 @@ describe('mcp-client', () => {
         setRequestHandler: vi.fn().mockResolvedValue({}),
       };
 
-      vi.mocked(ClientLib.Client).mockReturnValue(
-        mockedClient as unknown as ClientLib.Client,
-      );
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.mocked(ClientLib.Client).mockReturnValue(mockedClient as unknown as ClientLib.Client);
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue({} as SdkClientStdioLib.StdioClientTransport);
 
       const mockedToolRegistry = {
         removeMcpToolsByServer: vi.fn(),
@@ -1315,13 +1192,12 @@ describe('mcp-client', () => {
         workspaceContext,
         { sanitizationConfig: EMPTY_CONFIG } as Config,
         false,
-        '0.0.1',
+        '0.0.1'
       );
 
       await client.connect();
 
-      const notificationCallback =
-        mockedClient.setNotificationHandler.mock.calls[0][1];
+      const notificationCallback = mockedClient.setNotificationHandler.mock.calls[0][1];
 
       const refreshPromise = notificationCallback();
 
@@ -1333,7 +1209,7 @@ describe('mcp-client', () => {
         expect.anything(),
         expect.objectContaining({
           signal: expect.any(AbortSignal),
-        }),
+        })
       );
 
       expect(mockedToolRegistry.registerTool).not.toHaveBeenCalled();
@@ -1344,9 +1220,7 @@ describe('mcp-client', () => {
     it('should pass abort signal to onToolsUpdated callback', async () => {
       const mockedClient = {
         connect: vi.fn(),
-        getServerCapabilities: vi
-          .fn()
-          .mockReturnValue({ tools: { listChanged: true } }),
+        getServerCapabilities: vi.fn().mockReturnValue({ tools: { listChanged: true } }),
         setNotificationHandler: vi.fn(),
         listTools: vi.fn().mockResolvedValue({ tools: [] }),
         listPrompts: vi.fn().mockResolvedValue({ prompts: [] }),
@@ -1355,12 +1229,8 @@ describe('mcp-client', () => {
         setRequestHandler: vi.fn().mockResolvedValue({}),
       };
 
-      vi.mocked(ClientLib.Client).mockReturnValue(
-        mockedClient as unknown as ClientLib.Client,
-      );
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.mocked(ClientLib.Client).mockReturnValue(mockedClient as unknown as ClientLib.Client);
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue({} as SdkClientStdioLib.StdioClientTransport);
 
       const mockedToolRegistry = {
         removeMcpToolsByServer: vi.fn(),
@@ -1381,13 +1251,12 @@ describe('mcp-client', () => {
         { sanitizationConfig: EMPTY_CONFIG } as Config,
         false,
         '0.0.1',
-        onToolsUpdatedSpy,
+        onToolsUpdatedSpy
       );
 
       await client.connect();
 
-      const notificationCallback =
-        mockedClient.setNotificationHandler.mock.calls[0][1];
+      const notificationCallback = mockedClient.setNotificationHandler.mock.calls[0][1];
 
       await notificationCallback();
 
@@ -1430,13 +1299,13 @@ describe('mcp-client', () => {
             httpUrl: 'http://test-server',
           },
           false,
-          EMPTY_CONFIG,
+          EMPTY_CONFIG
         );
 
         expect(transport).toEqual(
           new StreamableHTTPClientTransport(new URL('http://test-server'), {
             requestInit: { headers: {} },
-          }),
+          })
         );
       });
 
@@ -1450,7 +1319,7 @@ describe('mcp-client', () => {
             headers: { Authorization: 'derp' },
           },
           false,
-          EMPTY_CONFIG,
+          EMPTY_CONFIG
         );
 
         expect(transport).toEqual(
@@ -1458,7 +1327,7 @@ describe('mcp-client', () => {
             requestInit: {
               headers: { Authorization: 'derp' },
             },
-          }),
+          })
         );
       });
     });
@@ -1471,12 +1340,12 @@ describe('mcp-client', () => {
             url: 'http://test-server',
           },
           false,
-          EMPTY_CONFIG,
+          EMPTY_CONFIG
         );
         expect(transport).toEqual(
           new SSEClientTransport(new URL('http://test-server'), {
             requestInit: { headers: {} },
-          }),
+          })
         );
       });
 
@@ -1490,7 +1359,7 @@ describe('mcp-client', () => {
             headers: { Authorization: 'derp' },
           },
           false,
-          EMPTY_CONFIG,
+          EMPTY_CONFIG
         );
 
         expect(transport).toEqual(
@@ -1498,7 +1367,7 @@ describe('mcp-client', () => {
             requestInit: {
               headers: { Authorization: 'derp' },
             },
-          }),
+          })
         );
       });
     });
@@ -1517,7 +1386,7 @@ describe('mcp-client', () => {
           cwd: 'test/cwd',
         },
         false,
-        EMPTY_CONFIG,
+        EMPTY_CONFIG
       );
 
       expect(mockedTransport).toHaveBeenCalledWith({
@@ -1543,7 +1412,7 @@ describe('mcp-client', () => {
           cwd: 'test/cwd',
         },
         false,
-        EMPTY_CONFIG,
+        EMPTY_CONFIG
       );
 
       const callArgs = mockedTransport.mock.calls[0][0];
@@ -1578,7 +1447,7 @@ describe('mcp-client', () => {
           },
         },
         false,
-        EMPTY_CONFIG,
+        EMPTY_CONFIG
       );
 
       const callArgs = mockedTransport.mock.calls[0][0];
@@ -1611,7 +1480,7 @@ describe('mcp-client', () => {
             },
           },
           false,
-          EMPTY_CONFIG,
+          EMPTY_CONFIG
         );
 
         expect(transport).toBeInstanceOf(StreamableHTTPClientTransport);
@@ -1619,9 +1488,7 @@ describe('mcp-client', () => {
         const authProvider = (transport as any)._authProvider;
         expect(authProvider).toBeInstanceOf(GoogleCredentialProvider);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const googUserProject = (transport as any)._requestInit?.headers?.[
-          'X-Goog-User-Project'
-        ];
+        const googUserProject = (transport as any)._requestInit?.headers?.['X-Goog-User-Project'];
         expect(googUserProject).toBe('myproject');
       });
 
@@ -1629,10 +1496,7 @@ describe('mcp-client', () => {
         const mockGetRequestHeaders = vi.fn().mockResolvedValue({
           'X-Goog-User-Project': 'provider-project',
         });
-        vi.spyOn(
-          GoogleCredentialProvider.prototype,
-          'getRequestHeaders',
-        ).mockImplementation(mockGetRequestHeaders);
+        vi.spyOn(GoogleCredentialProvider.prototype, 'getRequestHeaders').mockImplementation(mockGetRequestHeaders);
 
         const transport = await createTransport(
           'test-server',
@@ -1644,7 +1508,7 @@ describe('mcp-client', () => {
             },
           },
           false,
-          EMPTY_CONFIG,
+          EMPTY_CONFIG
         );
 
         expect(transport).toBeInstanceOf(StreamableHTTPClientTransport);
@@ -1658,10 +1522,7 @@ describe('mcp-client', () => {
         const mockGetRequestHeaders = vi.fn().mockResolvedValue({
           'X-Goog-User-Project': 'provider-project',
         });
-        vi.spyOn(
-          GoogleCredentialProvider.prototype,
-          'getRequestHeaders',
-        ).mockImplementation(mockGetRequestHeaders);
+        vi.spyOn(GoogleCredentialProvider.prototype, 'getRequestHeaders').mockImplementation(mockGetRequestHeaders);
 
         const transport = await createTransport(
           'test-server',
@@ -1676,7 +1537,7 @@ describe('mcp-client', () => {
             },
           },
           false,
-          EMPTY_CONFIG,
+          EMPTY_CONFIG
         );
 
         expect(transport).toBeInstanceOf(StreamableHTTPClientTransport);
@@ -1697,7 +1558,7 @@ describe('mcp-client', () => {
             },
           },
           false,
-          EMPTY_CONFIG,
+          EMPTY_CONFIG
         );
 
         expect(transport).toBeInstanceOf(SSEClientTransport);
@@ -1717,11 +1578,9 @@ describe('mcp-client', () => {
               },
             },
             false,
-            EMPTY_CONFIG,
-          ),
-        ).rejects.toThrow(
-          'URL must be provided in the config for Google Credentials provider',
-        );
+            EMPTY_CONFIG
+          )
+        ).rejects.toThrow('URL must be provided in the config for Google Credentials provider');
       });
     });
   });
@@ -1765,9 +1624,7 @@ describe('mcp-client', () => {
     it('should return false if the function declaration has no name', () => {
       const namelessFuncDecl = {};
       const mcpServerConfig = {};
-      expect(isEnabled(namelessFuncDecl, serverName, mcpServerConfig)).toBe(
-        false,
-      );
+      expect(isEnabled(namelessFuncDecl, serverName, mcpServerConfig)).toBe(false);
     });
   });
 
@@ -1820,9 +1677,7 @@ describe('connectToMcpServer with OAuth', () => {
     } as unknown as ClientLib.Client;
     vi.mocked(ClientLib.Client).mockImplementation(() => mockedClient);
 
-    testWorkspace = fs.mkdtempSync(
-      path.join(os.tmpdir(), 'gemini-agent-test-'),
-    );
+    testWorkspace = fs.mkdtempSync(path.join(os.tmpdir(), 'gemini-agent-test-'));
     workspaceContext = new WorkspaceContext(testWorkspace);
 
     vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -1852,10 +1707,7 @@ describe('connectToMcpServer with OAuth', () => {
     const wwwAuthHeader = `Bearer realm="test", resource_metadata="http://test-server.com/.well-known/oauth-protected-resource"`;
 
     vi.mocked(mockedClient.connect).mockRejectedValueOnce(
-      new StreamableHTTPError(
-        401,
-        `Unauthorized\nwww-authenticate: ${wwwAuthHeader}`,
-      ),
+      new StreamableHTTPError(401, `Unauthorized\nwww-authenticate: ${wwwAuthHeader}`)
     );
 
     vi.mocked(OAuthUtils.discoverOAuthConfig).mockResolvedValue({
@@ -1867,12 +1719,10 @@ describe('connectToMcpServer with OAuth', () => {
     // We need this to be an any type because we dig into its private state.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let capturedTransport: any;
-    vi.mocked(mockedClient.connect).mockImplementationOnce(
-      async (transport) => {
-        capturedTransport = transport;
-        return Promise.resolve();
-      },
-    );
+    vi.mocked(mockedClient.connect).mockImplementationOnce(async (transport) => {
+      capturedTransport = transport;
+      return Promise.resolve();
+    });
 
     const client = await connectToMcpServer(
       '0.0.1',
@@ -1880,15 +1730,14 @@ describe('connectToMcpServer with OAuth', () => {
       { httpUrl: serverUrl, oauth: { enabled: true } },
       false,
       workspaceContext,
-      EMPTY_CONFIG,
+      EMPTY_CONFIG
     );
 
     expect(client).toBe(mockedClient);
     expect(mockedClient.connect).toHaveBeenCalledTimes(2);
     expect(mockAuthProvider.authenticate).toHaveBeenCalledOnce();
 
-    const authHeader =
-      capturedTransport._requestInit?.headers?.['Authorization'];
+    const authHeader = capturedTransport._requestInit?.headers?.['Authorization'];
     expect(authHeader).toBe('Bearer test-access-token');
   });
 
@@ -1897,28 +1746,22 @@ describe('connectToMcpServer with OAuth', () => {
     const authUrl = 'http://auth.example.com/auth';
     const tokenUrl = 'http://auth.example.com/token';
 
-    vi.mocked(mockedClient.connect).mockRejectedValueOnce(
-      new StreamableHTTPError(401, 'Unauthorized'),
-    );
+    vi.mocked(mockedClient.connect).mockRejectedValueOnce(new StreamableHTTPError(401, 'Unauthorized'));
 
     vi.mocked(OAuthUtils.discoverOAuthConfig).mockResolvedValue({
       authorizationUrl: authUrl,
       tokenUrl,
       scopes: ['test-scope'],
     });
-    vi.mocked(mockAuthProvider.getValidToken).mockResolvedValue(
-      'test-access-token-from-discovery',
-    );
+    vi.mocked(mockAuthProvider.getValidToken).mockResolvedValue('test-access-token-from-discovery');
 
     // We need this to be an any type because we dig into its private state.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let capturedTransport: any;
-    vi.mocked(mockedClient.connect).mockImplementationOnce(
-      async (transport) => {
-        capturedTransport = transport;
-        return Promise.resolve();
-      },
-    );
+    vi.mocked(mockedClient.connect).mockImplementationOnce(async (transport) => {
+      capturedTransport = transport;
+      return Promise.resolve();
+    });
 
     const client = await connectToMcpServer(
       '0.0.1',
@@ -1926,7 +1769,7 @@ describe('connectToMcpServer with OAuth', () => {
       { httpUrl: serverUrl, oauth: { enabled: true } },
       false,
       workspaceContext,
-      EMPTY_CONFIG,
+      EMPTY_CONFIG
     );
 
     expect(client).toBe(mockedClient);
@@ -1934,8 +1777,7 @@ describe('connectToMcpServer with OAuth', () => {
     expect(mockAuthProvider.authenticate).toHaveBeenCalledOnce();
     expect(OAuthUtils.discoverOAuthConfig).toHaveBeenCalledWith(serverUrl);
 
-    const authHeader =
-      capturedTransport._requestInit?.headers?.['Authorization'];
+    const authHeader = capturedTransport._requestInit?.headers?.['Authorization'];
     expect(authHeader).toBe('Bearer test-access-token-from-discovery');
   });
 });
@@ -1956,9 +1798,7 @@ describe('connectToMcpServer - HTTP→SSE fallback', () => {
     } as unknown as ClientLib.Client;
     vi.mocked(ClientLib.Client).mockImplementation(() => mockedClient);
 
-    testWorkspace = fs.mkdtempSync(
-      path.join(os.tmpdir(), 'gemini-agent-test-'),
-    );
+    testWorkspace = fs.mkdtempSync(path.join(os.tmpdir(), 'gemini-agent-test-'));
     workspaceContext = new WorkspaceContext(testWorkspace);
 
     vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -1971,9 +1811,7 @@ describe('connectToMcpServer - HTTP→SSE fallback', () => {
   });
 
   it('should NOT trigger fallback when type="http" is explicit', async () => {
-    vi.mocked(mockedClient.connect).mockRejectedValueOnce(
-      new Error('Connection failed'),
-    );
+    vi.mocked(mockedClient.connect).mockRejectedValueOnce(new Error('Connection failed'));
 
     await expect(
       connectToMcpServer(
@@ -1982,8 +1820,8 @@ describe('connectToMcpServer - HTTP→SSE fallback', () => {
         { url: 'http://test-server', type: 'http' },
         false,
         workspaceContext,
-        EMPTY_CONFIG,
-      ),
+        EMPTY_CONFIG
+      )
     ).rejects.toThrow('Connection failed');
 
     // Should only try once (no fallback)
@@ -1991,9 +1829,7 @@ describe('connectToMcpServer - HTTP→SSE fallback', () => {
   });
 
   it('should NOT trigger fallback when type="sse" is explicit', async () => {
-    vi.mocked(mockedClient.connect).mockRejectedValueOnce(
-      new Error('Connection failed'),
-    );
+    vi.mocked(mockedClient.connect).mockRejectedValueOnce(new Error('Connection failed'));
 
     await expect(
       connectToMcpServer(
@@ -2002,8 +1838,8 @@ describe('connectToMcpServer - HTTP→SSE fallback', () => {
         { url: 'http://test-server', type: 'sse' },
         false,
         workspaceContext,
-        EMPTY_CONFIG,
-      ),
+        EMPTY_CONFIG
+      )
     ).rejects.toThrow('Connection failed');
 
     // Should only try once (no fallback)
@@ -2021,7 +1857,7 @@ describe('connectToMcpServer - HTTP→SSE fallback', () => {
       { url: 'http://test-server' },
       false,
       workspaceContext,
-      EMPTY_CONFIG,
+      EMPTY_CONFIG
     );
 
     expect(client).toBe(mockedClient);
@@ -2033,19 +1869,10 @@ describe('connectToMcpServer - HTTP→SSE fallback', () => {
     const httpError = new StreamableHTTPError(500, 'Server error');
     const sseError = new Error('SSE connection failed');
 
-    vi.mocked(mockedClient.connect)
-      .mockRejectedValueOnce(httpError)
-      .mockRejectedValueOnce(sseError);
+    vi.mocked(mockedClient.connect).mockRejectedValueOnce(httpError).mockRejectedValueOnce(sseError);
 
     await expect(
-      connectToMcpServer(
-        '0.0.1',
-        'test-server',
-        { url: 'http://test-server' },
-        false,
-        workspaceContext,
-        EMPTY_CONFIG,
-      ),
+      connectToMcpServer('0.0.1', 'test-server', { url: 'http://test-server' }, false, workspaceContext, EMPTY_CONFIG)
     ).rejects.toThrow('Server error');
 
     expect(mockedClient.connect).toHaveBeenCalledTimes(2);
@@ -2062,7 +1889,7 @@ describe('connectToMcpServer - HTTP→SSE fallback', () => {
       { url: 'http://test-server' },
       false,
       workspaceContext,
-      EMPTY_CONFIG,
+      EMPTY_CONFIG
     );
 
     expect(client).toBe(mockedClient);
@@ -2088,9 +1915,7 @@ describe('connectToMcpServer - OAuth with transport fallback', () => {
     } as unknown as ClientLib.Client;
     vi.mocked(ClientLib.Client).mockImplementation(() => mockedClient);
 
-    testWorkspace = fs.mkdtempSync(
-      path.join(os.tmpdir(), 'gemini-agent-test-'),
-    );
+    testWorkspace = fs.mkdtempSync(path.join(os.tmpdir(), 'gemini-agent-test-'));
     workspaceContext = new WorkspaceContext(testWorkspace);
 
     vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -2107,7 +1932,7 @@ describe('connectToMcpServer - OAuth with transport fallback', () => {
         headers: new Headers({
           'www-authenticate': `Bearer realm="test", resource_metadata="http://test-server/.well-known/oauth-protected-resource"`,
         }),
-      }),
+      })
     );
 
     mockTokenStorage = {
@@ -2147,7 +1972,7 @@ describe('connectToMcpServer - OAuth with transport fallback', () => {
       { url: 'http://test-server', oauth: { enabled: true } },
       false,
       workspaceContext,
-      EMPTY_CONFIG,
+      EMPTY_CONFIG
     );
 
     expect(client).toBe(mockedClient);

@@ -13,10 +13,7 @@ import { SessionStatsProvider, useSessionStats } from './SessionContext.js';
 import { describe, it, expect, vi } from 'vitest';
 import { uiTelemetryService } from '@google/gemini-cli-core';
 
-class ErrorBoundary extends Component<
-  { children: ReactNode; onError: (error: Error) => void },
-  { hasError: boolean }
-> {
+class ErrorBoundary extends Component<{ children: ReactNode; onError: (error: Error) => void }, { hasError: boolean }> {
   constructor(props: { children: ReactNode; onError: (error: Error) => void }) {
     super(props);
     this.state = { hasError: false };
@@ -54,14 +51,12 @@ const TestHarness = ({
 
 describe('SessionStatsContext', () => {
   it('should provide the correct initial state', () => {
-    const contextRef: MutableRefObject<
-      ReturnType<typeof useSessionStats> | undefined
-    > = { current: undefined };
+    const contextRef: MutableRefObject<ReturnType<typeof useSessionStats> | undefined> = { current: undefined };
 
     const { unmount } = render(
       <SessionStatsProvider>
         <TestHarness contextRef={contextRef} />
-      </SessionStatsProvider>,
+      </SessionStatsProvider>
     );
 
     const stats = contextRef.current?.stats;
@@ -73,14 +68,12 @@ describe('SessionStatsContext', () => {
   });
 
   it('should update metrics when the uiTelemetryService emits an update', () => {
-    const contextRef: MutableRefObject<
-      ReturnType<typeof useSessionStats> | undefined
-    > = { current: undefined };
+    const contextRef: MutableRefObject<ReturnType<typeof useSessionStats> | undefined> = { current: undefined };
 
     const { unmount } = render(
       <SessionStatsProvider>
         <TestHarness contextRef={contextRef} />
-      </SessionStatsProvider>,
+      </SessionStatsProvider>
     );
 
     const newMetrics: SessionMetrics = {
@@ -149,9 +142,7 @@ describe('SessionStatsContext', () => {
   });
 
   it('should not update metrics if the data is the same', () => {
-    const contextRef: MutableRefObject<
-      ReturnType<typeof useSessionStats> | undefined
-    > = { current: undefined };
+    const contextRef: MutableRefObject<ReturnType<typeof useSessionStats> | undefined> = { current: undefined };
 
     let renderCount = 0;
     const CountingTestHarness = () => {
@@ -163,7 +154,7 @@ describe('SessionStatsContext', () => {
     const { unmount } = render(
       <SessionStatsProvider>
         <CountingTestHarness />
-      </SessionStatsProvider>,
+      </SessionStatsProvider>
     );
 
     expect(renderCount).toBe(1);
@@ -246,13 +237,13 @@ describe('SessionStatsContext', () => {
     const { unmount } = render(
       <ErrorBoundary onError={onError}>
         <TestHarness contextRef={{ current: undefined }} />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     expect(onError).toHaveBeenCalledWith(
       expect.objectContaining({
         message: 'useSessionStats must be used within a SessionStatsProvider',
-      }),
+      })
     );
 
     consoleSpy.mockRestore();

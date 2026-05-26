@@ -81,9 +81,7 @@ describe('CloudFreePrivacyNotice', () => {
       updateDataCollectionOptIn,
     });
 
-    const { lastFrame } = render(
-      <CloudFreePrivacyNotice config={mockConfig} onExit={onExit} />,
-    );
+    const { lastFrame } = render(<CloudFreePrivacyNotice config={mockConfig} onExit={onExit} />);
 
     expect(lastFrame()).toContain(expectedText);
   });
@@ -104,26 +102,23 @@ describe('CloudFreePrivacyNotice', () => {
       mockState: { isFreeTier: true },
       shouldExit: false,
     },
-  ])(
-    'exits on Escape in $stateName: $shouldExit',
-    ({ mockState, shouldExit }) => {
-      mockedUsePrivacySettings.mockReturnValue({
-        privacyState: { ...defaultState, ...mockState },
-        updateDataCollectionOptIn,
-      });
+  ])('exits on Escape in $stateName: $shouldExit', ({ mockState, shouldExit }) => {
+    mockedUsePrivacySettings.mockReturnValue({
+      privacyState: { ...defaultState, ...mockState },
+      updateDataCollectionOptIn,
+    });
 
-      render(<CloudFreePrivacyNotice config={mockConfig} onExit={onExit} />);
+    render(<CloudFreePrivacyNotice config={mockConfig} onExit={onExit} />);
 
-      const keypressHandler = mockedUseKeypress.mock.calls[0][0];
-      keypressHandler({ name: 'escape' });
+    const keypressHandler = mockedUseKeypress.mock.calls[0][0];
+    keypressHandler({ name: 'escape' });
 
-      if (shouldExit) {
-        expect(onExit).toHaveBeenCalled();
-      } else {
-        expect(onExit).not.toHaveBeenCalled();
-      }
-    },
-  );
+    if (shouldExit) {
+      expect(onExit).toHaveBeenCalled();
+    } else {
+      expect(onExit).not.toHaveBeenCalled();
+    }
+  });
 
   describe('RadioButtonSelect interaction', () => {
     it.each([

@@ -37,9 +37,7 @@ describe('StandardFileSystemService', () => {
       const error = new Error('ENOENT: File not found');
       vi.mocked(fs.readFile).mockRejectedValue(error);
 
-      await expect(fileSystem.readTextFile('/test/file.txt')).rejects.toThrow(
-        'ENOENT: File not found',
-      );
+      await expect(fileSystem.readTextFile('/test/file.txt')).rejects.toThrow('ENOENT: File not found');
     });
   });
 
@@ -49,11 +47,7 @@ describe('StandardFileSystemService', () => {
 
       await fileSystem.writeTextFile('/test/file.txt', 'Hello, World!');
 
-      expect(fs.writeFile).toHaveBeenCalledWith(
-        '/test/file.txt',
-        'Hello, World!',
-        'utf-8',
-      );
+      expect(fs.writeFile).toHaveBeenCalledWith('/test/file.txt', 'Hello, World!', 'utf-8');
     });
   });
 });

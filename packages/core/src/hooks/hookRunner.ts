@@ -20,11 +20,7 @@ import type {
 import type { LLMRequest } from './hookTranslator.js';
 import { debugLogger } from '../utils/debugLogger.js';
 import { sanitizeEnvironment } from '../services/environmentSanitization.js';
-import {
-  escapeShellArg,
-  getShellConfiguration,
-  type ShellType,
-} from '../utils/shell-utils.js';
+import { escapeShellArg, getShellConfiguration, type ShellType } from '../utils/shell-utils.js';
 
 /**
  * Default timeout for hook execution (60 seconds)
@@ -50,20 +46,12 @@ export class HookRunner {
   /**
    * Execute a single hook
    */
-  async executeHook(
-    hookConfig: HookConfig,
-    eventName: HookEventName,
-    input: HookInput,
-  ): Promise<HookExecutionResult> {
+  async executeHook(hookConfig: HookConfig, eventName: HookEventName, input: HookInput): Promise<HookExecutionResult> {
     const startTime = Date.now();
 
     // Secondary security check: Ensure project hooks are not executed in untrusted folders
-    if (
-      hookConfig.source === ConfigSource.Project &&
-      !this.config.isTrustedFolder()
-    ) {
-      const errorMessage =
-        'Security: Blocked execution of project hook in untrusted folder';
+    if (hookConfig.source === ConfigSource.Project && !this.config.isTrustedFolder()) {
+      const errorMessage = 'Security: Blocked execution of project hook in untrusted folder';
       debugLogger.warn(errorMessage);
       return {
         hookConfig,
@@ -75,12 +63,7 @@ export class HookRunner {
     }
 
     try {
-      return await this.executeCommandHook(
-        hookConfig,
-        eventName,
-        input,
-        startTime,
-      );
+      return await this.executeCommandHook(hookConfig, eventName, input, startTime);
     } catch (error) {
       const duration = Date.now() - startTime;
       const hookId = hookConfig.name || hookConfig.command || 'unknown';
@@ -105,7 +88,7 @@ export class HookRunner {
     eventName: HookEventName,
     input: HookInput,
     onHookStart?: (config: HookConfig, index: number) => void,
-    onHookEnd?: (config: HookConfig, result: HookExecutionResult) => void,
+    onHookEnd?: (config: HookConfig, result: HookExecutionResult) => void
   ): Promise<HookExecutionResult[]> {
     const promises = hookConfigs.map(async (config, index) => {
       onHookStart?.(config, index);
@@ -125,7 +108,7 @@ export class HookRunner {
     eventName: HookEventName,
     input: HookInput,
     onHookStart?: (config: HookConfig, index: number) => void,
-    onHookEnd?: (config: HookConfig, result: HookExecutionResult) => void,
+    onHookEnd?: (config: HookConfig, result: HookExecutionResult) => void
   ): Promise<HookExecutionResult[]> {
     const results: HookExecutionResult[] = [];
     let currentInput = input;
@@ -139,11 +122,7 @@ export class HookRunner {
 
       // If the hook succeeded and has output, use it to modify the input for the next hook
       if (result.success && result.output) {
-        currentInput = this.applyHookOutputToInput(
-          currentInput,
-          result.output,
-          eventName,
-        );
+        currentInput = this.applyHookOutputToInput(currentInput, result.output, eventName);
       }
     }
 
@@ -156,7 +135,7 @@ export class HookRunner {
   private applyHookOutputToInput(
     originalInput: HookInput,
     hookOutput: HookOutput,
-    eventName: HookEventName,
+    eventName: HookEventName
   ): HookInput {
     // Create a copy of the original input
     const modifiedInput = { ...originalInput };
@@ -167,15 +146,10 @@ export class HookRunner {
         case HookEventName.BeforeAgent:
           if ('additionalContext' in hookOutput.hookSpecificOutput) {
             // For BeforeAgent, we could modify the prompt with additional context
-            const additionalContext =
-              hookOutput.hookSpecificOutput['additionalContext'];
-            if (
-              typeof additionalContext === 'string' &&
-              'prompt' in modifiedInput
-            ) {
+            const additionalContext = hookOutput.hookSpecificOutput['additionalContext'];
+            if (typeof additionalContext === 'string' && 'prompt' in modifiedInput) {
               // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-              (modifiedInput as BeforeAgentInput).prompt +=
-                '\n\n' + additionalContext;
+              (modifiedInput as BeforeAgentInput).prompt += '\n\n' + additionalContext;
             }
           }
           break;
@@ -185,16 +159,11 @@ export class HookRunner {
             // For BeforeModel, we update the LLM request
             // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
             const hookBeforeModelOutput = hookOutput as BeforeModelOutput;
-            if (
-              hookBeforeModelOutput.hookSpecificOutput?.llm_request &&
-              'llm_request' in modifiedInput
-            ) {
+            if (hookBeforeModelOutput.hookSpecificOutput?.llm_request && 'llm_request' in modifiedInput) {
               // Merge the partial request with the existing request
               // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-              const currentRequest = (modifiedInput as BeforeModelInput)
-                .llm_request;
-              const partialRequest =
-                hookBeforeModelOutput.hookSpecificOutput.llm_request;
+              const currentRequest = (modifiedInput as BeforeModelInput).llm_request;
+              const partialRequest = hookBeforeModelOutput.hookSpecificOutput.llm_request;
               // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
               (modifiedInput as BeforeModelInput).llm_request = {
                 ...currentRequest,
@@ -207,9 +176,7 @@ export class HookRunner {
         case HookEventName.BeforeTool:
           if ('tool_input' in hookOutput.hookSpecificOutput) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-            const newToolInput = hookOutput.hookSpecificOutput[
-              'tool_input'
-            ] as Record<string, unknown>;
+            const newToolInput = hookOutput.hookSpecificOutput['tool_input'] as Record<string, unknown>;
             if (newToolInput && 'tool_input' in modifiedInput) {
               // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
               (modifiedInput as BeforeToolInput).tool_input = {
@@ -237,16 +204,14 @@ export class HookRunner {
     hookConfig: HookConfig,
     eventName: HookEventName,
     input: HookInput,
-    startTime: number,
+    startTime: number
   ): Promise<HookExecutionResult> {
     const timeout = hookConfig.timeout ?? DEFAULT_HOOK_TIMEOUT;
 
     return new Promise((resolve) => {
       if (!hookConfig.command) {
         const errorMessage = 'Command hook missing command';
-        debugLogger.warn(
-          `Hook configuration error (non-fatal): ${errorMessage}`,
-        );
+        debugLogger.warn(`Hook configuration error (non-fatal): ${errorMessage}`);
         resolve({
           hookConfig,
           eventName,
@@ -262,11 +227,7 @@ export class HookRunner {
       let timedOut = false;
 
       const shellConfig = getShellConfiguration();
-      const command = this.expandCommand(
-        hookConfig.command,
-        input,
-        shellConfig.shell,
-      );
+      const command = this.expandCommand(hookConfig.command, input, shellConfig.shell);
 
       // Set up environment variables
       const env = {
@@ -276,16 +237,12 @@ export class HookRunner {
         ...hookConfig.env,
       };
 
-      const child = spawn(
-        shellConfig.executable,
-        [...shellConfig.argsPrefix, command],
-        {
-          env,
-          cwd: input.cwd,
-          stdio: ['pipe', 'pipe', 'pipe'],
-          shell: false,
-        },
-      );
+      const child = spawn(shellConfig.executable, [...shellConfig.argsPrefix, command], {
+        env,
+        cwd: input.cwd,
+        stdio: ['pipe', 'pipe', 'pipe'],
+        shell: false,
+      });
 
       // Set up timeout
       const timeoutHandle = setTimeout(() => {
@@ -366,10 +323,7 @@ export class HookRunner {
             }
           } catch {
             // Not JSON, convert plain text to structured output
-            output = this.convertPlainTextToHookOutput(
-              textToParse,
-              exitCode || EXIT_CODE_SUCCESS,
-            );
+            output = this.convertPlainTextToHookOutput(textToParse, exitCode || EXIT_CODE_SUCCESS);
           }
         }
 
@@ -406,11 +360,7 @@ export class HookRunner {
   /**
    * Expand command with environment variables and input context
    */
-  private expandCommand(
-    command: string,
-    input: HookInput,
-    shellType: ShellType,
-  ): string {
+  private expandCommand(command: string, input: HookInput, shellType: ShellType): string {
     debugLogger.debug(`Expanding hook command: ${command} (cwd: ${input.cwd})`);
     const escapedCwd = escapeShellArg(input.cwd, shellType);
     return command
@@ -421,10 +371,7 @@ export class HookRunner {
   /**
    * Convert plain text output to structured HookOutput
    */
-  private convertPlainTextToHookOutput(
-    text: string,
-    exitCode: number,
-  ): HookOutput {
+  private convertPlainTextToHookOutput(text: string, exitCode: number): HookOutput {
     if (exitCode === EXIT_CODE_SUCCESS) {
       // Success - treat as system message or additional context
       return {

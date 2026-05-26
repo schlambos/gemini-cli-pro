@@ -30,10 +30,7 @@ export interface FormatDefaultValueOptions {
   quoteStrings?: boolean;
 }
 
-export function formatDefaultValue(
-  value: unknown,
-  options: FormatDefaultValueOptions = {},
-): string {
+export function formatDefaultValue(value: unknown, options: FormatDefaultValueOptions = {}): string {
   const { quoteStrings = false } = options;
 
   if (value === undefined) {
@@ -107,9 +104,7 @@ export function injectBetweenMarkers({
   const endIndex = document.indexOf(endMarker);
 
   if (startIndex === -1 || endIndex === -1 || startIndex >= endIndex) {
-    throw new Error(
-      `Could not locate documentation markers (${startMarker}, ${endMarker}).`,
-    );
+    throw new Error(`Could not locate documentation markers (${startMarker}, ${endMarker}).`);
   }
 
   const before = document.slice(0, startIndex + startMarker.length);

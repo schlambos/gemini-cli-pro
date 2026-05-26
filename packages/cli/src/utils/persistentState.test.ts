@@ -56,7 +56,7 @@ describe('PersistentState', () => {
     });
     expect(fs.writeFileSync).toHaveBeenCalledWith(
       mockFilePath,
-      JSON.stringify({ defaultBannerShownCount: { banner1: 1 } }, null, 2),
+      JSON.stringify({ defaultBannerShownCount: { banner1: 1 } }, null, 2)
     );
   });
 

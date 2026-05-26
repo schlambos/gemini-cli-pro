@@ -6,21 +6,11 @@
 
 import open from 'open';
 import process from 'node:process';
-import {
-  type CommandContext,
-  type SlashCommand,
-  CommandKind,
-} from './types.js';
+import { type CommandContext, type SlashCommand, CommandKind } from './types.js';
 import { MessageType } from '../types.js';
 import { GIT_COMMIT_INFO } from '../../generated/git-commit.js';
 import { formatBytes } from '../utils/formatters.js';
-import {
-  IdeClient,
-  sessionId,
-  getVersion,
-  INITIAL_HISTORY_LENGTH,
-  debugLogger,
-} from '@google/gemini-cli-core';
+import { IdeClient, sessionId, getVersion, INITIAL_HISTORY_LENGTH, debugLogger } from '@google/gemini-cli-core';
 import { terminalCapabilityManager } from '../utils/terminalCapabilityManager.js';
 import { exportHistoryToFile } from '../utils/historyExportUtils.js';
 import path from 'node:path';
@@ -39,21 +29,15 @@ export const bugCommand: SlashCommand = {
     if (process.env['SANDBOX'] && process.env['SANDBOX'] !== 'sandbox-exec') {
       sandboxEnv = process.env['SANDBOX'].replace(/^gemini-(?:code-)?/, '');
     } else if (process.env['SANDBOX'] === 'sandbox-exec') {
-      sandboxEnv = `sandbox-exec (${
-        process.env['SEATBELT_PROFILE'] || 'unknown'
-      })`;
+      sandboxEnv = `sandbox-exec (${process.env['SEATBELT_PROFILE'] || 'unknown'})`;
     }
     const modelVersion = config?.getModel() || 'Unknown';
     const cliVersion = await getVersion();
     const memoryUsage = formatBytes(process.memoryUsage().rss);
     const ideClient = await getIdeClientName(context);
-    const terminalName =
-      terminalCapabilityManager.getTerminalName() || 'Unknown';
-    const terminalBgColor =
-      terminalCapabilityManager.getTerminalBackgroundColor() || 'Unknown';
-    const kittyProtocol = terminalCapabilityManager.isKittyProtocolEnabled()
-      ? 'Supported'
-      : 'Unsupported';
+    const terminalName = terminalCapabilityManager.getTerminalName() || 'Unknown';
+    const terminalBgColor = terminalCapabilityManager.getTerminalBackgroundColor() || 'Unknown';
+    const kittyProtocol = terminalCapabilityManager.isKittyProtocolEnabled() ? 'Supported' : 'Unsupported';
     const authType = config?.getContentGeneratorConfig()?.authType || 'Unknown';
 
     let info = `
@@ -89,9 +73,7 @@ export const bugCommand: SlashCommand = {
           problemValue += `\n\n[ACTION REQUIRED] 📎 PLEASE ATTACH THE EXPORTED CHAT HISTORY JSON FILE TO THIS ISSUE IF YOU FEEL COMFORTABLE SHARING IT.`;
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : String(err);
-          debugLogger.error(
-            `Failed to export chat history for bug report: ${errorMessage}`,
-          );
+          debugLogger.error(`Failed to export chat history for bug report: ${errorMessage}`);
         }
       }
     }
@@ -114,20 +96,19 @@ export const bugCommand: SlashCommand = {
         type: MessageType.INFO,
         text: `To submit your bug report, please open the following URL in your browser:\n${bugReportUrl}${historyFileMessage}`,
       },
-      Date.now(),
+      Date.now()
     );
 
     try {
       await open(bugReportUrl);
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       context.ui.addItem(
         {
           type: MessageType.ERROR,
           text: `Could not open URL in browser: ${errorMessage}`,
         },
-        Date.now(),
+        Date.now()
       );
     }
   },

@@ -8,12 +8,7 @@ import { act } from 'react';
 import { renderHook } from '../../test-utils/render.js';
 import { waitFor } from '../../test-utils/async.js';
 import { useSessionResume } from './useSessionResume.js';
-import type {
-  Config,
-  ResumedSessionData,
-  ConversationRecord,
-  MessageRecord,
-} from '@google/gemini-cli-core';
+import type { Config, ResumedSessionData, ConversationRecord, MessageRecord } from '@google/gemini-cli-core';
 import type { UseHistoryManagerReturn } from './useHistoryManager.js';
 import type { HistoryItemWithoutId } from '../types.js';
 
@@ -87,33 +82,16 @@ describe('useSessionResume', () => {
       };
 
       await act(async () => {
-        await result.current.loadHistoryForResume(
-          uiHistory,
-          clientHistory,
-          resumedData,
-        );
+        await result.current.loadHistoryForResume(uiHistory, clientHistory, resumedData);
       });
 
       expect(mockSetQuittingMessages).toHaveBeenCalledWith(null);
       expect(mockHistoryManager.clearItems).toHaveBeenCalled();
       expect(mockHistoryManager.addItem).toHaveBeenCalledTimes(2);
-      expect(mockHistoryManager.addItem).toHaveBeenNthCalledWith(
-        1,
-        { type: 'user', text: 'Hello' },
-        0,
-        true,
-      );
-      expect(mockHistoryManager.addItem).toHaveBeenNthCalledWith(
-        2,
-        { type: 'gemini', text: 'Hi there!' },
-        1,
-        true,
-      );
+      expect(mockHistoryManager.addItem).toHaveBeenNthCalledWith(1, { type: 'user', text: 'Hello' }, 0, true);
+      expect(mockHistoryManager.addItem).toHaveBeenNthCalledWith(2, { type: 'gemini', text: 'Hi there!' }, 1, true);
       expect(mockRefreshStatic).toHaveBeenCalledTimes(1);
-      expect(mockGeminiClient.resumeChat).toHaveBeenCalledWith(
-        clientHistory,
-        resumedData,
-      );
+      expect(mockGeminiClient.resumeChat).toHaveBeenCalledWith(clientHistory, resumedData);
     });
 
     it('should not load history if Gemini client is not initialized', async () => {
@@ -121,15 +99,11 @@ describe('useSessionResume', () => {
         useSessionResume({
           ...getDefaultProps(),
           isGeminiClientInitialized: false,
-        }),
+        })
       );
 
-      const uiHistory: HistoryItemWithoutId[] = [
-        { type: 'user', text: 'Hello' },
-      ];
-      const clientHistory = [
-        { role: 'user' as const, parts: [{ text: 'Hello' }] },
-      ];
+      const uiHistory: HistoryItemWithoutId[] = [{ type: 'user', text: 'Hello' }];
+      const clientHistory = [{ role: 'user' as const, parts: [{ text: 'Hello' }] }];
       const resumedData: ResumedSessionData = {
         conversation: {
           sessionId: 'test-123',
@@ -142,11 +116,7 @@ describe('useSessionResume', () => {
       };
 
       await act(async () => {
-        await result.current.loadHistoryForResume(
-          uiHistory,
-          clientHistory,
-          resumedData,
-        );
+        await result.current.loadHistoryForResume(uiHistory, clientHistory, resumedData);
       });
 
       expect(mockHistoryManager.clearItems).not.toHaveBeenCalled();
@@ -179,9 +149,7 @@ describe('useSessionResume', () => {
     });
 
     it('should restore directories from resumed session data', async () => {
-      const mockAddDirectories = vi
-        .fn()
-        .mockReturnValue({ added: [], failed: [] });
+      const mockAddDirectories = vi.fn().mockReturnValue({ added: [], failed: [] });
       const mockWorkspaceContext = {
         addDirectories: mockAddDirectories,
       };
@@ -194,7 +162,7 @@ describe('useSessionResume', () => {
         useSessionResume({
           ...getDefaultProps(),
           config: configWithWorkspace as unknown as Config,
-        }),
+        })
       );
 
       const resumedData: ResumedSessionData = {
@@ -214,10 +182,7 @@ describe('useSessionResume', () => {
       });
 
       expect(configWithWorkspace.getWorkspaceContext).toHaveBeenCalled();
-      expect(mockAddDirectories).toHaveBeenCalledWith([
-        '/restored/dir1',
-        '/restored/dir2',
-      ]);
+      expect(mockAddDirectories).toHaveBeenCalledWith(['/restored/dir1', '/restored/dir2']);
     });
 
     it('should not call addDirectories when no directories in resumed session', async () => {
@@ -234,7 +199,7 @@ describe('useSessionResume', () => {
         useSessionResume({
           ...getDefaultProps(),
           config: configWithWorkspace as unknown as Config,
-        }),
+        })
       );
 
       const resumedData: ResumedSessionData = {
@@ -259,9 +224,7 @@ describe('useSessionResume', () => {
 
   describe('callback stability', () => {
     it('should maintain stable loadHistoryForResume reference across renders', () => {
-      const { result, rerender } = renderHook(() =>
-        useSessionResume(getDefaultProps()),
-      );
+      const { result, rerender } = renderHook(() => useSessionResume(getDefaultProps()));
 
       const initialCallback = result.current.loadHistoryForResume;
 
@@ -279,7 +242,7 @@ describe('useSessionResume', () => {
           }),
         {
           initialProps: { config: mockConfig as unknown as Config },
-        },
+        }
       );
 
       const initialCallback = result.current.loadHistoryForResume;
@@ -327,7 +290,7 @@ describe('useSessionResume', () => {
             filePath: '/path/to/session.json',
           },
           isAuthenticating: true,
-        }),
+        })
       );
 
       expect(mockHistoryManager.clearItems).not.toHaveBeenCalled();
@@ -359,7 +322,7 @@ describe('useSessionResume', () => {
             filePath: '/path/to/session.json',
           },
           isGeminiClientInitialized: false,
-        }),
+        })
       );
 
       expect(mockHistoryManager.clearItems).not.toHaveBeenCalled();
@@ -397,7 +360,7 @@ describe('useSessionResume', () => {
               conversation,
               filePath: '/path/to/session.json',
             },
-          }),
+          })
         );
       });
 
@@ -410,14 +373,9 @@ describe('useSessionResume', () => {
         1,
         { type: 'user', text: 'Hello from resumed session' },
         0,
-        true,
+        true
       );
-      expect(mockHistoryManager.addItem).toHaveBeenNthCalledWith(
-        2,
-        { type: 'gemini', text: 'Welcome back!' },
-        1,
-        true,
-      );
+      expect(mockHistoryManager.addItem).toHaveBeenNthCalledWith(2, { type: 'gemini', text: 'Welcome back!' }, 1, true);
       expect(mockRefreshStatic).toHaveBeenCalledTimes(1);
       expect(mockGeminiClient.resumeChat).toHaveBeenCalled();
     });
@@ -452,7 +410,7 @@ describe('useSessionResume', () => {
             }),
           {
             initialProps: { refreshStatic: mockRefreshStatic as () => void },
-          },
+          }
         );
         rerenderFunc = rerender;
       });
@@ -461,9 +419,7 @@ describe('useSessionResume', () => {
         expect(mockHistoryManager.clearItems).toHaveBeenCalled();
       });
 
-      const clearItemsCallCount = (
-        mockHistoryManager.clearItems as ReturnType<typeof vi.fn>
-      ).mock.calls.length;
+      const clearItemsCallCount = (mockHistoryManager.clearItems as ReturnType<typeof vi.fn>).mock.calls.length;
 
       // Rerender with different refreshStatic
       const newRefreshStatic = vi.fn();
@@ -472,9 +428,7 @@ describe('useSessionResume', () => {
       });
 
       // Should not resume again
-      expect(mockHistoryManager.clearItems).toHaveBeenCalledTimes(
-        clearItemsCallCount,
-      );
+      expect(mockHistoryManager.clearItems).toHaveBeenCalledTimes(clearItemsCallCount);
     });
 
     it('should convert session messages correctly during auto-resume', async () => {
@@ -507,7 +461,7 @@ describe('useSessionResume', () => {
               conversation,
               filePath: '/path/to/session.json',
             },
-          }),
+          })
         );
       });
 

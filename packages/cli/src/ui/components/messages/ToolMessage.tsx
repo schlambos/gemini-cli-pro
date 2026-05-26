@@ -56,49 +56,26 @@ export const ToolMessage: React.FC<ToolMessageProps> = ({
   ptyId,
   config,
 }) => {
-  const isThisShellFocused = checkIsShellFocused(
-    name,
-    status,
-    ptyId,
-    activeShellPtyId,
-    embeddedShellFocused,
-  );
+  const isThisShellFocused = checkIsShellFocused(name, status, ptyId, activeShellPtyId, embeddedShellFocused);
 
   const isThisShellFocusable = checkIsShellFocusable(name, status, config);
 
-  const { shouldShowFocusHint } = useFocusHint(
-    isThisShellFocusable,
-    isThisShellFocused,
-    resultDisplay,
-  );
+  const { shouldShowFocusHint } = useFocusHint(isThisShellFocusable, isThisShellFocused, resultDisplay);
 
   return (
     // It is crucial we don't replace this <> with a Box because otherwise the
     // sticky header inside it would be sticky to that box rather than to the
     // parent component of this ToolMessage.
     <>
-      <StickyHeader
-        width={terminalWidth}
-        isFirst={isFirst}
-        borderColor={borderColor}
-        borderDimColor={borderDimColor}
-      >
+      <StickyHeader width={terminalWidth} isFirst={isFirst} borderColor={borderColor} borderDimColor={borderDimColor}>
         <ToolStatusIndicator status={status} name={name} />
-        <ToolInfo
-          name={name}
-          status={status}
-          description={description}
-          emphasis={emphasis}
-        />
-        <FocusHint
-          shouldShowFocusHint={shouldShowFocusHint}
-          isThisShellFocused={isThisShellFocused}
-        />
+        <ToolInfo name={name} status={status} description={description} emphasis={emphasis} />
+        <FocusHint shouldShowFocusHint={shouldShowFocusHint} isThisShellFocused={isThisShellFocused} />
         {emphasis === 'high' && <TrailingIndicator />}
       </StickyHeader>
       <Box
         width={terminalWidth}
-        borderStyle="round"
+        borderStyle='round'
         borderColor={borderColor}
         borderDimColor={borderDimColor}
         borderTop={false}
@@ -106,7 +83,7 @@ export const ToolMessage: React.FC<ToolMessageProps> = ({
         borderLeft={true}
         borderRight={true}
         paddingX={1}
-        flexDirection="column"
+        flexDirection='column'
       >
         <ToolResultDisplay
           resultDisplay={resultDisplay}
@@ -117,10 +94,7 @@ export const ToolMessage: React.FC<ToolMessageProps> = ({
         />
         {isThisShellFocused && config && (
           <Box paddingLeft={STATUS_INDICATOR_WIDTH} marginTop={1}>
-            <ShellInputPrompt
-              activeShellPtyId={activeShellPtyId ?? null}
-              focus={embeddedShellFocused}
-            />
+            <ShellInputPrompt activeShellPtyId={activeShellPtyId ?? null} focus={embeddedShellFocused} />
           </Box>
         )}
       </Box>

@@ -33,11 +33,7 @@ vi.mock('../contexts/SettingsContext.js', async (importOriginal) => {
 const useSessionStatsMock = vi.mocked(SessionContext.useSessionStats);
 const useSettingsMock = vi.mocked(SettingsContext.useSettings);
 
-const renderWithMockedStats = (
-  metrics: SessionMetrics,
-  width?: number,
-  currentModel: string = 'gemini-2.5-pro',
-) => {
+const renderWithMockedStats = (metrics: SessionMetrics, width?: number, currentModel: string = 'gemini-2.5-pro') => {
   useSessionStatsMock.mockReturnValue({
     stats: {
       sessionId: 'test-session',
@@ -64,9 +60,7 @@ const renderWithMockedStats = (
 
 describe('<ModelStatsDisplay />', () => {
   beforeAll(() => {
-    vi.spyOn(Number.prototype, 'toLocaleString').mockImplementation(function (
-      this: number,
-    ) {
+    vi.spyOn(Number.prototype, 'toLocaleString').mockImplementation(function (this: number) {
       // Use a stable 'en-US' format for test consistency.
       return new Intl.NumberFormat('en-US').format(this);
     });
@@ -98,9 +92,7 @@ describe('<ModelStatsDisplay />', () => {
       },
     });
 
-    expect(lastFrame()).toContain(
-      'No API calls have been made in this session.',
-    );
+    expect(lastFrame()).toContain('No API calls have been made in this session.');
     expect(lastFrame()).toMatchSnapshot();
   });
 
@@ -393,7 +385,7 @@ describe('<ModelStatsDisplay />', () => {
         },
       },
       80,
-      'auto-gemini-3',
+      'auto-gemini-3'
     );
 
     const output = lastFrame();
@@ -470,11 +462,7 @@ describe('<ModelStatsDisplay />', () => {
     } as unknown as LoadedSettings);
 
     const { lastFrame } = render(
-      <ModelStatsDisplay
-        selectedAuthType="oauth"
-        userEmail="test@example.com"
-        tier="Pro"
-      />,
+      <ModelStatsDisplay selectedAuthType='oauth' userEmail='test@example.com' tier='Pro' />
     );
 
     useSessionStatsMock.mockReturnValue({
@@ -591,8 +579,7 @@ describe('<ModelStatsDisplay />', () => {
   });
 
   it('should filter out invalid role names', () => {
-    const invalidRoleName =
-      'this_is_a_very_long_role_name_that_should_be_wrapped' as LlmRole;
+    const invalidRoleName = 'this_is_a_very_long_role_name_that_should_be_wrapped' as LlmRole;
     const { lastFrame } = renderWithMockedStats({
       models: {
         'gemini-2.5-pro': {

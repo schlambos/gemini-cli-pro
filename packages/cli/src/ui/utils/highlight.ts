@@ -4,10 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  type Transformation,
-  PASTED_TEXT_PLACEHOLDER_REGEX,
-} from '../components/shared/text-buffer.js';
+import { type Transformation, PASTED_TEXT_PLACEHOLDER_REGEX } from '../components/shared/text-buffer.js';
 import { LRUCache } from 'mnemonist';
 import { cpLen, cpSlice } from './textUtils.js';
 import { LRU_BUFFER_PERF_CACHE_LIMIT } from '../constants.js';
@@ -26,18 +23,16 @@ export type HighlightToken = {
 // This supports URIs like `@file:///example.txt` and filenames with Unicode spaces (like NNBSP).
 const HIGHLIGHT_REGEX = new RegExp(
   `(^/[a-zA-Z0-9_-]+|@${AT_COMMAND_PATH_REGEX_SOURCE}|${PASTED_TEXT_PLACEHOLDER_REGEX.source})`,
-  'g',
+  'g'
 );
 
-const highlightCache = new LRUCache<string, readonly HighlightToken[]>(
-  LRU_BUFFER_PERF_CACHE_LIMIT,
-);
+const highlightCache = new LRUCache<string, readonly HighlightToken[]>(LRU_BUFFER_PERF_CACHE_LIMIT);
 
 export function parseInputForHighlighting(
   text: string,
   index: number,
   transformations: Transformation[] = [],
-  cursorCol?: number,
+  cursorCol?: number
 ): readonly HighlightToken[] {
   let isCursorInsideTransform = false;
   if (cursorCol !== undefined) {
@@ -75,11 +70,7 @@ export function parseInputForHighlighting(
         tokens.push({ text: text.slice(last, matchIndex), type: 'default' });
       }
 
-      const type = fullMatch.startsWith('/')
-        ? 'command'
-        : fullMatch.startsWith('@')
-          ? 'file'
-          : 'paste';
+      const type = fullMatch.startsWith('/') ? 'command' : fullMatch.startsWith('@') ? 'file' : 'paste';
       if (type === 'command' && index !== 0) {
         tokens.push({ text: fullMatch, type: 'default' });
       } else {
@@ -99,25 +90,15 @@ export function parseInputForHighlighting(
   const tokens: HighlightToken[] = [];
 
   let column = 0;
-  const sortedTransformations = (transformations ?? [])
-    .slice()
-    .sort((a, b) => a.logStart - b.logStart);
+  const sortedTransformations = (transformations ?? []).slice().sort((a, b) => a.logStart - b.logStart);
 
   for (const transformation of sortedTransformations) {
-    const textBeforeTransformation = cpSlice(
-      text,
-      column,
-      transformation.logStart,
-    );
+    const textBeforeTransformation = cpSlice(text, column, transformation.logStart);
     tokens.push(...parseUntransformedInput(textBeforeTransformation));
 
     const isCursorInside =
-      cursorCol !== undefined &&
-      cursorCol >= transformation.logStart &&
-      cursorCol <= transformation.logEnd;
-    const transformationText = isCursorInside
-      ? transformation.logicalText
-      : transformation.collapsedText;
+      cursorCol !== undefined && cursorCol >= transformation.logStart && cursorCol <= transformation.logEnd;
+    const transformationText = isCursorInside ? transformation.logicalText : transformation.collapsedText;
     tokens.push({ text: transformationText, type: 'file' });
 
     column = transformation.logEnd;
@@ -134,7 +115,7 @@ export function parseInputForHighlighting(
 export function parseSegmentsFromTokens(
   tokens: readonly HighlightToken[],
   sliceStart: number,
-  sliceEnd: number,
+  sliceEnd: number
 ): readonly HighlightToken[] {
   if (sliceStart >= sliceEnd) return [];
 

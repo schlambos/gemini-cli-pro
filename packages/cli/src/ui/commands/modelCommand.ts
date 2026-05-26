@@ -4,21 +4,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  ModelSlashCommandEvent,
-  logModelSlashCommand,
-} from '@google/gemini-cli-core';
-import {
-  type CommandContext,
-  CommandKind,
-  type SlashCommand,
-} from './types.js';
+import { ModelSlashCommandEvent, logModelSlashCommand } from '@google/gemini-cli-core';
+import { type CommandContext, CommandKind, type SlashCommand } from './types.js';
 import { MessageType } from '../types.js';
 
 const setModelCommand: SlashCommand = {
   name: 'set',
-  description:
-    'Set the model to use. Usage: /model set <model-name> [--persist]',
+  description: 'Set the model to use. Usage: /model set <model-name> [--persist]',
   kind: CommandKind.BUILT_IN,
   autoExecute: false,
   action: async (context: CommandContext, args: string) => {
@@ -69,6 +61,5 @@ export const modelCommand: SlashCommand = {
   kind: CommandKind.BUILT_IN,
   autoExecute: false,
   subCommands: [manageModelCommand, setModelCommand],
-  action: async (context: CommandContext, args: string) =>
-    manageModelCommand.action!(context, args),
+  action: async (context: CommandContext, args: string) => manageModelCommand.action!(context, args),
 };

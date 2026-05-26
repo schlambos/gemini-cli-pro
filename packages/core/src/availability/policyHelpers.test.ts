@@ -5,11 +5,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import {
-  resolvePolicyChain,
-  buildFallbackPolicyContext,
-  applyModelSelection,
-} from './policyHelpers.js';
+import { resolvePolicyChain, buildFallbackPolicyContext, applyModelSelection } from './policyHelpers.js';
 import { createDefaultPolicy } from './policyCatalog.js';
 import type { Config } from '../config/config.js';
 import {
@@ -158,22 +154,14 @@ describe('policyHelpers', () => {
 
   describe('buildFallbackPolicyContext', () => {
     it('returns remaining candidates after the failed model', () => {
-      const chain = [
-        createDefaultPolicy('a'),
-        createDefaultPolicy('b'),
-        createDefaultPolicy('c'),
-      ];
+      const chain = [createDefaultPolicy('a'), createDefaultPolicy('b'), createDefaultPolicy('c')];
       const context = buildFallbackPolicyContext(chain, 'b');
       expect(context.failedPolicy?.model).toBe('b');
       expect(context.candidates.map((p) => p.model)).toEqual(['c']);
     });
 
     it('wraps around when building fallback context if wrapsAround is true', () => {
-      const chain = [
-        createDefaultPolicy('a'),
-        createDefaultPolicy('b'),
-        createDefaultPolicy('c'),
-      ];
+      const chain = [createDefaultPolicy('a'), createDefaultPolicy('b'), createDefaultPolicy('c')];
       const context = buildFallbackPolicyContext(chain, 'b', true);
       expect(context.failedPolicy?.model).toBe('b');
       expect(context.candidates.map((p) => p.model)).toEqual(['c', 'a']);
@@ -197,9 +185,7 @@ describe('policyHelpers', () => {
       consumeStickyAttempt: vi.fn(),
     };
 
-    const createExtendedMockConfig = (
-      overrides: Partial<Config> = {},
-    ): Config => {
+    const createExtendedMockConfig = (overrides: Partial<Config> = {}): Config => {
       const defaults = {
         getModelAvailabilityService: () => mockAvailabilityService,
         setActiveModel: vi.fn(),
@@ -272,9 +258,7 @@ describe('policyHelpers', () => {
       });
 
       const result = applyModelSelection(config, { model: 'gemini-pro' });
-      expect(mockAvailabilityService.consumeStickyAttempt).toHaveBeenCalledWith(
-        'gemini-pro',
-      );
+      expect(mockAvailabilityService.consumeStickyAttempt).toHaveBeenCalledWith('gemini-pro');
       expect(result.maxAttempts).toBe(1);
     });
 
@@ -294,11 +278,9 @@ describe('policyHelpers', () => {
         { model: 'gemini-pro' },
         {
           consumeAttempt: false,
-        },
+        }
       );
-      expect(
-        mockAvailabilityService.consumeStickyAttempt,
-      ).not.toHaveBeenCalled();
+      expect(mockAvailabilityService.consumeStickyAttempt).not.toHaveBeenCalled();
       expect(result.maxAttempts).toBe(1);
     });
   });

@@ -5,12 +5,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import {
-  runDeferredCommand,
-  defer,
-  setDeferredCommand,
-  type DeferredCommand,
-} from './deferred.js';
+import { runDeferredCommand, defer, setDeferredCommand, type DeferredCommand } from './deferred.js';
 import { ExitCodes } from '@google/gemini-cli-core';
 import type { ArgumentsCamelCase, CommandModule } from 'yargs';
 import { createMockSettings } from './test-utils/settings.js';
@@ -40,9 +35,7 @@ let mockExit: MockInstance;
 describe('deferred', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockExit = vi
-      .spyOn(process, 'exit')
-      .mockImplementation(() => undefined as never);
+    mockExit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
     setDeferredCommand(undefined as unknown as DeferredCommand); // Reset deferred command
   });
 
@@ -84,7 +77,7 @@ describe('deferred', () => {
 
       expect(mockCoreEvents.emitFeedback).toHaveBeenCalledWith(
         'error',
-        'MCP is disabled by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli',
+        'MCP is disabled by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli'
       );
       expect(mockRunExitCleanup).toHaveBeenCalled();
       expect(mockExit).toHaveBeenCalledWith(ExitCodes.FATAL_CONFIG_ERROR);
@@ -104,7 +97,7 @@ describe('deferred', () => {
 
       expect(mockCoreEvents.emitFeedback).toHaveBeenCalledWith(
         'error',
-        'Extensions is disabled by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli',
+        'Extensions is disabled by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli'
       );
       expect(mockRunExitCleanup).toHaveBeenCalled();
       expect(mockExit).toHaveBeenCalledWith(ExitCodes.FATAL_CONFIG_ERROR);
@@ -124,7 +117,7 @@ describe('deferred', () => {
 
       expect(mockCoreEvents.emitFeedback).toHaveBeenCalledWith(
         'error',
-        'Agent skills is disabled by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli',
+        'Agent skills is disabled by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli'
       );
       expect(mockRunExitCleanup).toHaveBeenCalled();
       expect(mockExit).toHaveBeenCalledWith(ExitCodes.FATAL_CONFIG_ERROR);
@@ -174,7 +167,7 @@ describe('deferred', () => {
               extensions: expect.objectContaining({ enabled: true }),
             }),
           }),
-        }),
+        })
       );
       expect(mockExit).toHaveBeenCalledWith(ExitCodes.SUCCESS);
     });
@@ -199,7 +192,7 @@ describe('deferred', () => {
 
       expect(mockCoreEvents.emitFeedback).toHaveBeenCalledWith(
         'error',
-        'MCP is disabled by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli',
+        'MCP is disabled by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli'
       );
     });
 

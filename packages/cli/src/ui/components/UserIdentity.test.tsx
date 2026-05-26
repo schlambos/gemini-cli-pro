@@ -7,17 +7,11 @@
 import { renderWithProviders } from '../../test-utils/render.js';
 import { UserIdentity } from './UserIdentity.js';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import {
-  makeFakeConfig,
-  AuthType,
-  UserAccountManager,
-  type ContentGeneratorConfig,
-} from '@google/gemini-cli-core';
+import { makeFakeConfig, AuthType, UserAccountManager, type ContentGeneratorConfig } from '@google/gemini-cli-core';
 
 // Mock UserAccountManager to control cached account
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const original =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const original = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...original,
     UserAccountManager: vi.fn().mockImplementation(() => ({
@@ -39,9 +33,7 @@ describe('<UserIdentity />', () => {
     } as unknown as ContentGeneratorConfig);
     vi.spyOn(mockConfig, 'getUserTierName').mockReturnValue(undefined);
 
-    const { lastFrame, unmount } = renderWithProviders(
-      <UserIdentity config={mockConfig} />,
-    );
+    const { lastFrame, unmount } = renderWithProviders(<UserIdentity config={mockConfig} />);
 
     const output = lastFrame();
     expect(output).toContain('Logged in with Google: test@example.com');
@@ -55,7 +47,7 @@ describe('<UserIdentity />', () => {
       () =>
         ({
           getCachedGoogleAccount: () => undefined,
-        }) as unknown as UserAccountManager,
+        }) as unknown as UserAccountManager
     );
 
     const mockConfig = makeFakeConfig();
@@ -65,9 +57,7 @@ describe('<UserIdentity />', () => {
     } as unknown as ContentGeneratorConfig);
     vi.spyOn(mockConfig, 'getUserTierName').mockReturnValue(undefined);
 
-    const { lastFrame, unmount } = renderWithProviders(
-      <UserIdentity config={mockConfig} />,
-    );
+    const { lastFrame, unmount } = renderWithProviders(<UserIdentity config={mockConfig} />);
 
     const output = lastFrame();
     expect(output).toContain('Logged in with Google');
@@ -84,9 +74,7 @@ describe('<UserIdentity />', () => {
     } as unknown as ContentGeneratorConfig);
     vi.spyOn(mockConfig, 'getUserTierName').mockReturnValue('Premium Plan');
 
-    const { lastFrame, unmount } = renderWithProviders(
-      <UserIdentity config={mockConfig} />,
-    );
+    const { lastFrame, unmount } = renderWithProviders(<UserIdentity config={mockConfig} />);
 
     const output = lastFrame();
     expect(output).toContain('Logged in with Google: test@example.com');
@@ -95,25 +83,17 @@ describe('<UserIdentity />', () => {
 
     // Check for two lines (or more if wrapped, but here it should be separate)
     const lines = output?.split('\n').filter((line) => line.trim().length > 0);
-    expect(lines?.some((line) => line.includes('Logged in with Google'))).toBe(
-      true,
-    );
-    expect(lines?.some((line) => line.includes('Plan: Premium Plan'))).toBe(
-      true,
-    );
+    expect(lines?.some((line) => line.includes('Logged in with Google'))).toBe(true);
+    expect(lines?.some((line) => line.includes('Plan: Premium Plan'))).toBe(true);
 
     unmount();
   });
 
   it('should not render if authType is missing', () => {
     const mockConfig = makeFakeConfig();
-    vi.spyOn(mockConfig, 'getContentGeneratorConfig').mockReturnValue(
-      {} as unknown as ContentGeneratorConfig,
-    );
+    vi.spyOn(mockConfig, 'getContentGeneratorConfig').mockReturnValue({} as unknown as ContentGeneratorConfig);
 
-    const { lastFrame, unmount } = renderWithProviders(
-      <UserIdentity config={mockConfig} />,
-    );
+    const { lastFrame, unmount } = renderWithProviders(<UserIdentity config={mockConfig} />);
 
     expect(lastFrame()).toBe('');
     unmount();
@@ -127,9 +107,7 @@ describe('<UserIdentity />', () => {
     } as unknown as ContentGeneratorConfig);
     vi.spyOn(mockConfig, 'getUserTierName').mockReturnValue(undefined);
 
-    const { lastFrame, unmount } = renderWithProviders(
-      <UserIdentity config={mockConfig} />,
-    );
+    const { lastFrame, unmount } = renderWithProviders(<UserIdentity config={mockConfig} />);
 
     const output = lastFrame();
     expect(output).toContain(`Authenticated with ${AuthType.USE_GEMINI}`);

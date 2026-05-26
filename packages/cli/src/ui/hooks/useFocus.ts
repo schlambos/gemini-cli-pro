@@ -55,7 +55,7 @@ export const useFocus = () => {
         setIsFocused(true);
       }
     },
-    { isActive: true },
+    { isActive: true }
   );
 
   return isFocused;

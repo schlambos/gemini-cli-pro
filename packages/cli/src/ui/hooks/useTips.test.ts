@@ -4,10 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  renderHookWithProviders,
-  persistentStateMock,
-} from '../../test-utils/render.js';
+import { renderHookWithProviders, persistentStateMock } from '../../test-utils/render.js';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useTips } from './useTips.js';
 

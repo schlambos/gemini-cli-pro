@@ -59,24 +59,15 @@ export function getTerminalProgram(): SupportedTerminal | null {
 
   // Check VS Code and its forks - check forks first to avoid false positives
   // Check for Cursor-specific indicators
-  if (
-    process.env['CURSOR_TRACE_ID'] ||
-    process.env['VSCODE_GIT_ASKPASS_MAIN']?.toLowerCase().includes('cursor')
-  ) {
+  if (process.env['CURSOR_TRACE_ID'] || process.env['VSCODE_GIT_ASKPASS_MAIN']?.toLowerCase().includes('cursor')) {
     return 'cursor';
   }
   // Check for Windsurf-specific indicators
-  if (
-    process.env['VSCODE_GIT_ASKPASS_MAIN']?.toLowerCase().includes('windsurf')
-  ) {
+  if (process.env['VSCODE_GIT_ASKPASS_MAIN']?.toLowerCase().includes('windsurf')) {
     return 'windsurf';
   }
   // Check for Antigravity-specific indicators
-  if (
-    process.env['VSCODE_GIT_ASKPASS_MAIN']
-      ?.toLowerCase()
-      .includes('antigravity')
-  ) {
+  if (process.env['VSCODE_GIT_ASKPASS_MAIN']?.toLowerCase().includes('antigravity')) {
     return 'antigravity';
   }
   // Check VS Code last since forks may also set VSCODE env vars
@@ -100,17 +91,10 @@ async function detectTerminal(): Promise<SupportedTerminal | null> {
       const parentName = stdout.trim();
 
       // Check forks before VS Code to avoid false positives
-      if (parentName.includes('windsurf') || parentName.includes('Windsurf'))
-        return 'windsurf';
-      if (
-        parentName.includes('antigravity') ||
-        parentName.includes('Antigravity')
-      )
-        return 'antigravity';
-      if (parentName.includes('cursor') || parentName.includes('Cursor'))
-        return 'cursor';
-      if (parentName.includes('code') || parentName.includes('Code'))
-        return 'vscode';
+      if (parentName.includes('windsurf') || parentName.includes('Windsurf')) return 'windsurf';
+      if (parentName.includes('antigravity') || parentName.includes('Antigravity')) return 'antigravity';
+      if (parentName.includes('cursor') || parentName.includes('Cursor')) return 'cursor';
+      if (parentName.includes('code') || parentName.includes('Code')) return 'vscode';
     } catch (error) {
       // Continue detection even if process check fails
       debugLogger.debug('Parent process detection failed:', error);
@@ -137,13 +121,7 @@ function getVSCodeStyleConfigDir(appName: string): string | null {
   const platform = os.platform();
 
   if (platform === 'darwin') {
-    return path.join(
-      homedir(),
-      'Library',
-      'Application Support',
-      appName,
-      'User',
-    );
+    return path.join(homedir(), 'Library', 'Application Support', appName, 'User');
   } else if (platform === 'win32') {
     if (!process.env['APPDATA']) {
       return null;
@@ -155,10 +133,7 @@ function getVSCodeStyleConfigDir(appName: string): string | null {
 }
 
 // Generic VS Code-style terminal configuration
-async function configureVSCodeStyle(
-  terminalName: string,
-  appName: string,
-): Promise<TerminalSetupResult> {
+async function configureVSCodeStyle(terminalName: string, appName: string): Promise<TerminalSetupResult> {
   const configDir = getVSCodeStyleConfigDir(appName);
 
   if (!configDir) {
@@ -252,9 +227,7 @@ async function configureVSCodeStyle(
           key?: string;
         };
         return (
-          binding.key === target.key &&
-          binding.command === target.command &&
-          binding.args?.text === target.args.text
+          binding.key === target.key && binding.command === target.command && binding.args?.text === target.args.text
         );
       });
 
@@ -302,9 +275,7 @@ async function configureVSCodeStyle(
       success: true,
       message: `Added ${targetBindings
         .map((b) => b.key.charAt(0).toUpperCase() + b.key.slice(1))
-        .join(
-          ', ',
-        )} keybindings to ${terminalName}.\nModified: ${keybindingsFile}`,
+        .join(', ')} keybindings to ${terminalName}.\nModified: ${keybindingsFile}`,
       requiresRestart: true,
     };
   } catch (error) {
@@ -367,8 +338,7 @@ export async function terminalSetup(): Promise<TerminalSetupResult> {
   if (!terminal) {
     return {
       success: false,
-      message:
-        'Could not detect terminal type. Supported terminals: VS Code, Cursor, Windsurf, and Antigravity.',
+      message: 'Could not detect terminal type. Supported terminals: VS Code, Cursor, Windsurf, and Antigravity.',
     };
   }
 

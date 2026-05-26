@@ -15,12 +15,7 @@ import type { Suggestion } from '../components/SuggestionsDisplay.js';
 import { CommandKind } from '../commands/types.js';
 
 // Test harness to capture the state from the hook's callbacks.
-function useTestHarnessForAtCompletion(
-  enabled: boolean,
-  pattern: string,
-  config: Config | undefined,
-  cwd: string,
-) {
+function useTestHarnessForAtCompletion(enabled: boolean, pattern: string, config: Config | undefined, cwd: string) {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
 
@@ -83,17 +78,13 @@ describe('useAtCompletion with Agents', () => {
   it('should include agent suggestions', async () => {
     testRootDir = await createTmpDir({});
 
-    const { result } = renderHook(() =>
-      useTestHarnessForAtCompletion(true, '', mockConfig, testRootDir),
-    );
+    const { result } = renderHook(() => useTestHarnessForAtCompletion(true, '', mockConfig, testRootDir));
 
     await waitFor(() => {
       expect(result.current.suggestions.length).toBeGreaterThan(0);
     });
 
-    const agentSuggestion = result.current.suggestions.find(
-      (s) => s.value === 'CodebaseInvestigator',
-    );
+    const agentSuggestion = result.current.suggestions.find((s) => s.value === 'CodebaseInvestigator');
     expect(agentSuggestion).toBeDefined();
     expect(agentSuggestion?.commandKind).toBe(CommandKind.AGENT);
   });
@@ -101,19 +92,13 @@ describe('useAtCompletion with Agents', () => {
   it('should filter agent suggestions', async () => {
     testRootDir = await createTmpDir({});
 
-    const { result } = renderHook(() =>
-      useTestHarnessForAtCompletion(true, 'Code', mockConfig, testRootDir),
-    );
+    const { result } = renderHook(() => useTestHarnessForAtCompletion(true, 'Code', mockConfig, testRootDir));
 
     await waitFor(() => {
       expect(result.current.suggestions.length).toBeGreaterThan(0);
     });
 
-    expect(result.current.suggestions.map((s) => s.value)).toContain(
-      'CodebaseInvestigator',
-    );
-    expect(result.current.suggestions.map((s) => s.value)).not.toContain(
-      'OtherAgent',
-    );
+    expect(result.current.suggestions.map((s) => s.value)).toContain('CodebaseInvestigator');
+    expect(result.current.suggestions.map((s) => s.value)).not.toContain('OtherAgent');
   });
 });

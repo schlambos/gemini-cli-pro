@@ -11,9 +11,7 @@ import { TelemetryTarget } from './index.js';
 /**
  * Parse a boolean environment flag. Accepts 'true'/'1' as true.
  */
-export function parseBooleanEnvFlag(
-  value: string | undefined,
-): boolean | undefined {
+export function parseBooleanEnvFlag(value: string | undefined): boolean | undefined {
   if (value === undefined) return undefined;
   return value === 'true' || value === '1';
 }
@@ -21,9 +19,7 @@ export function parseBooleanEnvFlag(
 /**
  * Normalize a telemetry target value into TelemetryTarget or undefined.
  */
-export function parseTelemetryTargetValue(
-  value: string | TelemetryTarget | undefined,
-): TelemetryTarget | undefined {
+export function parseTelemetryTargetValue(value: string | TelemetryTarget | undefined): TelemetryTarget | undefined {
   if (value === undefined) return undefined;
   if (value === TelemetryTarget.LOCAL || value === 'local') {
     return TelemetryTarget.LOCAL;
@@ -55,22 +51,13 @@ export async function resolveTelemetrySettings(options: {
   const env = options.env ?? {};
   const settings = options.settings ?? {};
 
-  const enabled =
-    argv.telemetry ??
-    parseBooleanEnvFlag(env['GEMINI_TELEMETRY_ENABLED']) ??
-    settings.enabled;
+  const enabled = argv.telemetry ?? parseBooleanEnvFlag(env['GEMINI_TELEMETRY_ENABLED']) ?? settings.enabled;
 
   const rawTarget =
-    argv.telemetryTarget ??
-    env['GEMINI_TELEMETRY_TARGET'] ??
-    (settings.target as string | TelemetryTarget | undefined);
+    argv.telemetryTarget ?? env['GEMINI_TELEMETRY_TARGET'] ?? (settings.target as string | TelemetryTarget | undefined);
   const target = parseTelemetryTargetValue(rawTarget);
   if (rawTarget !== undefined && target === undefined) {
-    throw new FatalConfigError(
-      `Invalid telemetry target: ${String(
-        rawTarget,
-      )}. Valid values are: local, gcp`,
-    );
+    throw new FatalConfigError(`Invalid telemetry target: ${String(rawTarget)}. Valid values are: local, gcp`);
   }
 
   const otlpEndpoint =
@@ -79,34 +66,18 @@ export async function resolveTelemetrySettings(options: {
     env['OTEL_EXPORTER_OTLP_ENDPOINT'] ??
     settings.otlpEndpoint;
 
-  const rawProtocol =
-    argv.telemetryOtlpProtocol ??
-    env['GEMINI_TELEMETRY_OTLP_PROTOCOL'] ??
-    settings.otlpProtocol;
-  const otlpProtocol = (['grpc', 'http'] as const).find(
-    (p) => p === rawProtocol,
-  );
+  const rawProtocol = argv.telemetryOtlpProtocol ?? env['GEMINI_TELEMETRY_OTLP_PROTOCOL'] ?? settings.otlpProtocol;
+  const otlpProtocol = (['grpc', 'http'] as const).find((p) => p === rawProtocol);
   if (rawProtocol !== undefined && otlpProtocol === undefined) {
-    throw new FatalConfigError(
-      `Invalid telemetry OTLP protocol: ${String(
-        rawProtocol,
-      )}. Valid values are: grpc, http`,
-    );
+    throw new FatalConfigError(`Invalid telemetry OTLP protocol: ${String(rawProtocol)}. Valid values are: grpc, http`);
   }
 
   const logPrompts =
-    argv.telemetryLogPrompts ??
-    parseBooleanEnvFlag(env['GEMINI_TELEMETRY_LOG_PROMPTS']) ??
-    settings.logPrompts;
+    argv.telemetryLogPrompts ?? parseBooleanEnvFlag(env['GEMINI_TELEMETRY_LOG_PROMPTS']) ?? settings.logPrompts;
 
-  const outfile =
-    argv.telemetryOutfile ??
-    env['GEMINI_TELEMETRY_OUTFILE'] ??
-    settings.outfile;
+  const outfile = argv.telemetryOutfile ?? env['GEMINI_TELEMETRY_OUTFILE'] ?? settings.outfile;
 
-  const useCollector =
-    parseBooleanEnvFlag(env['GEMINI_TELEMETRY_USE_COLLECTOR']) ??
-    settings.useCollector;
+  const useCollector = parseBooleanEnvFlag(env['GEMINI_TELEMETRY_USE_COLLECTOR']) ?? settings.useCollector;
 
   return {
     enabled,
@@ -116,8 +87,6 @@ export async function resolveTelemetrySettings(options: {
     logPrompts,
     outfile,
     useCollector,
-    useCliAuth:
-      parseBooleanEnvFlag(env['GEMINI_TELEMETRY_USE_CLI_AUTH']) ??
-      settings.useCliAuth,
+    useCliAuth: parseBooleanEnvFlag(env['GEMINI_TELEMETRY_USE_CLI_AUTH']) ?? settings.useCliAuth,
   };
 }

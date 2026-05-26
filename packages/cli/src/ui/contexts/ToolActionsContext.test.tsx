@@ -21,8 +21,7 @@ import { type IndividualToolCallDisplay } from '../types.js';
 
 // Mock IdeClient
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     IdeClient: {
@@ -83,10 +82,7 @@ describe('ToolActionsContext', () => {
   it('publishes to MessageBus for tools with correlationId', async () => {
     const { result } = renderHook(() => useToolActions(), { wrapper });
 
-    await result.current.confirm(
-      'modern-call',
-      ToolConfirmationOutcome.ProceedOnce,
-    );
+    await result.current.confirm('modern-call', ToolConfirmationOutcome.ProceedOnce);
 
     expect(mockMessageBus.publish).toHaveBeenCalledWith({
       type: MessageBusType.TOOL_CONFIRMATION_RESPONSE,
@@ -107,7 +103,7 @@ describe('ToolActionsContext', () => {
       expect.objectContaining({
         outcome: ToolConfirmationOutcome.Cancel,
         confirmed: false,
-      }),
+      })
     );
   });
 
@@ -128,19 +124,13 @@ describe('ToolActionsContext', () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
-    await result.current.confirm(
-      'edit-call',
-      ToolConfirmationOutcome.ProceedOnce,
-    );
+    await result.current.confirm('edit-call', ToolConfirmationOutcome.ProceedOnce);
 
-    expect(mockIdeClient.resolveDiffFromCli).toHaveBeenCalledWith(
-      '/f.txt',
-      'accepted',
-    );
+    expect(mockIdeClient.resolveDiffFromCli).toHaveBeenCalledWith('/f.txt', 'accepted');
     expect(mockMessageBus.publish).toHaveBeenCalledWith(
       expect.objectContaining({
         correlationId: 'corr-edit',
-      }),
+      })
     );
   });
 
@@ -211,16 +201,10 @@ describe('ToolActionsContext', () => {
     });
 
     await act(async () => {
-      await result.current.confirm(
-        'legacy-call',
-        ToolConfirmationOutcome.ProceedOnce,
-      );
+      await result.current.confirm('legacy-call', ToolConfirmationOutcome.ProceedOnce);
     });
 
-    expect(mockOnConfirm).toHaveBeenCalledWith(
-      ToolConfirmationOutcome.ProceedOnce,
-      undefined,
-    );
+    expect(mockOnConfirm).toHaveBeenCalledWith(ToolConfirmationOutcome.ProceedOnce, undefined);
     expect(mockMessageBus.publish).not.toHaveBeenCalled();
   });
 });

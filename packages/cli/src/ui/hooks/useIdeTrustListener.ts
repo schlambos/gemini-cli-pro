@@ -4,19 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  useCallback,
-  useEffect,
-  useState,
-  useSyncExternalStore,
-  useRef,
-} from 'react';
-import {
-  IdeClient,
-  IDEConnectionStatus,
-  ideContextStore,
-  type IDEConnectionState,
-} from '@google/gemini-cli-core';
+import { useCallback, useEffect, useState, useSyncExternalStore, useRef } from 'react';
+import { IdeClient, IDEConnectionStatus, ideContextStore, type IDEConnectionState } from '@google/gemini-cli-core';
 import { useSettings } from '../contexts/SettingsContext.js';
 import { isWorkspaceTrusted } from '../../config/trustedFolders.js';
 
@@ -29,9 +18,7 @@ export type RestartReason = 'NONE' | 'CONNECTION_CHANGE' | 'TRUST_CHANGE';
  */
 export function useIdeTrustListener() {
   const settings = useSettings();
-  const [connectionStatus, setConnectionStatus] = useState<IDEConnectionStatus>(
-    IDEConnectionStatus.Disconnected,
-  );
+  const [connectionStatus, setConnectionStatus] = useState<IDEConnectionStatus>(IDEConnectionStatus.Disconnected);
   const previousTrust = useRef<boolean | undefined>(undefined);
   const [restartReason, setRestartReason] = useState<RestartReason>('NONE');
   const [needsRestart, setNeedsRestart] = useState(false);
@@ -79,10 +66,7 @@ export function useIdeTrustListener() {
     const currentTrust = isWorkspaceTrusted(settings.merged).isTrusted;
     // Trigger a restart if the overall trust status for the CLI has changed,
     // but not on the initial trust value.
-    if (
-      previousTrust.current !== undefined &&
-      previousTrust.current !== currentTrust
-    ) {
+    if (previousTrust.current !== undefined && previousTrust.current !== currentTrust) {
       setNeedsRestart(true);
     }
     previousTrust.current = currentTrust;

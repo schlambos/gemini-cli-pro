@@ -4,24 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  afterEach,
-  type MockInstance,
-} from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type MockInstance } from 'vitest';
 import { validateNonInteractiveAuth } from './validateNonInterActiveAuth.js';
-import {
-  AuthType,
-  OutputFormat,
-  makeFakeConfig,
-  debugLogger,
-  ExitCodes,
-  coreEvents,
-} from '@google/gemini-cli-core';
+import { AuthType, OutputFormat, makeFakeConfig, debugLogger, ExitCodes, coreEvents } from '@google/gemini-cli-core';
 import type { Config } from '@google/gemini-cli-core';
 import * as auth from './config/auth.js';
 import { type LoadedSettings } from './config/settings.js';
@@ -48,17 +33,11 @@ describe('validateNonInterActiveAuth', () => {
     delete process.env['GEMINI_API_KEY'];
     delete process.env['GOOGLE_GENAI_USE_VERTEXAI'];
     delete process.env['GOOGLE_GENAI_USE_GCA'];
-    debugLoggerErrorSpy = vi
-      .spyOn(debugLogger, 'error')
-      .mockImplementation(() => {});
-    coreEventsEmitFeedbackSpy = vi
-      .spyOn(coreEvents, 'emitFeedback')
-      .mockImplementation(() => {});
-    processExitSpy = vi
-      .spyOn(process, 'exit')
-      .mockImplementation((code?: string | number | null | undefined) => {
-        throw new Error(`process.exit(${code}) called`);
-      });
+    debugLoggerErrorSpy = vi.spyOn(debugLogger, 'error').mockImplementation(() => {});
+    coreEventsEmitFeedbackSpy = vi.spyOn(coreEvents, 'emitFeedback').mockImplementation(() => {});
+    processExitSpy = vi.spyOn(process, 'exit').mockImplementation((code?: string | number | null | undefined) => {
+      throw new Error(`process.exit(${code}) called`);
+    });
     vi.spyOn(auth, 'validateAuthMethod').mockReturnValue(null);
     mockSettings = {
       system: { path: '', settings: {} },
@@ -103,40 +82,22 @@ describe('validateNonInterActiveAuth', () => {
   it('exits if no auth type is configured or env vars set', async () => {
     const nonInteractiveConfig = createLocalMockConfig({
       getOutputFormat: vi.fn().mockReturnValue(OutputFormat.TEXT),
-      getContentGeneratorConfig: vi
-        .fn()
-        .mockReturnValue({ authType: undefined }),
+      getContentGeneratorConfig: vi.fn().mockReturnValue({ authType: undefined }),
     });
     try {
-      await validateNonInteractiveAuth(
-        undefined,
-        undefined,
-        nonInteractiveConfig,
-        mockSettings,
-      );
+      await validateNonInteractiveAuth(undefined, undefined, nonInteractiveConfig, mockSettings);
       expect.fail('Should have exited');
     } catch (e) {
-      expect((e as Error).message).toContain(
-        `process.exit(${ExitCodes.FATAL_AUTHENTICATION_ERROR}) called`,
-      );
+      expect((e as Error).message).toContain(`process.exit(${ExitCodes.FATAL_AUTHENTICATION_ERROR}) called`);
     }
-    expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Please set an Auth method'),
-    );
-    expect(processExitSpy).toHaveBeenCalledWith(
-      ExitCodes.FATAL_AUTHENTICATION_ERROR,
-    );
+    expect(debugLoggerErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Please set an Auth method'));
+    expect(processExitSpy).toHaveBeenCalledWith(ExitCodes.FATAL_AUTHENTICATION_ERROR);
   });
 
   it('uses LOGIN_WITH_GOOGLE if GOOGLE_GENAI_USE_GCA is set', async () => {
     process.env['GOOGLE_GENAI_USE_GCA'] = 'true';
     const nonInteractiveConfig = createLocalMockConfig({});
-    await validateNonInteractiveAuth(
-      undefined,
-      undefined,
-      nonInteractiveConfig,
-      mockSettings,
-    );
+    await validateNonInteractiveAuth(undefined, undefined, nonInteractiveConfig, mockSettings);
     expect(processExitSpy).not.toHaveBeenCalled();
     expect(debugLoggerErrorSpy).not.toHaveBeenCalled();
   });
@@ -144,12 +105,7 @@ describe('validateNonInterActiveAuth', () => {
   it('uses USE_GEMINI if GEMINI_API_KEY is set', async () => {
     process.env['GEMINI_API_KEY'] = 'fake-key';
     const nonInteractiveConfig = createLocalMockConfig({});
-    await validateNonInteractiveAuth(
-      undefined,
-      undefined,
-      nonInteractiveConfig,
-      mockSettings,
-    );
+    await validateNonInteractiveAuth(undefined, undefined, nonInteractiveConfig, mockSettings);
     expect(processExitSpy).not.toHaveBeenCalled();
     expect(debugLoggerErrorSpy).not.toHaveBeenCalled();
   });
@@ -159,12 +115,7 @@ describe('validateNonInterActiveAuth', () => {
     process.env['GOOGLE_CLOUD_PROJECT'] = 'test-project';
     process.env['GOOGLE_CLOUD_LOCATION'] = 'us-central1';
     const nonInteractiveConfig = createLocalMockConfig({});
-    await validateNonInteractiveAuth(
-      undefined,
-      undefined,
-      nonInteractiveConfig,
-      mockSettings,
-    );
+    await validateNonInteractiveAuth(undefined, undefined, nonInteractiveConfig, mockSettings);
     expect(processExitSpy).not.toHaveBeenCalled();
     expect(debugLoggerErrorSpy).not.toHaveBeenCalled();
   });
@@ -173,12 +124,7 @@ describe('validateNonInterActiveAuth', () => {
     process.env['GOOGLE_GENAI_USE_VERTEXAI'] = 'true';
     process.env['GOOGLE_API_KEY'] = 'vertex-api-key';
     const nonInteractiveConfig = createLocalMockConfig({});
-    await validateNonInteractiveAuth(
-      undefined,
-      undefined,
-      nonInteractiveConfig,
-      mockSettings,
-    );
+    await validateNonInteractiveAuth(undefined, undefined, nonInteractiveConfig, mockSettings);
     expect(processExitSpy).not.toHaveBeenCalled();
     expect(debugLoggerErrorSpy).not.toHaveBeenCalled();
   });
@@ -190,12 +136,7 @@ describe('validateNonInterActiveAuth', () => {
     process.env['GOOGLE_CLOUD_PROJECT'] = 'test-project';
     process.env['GOOGLE_CLOUD_LOCATION'] = 'us-central1';
     const nonInteractiveConfig = createLocalMockConfig({});
-    await validateNonInteractiveAuth(
-      undefined,
-      undefined,
-      nonInteractiveConfig,
-      mockSettings,
-    );
+    await validateNonInteractiveAuth(undefined, undefined, nonInteractiveConfig, mockSettings);
     expect(processExitSpy).not.toHaveBeenCalled();
     expect(debugLoggerErrorSpy).not.toHaveBeenCalled();
   });
@@ -206,12 +147,7 @@ describe('validateNonInterActiveAuth', () => {
     process.env['GOOGLE_CLOUD_PROJECT'] = 'test-project';
     process.env['GOOGLE_CLOUD_LOCATION'] = 'us-central1';
     const nonInteractiveConfig = createLocalMockConfig({});
-    await validateNonInteractiveAuth(
-      undefined,
-      undefined,
-      nonInteractiveConfig,
-      mockSettings,
-    );
+    await validateNonInteractiveAuth(undefined, undefined, nonInteractiveConfig, mockSettings);
     expect(processExitSpy).not.toHaveBeenCalled();
     expect(debugLoggerErrorSpy).not.toHaveBeenCalled();
   });
@@ -222,12 +158,7 @@ describe('validateNonInterActiveAuth', () => {
     process.env['GOOGLE_CLOUD_PROJECT'] = 'test-project';
     process.env['GOOGLE_CLOUD_LOCATION'] = 'us-central1';
     const nonInteractiveConfig = createLocalMockConfig({});
-    await validateNonInteractiveAuth(
-      undefined,
-      undefined,
-      nonInteractiveConfig,
-      mockSettings,
-    );
+    await validateNonInteractiveAuth(undefined, undefined, nonInteractiveConfig, mockSettings);
     expect(processExitSpy).not.toHaveBeenCalled();
     expect(debugLoggerErrorSpy).not.toHaveBeenCalled();
   });
@@ -235,12 +166,7 @@ describe('validateNonInterActiveAuth', () => {
   it('uses configuredAuthType over environment variables', async () => {
     process.env['GEMINI_API_KEY'] = 'fake-key';
     const nonInteractiveConfig = createLocalMockConfig({});
-    await validateNonInteractiveAuth(
-      AuthType.LOGIN_WITH_GOOGLE,
-      undefined,
-      nonInteractiveConfig,
-      mockSettings,
-    );
+    await validateNonInteractiveAuth(AuthType.LOGIN_WITH_GOOGLE, undefined, nonInteractiveConfig, mockSettings);
     expect(processExitSpy).not.toHaveBeenCalled();
     expect(debugLoggerErrorSpy).not.toHaveBeenCalled();
   });
@@ -250,34 +176,21 @@ describe('validateNonInterActiveAuth', () => {
     vi.spyOn(auth, 'validateAuthMethod').mockReturnValue('Auth error!');
     const nonInteractiveConfig = createLocalMockConfig({
       getOutputFormat: vi.fn().mockReturnValue(OutputFormat.TEXT),
-      getContentGeneratorConfig: vi
-        .fn()
-        .mockReturnValue({ authType: undefined }),
+      getContentGeneratorConfig: vi.fn().mockReturnValue({ authType: undefined }),
     });
     try {
-      await validateNonInteractiveAuth(
-        AuthType.USE_GEMINI,
-        undefined,
-        nonInteractiveConfig,
-        mockSettings,
-      );
+      await validateNonInteractiveAuth(AuthType.USE_GEMINI, undefined, nonInteractiveConfig, mockSettings);
       expect.fail('Should have exited');
     } catch (e) {
-      expect((e as Error).message).toContain(
-        `process.exit(${ExitCodes.FATAL_AUTHENTICATION_ERROR}) called`,
-      );
+      expect((e as Error).message).toContain(`process.exit(${ExitCodes.FATAL_AUTHENTICATION_ERROR}) called`);
     }
     expect(debugLoggerErrorSpy).toHaveBeenCalledWith('Auth error!');
-    expect(processExitSpy).toHaveBeenCalledWith(
-      ExitCodes.FATAL_AUTHENTICATION_ERROR,
-    );
+    expect(processExitSpy).toHaveBeenCalledWith(ExitCodes.FATAL_AUTHENTICATION_ERROR);
   });
 
   it('skips validation if useExternalAuth is true', async () => {
     // Mock validateAuthMethod to return error to ensure it's not being called
-    const validateAuthMethodSpy = vi
-      .spyOn(auth, 'validateAuthMethod')
-      .mockReturnValue('Auth error!');
+    const validateAuthMethodSpy = vi.spyOn(auth, 'validateAuthMethod').mockReturnValue('Auth error!');
     const nonInteractiveConfig = createLocalMockConfig({});
     // Even with an invalid auth type, it should not exit
     // because validation is skipped.
@@ -285,7 +198,7 @@ describe('validateNonInterActiveAuth', () => {
       'invalid-auth-type' as AuthType,
       true, // useExternalAuth = true
       nonInteractiveConfig,
-      mockSettings,
+      mockSettings
     );
 
     expect(validateAuthMethodSpy).not.toHaveBeenCalled();
@@ -298,12 +211,7 @@ describe('validateNonInterActiveAuth', () => {
     mockSettings.merged.security.auth.enforcedType = AuthType.USE_GEMINI;
     process.env['GEMINI_API_KEY'] = 'fake-key';
     const nonInteractiveConfig = createLocalMockConfig({});
-    await validateNonInteractiveAuth(
-      undefined,
-      undefined,
-      nonInteractiveConfig,
-      mockSettings,
-    );
+    await validateNonInteractiveAuth(undefined, undefined, nonInteractiveConfig, mockSettings);
     expect(processExitSpy).not.toHaveBeenCalled();
     expect(debugLoggerErrorSpy).not.toHaveBeenCalled();
   });
@@ -314,24 +222,15 @@ describe('validateNonInterActiveAuth', () => {
       getOutputFormat: vi.fn().mockReturnValue(OutputFormat.TEXT),
     });
     try {
-      await validateNonInteractiveAuth(
-        AuthType.USE_GEMINI,
-        undefined,
-        nonInteractiveConfig,
-        mockSettings,
-      );
+      await validateNonInteractiveAuth(AuthType.USE_GEMINI, undefined, nonInteractiveConfig, mockSettings);
       expect.fail('Should have exited');
     } catch (e) {
-      expect((e as Error).message).toContain(
-        `process.exit(${ExitCodes.FATAL_AUTHENTICATION_ERROR}) called`,
-      );
+      expect((e as Error).message).toContain(`process.exit(${ExitCodes.FATAL_AUTHENTICATION_ERROR}) called`);
     }
     expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
-      "The enforced authentication type is 'oauth-personal', but the current type is 'gemini-api-key'. Please re-authenticate with the correct type.",
+      "The enforced authentication type is 'oauth-personal', but the current type is 'gemini-api-key'. Please re-authenticate with the correct type."
     );
-    expect(processExitSpy).toHaveBeenCalledWith(
-      ExitCodes.FATAL_AUTHENTICATION_ERROR,
-    );
+    expect(processExitSpy).toHaveBeenCalledWith(ExitCodes.FATAL_AUTHENTICATION_ERROR);
   });
 
   it('exits if auth from env var does not match enforcedAuthType', async () => {
@@ -341,84 +240,55 @@ describe('validateNonInterActiveAuth', () => {
       getOutputFormat: vi.fn().mockReturnValue(OutputFormat.TEXT),
     });
     try {
-      await validateNonInteractiveAuth(
-        undefined,
-        undefined,
-        nonInteractiveConfig,
-        mockSettings,
-      );
+      await validateNonInteractiveAuth(undefined, undefined, nonInteractiveConfig, mockSettings);
       expect.fail('Should have exited');
     } catch (e) {
-      expect((e as Error).message).toContain(
-        `process.exit(${ExitCodes.FATAL_AUTHENTICATION_ERROR}) called`,
-      );
+      expect((e as Error).message).toContain(`process.exit(${ExitCodes.FATAL_AUTHENTICATION_ERROR}) called`);
     }
     expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
-      "The enforced authentication type is 'oauth-personal', but the current type is 'gemini-api-key'. Please re-authenticate with the correct type.",
+      "The enforced authentication type is 'oauth-personal', but the current type is 'gemini-api-key'. Please re-authenticate with the correct type."
     );
-    expect(processExitSpy).toHaveBeenCalledWith(
-      ExitCodes.FATAL_AUTHENTICATION_ERROR,
-    );
+    expect(processExitSpy).toHaveBeenCalledWith(ExitCodes.FATAL_AUTHENTICATION_ERROR);
   });
 
   describe('JSON output mode', () => {
     it(`prints JSON error when no auth is configured and exits with code ${ExitCodes.FATAL_AUTHENTICATION_ERROR}`, async () => {
       const nonInteractiveConfig = createLocalMockConfig({
         getOutputFormat: vi.fn().mockReturnValue(OutputFormat.JSON),
-        getContentGeneratorConfig: vi
-          .fn()
-          .mockReturnValue({ authType: undefined }),
+        getContentGeneratorConfig: vi.fn().mockReturnValue({ authType: undefined }),
       });
 
       let thrown: Error | undefined;
       try {
-        await validateNonInteractiveAuth(
-          undefined,
-          undefined,
-          nonInteractiveConfig,
-          mockSettings,
-        );
+        await validateNonInteractiveAuth(undefined, undefined, nonInteractiveConfig, mockSettings);
       } catch (e) {
         thrown = e as Error;
       }
 
-      expect(thrown?.message).toBe(
-        `process.exit(${ExitCodes.FATAL_AUTHENTICATION_ERROR}) called`,
-      );
+      expect(thrown?.message).toBe(`process.exit(${ExitCodes.FATAL_AUTHENTICATION_ERROR}) called`);
       // Checking coreEventsEmitFeedbackSpy arguments
       const errorArg = coreEventsEmitFeedbackSpy.mock.calls[0]?.[1] as string;
       const payload = JSON.parse(errorArg);
       expect(payload.error.type).toBe('Error');
       expect(payload.error.code).toBe(ExitCodes.FATAL_AUTHENTICATION_ERROR);
-      expect(payload.error.message).toContain(
-        'Please set an Auth method in your',
-      );
+      expect(payload.error.message).toContain('Please set an Auth method in your');
     });
 
     it(`prints JSON error when enforced auth mismatches current auth and exits with code ${ExitCodes.FATAL_AUTHENTICATION_ERROR}`, async () => {
       mockSettings.merged.security.auth.enforcedType = AuthType.USE_GEMINI;
       const nonInteractiveConfig = createLocalMockConfig({
         getOutputFormat: vi.fn().mockReturnValue(OutputFormat.JSON),
-        getContentGeneratorConfig: vi
-          .fn()
-          .mockReturnValue({ authType: undefined }),
+        getContentGeneratorConfig: vi.fn().mockReturnValue({ authType: undefined }),
       });
 
       let thrown: Error | undefined;
       try {
-        await validateNonInteractiveAuth(
-          AuthType.LOGIN_WITH_GOOGLE,
-          undefined,
-          nonInteractiveConfig,
-          mockSettings,
-        );
+        await validateNonInteractiveAuth(AuthType.LOGIN_WITH_GOOGLE, undefined, nonInteractiveConfig, mockSettings);
       } catch (e) {
         thrown = e as Error;
       }
 
-      expect(thrown?.message).toBe(
-        `process.exit(${ExitCodes.FATAL_AUTHENTICATION_ERROR}) called`,
-      );
+      expect(thrown?.message).toBe(`process.exit(${ExitCodes.FATAL_AUTHENTICATION_ERROR}) called`);
       {
         // Checking coreEventsEmitFeedbackSpy arguments
         const errorArg = coreEventsEmitFeedbackSpy.mock.calls[0]?.[1] as string;
@@ -426,7 +296,7 @@ describe('validateNonInterActiveAuth', () => {
         expect(payload.error.type).toBe('Error');
         expect(payload.error.code).toBe(ExitCodes.FATAL_AUTHENTICATION_ERROR);
         expect(payload.error.message).toContain(
-          "The enforced authentication type is 'gemini-api-key', but the current type is 'oauth-personal'. Please re-authenticate with the correct type.",
+          "The enforced authentication type is 'gemini-api-key', but the current type is 'oauth-personal'. Please re-authenticate with the correct type."
         );
       }
     });
@@ -437,26 +307,17 @@ describe('validateNonInterActiveAuth', () => {
 
       const nonInteractiveConfig = createLocalMockConfig({
         getOutputFormat: vi.fn().mockReturnValue(OutputFormat.JSON),
-        getContentGeneratorConfig: vi
-          .fn()
-          .mockReturnValue({ authType: undefined }),
+        getContentGeneratorConfig: vi.fn().mockReturnValue({ authType: undefined }),
       });
 
       let thrown: Error | undefined;
       try {
-        await validateNonInteractiveAuth(
-          AuthType.USE_GEMINI,
-          undefined,
-          nonInteractiveConfig,
-          mockSettings,
-        );
+        await validateNonInteractiveAuth(AuthType.USE_GEMINI, undefined, nonInteractiveConfig, mockSettings);
       } catch (e) {
         thrown = e as Error;
       }
 
-      expect(thrown?.message).toBe(
-        `process.exit(${ExitCodes.FATAL_AUTHENTICATION_ERROR}) called`,
-      );
+      expect(thrown?.message).toBe(`process.exit(${ExitCodes.FATAL_AUTHENTICATION_ERROR}) called`);
       {
         // Checking coreEventsEmitFeedbackSpy arguments
         const errorArg = coreEventsEmitFeedbackSpy.mock.calls[0]?.[1] as string;

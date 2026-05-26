@@ -132,10 +132,7 @@ export const PLAN_MODE_TOOLS = [
  * Validates if a tool name is syntactically valid.
  * Checks against built-in tools, discovered tools, and MCP naming conventions.
  */
-export function isValidToolName(
-  name: string,
-  options: { allowWildcards?: boolean } = {},
-): boolean {
+export function isValidToolName(name: string, options: { allowWildcards?: boolean } = {}): boolean {
   // Built-in tools
   if ((ALL_BUILTIN_TOOL_NAMES as readonly string[]).includes(name)) {
     return true;

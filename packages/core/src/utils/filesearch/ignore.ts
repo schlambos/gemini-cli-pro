@@ -11,10 +11,7 @@ import type { FileDiscoveryService } from '../../services/fileDiscoveryService.j
 
 const hasFileExtension = picomatch('**/*[*.]*');
 
-export function loadIgnoreRules(
-  service: FileDiscoveryService,
-  ignoreDirs: string[] = [],
-): Ignore {
+export function loadIgnoreRules(service: FileDiscoveryService, ignoreDirs: string[] = []): Ignore {
   const ignorer = new Ignore();
   const ignoreFiles = service.getAllIgnoreFilePaths();
 
@@ -31,7 +28,7 @@ export function loadIgnoreRules(
         return dir;
       }
       return `${dir}/`;
-    }),
+    })
   );
 
   return ignorer;
@@ -62,8 +59,7 @@ export class Ignore {
 
       this.allPatterns.push(pattern);
 
-      const isPositiveDirPattern =
-        pattern.endsWith('/') && !pattern.startsWith('!');
+      const isPositiveDirPattern = pattern.endsWith('/') && !pattern.startsWith('!');
 
       if (isPositiveDirPattern) {
         this.dirIgnorer.add(pattern);

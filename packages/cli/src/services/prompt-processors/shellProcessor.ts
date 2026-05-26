@@ -14,17 +14,14 @@ import {
 
 import type { CommandContext } from '../../ui/commands/types.js';
 import type { IPromptProcessor, PromptPipelineContent } from './types.js';
-import {
-  SHELL_INJECTION_TRIGGER,
-  SHORTHAND_ARGS_PLACEHOLDER,
-} from './types.js';
+import { SHELL_INJECTION_TRIGGER, SHORTHAND_ARGS_PLACEHOLDER } from './types.js';
 import { extractInjections, type Injection } from './injectionParser.js';
 import { themeManager } from '../../ui/themes/theme-manager.js';
 
 export class ConfirmationRequiredError extends Error {
   constructor(
     message: string,
-    public commandsToConfirm: string[],
+    public commandsToConfirm: string[]
   ) {
     super(message);
     this.name = 'ConfirmationRequiredError';
@@ -53,65 +50,44 @@ interface ResolvedShellInjection extends Injection {
 export class ShellProcessor implements IPromptProcessor {
   constructor(private readonly commandName: string) {}
 
-  async process(
-    prompt: PromptPipelineContent,
-    context: CommandContext,
-  ): Promise<PromptPipelineContent> {
-    return flatMapTextParts(prompt, (text) =>
-      this.processString(text, context),
-    );
+  async process(prompt: PromptPipelineContent, context: CommandContext): Promise<PromptPipelineContent> {
+    return flatMapTextParts(prompt, (text) => this.processString(text, context));
   }
 
-  private async processString(
-    prompt: string,
-    context: CommandContext,
-  ): Promise<PromptPipelineContent> {
+  private async processString(prompt: string, context: CommandContext): Promise<PromptPipelineContent> {
     const userArgsRaw = context.invocation?.args || '';
 
     if (!prompt.includes(SHELL_INJECTION_TRIGGER)) {
-      return [
-        { text: prompt.replaceAll(SHORTHAND_ARGS_PLACEHOLDER, userArgsRaw) },
-      ];
+      return [{ text: prompt.replaceAll(SHORTHAND_ARGS_PLACEHOLDER, userArgsRaw) }];
     }
 
     const config = context.services.config;
     if (!config) {
       throw new Error(
-        `Security configuration not loaded. Cannot verify shell command permissions for '${this.commandName}'. Aborting.`,
+        `Security configuration not loaded. Cannot verify shell command permissions for '${this.commandName}'. Aborting.`
       );
     }
 
-    const injections = extractInjections(
-      prompt,
-      SHELL_INJECTION_TRIGGER,
-      this.commandName,
-    );
+    const injections = extractInjections(prompt, SHELL_INJECTION_TRIGGER, this.commandName);
 
     // If extractInjections found no closed blocks (and didn't throw), treat as raw.
     if (injections.length === 0) {
-      return [
-        { text: prompt.replaceAll(SHORTHAND_ARGS_PLACEHOLDER, userArgsRaw) },
-      ];
+      return [{ text: prompt.replaceAll(SHORTHAND_ARGS_PLACEHOLDER, userArgsRaw) }];
     }
 
     const { shell } = getShellConfiguration();
     const userArgsEscaped = escapeShellArg(userArgsRaw, shell);
 
-    const resolvedInjections: ResolvedShellInjection[] = injections.map(
-      (injection) => {
-        const command = injection.content;
+    const resolvedInjections: ResolvedShellInjection[] = injections.map((injection) => {
+      const command = injection.content;
 
-        if (command === '') {
-          return { ...injection, resolvedCommand: undefined };
-        }
+      if (command === '') {
+        return { ...injection, resolvedCommand: undefined };
+      }
 
-        const resolvedCommand = command.replaceAll(
-          SHORTHAND_ARGS_PLACEHOLDER,
-          userArgsEscaped,
-        );
-        return { ...injection, resolvedCommand };
-      },
-    );
+      const resolvedCommand = command.replaceAll(SHORTHAND_ARGS_PLACEHOLDER, userArgsEscaped);
+      return { ...injection, resolvedCommand };
+    });
 
     const commandsToConfirm = new Set<string>();
     for (const injection of resolvedInjections) {
@@ -129,13 +105,11 @@ export class ShellProcessor implements IPromptProcessor {
           name: 'run_shell_command',
           args: { command },
         },
-        undefined,
+        undefined
       );
 
       if (decision === PolicyDecision.DENY) {
-        throw new Error(
-          `${this.commandName} cannot be run. Blocked command: "${command}". Reason: Blocked by policy.`,
-        );
+        throw new Error(`${this.commandName} cannot be run. Blocked command: "${command}". Reason: Blocked by policy.`);
       } else if (decision === PolicyDecision.ASK_USER) {
         commandsToConfirm.add(command);
       }
@@ -143,10 +117,7 @@ export class ShellProcessor implements IPromptProcessor {
 
     // Handle confirmation requirements.
     if (commandsToConfirm.size > 0) {
-      throw new ConfirmationRequiredError(
-        'Shell command confirmation required',
-        Array.from(commandsToConfirm),
-      );
+      throw new ConfirmationRequiredError('Shell command confirmation required', Array.from(commandsToConfirm));
     }
 
     let processedPrompt = '';
@@ -155,10 +126,7 @@ export class ShellProcessor implements IPromptProcessor {
     for (const injection of resolvedInjections) {
       // Append the text segment BEFORE the injection, substituting {{args}} with RAW input.
       const segment = prompt.substring(lastIndex, injection.startIndex);
-      processedPrompt += segment.replaceAll(
-        SHORTHAND_ARGS_PLACEHOLDER,
-        userArgsRaw,
-      );
+      processedPrompt += segment.replaceAll(SHORTHAND_ARGS_PLACEHOLDER, userArgsRaw);
 
       // Execute the resolved command (which already has ESCAPED input).
       if (injection.resolvedCommand) {
@@ -174,7 +142,7 @@ export class ShellProcessor implements IPromptProcessor {
           () => {},
           new AbortController().signal,
           config.getEnableInteractiveShell(),
-          shellExecutionConfig,
+          shellExecutionConfig
         );
 
         const executionResult = await result;
@@ -182,7 +150,7 @@ export class ShellProcessor implements IPromptProcessor {
         // Handle Spawn Errors
         if (executionResult.error && !executionResult.aborted) {
           throw new Error(
-            `Failed to start shell command in '${this.commandName}': ${executionResult.error.message}. Command: ${injection.resolvedCommand}`,
+            `Failed to start shell command in '${this.commandName}': ${executionResult.error.message}. Command: ${injection.resolvedCommand}`
           );
         }
 
@@ -192,10 +160,7 @@ export class ShellProcessor implements IPromptProcessor {
         // Append a status message if the command did not succeed.
         if (executionResult.aborted) {
           processedPrompt += `\n[Shell command '${injection.resolvedCommand}' aborted]`;
-        } else if (
-          executionResult.exitCode !== 0 &&
-          executionResult.exitCode !== null
-        ) {
+        } else if (executionResult.exitCode !== 0 && executionResult.exitCode !== null) {
           processedPrompt += `\n[Shell command '${injection.resolvedCommand}' exited with code ${executionResult.exitCode}]`;
         } else if (executionResult.signal !== null) {
           processedPrompt += `\n[Shell command '${injection.resolvedCommand}' terminated by signal ${executionResult.signal}]`;
@@ -207,10 +172,7 @@ export class ShellProcessor implements IPromptProcessor {
 
     // Append the remaining text AFTER the last injection, substituting {{args}} with RAW input.
     const finalSegment = prompt.substring(lastIndex);
-    processedPrompt += finalSegment.replaceAll(
-      SHORTHAND_ARGS_PLACEHOLDER,
-      userArgsRaw,
-    );
+    processedPrompt += finalSegment.replaceAll(SHORTHAND_ARGS_PLACEHOLDER, userArgsRaw);
 
     return [{ text: processedPrompt }];
   }

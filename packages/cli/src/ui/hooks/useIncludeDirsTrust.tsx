@@ -8,22 +8,16 @@ import { useEffect } from 'react';
 import { type Config } from '@google/gemini-cli-core';
 import { loadTrustedFolders } from '../../config/trustedFolders.js';
 import { expandHomeDir, batchAddDirectories } from '../utils/directoryUtils.js';
-import {
-  debugLogger,
-  refreshServerHierarchicalMemory,
-} from '@google/gemini-cli-core';
+import { debugLogger, refreshServerHierarchicalMemory } from '@google/gemini-cli-core';
 import { MultiFolderTrustDialog } from '../components/MultiFolderTrustDialog.js';
 import type { UseHistoryManagerReturn } from './useHistoryManager.js';
 import { MessageType, type HistoryItem } from '../types.js';
 
 async function finishAddingDirectories(
   config: Config,
-  addItem: (
-    itemData: Omit<HistoryItem, 'id'>,
-    baseTimestamp?: number,
-  ) => number,
+  addItem: (itemData: Omit<HistoryItem, 'id'>, baseTimestamp?: number) => number,
   added: string[],
-  errors: string[],
+  errors: string[]
 ) {
   if (!config) {
     addItem({
@@ -58,7 +52,7 @@ export function useIncludeDirsTrust(
   config: Config,
   isTrustedFolder: boolean | undefined,
   historyManager: UseHistoryManagerReturn,
-  setCustomDialog: (dialog: React.ReactNode | null) => void,
+  setCustomDialog: (dialog: React.ReactNode | null) => void
 ) {
   const { addItem } = historyManager;
 
@@ -115,8 +109,8 @@ export function useIncludeDirsTrust(
     if (untrustedDirs.length > 0) {
       errors.push(
         `The following directories are explicitly untrusted and cannot be added to a trusted workspace:\n- ${untrustedDirs.join(
-          '\n- ',
-        )}\nPlease use the permissions command to modify their trust level.`,
+          '\n- '
+        )}\nPlease use the permissions command to modify their trust level.`
       );
     }
 
@@ -128,10 +122,7 @@ export function useIncludeDirsTrust(
     }
 
     if (undefinedTrustDirs.length > 0) {
-      debugLogger.log(
-        'Creating custom dialog with undecidedDirs:',
-        undefinedTrustDirs,
-      );
+      debugLogger.log('Creating custom dialog with undecidedDirs:', undefinedTrustDirs);
       setCustomDialog(
         <MultiFolderTrustDialog
           folders={undefinedTrustDirs}
@@ -144,7 +135,7 @@ export function useIncludeDirsTrust(
           finishAddingDirectories={finishAddingDirectories}
           config={config}
           addItem={addItem}
-        />,
+        />
       );
     } else if (added.length > 0 || errors.length > 0) {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises

@@ -4,13 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type {
-  ErrorInfo,
-  GoogleApiError,
-  Help,
-  QuotaFailure,
-  RetryInfo,
-} from './googleErrors.js';
+import type { ErrorInfo, GoogleApiError, Help, QuotaFailure, RetryInfo } from './googleErrors.js';
 import { parseGoogleApiError } from './googleErrors.js';
 import { getErrorStatus, ModelNotFoundError } from './httpErrors.js';
 
@@ -23,13 +17,11 @@ export class TerminalQuotaError extends Error {
   constructor(
     message: string,
     override readonly cause: GoogleApiError,
-    retryDelaySeconds?: number,
+    retryDelaySeconds?: number
   ) {
     super(message);
     this.name = 'TerminalQuotaError';
-    this.retryDelayMs = retryDelaySeconds
-      ? retryDelaySeconds * 1000
-      : undefined;
+    this.retryDelayMs = retryDelaySeconds ? retryDelaySeconds * 1000 : undefined;
   }
 }
 
@@ -42,13 +34,11 @@ export class RetryableQuotaError extends Error {
   constructor(
     message: string,
     override readonly cause: GoogleApiError,
-    retryDelaySeconds?: number,
+    retryDelaySeconds?: number
   ) {
     super(message);
     this.name = 'RetryableQuotaError';
-    this.retryDelayMs = retryDelaySeconds
-      ? retryDelaySeconds * 1000
-      : undefined;
+    this.retryDelayMs = retryDelaySeconds ? retryDelaySeconds * 1000 : undefined;
   }
 }
 
@@ -66,7 +56,7 @@ export class ValidationRequiredError extends Error {
     override readonly cause?: GoogleApiError,
     validationLink?: string,
     validationDescription?: string,
-    learnMoreUrl?: string,
+    learnMoreUrl?: string
   ) {
     super(message);
     this.name = 'ValidationRequiredError';
@@ -108,28 +98,22 @@ const CLOUDCODE_DOMAINS = [
  * @param googleApiError The parsed Google API error to check.
  * @returns A `ValidationRequiredError` if validation is required, otherwise `null`.
  */
-function classifyValidationRequiredError(
-  googleApiError: GoogleApiError,
-): ValidationRequiredError | null {
+function classifyValidationRequiredError(googleApiError: GoogleApiError): ValidationRequiredError | null {
   const errorInfo = googleApiError.details.find(
-    (d): d is ErrorInfo =>
-      d['@type'] === 'type.googleapis.com/google.rpc.ErrorInfo',
+    (d): d is ErrorInfo => d['@type'] === 'type.googleapis.com/google.rpc.ErrorInfo'
   );
 
   if (!errorInfo) {
     return null;
   }
 
-  if (
-    !CLOUDCODE_DOMAINS.includes(errorInfo.domain) ||
-    errorInfo.reason !== 'VALIDATION_REQUIRED'
-  ) {
+  if (!CLOUDCODE_DOMAINS.includes(errorInfo.domain) || errorInfo.reason !== 'VALIDATION_REQUIRED') {
     return null;
   }
 
   // Try to extract validation info from Help detail first
   const helpDetail = googleApiError.details.find(
-    (d): d is Help => d['@type'] === 'type.googleapis.com/google.rpc.Help',
+    (d): d is Help => d['@type'] === 'type.googleapis.com/google.rpc.Help'
   );
 
   let validationLink: string | undefined;
@@ -163,7 +147,7 @@ function classifyValidationRequiredError(
     googleApiError,
     validationLink,
     validationDescription,
-    learnMoreUrl,
+    learnMoreUrl
   );
 }
 /**
@@ -188,9 +172,7 @@ export function classifyGoogleError(error: unknown): unknown {
   const status = googleApiError?.code ?? getErrorStatus(error);
 
   if (status === 404) {
-    const message =
-      googleApiError?.message ||
-      (error instanceof Error ? error.message : 'Model not found');
+    const message = googleApiError?.message || (error instanceof Error ? error.message : 'Model not found');
     return new ModelNotFoundError(message, status);
   }
 
@@ -202,15 +184,9 @@ export function classifyGoogleError(error: unknown): unknown {
     }
   }
 
-  if (
-    !googleApiError ||
-    googleApiError.code !== 429 ||
-    googleApiError.details.length === 0
-  ) {
+  if (!googleApiError || googleApiError.code !== 429 || googleApiError.details.length === 0) {
     // Fallback: try to parse the error message for a retry delay
-    const errorMessage =
-      googleApiError?.message ||
-      (error instanceof Error ? error.message : String(error));
+    const errorMessage = googleApiError?.message || (error instanceof Error ? error.message : String(error));
     const match = errorMessage.match(/Please retry in ([0-9.]+(?:ms|s))/);
     if (match?.[1]) {
       const retryDelaySeconds = parseDurationInSeconds(match[1]);
@@ -222,7 +198,7 @@ export function classifyGoogleError(error: unknown): unknown {
             message: errorMessage,
             details: [],
           },
-          retryDelaySeconds,
+          retryDelaySeconds
         );
       }
     } else if (status === 429) {
@@ -234,7 +210,7 @@ export function classifyGoogleError(error: unknown): unknown {
           code: 429,
           message: errorMessage,
           details: [],
-        },
+        }
       );
     }
 
@@ -242,18 +218,15 @@ export function classifyGoogleError(error: unknown): unknown {
   }
 
   const quotaFailure = googleApiError.details.find(
-    (d): d is QuotaFailure =>
-      d['@type'] === 'type.googleapis.com/google.rpc.QuotaFailure',
+    (d): d is QuotaFailure => d['@type'] === 'type.googleapis.com/google.rpc.QuotaFailure'
   );
 
   const errorInfo = googleApiError.details.find(
-    (d): d is ErrorInfo =>
-      d['@type'] === 'type.googleapis.com/google.rpc.ErrorInfo',
+    (d): d is ErrorInfo => d['@type'] === 'type.googleapis.com/google.rpc.ErrorInfo'
   );
 
   const retryInfo = googleApiError.details.find(
-    (d): d is RetryInfo =>
-      d['@type'] === 'type.googleapis.com/google.rpc.RetryInfo',
+    (d): d is RetryInfo => d['@type'] === 'type.googleapis.com/google.rpc.RetryInfo'
   );
 
   // 1. Check for long-term limits in QuotaFailure or ErrorInfo
@@ -261,10 +234,7 @@ export function classifyGoogleError(error: unknown): unknown {
     for (const violation of quotaFailure.violations) {
       const quotaId = violation.quotaId ?? '';
       if (quotaId.includes('PerDay') || quotaId.includes('Daily')) {
-        return new TerminalQuotaError(
-          `You have exhausted your daily quota on this model.`,
-          googleApiError,
-        );
+        return new TerminalQuotaError(`You have exhausted your daily quota on this model.`, googleApiError);
       }
     }
   }
@@ -287,18 +257,10 @@ export function classifyGoogleError(error: unknown): unknown {
       ];
       if (validDomains.includes(errorInfo.domain)) {
         if (errorInfo.reason === 'RATE_LIMIT_EXCEEDED') {
-          return new RetryableQuotaError(
-            `${googleApiError.message}`,
-            googleApiError,
-            delaySeconds ?? 10,
-          );
+          return new RetryableQuotaError(`${googleApiError.message}`, googleApiError, delaySeconds ?? 10);
         }
         if (errorInfo.reason === 'QUOTA_EXHAUSTED') {
-          return new TerminalQuotaError(
-            `${googleApiError.message}`,
-            googleApiError,
-            delaySeconds,
-          );
+          return new TerminalQuotaError(`${googleApiError.message}`, googleApiError, delaySeconds);
         }
       }
     }
@@ -309,7 +271,7 @@ export function classifyGoogleError(error: unknown): unknown {
     return new RetryableQuotaError(
       `${googleApiError.message}\nSuggested retry after ${retryInfo.retryDelay}.`,
       googleApiError,
-      delaySeconds,
+      delaySeconds
     );
   }
 
@@ -318,11 +280,7 @@ export function classifyGoogleError(error: unknown): unknown {
     for (const violation of quotaFailure.violations) {
       const quotaId = violation.quotaId ?? '';
       if (quotaId.includes('PerMinute')) {
-        return new RetryableQuotaError(
-          `${googleApiError.message}\nSuggested retry after 60s.`,
-          googleApiError,
-          60,
-        );
+        return new RetryableQuotaError(`${googleApiError.message}\nSuggested retry after 60s.`, googleApiError, 60);
       }
     }
   }
@@ -330,26 +288,20 @@ export function classifyGoogleError(error: unknown): unknown {
   if (errorInfo) {
     const quotaLimit = errorInfo.metadata?.['quota_limit'] ?? '';
     if (quotaLimit.includes('PerMinute')) {
-      return new RetryableQuotaError(
-        `${errorInfo.reason}\nSuggested retry after 60s.`,
-        googleApiError,
-        60,
-      );
+      return new RetryableQuotaError(`${errorInfo.reason}\nSuggested retry after 60s.`, googleApiError, 60);
     }
   }
 
   // If we reached this point and the status is still 429, we return retryable.
   if (status === 429) {
-    const errorMessage =
-      googleApiError?.message ||
-      (error instanceof Error ? error.message : String(error));
+    const errorMessage = googleApiError?.message || (error instanceof Error ? error.message : String(error));
     return new RetryableQuotaError(
       errorMessage,
       googleApiError ?? {
         code: 429,
         message: errorMessage,
         details: [],
-      },
+      }
     );
   }
   return error; // Fallback to original error if no specific classification fits.

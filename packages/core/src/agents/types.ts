@@ -75,9 +75,7 @@ export interface SubagentActivityEvent {
  * The base definition for an agent.
  * @template TOutput The specific Zod schema for the agent's final output object.
  */
-export interface BaseAgentDefinition<
-  TOutput extends z.ZodTypeAny = z.ZodUnknown,
-> {
+export interface BaseAgentDefinition<TOutput extends z.ZodTypeAny = z.ZodUnknown> {
   /** Unique identifier for the agent. */
   name: string;
   displayName?: string;

@@ -165,5 +165,5 @@ export const Holiday: Theme = new Theme(
       width: '100%',
     },
   },
-  holidayColors,
+  holidayColors
 );

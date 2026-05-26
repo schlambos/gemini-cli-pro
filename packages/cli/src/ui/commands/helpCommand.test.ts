@@ -39,7 +39,7 @@ describe('helpCommand', () => {
       expect.objectContaining({
         type: MessageType.HELP,
         timestamp: expect.any(Date),
-      }),
+      })
     );
   });
 

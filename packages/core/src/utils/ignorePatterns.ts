@@ -234,24 +234,17 @@ export function extractExtensionsFromPatterns(patterns: string[]): string[] {
             .filter((ext) => ext !== '.');
         }
         // Handle simple/compound/dotfile extensions
-        if (
-          extPart.startsWith('.') &&
-          !extPart.includes('/') &&
-          !extPart.includes('{') &&
-          !extPart.includes('}')
-        ) {
+        if (extPart.startsWith('.') && !extPart.includes('/') && !extPart.includes('{') && !extPart.includes('}')) {
           // Using path.extname on a dummy file handles various cases like
           // '.tar.gz' -> '.gz' and '.profile' -> '.profile' correctly.
           const extracted = path.extname(`dummy${extPart}`);
           // If extname returns empty (e.g. for '.'), use the original part.
           // Then filter out empty or '.' results and invalid double dot patterns.
           const result = extracted || extPart;
-          return result && result !== '.' && !result.substring(1).includes('.')
-            ? [result]
-            : [];
+          return result && result !== '.' && !result.substring(1).includes('.') ? [result] : [];
         }
         return [];
-      }),
+      })
   );
   return Array.from(extensions).sort();
 }
@@ -261,11 +254,7 @@ export function extractExtensionsFromPatterns(patterns: string[]): string[] {
  * Additional extensions not covered by the patterns are included for completeness.
  */
 export const BINARY_EXTENSIONS: string[] = [
-  ...extractExtensionsFromPatterns([
-    ...BINARY_FILE_PATTERNS,
-    ...MEDIA_FILE_PATTERNS,
-    ...PYTHON_EXCLUDES,
-  ]),
+  ...extractExtensionsFromPatterns([...BINARY_FILE_PATTERNS, ...MEDIA_FILE_PATTERNS, ...PYTHON_EXCLUDES]),
   // Additional binary extensions not in the main patterns
   '.dat',
   '.obj',

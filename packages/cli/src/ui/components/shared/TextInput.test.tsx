@@ -33,15 +33,9 @@ vi.mock('./text-buffer.js', () => {
         mockTextBuffer.viewportVisualLines = [mockTextBuffer.text];
         mockTextBuffer.visualCursor[1] = mockTextBuffer.text.length;
       } else if (key.name === 'left') {
-        mockTextBuffer.visualCursor[1] = Math.max(
-          0,
-          mockTextBuffer.visualCursor[1] - 1,
-        );
+        mockTextBuffer.visualCursor[1] = Math.max(0, mockTextBuffer.visualCursor[1] - 1);
       } else if (key.name === 'right') {
-        mockTextBuffer.visualCursor[1] = Math.min(
-          mockTextBuffer.text.length,
-          mockTextBuffer.visualCursor[1] + 1,
-        );
+        mockTextBuffer.visualCursor[1] = Math.min(mockTextBuffer.text.length, mockTextBuffer.visualCursor[1] + 1);
       }
     }),
     setText: vi.fn((newText, cursorPosition) => {
@@ -92,10 +86,7 @@ describe('TextInput', () => {
         } else if (key.name === 'left') {
           buffer.visualCursor[1] = Math.max(0, buffer.visualCursor[1] - 1);
         } else if (key.name === 'right') {
-          buffer.visualCursor[1] = Math.min(
-            buffer.text.length,
-            buffer.visualCursor[1] + 1,
-          );
+          buffer.visualCursor[1] = Math.min(buffer.text.length, buffer.visualCursor[1] + 1);
         }
       }),
       setText: vi.fn((newText, cursorPosition) => {
@@ -125,11 +116,7 @@ describe('TextInput', () => {
       setText: vi.fn(),
     };
     const { lastFrame } = render(
-      <TextInput
-        buffer={buffer as unknown as TextBuffer}
-        onSubmit={onSubmit}
-        onCancel={onCancel}
-      />,
+      <TextInput buffer={buffer as unknown as TextBuffer} onSubmit={onSubmit} onCancel={onCancel} />
     );
     expect(lastFrame()).toContain('test');
   });
@@ -147,18 +134,16 @@ describe('TextInput', () => {
     const { lastFrame } = render(
       <TextInput
         buffer={buffer as unknown as TextBuffer}
-        placeholder="testing"
+        placeholder='testing'
         onSubmit={onSubmit}
         onCancel={onCancel}
-      />,
+      />
     );
     expect(lastFrame()).toContain('testing');
   });
 
   it('handles character input', () => {
-    render(
-      <TextInput buffer={mockBuffer} onSubmit={onSubmit} onCancel={onCancel} />,
-    );
+    render(<TextInput buffer={mockBuffer} onSubmit={onSubmit} onCancel={onCancel} />);
     const keypressHandler = mockedUseKeypress.mock.calls[0][0];
 
     keypressHandler({
@@ -183,9 +168,7 @@ describe('TextInput', () => {
 
   it('handles backspace', () => {
     mockBuffer.setText('test');
-    render(
-      <TextInput buffer={mockBuffer} onSubmit={onSubmit} onCancel={onCancel} />,
-    );
+    render(<TextInput buffer={mockBuffer} onSubmit={onSubmit} onCancel={onCancel} />);
     const keypressHandler = mockedUseKeypress.mock.calls[0][0];
 
     keypressHandler({
@@ -210,9 +193,7 @@ describe('TextInput', () => {
 
   it('handles left arrow', () => {
     mockBuffer.setText('test');
-    render(
-      <TextInput buffer={mockBuffer} onSubmit={onSubmit} onCancel={onCancel} />,
-    );
+    render(<TextInput buffer={mockBuffer} onSubmit={onSubmit} onCancel={onCancel} />);
     const keypressHandler = mockedUseKeypress.mock.calls[0][0];
 
     keypressHandler({
@@ -231,9 +212,7 @@ describe('TextInput', () => {
   it('handles right arrow', () => {
     mockBuffer.setText('test');
     mockBuffer.visualCursor[1] = 2; // Set initial cursor for right arrow test
-    render(
-      <TextInput buffer={mockBuffer} onSubmit={onSubmit} onCancel={onCancel} />,
-    );
+    render(<TextInput buffer={mockBuffer} onSubmit={onSubmit} onCancel={onCancel} />);
     const keypressHandler = mockedUseKeypress.mock.calls[0][0];
 
     keypressHandler({
@@ -250,9 +229,7 @@ describe('TextInput', () => {
 
   it('calls onSubmit on return', () => {
     mockBuffer.setText('test');
-    render(
-      <TextInput buffer={mockBuffer} onSubmit={onSubmit} onCancel={onCancel} />,
-    );
+    render(<TextInput buffer={mockBuffer} onSubmit={onSubmit} onCancel={onCancel} />);
     const keypressHandler = mockedUseKeypress.mock.calls[0][0];
 
     keypressHandler({
@@ -269,9 +246,7 @@ describe('TextInput', () => {
 
   it('calls onCancel on escape', async () => {
     vi.useFakeTimers();
-    render(
-      <TextInput buffer={mockBuffer} onCancel={onCancel} onSubmit={onSubmit} />,
-    );
+    render(<TextInput buffer={mockBuffer} onCancel={onCancel} onSubmit={onSubmit} />);
     const keypressHandler = mockedUseKeypress.mock.calls[0][0];
 
     keypressHandler({
@@ -290,21 +265,14 @@ describe('TextInput', () => {
 
   it('renders the input value', () => {
     mockBuffer.setText('secret');
-    const { lastFrame } = render(
-      <TextInput buffer={mockBuffer} onSubmit={onSubmit} onCancel={onCancel} />,
-    );
+    const { lastFrame } = render(<TextInput buffer={mockBuffer} onSubmit={onSubmit} onCancel={onCancel} />);
     expect(lastFrame()).toContain('secret');
   });
 
   it('does not show cursor when not focused', () => {
     mockBuffer.setText('test');
     const { lastFrame } = render(
-      <TextInput
-        buffer={mockBuffer}
-        focus={false}
-        onSubmit={onSubmit}
-        onCancel={onCancel}
-      />,
+      <TextInput buffer={mockBuffer} focus={false} onSubmit={onSubmit} onCancel={onCancel} />
     );
     expect(lastFrame()).not.toContain('\u001b[7m'); // Inverse video chalk
   });
@@ -313,9 +281,7 @@ describe('TextInput', () => {
     mockBuffer.text = 'line1\nline2';
     mockBuffer.viewportVisualLines = ['line1', 'line2'];
 
-    const { lastFrame } = render(
-      <TextInput buffer={mockBuffer} onSubmit={onSubmit} onCancel={onCancel} />,
-    );
+    const { lastFrame } = render(<TextInput buffer={mockBuffer} onSubmit={onSubmit} onCancel={onCancel} />);
 
     expect(lastFrame()).toContain('line1');
     expect(lastFrame()).toContain('line2');

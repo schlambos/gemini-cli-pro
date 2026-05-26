@@ -4,12 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type {
-  ModelPolicy,
-  ModelPolicyActionMap,
-  ModelPolicyChain,
-  ModelPolicyStateMap,
-} from './modelPolicy.js';
+import type { ModelPolicy, ModelPolicyActionMap, ModelPolicyChain, ModelPolicyStateMap } from './modelPolicy.js';
 import {
   DEFAULT_GEMINI_FLASH_LITE_MODEL,
   DEFAULT_GEMINI_FLASH_MODEL,
@@ -78,15 +73,9 @@ const FLASH_LITE_CHAIN: ModelPolicyChain = [
 /**
  * Returns the default ordered model policy chain for the user.
  */
-export function getModelPolicyChain(
-  options: ModelPolicyOptions,
-): ModelPolicyChain {
+export function getModelPolicyChain(options: ModelPolicyOptions): ModelPolicyChain {
   if (options.previewEnabled) {
-    const previewModel = resolveModel(
-      PREVIEW_GEMINI_MODEL,
-      options.useGemini31,
-      options.useCustomToolModel,
-    );
+    const previewModel = resolveModel(PREVIEW_GEMINI_MODEL, options.useGemini31, options.useCustomToolModel);
     return [
       definePolicy({ model: previewModel }),
       definePolicy({ model: PREVIEW_GEMINI_FLASH_MODEL, isLastResort: true }),
@@ -107,10 +96,7 @@ export function getFlashLitePolicyChain(): ModelPolicyChain {
 /**
  * Provides a default policy scaffold for models not present in the catalog.
  */
-export function createDefaultPolicy(
-  model: string,
-  options?: { isLastResort?: boolean },
-): ModelPolicy {
+export function createDefaultPolicy(model: string, options?: { isLastResort?: boolean }): ModelPolicy {
   return definePolicy({ model, isLastResort: options?.isLastResort });
 }
 

@@ -20,16 +20,10 @@ function extractRecursiveMessage(input: string): string {
   const trimmed = input.trim();
 
   // Attempt to parse JSON error responses (common in Google API errors)
-  if (
-    (trimmed.startsWith('{') && trimmed.endsWith('}')) ||
-    (trimmed.startsWith('[') && trimmed.endsWith(']'))
-  ) {
+  if ((trimmed.startsWith('{') && trimmed.endsWith('}')) || (trimmed.startsWith('[') && trimmed.endsWith(']'))) {
     try {
       const parsed = JSON.parse(trimmed);
-      const next =
-        parsed?.error?.message ||
-        parsed?.[0]?.error?.message ||
-        parsed?.message;
+      const next = parsed?.error?.message || parsed?.[0]?.error?.message || parsed?.message;
 
       if (next && typeof next === 'string' && next !== input) {
         return extractRecursiveMessage(next);

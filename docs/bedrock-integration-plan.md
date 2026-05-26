@@ -55,14 +55,8 @@ export class BedrockContentGenerator implements ContentGenerator {
   private model: string;
   private region: string;
 
-  async generateContent(
-    request,
-    userPromptId,
-  ): Promise<GenerateContentResponse>;
-  async generateContentStream(
-    request,
-    userPromptId,
-  ): AsyncGenerator<GenerateContentResponse>;
+  async generateContent(request, userPromptId): Promise<GenerateContentResponse>;
+  async generateContentStream(request, userPromptId): AsyncGenerator<GenerateContentResponse>;
   async countTokens(request): Promise<CountTokensResponse>;
   async embedContent(request): Promise<EmbedContentResponse>;
 }

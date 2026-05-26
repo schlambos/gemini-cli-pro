@@ -11,9 +11,7 @@ import { ThinkingMessage } from './ThinkingMessage.js';
 describe('ThinkingMessage', () => {
   it('renders subject line', () => {
     const { lastFrame } = renderWithProviders(
-      <ThinkingMessage
-        thought={{ subject: 'Planning', description: 'test' }}
-      />,
+      <ThinkingMessage thought={{ subject: 'Planning', description: 'test' }} />
     );
 
     expect(lastFrame()).toMatchSnapshot();
@@ -21,9 +19,7 @@ describe('ThinkingMessage', () => {
 
   it('uses description when subject is empty', () => {
     const { lastFrame } = renderWithProviders(
-      <ThinkingMessage
-        thought={{ subject: '', description: 'Processing details' }}
-      />,
+      <ThinkingMessage thought={{ subject: '', description: 'Processing details' }} />
     );
 
     expect(lastFrame()).toMatchSnapshot();
@@ -36,7 +32,7 @@ describe('ThinkingMessage', () => {
           subject: 'Planning',
           description: 'I am planning the solution.',
         }}
-      />,
+      />
     );
 
     expect(lastFrame()).toMatchSnapshot();
@@ -49,7 +45,7 @@ describe('ThinkingMessage', () => {
           subject: 'Summary line',
           description: 'First body line',
         }}
-      />,
+      />
     );
 
     expect(lastFrame()).toMatchSnapshot();
@@ -62,16 +58,14 @@ describe('ThinkingMessage', () => {
           subject: 'Matching the Blocks',
           description: '\\n\\nSome more text',
         }}
-      />,
+      />
     );
 
     expect(lastFrame()).toMatchSnapshot();
   });
 
   it('renders empty state gracefully', () => {
-    const { lastFrame } = renderWithProviders(
-      <ThinkingMessage thought={{ subject: '', description: '' }} />,
-    );
+    const { lastFrame } = renderWithProviders(<ThinkingMessage thought={{ subject: '', description: '' }} />);
 
     expect(lastFrame()).toBe('');
   });

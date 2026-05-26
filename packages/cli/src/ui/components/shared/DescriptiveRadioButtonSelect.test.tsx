@@ -13,8 +13,7 @@ import {
 } from './DescriptiveRadioButtonSelect.js';
 
 vi.mock('./BaseSelectionList.js', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('./BaseSelectionList.js')>();
+  const actual = await importOriginal<typeof import('./BaseSelectionList.js')>();
   return {
     ...actual,
     BaseSelectionList: vi.fn(({ children, ...props }) => (
@@ -61,17 +60,13 @@ describe('DescriptiveRadioButtonSelect', () => {
     },
   ];
 
-  const renderComponent = (
-    props: Partial<DescriptiveRadioButtonSelectProps<string>> = {},
-  ) => {
+  const renderComponent = (props: Partial<DescriptiveRadioButtonSelectProps<string>> = {}) => {
     const defaultProps: DescriptiveRadioButtonSelectProps<string> = {
       items: ITEMS,
       onSelect: mockOnSelect,
       ...props,
     };
-    return renderWithProviders(
-      <DescriptiveRadioButtonSelect {...defaultProps} />,
-    );
+    return renderWithProviders(<DescriptiveRadioButtonSelect {...defaultProps} />);
   };
 
   beforeEach(() => {

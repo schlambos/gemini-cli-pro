@@ -31,11 +31,7 @@ import { VimModeProvider } from '../contexts/VimModeContext.js';
 import { KeypressProvider } from '../contexts/KeypressContext.js';
 import { act } from 'react';
 import { saveModifiedSettings, TEST_ONLY } from '../../utils/settingsUtils.js';
-import {
-  getSettingsSchema,
-  type SettingDefinition,
-  type SettingsSchemaType,
-} from '../../config/settingsSchema.js';
+import { getSettingsSchema, type SettingDefinition, type SettingsSchemaType } from '../../config/settingsSchema.js';
 import { terminalCapabilityManager } from '../utils/terminalCapabilityManager.js';
 
 // Mock the VimModeContext
@@ -60,8 +56,7 @@ enum TerminalKeys {
 }
 
 vi.mock('../../config/settingsSchema.js', async (importOriginal) => {
-  const original =
-    await importOriginal<typeof import('../../config/settingsSchema.js')>();
+  const original = await importOriginal<typeof import('../../config/settingsSchema.js')>();
   return {
     ...original,
     getSettingsSchema: vi.fn(original.getSettingsSchema),
@@ -190,7 +185,7 @@ const renderDialog = (
   options?: {
     onRestartRequest?: ReturnType<typeof vi.fn>;
     availableTerminalHeight?: number;
-  },
+  }
 ) =>
   render(
     <KeypressProvider>
@@ -200,16 +195,13 @@ const renderDialog = (
         onRestartRequest={options?.onRestartRequest}
         availableTerminalHeight={options?.availableTerminalHeight}
       />
-    </KeypressProvider>,
+    </KeypressProvider>
   );
 
 describe('SettingsDialog', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.spyOn(
-      terminalCapabilityManager,
-      'isKittyProtocolEnabled',
-    ).mockReturnValue(true);
+    vi.spyOn(terminalCapabilityManager, 'isKittyProtocolEnabled').mockReturnValue(true);
     mockToggleVimEnabled.mockRejectedValue(undefined);
   });
 
@@ -379,9 +371,7 @@ describe('SettingsDialog', () => {
       });
       // Wait for the setting change to be processed
       await waitFor(() => {
-        expect(
-          vi.mocked(saveModifiedSettings).mock.calls.length,
-        ).toBeGreaterThan(0);
+        expect(vi.mocked(saveModifiedSettings).mock.calls.length).toBeGreaterThan(0);
       });
 
       // Wait for the mock to be called
@@ -397,7 +387,7 @@ describe('SettingsDialog', () => {
           }),
         }),
         expect.any(LoadedSettings),
-        SettingScope.User,
+        SettingScope.User
       );
 
       unmount();
@@ -445,7 +435,7 @@ describe('SettingsDialog', () => {
             }),
           }),
           expect.any(LoadedSettings),
-          SettingScope.User,
+          SettingScope.User
         );
 
         unmount();
@@ -673,7 +663,7 @@ describe('SettingsDialog', () => {
           <KeypressProvider>
             <SettingsDialog settings={settings} onSelect={onSelect} />
           </KeypressProvider>
-        </VimModeProvider>,
+        </VimModeProvider>
       );
 
       // Navigate to and toggle vim mode setting
@@ -740,9 +730,7 @@ describe('SettingsDialog', () => {
 
       // Should not show restart prompt initially
       await waitFor(() => {
-        expect(lastFrame()).not.toContain(
-          'To see changes, Gemini CLI must be restarted',
-        );
+        expect(lastFrame()).not.toContain('To see changes, Gemini CLI must be restarted');
       });
 
       unmount();
@@ -826,58 +814,51 @@ describe('SettingsDialog', () => {
           pager: 'less',
         },
       },
-    ])(
-      'should $name',
-      async ({ toggleCount, shellSettings, expectedSiblings }) => {
-        vi.mocked(saveModifiedSettings).mockClear();
+    ])('should $name', async ({ toggleCount, shellSettings, expectedSiblings }) => {
+      vi.mocked(saveModifiedSettings).mockClear();
 
-        vi.mocked(getSettingsSchema).mockReturnValue(TOOLS_SHELL_FAKE_SCHEMA);
+      vi.mocked(getSettingsSchema).mockReturnValue(TOOLS_SHELL_FAKE_SCHEMA);
 
-        const settings = createMockSettings({
-          tools: {
-            shell: shellSettings,
-          },
+      const settings = createMockSettings({
+        tools: {
+          shell: shellSettings,
+        },
+      });
+
+      const onSelect = vi.fn();
+
+      const { stdin, unmount } = renderDialog(settings, onSelect);
+
+      for (let i = 0; i < toggleCount; i++) {
+        act(() => {
+          stdin.write(TerminalKeys.ENTER as string);
         });
+      }
 
-        const onSelect = vi.fn();
+      await waitFor(() => {
+        expect(vi.mocked(saveModifiedSettings).mock.calls.length).toBeGreaterThan(0);
+      });
 
-        const { stdin, unmount } = renderDialog(settings, onSelect);
+      const calls = vi.mocked(saveModifiedSettings).mock.calls;
+      calls.forEach((call) => {
+        const [modifiedKeys, pendingSettings] = call;
 
-        for (let i = 0; i < toggleCount; i++) {
-          act(() => {
-            stdin.write(TerminalKeys.ENTER as string);
+        if (modifiedKeys.has('tools.shell.showColor')) {
+          const shellSettings = pendingSettings.tools?.shell as Record<string, unknown> | undefined;
+
+          Object.entries(expectedSiblings).forEach(([key, value]) => {
+            expect(shellSettings?.[key]).toBe(value);
+            expect(modifiedKeys.has(`tools.shell.${key}`)).toBe(false);
           });
+
+          expect(modifiedKeys.size).toBe(1);
         }
+      });
 
-        await waitFor(() => {
-          expect(
-            vi.mocked(saveModifiedSettings).mock.calls.length,
-          ).toBeGreaterThan(0);
-        });
+      expect(calls.length).toBeGreaterThan(0);
 
-        const calls = vi.mocked(saveModifiedSettings).mock.calls;
-        calls.forEach((call) => {
-          const [modifiedKeys, pendingSettings] = call;
-
-          if (modifiedKeys.has('tools.shell.showColor')) {
-            const shellSettings = pendingSettings.tools?.shell as
-              | Record<string, unknown>
-              | undefined;
-
-            Object.entries(expectedSiblings).forEach(([key, value]) => {
-              expect(shellSettings?.[key]).toBe(value);
-              expect(modifiedKeys.has(`tools.shell.${key}`)).toBe(false);
-            });
-
-            expect(modifiedKeys.size).toBe(1);
-          }
-        });
-
-        expect(calls.length).toBeGreaterThan(0);
-
-        unmount();
-      },
-    );
+      unmount();
+    });
   });
 
   describe('Keyboard Shortcuts Edge Cases', () => {
@@ -902,22 +883,19 @@ describe('SettingsDialog', () => {
     it.each([
       { key: 'Ctrl+C', code: '\u0003' },
       { key: 'Ctrl+L', code: '\u000C' },
-    ])(
-      'should handle $key to reset current setting to default',
-      async ({ code }) => {
-        const settings = createMockSettings({ vimMode: true });
-        const onSelect = vi.fn();
+    ])('should handle $key to reset current setting to default', async ({ code }) => {
+      const settings = createMockSettings({ vimMode: true });
+      const onSelect = vi.fn();
 
-        const { stdin, unmount } = renderDialog(settings, onSelect);
+      const { stdin, unmount } = renderDialog(settings, onSelect);
 
-        act(() => {
-          stdin.write(code);
-        });
+      act(() => {
+        stdin.write(code);
+      });
 
-        // Should reset the current setting to its default value
-        unmount();
-      },
-    );
+      // Should reset the current setting to its default value
+      unmount();
+    });
 
     it('should handle navigation when only one setting exists', async () => {
       const settings = createMockSettings();
@@ -1089,9 +1067,7 @@ describe('SettingsDialog', () => {
       });
 
       // Wait for navigation to complete
-      await waitFor(() =>
-        expect(lastFrame()).toContain('● Enable Interactive Shell'),
-      );
+      await waitFor(() => expect(lastFrame()).toContain('● Enable Interactive Shell'));
 
       // Toggle it to trigger restart required
       act(() => {
@@ -1099,9 +1075,7 @@ describe('SettingsDialog', () => {
       });
 
       await waitFor(() => {
-        expect(lastFrame()).toContain(
-          'To see changes, Gemini CLI must be restarted',
-        );
+        expect(lastFrame()).toContain('To see changes, Gemini CLI must be restarted');
       });
 
       // Press 'r' - it should call onRestartRequest, NOT be handled by search
@@ -1130,18 +1104,14 @@ describe('SettingsDialog', () => {
         stdin.write(TerminalKeys.DOWN_ARROW);
       });
 
-      await waitFor(() =>
-        expect(lastFrame()).toContain('● Enable Interactive Shell'),
-      );
+      await waitFor(() => expect(lastFrame()).toContain('● Enable Interactive Shell'));
 
       act(() => {
         stdin.write(TerminalKeys.ENTER);
       });
 
       await waitFor(() => {
-        expect(lastFrame()).toContain(
-          'To see changes, Gemini CLI must be restarted',
-        );
+        expect(lastFrame()).toContain('To see changes, Gemini CLI must be restarted');
       });
 
       // Search box should now be hidden
@@ -1159,7 +1129,7 @@ describe('SettingsDialog', () => {
       const { stdin, unmount, rerender } = render(
         <KeypressProvider>
           <SettingsDialog settings={settings} onSelect={onSelect} />
-        </KeypressProvider>,
+        </KeypressProvider>
       );
 
       // Navigate to the last setting
@@ -1186,7 +1156,7 @@ describe('SettingsDialog', () => {
       rerender(
         <KeypressProvider>
           <SettingsDialog settings={settings} onSelect={onSelect} />
-        </KeypressProvider>,
+        </KeypressProvider>
       );
 
       // Press Escape to exit
@@ -1525,36 +1495,33 @@ describe('SettingsDialog', () => {
         workspaceSettings: {},
         stdinActions: undefined,
       },
-    ])(
-      'should render $name correctly',
-      ({ userSettings, systemSettings, workspaceSettings, stdinActions }) => {
-        const settings = createMockSettings({
-          user: {
-            settings: userSettings,
-            originalSettings: userSettings,
-            path: '',
-          },
-          system: {
-            settings: systemSettings,
-            originalSettings: systemSettings,
-            path: '',
-          },
-          workspace: {
-            settings: workspaceSettings,
-            originalSettings: workspaceSettings,
-            path: '',
-          },
-        });
-        const onSelect = vi.fn();
+    ])('should render $name correctly', ({ userSettings, systemSettings, workspaceSettings, stdinActions }) => {
+      const settings = createMockSettings({
+        user: {
+          settings: userSettings,
+          originalSettings: userSettings,
+          path: '',
+        },
+        system: {
+          settings: systemSettings,
+          originalSettings: systemSettings,
+          path: '',
+        },
+        workspace: {
+          settings: workspaceSettings,
+          originalSettings: workspaceSettings,
+          path: '',
+        },
+      });
+      const onSelect = vi.fn();
 
-        const { lastFrame, stdin } = renderDialog(settings, onSelect);
+      const { lastFrame, stdin } = renderDialog(settings, onSelect);
 
-        if (stdinActions) {
-          stdinActions(stdin);
-        }
+      if (stdinActions) {
+        stdinActions(stdin);
+      }
 
-        expect(lastFrame()).toMatchSnapshot();
-      },
-    );
+      expect(lastFrame()).toMatchSnapshot();
+    });
   });
 });

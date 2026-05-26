@@ -11,12 +11,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import {
-  TestRig,
-  poll,
-  assertModelHasOutput,
-  checkModelOutputContent,
-} from './test-helper.js';
+import { TestRig, poll, assertModelHasOutput, checkModelOutputContent } from './test-helper.js';
 import { join } from 'node:path';
 import { writeFileSync } from 'node:fs';
 
@@ -214,7 +209,7 @@ describe.skip('simple-mcp-server', () => {
         }
       },
       5000, // Max wait 5 seconds
-      100, // Poll every 100ms
+      100 // Poll every 100ms
     );
 
     if (!isReady) {
@@ -236,9 +231,6 @@ describe.skip('simple-mcp-server', () => {
       expectedContent: '15',
       testName: 'MCP server test',
     });
-    expect(
-      output.includes('15'),
-      'Expected output to contain the sum (15)',
-    ).toBeTruthy();
+    expect(output.includes('15'), 'Expected output to contain the sum (15)').toBeTruthy();
   });
 });

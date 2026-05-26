@@ -30,10 +30,7 @@ export class AcknowledgedAgentsService {
       this.acknowledgedAgents = JSON.parse(content);
     } catch (error: unknown) {
       if (!isNodeError(error) || error.code !== 'ENOENT') {
-        debugLogger.error(
-          'Failed to load acknowledged agents:',
-          getErrorMessage(error),
-        );
+        debugLogger.error('Failed to load acknowledged agents:', getErrorMessage(error));
       }
       // If file doesn't exist or there's a parsing error, fallback to empty
       this.acknowledgedAgents = {};
@@ -46,35 +43,20 @@ export class AcknowledgedAgentsService {
     try {
       const dir = path.dirname(filePath);
       await fs.mkdir(dir, { recursive: true });
-      await fs.writeFile(
-        filePath,
-        JSON.stringify(this.acknowledgedAgents, null, 2),
-        'utf-8',
-      );
+      await fs.writeFile(filePath, JSON.stringify(this.acknowledgedAgents, null, 2), 'utf-8');
     } catch (error) {
-      debugLogger.error(
-        'Failed to save acknowledged agents:',
-        getErrorMessage(error),
-      );
+      debugLogger.error('Failed to save acknowledged agents:', getErrorMessage(error));
     }
   }
 
-  async isAcknowledged(
-    projectPath: string,
-    agentName: string,
-    hash: string,
-  ): Promise<boolean> {
+  async isAcknowledged(projectPath: string, agentName: string, hash: string): Promise<boolean> {
     await this.load();
     const projectAgents = this.acknowledgedAgents[projectPath];
     if (!projectAgents) return false;
     return projectAgents[agentName] === hash;
   }
 
-  async acknowledge(
-    projectPath: string,
-    agentName: string,
-    hash: string,
-  ): Promise<void> {
+  async acknowledge(projectPath: string, agentName: string, hash: string): Promise<void> {
     await this.load();
     if (!this.acknowledgedAgents[projectPath]) {
       this.acknowledgedAgents[projectPath] = {};

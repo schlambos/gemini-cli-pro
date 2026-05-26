@@ -134,9 +134,7 @@ describe('getDisplayString', () => {
   });
 
   it('should return Auto (Gemini 2.5) for default auto model', () => {
-    expect(getDisplayString(DEFAULT_GEMINI_MODEL_AUTO)).toBe(
-      'Auto (Gemini 2.5)',
-    );
+    expect(getDisplayString(DEFAULT_GEMINI_MODEL_AUTO)).toBe('Auto (Gemini 2.5)');
   });
 
   it('should return concrete model name for pro alias', () => {
@@ -144,22 +142,16 @@ describe('getDisplayString', () => {
   });
 
   it('should return concrete model name for flash alias', () => {
-    expect(getDisplayString(GEMINI_MODEL_ALIAS_FLASH)).toBe(
-      PREVIEW_GEMINI_FLASH_MODEL,
-    );
+    expect(getDisplayString(GEMINI_MODEL_ALIAS_FLASH)).toBe(PREVIEW_GEMINI_FLASH_MODEL);
   });
 
   it('should return PREVIEW_GEMINI_3_1_MODEL for PREVIEW_GEMINI_3_1_CUSTOM_TOOLS_MODEL', () => {
-    expect(getDisplayString(PREVIEW_GEMINI_3_1_CUSTOM_TOOLS_MODEL)).toBe(
-      PREVIEW_GEMINI_3_1_MODEL,
-    );
+    expect(getDisplayString(PREVIEW_GEMINI_3_1_CUSTOM_TOOLS_MODEL)).toBe(PREVIEW_GEMINI_3_1_MODEL);
   });
 
   it('should return the model name as is for other models', () => {
     expect(getDisplayString('custom-model')).toBe('custom-model');
-    expect(getDisplayString(DEFAULT_GEMINI_FLASH_LITE_MODEL)).toBe(
-      DEFAULT_GEMINI_FLASH_LITE_MODEL,
-    );
+    expect(getDisplayString(DEFAULT_GEMINI_FLASH_LITE_MODEL)).toBe(DEFAULT_GEMINI_FLASH_LITE_MODEL);
   });
 });
 
@@ -203,12 +195,8 @@ describe('resolveModel', () => {
 
     it('should return the requested model as-is for explicit specific models', () => {
       expect(resolveModel(DEFAULT_GEMINI_MODEL)).toBe(DEFAULT_GEMINI_MODEL);
-      expect(resolveModel(DEFAULT_GEMINI_FLASH_MODEL)).toBe(
-        DEFAULT_GEMINI_FLASH_MODEL,
-      );
-      expect(resolveModel(DEFAULT_GEMINI_FLASH_LITE_MODEL)).toBe(
-        DEFAULT_GEMINI_FLASH_LITE_MODEL,
-      );
+      expect(resolveModel(DEFAULT_GEMINI_FLASH_MODEL)).toBe(DEFAULT_GEMINI_FLASH_MODEL);
+      expect(resolveModel(DEFAULT_GEMINI_FLASH_LITE_MODEL)).toBe(DEFAULT_GEMINI_FLASH_LITE_MODEL);
     });
 
     it('should return a custom model name when requested', () => {
@@ -267,48 +255,29 @@ describe('isAutoModel', () => {
 
 describe('resolveClassifierModel', () => {
   it('should return flash model when alias is flash', () => {
-    expect(
-      resolveClassifierModel(
-        DEFAULT_GEMINI_MODEL_AUTO,
-        GEMINI_MODEL_ALIAS_FLASH,
-      ),
-    ).toBe(DEFAULT_GEMINI_FLASH_MODEL);
-    expect(
-      resolveClassifierModel(
-        PREVIEW_GEMINI_MODEL_AUTO,
-        GEMINI_MODEL_ALIAS_FLASH,
-      ),
-    ).toBe(PREVIEW_GEMINI_FLASH_MODEL);
+    expect(resolveClassifierModel(DEFAULT_GEMINI_MODEL_AUTO, GEMINI_MODEL_ALIAS_FLASH)).toBe(
+      DEFAULT_GEMINI_FLASH_MODEL
+    );
+    expect(resolveClassifierModel(PREVIEW_GEMINI_MODEL_AUTO, GEMINI_MODEL_ALIAS_FLASH)).toBe(
+      PREVIEW_GEMINI_FLASH_MODEL
+    );
   });
 
   it('should return pro model when alias is pro', () => {
-    expect(
-      resolveClassifierModel(DEFAULT_GEMINI_MODEL_AUTO, GEMINI_MODEL_ALIAS_PRO),
-    ).toBe(DEFAULT_GEMINI_MODEL);
-    expect(
-      resolveClassifierModel(PREVIEW_GEMINI_MODEL_AUTO, GEMINI_MODEL_ALIAS_PRO),
-    ).toBe(PREVIEW_GEMINI_MODEL);
+    expect(resolveClassifierModel(DEFAULT_GEMINI_MODEL_AUTO, GEMINI_MODEL_ALIAS_PRO)).toBe(DEFAULT_GEMINI_MODEL);
+    expect(resolveClassifierModel(PREVIEW_GEMINI_MODEL_AUTO, GEMINI_MODEL_ALIAS_PRO)).toBe(PREVIEW_GEMINI_MODEL);
   });
 
   it('should return Gemini 3.1 Pro when alias is pro and useGemini3_1 is true', () => {
-    expect(
-      resolveClassifierModel(
-        PREVIEW_GEMINI_MODEL_AUTO,
-        GEMINI_MODEL_ALIAS_PRO,
-        true,
-      ),
-    ).toBe(PREVIEW_GEMINI_3_1_MODEL);
+    expect(resolveClassifierModel(PREVIEW_GEMINI_MODEL_AUTO, GEMINI_MODEL_ALIAS_PRO, true)).toBe(
+      PREVIEW_GEMINI_3_1_MODEL
+    );
   });
 
   it('should return Gemini 3.1 Pro Custom Tools when alias is pro, useGemini3_1 is true, and useCustomToolModel is true', () => {
-    expect(
-      resolveClassifierModel(
-        PREVIEW_GEMINI_MODEL_AUTO,
-        GEMINI_MODEL_ALIAS_PRO,
-        true,
-        true,
-      ),
-    ).toBe(PREVIEW_GEMINI_3_1_CUSTOM_TOOLS_MODEL);
+    expect(resolveClassifierModel(PREVIEW_GEMINI_MODEL_AUTO, GEMINI_MODEL_ALIAS_PRO, true, true)).toBe(
+      PREVIEW_GEMINI_3_1_CUSTOM_TOOLS_MODEL
+    );
   });
 });
 
@@ -335,25 +304,17 @@ describe('isActiveModel', () => {
   it('should correctly filter Gemini 3.1 models based on useCustomToolModel when useGemini3_1 is true', () => {
     // When custom tools are preferred, standard 3.1 should be inactive
     expect(isActiveModel(PREVIEW_GEMINI_3_1_MODEL, true, true)).toBe(false);
-    expect(
-      isActiveModel(PREVIEW_GEMINI_3_1_CUSTOM_TOOLS_MODEL, true, true),
-    ).toBe(true);
+    expect(isActiveModel(PREVIEW_GEMINI_3_1_CUSTOM_TOOLS_MODEL, true, true)).toBe(true);
 
     // When custom tools are NOT preferred, custom tools 3.1 should be inactive
     expect(isActiveModel(PREVIEW_GEMINI_3_1_MODEL, true, false)).toBe(true);
-    expect(
-      isActiveModel(PREVIEW_GEMINI_3_1_CUSTOM_TOOLS_MODEL, true, false),
-    ).toBe(false);
+    expect(isActiveModel(PREVIEW_GEMINI_3_1_CUSTOM_TOOLS_MODEL, true, false)).toBe(false);
   });
 
   it('should return false for both Gemini 3.1 models when useGemini3_1 is false', () => {
     expect(isActiveModel(PREVIEW_GEMINI_3_1_MODEL, false, true)).toBe(false);
     expect(isActiveModel(PREVIEW_GEMINI_3_1_MODEL, false, false)).toBe(false);
-    expect(
-      isActiveModel(PREVIEW_GEMINI_3_1_CUSTOM_TOOLS_MODEL, false, true),
-    ).toBe(false);
-    expect(
-      isActiveModel(PREVIEW_GEMINI_3_1_CUSTOM_TOOLS_MODEL, false, false),
-    ).toBe(false);
+    expect(isActiveModel(PREVIEW_GEMINI_3_1_CUSTOM_TOOLS_MODEL, false, true)).toBe(false);
+    expect(isActiveModel(PREVIEW_GEMINI_3_1_CUSTOM_TOOLS_MODEL, false, false)).toBe(false);
   });
 });

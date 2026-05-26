@@ -6,13 +6,7 @@
 
 import { useStdin } from 'ink';
 import type React from 'react';
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-} from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef } from 'react';
 import { ESC } from '../utils/input.js';
 import { debugLogger } from '@google/gemini-cli-core';
 import { appEvents, AppEvent } from '../../utils/events.js';
@@ -79,14 +73,14 @@ export function MouseProvider({
     (handler: MouseHandler) => {
       subscribers.add(handler);
     },
-    [subscribers],
+    [subscribers]
   );
 
   const unsubscribe = useCallback(
     (handler: MouseHandler) => {
       subscribers.delete(handler);
     },
-    [subscribers],
+    [subscribers]
   );
 
   useEffect(() => {
@@ -110,8 +104,7 @@ export function MouseProvider({
         if (
           lastClick &&
           now - lastClick.time < DOUBLE_CLICK_THRESHOLD_MS &&
-          Math.abs(event.col - lastClick.col) <=
-            DOUBLE_CLICK_DISTANCE_TOLERANCE &&
+          Math.abs(event.col - lastClick.col) <= DOUBLE_CLICK_DISTANCE_TOLERANCE &&
           Math.abs(event.row - lastClick.row) <= DOUBLE_CLICK_DISTANCE_TOLERANCE
         ) {
           const doubleClickEvent: MouseEvent = {
@@ -127,13 +120,7 @@ export function MouseProvider({
         }
       }
 
-      if (
-        !handled &&
-        event.name === 'move' &&
-        event.col >= 0 &&
-        event.row >= 0 &&
-        event.button === 'left'
-      ) {
+      if (!handled && event.name === 'move' && event.col >= 0 && event.row >= 0 && event.button === 'left') {
         // Terminal apps only receive mouse move events when the mouse is down
         // so this always indicates a mouse drag that the user was expecting
         // would trigger text selection but does not as we are handling mouse
@@ -155,10 +142,7 @@ export function MouseProvider({
 
         if (parsed) {
           if (debugKeystrokeLogging) {
-            debugLogger.log(
-              '[DEBUG] Mouse event parsed:',
-              JSON.stringify(parsed.event),
-            );
+            debugLogger.log('[DEBUG] Mouse event parsed:', JSON.stringify(parsed.event));
           }
           broadcast(parsed.event);
           mouseBuffer = mouseBuffer.slice(parsed.length);
@@ -189,9 +173,5 @@ export function MouseProvider({
     };
   }, [stdin, mouseEventsEnabled, subscribers, debugKeystrokeLogging]);
 
-  return (
-    <MouseContext.Provider value={{ subscribe, unsubscribe }}>
-      {children}
-    </MouseContext.Provider>
-  );
+  return <MouseContext.Provider value={{ subscribe, unsubscribe }}>{children}</MouseContext.Provider>;
 }

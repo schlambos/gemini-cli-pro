@@ -7,11 +7,14 @@
     "url": "git+https://github.com/google-gemini/gemini-cli.git",
     "directory": "packages/a2a-server"
   },
-  "type": "module",
-  "main": "dist/index.js",
   "bin": {
     "gemini-cli-a2a-server": "dist/a2a-server.mjs"
   },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "dist/index.js",
   "scripts": {
     "build": "node ../../scripts/build_package.js",
     "start": "node dist/src/http/server.js",
@@ -21,9 +24,6 @@
     "test:ci": "vitest run --coverage",
     "typecheck": "tsc --noEmit"
   },
-  "files": [
-    "dist"
-  ],
   "dependencies": {
     "@a2a-js/sdk": "^0.3.8",
     "@google-cloud/storage": "^7.16.0",

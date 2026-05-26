@@ -81,23 +81,16 @@ export function PermissionsModifyTrustDialog({
       }
       return false;
     },
-    { isActive: true },
+    { isActive: true }
   );
 
-  const index = TRUST_LEVEL_ITEMS.findIndex(
-    (item) => item.value === currentTrustLevel,
-  );
+  const index = TRUST_LEVEL_ITEMS.findIndex((item) => item.value === currentTrustLevel);
   const initialIndex = index === -1 ? 0 : index;
 
   return (
     <>
-      <Box
-        borderStyle="round"
-        borderColor={theme.border.default}
-        flexDirection="column"
-        padding={1}
-      >
-        <Box flexDirection="column" paddingBottom={1}>
+      <Box borderStyle='round' borderColor={theme.border.default} flexDirection='column' padding={1}>
+        <Box flexDirection='column' paddingBottom={1}>
           <Text bold>{'> '}Modify Trust Level</Text>
           <Box marginTop={1} />
           <Text>Folder: {cwd}</Text>
@@ -106,17 +99,15 @@ export function PermissionsModifyTrustDialog({
           </Text>
           {isInheritedTrustFromParent && (
             <Text color={theme.text.secondary}>
-              Note: This folder behaves as a trusted folder because one of the
-              parent folders is trusted. It will remain trusted even if you set
-              a different trust level here. To change this, you need to modify
-              the trust setting in the parent folder.
+              Note: This folder behaves as a trusted folder because one of the parent folders is trusted. It will remain
+              trusted even if you set a different trust level here. To change this, you need to modify the trust setting
+              in the parent folder.
             </Text>
           )}
           {isInheritedTrustFromIde && (
             <Text color={theme.text.secondary}>
-              Note: This folder behaves as a trusted folder because the
-              connected IDE workspace is trusted. It will remain trusted even if
-              you set a different trust level here.
+              Note: This folder behaves as a trusted folder because the connected IDE workspace is trusted. It will
+              remain trusted even if you set a different trust level here.
             </Text>
           )}
         </Box>
@@ -128,16 +119,13 @@ export function PermissionsModifyTrustDialog({
           initialIndex={initialIndex}
         />
         <Box marginTop={1}>
-          <Text color={theme.text.secondary}>
-            (Use Enter to select, Esc to close)
-          </Text>
+          <Text color={theme.text.secondary}>(Use Enter to select, Esc to close)</Text>
         </Box>
       </Box>
       {needsRestart && (
         <Box marginLeft={1} marginTop={1}>
           <Text color={theme.status.warning}>
-            To apply the trust changes, Gemini CLI must be restarted. Press
-            &apos;r&apos; to restart CLI now.
+            To apply the trust changes, Gemini CLI must be restarted. Press &apos;r&apos; to restart CLI now.
           </Text>
         </Box>
       )}

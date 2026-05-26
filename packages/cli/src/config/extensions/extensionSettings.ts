@@ -33,7 +33,7 @@ const getKeychainStorageName = (
   extensionName: string,
   extensionId: string,
   scope: ExtensionSettingScope,
-  workspaceDir?: string,
+  workspaceDir?: string
 ): string => {
   const base = `Gemini CLI Extensions ${extensionName} ${extensionId}`;
   if (scope === ExtensionSettingScope.WORKSPACE) {
@@ -45,11 +45,7 @@ const getKeychainStorageName = (
   return base;
 };
 
-export const getEnvFilePath = (
-  extensionName: string,
-  scope: ExtensionSettingScope,
-  workspaceDir?: string,
-): string => {
+export const getEnvFilePath = (extensionName: string, scope: ExtensionSettingScope, workspaceDir?: string): string => {
   if (scope === ExtensionSettingScope.WORKSPACE) {
     if (!workspaceDir) {
       throw new Error('Workspace directory is required for workspace scope');
@@ -64,13 +60,12 @@ export async function maybePromptForSettings(
   extensionId: string,
   requestSetting: (setting: ExtensionSetting) => Promise<string>,
   previousExtensionConfig?: ExtensionConfig,
-  previousSettings?: Record<string, string>,
+  previousSettings?: Record<string, string>
 ): Promise<void> {
   const { name: extensionName, settings } = extensionConfig;
   if (
     (!settings || settings.length === 0) &&
-    (!previousExtensionConfig?.settings ||
-      previousExtensionConfig.settings.length === 0)
+    (!previousExtensionConfig?.settings || previousExtensionConfig.settings.length === 0)
   ) {
     return;
   }
@@ -78,19 +73,14 @@ export async function maybePromptForSettings(
   // The user can change the scope later using the `settings set` command.
   const scope = ExtensionSettingScope.USER;
   const envFilePath = getEnvFilePath(extensionName, scope);
-  const keychain = new KeychainTokenStorage(
-    getKeychainStorageName(extensionName, extensionId, scope),
-  );
+  const keychain = new KeychainTokenStorage(getKeychainStorageName(extensionName, extensionId, scope));
 
   if (!settings || settings.length === 0) {
     await clearSettings(envFilePath, keychain);
     return;
   }
 
-  const settingsChanges = getSettingsChanges(
-    settings,
-    previousExtensionConfig?.settings ?? [],
-  );
+  const settingsChanges = getSettingsChanges(settings, previousExtensionConfig?.settings ?? []);
 
   const allSettings: Record<string, string> = { ...previousSettings };
 
@@ -102,9 +92,7 @@ export async function maybePromptForSettings(
     await keychain.deleteSecret(removedSensitiveSetting.envVar);
   }
 
-  for (const setting of settingsChanges.promptForSensitive.concat(
-    settingsChanges.promptForEnv,
-  )) {
+  for (const setting of settingsChanges.promptForSensitive.concat(settingsChanges.promptForEnv)) {
     const answer = await requestSetting(setting);
     allSettings[setting.envVar] = answer;
   }
@@ -132,25 +120,19 @@ function formatEnvContent(settings: Record<string, string>): string {
   for (const [key, value] of Object.entries(settings)) {
     if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(key)) {
       throw new Error(
-        `Invalid environment variable name: "${key}". Must contain only alphanumeric characters and underscores.`,
+        `Invalid environment variable name: "${key}". Must contain only alphanumeric characters and underscores.`
       );
     }
     if (value.includes('\n') || value.includes('\r')) {
-      throw new Error(
-        `Invalid environment variable value for "${key}". Values cannot contain newlines.`,
-      );
+      throw new Error(`Invalid environment variable value for "${key}". Values cannot contain newlines.`);
     }
-    const formattedValue = value.includes(' ')
-      ? `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`
-      : value;
+    const formattedValue = value.includes(' ') ? `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"` : value;
     envContent += `${key}=${formattedValue}\n`;
   }
   return envContent;
 }
 
-export async function promptForSetting(
-  setting: ExtensionSetting,
-): Promise<string> {
+export async function promptForSetting(setting: ExtensionSetting): Promise<string> {
   const response = await prompts({
     type: setting.sensitive ? 'password' : 'text',
     name: 'value',
@@ -163,12 +145,10 @@ export async function getScopedEnvContents(
   extensionConfig: ExtensionConfig,
   extensionId: string,
   scope: ExtensionSettingScope,
-  workspaceDir?: string,
+  workspaceDir?: string
 ): Promise<Record<string, string>> {
   const { name: extensionName } = extensionConfig;
-  const keychain = new KeychainTokenStorage(
-    getKeychainStorageName(extensionName, extensionId, scope, workspaceDir),
-  );
+  const keychain = new KeychainTokenStorage(getKeychainStorageName(extensionName, extensionId, scope, workspaceDir));
   const envFilePath = getEnvFilePath(extensionName, scope, workspaceDir);
   let customEnv: Record<string, string> = {};
   if (fsSync.existsSync(envFilePath)) {
@@ -192,22 +172,18 @@ export async function getScopedEnvContents(
 export async function getEnvContents(
   extensionConfig: ExtensionConfig,
   extensionId: string,
-  workspaceDir: string,
+  workspaceDir: string
 ): Promise<Record<string, string>> {
   if (!extensionConfig.settings || extensionConfig.settings.length === 0) {
     return Promise.resolve({});
   }
 
-  const userSettings = await getScopedEnvContents(
-    extensionConfig,
-    extensionId,
-    ExtensionSettingScope.USER,
-  );
+  const userSettings = await getScopedEnvContents(extensionConfig, extensionId, ExtensionSettingScope.USER);
   const workspaceSettings = await getScopedEnvContents(
     extensionConfig,
     extensionId,
     ExtensionSettingScope.WORKSPACE,
-    workspaceDir,
+    workspaceDir
   );
 
   return { ...userSettings, ...workspaceSettings };
@@ -219,7 +195,7 @@ export async function updateSetting(
   settingKey: string,
   requestSetting: (setting: ExtensionSetting) => Promise<string>,
   scope: ExtensionSettingScope,
-  workspaceDir: string,
+  workspaceDir: string
 ): Promise<void> {
   const { name: extensionName, settings } = extensionConfig;
   if (!settings || settings.length === 0) {
@@ -227,9 +203,7 @@ export async function updateSetting(
     return;
   }
 
-  const settingToUpdate = settings.find(
-    (s) => s.name === settingKey || s.envVar === settingKey,
-  );
+  const settingToUpdate = settings.find((s) => s.name === settingKey || s.envVar === settingKey);
 
   if (!settingToUpdate) {
     debugLogger.log(`Setting ${settingKey} not found.`);
@@ -237,9 +211,7 @@ export async function updateSetting(
   }
 
   const newValue = await requestSetting(settingToUpdate);
-  const keychain = new KeychainTokenStorage(
-    getKeychainStorageName(extensionName, extensionId, scope, workspaceDir),
-  );
+  const keychain = new KeychainTokenStorage(getKeychainStorageName(extensionName, extensionId, scope, workspaceDir));
 
   if (settingToUpdate.sensitive) {
     if (newValue) {
@@ -271,9 +243,7 @@ export async function updateSetting(
 
   // We only want to write back the variables that are not sensitive.
   const nonSensitiveSettings: Record<string, string> = {};
-  const sensitiveEnvVars = new Set(
-    settings.filter((s) => s.sensitive).map((s) => s.envVar),
-  );
+  const sensitiveEnvVars = new Set(settings.filter((s) => s.sensitive).map((s) => s.envVar));
   for (const [key, value] of Object.entries(parsedEnv)) {
     if (!sensitiveEnvVars.has(key)) {
       nonSensitiveSettings[key] = value;
@@ -290,10 +260,7 @@ interface settingsChanges {
   promptForEnv: ExtensionSetting[];
   removeEnv: ExtensionSetting[];
 }
-function getSettingsChanges(
-  settings: ExtensionSetting[],
-  oldSettings: ExtensionSetting[],
-): settingsChanges {
+function getSettingsChanges(settings: ExtensionSetting[], oldSettings: ExtensionSetting[]): settingsChanges {
   const isSameSetting = (a: ExtensionSetting, b: ExtensionSetting) =>
     a.envVar === b.envVar && (a.sensitive ?? false) === (b.sensitive ?? false);
 
@@ -303,25 +270,14 @@ function getSettingsChanges(
   const envNew = settings.filter((s) => !(s.sensitive ?? false));
 
   return {
-    promptForSensitive: sensitiveNew.filter(
-      (s) => !sensitiveOld.some((old) => isSameSetting(s, old)),
-    ),
-    removeSensitive: sensitiveOld.filter(
-      (s) => !sensitiveNew.some((neu) => isSameSetting(s, neu)),
-    ),
-    promptForEnv: envNew.filter(
-      (s) => !envOld.some((old) => isSameSetting(s, old)),
-    ),
-    removeEnv: envOld.filter(
-      (s) => !envNew.some((neu) => isSameSetting(s, neu)),
-    ),
+    promptForSensitive: sensitiveNew.filter((s) => !sensitiveOld.some((old) => isSameSetting(s, old))),
+    removeSensitive: sensitiveOld.filter((s) => !sensitiveNew.some((neu) => isSameSetting(s, neu))),
+    promptForEnv: envNew.filter((s) => !envOld.some((old) => isSameSetting(s, old))),
+    removeEnv: envOld.filter((s) => !envNew.some((neu) => isSameSetting(s, neu))),
   };
 }
 
-async function clearSettings(
-  envFilePath: string,
-  keychain: KeychainTokenStorage,
-) {
+async function clearSettings(envFilePath: string, keychain: KeychainTokenStorage) {
   if (fsSync.existsSync(envFilePath)) {
     await fs.writeFile(envFilePath, '');
   }
@@ -338,18 +294,14 @@ async function clearSettings(
 export async function getMissingSettings(
   extensionConfig: ExtensionConfig,
   extensionId: string,
-  workspaceDir: string,
+  workspaceDir: string
 ): Promise<ExtensionSetting[]> {
   const { settings } = extensionConfig;
   if (!settings || settings.length === 0) {
     return [];
   }
 
-  const existingSettings = await getEnvContents(
-    extensionConfig,
-    extensionId,
-    workspaceDir,
-  );
+  const existingSettings = await getEnvContents(extensionConfig, extensionId, workspaceDir);
   const missingSettings: ExtensionSetting[] = [];
 
   for (const setting of settings) {

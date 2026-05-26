@@ -6,10 +6,7 @@
 
 import { describe, expect } from 'vitest';
 import { evalTest } from './test-helper.js';
-import {
-  assertModelHasOutput,
-  checkModelOutputContent,
-} from '../integration-tests/test-helper.js';
+import { assertModelHasOutput, checkModelOutputContent } from '../integration-tests/test-helper.js';
 
 describe('save_memory', () => {
   const TEST_PREFIX = 'Save memory test: ';
@@ -24,9 +21,7 @@ describe('save_memory', () => {
     what is my favorite color? tell me that and surround it with $ symbol`,
     assert: async (rig, result) => {
       const wasToolCalled = await rig.waitForToolCall('save_memory');
-      expect(wasToolCalled, 'Expected save_memory tool to be called').toBe(
-        true,
-      );
+      expect(wasToolCalled, 'Expected save_memory tool to be called').toBe(true);
 
       assertModelHasOutput(result);
       checkModelOutputContent(result, {
@@ -44,9 +39,7 @@ describe('save_memory', () => {
     prompt: `I don't want you to ever run npm commands.`,
     assert: async (rig, result) => {
       const wasToolCalled = await rig.waitForToolCall('save_memory');
-      expect(wasToolCalled, 'Expected save_memory tool to be called').toBe(
-        true,
-      );
+      expect(wasToolCalled, 'Expected save_memory tool to be called').toBe(true);
 
       assertModelHasOutput(result);
       checkModelOutputContent(result, {
@@ -65,9 +58,7 @@ describe('save_memory', () => {
     prompt: `I want you to always lint after building.`,
     assert: async (rig, result) => {
       const wasToolCalled = await rig.waitForToolCall('save_memory');
-      expect(wasToolCalled, 'Expected save_memory tool to be called').toBe(
-        true,
-      );
+      expect(wasToolCalled, 'Expected save_memory tool to be called').toBe(true);
 
       assertModelHasOutput(result);
       checkModelOutputContent(result, {
@@ -77,8 +68,7 @@ describe('save_memory', () => {
     },
   });
 
-  const ignoringTemporaryInformation =
-    'Agent ignores temporary conversation details';
+  const ignoringTemporaryInformation = 'Agent ignores temporary conversation details';
   evalTest('USUALLY_PASSES', {
     name: ignoringTemporaryInformation,
     params: {
@@ -87,13 +77,8 @@ describe('save_memory', () => {
     prompt: `I'm going to get a coffee.`,
     assert: async (rig, result) => {
       await rig.waitForTelemetryReady();
-      const wasToolCalled = rig
-        .readToolLogs()
-        .some((log) => log.toolRequest.name === 'save_memory');
-      expect(
-        wasToolCalled,
-        'save_memory should not be called for temporary information',
-      ).toBe(false);
+      const wasToolCalled = rig.readToolLogs().some((log) => log.toolRequest.name === 'save_memory');
+      expect(wasToolCalled, 'save_memory should not be called for temporary information').toBe(false);
 
       assertModelHasOutput(result);
       checkModelOutputContent(result, {
@@ -112,9 +97,7 @@ describe('save_memory', () => {
     prompt: `Please remember that my dog's name is Buddy.`,
     assert: async (rig, result) => {
       const wasToolCalled = await rig.waitForToolCall('save_memory');
-      expect(wasToolCalled, 'Expected save_memory tool to be called').toBe(
-        true,
-      );
+      expect(wasToolCalled, 'Expected save_memory tool to be called').toBe(true);
 
       assertModelHasOutput(result);
       checkModelOutputContent(result, {
@@ -133,9 +116,7 @@ describe('save_memory', () => {
     prompt: `When I say 'start server', you should run 'npm run dev'.`,
     assert: async (rig, result) => {
       const wasToolCalled = await rig.waitForToolCall('save_memory');
-      expect(wasToolCalled, 'Expected save_memory tool to be called').toBe(
-        true,
-      );
+      expect(wasToolCalled, 'Expected save_memory tool to be called').toBe(true);
 
       assertModelHasOutput(result);
       checkModelOutputContent(result, {
@@ -145,39 +126,27 @@ describe('save_memory', () => {
     },
   });
 
-  const ignoringDbSchemaLocation =
-    "Agent ignores workspace's database schema location";
+  const ignoringDbSchemaLocation = "Agent ignores workspace's database schema location";
   evalTest('USUALLY_PASSES', {
     name: ignoringDbSchemaLocation,
     params: {
       settings: {
         tools: {
-          core: [
-            'save_memory',
-            'list_directory',
-            'read_file',
-            'run_shell_command',
-          ],
+          core: ['save_memory', 'list_directory', 'read_file', 'run_shell_command'],
         },
       },
     },
     prompt: `The database schema for this workspace is located in \`db/schema.sql\`.`,
     assert: async (rig, result) => {
       await rig.waitForTelemetryReady();
-      const wasToolCalled = rig
-        .readToolLogs()
-        .some((log) => log.toolRequest.name === 'save_memory');
-      expect(
-        wasToolCalled,
-        'save_memory should not be called for workspace-specific information',
-      ).toBe(false);
+      const wasToolCalled = rig.readToolLogs().some((log) => log.toolRequest.name === 'save_memory');
+      expect(wasToolCalled, 'save_memory should not be called for workspace-specific information').toBe(false);
 
       assertModelHasOutput(result);
     },
   });
 
-  const rememberingCodingStyle =
-    "Agent remembers user's coding style preference";
+  const rememberingCodingStyle = "Agent remembers user's coding style preference";
   evalTest('USUALLY_PASSES', {
     name: rememberingCodingStyle,
     params: {
@@ -186,9 +155,7 @@ describe('save_memory', () => {
     prompt: `I prefer to use tabs instead of spaces for indentation.`,
     assert: async (rig, result) => {
       const wasToolCalled = await rig.waitForToolCall('save_memory');
-      expect(wasToolCalled, 'Expected save_memory tool to be called').toBe(
-        true,
-      );
+      expect(wasToolCalled, 'Expected save_memory tool to be called').toBe(true);
 
       assertModelHasOutput(result);
       checkModelOutputContent(result, {
@@ -198,32 +165,21 @@ describe('save_memory', () => {
     },
   });
 
-  const ignoringBuildArtifactLocation =
-    'Agent ignores workspace build artifact location';
+  const ignoringBuildArtifactLocation = 'Agent ignores workspace build artifact location';
   evalTest('USUALLY_PASSES', {
     name: ignoringBuildArtifactLocation,
     params: {
       settings: {
         tools: {
-          core: [
-            'save_memory',
-            'list_directory',
-            'read_file',
-            'run_shell_command',
-          ],
+          core: ['save_memory', 'list_directory', 'read_file', 'run_shell_command'],
         },
       },
     },
     prompt: `In this workspace, build artifacts are stored in the \`dist/artifacts\` directory.`,
     assert: async (rig, result) => {
       await rig.waitForTelemetryReady();
-      const wasToolCalled = rig
-        .readToolLogs()
-        .some((log) => log.toolRequest.name === 'save_memory');
-      expect(
-        wasToolCalled,
-        'save_memory should not be called for workspace-specific information',
-      ).toBe(false);
+      const wasToolCalled = rig.readToolLogs().some((log) => log.toolRequest.name === 'save_memory');
+      expect(wasToolCalled, 'save_memory should not be called for workspace-specific information').toBe(false);
 
       assertModelHasOutput(result);
     },
@@ -235,25 +191,15 @@ describe('save_memory', () => {
     params: {
       settings: {
         tools: {
-          core: [
-            'save_memory',
-            'list_directory',
-            'read_file',
-            'run_shell_command',
-          ],
+          core: ['save_memory', 'list_directory', 'read_file', 'run_shell_command'],
         },
       },
     },
     prompt: `The main entry point for this workspace is \`src/index.js\`.`,
     assert: async (rig, result) => {
       await rig.waitForTelemetryReady();
-      const wasToolCalled = rig
-        .readToolLogs()
-        .some((log) => log.toolRequest.name === 'save_memory');
-      expect(
-        wasToolCalled,
-        'save_memory should not be called for workspace-specific information',
-      ).toBe(false);
+      const wasToolCalled = rig.readToolLogs().some((log) => log.toolRequest.name === 'save_memory');
+      expect(wasToolCalled, 'save_memory should not be called for workspace-specific information').toBe(false);
 
       assertModelHasOutput(result);
     },
@@ -268,9 +214,7 @@ describe('save_memory', () => {
     prompt: `My birthday is on June 15th.`,
     assert: async (rig, result) => {
       const wasToolCalled = await rig.waitForToolCall('save_memory');
-      expect(wasToolCalled, 'Expected save_memory tool to be called').toBe(
-        true,
-      );
+      expect(wasToolCalled, 'Expected save_memory tool to be called').toBe(true);
 
       assertModelHasOutput(result);
       checkModelOutputContent(result, {

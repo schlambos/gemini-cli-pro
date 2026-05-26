@@ -13,19 +13,13 @@ import { formatBytes } from '../utils/formatters.js';
 
 export const MemoryUsageDisplay: React.FC = () => {
   const [memoryUsage, setMemoryUsage] = useState<string>('');
-  const [memoryUsageColor, setMemoryUsageColor] = useState<string>(
-    theme.text.secondary,
-  );
+  const [memoryUsageColor, setMemoryUsageColor] = useState<string>(theme.text.secondary);
 
   useEffect(() => {
     const updateMemory = () => {
       const usage = process.memoryUsage().rss;
       setMemoryUsage(formatBytes(usage));
-      setMemoryUsageColor(
-        usage >= 2 * 1024 * 1024 * 1024
-          ? theme.status.error
-          : theme.text.secondary,
-      );
+      setMemoryUsageColor(usage >= 2 * 1024 * 1024 * 1024 ? theme.status.error : theme.text.secondary);
     };
     const intervalId = setInterval(updateMemory, 2000);
     updateMemory(); // Initial update

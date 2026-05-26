@@ -24,32 +24,19 @@ async function addMcpServer(
     description?: string;
     includeTools?: string[];
     excludeTools?: string[];
-  },
+  }
 ) {
-  const {
-    scope,
-    transport,
-    env,
-    header,
-    timeout,
-    trust,
-    description,
-    includeTools,
-    excludeTools,
-  } = options;
+  const { scope, transport, env, header, timeout, trust, description, includeTools, excludeTools } = options;
 
   const settings = loadSettings(process.cwd());
   const inHome = settings.workspace.path === settings.user.path;
 
   if (scope === 'project' && inHome) {
-    debugLogger.error(
-      'Error: Please use --scope user to edit settings in the home directory.',
-    );
+    debugLogger.error('Error: Please use --scope user to edit settings in the home directory.');
     process.exit(1);
   }
 
-  const settingsScope =
-    scope === 'user' ? SettingScope.User : SettingScope.Workspace;
+  const settingsScope = scope === 'user' ? SettingScope.User : SettingScope.Workspace;
 
   let newServer: Partial<MCPServerConfig> = {};
 
@@ -62,7 +49,7 @@ async function addMcpServer(
       }
       return acc;
     },
-    {} as Record<string, string>,
+    {} as Record<string, string>
   );
 
   switch (transport) {
@@ -103,7 +90,7 @@ async function addMcpServer(
             }
             return acc;
           },
-          {} as Record<string, string>,
+          {} as Record<string, string>
         ),
         timeout,
         trust,
@@ -119,9 +106,7 @@ async function addMcpServer(
 
   const isExistingServer = !!mcpServers[name];
   if (isExistingServer) {
-    debugLogger.log(
-      `MCP server "${name}" is already configured within ${scope} settings.`,
-    );
+    debugLogger.log(`MCP server "${name}" is already configured within ${scope} settings.`);
   }
 
   mcpServers[name] = newServer as MCPServerConfig;
@@ -131,9 +116,7 @@ async function addMcpServer(
   if (isExistingServer) {
     debugLogger.log(`MCP server "${name}" updated in ${scope} settings.`);
   } else {
-    debugLogger.log(
-      `MCP server "${name}" added to ${scope} settings. (${transport})`,
-    );
+    debugLogger.log(`MCP server "${name}" added to ${scope} settings. (${transport})`);
   }
 }
 
@@ -191,8 +174,7 @@ export const addCommand: CommandModule = {
         type: 'number',
       })
       .option('trust', {
-        describe:
-          'Trust the server (bypass all tool call confirmation prompts)',
+        describe: 'Trust the server (bypass all tool call confirmation prompts)',
         type: 'boolean',
       })
       .option('description', {
@@ -245,7 +227,7 @@ export const addCommand: CommandModule = {
         includeTools: argv['includeTools'] as string[] | undefined,
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
         excludeTools: argv['excludeTools'] as string[] | undefined,
-      },
+      }
     );
     await exitCli();
   },

@@ -26,9 +26,7 @@ export const AnsiOutputText: React.FC<AnsiOutputProps> = ({
   disableTruncation,
 }) => {
   const availableHeightLimit =
-    availableTerminalHeight && availableTerminalHeight > 0
-      ? availableTerminalHeight
-      : undefined;
+    availableTerminalHeight && availableTerminalHeight > 0 ? availableTerminalHeight : undefined;
 
   const numLinesRetained =
     availableHeightLimit !== undefined && maxLines !== undefined
@@ -37,9 +35,9 @@ export const AnsiOutputText: React.FC<AnsiOutputProps> = ({
 
   const lastLines = disableTruncation ? data : data.slice(-numLinesRetained);
   return (
-    <Box flexDirection="column" width={width} flexShrink={0} overflow="hidden">
+    <Box flexDirection='column' width={width} flexShrink={0} overflow='hidden'>
       {lastLines.map((line: AnsiLine, lineIndex: number) => (
-        <Box key={lineIndex} height={1} overflow="hidden">
+        <Box key={lineIndex} height={1} overflow='hidden'>
           <AnsiLineText line={line} />
         </Box>
       ))}

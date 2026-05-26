@@ -6,10 +6,7 @@
 
 import { spawn } from 'node:child_process';
 import { RELAUNCH_EXIT_CODE } from './processUtils.js';
-import {
-  writeToStderr,
-  type AdminControlsSettings,
-} from '@google/gemini-cli-core';
+import { writeToStderr, type AdminControlsSettings } from '@google/gemini-cli-core';
 
 export async function relaunchOnExitCode(runner: () => Promise<number>) {
   while (true) {
@@ -21,11 +18,8 @@ export async function relaunchOnExitCode(runner: () => Promise<number>) {
       }
     } catch (error) {
       process.stdin.resume();
-      const errorMessage =
-        error instanceof Error ? (error.stack ?? error.message) : String(error);
-      writeToStderr(
-        `Fatal error: Failed to relaunch the CLI process.\n${errorMessage}\n`,
-      );
+      const errorMessage = error instanceof Error ? (error.stack ?? error.message) : String(error);
+      writeToStderr(`Fatal error: Failed to relaunch the CLI process.\n${errorMessage}\n`);
       process.exit(1);
     }
   }
@@ -34,7 +28,7 @@ export async function relaunchOnExitCode(runner: () => Promise<number>) {
 export async function relaunchAppInChildProcess(
   additionalNodeArgs: string[],
   additionalScriptArgs: string[],
-  remoteAdminSettings?: AdminControlsSettings,
+  remoteAdminSettings?: AdminControlsSettings
 ) {
   if (process.env['GEMINI_CLI_NO_RELAUNCH']) {
     return;
@@ -48,13 +42,7 @@ export async function relaunchAppInChildProcess(
     const script = process.argv[1];
     const scriptArgs = process.argv.slice(2);
 
-    const nodeArgs = [
-      ...process.execArgv,
-      ...additionalNodeArgs,
-      script,
-      ...additionalScriptArgs,
-      ...scriptArgs,
-    ];
+    const nodeArgs = [...process.execArgv, ...additionalNodeArgs, script, ...additionalScriptArgs, ...scriptArgs];
     const newEnv = { ...process.env, GEMINI_CLI_NO_RELAUNCH: 'true' };
 
     // The parent process should not be reading from stdin while the child is running.

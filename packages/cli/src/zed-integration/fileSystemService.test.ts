@@ -50,9 +50,7 @@ describe('AcpFileSystemService', () => {
           mockFallback.readTextFile.mockResolvedValue('content');
         },
         verify: () => {
-          expect(mockFallback.readTextFile).toHaveBeenCalledWith(
-            '/path/to/file',
-          );
+          expect(mockFallback.readTextFile).toHaveBeenCalledWith('/path/to/file');
           expect(mockConnection.readTextFile).not.toHaveBeenCalled();
         },
       },
@@ -61,7 +59,7 @@ describe('AcpFileSystemService', () => {
         mockConnection,
         'session-1',
         { readTextFile: capability, writeTextFile: true },
-        mockFallback,
+        mockFallback
       );
       setup();
 
@@ -90,10 +88,7 @@ describe('AcpFileSystemService', () => {
         capability: false,
         desc: 'fallback if capability missing',
         verify: () => {
-          expect(mockFallback.writeTextFile).toHaveBeenCalledWith(
-            '/path/to/file',
-            'content',
-          );
+          expect(mockFallback.writeTextFile).toHaveBeenCalledWith('/path/to/file', 'content');
           expect(mockConnection.writeTextFile).not.toHaveBeenCalled();
         },
       },
@@ -102,7 +97,7 @@ describe('AcpFileSystemService', () => {
         mockConnection,
         'session-1',
         { writeTextFile: capability, readTextFile: true },
-        mockFallback,
+        mockFallback
       );
 
       await service.writeTextFile('/path/to/file', 'content');

@@ -165,16 +165,10 @@ export * from './tools/ask-user.js';
 
 // MCP OAuth
 export { MCPOAuthProvider } from './mcp/oauth-provider.js';
-export type {
-  OAuthToken,
-  OAuthCredentials,
-} from './mcp/token-storage/types.js';
+export type { OAuthToken, OAuthCredentials } from './mcp/token-storage/types.js';
 export { MCPOAuthTokenStorage } from './mcp/oauth-token-storage.js';
 export type { MCPOAuthConfig } from './mcp/oauth-provider.js';
-export type {
-  OAuthAuthorizationServerMetadata,
-  OAuthProtectedResourceMetadata,
-} from './mcp/oauth-utils.js';
+export type { OAuthAuthorizationServerMetadata, OAuthProtectedResourceMetadata } from './mcp/oauth-utils.js';
 export { OAuthUtils } from './mcp/oauth-utils.js';
 
 // Export telemetry functions

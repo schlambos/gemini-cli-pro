@@ -19,5 +19,4 @@ export const ExperimentFlags = {
   GEMINI_3_1_PRO_LAUNCHED: 45760185,
 } as const;
 
-export type ExperimentFlagName =
-  (typeof ExperimentFlags)[keyof typeof ExperimentFlags];
+export type ExperimentFlagName = (typeof ExperimentFlags)[keyof typeof ExperimentFlags];

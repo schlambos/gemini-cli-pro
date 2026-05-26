@@ -4,10 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type {
-  GenerateContentParameters,
-  GenerateContentResponse,
-} from '@google/genai';
+import type { GenerateContentParameters, GenerateContentResponse } from '@google/genai';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { HookEventHandler } from './hookEventHandler.js';
 import type { Config } from '../config/config.js';
@@ -16,11 +13,7 @@ import type { HookPlanner } from './hookPlanner.js';
 import type { HookRunner } from './hookRunner.js';
 import type { HookAggregator } from './hookAggregator.js';
 import { HookEventName, HookType } from './types.js';
-import {
-  NotificationType,
-  SessionStartSource,
-  type HookExecutionResult,
-} from './types.js';
+import { NotificationType, SessionStartSource, type HookExecutionResult } from './types.js';
 
 // Mock debugLogger
 const mockDebugLogger = vi.hoisted(() => ({
@@ -68,9 +61,7 @@ describe('HookEventHandler', () => {
       getWorkingDir: vi.fn().mockReturnValue('/test/project'),
       getGeminiClient: vi.fn().mockReturnValue({
         getChatRecordingService: vi.fn().mockReturnValue({
-          getConversationFilePath: vi
-            .fn()
-            .mockReturnValue('/test/project/.gemini/tmp/chats/session.json'),
+          getConversationFilePath: vi.fn().mockReturnValue('/test/project/.gemini/tmp/chats/session.json'),
         }),
       }),
     } as unknown as Config;
@@ -88,12 +79,7 @@ describe('HookEventHandler', () => {
       aggregateResults: vi.fn(),
     } as unknown as HookAggregator;
 
-    hookEventHandler = new HookEventHandler(
-      mockConfig,
-      mockHookPlanner,
-      mockHookRunner,
-      mockHookAggregator,
-    );
+    hookEventHandler = new HookEventHandler(mockConfig, mockHookPlanner, mockHookRunner, mockHookAggregator);
   });
 
   describe('fireBeforeToolEvent', () => {
@@ -131,21 +117,16 @@ describe('HookEventHandler', () => {
         hookConfigs: mockPlan.map((p) => p.hookConfig),
         sequential: false,
       });
-      vi.mocked(mockHookRunner.executeHooksParallel).mockResolvedValue(
-        mockResults,
-      );
-      vi.mocked(mockHookAggregator.aggregateResults).mockReturnValue(
-        mockAggregated,
-      );
+      vi.mocked(mockHookRunner.executeHooksParallel).mockResolvedValue(mockResults);
+      vi.mocked(mockHookAggregator.aggregateResults).mockReturnValue(mockAggregated);
 
       const result = await hookEventHandler.fireBeforeToolEvent('EditTool', {
         file: 'test.txt',
       });
 
-      expect(mockHookPlanner.createExecutionPlan).toHaveBeenCalledWith(
-        HookEventName.BeforeTool,
-        { toolName: 'EditTool' },
-      );
+      expect(mockHookPlanner.createExecutionPlan).toHaveBeenCalledWith(HookEventName.BeforeTool, {
+        toolName: 'EditTool',
+      });
 
       expect(mockHookRunner.executeHooksParallel).toHaveBeenCalledWith(
         [mockPlan[0].hookConfig],
@@ -158,14 +139,12 @@ describe('HookEventHandler', () => {
           tool_input: { file: 'test.txt' },
         }),
         expect.any(Function),
-        expect.any(Function),
+        expect.any(Function)
       );
 
       // Verify event emission via callbacks
-      const onHookStart = vi.mocked(mockHookRunner.executeHooksParallel).mock
-        .calls[0][3];
-      const onHookEnd = vi.mocked(mockHookRunner.executeHooksParallel).mock
-        .calls[0][4];
+      const onHookStart = vi.mocked(mockHookRunner.executeHooksParallel).mock.calls[0][3];
+      const onHookEnd = vi.mocked(mockHookRunner.executeHooksParallel).mock.calls[0][4];
 
       if (onHookStart) onHookStart(mockPlan[0].hookConfig, 0);
       expect(mockCoreEvents.emitHookStart).toHaveBeenCalledWith({
@@ -237,23 +216,13 @@ describe('HookEventHandler', () => {
         hookConfigs: mockPlan,
         sequential: false,
       });
-      vi.mocked(mockHookRunner.executeHooksParallel).mockResolvedValue(
-        mockResults,
-      );
-      vi.mocked(mockHookAggregator.aggregateResults).mockReturnValue(
-        mockAggregated,
-      );
+      vi.mocked(mockHookRunner.executeHooksParallel).mockResolvedValue(mockResults);
+      vi.mocked(mockHookAggregator.aggregateResults).mockReturnValue(mockAggregated);
 
       await hookEventHandler.fireBeforeToolEvent('EditTool', {});
 
-      expect(mockCoreEvents.emitFeedback).toHaveBeenCalledWith(
-        'warning',
-        expect.stringContaining('./fail.sh'),
-      );
-      expect(mockCoreEvents.emitFeedback).toHaveBeenCalledWith(
-        'warning',
-        expect.stringContaining('F12'),
-      );
+      expect(mockCoreEvents.emitFeedback).toHaveBeenCalledWith('warning', expect.stringContaining('./fail.sh'));
+      expect(mockCoreEvents.emitFeedback).toHaveBeenCalledWith('warning', expect.stringContaining('F12'));
     });
 
     it('should fire BeforeTool event with MCP context when provided', async () => {
@@ -290,12 +259,8 @@ describe('HookEventHandler', () => {
         hookConfigs: mockPlan.map((p) => p.hookConfig),
         sequential: false,
       });
-      vi.mocked(mockHookRunner.executeHooksParallel).mockResolvedValue(
-        mockResults,
-      );
-      vi.mocked(mockHookAggregator.aggregateResults).mockReturnValue(
-        mockAggregated,
-      );
+      vi.mocked(mockHookRunner.executeHooksParallel).mockResolvedValue(mockResults);
+      vi.mocked(mockHookAggregator.aggregateResults).mockReturnValue(mockAggregated);
 
       const mcpContext = {
         server_name: 'my-mcp-server',
@@ -307,7 +272,7 @@ describe('HookEventHandler', () => {
       const result = await hookEventHandler.fireBeforeToolEvent(
         'my-mcp-server__read_file',
         { path: '/etc/passwd' },
-        mcpContext,
+        mcpContext
       );
 
       expect(mockHookRunner.executeHooksParallel).toHaveBeenCalledWith(
@@ -322,7 +287,7 @@ describe('HookEventHandler', () => {
           mcp_context: mcpContext,
         }),
         expect.any(Function),
-        expect.any(Function),
+        expect.any(Function)
       );
 
       expect(result).toBe(mockAggregated);
@@ -362,19 +327,14 @@ describe('HookEventHandler', () => {
         hookConfigs: mockPlan.map((p) => p.hookConfig),
         sequential: false,
       });
-      vi.mocked(mockHookRunner.executeHooksParallel).mockResolvedValue(
-        mockResults,
-      );
-      vi.mocked(mockHookAggregator.aggregateResults).mockReturnValue(
-        mockAggregated,
-      );
+      vi.mocked(mockHookRunner.executeHooksParallel).mockResolvedValue(mockResults);
+      vi.mocked(mockHookAggregator.aggregateResults).mockReturnValue(mockAggregated);
 
       await hookEventHandler.fireBeforeToolEvent('EditTool', {
         file: 'test.txt',
       });
 
-      const callArgs = vi.mocked(mockHookRunner.executeHooksParallel).mock
-        .calls[0][2];
+      const callArgs = vi.mocked(mockHookRunner.executeHooksParallel).mock.calls[0][2];
       expect(callArgs).not.toHaveProperty('mcp_context');
     });
   });
@@ -414,21 +374,13 @@ describe('HookEventHandler', () => {
         hookConfigs: mockPlan.map((p) => p.hookConfig),
         sequential: false,
       });
-      vi.mocked(mockHookRunner.executeHooksParallel).mockResolvedValue(
-        mockResults,
-      );
-      vi.mocked(mockHookAggregator.aggregateResults).mockReturnValue(
-        mockAggregated,
-      );
+      vi.mocked(mockHookRunner.executeHooksParallel).mockResolvedValue(mockResults);
+      vi.mocked(mockHookAggregator.aggregateResults).mockReturnValue(mockAggregated);
 
       const toolInput = { file: 'test.txt' };
       const toolResponse = { success: true, content: 'File edited' };
 
-      const result = await hookEventHandler.fireAfterToolEvent(
-        'EditTool',
-        toolInput,
-        toolResponse,
-      );
+      const result = await hookEventHandler.fireAfterToolEvent('EditTool', toolInput, toolResponse);
 
       expect(mockHookRunner.executeHooksParallel).toHaveBeenCalledWith(
         [mockPlan[0].hookConfig],
@@ -439,7 +391,7 @@ describe('HookEventHandler', () => {
           tool_response: toolResponse,
         }),
         expect.any(Function),
-        expect.any(Function),
+        expect.any(Function)
       );
 
       expect(result).toBe(mockAggregated);
@@ -479,12 +431,8 @@ describe('HookEventHandler', () => {
         hookConfigs: mockPlan.map((p) => p.hookConfig),
         sequential: false,
       });
-      vi.mocked(mockHookRunner.executeHooksParallel).mockResolvedValue(
-        mockResults,
-      );
-      vi.mocked(mockHookAggregator.aggregateResults).mockReturnValue(
-        mockAggregated,
-      );
+      vi.mocked(mockHookRunner.executeHooksParallel).mockResolvedValue(mockResults);
+      vi.mocked(mockHookAggregator.aggregateResults).mockReturnValue(mockAggregated);
 
       const toolInput = { path: '/etc/passwd' };
       const toolResponse = { success: true, content: 'File content' };
@@ -498,7 +446,7 @@ describe('HookEventHandler', () => {
         'my-mcp-server__read_file',
         toolInput,
         toolResponse,
-        mcpContext,
+        mcpContext
       );
 
       expect(mockHookRunner.executeHooksParallel).toHaveBeenCalledWith(
@@ -511,7 +459,7 @@ describe('HookEventHandler', () => {
           mcp_context: mcpContext,
         }),
         expect.any(Function),
-        expect.any(Function),
+        expect.any(Function)
       );
 
       expect(result).toBe(mockAggregated);
@@ -553,12 +501,8 @@ describe('HookEventHandler', () => {
         hookConfigs: mockPlan.map((p) => p.hookConfig),
         sequential: false,
       });
-      vi.mocked(mockHookRunner.executeHooksParallel).mockResolvedValue(
-        mockResults,
-      );
-      vi.mocked(mockHookAggregator.aggregateResults).mockReturnValue(
-        mockAggregated,
-      );
+      vi.mocked(mockHookRunner.executeHooksParallel).mockResolvedValue(mockResults);
+      vi.mocked(mockHookAggregator.aggregateResults).mockReturnValue(mockAggregated);
 
       const prompt = 'Please help me with this task';
 
@@ -571,7 +515,7 @@ describe('HookEventHandler', () => {
           prompt,
         }),
         expect.any(Function),
-        expect.any(Function),
+        expect.any(Function)
       );
 
       expect(result).toBe(mockAggregated);
@@ -613,20 +557,15 @@ describe('HookEventHandler', () => {
         hookConfigs: mockPlan.map((p) => p.hookConfig),
         sequential: false,
       });
-      vi.mocked(mockHookRunner.executeHooksParallel).mockResolvedValue(
-        mockResults,
-      );
-      vi.mocked(mockHookAggregator.aggregateResults).mockReturnValue(
-        mockAggregated,
-      );
+      vi.mocked(mockHookRunner.executeHooksParallel).mockResolvedValue(mockResults);
+      vi.mocked(mockHookAggregator.aggregateResults).mockReturnValue(mockAggregated);
 
       const message = 'Tool execution requires permission';
 
-      const result = await hookEventHandler.fireNotificationEvent(
-        NotificationType.ToolPermission,
-        message,
-        { type: 'ToolPermission', title: 'Test Permission' },
-      );
+      const result = await hookEventHandler.fireNotificationEvent(NotificationType.ToolPermission, message, {
+        type: 'ToolPermission',
+        title: 'Test Permission',
+      });
 
       expect(mockHookRunner.executeHooksParallel).toHaveBeenCalledWith(
         [mockPlan[0].hookConfig],
@@ -636,7 +575,7 @@ describe('HookEventHandler', () => {
           details: { type: 'ToolPermission', title: 'Test Permission' },
         }),
         expect.any(Function),
-        expect.any(Function),
+        expect.any(Function)
       );
 
       expect(result).toBe(mockAggregated);
@@ -678,21 +617,14 @@ describe('HookEventHandler', () => {
         hookConfigs: mockPlan.map((p) => p.hookConfig),
         sequential: false,
       });
-      vi.mocked(mockHookRunner.executeHooksParallel).mockResolvedValue(
-        mockResults,
-      );
-      vi.mocked(mockHookAggregator.aggregateResults).mockReturnValue(
-        mockAggregated,
-      );
+      vi.mocked(mockHookRunner.executeHooksParallel).mockResolvedValue(mockResults);
+      vi.mocked(mockHookAggregator.aggregateResults).mockReturnValue(mockAggregated);
 
-      const result = await hookEventHandler.fireSessionStartEvent(
-        SessionStartSource.Startup,
-      );
+      const result = await hookEventHandler.fireSessionStartEvent(SessionStartSource.Startup);
 
-      expect(mockHookPlanner.createExecutionPlan).toHaveBeenCalledWith(
-        HookEventName.SessionStart,
-        { trigger: 'startup' },
-      );
+      expect(mockHookPlanner.createExecutionPlan).toHaveBeenCalledWith(HookEventName.SessionStart, {
+        trigger: 'startup',
+      });
 
       expect(mockHookRunner.executeHooksParallel).toHaveBeenCalledWith(
         [mockPlan[0].hookConfig],
@@ -701,7 +633,7 @@ describe('HookEventHandler', () => {
           source: 'startup',
         }),
         expect.any(Function),
-        expect.any(Function),
+        expect.any(Function)
       );
 
       expect(result).toBe(mockAggregated);
@@ -743,12 +675,8 @@ describe('HookEventHandler', () => {
         hookConfigs: mockPlan.map((p) => p.hookConfig),
         sequential: false,
       });
-      vi.mocked(mockHookRunner.executeHooksParallel).mockResolvedValue(
-        mockResults,
-      );
-      vi.mocked(mockHookAggregator.aggregateResults).mockReturnValue(
-        mockAggregated,
-      );
+      vi.mocked(mockHookRunner.executeHooksParallel).mockResolvedValue(mockResults);
+      vi.mocked(mockHookAggregator.aggregateResults).mockReturnValue(mockAggregated);
 
       const llmRequest = {
         model: 'gemini-pro',
@@ -773,7 +701,7 @@ describe('HookEventHandler', () => {
           }),
         }),
         expect.any(Function),
-        expect.any(Function),
+        expect.any(Function)
       );
 
       expect(result).toBe(mockAggregated);
@@ -808,12 +736,8 @@ describe('HookEventHandler', () => {
         hookConfigs: [mockHook],
         sequential: false,
       });
-      vi.mocked(mockHookRunner.executeHooksParallel).mockResolvedValue(
-        mockResults,
-      );
-      vi.mocked(mockHookAggregator.aggregateResults).mockReturnValue(
-        mockAggregated,
-      );
+      vi.mocked(mockHookRunner.executeHooksParallel).mockResolvedValue(mockResults);
+      vi.mocked(mockHookAggregator.aggregateResults).mockReturnValue(mockAggregated);
 
       const llmRequest = { model: 'test', contents: [] };
       const llmResponse = { candidates: [] };
@@ -821,14 +745,14 @@ describe('HookEventHandler', () => {
       // First call - should emit feedback
       await hookEventHandler.fireAfterModelEvent(
         llmRequest as unknown as GenerateContentParameters,
-        llmResponse as unknown as GenerateContentResponse,
+        llmResponse as unknown as GenerateContentResponse
       );
       expect(mockCoreEvents.emitFeedback).toHaveBeenCalledTimes(1);
 
       // Second call with SAME request - should NOT emit feedback
       await hookEventHandler.fireAfterModelEvent(
         llmRequest as unknown as GenerateContentParameters,
-        llmResponse as unknown as GenerateContentResponse,
+        llmResponse as unknown as GenerateContentResponse
       );
       expect(mockCoreEvents.emitFeedback).toHaveBeenCalledTimes(1);
 
@@ -836,7 +760,7 @@ describe('HookEventHandler', () => {
       const differentRequest = { model: 'different', contents: [] };
       await hookEventHandler.fireAfterModelEvent(
         differentRequest as unknown as GenerateContentParameters,
-        llmResponse as unknown as GenerateContentResponse,
+        llmResponse as unknown as GenerateContentResponse
       );
       expect(mockCoreEvents.emitFeedback).toHaveBeenCalledTimes(2);
     });
@@ -880,7 +804,7 @@ describe('HookEventHandler', () => {
           timestamp: expect.any(String),
         }),
         expect.any(Function),
-        expect.any(Function),
+        expect.any(Function)
       );
     });
   });

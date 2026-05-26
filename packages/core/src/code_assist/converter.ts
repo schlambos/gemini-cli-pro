@@ -97,9 +97,7 @@ export interface CaCountTokenResponse {
   totalTokens: number;
 }
 
-export function toCountTokenRequest(
-  req: CountTokensParameters,
-): CaCountTokenRequest {
+export function toCountTokenRequest(req: CountTokensParameters): CaCountTokenRequest {
   return {
     request: {
       model: 'models/' + req.model,
@@ -108,9 +106,7 @@ export function toCountTokenRequest(
   };
 }
 
-export function fromCountTokenResponse(
-  res: CaCountTokenResponse,
-): CountTokensResponse {
+export function fromCountTokenResponse(res: CaCountTokenResponse): CountTokensResponse {
   return {
     totalTokens: res.totalTokens,
   };
@@ -120,7 +116,7 @@ export function toGenerateContentRequest(
   req: GenerateContentParameters,
   userPromptId: string,
   project?: string,
-  sessionId?: string,
+  sessionId?: string
 ): CAGenerateContentRequest {
   return {
     model: req.model,
@@ -130,9 +126,7 @@ export function toGenerateContentRequest(
   };
 }
 
-export function fromGenerateContentResponse(
-  res: CaGenerateContentResponse,
-): GenerateContentResponse {
+export function fromGenerateContentResponse(res: CaGenerateContentResponse): GenerateContentResponse {
   const out = new GenerateContentResponse();
   out.responseId = res.traceId;
   const inres = res.response;
@@ -150,7 +144,7 @@ export function fromGenerateContentResponse(
 
 function toVertexGenerateContentRequest(
   req: GenerateContentParameters,
-  sessionId?: string,
+  sessionId?: string
 ): VertexGenerateContentRequest {
   return {
     contents: toContents(req.contents),
@@ -200,9 +194,7 @@ function toContent(content: ContentUnion): Content {
     // it's a Content - process parts to handle thought filtering
     return {
       ...content,
-      parts: content.parts
-        ? toParts(content.parts.filter((p) => p != null))
-        : [],
+      parts: content.parts ? toParts(content.parts.filter((p) => p != null)) : [],
     };
   }
   // it's a Part
@@ -233,10 +225,7 @@ function toPart(part: PartUnion): Part {
     delete (newPart as Record<string, unknown>)['thought'];
 
     const hasApiContent =
-      'functionCall' in newPart ||
-      'functionResponse' in newPart ||
-      'inlineData' in newPart ||
-      'fileData' in newPart;
+      'functionCall' in newPart || 'functionResponse' in newPart || 'inlineData' in newPart || 'fileData' in newPart;
 
     if (hasApiContent) {
       // It's a functionCall or other non-text part. Just strip the thought.
@@ -247,9 +236,7 @@ function toPart(part: PartUnion): Part {
     // Combine existing text (if any) with the thought, preserving other properties.
     const text = (newPart as { text?: unknown }).text;
     const existingText = text ? String(text) : '';
-    const combinedText = existingText
-      ? `${existingText}\n${thoughtText}`
-      : thoughtText;
+    const combinedText = existingText ? `${existingText}\n${thoughtText}` : thoughtText;
 
     return {
       ...newPart,
@@ -260,9 +247,7 @@ function toPart(part: PartUnion): Part {
   return part;
 }
 
-function toVertexGenerationConfig(
-  config?: GenerateContentConfig,
-): VertexGenerationConfig | undefined {
+function toVertexGenerationConfig(config?: GenerateContentConfig): VertexGenerationConfig | undefined {
   if (!config) {
     return undefined;
   }

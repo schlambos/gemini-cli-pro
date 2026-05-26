@@ -7,11 +7,7 @@
 import type { Config } from '../../config/config.js';
 import { isAutoModel, resolveModel } from '../../config/models.js';
 import type { BaseLlmClient } from '../../core/baseLlmClient.js';
-import type {
-  RoutingContext,
-  RoutingDecision,
-  RoutingStrategy,
-} from '../routingStrategy.js';
+import type { RoutingContext, RoutingDecision, RoutingStrategy } from '../routingStrategy.js';
 
 /**
  * Handles cases where the user explicitly specifies a model (override).
@@ -19,11 +15,7 @@ import type {
 export class OverrideStrategy implements RoutingStrategy {
   readonly name = 'override';
 
-  async route(
-    context: RoutingContext,
-    config: Config,
-    _baseLlmClient: BaseLlmClient,
-  ): Promise<RoutingDecision | null> {
+  async route(context: RoutingContext, config: Config, _baseLlmClient: BaseLlmClient): Promise<RoutingDecision | null> {
     const overrideModel = context.requestedModel ?? config.getModel();
 
     // If the model is 'auto' we should pass to the next strategy.
@@ -33,10 +25,7 @@ export class OverrideStrategy implements RoutingStrategy {
 
     // Return the overridden model name.
     return {
-      model: resolveModel(
-        overrideModel,
-        config.getGemini31LaunchedSync?.() ?? false,
-      ),
+      model: resolveModel(overrideModel, config.getGemini31LaunchedSync?.() ?? false),
       metadata: {
         source: this.name,
         latencyMs: 0,

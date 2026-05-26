@@ -33,10 +33,7 @@ export interface UpdateObject {
  * From a nightly and stable version, determines which is the "best" one to offer.
  * The rule is to always prefer nightly if the base versions are the same.
  */
-function getBestAvailableUpdate(
-  nightly?: string,
-  stable?: string,
-): string | null {
+function getBestAvailableUpdate(nightly?: string, stable?: string): string | null {
   if (!nightly) return stable || null;
   if (!stable) return nightly || null;
 
@@ -47,9 +44,7 @@ function getBestAvailableUpdate(
   return semver.gt(stable, nightly) ? stable : nightly;
 }
 
-export async function checkForUpdates(
-  settings: LoadedSettings,
-): Promise<UpdateObject | null> {
+export async function checkForUpdates(settings: LoadedSettings): Promise<UpdateObject | null> {
   try {
     if (!settings.merged.general.enableAutoUpdateNotification) {
       return null;

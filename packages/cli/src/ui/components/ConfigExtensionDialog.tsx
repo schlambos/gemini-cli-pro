@@ -17,10 +17,7 @@ import {
   type RequestSettingCallback,
   type RequestConfirmationCallback,
 } from '../../commands/extensions/utils.js';
-import {
-  ExtensionSettingScope,
-  type ExtensionSetting,
-} from '../../config/extensions/extensionSettings.js';
+import { ExtensionSettingScope, type ExtensionSetting } from '../../config/extensions/extensionSettings.js';
 import { TextInput } from './shared/TextInput.js';
 import { useTextBuffer } from './shared/text-buffer.js';
 import { DialogFooter } from './shared/DialogFooter.js';
@@ -87,7 +84,7 @@ export const ConfigExtensionDialog: React.FC<ConfigExtensionDialogProps> = ({
       setLogMessages((prev) => [...prev, msg].slice(-5)); // Keep last 5
       loggerAdapter.log(msg);
     },
-    [loggerAdapter],
+    [loggerAdapter]
   );
 
   const requestSetting: RequestSettingCallback = useCallback(
@@ -104,7 +101,7 @@ export const ConfigExtensionDialog: React.FC<ConfigExtensionDialogProps> = ({
           },
         });
       }),
-    [settingBuffer],
+    [settingBuffer]
   );
 
   const requestConfirmation: RequestConfirmationCallback = useCallback(
@@ -120,7 +117,7 @@ export const ConfigExtensionDialog: React.FC<ConfigExtensionDialogProps> = ({
           },
         });
       }),
-    [],
+    []
   );
 
   useEffect(() => {
@@ -140,13 +137,7 @@ export const ConfigExtensionDialog: React.FC<ConfigExtensionDialogProps> = ({
         };
 
         if (configureAll) {
-          await configureAllExtensions(
-            extensionManager,
-            scope,
-            localLogger,
-            requestSetting,
-            requestConfirmation,
-          );
+          await configureAllExtensions(extensionManager, scope, localLogger, requestSetting, requestConfirmation);
         } else if (extensionName && settingKey) {
           await configureSpecificSetting(
             extensionManager,
@@ -154,7 +145,7 @@ export const ConfigExtensionDialog: React.FC<ConfigExtensionDialogProps> = ({
             settingKey,
             scope,
             localLogger,
-            requestSetting,
+            requestSetting
           );
         } else if (extensionName) {
           await configureExtension(
@@ -163,7 +154,7 @@ export const ConfigExtensionDialog: React.FC<ConfigExtensionDialogProps> = ({
             scope,
             localLogger,
             requestSetting,
-            requestConfirmation,
+            requestConfirmation
           );
         }
 
@@ -228,24 +219,14 @@ export const ConfigExtensionDialog: React.FC<ConfigExtensionDialogProps> = ({
       return false;
     },
     {
-      isActive:
-        state.type === 'ASK_CONFIRMATION' ||
-        state.type === 'DONE' ||
-        state.type === 'ERROR',
-    },
+      isActive: state.type === 'ASK_CONFIRMATION' || state.type === 'DONE' || state.type === 'ERROR',
+    }
   );
 
   if (state.type === 'BUSY' || state.type === 'IDLE') {
     return (
-      <Box
-        flexDirection="column"
-        borderStyle="round"
-        borderColor={theme.border.default}
-        paddingX={1}
-      >
-        <Text color={theme.text.secondary}>
-          {state.type === 'BUSY' ? state.message : 'Starting...'}
-        </Text>
+      <Box flexDirection='column' borderStyle='round' borderColor={theme.border.default} paddingX={1}>
+        <Text color={theme.text.secondary}>{state.type === 'BUSY' ? state.message : 'Starting...'}</Text>
         {logMessages.map((msg, i) => (
           <Text key={i}>{msg}</Text>
         ))}
@@ -255,19 +236,12 @@ export const ConfigExtensionDialog: React.FC<ConfigExtensionDialogProps> = ({
 
   if (state.type === 'ASK_SETTING') {
     return (
-      <Box
-        flexDirection="column"
-        borderStyle="round"
-        borderColor={theme.border.default}
-        paddingX={1}
-      >
+      <Box flexDirection='column' borderStyle='round' borderColor={theme.border.default} paddingX={1}>
         <Text bold color={theme.text.primary}>
           Configure {state.setting.name}
         </Text>
-        <Text color={theme.text.secondary}>
-          {state.setting.description || state.setting.envVar}
-        </Text>
-        <Box flexDirection="row" marginTop={1}>
+        <Text color={theme.text.secondary}>{state.setting.description || state.setting.envVar}</Text>
+        <Box flexDirection='row' marginTop={1}>
           <Text color={theme.text.accent}>{'> '}</Text>
           <TextInput
             buffer={settingBuffer}
@@ -276,19 +250,14 @@ export const ConfigExtensionDialog: React.FC<ConfigExtensionDialogProps> = ({
             placeholder={`Enter value for ${state.setting.name}`}
           />
         </Box>
-        <DialogFooter primaryAction="Enter to submit" />
+        <DialogFooter primaryAction='Enter to submit' />
       </Box>
     );
   }
 
   if (state.type === 'ASK_CONFIRMATION') {
     return (
-      <Box
-        flexDirection="column"
-        borderStyle="round"
-        borderColor={theme.border.default}
-        paddingX={1}
-      >
+      <Box flexDirection='column' borderStyle='round' borderColor={theme.border.default} paddingX={1}>
         <Text color={theme.status.warning} bold>
           Confirmation Required
         </Text>
@@ -312,32 +281,22 @@ export const ConfigExtensionDialog: React.FC<ConfigExtensionDialogProps> = ({
 
   if (state.type === 'ERROR') {
     return (
-      <Box
-        flexDirection="column"
-        borderStyle="round"
-        borderColor={theme.status.error}
-        paddingX={1}
-      >
+      <Box flexDirection='column' borderStyle='round' borderColor={theme.status.error} paddingX={1}>
         <Text color={theme.status.error} bold>
           Error
         </Text>
         <Text>{state.error.message}</Text>
-        <DialogFooter primaryAction="Enter to close" />
+        <DialogFooter primaryAction='Enter to close' />
       </Box>
     );
   }
 
   return (
-    <Box
-      flexDirection="column"
-      borderStyle="round"
-      borderColor={theme.status.success}
-      paddingX={1}
-    >
+    <Box flexDirection='column' borderStyle='round' borderColor={theme.status.success} paddingX={1}>
       <Text color={theme.status.success} bold>
         Configuration Complete
       </Text>
-      <DialogFooter primaryAction="Enter to close" />
+      <DialogFooter primaryAction='Enter to close' />
     </Box>
   );
 };

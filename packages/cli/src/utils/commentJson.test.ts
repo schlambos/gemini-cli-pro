@@ -174,7 +174,7 @@ describe('commentJson', () => {
       expect(coreEvents.emitFeedback).toHaveBeenCalledWith(
         'error',
         'Error parsing settings file. Please check the JSON syntax.',
-        expect.any(Error),
+        expect.any(Error)
       );
 
       const unchangedContent = fs.readFileSync(testFilePath, 'utf-8');

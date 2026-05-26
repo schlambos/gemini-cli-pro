@@ -4,26 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type {
-  ToolCallRequestInfo,
-  ToolCallResponseInfo,
-  ToolResult,
-  Config,
-  AnsiOutput,
-} from '../index.js';
-import {
-  ToolErrorType,
-  ToolOutputTruncatedEvent,
-  logToolOutputTruncated,
-  runInDevTraceSpan,
-} from '../index.js';
+import type { ToolCallRequestInfo, ToolCallResponseInfo, ToolResult, Config, AnsiOutput } from '../index.js';
+import { ToolErrorType, ToolOutputTruncatedEvent, logToolOutputTruncated, runInDevTraceSpan } from '../index.js';
 import { SHELL_TOOL_NAME } from '../tools/tool-names.js';
 import { ShellToolInvocation } from '../tools/shell.js';
 import { executeToolWithHooks } from '../core/coreToolHookTriggers.js';
-import {
-  saveTruncatedToolOutput,
-  formatTruncatedToolOutput,
-} from '../utils/fileUtils.js';
+import { saveTruncatedToolOutput, formatTruncatedToolOutput } from '../utils/fileUtils.js';
 import { convertToFunctionResponse } from '../utils/generateContentResponseUtilities.js';
 import type {
   CompletedToolCall,
@@ -52,9 +38,7 @@ export class ToolExecutor {
     const callId = request.callId;
 
     if (!('tool' in call) || !call.tool || !('invocation' in call)) {
-      throw new Error(
-        `Cannot execute tool call ${callId}: Tool or Invocation missing.`,
-      );
+      throw new Error(`Cannot execute tool call ${callId}: Tool or Invocation missing.`);
     }
     const { tool, invocation } = call;
 
@@ -98,7 +82,7 @@ export class ToolExecutor {
               liveOutputCallback,
               shellExecutionConfig,
               setPidCallback,
-              this.config,
+              this.config
             );
           } else {
             promise = executeToolWithHooks(
@@ -109,7 +93,7 @@ export class ToolExecutor {
               liveOutputCallback,
               shellExecutionConfig,
               undefined,
-              this.config,
+              this.config
             );
           }
 
@@ -117,50 +101,31 @@ export class ToolExecutor {
           spanMetadata.output = toolResult;
 
           if (signal.aborted) {
-            return this.createCancelledResult(
-              call,
-              'User cancelled tool execution.',
-            );
+            return this.createCancelledResult(call, 'User cancelled tool execution.');
           } else if (toolResult.error === undefined) {
             return await this.createSuccessResult(call, toolResult);
           } else {
-            const displayText =
-              typeof toolResult.returnDisplay === 'string'
-                ? toolResult.returnDisplay
-                : undefined;
+            const displayText = typeof toolResult.returnDisplay === 'string' ? toolResult.returnDisplay : undefined;
             return this.createErrorResult(
               call,
               new Error(toolResult.error.message),
               toolResult.error.type,
-              displayText,
+              displayText
             );
           }
         } catch (executionError: unknown) {
           spanMetadata.error = executionError;
           if (signal.aborted) {
-            return this.createCancelledResult(
-              call,
-              'User cancelled tool execution.',
-            );
+            return this.createCancelledResult(call, 'User cancelled tool execution.');
           }
-          const error =
-            executionError instanceof Error
-              ? executionError
-              : new Error(String(executionError));
-          return this.createErrorResult(
-            call,
-            error,
-            ToolErrorType.UNHANDLED_EXCEPTION,
-          );
+          const error = executionError instanceof Error ? executionError : new Error(String(executionError));
+          return this.createErrorResult(call, error, ToolErrorType.UNHANDLED_EXCEPTION);
         }
-      },
+      }
     );
   }
 
-  private createCancelledResult(
-    call: ToolCall,
-    reason: string,
-  ): CancelledToolCall {
+  private createCancelledResult(call: ToolCall, reason: string): CancelledToolCall {
     const errorMessage = `[Operation Cancelled] ${reason}`;
     const startTime = 'startTime' in call ? call.startTime : undefined;
 
@@ -196,10 +161,7 @@ export class ToolExecutor {
     };
   }
 
-  private async createSuccessResult(
-    call: ToolCall,
-    toolResult: ToolResult,
-  ): Promise<SuccessfulToolCall> {
+  private async createSuccessResult(call: ToolCall, toolResult: ToolResult): Promise<SuccessfulToolCall> {
     let content = toolResult.llmContent;
     let outputFile: string | undefined;
     const toolName = call.request.name;
@@ -215,7 +177,7 @@ export class ToolExecutor {
           toolName,
           callId,
           this.config.storage.getProjectTempDir(),
-          this.config.getSessionId(),
+          this.config.getSessionId()
         );
         outputFile = savedPath;
         content = formatTruncatedToolOutput(content, outputFile, threshold);
@@ -227,17 +189,12 @@ export class ToolExecutor {
             originalContentLength,
             truncatedContentLength: content.length,
             threshold,
-          }),
+          })
         );
       }
     }
 
-    const response = convertToFunctionResponse(
-      toolName,
-      callId,
-      content,
-      this.config.getActiveModel(),
-    );
+    const response = convertToFunctionResponse(toolName, callId, content, this.config.getActiveModel());
 
     const successResponse: ToolCallResponseInfo = {
       callId,
@@ -271,14 +228,9 @@ export class ToolExecutor {
     call: ToolCall,
     error: Error,
     errorType?: ToolErrorType,
-    returnDisplay?: string,
+    returnDisplay?: string
   ): ErroredToolCall {
-    const response = this.createErrorResponse(
-      call.request,
-      error,
-      errorType,
-      returnDisplay,
-    );
+    const response = this.createErrorResponse(call.request, error, errorType, returnDisplay);
     const startTime = 'startTime' in call ? call.startTime : undefined;
 
     return {
@@ -295,7 +247,7 @@ export class ToolExecutor {
     request: ToolCallRequestInfo,
     error: Error,
     errorType: ToolErrorType | undefined,
-    returnDisplay?: string,
+    returnDisplay?: string
   ): ToolCallResponseInfo {
     const displayText = returnDisplay ?? error.message;
     return {

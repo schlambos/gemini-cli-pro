@@ -5,12 +5,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import {
-  coreEvents,
-  CoreEvent,
-  type HookStartPayload,
-  type HookEndPayload,
-} from '@google/gemini-cli-core';
+import { coreEvents, CoreEvent, type HookStartPayload, type HookEndPayload } from '@google/gemini-cli-core';
 import { type ActiveHook } from '../types.js';
 import { WARNING_PROMPT_DURATION_MS } from '../constants.js';
 
@@ -66,10 +61,7 @@ export const useHookDisplayState = () => {
 
       const removeHook = () => {
         setActiveHooks((prev) => {
-          const index = prev.findIndex(
-            (h) =>
-              h.name === payload.hookName && h.eventName === payload.eventName,
-          );
+          const index = prev.findIndex((h) => h.name === payload.hookName && h.eventName === payload.eventName);
           if (index === -1) return prev;
           const newHooks = [...prev];
           newHooks.splice(index, 1);

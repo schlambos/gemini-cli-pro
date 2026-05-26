@@ -55,12 +55,9 @@ async function main() {
     })
     .example(
       '$0 --original-pr 8655 --success --release-version "0.5.4" --channel stable --test',
-      'Test success comment',
+      'Test success comment'
     )
-    .example(
-      '$0 --original-pr 8655 --no-success --channel preview --test',
-      'Test failure comment',
-    )
+    .example('$0 --original-pr 8655 --no-success --channel preview --test', 'Test failure comment')
     .help()
     .alias('help', 'h').argv;
 
@@ -82,17 +79,10 @@ async function main() {
 
   // Get inputs from CLI args or environment
   const originalPr = argv.originalPr || process.env.ORIGINAL_PR;
-  const success =
-    argv.success !== undefined ? argv.success : process.env.SUCCESS === 'true';
+  const success = argv.success !== undefined ? argv.success : process.env.SUCCESS === 'true';
   const releaseVersion = argv.releaseVersion || process.env.RELEASE_VERSION;
-  const releaseTag =
-    argv.releaseTag ||
-    process.env.RELEASE_TAG ||
-    (releaseVersion ? `v${releaseVersion}` : null);
-  const npmTag =
-    argv.npmTag ||
-    process.env.NPM_TAG ||
-    (argv.channel === 'stable' ? 'latest' : 'preview');
+  const releaseTag = argv.releaseTag || process.env.RELEASE_TAG || (releaseVersion ? `v${releaseVersion}` : null);
+  const npmTag = argv.npmTag || process.env.NPM_TAG || (argv.channel === 'stable' ? 'latest' : 'preview');
   const channel = argv.channel || process.env.CHANNEL || 'stable';
   const dryRun = argv.dryRun || process.env.DRY_RUN === 'true';
   const runId = process.env.GITHUB_RUN_ID || '12345678';
@@ -108,9 +98,7 @@ async function main() {
     return;
   }
 
-  console.log(
-    `Commenting on original PR ${originalPr} with ${success ? 'success' : 'failure'} status`,
-  );
+  console.log(`Commenting on original PR ${originalPr} with ${success ? 'success' : 'failure'} status`);
 
   if (testMode) {
     console.log('\n🧪 TEST MODE - No API calls will be made');

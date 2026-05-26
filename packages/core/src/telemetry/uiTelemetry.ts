@@ -5,18 +5,10 @@
  */
 
 import { EventEmitter } from 'node:events';
-import {
-  EVENT_API_ERROR,
-  EVENT_API_RESPONSE,
-  EVENT_TOOL_CALL,
-} from './types.js';
+import { EVENT_API_ERROR, EVENT_API_RESPONSE, EVENT_TOOL_CALL } from './types.js';
 
 import { ToolCallDecision } from './tool-call-decision.js';
-import type {
-  ApiErrorEvent,
-  ApiResponseEvent,
-  ToolCallEvent,
-} from './types.js';
+import type { ApiErrorEvent, ApiResponseEvent, ToolCallEvent } from './types.js';
 
 import type { LlmRole } from './types.js';
 
@@ -207,10 +199,7 @@ export class UiTelemetryService extends EventEmitter {
     modelMetrics.tokens.cached += event.usage.cached_content_token_count;
     modelMetrics.tokens.thoughts += event.usage.thoughts_token_count;
     modelMetrics.tokens.tool += event.usage.tool_token_count;
-    modelMetrics.tokens.input = Math.max(
-      0,
-      modelMetrics.tokens.prompt - modelMetrics.tokens.cached,
-    );
+    modelMetrics.tokens.input = Math.max(0, modelMetrics.tokens.prompt - modelMetrics.tokens.cached);
 
     if (event.role) {
       if (!modelMetrics.roles[event.role]) {
@@ -225,10 +214,7 @@ export class UiTelemetryService extends EventEmitter {
       roleMetrics.tokens.cached += event.usage.cached_content_token_count;
       roleMetrics.tokens.thoughts += event.usage.thoughts_token_count;
       roleMetrics.tokens.tool += event.usage.tool_token_count;
-      roleMetrics.tokens.input = Math.max(
-        0,
-        roleMetrics.tokens.prompt - roleMetrics.tokens.cached,
-      );
+      roleMetrics.tokens.input = Math.max(0, roleMetrics.tokens.prompt - roleMetrics.tokens.cached);
     }
   }
 

@@ -28,8 +28,7 @@ describe('pathCorrector', () => {
 
     mockConfig = {
       getTargetDir: () => rootDir,
-      getWorkspaceContext: () =>
-        createMockWorkspaceContext(rootDir, [otherWorkspaceDir]),
+      getWorkspaceContext: () => createMockWorkspaceContext(rootDir, [otherWorkspaceDir]),
       getFileService: () => new FileDiscoveryService(rootDir),
       getFileFilteringOptions: () => ({
         respectGitIgnore: true,
@@ -74,9 +73,7 @@ describe('pathCorrector', () => {
     const result = correctPath('nonexistent.txt', mockConfig);
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error).toMatch(
-        /File not found for 'nonexistent.txt' and path is not absolute./,
-      );
+      expect(result.error).toMatch(/File not found for 'nonexistent.txt' and path is not absolute./);
     } else {
       expect.fail('Expected path correction to fail.');
     }
@@ -95,9 +92,7 @@ describe('pathCorrector', () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error).toMatch(
-        /The file path 'component.ts' is ambiguous and matches multiple files./,
-      );
+      expect(result.error).toMatch(/The file path 'component.ts' is ambiguous and matches multiple files./);
     } else {
       expect.fail('Expected path correction to fail.');
     }

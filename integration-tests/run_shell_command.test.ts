@@ -5,12 +5,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import {
-  TestRig,
-  printDebugInfo,
-  assertModelHasOutput,
-  checkModelOutputContent,
-} from './test-helper.js';
+import { TestRig, printDebugInfo, assertModelHasOutput, checkModelOutputContent } from './test-helper.js';
 import { getShellConfiguration } from '../packages/core/src/utils/shell-utils.js';
 
 const { shell } = getShellConfiguration();
@@ -115,10 +110,7 @@ describe('run_shell_command', () => {
       });
     }
 
-    expect(
-      foundToolCall,
-      'Expected to find a run_shell_command tool call',
-    ).toBeTruthy();
+    expect(foundToolCall, 'Expected to find a run_shell_command tool call').toBeTruthy();
 
     assertModelHasOutput(result);
     checkModelOutputContent(result, {
@@ -147,10 +139,7 @@ describe('run_shell_command', () => {
       });
     }
 
-    expect(
-      foundToolCall,
-      'Expected to find a run_shell_command tool call',
-    ).toBeTruthy();
+    expect(foundToolCall, 'Expected to find a run_shell_command tool call').toBeTruthy();
 
     assertModelHasOutput(result);
     checkModelOutputContent(result, {
@@ -190,16 +179,9 @@ describe('run_shell_command', () => {
       });
     }
 
-    expect(
-      foundToolCall,
-      'Expected to find a run_shell_command tool call',
-    ).toBeTruthy();
+    expect(foundToolCall, 'Expected to find a run_shell_command tool call').toBeTruthy();
 
-    const toolCall = rig
-      .readToolLogs()
-      .filter(
-        (toolCall) => toolCall.toolRequest.name === 'run_shell_command',
-      )[0];
+    const toolCall = rig.readToolLogs().filter((toolCall) => toolCall.toolRequest.name === 'run_shell_command')[0];
     expect(toolCall.toolRequest.success).toBe(true);
   });
 
@@ -224,16 +206,9 @@ describe('run_shell_command', () => {
       });
     }
 
-    expect(
-      foundToolCall,
-      'Expected to find a run_shell_command tool call',
-    ).toBeTruthy();
+    expect(foundToolCall, 'Expected to find a run_shell_command tool call').toBeTruthy();
 
-    const toolCall = rig
-      .readToolLogs()
-      .filter(
-        (toolCall) => toolCall.toolRequest.name === 'run_shell_command',
-      )[0];
+    const toolCall = rig.readToolLogs().filter((toolCall) => toolCall.toolRequest.name === 'run_shell_command')[0];
     expect(toolCall.toolRequest.success).toBe(true);
   });
 
@@ -259,16 +234,9 @@ describe('run_shell_command', () => {
       });
     }
 
-    expect(
-      foundToolCall,
-      'Expected to find a run_shell_command tool call',
-    ).toBeTruthy();
+    expect(foundToolCall, 'Expected to find a run_shell_command tool call').toBeTruthy();
 
-    const toolCall = rig
-      .readToolLogs()
-      .filter(
-        (toolCall) => toolCall.toolRequest.name === 'run_shell_command',
-      )[0];
+    const toolCall = rig.readToolLogs().filter((toolCall) => toolCall.toolRequest.name === 'run_shell_command')[0];
     expect(toolCall.toolRequest.success).toBe(true);
   });
 
@@ -302,16 +270,9 @@ describe('run_shell_command', () => {
       });
     }
 
-    expect(
-      foundToolCall,
-      'Expected to find a run_shell_command tool call',
-    ).toBeTruthy();
+    expect(foundToolCall, 'Expected to find a run_shell_command tool call').toBeTruthy();
 
-    const toolCall = rig
-      .readToolLogs()
-      .filter(
-        (toolCall) => toolCall.toolRequest.name === 'run_shell_command',
-      )[0];
+    const toolCall = rig.readToolLogs().filter((toolCall) => toolCall.toolRequest.name === 'run_shell_command')[0];
     expect(toolCall.toolRequest.success).toBe(true);
   });
 
@@ -326,19 +287,14 @@ describe('run_shell_command', () => {
       `directory. Do not pipe these commands into each other, run them separately.`;
 
     const result = await rig.run({
-      args: [
-        `--allowed-tools=run_shell_command(${tool})`,
-        '--allowed-tools=run_shell_command(ls)',
-      ],
+      args: [`--allowed-tools=run_shell_command(${tool})`, '--allowed-tools=run_shell_command(ls)'],
       stdin: prompt,
       approvalMode: 'default',
     });
 
     for (const expected in ['ls', tool]) {
-      const foundToolCall = await rig.waitForToolCall(
-        'run_shell_command',
-        15000,
-        (args) => args.toLowerCase().includes(`"command": "${expected}`),
+      const foundToolCall = await rig.waitForToolCall('run_shell_command', 15000, (args) =>
+        args.toLowerCase().includes(`"command": "${expected}`)
       );
 
       if (!foundToolCall) {
@@ -349,20 +305,14 @@ describe('run_shell_command', () => {
 
       expect(
         foundToolCall,
-        `Expected to find a run_shell_command tool call to "${expected}",` +
-          ` got ${rig.readToolLogs().join('\n')}`,
+        `Expected to find a run_shell_command tool call to "${expected}",` + ` got ${rig.readToolLogs().join('\n')}`
       ).toBeTruthy();
     }
 
-    const toolLogs = rig
-      .readToolLogs()
-      .filter((toolCall) => toolCall.toolRequest.name === 'run_shell_command');
+    const toolLogs = rig.readToolLogs().filter((toolCall) => toolCall.toolRequest.name === 'run_shell_command');
     expect(toolLogs.length, toolLogs.join('\n')).toBeGreaterThanOrEqual(2);
     for (const toolLog of toolLogs) {
-      expect(
-        toolLog.toolRequest.success,
-        `Expected tool call ${toolLog} to succeed`,
-      ).toBe(true);
+      expect(toolLog.toolRequest.success, `Expected tool call ${toolLog} to succeed`).toBe(true);
     }
   });
 
@@ -395,10 +345,8 @@ describe('run_shell_command', () => {
     }
     expect(result).toContain('FAIL');
 
-    const foundToolCall = await rig.waitForToolCall(
-      'run_shell_command',
-      15000,
-      (args) => args.toLowerCase().includes(disallowed.tool.toLowerCase()),
+    const foundToolCall = await rig.waitForToolCall('run_shell_command', 15000, (args) =>
+      args.toLowerCase().includes(disallowed.tool.toLowerCase())
     );
 
     if (!foundToolCall) {
@@ -409,13 +357,9 @@ describe('run_shell_command', () => {
     }
     expect(foundToolCall).toBe(true);
 
-    const toolLogs = rig
-      .readToolLogs()
-      .filter((toolLog) => toolLog.toolRequest.name === 'run_shell_command');
+    const toolLogs = rig.readToolLogs().filter((toolLog) => toolLog.toolRequest.name === 'run_shell_command');
     const failureLog = toolLogs.find((toolLog) =>
-      toolLog.toolRequest.args
-        .toLowerCase()
-        .includes(disallowed.tool.toLowerCase()),
+      toolLog.toolRequest.args.toLowerCase().includes(disallowed.tool.toLowerCase())
     );
 
     if (!failureLog || failureLog.toolRequest.success) {
@@ -425,18 +369,13 @@ describe('run_shell_command', () => {
       });
     }
 
-    expect(
-      failureLog,
-      'Expected failing run_shell_command invocation',
-    ).toBeTruthy();
+    expect(failureLog, 'Expected failing run_shell_command invocation').toBeTruthy();
     expect(failureLog!.toolRequest.success).toBe(false);
   });
 
   // TODO(#11966): Deflake this test and re-enable once the underlying race is resolved.
   it.skip('should reject chained commands when only the first segment is allowlisted in non-interactive mode', async () => {
-    await rig.setup(
-      'should reject chained commands when only the first segment is allowlisted',
-    );
+    await rig.setup('should reject chained commands when only the first segment is allowlisted');
 
     const chained = getChainedEchoCommand();
     const shellInjection = `!{${chained.command}}`;
@@ -448,9 +387,7 @@ describe('run_shell_command', () => {
     });
 
     // CLI should refuse to execute the chained command without scheduling run_shell_command.
-    const toolLogs = rig
-      .readToolLogs()
-      .filter((log) => log.toolRequest.name === 'run_shell_command');
+    const toolLogs = rig.readToolLogs().filter((log) => log.toolRequest.name === 'run_shell_command');
 
     // Success is false because tool is in the scheduled state.
     for (const log of toolLogs) {
@@ -460,21 +397,15 @@ describe('run_shell_command', () => {
   });
 
   it('should allow all with "ShellTool" and other specific tools', async () => {
-    await rig.setup(
-      'should allow all with "ShellTool" and other specific tools',
-      {
-        settings: { tools: { core: ['run_shell_command'] } },
-      },
-    );
+    await rig.setup('should allow all with "ShellTool" and other specific tools', {
+      settings: { tools: { core: ['run_shell_command'] } },
+    });
 
     const { tool } = getLineCountCommand();
     const prompt = `Please run the command "echo test-allow-all" and show me the output`;
 
     const result = await rig.run({
-      args: [
-        `--allowed-tools=run_shell_command(${tool})`,
-        '--allowed-tools=run_shell_command',
-      ],
+      args: [`--allowed-tools=run_shell_command(${tool})`, '--allowed-tools=run_shell_command'],
       stdin: prompt,
       approvalMode: 'default',
     });
@@ -488,16 +419,9 @@ describe('run_shell_command', () => {
       });
     }
 
-    expect(
-      foundToolCall,
-      'Expected to find a run_shell_command tool call',
-    ).toBeTruthy();
+    expect(foundToolCall, 'Expected to find a run_shell_command tool call').toBeTruthy();
 
-    const toolCall = rig
-      .readToolLogs()
-      .filter(
-        (toolCall) => toolCall.toolRequest.name === 'run_shell_command',
-      )[0];
+    const toolCall = rig.readToolLogs().filter((toolCall) => toolCall.toolRequest.name === 'run_shell_command')[0];
     expect(toolCall.toolRequest.success).toBe(true);
 
     assertModelHasOutput(result);
@@ -529,10 +453,7 @@ describe('run_shell_command', () => {
         });
       }
 
-      expect(
-        foundToolCall,
-        'Expected to find a run_shell_command tool call',
-      ).toBeTruthy();
+      expect(foundToolCall, 'Expected to find a run_shell_command tool call').toBeTruthy();
       assertModelHasOutput(result);
       checkModelOutputContent(result, {
         expectedContent: varValue,
@@ -562,10 +483,7 @@ describe('run_shell_command', () => {
       });
     }
 
-    expect(
-      foundToolCall,
-      'Expected to find a run_shell_command tool call',
-    ).toBeTruthy();
+    expect(foundToolCall, 'Expected to find a run_shell_command tool call').toBeTruthy();
 
     assertModelHasOutput(result);
     checkModelOutputContent(result, {
@@ -592,11 +510,8 @@ describe('run_shell_command', () => {
     expect(result).toContain('FAIL');
 
     const escapedInvalidCommand = JSON.stringify(invalidCommand).slice(1, -1);
-    const foundToolCall = await rig.waitForToolCall(
-      'run_shell_command',
-      15000,
-      (args) =>
-        args.toLowerCase().includes(escapedInvalidCommand.toLowerCase()),
+    const foundToolCall = await rig.waitForToolCall('run_shell_command', 15000, (args) =>
+      args.toLowerCase().includes(escapedInvalidCommand.toLowerCase())
     );
 
     if (!foundToolCall) {
@@ -608,13 +523,9 @@ describe('run_shell_command', () => {
     }
     expect(foundToolCall).toBe(true);
 
-    const toolLogs = rig
-      .readToolLogs()
-      .filter((toolLog) => toolLog.toolRequest.name === 'run_shell_command');
+    const toolLogs = rig.readToolLogs().filter((toolLog) => toolLog.toolRequest.name === 'run_shell_command');
     const failureLog = toolLogs.find((toolLog) =>
-      toolLog.toolRequest.args
-        .toLowerCase()
-        .includes(escapedInvalidCommand.toLowerCase()),
+      toolLog.toolRequest.args.toLowerCase().includes(escapedInvalidCommand.toLowerCase())
     );
 
     if (!failureLog || failureLog.toolRequest.success) {
@@ -624,10 +535,7 @@ describe('run_shell_command', () => {
       });
     }
 
-    expect(
-      failureLog,
-      'Expected failing run_shell_command invocation for invalid syntax',
-    ).toBeTruthy();
+    expect(failureLog, 'Expected failing run_shell_command invocation for invalid syntax').toBeTruthy();
     expect(failureLog!.toolRequest.success).toBe(false);
   });
 });

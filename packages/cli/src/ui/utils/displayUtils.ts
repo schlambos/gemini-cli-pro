@@ -23,7 +23,7 @@ export const QUOTA_THRESHOLD_MEDIUM = 5;
 export const getStatusColor = (
   value: number,
   thresholds: { green: number; yellow: number; red?: number },
-  options: { defaultColor?: string } = {},
+  options: { defaultColor?: string } = {}
 ) => {
   if (value >= thresholds.green) {
     return theme.status.success;

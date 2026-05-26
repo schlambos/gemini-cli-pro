@@ -7,12 +7,7 @@
 import { renderHook } from '../../test-utils/render.js';
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { useHookDisplayState } from './useHookDisplayState.js';
-import {
-  coreEvents,
-  CoreEvent,
-  type HookStartPayload,
-  type HookEndPayload,
-} from '@google/gemini-cli-core';
+import { coreEvents, CoreEvent, type HookStartPayload, type HookEndPayload } from '@google/gemini-cli-core';
 import { act } from 'react';
 import { WARNING_PROMPT_DURATION_MS } from '../constants.js';
 

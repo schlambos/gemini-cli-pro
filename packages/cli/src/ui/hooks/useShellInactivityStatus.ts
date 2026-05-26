@@ -45,11 +45,10 @@ export const useShellInactivityStatus = ({
   const { operationStartTime, isRedirectionActive } = useTurnActivityMonitor(
     streamingState,
     activePtyId,
-    pendingToolCalls,
+    pendingToolCalls
   );
 
-  const isAwaitingFocus =
-    !!activePtyId && !embeddedShellFocused && isInteractiveShellEnabled;
+  const isAwaitingFocus = !!activePtyId && !embeddedShellFocused && isInteractiveShellEnabled;
 
   // Derive whether output was produced by comparing the last output time to when the operation started.
   const hasProducedOutput = lastOutputTime > operationStartTime;
@@ -59,9 +58,7 @@ export const useShellInactivityStatus = ({
   const shouldShowFocusHint = useInactivityTimer(
     isAwaitingFocus && !isRedirectionActive,
     lastOutputTime,
-    hasProducedOutput
-      ? SHELL_FOCUS_HINT_DELAY_MS
-      : SHELL_FOCUS_HINT_DELAY_MS * 4,
+    hasProducedOutput ? SHELL_FOCUS_HINT_DELAY_MS : SHELL_FOCUS_HINT_DELAY_MS * 4
   );
 
   // 2. Action Required Status (The ✋ icon in the terminal window title)
@@ -70,7 +67,7 @@ export const useShellInactivityStatus = ({
   const shouldShowActionRequiredTitle = useInactivityTimer(
     isAwaitingFocus && !isRedirectionActive && hasProducedOutput,
     lastOutputTime,
-    SHELL_ACTION_REQUIRED_TITLE_DELAY_MS,
+    SHELL_ACTION_REQUIRED_TITLE_DELAY_MS
   );
 
   // 3. Silent Working Status (The ⏲ icon in the terminal window title)
@@ -79,9 +76,7 @@ export const useShellInactivityStatus = ({
   const shouldShowSilentWorkingTitle = useInactivityTimer(
     isAwaitingFocus && (isRedirectionActive || !hasProducedOutput),
     lastOutputTime,
-    isRedirectionActive
-      ? SHELL_SILENT_WORKING_TITLE_DELAY_MS
-      : SHELL_ACTION_REQUIRED_TITLE_DELAY_MS * 2,
+    isRedirectionActive ? SHELL_SILENT_WORKING_TITLE_DELAY_MS : SHELL_ACTION_REQUIRED_TITLE_DELAY_MS * 2
   );
 
   let inactivityStatus: InactivityStatus = 'none';

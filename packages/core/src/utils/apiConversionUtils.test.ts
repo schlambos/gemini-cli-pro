@@ -7,11 +7,7 @@
 import { describe, it, expect } from 'vitest';
 import { convertToRestPayload } from './apiConversionUtils.js';
 import type { GenerateContentParameters } from '@google/genai';
-import {
-  FunctionCallingConfigMode,
-  HarmCategory,
-  HarmBlockThreshold,
-} from '@google/genai';
+import { FunctionCallingConfigMode, HarmCategory, HarmBlockThreshold } from '@google/genai';
 
 describe('apiConversionUtils', () => {
   describe('convertToRestPayload', () => {
@@ -156,9 +152,7 @@ describe('apiConversionUtils', () => {
       expect(result['systemInstruction']).toStrictEqual({
         parts: [{ text: 'Be witty.' }],
       });
-      expect(result['tools']).toStrictEqual([
-        { functionDeclarations: [{ name: 'test' }] },
-      ]);
+      expect(result['tools']).toStrictEqual([{ functionDeclarations: [{ name: 'test' }] }]);
       expect(result['safetySettings']).toStrictEqual([
         {
           category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,

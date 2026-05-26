@@ -5,24 +5,12 @@
  */
 
 import type { ToolConfirmationOutcome } from '../tools/tools.js';
-import {
-  BaseToolInvocation,
-  type ToolResult,
-  type ToolCallConfirmationDetails,
-} from '../tools/tools.js';
+import { BaseToolInvocation, type ToolResult, type ToolCallConfirmationDetails } from '../tools/tools.js';
 import { DEFAULT_QUERY_STRING } from './types.js';
-import type {
-  RemoteAgentInputs,
-  RemoteAgentDefinition,
-  AgentInputs,
-} from './types.js';
+import type { RemoteAgentInputs, RemoteAgentDefinition, AgentInputs } from './types.js';
 import type { MessageBus } from '../confirmation-bus/message-bus.js';
 import { A2AClientManager } from './a2a-client-manager.js';
-import {
-  extractMessageText,
-  extractTaskText,
-  extractIdsFromResponse,
-} from './a2aUtils.js';
+import { extractMessageText, extractTaskText, extractIdsFromResponse } from './a2aUtils.js';
 import { GoogleAuth } from 'google-auth-library';
 import type { AuthenticationHandler } from '@a2a-js/sdk/client';
 import { debugLogger } from '../utils/debugLogger.js';
@@ -44,17 +32,13 @@ export class ADCHandler implements AuthenticationHandler {
       }
       throw new Error('Failed to retrieve ADC access token.');
     } catch (e) {
-      const errorMessage = `Failed to get ADC token: ${
-        e instanceof Error ? e.message : String(e)
-      }`;
+      const errorMessage = `Failed to get ADC token: ${e instanceof Error ? e.message : String(e)}`;
       debugLogger.log('ERROR', errorMessage);
       throw new Error(errorMessage);
     }
   }
 
-  async shouldRetryWithHeaders(
-    _response: unknown,
-  ): Promise<Record<string, string> | undefined> {
+  async shouldRetryWithHeaders(_response: unknown): Promise<Record<string, string> | undefined> {
     // For ADC, we usually just re-fetch the token if needed.
     return this.headers();
   }
@@ -66,15 +50,9 @@ export class ADCHandler implements AuthenticationHandler {
  * This implementation bypasses the local `LocalAgentExecutor` loop and directly
  * invokes the configured A2A tool.
  */
-export class RemoteAgentInvocation extends BaseToolInvocation<
-  RemoteAgentInputs,
-  ToolResult
-> {
+export class RemoteAgentInvocation extends BaseToolInvocation<RemoteAgentInputs, ToolResult> {
   // Persist state across ephemeral invocation instances.
-  private static readonly sessionState = new Map<
-    string,
-    { contextId?: string; taskId?: string }
-  >();
+  private static readonly sessionState = new Map<string, { contextId?: string; taskId?: string }>();
   // State for the ongoing conversation with the remote agent
   private contextId: string | undefined;
   private taskId: string | undefined;
@@ -88,21 +66,14 @@ export class RemoteAgentInvocation extends BaseToolInvocation<
     params: AgentInputs,
     messageBus: MessageBus,
     _toolName?: string,
-    _toolDisplayName?: string,
+    _toolDisplayName?: string
   ) {
     const query = params['query'] ?? DEFAULT_QUERY_STRING;
     if (typeof query !== 'string') {
-      throw new Error(
-        `Remote agent '${definition.name}' requires a string 'query' input.`,
-      );
+      throw new Error(`Remote agent '${definition.name}' requires a string 'query' input.`);
     }
     // Safe to pass strict object to super
-    super(
-      { query },
-      messageBus,
-      _toolName ?? definition.name,
-      _toolDisplayName ?? definition.displayName,
-    );
+    super({ query }, messageBus, _toolName ?? definition.name, _toolDisplayName ?? definition.displayName);
   }
 
   getDescription(): string {
@@ -110,7 +81,7 @@ export class RemoteAgentInvocation extends BaseToolInvocation<
   }
 
   protected override async getConfirmationDetails(
-    _abortSignal: AbortSignal,
+    _abortSignal: AbortSignal
   ): Promise<ToolCallConfirmationDetails | false> {
     // For now, always require confirmation for remote agents until we have a policy system for them.
     return {
@@ -128,32 +99,22 @@ export class RemoteAgentInvocation extends BaseToolInvocation<
     // We assume the user has provided an access token via some mechanism (TODO),
     // or we rely on ADC.
     try {
-      const priorState = RemoteAgentInvocation.sessionState.get(
-        this.definition.name,
-      );
+      const priorState = RemoteAgentInvocation.sessionState.get(this.definition.name);
       if (priorState) {
         this.contextId = priorState.contextId;
         this.taskId = priorState.taskId;
       }
 
       if (!this.clientManager.getClient(this.definition.name)) {
-        await this.clientManager.loadAgent(
-          this.definition.name,
-          this.definition.agentCardUrl,
-          this.authHandler,
-        );
+        await this.clientManager.loadAgent(this.definition.name, this.definition.agentCardUrl, this.authHandler);
       }
 
       const message = this.params.query;
 
-      const response = await this.clientManager.sendMessage(
-        this.definition.name,
-        message,
-        {
-          contextId: this.contextId,
-          taskId: this.taskId,
-        },
-      );
+      const response = await this.clientManager.sendMessage(this.definition.name, message, {
+        contextId: this.contextId,
+        taskId: this.taskId,
+      });
 
       // Extracts IDs, taskID will be undefined if the task is completed/failed/canceled.
       const { contextId, taskId } = extractIdsFromResponse(response);
@@ -174,9 +135,7 @@ export class RemoteAgentInvocation extends BaseToolInvocation<
             ? extractMessageText(response)
             : JSON.stringify(response);
 
-      debugLogger.debug(
-        `[RemoteAgent] Response from ${this.definition.name}:\n${JSON.stringify(response, null, 2)}`,
-      );
+      debugLogger.debug(`[RemoteAgent] Response from ${this.definition.name}:\n${JSON.stringify(response, null, 2)}`);
 
       return {
         llmContent: [{ text: outputText }],

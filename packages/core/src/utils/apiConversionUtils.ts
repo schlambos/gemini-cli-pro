@@ -11,9 +11,7 @@ import type { GenerateContentParameters } from '@google/genai';
  * equivalent REST API payload format. This is primarily used for debugging
  * and exporting requests.
  */
-export function convertToRestPayload(
-  req: GenerateContentParameters,
-): Record<string, unknown> {
+export function convertToRestPayload(req: GenerateContentParameters): Record<string, unknown> {
   // Extract top-level REST fields from the SDK config object.
   // 'pureGenerationConfig' will capture any remaining hyperparameters (e.g., temperature, topP).
   const {
@@ -46,8 +44,7 @@ export function convertToRestPayload(
   }
 
   // Assign extracted capabilities to the root level.
-  if (restSystemInstruction)
-    restPayload['systemInstruction'] = restSystemInstruction;
+  if (restSystemInstruction) restPayload['systemInstruction'] = restSystemInstruction;
   if (sdkTools) restPayload['tools'] = sdkTools;
   if (sdkToolConfig) restPayload['toolConfig'] = sdkToolConfig;
   if (sdkSafetySettings) restPayload['safetySettings'] = sdkSafetySettings;

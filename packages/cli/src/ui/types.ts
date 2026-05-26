@@ -62,9 +62,7 @@ export enum ToolCallStatus {
 /**
  * Maps core tool call status to a simplified UI status.
  */
-export function mapCoreStatusToDisplayStatus(
-  coreStatus: CoreToolCallStatus,
-): ToolCallStatus {
+export function mapCoreStatusToDisplayStatus(coreStatus: CoreToolCallStatus): ToolCallStatus {
   switch (coreStatus) {
     case CoreToolCallStatus.Validating:
       return ToolCallStatus.Pending;
@@ -271,10 +269,7 @@ export type HistoryItemSkillsList = HistoryItemBase & {
   showDescriptions: boolean;
 };
 
-export type AgentDefinitionJson = Pick<
-  AgentDefinition,
-  'name' | 'displayName' | 'description' | 'kind'
->;
+export type AgentDefinitionJson = Pick<AgentDefinition, 'name' | 'displayName' | 'description' | 'kind'>;
 
 export type HistoryItemAgentsList = HistoryItemBase & {
   type: 'agents_list';
@@ -313,10 +308,7 @@ export type HistoryItemMcpStatus = HistoryItemBase & {
   tools: JsonMcpTool[];
   prompts: JsonMcpPrompt[];
   resources: JsonMcpResource[];
-  authStatus: Record<
-    string,
-    'authenticated' | 'expired' | 'unauthenticated' | 'not-configured'
-  >;
+  authStatus: Record<string, 'authenticated' | 'expired' | 'unauthenticated' | 'not-configured'>;
   enablementState: Record<
     string,
     {

@@ -13,15 +13,10 @@ const RATE_LIMIT_ERROR_MESSAGE_USE_GEMINI =
   '\nPlease wait and try again later. To increase your limits, request a quota increase through AI Studio, or switch to another /auth method';
 const RATE_LIMIT_ERROR_MESSAGE_VERTEX =
   '\nPlease wait and try again later. To increase your limits, request a quota increase through Vertex, or switch to another /auth method';
-const getRateLimitErrorMessageDefault = (
-  fallbackModel: string = DEFAULT_GEMINI_FLASH_MODEL,
-) =>
+const getRateLimitErrorMessageDefault = (fallbackModel: string = DEFAULT_GEMINI_FLASH_MODEL) =>
   `\nPossible quota limitations in place or slow response times detected. Switching to the ${fallbackModel} model for the rest of this session.`;
 
-function getRateLimitMessage(
-  authType?: AuthType,
-  fallbackModel?: string,
-): string {
+function getRateLimitMessage(authType?: AuthType, fallbackModel?: string): string {
   switch (authType) {
     case AuthType.USE_GEMINI:
       return RATE_LIMIT_ERROR_MESSAGE_USE_GEMINI;
@@ -37,7 +32,7 @@ export function parseAndFormatApiError(
   authType?: AuthType,
   userTier?: UserTierId,
   currentModel?: string,
-  fallbackModel?: string,
+  fallbackModel?: string
 ): string {
   if (isStructuredError(error)) {
     let text = `[API Error: ${error.message}]`;

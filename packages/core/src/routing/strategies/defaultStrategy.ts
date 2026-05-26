@@ -6,25 +6,14 @@
 
 import type { Config } from '../../config/config.js';
 import type { BaseLlmClient } from '../../core/baseLlmClient.js';
-import type {
-  RoutingContext,
-  RoutingDecision,
-  TerminalStrategy,
-} from '../routingStrategy.js';
+import type { RoutingContext, RoutingDecision, TerminalStrategy } from '../routingStrategy.js';
 import { resolveModel } from '../../config/models.js';
 
 export class DefaultStrategy implements TerminalStrategy {
   readonly name = 'default';
 
-  async route(
-    _context: RoutingContext,
-    config: Config,
-    _baseLlmClient: BaseLlmClient,
-  ): Promise<RoutingDecision> {
-    const defaultModel = resolveModel(
-      config.getModel(),
-      config.getGemini31LaunchedSync?.() ?? false,
-    );
+  async route(_context: RoutingContext, config: Config, _baseLlmClient: BaseLlmClient): Promise<RoutingDecision> {
+    const defaultModel = resolveModel(config.getModel(), config.getGemini31LaunchedSync?.() ?? false);
     return {
       model: defaultModel,
       metadata: {

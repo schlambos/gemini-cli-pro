@@ -18,7 +18,7 @@ import { coreEvents } from '../utils/events.js';
 
 function createIamApiUrl(targetSA: string): string {
   return `https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${encodeURIComponent(
-    targetSA,
+    targetSA
   )}:generateIdToken`;
 }
 
@@ -43,22 +43,16 @@ export class ServiceAccountImpersonationProvider implements McpAuthProvider {
   constructor(private readonly config: MCPServerConfig) {
     // This check is done in mcp-client.ts. This is just an additional check.
     if (!this.config.httpUrl && !this.config.url) {
-      throw new Error(
-        'A url or httpUrl must be provided for the Service Account Impersonation provider',
-      );
+      throw new Error('A url or httpUrl must be provided for the Service Account Impersonation provider');
     }
 
     if (!config.targetAudience) {
-      throw new Error(
-        'targetAudience must be provided for the Service Account Impersonation provider',
-      );
+      throw new Error('targetAudience must be provided for the Service Account Impersonation provider');
     }
     this.targetAudience = config.targetAudience;
 
     if (!config.targetServiceAccount) {
-      throw new Error(
-        'targetServiceAccount must be provided for the Service Account Impersonation provider',
-      );
+      throw new Error('targetServiceAccount must be provided for the Service Account Impersonation provider');
     }
     this.targetServiceAccount = config.targetServiceAccount;
 
@@ -75,11 +69,7 @@ export class ServiceAccountImpersonationProvider implements McpAuthProvider {
 
   async tokens(): Promise<OAuthTokens | undefined> {
     // 1. Check if we have a valid, non-expired cached token.
-    if (
-      this.cachedToken &&
-      this.tokenExpiryTime &&
-      Date.now() < this.tokenExpiryTime - FIVE_MIN_BUFFER_MS
-    ) {
+    if (this.cachedToken && this.tokenExpiryTime && Date.now() < this.tokenExpiryTime - FIVE_MIN_BUFFER_MS) {
       return this.cachedToken;
     }
 
@@ -104,10 +94,7 @@ export class ServiceAccountImpersonationProvider implements McpAuthProvider {
       idToken = res.data.token;
 
       if (!idToken || idToken.length === 0) {
-        coreEvents.emitFeedback(
-          'error',
-          'Failed to obtain authentication token.',
-        );
+        coreEvents.emitFeedback('error', 'Failed to obtain authentication token.');
         return undefined;
       }
     } catch (e) {
@@ -115,7 +102,7 @@ export class ServiceAccountImpersonationProvider implements McpAuthProvider {
         'error',
         'Failed to obtain authentication token.',
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-        e as Error,
+        e as Error
       );
       return undefined;
     }

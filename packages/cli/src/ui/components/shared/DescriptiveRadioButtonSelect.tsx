@@ -60,11 +60,9 @@ export function DescriptiveRadioButtonSelect<T>({
       showScrollArrows={showScrollArrows}
       maxItemsToShow={maxItemsToShow}
       renderItem={(item, { titleColor }) => (
-        <Box flexDirection="column" key={item.key}>
+        <Box flexDirection='column' key={item.key}>
           <Text color={titleColor}>{item.title}</Text>
-          {item.description && (
-            <Text color={theme.text.secondary}>{item.description}</Text>
-          )}
+          {item.description && <Text color={theme.text.secondary}>{item.description}</Text>}
         </Box>
       )}
     />

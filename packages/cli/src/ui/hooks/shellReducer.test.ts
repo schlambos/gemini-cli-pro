@@ -5,19 +5,12 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import {
-  shellReducer,
-  initialState,
-  type ShellState,
-  type ShellAction,
-} from './shellReducer.js';
+import { shellReducer, initialState, type ShellState, type ShellAction } from './shellReducer.js';
 
 describe('shellReducer', () => {
   it('should return the initial state', () => {
     // @ts-expect-error - testing default case
-    expect(shellReducer(initialState, { type: 'UNKNOWN' })).toEqual(
-      initialState,
-    );
+    expect(shellReducer(initialState, { type: 'UNKNOWN' })).toEqual(initialState);
   });
 
   it('should handle SET_ACTIVE_PTY', () => {

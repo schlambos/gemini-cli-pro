@@ -25,18 +25,14 @@ describe('Shell Efficiency', () => {
     prompt: 'Install the "lodash" package using npm.',
     assert: async (rig) => {
       const toolCalls = rig.readToolLogs();
-      const shellCalls = toolCalls.filter(
-        (call) => call.toolRequest.name === 'run_shell_command',
-      );
+      const shellCalls = toolCalls.filter((call) => call.toolRequest.name === 'run_shell_command');
 
       const hasEfficiencyFlag = shellCalls.some((call) => {
         const cmd = getCommand(call);
         return (
           cmd &&
           cmd.includes('npm install') &&
-          (cmd.includes('--silent') ||
-            cmd.includes('--quiet') ||
-            cmd.includes('-q'))
+          (cmd.includes('--silent') || cmd.includes('--quiet') || cmd.includes('-q'))
         );
       });
 
@@ -44,7 +40,7 @@ describe('Shell Efficiency', () => {
         hasEfficiencyFlag,
         `Expected agent to use efficiency flags for npm install. Commands used: ${shellCalls
           .map(getCommand)
-          .join(', ')}`,
+          .join(', ')}`
       ).toBe(true);
     },
   });
@@ -54,9 +50,7 @@ describe('Shell Efficiency', () => {
     prompt: 'Show the git log.',
     assert: async (rig) => {
       const toolCalls = rig.readToolLogs();
-      const shellCalls = toolCalls.filter(
-        (call) => call.toolRequest.name === 'run_shell_command',
-      );
+      const shellCalls = toolCalls.filter((call) => call.toolRequest.name === 'run_shell_command');
 
       const hasNoPager = shellCalls.some((call) => {
         const cmd = getCommand(call);
@@ -65,9 +59,7 @@ describe('Shell Efficiency', () => {
 
       expect(
         hasNoPager,
-        `Expected agent to use --no-pager with git. Commands used: ${shellCalls
-          .map(getCommand)
-          .join(', ')}`,
+        `Expected agent to use --no-pager with git. Commands used: ${shellCalls.map(getCommand).join(', ')}`
       ).toBe(true);
     },
   });
@@ -86,24 +78,20 @@ describe('Shell Efficiency', () => {
     prompt: 'Install the "lodash" package using npm.',
     assert: async (rig) => {
       const toolCalls = rig.readToolLogs();
-      const shellCalls = toolCalls.filter(
-        (call) => call.toolRequest.name === 'run_shell_command',
-      );
+      const shellCalls = toolCalls.filter((call) => call.toolRequest.name === 'run_shell_command');
 
       const hasEfficiencyFlag = shellCalls.some((call) => {
         const cmd = getCommand(call);
         return (
           cmd &&
           cmd.includes('npm install') &&
-          (cmd.includes('--silent') ||
-            cmd.includes('--quiet') ||
-            cmd.includes('-q'))
+          (cmd.includes('--silent') || cmd.includes('--quiet') || cmd.includes('-q'))
         );
       });
 
       expect(
         hasEfficiencyFlag,
-        'Agent used efficiency flags even though enableShellOutputEfficiency was disabled',
+        'Agent used efficiency flags even though enableShellOutputEfficiency was disabled'
       ).toBe(false);
     },
   });

@@ -6,11 +6,7 @@
 
 import type { Config } from '@google/gemini-cli-core';
 import { getErrorMessage, getMCPServerPrompts } from '@google/gemini-cli-core';
-import type {
-  CommandContext,
-  SlashCommand,
-  SlashCommandActionReturn,
-} from '../ui/commands/types.js';
+import type { CommandContext, SlashCommand, SlashCommandActionReturn } from '../ui/commands/types.js';
 import { CommandKind } from '../ui/commands/types.js';
 import type { ICommandLoader } from './types.js';
 import type { PromptArgument } from '@modelcontextprotocol/sdk/types.js';
@@ -69,9 +65,7 @@ export class McpPromptLoader implements ICommandLoader {
                   if (arg.description) {
                     helpMessage += `    ${arg.description}\n`;
                   }
-                  helpMessage += `    (required: ${
-                    arg.required ? 'yes' : 'no'
-                  })\n\n`;
+                  helpMessage += `    (required: ${arg.required ? 'yes' : 'no'})\n\n`;
                 }
                 return {
                   type: 'message',
@@ -81,10 +75,7 @@ export class McpPromptLoader implements ICommandLoader {
               },
             },
           ],
-          action: async (
-            context: CommandContext,
-            args: string,
-          ): Promise<SlashCommandActionReturn> => {
+          action: async (context: CommandContext, args: string): Promise<SlashCommandActionReturn> => {
             if (!this.config) {
               return {
                 type: 'message',
@@ -103,8 +94,7 @@ export class McpPromptLoader implements ICommandLoader {
             }
 
             try {
-              const mcpServers =
-                this.config.getMcpClientManager()?.getMcpServers() || {};
+              const mcpServers = this.config.getMcpClientManager()?.getMcpServers() || {};
               const mcpServerConfig = mcpServers[serverName];
               if (!mcpServerConfig) {
                 return {
@@ -128,8 +118,7 @@ export class McpPromptLoader implements ICommandLoader {
                 return {
                   type: 'message',
                   messageType: 'error',
-                  content:
-                    'Received an empty or invalid prompt response from the server.',
+                  content: 'Received an empty or invalid prompt response from the server.',
                 };
               }
 
@@ -145,10 +134,7 @@ export class McpPromptLoader implements ICommandLoader {
               };
             }
           },
-          completion: async (
-            commandContext: CommandContext,
-            partialArg: string,
-          ) => {
+          completion: async (commandContext: CommandContext, partialArg: string) => {
             const invocation = commandContext.invocation;
             if (!prompt || !prompt.arguments || !invocation) {
               return [];
@@ -157,10 +143,7 @@ export class McpPromptLoader implements ICommandLoader {
             let promptInputs =
               indexOfFirstSpace === 0
                 ? {}
-                : this.parseArgs(
-                    invocation.raw.substring(indexOfFirstSpace),
-                    prompt.arguments,
-                  );
+                : this.parseArgs(invocation.raw.substring(indexOfFirstSpace), prompt.arguments);
             if (promptInputs instanceof Error) {
               promptInputs = {};
             }
@@ -203,9 +186,7 @@ export class McpPromptLoader implements ICommandLoader {
               return [`${partialArg}"`];
             }
 
-            const matchingArguments = unusedArguments.filter((flagArgument) =>
-              flagArgument.startsWith(partialArg),
-            );
+            const matchingArguments = unusedArguments.filter((flagArgument) => flagArgument.startsWith(partialArg));
 
             return matchingArguments;
           },
@@ -225,10 +206,7 @@ export class McpPromptLoader implements ICommandLoader {
    * @returns A record of the parsed arguments
    * @visibleForTesting
    */
-  parseArgs(
-    userArgs: string,
-    promptArgs: PromptArgument[] | undefined,
-  ): Record<string, unknown> | Error {
+  parseArgs(userArgs: string, promptArgs: PromptArgument[] | undefined): Record<string, unknown> | Error {
     const argValues: { [key: string]: string } = {};
     const promptInputs: Record<string, unknown> = {};
 
@@ -273,9 +251,7 @@ export class McpPromptLoader implements ICommandLoader {
       }
     }
 
-    const unfilledArgs = promptArgs.filter(
-      (arg) => arg.required && !promptInputs[arg.name],
-    );
+    const unfilledArgs = promptArgs.filter((arg) => arg.required && !promptInputs[arg.name]);
 
     if (unfilledArgs.length === 1) {
       // If we have only one unfilled arg, we don't require quotes we just
@@ -291,9 +267,7 @@ export class McpPromptLoader implements ICommandLoader {
         }
       }
       if (missingArgs.length > 0) {
-        const missingArgNames = missingArgs
-          .map((name) => `--${name}`)
-          .join(', ');
+        const missingArgNames = missingArgs.map((name) => `--${name}`).join(', ');
         return new Error(`Missing required argument(s): ${missingArgNames}`);
       }
     }

@@ -30,13 +30,7 @@ export function TextInput({
   onCancel,
   focus = true,
 }: TextInputProps): React.JSX.Element {
-  const {
-    text,
-    handleInput,
-    visualCursor,
-    viewportVisualLines,
-    visualScrollRow,
-  } = buffer;
+  const { text, handleInput, visualCursor, viewportVisualLines, visualScrollRow } = buffer;
   const [cursorVisualRowAbsolute, cursorVisualColAbsolute] = visualCursor;
 
   const handleKeyPress = useCallback(
@@ -54,7 +48,7 @@ export function TextInput({
       const handled = handleInput(key);
       return handled;
     },
-    [handleInput, onCancel, onSubmit, text],
+    [handleInput, onCancel, onSubmit, text]
   );
 
   useKeypress(handleKeyPress, { isActive: focus, priority: true });
@@ -77,21 +71,14 @@ export function TextInput({
   }
 
   return (
-    <Box flexDirection="column">
+    <Box flexDirection='column'>
       {viewportVisualLines.map((lineText, idx) => {
         const currentVisualRow = visualScrollRow + idx;
-        const isCursorLine =
-          focus && currentVisualRow === cursorVisualRowAbsolute;
+        const isCursorLine = focus && currentVisualRow === cursorVisualRowAbsolute;
 
         const lineDisplay = isCursorLine
           ? cpSlice(lineText, 0, cursorVisualColAbsolute) +
-            chalk.inverse(
-              cpSlice(
-                lineText,
-                cursorVisualColAbsolute,
-                cursorVisualColAbsolute + 1,
-              ) || ' ',
-            ) +
+            chalk.inverse(cpSlice(lineText, cursorVisualColAbsolute, cursorVisualColAbsolute + 1) || ' ') +
             cpSlice(lineText, cursorVisualColAbsolute + 1)
           : lineText;
 
@@ -99,10 +86,7 @@ export function TextInput({
           <Box key={idx} height={1}>
             <Text
               terminalCursorFocus={isCursorLine}
-              terminalCursorPosition={cpIndexToOffset(
-                lineText,
-                cursorVisualColAbsolute,
-              )}
+              terminalCursorPosition={cpIndexToOffset(lineText, cursorVisualColAbsolute)}
             >
               {lineDisplay}
             </Text>

@@ -17,16 +17,9 @@ import { FileDiscoveryService } from '../services/fileDiscoveryService.js';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 import { setGeminiMdFilename as mockSetGeminiMdFilename } from '../tools/memoryTool.js';
-import {
-  DEFAULT_TELEMETRY_TARGET,
-  DEFAULT_OTLP_ENDPOINT,
-} from '../telemetry/index.js';
+import { DEFAULT_TELEMETRY_TARGET, DEFAULT_OTLP_ENDPOINT } from '../telemetry/index.js';
 import type { ContentGeneratorConfig } from '../core/contentGenerator.js';
-import {
-  AuthType,
-  createContentGenerator,
-  createContentGeneratorConfig,
-} from '../core/contentGenerator.js';
+import { AuthType, createContentGenerator, createContentGeneratorConfig } from '../core/contentGenerator.js';
 import { GeminiClient } from '../core/client.js';
 import { GitService } from '../services/gitService.js';
 import { ShellTool } from '../tools/shell.js';
@@ -125,8 +118,7 @@ vi.mock('../telemetry/index.js', async (importOriginal) => {
 });
 
 vi.mock('../telemetry/loggers.js', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('../telemetry/loggers.js')>();
+  const actual = await importOriginal<typeof import('../telemetry/loggers.js')>();
   return {
     ...actual,
     logRipgrepFallback: vi.fn(),
@@ -288,11 +280,7 @@ describe('Server Config (config.ts)', () => {
 
       const storageSpy = vi.spyOn(Storage.prototype, 'initialize');
 
-      await Promise.all([
-        config.initialize(),
-        config.initialize(),
-        config.initialize(),
-      ]);
+      await Promise.all([config.initialize(), config.initialize(), config.initialize()]);
 
       expect(storageSpy).toHaveBeenCalledTimes(1);
     });
@@ -304,9 +292,7 @@ describe('Server Config (config.ts)', () => {
         // interactive defaults to false
       });
 
-      const { McpClientManager } = await import(
-        '../tools/mcp-client-manager.js'
-      );
+      const { McpClientManager } = await import('../tools/mcp-client-manager.js');
       let mcpStarted = false;
 
       vi.mocked(McpClientManager).mockImplementation(
@@ -317,7 +303,7 @@ describe('Server Config (config.ts)', () => {
               mcpStarted = true;
             }),
             getMcpInstructions: vi.fn(),
-          }) as Partial<McpClientManager> as McpClientManager,
+          }) as Partial<McpClientManager> as McpClientManager
       );
 
       await config.initialize();
@@ -333,9 +319,7 @@ describe('Server Config (config.ts)', () => {
         interactive: true,
       });
 
-      const { McpClientManager } = await import(
-        '../tools/mcp-client-manager.js'
-      );
+      const { McpClientManager } = await import('../tools/mcp-client-manager.js');
       let mcpStarted = false;
       let resolveMcp: (value: unknown) => void;
       const mcpPromise = new Promise((resolve) => {
@@ -350,7 +334,7 @@ describe('Server Config (config.ts)', () => {
               mcpStarted = true;
             }),
             getMcpInstructions: vi.fn(),
-          }) as Partial<McpClientManager> as McpClientManager,
+          }) as Partial<McpClientManager> as McpClientManager
       );
 
       await config.initialize();
@@ -453,16 +437,11 @@ describe('Server Config (config.ts)', () => {
         apiKey: 'test-key',
       };
 
-      vi.mocked(createContentGeneratorConfig).mockResolvedValue(
-        mockContentConfig,
-      );
+      vi.mocked(createContentGeneratorConfig).mockResolvedValue(mockContentConfig);
 
       await config.refreshAuth(authType);
 
-      expect(createContentGeneratorConfig).toHaveBeenCalledWith(
-        config,
-        authType,
-      );
+      expect(createContentGeneratorConfig).toHaveBeenCalledWith(config, authType);
       // Verify that contentGeneratorConfig is updated
       expect(config.getContentGeneratorConfig()).toEqual(mockContentConfig);
       expect(GeminiClient).toHaveBeenCalledWith(config);
@@ -477,7 +456,7 @@ describe('Server Config (config.ts)', () => {
         async (_: Config, authType: AuthType | undefined) =>
           ({
             authType,
-          }) as Partial<ContentGeneratorConfig> as ContentGeneratorConfig,
+          }) as Partial<ContentGeneratorConfig> as ContentGeneratorConfig
       );
 
       await config.refreshAuth(AuthType.USE_GEMINI);
@@ -492,16 +471,14 @@ describe('Server Config (config.ts)', () => {
         async (_: Config, authType: AuthType | undefined) =>
           ({
             authType,
-          }) as Partial<ContentGeneratorConfig> as ContentGeneratorConfig,
+          }) as Partial<ContentGeneratorConfig> as ContentGeneratorConfig
       );
 
       await config.refreshAuth(AuthType.USE_GEMINI);
 
       await config.refreshAuth(AuthType.LOGIN_WITH_GOOGLE);
 
-      expect(
-        config.getGeminiClient().stripThoughtsFromHistory,
-      ).toHaveBeenCalledWith();
+      expect(config.getGeminiClient().stripThoughtsFromHistory).toHaveBeenCalledWith();
     });
 
     it('should strip thoughts when switching from GenAI to Vertex AI', async () => {
@@ -511,16 +488,14 @@ describe('Server Config (config.ts)', () => {
         async (_: Config, authType: AuthType | undefined) =>
           ({
             authType,
-          }) as Partial<ContentGeneratorConfig> as ContentGeneratorConfig,
+          }) as Partial<ContentGeneratorConfig> as ContentGeneratorConfig
       );
 
       await config.refreshAuth(AuthType.USE_GEMINI);
 
       await config.refreshAuth(AuthType.USE_VERTEX_AI);
 
-      expect(
-        config.getGeminiClient().stripThoughtsFromHistory,
-      ).toHaveBeenCalledWith();
+      expect(config.getGeminiClient().stripThoughtsFromHistory).toHaveBeenCalledWith();
     });
 
     it('should not strip thoughts when switching from Vertex to GenAI', async () => {
@@ -530,16 +505,14 @@ describe('Server Config (config.ts)', () => {
         async (_: Config, authType: AuthType | undefined) =>
           ({
             authType,
-          }) as Partial<ContentGeneratorConfig> as ContentGeneratorConfig,
+          }) as Partial<ContentGeneratorConfig> as ContentGeneratorConfig
       );
 
       await config.refreshAuth(AuthType.USE_VERTEX_AI);
 
       await config.refreshAuth(AuthType.USE_GEMINI);
 
-      expect(
-        config.getGeminiClient().stripThoughtsFromHistory,
-      ).not.toHaveBeenCalledWith();
+      expect(config.getGeminiClient().stripThoughtsFromHistory).not.toHaveBeenCalledWith();
     });
   });
 
@@ -576,9 +549,7 @@ describe('Server Config (config.ts)', () => {
 
   it('should set default file filtering settings when not provided', () => {
     const config = new Config(baseParams);
-    expect(config.getFileFilteringRespectGitIgnore()).toBe(
-      DEFAULT_FILE_FILTERING_OPTIONS.respectGitIgnore,
-    );
+    expect(config.getFileFilteringRespectGitIgnore()).toBe(DEFAULT_FILE_FILTERING_OPTIONS.respectGitIgnore);
   });
 
   it('should set custom file filtering settings when provided', () => {
@@ -600,9 +571,7 @@ describe('Server Config (config.ts)', () => {
       },
     };
     const config = new Config(params);
-    expect(config.getCustomIgnoreFilePaths()).toStrictEqual([
-      '/path/to/ignore/file',
-    ]);
+    expect(config.getCustomIgnoreFilePaths()).toStrictEqual(['/path/to/ignore/file']);
   });
 
   it('should set customIgnoreFilePaths to empty array if not provided', () => {
@@ -705,14 +674,11 @@ describe('Server Config (config.ts)', () => {
     const config = new Config(configParams);
     config.getFileService();
 
-    expect(FileDiscoveryService).toHaveBeenCalledWith(
-      path.resolve(TARGET_DIR),
-      {
-        respectGitIgnore: false,
-        respectGeminiIgnore: false,
-        customIgnoreFilePaths: ['.myignore'],
-      },
-    );
+    expect(FileDiscoveryService).toHaveBeenCalledWith(path.resolve(TARGET_DIR), {
+      respectGitIgnore: false,
+      respectGeminiIgnore: false,
+      customIgnoreFilePaths: ['.myignore'],
+    });
   });
 
   describe('Usage Statistics', () => {
@@ -733,7 +699,7 @@ describe('Server Config (config.ts)', () => {
           usageStatisticsEnabled: enabled,
         });
         expect(config.getUsageStatisticsEnabled()).toBe(enabled);
-      },
+      }
     );
   });
 
@@ -974,13 +940,13 @@ describe('Server Config (config.ts)', () => {
 
       // Check that registerTool was called for ShellTool
       const wasShellToolRegistered = registerToolMock.mock.calls.some(
-        (call) => call[0] instanceof vi.mocked(ShellTool),
+        (call) => call[0] instanceof vi.mocked(ShellTool)
       );
       expect(wasShellToolRegistered).toBe(true);
 
       // Check that registerTool was NOT called for ReadFileTool
       const wasReadFileToolRegistered = registerToolMock.mock.calls.some(
-        (call) => call[0] instanceof vi.mocked(ReadFileTool),
+        (call) => call[0] instanceof vi.mocked(ReadFileTool)
       );
       expect(wasReadFileToolRegistered).toBe(false);
     });
@@ -1007,12 +973,8 @@ describe('Server Config (config.ts)', () => {
           AgentRegistry: Mock;
         }
       ).AgentRegistry;
-      AgentRegistryMock.prototype.getDefinition.mockReturnValue(
-        mockAgentDefinition,
-      );
-      AgentRegistryMock.prototype.getAllDefinitions.mockReturnValue([
-        mockAgentDefinition,
-      ]);
+      AgentRegistryMock.prototype.getDefinition.mockReturnValue(mockAgentDefinition);
+      AgentRegistryMock.prototype.getAllDefinitions.mockReturnValue([mockAgentDefinition]);
 
       const SubAgentToolMock = (
         (await vi.importMock('../agents/subagent-tool.js')) as {
@@ -1032,13 +994,11 @@ describe('Server Config (config.ts)', () => {
       expect(SubAgentToolMock).toHaveBeenCalledWith(
         expect.anything(), // AgentRegistry
         config,
-        expect.anything(), // MessageBus
+        expect.anything() // MessageBus
       );
 
       const calls = registerToolMock.mock.calls;
-      const registeredWrappers = calls.filter(
-        (call) => call[0] instanceof SubAgentToolMock,
-      );
+      const registeredWrappers = calls.filter((call) => call[0] instanceof SubAgentToolMock);
       expect(registeredWrappers).toHaveLength(1);
     });
 
@@ -1065,9 +1025,7 @@ describe('Server Config (config.ts)', () => {
           AgentRegistry: Mock;
         }
       ).AgentRegistry;
-      AgentRegistryMock.prototype.getAllDefinitions.mockReturnValue([
-        mockAgentDefinition,
-      ]);
+      AgentRegistryMock.prototype.getAllDefinitions.mockReturnValue([mockAgentDefinition]);
 
       const SubAgentToolMock = (
         (await vi.importMock('../agents/subagent-tool.js')) as {
@@ -1105,24 +1063,16 @@ describe('Server Config (config.ts)', () => {
 
     describe('with minified tool class names', () => {
       beforeEach(() => {
-        Object.defineProperty(
-          vi.mocked(ShellTool).prototype.constructor,
-          'name',
-          {
-            value: '_ShellTool',
-            configurable: true,
-          },
-        );
+        Object.defineProperty(vi.mocked(ShellTool).prototype.constructor, 'name', {
+          value: '_ShellTool',
+          configurable: true,
+        });
       });
 
       afterEach(() => {
-        Object.defineProperty(
-          vi.mocked(ShellTool).prototype.constructor,
-          'name',
-          {
-            value: 'ShellTool',
-          },
-        );
+        Object.defineProperty(vi.mocked(ShellTool).prototype.constructor, 'name', {
+          value: 'ShellTool',
+        });
       });
 
       it('should register a tool if coreTools contains the non-minified class name', async () => {
@@ -1140,7 +1090,7 @@ describe('Server Config (config.ts)', () => {
         ).ToolRegistry.prototype.registerTool;
 
         const wasShellToolRegistered = registerToolMock.mock.calls.some(
-          (call) => call[0] instanceof vi.mocked(ShellTool),
+          (call) => call[0] instanceof vi.mocked(ShellTool)
         );
         expect(wasShellToolRegistered).toBe(true);
       });
@@ -1160,7 +1110,7 @@ describe('Server Config (config.ts)', () => {
         ).ToolRegistry.prototype.registerTool;
 
         const wasShellToolRegistered = registerToolMock.mock.calls.some(
-          (call) => call[0] instanceof vi.mocked(ShellTool),
+          (call) => call[0] instanceof vi.mocked(ShellTool)
         );
         expect(wasShellToolRegistered).toBe(true);
       });
@@ -1175,9 +1125,7 @@ describe('Server Config (config.ts)', () => {
     it('should return the calculated threshold when it is smaller than the default', () => {
       const config = new Config(baseParams);
       vi.mocked(tokenLimit).mockReturnValue(32000);
-      vi.mocked(uiTelemetryService.getLastPromptTokenCount).mockReturnValue(
-        1000,
-      );
+      vi.mocked(uiTelemetryService.getLastPromptTokenCount).mockReturnValue(1000);
       // 4 * (32000 - 1000) = 4 * 31000 = 124000
       // default is 40_000, so min(124000, 40000) = 40000
       expect(config.getTruncateToolOutputThreshold()).toBe(40_000);
@@ -1186,9 +1134,7 @@ describe('Server Config (config.ts)', () => {
     it('should return the default threshold when the calculated value is larger', () => {
       const config = new Config(baseParams);
       vi.mocked(tokenLimit).mockReturnValue(2_000_000);
-      vi.mocked(uiTelemetryService.getLastPromptTokenCount).mockReturnValue(
-        500_000,
-      );
+      vi.mocked(uiTelemetryService.getLastPromptTokenCount).mockReturnValue(500_000);
       // 4 * (2_000_000 - 500_000) = 4 * 1_500_000 = 6_000_000
       // default is 40_000
       expect(config.getTruncateToolOutputThreshold()).toBe(40_000);
@@ -1201,17 +1147,13 @@ describe('Server Config (config.ts)', () => {
       };
       const config = new Config(customParams);
       vi.mocked(tokenLimit).mockReturnValue(8000);
-      vi.mocked(uiTelemetryService.getLastPromptTokenCount).mockReturnValue(
-        2000,
-      );
+      vi.mocked(uiTelemetryService.getLastPromptTokenCount).mockReturnValue(2000);
       // 4 * (8000 - 2000) = 4 * 6000 = 24000
       // custom threshold is 50000
       expect(config.getTruncateToolOutputThreshold()).toBe(24000);
 
       vi.mocked(tokenLimit).mockReturnValue(32000);
-      vi.mocked(uiTelemetryService.getLastPromptTokenCount).mockReturnValue(
-        1000,
-      );
+      vi.mocked(uiTelemetryService.getLastPromptTokenCount).mockReturnValue(1000);
       // 4 * (32000 - 1000) = 124000
       // custom threshold is 50000
       expect(config.getTruncateToolOutputThreshold()).toBe(50000);
@@ -1230,9 +1172,7 @@ describe('Server Config (config.ts)', () => {
       };
       new Config(paramsWithProxy);
 
-      expect(mockSetGlobalProxy).toHaveBeenCalledWith(
-        'http://proxy.example.com:8080',
-      );
+      expect(mockSetGlobalProxy).toHaveBeenCalledWith('http://proxy.example.com:8080');
     });
 
     it('should not call setGlobalProxy when proxy is not configured', () => {
@@ -1256,7 +1196,7 @@ describe('Server Config (config.ts)', () => {
       expect(mockCoreEvents.emitFeedback).toHaveBeenCalledWith(
         'error',
         'Invalid proxy configuration detected. Check debug drawer for more details (F12)',
-        proxyError,
+        proxyError
       );
     });
 
@@ -1289,7 +1229,7 @@ describe('setApprovalMode with folder trust', () => {
     const config = new Config(baseParams);
     vi.spyOn(config, 'isTrustedFolder').mockReturnValue(false);
     expect(() => config.setApprovalMode(ApprovalMode.YOLO)).toThrow(
-      'Cannot enable privileged approval modes in an untrusted folder.',
+      'Cannot enable privileged approval modes in an untrusted folder.'
     );
   });
 
@@ -1297,7 +1237,7 @@ describe('setApprovalMode with folder trust', () => {
     const config = new Config(baseParams);
     vi.spyOn(config, 'isTrustedFolder').mockReturnValue(false);
     expect(() => config.setApprovalMode(ApprovalMode.AUTO_EDIT)).toThrow(
-      'Cannot enable privileged approval modes in an untrusted folder.',
+      'Cannot enable privileged approval modes in an untrusted folder.'
     );
   });
 
@@ -1377,12 +1317,8 @@ describe('setApprovalMode with folder trust', () => {
       await config.initialize();
 
       const calls = vi.mocked(ToolRegistry.prototype.registerTool).mock.calls;
-      const wasRipGrepRegistered = calls.some(
-        (call) => call[0] instanceof vi.mocked(RipGrepTool),
-      );
-      const wasGrepRegistered = calls.some(
-        (call) => call[0] instanceof vi.mocked(GrepTool),
-      );
+      const wasRipGrepRegistered = calls.some((call) => call[0] instanceof vi.mocked(RipGrepTool));
+      const wasGrepRegistered = calls.some((call) => call[0] instanceof vi.mocked(GrepTool));
 
       expect(wasRipGrepRegistered).toBe(true);
       expect(wasGrepRegistered).toBe(false);
@@ -1395,19 +1331,12 @@ describe('setApprovalMode with folder trust', () => {
       await config.initialize();
 
       const calls = vi.mocked(ToolRegistry.prototype.registerTool).mock.calls;
-      const wasRipGrepRegistered = calls.some(
-        (call) => call[0] instanceof vi.mocked(RipGrepTool),
-      );
-      const wasGrepRegistered = calls.some(
-        (call) => call[0] instanceof vi.mocked(GrepTool),
-      );
+      const wasRipGrepRegistered = calls.some((call) => call[0] instanceof vi.mocked(RipGrepTool));
+      const wasGrepRegistered = calls.some((call) => call[0] instanceof vi.mocked(GrepTool));
 
       expect(wasRipGrepRegistered).toBe(false);
       expect(wasGrepRegistered).toBe(true);
-      expect(logRipgrepFallback).toHaveBeenCalledWith(
-        config,
-        expect.any(RipgrepFallbackEvent),
-      );
+      expect(logRipgrepFallback).toHaveBeenCalledWith(config, expect.any(RipgrepFallbackEvent));
       const event = vi.mocked(logRipgrepFallback).mock.calls[0][1];
       expect(event.error).toBeUndefined();
     });
@@ -1419,19 +1348,12 @@ describe('setApprovalMode with folder trust', () => {
       await config.initialize();
 
       const calls = vi.mocked(ToolRegistry.prototype.registerTool).mock.calls;
-      const wasRipGrepRegistered = calls.some(
-        (call) => call[0] instanceof vi.mocked(RipGrepTool),
-      );
-      const wasGrepRegistered = calls.some(
-        (call) => call[0] instanceof vi.mocked(GrepTool),
-      );
+      const wasRipGrepRegistered = calls.some((call) => call[0] instanceof vi.mocked(RipGrepTool));
+      const wasGrepRegistered = calls.some((call) => call[0] instanceof vi.mocked(GrepTool));
 
       expect(wasRipGrepRegistered).toBe(false);
       expect(wasGrepRegistered).toBe(true);
-      expect(logRipgrepFallback).toHaveBeenCalledWith(
-        config,
-        expect.any(RipgrepFallbackEvent),
-      );
+      expect(logRipgrepFallback).toHaveBeenCalledWith(config, expect.any(RipgrepFallbackEvent));
       const event = vi.mocked(logRipgrepFallback).mock.calls[0][1];
       expect(event.error).toBe(String(error));
     });
@@ -1441,12 +1363,8 @@ describe('setApprovalMode with folder trust', () => {
       await config.initialize();
 
       const calls = vi.mocked(ToolRegistry.prototype.registerTool).mock.calls;
-      const wasRipGrepRegistered = calls.some(
-        (call) => call[0] instanceof vi.mocked(RipGrepTool),
-      );
-      const wasGrepRegistered = calls.some(
-        (call) => call[0] instanceof vi.mocked(GrepTool),
-      );
+      const wasRipGrepRegistered = calls.some((call) => call[0] instanceof vi.mocked(RipGrepTool));
+      const wasGrepRegistered = calls.some((call) => call[0] instanceof vi.mocked(GrepTool));
 
       expect(wasRipGrepRegistered).toBe(false);
       expect(wasGrepRegistered).toBe(true);
@@ -1520,7 +1438,7 @@ describe('BaseLlmClient Lifecycle', () => {
   it('should throw an error if getBaseLlmClient is called before refreshAuth', () => {
     const config = new Config(baseParams);
     expect(() => config.getBaseLlmClient()).toThrow(
-      'BaseLlmClient not initialized. Ensure authentication has occurred and ContentGenerator is ready.',
+      'BaseLlmClient not initialized. Ensure authentication has occurred and ContentGenerator is ready.'
     );
   });
 
@@ -1529,19 +1447,14 @@ describe('BaseLlmClient Lifecycle', () => {
     const authType = AuthType.USE_GEMINI;
     const mockContentConfig = { model: 'gemini-flash', apiKey: 'test-key' };
 
-    vi.mocked(createContentGeneratorConfig).mockResolvedValue(
-      mockContentConfig,
-    );
+    vi.mocked(createContentGeneratorConfig).mockResolvedValue(mockContentConfig);
 
     await config.refreshAuth(authType);
 
     // Should not throw
     const llmService = config.getBaseLlmClient();
     expect(llmService).toBeDefined();
-    expect(BaseLlmClient).toHaveBeenCalledWith(
-      config.getContentGenerator(),
-      config,
-    );
+    expect(BaseLlmClient).toHaveBeenCalledWith(config.getContentGenerator(), config);
   });
 });
 
@@ -1705,39 +1618,17 @@ describe('Config getHooks', () => {
 
   it('should return hooks with all supported event types', () => {
     const allEventHooks: { [K in HookEventName]?: HookDefinition[] } = {
-      [HookEventName.BeforeAgent]: [
-        { hooks: [{ type: HookType.Command, command: 'test1' }] },
-      ],
-      [HookEventName.AfterAgent]: [
-        { hooks: [{ type: HookType.Command, command: 'test2' }] },
-      ],
-      [HookEventName.BeforeTool]: [
-        { hooks: [{ type: HookType.Command, command: 'test3' }] },
-      ],
-      [HookEventName.AfterTool]: [
-        { hooks: [{ type: HookType.Command, command: 'test4' }] },
-      ],
-      [HookEventName.BeforeModel]: [
-        { hooks: [{ type: HookType.Command, command: 'test5' }] },
-      ],
-      [HookEventName.AfterModel]: [
-        { hooks: [{ type: HookType.Command, command: 'test6' }] },
-      ],
-      [HookEventName.BeforeToolSelection]: [
-        { hooks: [{ type: HookType.Command, command: 'test7' }] },
-      ],
-      [HookEventName.Notification]: [
-        { hooks: [{ type: HookType.Command, command: 'test8' }] },
-      ],
-      [HookEventName.SessionStart]: [
-        { hooks: [{ type: HookType.Command, command: 'test9' }] },
-      ],
-      [HookEventName.SessionEnd]: [
-        { hooks: [{ type: HookType.Command, command: 'test10' }] },
-      ],
-      [HookEventName.PreCompress]: [
-        { hooks: [{ type: HookType.Command, command: 'test11' }] },
-      ],
+      [HookEventName.BeforeAgent]: [{ hooks: [{ type: HookType.Command, command: 'test1' }] }],
+      [HookEventName.AfterAgent]: [{ hooks: [{ type: HookType.Command, command: 'test2' }] }],
+      [HookEventName.BeforeTool]: [{ hooks: [{ type: HookType.Command, command: 'test3' }] }],
+      [HookEventName.AfterTool]: [{ hooks: [{ type: HookType.Command, command: 'test4' }] }],
+      [HookEventName.BeforeModel]: [{ hooks: [{ type: HookType.Command, command: 'test5' }] }],
+      [HookEventName.AfterModel]: [{ hooks: [{ type: HookType.Command, command: 'test6' }] }],
+      [HookEventName.BeforeToolSelection]: [{ hooks: [{ type: HookType.Command, command: 'test7' }] }],
+      [HookEventName.Notification]: [{ hooks: [{ type: HookType.Command, command: 'test8' }] }],
+      [HookEventName.SessionStart]: [{ hooks: [{ type: HookType.Command, command: 'test9' }] }],
+      [HookEventName.SessionEnd]: [{ hooks: [{ type: HookType.Command, command: 'test10' }] }],
+      [HookEventName.PreCompress]: [{ hooks: [{ type: HookType.Command, command: 'test11' }] }],
     };
 
     const config = new Config({
@@ -1891,9 +1782,7 @@ describe('Config setExperiments logging', () => {
 
   it('logs a sorted, non-truncated summary of experiments when they are set', () => {
     const config = new Config(baseParams);
-    const debugSpy = vi
-      .spyOn(debugLogger, 'debug')
-      .mockImplementation(() => {});
+    const debugSpy = vi.spyOn(debugLogger, 'debug').mockImplementation(() => {});
     const experiments = {
       flags: {
         ZetaFlag: {
@@ -1917,9 +1806,7 @@ describe('Config setExperiments logging', () => {
 
     config.setExperiments(experiments);
 
-    const logCall = debugSpy.mock.calls.find(
-      ([message]) => message === 'Experiments loaded',
-    );
+    const logCall = debugSpy.mock.calls.find(([message]) => message === 'Experiments loaded');
     expect(logCall).toBeDefined();
     const loggedSummary = logCall?.[1] as string;
     expect(typeof loggedSummary).toBe('string');
@@ -2042,7 +1929,7 @@ describe('Config Quota & Preview Model Access', () => {
       retrieveUserQuota: vi.fn(),
     };
     vi.mocked(getCodeAssistServer).mockReturnValue(
-      mockCodeAssistServer as Partial<CodeAssistServer> as CodeAssistServer,
+      mockCodeAssistServer as Partial<CodeAssistServer> as CodeAssistServer
     );
     config = new Config(baseParams);
   });
@@ -2152,7 +2039,7 @@ describe('Config Quota & Preview Model Access', () => {
               resetTime?: string;
             };
           }
-        ).getPooledQuota(),
+        ).getPooledQuota()
       ).toEqual({});
     });
 
@@ -2171,9 +2058,7 @@ describe('Config Quota & Preview Model Access', () => {
     });
 
     it('should return undefined if retrieveUserQuota fails', async () => {
-      mockCodeAssistServer.retrieveUserQuota.mockRejectedValue(
-        new Error('Network error'),
-      );
+      mockCodeAssistServer.retrieveUserQuota.mockRejectedValue(new Error('Network error'));
       const result = await config.refreshUserQuota();
       expect(result).toBeUndefined();
       // Should remain default (false)
@@ -2310,14 +2195,10 @@ describe('Config JIT Initialization', () => {
       refresh: vi.fn(),
       getGlobalMemory: vi.fn().mockReturnValue('Global Memory'),
       getExtensionMemory: vi.fn().mockReturnValue('Extension Memory'),
-      getEnvironmentMemory: vi
-        .fn()
-        .mockReturnValue('Environment Memory\n\nMCP Instructions'),
+      getEnvironmentMemory: vi.fn().mockReturnValue('Environment Memory\n\nMCP Instructions'),
       getLoadedPaths: vi.fn().mockReturnValue(new Set(['/path/to/GEMINI.md'])),
     } as unknown as ContextManager;
-    (ContextManager as unknown as Mock).mockImplementation(
-      () => mockContextManager,
-    );
+    (ContextManager as unknown as Mock).mockImplementation(() => mockContextManager);
   });
 
   it('should initialize ContextManager, load memory, and delegate to it when experimentalJitContext is enabled', async () => {
@@ -2392,18 +2273,14 @@ describe('Config JIT Initialization', () => {
       vi.spyOn(toolRegistry, 'unregisterTool');
 
       const mockSkills = [{ name: 'skill1' }];
-      vi.spyOn(skillManager, 'getSkills').mockReturnValue(
-        mockSkills as SkillDefinition[],
-      );
+      vi.spyOn(skillManager, 'getSkills').mockReturnValue(mockSkills as SkillDefinition[]);
 
       await config.reloadSkills();
 
       expect(mockOnReload).toHaveBeenCalled();
       expect(skillManager.setDisabledSkills).toHaveBeenCalledWith(['skill2']);
       expect(toolRegistry.registerTool).toHaveBeenCalled();
-      expect(toolRegistry.unregisterTool).toHaveBeenCalledWith(
-        ACTIVATE_SKILL_TOOL_NAME,
-      );
+      expect(toolRegistry.unregisterTool).toHaveBeenCalledWith(ACTIVATE_SKILL_TOOL_NAME);
     });
 
     it('should unregister ActivateSkillTool when no skills exist after reload', async () => {
@@ -2430,9 +2307,7 @@ describe('Config JIT Initialization', () => {
 
       await config.reloadSkills();
 
-      expect(toolRegistry.unregisterTool).toHaveBeenCalledWith(
-        ACTIVATE_SKILL_TOOL_NAME,
-      );
+      expect(toolRegistry.unregisterTool).toHaveBeenCalledWith(ACTIVATE_SKILL_TOOL_NAME);
     });
 
     it('should clear disabledSkills when onReload returns undefined for them', async () => {
@@ -2565,8 +2440,7 @@ describe('syncPlanModeTools', () => {
     const getToolSpy = vi.spyOn(registry, 'getTool');
 
     getToolSpy.mockImplementation((name) => {
-      if (name === 'enter_plan_mode')
-        return new EnterPlanModeTool(config, config.getMessageBus());
+      if (name === 'enter_plan_mode') return new EnterPlanModeTool(config, config.getMessageBus());
       return undefined;
     });
 
@@ -2593,8 +2467,7 @@ describe('syncPlanModeTools', () => {
     const getToolSpy = vi.spyOn(registry, 'getTool');
 
     getToolSpy.mockImplementation((name) => {
-      if (name === 'exit_plan_mode')
-        return new ExitPlanModeTool(config, config.getMessageBus());
+      if (name === 'exit_plan_mode') return new ExitPlanModeTool(config, config.getMessageBus());
       return undefined;
     });
 
@@ -2622,9 +2495,7 @@ describe('syncPlanModeTools', () => {
     config.syncPlanModeTools();
 
     const { EnterPlanModeTool } = await import('../tools/enter-plan-mode.js');
-    const registeredTool = registerSpy.mock.calls.find(
-      (call) => call[0] instanceof EnterPlanModeTool,
-    );
+    const registeredTool = registerSpy.mock.calls.find((call) => call[0] instanceof EnterPlanModeTool);
     expect(registeredTool).toBeUndefined();
   });
 
@@ -2634,9 +2505,7 @@ describe('syncPlanModeTools', () => {
     vi.spyOn(config, 'getToolRegistry').mockReturnValue(registry);
     const client = config.getGeminiClient();
     vi.spyOn(client, 'isInitialized').mockReturnValue(true);
-    const setToolsSpy = vi
-      .spyOn(client, 'setTools')
-      .mockResolvedValue(undefined);
+    const setToolsSpy = vi.spyOn(client, 'setTools').mockResolvedValue(undefined);
 
     config.syncPlanModeTools();
 

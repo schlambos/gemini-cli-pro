@@ -31,10 +31,7 @@ import type {
   McpToolContext,
 } from './types.js';
 import { defaultHookTranslator } from './hookTranslator.js';
-import type {
-  GenerateContentParameters,
-  GenerateContentResponse,
-} from '@google/genai';
+import type { GenerateContentParameters, GenerateContentResponse } from '@google/genai';
 import { logHookCall } from '../telemetry/loggers.js';
 import { HookCallEvent } from '../telemetry/types.js';
 import { debugLogger } from '../utils/debugLogger.js';
@@ -56,12 +53,7 @@ export class HookEventHandler {
    */
   private readonly reportedFailures = new WeakMap<object, Set<string>>();
 
-  constructor(
-    config: Config,
-    hookPlanner: HookPlanner,
-    hookRunner: HookRunner,
-    hookAggregator: HookAggregator,
-  ) {
+  constructor(config: Config, hookPlanner: HookPlanner, hookRunner: HookRunner, hookAggregator: HookAggregator) {
     this.config = config;
     this.hookPlanner = hookPlanner;
     this.hookRunner = hookRunner;
@@ -75,7 +67,7 @@ export class HookEventHandler {
   async fireBeforeToolEvent(
     toolName: string,
     toolInput: Record<string, unknown>,
-    mcpContext?: McpToolContext,
+    mcpContext?: McpToolContext
   ): Promise<AggregatedHookResult> {
     const input: BeforeToolInput = {
       ...this.createBaseInput(HookEventName.BeforeTool),
@@ -96,7 +88,7 @@ export class HookEventHandler {
     toolName: string,
     toolInput: Record<string, unknown>,
     toolResponse: Record<string, unknown>,
-    mcpContext?: McpToolContext,
+    mcpContext?: McpToolContext
   ): Promise<AggregatedHookResult> {
     const input: AfterToolInput = {
       ...this.createBaseInput(HookEventName.AfterTool),
@@ -129,7 +121,7 @@ export class HookEventHandler {
   async fireNotificationEvent(
     type: NotificationType,
     message: string,
-    details: Record<string, unknown>,
+    details: Record<string, unknown>
   ): Promise<AggregatedHookResult> {
     const input: NotificationInput = {
       ...this.createBaseInput(HookEventName.Notification),
@@ -148,7 +140,7 @@ export class HookEventHandler {
   async fireAfterAgentEvent(
     prompt: string,
     promptResponse: string,
-    stopHookActive: boolean = false,
+    stopHookActive: boolean = false
   ): Promise<AggregatedHookResult> {
     const input: AfterAgentInput = {
       ...this.createBaseInput(HookEventName.AfterAgent),
@@ -163,9 +155,7 @@ export class HookEventHandler {
   /**
    * Fire a SessionStart event
    */
-  async fireSessionStartEvent(
-    source: SessionStartSource,
-  ): Promise<AggregatedHookResult> {
+  async fireSessionStartEvent(source: SessionStartSource): Promise<AggregatedHookResult> {
     const input: SessionStartInput = {
       ...this.createBaseInput(HookEventName.SessionStart),
       source,
@@ -178,9 +168,7 @@ export class HookEventHandler {
   /**
    * Fire a SessionEnd event
    */
-  async fireSessionEndEvent(
-    reason: SessionEndReason,
-  ): Promise<AggregatedHookResult> {
+  async fireSessionEndEvent(reason: SessionEndReason): Promise<AggregatedHookResult> {
     const input: SessionEndInput = {
       ...this.createBaseInput(HookEventName.SessionEnd),
       reason,
@@ -193,9 +181,7 @@ export class HookEventHandler {
   /**
    * Fire a PreCompress event
    */
-  async firePreCompressEvent(
-    trigger: PreCompressTrigger,
-  ): Promise<AggregatedHookResult> {
+  async firePreCompressEvent(trigger: PreCompressTrigger): Promise<AggregatedHookResult> {
     const input: PreCompressInput = {
       ...this.createBaseInput(HookEventName.PreCompress),
       trigger,
@@ -209,20 +195,13 @@ export class HookEventHandler {
    * Fire a BeforeModel event
    * Called by handleHookExecutionRequest - executes hooks directly
    */
-  async fireBeforeModelEvent(
-    llmRequest: GenerateContentParameters,
-  ): Promise<AggregatedHookResult> {
+  async fireBeforeModelEvent(llmRequest: GenerateContentParameters): Promise<AggregatedHookResult> {
     const input: BeforeModelInput = {
       ...this.createBaseInput(HookEventName.BeforeModel),
       llm_request: defaultHookTranslator.toHookLLMRequest(llmRequest),
     };
 
-    return this.executeHooks(
-      HookEventName.BeforeModel,
-      input,
-      undefined,
-      llmRequest,
-    );
+    return this.executeHooks(HookEventName.BeforeModel, input, undefined, llmRequest);
   }
 
   /**
@@ -231,7 +210,7 @@ export class HookEventHandler {
    */
   async fireAfterModelEvent(
     llmRequest: GenerateContentParameters,
-    llmResponse: GenerateContentResponse,
+    llmResponse: GenerateContentResponse
   ): Promise<AggregatedHookResult> {
     const input: AfterModelInput = {
       ...this.createBaseInput(HookEventName.AfterModel),
@@ -239,32 +218,20 @@ export class HookEventHandler {
       llm_response: defaultHookTranslator.toHookLLMResponse(llmResponse),
     };
 
-    return this.executeHooks(
-      HookEventName.AfterModel,
-      input,
-      undefined,
-      llmRequest,
-    );
+    return this.executeHooks(HookEventName.AfterModel, input, undefined, llmRequest);
   }
 
   /**
    * Fire a BeforeToolSelection event
    * Called by handleHookExecutionRequest - executes hooks directly
    */
-  async fireBeforeToolSelectionEvent(
-    llmRequest: GenerateContentParameters,
-  ): Promise<AggregatedHookResult> {
+  async fireBeforeToolSelectionEvent(llmRequest: GenerateContentParameters): Promise<AggregatedHookResult> {
     const input: BeforeToolSelectionInput = {
       ...this.createBaseInput(HookEventName.BeforeToolSelection),
       llm_request: defaultHookTranslator.toHookLLMRequest(llmRequest),
     };
 
-    return this.executeHooks(
-      HookEventName.BeforeToolSelection,
-      input,
-      undefined,
-      llmRequest,
-    );
+    return this.executeHooks(HookEventName.BeforeToolSelection, input, undefined, llmRequest);
   }
 
   /**
@@ -275,7 +242,7 @@ export class HookEventHandler {
     eventName: HookEventName,
     input: HookInput,
     context?: HookEventContext,
-    requestContext?: object,
+    requestContext?: object
   ): Promise<AggregatedHookResult> {
     try {
       // Create execution plan
@@ -309,38 +276,17 @@ export class HookEventHandler {
 
       // Execute hooks according to the plan's strategy
       const results = plan.sequential
-        ? await this.hookRunner.executeHooksSequential(
-            plan.hookConfigs,
-            eventName,
-            input,
-            onHookStart,
-            onHookEnd,
-          )
-        : await this.hookRunner.executeHooksParallel(
-            plan.hookConfigs,
-            eventName,
-            input,
-            onHookStart,
-            onHookEnd,
-          );
+        ? await this.hookRunner.executeHooksSequential(plan.hookConfigs, eventName, input, onHookStart, onHookEnd)
+        : await this.hookRunner.executeHooksParallel(plan.hookConfigs, eventName, input, onHookStart, onHookEnd);
 
       // Aggregate results
-      const aggregated = this.hookAggregator.aggregateResults(
-        results,
-        eventName,
-      );
+      const aggregated = this.hookAggregator.aggregateResults(results, eventName);
 
       // Process common hook output fields centrally
       this.processCommonHookOutputFields(aggregated);
 
       // Log hook execution
-      this.logHookExecution(
-        eventName,
-        input,
-        results,
-        aggregated,
-        requestContext,
-      );
+      this.logHookExecution(eventName, input, results, aggregated, requestContext);
 
       return aggregated;
     } catch (error) {
@@ -360,11 +306,7 @@ export class HookEventHandler {
    */
   private createBaseInput(eventName: HookEventName): HookInput {
     // Get the transcript path from the ChatRecordingService if available
-    const transcriptPath =
-      this.config
-        .getGeminiClient()
-        ?.getChatRecordingService()
-        ?.getConversationFilePath() ?? '';
+    const transcriptPath = this.config.getGeminiClient()?.getChatRecordingService()?.getConversationFilePath() ?? '';
 
     return {
       session_id: this.config.getSessionId(),
@@ -383,16 +325,14 @@ export class HookEventHandler {
     input: HookInput,
     results: HookExecutionResult[],
     aggregated: AggregatedHookResult,
-    requestContext?: object,
+    requestContext?: object
   ): void {
     const failedHooks = results.filter((r) => !r.success);
     const successCount = results.length - failedHooks.length;
     const errorCount = failedHooks.length;
 
     if (errorCount > 0) {
-      const failedNames = failedHooks
-        .map((r) => this.getHookNameFromResult(r))
-        .join(', ');
+      const failedNames = failedHooks.map((r) => this.getHookNameFromResult(r)).join(', ');
 
       let shouldEmit = true;
       if (requestContext) {
@@ -412,19 +352,19 @@ export class HookEventHandler {
 
       debugLogger.warn(
         `Hook execution for ${eventName}: ${successCount} succeeded, ${errorCount} failed (${failedNames}), ` +
-          `total duration: ${aggregated.totalDuration}ms`,
+          `total duration: ${aggregated.totalDuration}ms`
       );
 
       if (shouldEmit) {
         coreEvents.emitFeedback(
           'warning',
-          `Hook(s) [${failedNames}] failed for event ${eventName}. Press F12 to see the debug drawer for more details.\n`,
+          `Hook(s) [${failedNames}] failed for event ${eventName}. Press F12 to see the debug drawer for more details.\n`
         );
       }
     } else {
       debugLogger.debug(
         `Hook execution for ${eventName}: ${successCount} hooks executed successfully, ` +
-          `total duration: ${aggregated.totalDuration}ms`,
+          `total duration: ${aggregated.totalDuration}ms`
       );
     }
 
@@ -445,7 +385,7 @@ export class HookEventHandler {
         result.exitCode,
         result.stdout,
         result.stderr,
-        result.error?.message,
+        result.error?.message
       );
 
       logHookCall(this.config, hookCallEvent);
@@ -460,9 +400,7 @@ export class HookEventHandler {
   /**
    * Process common hook output fields centrally
    */
-  private processCommonHookOutputFields(
-    aggregated: AggregatedHookResult,
-  ): void {
+  private processCommonHookOutputFields(aggregated: AggregatedHookResult): void {
     if (!aggregated.finalOutput) {
       return;
     }

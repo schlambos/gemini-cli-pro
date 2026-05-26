@@ -4,12 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  BaseDeclarativeTool,
-  Kind,
-  type ToolInvocation,
-  type ToolResult,
-} from '../tools/tools.js';
+import { BaseDeclarativeTool, Kind, type ToolInvocation, type ToolResult } from '../tools/tools.js';
 import type { Config } from '../config/config.js';
 import type { AgentDefinition, AgentInputs } from './types.js';
 import { LocalSubagentInvocation } from './local-invocation.js';
@@ -20,10 +15,7 @@ import type { MessageBus } from '../confirmation-bus/message-bus.js';
  * A tool wrapper that dynamically exposes a subagent as a standard,
  * strongly-typed `DeclarativeTool`.
  */
-export class SubagentToolWrapper extends BaseDeclarativeTool<
-  AgentInputs,
-  ToolResult
-> {
+export class SubagentToolWrapper extends BaseDeclarativeTool<AgentInputs, ToolResult> {
   /**
    * Constructs the tool wrapper.
    *
@@ -37,7 +29,7 @@ export class SubagentToolWrapper extends BaseDeclarativeTool<
   constructor(
     private readonly definition: AgentDefinition,
     private readonly config: Config,
-    messageBus: MessageBus,
+    messageBus: MessageBus
   ) {
     super(
       definition.name,
@@ -47,7 +39,7 @@ export class SubagentToolWrapper extends BaseDeclarativeTool<
       definition.inputConfig.inputSchema,
       messageBus,
       /* isOutputMarkdown */ true,
-      /* canUpdateOutput */ true,
+      /* canUpdateOutput */ true
     );
   }
 
@@ -64,19 +56,13 @@ export class SubagentToolWrapper extends BaseDeclarativeTool<
     params: AgentInputs,
     messageBus: MessageBus,
     _toolName?: string,
-    _toolDisplayName?: string,
+    _toolDisplayName?: string
   ): ToolInvocation<AgentInputs, ToolResult> {
     const definition = this.definition;
     const effectiveMessageBus = messageBus;
 
     if (definition.kind === 'remote') {
-      return new RemoteAgentInvocation(
-        definition,
-        params,
-        effectiveMessageBus,
-        _toolName,
-        _toolDisplayName,
-      );
+      return new RemoteAgentInvocation(definition, params, effectiveMessageBus, _toolName, _toolDisplayName);
     }
 
     return new LocalSubagentInvocation(
@@ -85,7 +71,7 @@ export class SubagentToolWrapper extends BaseDeclarativeTool<
       params,
       effectiveMessageBus,
       _toolName,
-      _toolDisplayName,
+      _toolDisplayName
     );
   }
 }

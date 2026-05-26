@@ -6,19 +6,13 @@
 
 import { describe, it, expect, vi } from 'vitest';
 import { ToolConfirmationMessage } from './ToolConfirmationMessage.js';
-import type {
-  SerializableConfirmationDetails,
-  Config,
-} from '@google/gemini-cli-core';
+import type { SerializableConfirmationDetails, Config } from '@google/gemini-cli-core';
 import { renderWithProviders } from '../../../test-utils/render.js';
 import { createMockSettings } from '../../../test-utils/settings.js';
 import { useToolActions } from '../../contexts/ToolActionsContext.js';
 
 vi.mock('../../contexts/ToolActionsContext.js', async (importOriginal) => {
-  const actual =
-    await importOriginal<
-      typeof import('../../contexts/ToolActionsContext.js')
-    >();
+  const actual = await importOriginal<typeof import('../../contexts/ToolActionsContext.js')>();
   return {
     ...actual,
     useToolActions: vi.fn(),
@@ -48,12 +42,12 @@ describe('ToolConfirmationMessage', () => {
 
     const { lastFrame } = renderWithProviders(
       <ToolConfirmationMessage
-        callId="test-call-id"
+        callId='test-call-id'
         confirmationDetails={confirmationDetails}
         config={mockConfig}
         availableTerminalHeight={30}
         terminalWidth={80}
-      />,
+      />
     );
 
     expect(lastFrame()).toMatchSnapshot();
@@ -63,21 +57,18 @@ describe('ToolConfirmationMessage', () => {
     const confirmationDetails: SerializableConfirmationDetails = {
       type: 'info',
       title: 'Confirm Web Fetch',
-      prompt:
-        'fetch https://github.com/google/gemini-react/blob/main/README.md',
-      urls: [
-        'https://raw.githubusercontent.com/google/gemini-react/main/README.md',
-      ],
+      prompt: 'fetch https://github.com/google/gemini-react/blob/main/README.md',
+      urls: ['https://raw.githubusercontent.com/google/gemini-react/main/README.md'],
     };
 
     const { lastFrame } = renderWithProviders(
       <ToolConfirmationMessage
-        callId="test-call-id"
+        callId='test-call-id'
         confirmationDetails={confirmationDetails}
         config={mockConfig}
         availableTerminalHeight={30}
         terminalWidth={80}
-      />,
+      />
     );
 
     expect(lastFrame()).toMatchSnapshot();
@@ -95,12 +86,12 @@ describe('ToolConfirmationMessage', () => {
 
     const { lastFrame } = renderWithProviders(
       <ToolConfirmationMessage
-        callId="test-call-id"
+        callId='test-call-id'
         confirmationDetails={confirmationDetails}
         config={mockConfig}
         availableTerminalHeight={30}
         terminalWidth={80}
-      />,
+      />
     );
 
     const output = lastFrame();
@@ -174,12 +165,12 @@ describe('ToolConfirmationMessage', () => {
 
         const { lastFrame } = renderWithProviders(
           <ToolConfirmationMessage
-            callId="test-call-id"
+            callId='test-call-id'
             confirmationDetails={details}
             config={mockConfig}
             availableTerminalHeight={30}
             terminalWidth={80}
-          />,
+          />
         );
 
         expect(lastFrame()).toMatchSnapshot();
@@ -193,12 +184,12 @@ describe('ToolConfirmationMessage', () => {
 
         const { lastFrame } = renderWithProviders(
           <ToolConfirmationMessage
-            callId="test-call-id"
+            callId='test-call-id'
             confirmationDetails={details}
             config={mockConfig}
             availableTerminalHeight={30}
             terminalWidth={80}
-          />,
+          />
         );
 
         expect(lastFrame()).toMatchSnapshot();
@@ -225,7 +216,7 @@ describe('ToolConfirmationMessage', () => {
 
       const { lastFrame } = renderWithProviders(
         <ToolConfirmationMessage
-          callId="test-call-id"
+          callId='test-call-id'
           confirmationDetails={editConfirmationDetails}
           config={mockConfig}
           availableTerminalHeight={30}
@@ -235,7 +226,7 @@ describe('ToolConfirmationMessage', () => {
           settings: createMockSettings({
             security: { enablePermanentToolApproval: false },
           }),
-        },
+        }
       );
 
       expect(lastFrame()).not.toContain('Allow for all future sessions');
@@ -249,7 +240,7 @@ describe('ToolConfirmationMessage', () => {
 
       const { lastFrame } = renderWithProviders(
         <ToolConfirmationMessage
-          callId="test-call-id"
+          callId='test-call-id'
           confirmationDetails={editConfirmationDetails}
           config={mockConfig}
           availableTerminalHeight={30}
@@ -259,7 +250,7 @@ describe('ToolConfirmationMessage', () => {
           settings: createMockSettings({
             security: { enablePermanentToolApproval: true },
           }),
-        },
+        }
       );
 
       expect(lastFrame()).toContain('Allow for all future sessions');
@@ -291,12 +282,12 @@ describe('ToolConfirmationMessage', () => {
 
       const { lastFrame } = renderWithProviders(
         <ToolConfirmationMessage
-          callId="test-call-id"
+          callId='test-call-id'
           confirmationDetails={editConfirmationDetails}
           config={mockConfig}
           availableTerminalHeight={30}
           terminalWidth={80}
-        />,
+        />
       );
 
       expect(lastFrame()).toContain('Modify with external editor');
@@ -316,12 +307,12 @@ describe('ToolConfirmationMessage', () => {
 
       const { lastFrame } = renderWithProviders(
         <ToolConfirmationMessage
-          callId="test-call-id"
+          callId='test-call-id'
           confirmationDetails={editConfirmationDetails}
           config={mockConfig}
           availableTerminalHeight={30}
           terminalWidth={80}
-        />,
+        />
       );
 
       expect(lastFrame()).toContain('Modify with external editor');
@@ -341,12 +332,12 @@ describe('ToolConfirmationMessage', () => {
 
       const { lastFrame } = renderWithProviders(
         <ToolConfirmationMessage
-          callId="test-call-id"
+          callId='test-call-id'
           confirmationDetails={editConfirmationDetails}
           config={mockConfig}
           availableTerminalHeight={30}
           terminalWidth={80}
-        />,
+        />
       );
 
       expect(lastFrame()).not.toContain('Modify with external editor');

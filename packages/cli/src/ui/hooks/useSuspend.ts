@@ -15,10 +15,7 @@ import {
   disableLineWrapping,
 } from '@google/gemini-cli-core';
 import process from 'node:process';
-import {
-  cleanupTerminalOnExit,
-  terminalCapabilityManager,
-} from '../utils/terminalCapabilityManager.js';
+import { cleanupTerminalOnExit, terminalCapabilityManager } from '../utils/terminalCapabilityManager.js';
 import { WARNING_PROMPT_DURATION_MS } from '../constants.js';
 
 interface UseSuspendProps {
@@ -51,7 +48,7 @@ export function useSuspend({
         onResumeHandlerRef.current = null;
       }
     },
-    [],
+    []
   );
 
   useEffect(() => {
@@ -130,22 +127,13 @@ export function useSuspend({
 
       process.kill(0, 'SIGTSTP');
     } else if (ctrlZPressCount > 0) {
-      handleWarning(
-        'Press Ctrl+Z again to suspend. Undo has moved to Cmd + Z or Alt/Opt + Z.',
-      );
+      handleWarning('Press Ctrl+Z again to suspend. Undo has moved to Cmd + Z or Alt/Opt + Z.');
       ctrlZTimerRef.current = setTimeout(() => {
         setCtrlZPressCount(0);
         ctrlZTimerRef.current = null;
       }, WARNING_PROMPT_DURATION_MS);
     }
-  }, [
-    ctrlZPressCount,
-    handleWarning,
-    setRawMode,
-    refreshStatic,
-    setForceRerenderKey,
-    shouldUseAlternateScreen,
-  ]);
+  }, [ctrlZPressCount, handleWarning, setRawMode, refreshStatic, setForceRerenderKey, shouldUseAlternateScreen]);
 
   const handleSuspend = useCallback(() => {
     setCtrlZPressCount((prev) => prev + 1);

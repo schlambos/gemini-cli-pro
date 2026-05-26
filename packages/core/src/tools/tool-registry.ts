@@ -5,11 +5,7 @@
  */
 
 import type { FunctionDeclaration } from '@google/genai';
-import type {
-  AnyDeclarativeTool,
-  ToolResult,
-  ToolInvocation,
-} from './tools.js';
+import type { AnyDeclarativeTool, ToolResult, ToolInvocation } from './tools.js';
 import { Kind, BaseDeclarativeTool, BaseToolInvocation } from './tools.js';
 import type { Config } from '../config/config.js';
 import { spawn } from 'node:child_process';
@@ -21,24 +17,17 @@ import { safeJsonStringify } from '../utils/safeJsonStringify.js';
 import type { MessageBus } from '../confirmation-bus/message-bus.js';
 import { debugLogger } from '../utils/debugLogger.js';
 import { coreEvents } from '../utils/events.js';
-import {
-  DISCOVERED_TOOL_PREFIX,
-  TOOL_LEGACY_ALIASES,
-  getToolAliases,
-} from './tool-names.js';
+import { DISCOVERED_TOOL_PREFIX, TOOL_LEGACY_ALIASES, getToolAliases } from './tool-names.js';
 
 type ToolParams = Record<string, unknown>;
 
-class DiscoveredToolInvocation extends BaseToolInvocation<
-  ToolParams,
-  ToolResult
-> {
+class DiscoveredToolInvocation extends BaseToolInvocation<ToolParams, ToolResult> {
   constructor(
     private readonly config: Config,
     private readonly originalToolName: string,
     prefixedToolName: string,
     params: ToolParams,
-    messageBus: MessageBus,
+    messageBus: MessageBus
   ) {
     super(params, messageBus, prefixedToolName);
   }
@@ -47,10 +36,7 @@ class DiscoveredToolInvocation extends BaseToolInvocation<
     return safeJsonStringify(this.params);
   }
 
-  async execute(
-    _signal: AbortSignal,
-    _updateOutput?: (output: string) => void,
-  ): Promise<ToolResult> {
+  async execute(_signal: AbortSignal, _updateOutput?: (output: string) => void): Promise<ToolResult> {
     const callCommand = this.config.getToolCallCommand()!;
     const child = spawn(callCommand, [this.originalToolName]);
     child.stdin.write(JSON.stringify(this.params));
@@ -75,10 +61,7 @@ class DiscoveredToolInvocation extends BaseToolInvocation<
         error = err;
       };
 
-      const onClose = (
-        _code: number | null,
-        _signal: NodeJS.Signals | null,
-      ) => {
+      const onClose = (_code: number | null, _signal: NodeJS.Signals | null) => {
         code = _code;
         signal = _signal;
         cleanup();
@@ -127,10 +110,7 @@ class DiscoveredToolInvocation extends BaseToolInvocation<
   }
 }
 
-export class DiscoveredTool extends BaseDeclarativeTool<
-  ToolParams,
-  ToolResult
-> {
+export class DiscoveredTool extends BaseDeclarativeTool<ToolParams, ToolResult> {
   private readonly originalName: string;
 
   constructor(
@@ -139,7 +119,7 @@ export class DiscoveredTool extends BaseDeclarativeTool<
     prefixedName: string,
     description: string,
     override readonly parameterSchema: Record<string, unknown>,
-    messageBus: MessageBus,
+    messageBus: MessageBus
   ) {
     const discoveryCmd = config.getToolDiscoveryCommand()!;
     const callCommand = config.getToolCallCommand()!;
@@ -169,7 +149,7 @@ Signal: Signal number or \`(none)\` if no signal was received.
       parameterSchema,
       messageBus,
       false, // isOutputMarkdown
-      false, // canUpdateOutput
+      false // canUpdateOutput
     );
     this.originalName = originalName;
   }
@@ -178,15 +158,9 @@ Signal: Signal number or \`(none)\` if no signal was received.
     params: ToolParams,
     messageBus: MessageBus,
     _toolName?: string,
-    _displayName?: string,
+    _displayName?: string
   ): ToolInvocation<ToolParams, ToolResult> {
-    return new DiscoveredToolInvocation(
-      this.config,
-      this.originalName,
-      _toolName ?? this.name,
-      params,
-      messageBus,
-    );
+    return new DiscoveredToolInvocation(this.config, this.originalName, _toolName ?? this.name, params, messageBus);
   }
 }
 
@@ -221,9 +195,7 @@ export class ToolRegistry {
         tool = tool.asFullyQualifiedTool();
       } else {
         // Decide on behavior: throw error, log warning, or allow overwrite
-        debugLogger.warn(
-          `Tool with name "${tool.name}" is already registered. Overwriting.`,
-        );
+        debugLogger.warn(`Tool with name "${tool.name}" is already registered. Overwriting.`);
       }
     }
     this.allKnownTools.set(tool.name, tool);
@@ -273,7 +245,7 @@ export class ToolRegistry {
         }
 
         return 0;
-      }),
+      })
     );
   }
 
@@ -317,9 +289,7 @@ export class ToolRegistry {
     try {
       const cmdParts = parse(discoveryCmd);
       if (cmdParts.length === 0) {
-        throw new Error(
-          'Tool discovery command is empty or contains only whitespace.',
-        );
+        throw new Error('Tool discovery command is empty or contains only whitespace.');
       }
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
       const proc = spawn(cmdParts[0] as string, cmdParts.slice(1) as string[]);
@@ -363,22 +333,12 @@ export class ToolRegistry {
           stderr += stderrDecoder.end();
 
           if (sizeLimitExceeded) {
-            return reject(
-              new Error(
-                `Tool discovery command output exceeded size limit of ${MAX_STDOUT_SIZE} bytes.`,
-              ),
-            );
+            return reject(new Error(`Tool discovery command output exceeded size limit of ${MAX_STDOUT_SIZE} bytes.`));
           }
 
           if (code !== 0) {
-            coreEvents.emitFeedback(
-              'error',
-              `Tool discovery command failed with code ${code}.`,
-              stderr,
-            );
-            return reject(
-              new Error(`Tool discovery command failed with exit code ${code}`),
-            );
+            coreEvents.emitFeedback('error', `Tool discovery command failed with code ${code}.`, stderr);
+            return reject(new Error(`Tool discovery command failed with exit code ${code}`));
           }
           resolve();
         });
@@ -389,9 +349,7 @@ export class ToolRegistry {
       const discoveredItems = JSON.parse(stdout.trim());
 
       if (!discoveredItems || !Array.isArray(discoveredItems)) {
-        throw new Error(
-          'Tool discovery command did not return a JSON array of tools.',
-        );
+        throw new Error('Tool discovery command did not return a JSON array of tools.');
       }
 
       for (const tool of discoveredItems) {
@@ -426,8 +384,8 @@ export class ToolRegistry {
             func.description ?? '',
             // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
             parameters as Record<string, unknown>,
-            this.messageBus,
-          ),
+            this.messageBus
+          )
         );
       }
     } catch (e) {
@@ -440,9 +398,7 @@ export class ToolRegistry {
    * @returns All the tools that are not excluded.
    */
   private getActiveTools(): AnyDeclarativeTool[] {
-    const excludedTools =
-      this.expandExcludeToolsWithAliases(this.config.getExcludeTools()) ??
-      new Set([]);
+    const excludedTools = this.expandExcludeToolsWithAliases(this.config.getExcludeTools()) ?? new Set([]);
     const activeTools: AnyDeclarativeTool[] = [];
     for (const tool of this.allKnownTools.values()) {
       if (this.isActiveTool(tool, excludedTools)) {
@@ -457,9 +413,7 @@ export class ToolRegistry {
    * For example, if 'search_file_content' is excluded and it's an alias for
    * 'grep_search', both names will be in the returned set.
    */
-  private expandExcludeToolsWithAliases(
-    excludeTools: Set<string> | undefined,
-  ): Set<string> | undefined {
+  private expandExcludeToolsWithAliases(excludeTools: Set<string> | undefined): Set<string> | undefined {
     if (!excludeTools || excludeTools.size === 0) {
       return excludeTools;
     }
@@ -477,21 +431,14 @@ export class ToolRegistry {
    * @param excludeTools (optional, helps performance for repeated calls)
    * @returns Whether or not the `tool` is not excluded.
    */
-  private isActiveTool(
-    tool: AnyDeclarativeTool,
-    excludeTools?: Set<string>,
-  ): boolean {
-    excludeTools ??=
-      this.expandExcludeToolsWithAliases(this.config.getExcludeTools()) ??
-      new Set([]);
+  private isActiveTool(tool: AnyDeclarativeTool, excludeTools?: Set<string>): boolean {
+    excludeTools ??= this.expandExcludeToolsWithAliases(this.config.getExcludeTools()) ?? new Set([]);
     const normalizedClassName = tool.constructor.name.replace(/^_+/, '');
     const possibleNames = [tool.name, normalizedClassName];
     if (tool instanceof DiscoveredMCPTool) {
       // Check both the unqualified and qualified name for MCP tools.
       if (tool.name.startsWith(tool.getFullyQualifiedPrefix())) {
-        possibleNames.push(
-          tool.name.substring(tool.getFullyQualifiedPrefix().length),
-        );
+        possibleNames.push(tool.name.substring(tool.getFullyQualifiedPrefix().length));
       } else {
         possibleNames.push(`${tool.getFullyQualifiedPrefix()}${tool.name}`);
       }
@@ -520,10 +467,7 @@ export class ToolRegistry {
    * @param modelId Optional model identifier to get model-specific schemas.
    * @returns An array of FunctionDeclarations for the specified tools.
    */
-  getFunctionDeclarationsFiltered(
-    toolNames: string[],
-    modelId?: string,
-  ): FunctionDeclaration[] {
+  getFunctionDeclarationsFiltered(toolNames: string[], modelId?: string): FunctionDeclaration[] {
     const declarations: FunctionDeclaration[] = [];
     for (const name of toolNames) {
       const tool = this.getTool(name);
@@ -546,9 +490,7 @@ export class ToolRegistry {
    * Returns an array of all registered and discovered tool instances.
    */
   getAllTools(): AnyDeclarativeTool[] {
-    return this.getActiveTools().sort((a, b) =>
-      a.displayName.localeCompare(b.displayName),
-    );
+    return this.getActiveTools().sort((a, b) => a.displayName.localeCompare(b.displayName));
   }
 
   /**
@@ -576,9 +518,7 @@ export class ToolRegistry {
       const currentName = TOOL_LEGACY_ALIASES[name];
       tool = this.allKnownTools.get(currentName);
       if (tool) {
-        debugLogger.debug(
-          `Resolved legacy tool name "${name}" to current name "${currentName}"`,
-        );
+        debugLogger.debug(`Resolved legacy tool name "${name}" to current name "${currentName}"`);
       }
     }
 

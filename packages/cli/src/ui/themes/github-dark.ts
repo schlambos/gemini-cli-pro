@@ -143,5 +143,5 @@ export const GitHubDark: Theme = new Theme(
       fontWeight: 'bold',
     },
   },
-  githubDarkColors,
+  githubDarkColors
 );

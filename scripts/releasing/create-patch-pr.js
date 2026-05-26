@@ -31,8 +31,7 @@ async function main() {
       demandOption: true,
     })
     .option('cli-package-name', {
-      description:
-        'fully qualified package name with scope (e.g @google/gemini-cli)',
+      description: 'fully qualified package name with scope (e.g @google/gemini-cli)',
       string: true,
       default: '@google/gemini-cli',
     })
@@ -63,9 +62,7 @@ async function main() {
 
   // Create the release branch from the tag if it doesn't exist.
   if (!branchExists(releaseBranch)) {
-    console.log(
-      `Release branch ${releaseBranch} does not exist. Creating it from tag ${latestTag}...`,
-    );
+    console.log(`Release branch ${releaseBranch} does not exist. Creating it from tag ${latestTag}...`);
     try {
       run(`git checkout -b ${releaseBranch} ${latestTag}`, dryRun);
       run(`git push origin ${releaseBranch}`, dryRun);
@@ -75,19 +72,13 @@ async function main() {
         error.message.match(/refusing to allow a GitHub App/i) &&
         error.message.match(/workflows?['`]? permission/i)
       ) {
-        console.error(
-          `❌ Failed to create release branch due to insufficient GitHub App permissions.`,
-        );
-        console.log(
-          `\n📋 Please run these commands manually to create the branch:`,
-        );
+        console.error(`❌ Failed to create release branch due to insufficient GitHub App permissions.`);
+        console.log(`\n📋 Please run these commands manually to create the branch:`);
         console.log(`\n\`\`\`bash`);
         console.log(`git checkout -b ${releaseBranch} ${latestTag}`);
         console.log(`git push origin ${releaseBranch}`);
         console.log(`\`\`\``);
-        console.log(
-          `\nAfter running these commands, you can run the patch command again.`,
-        );
+        console.log(`\nAfter running these commands, you can run the patch command again.`);
         process.exit(1);
       } else {
         // Re-throw other errors
@@ -104,9 +95,7 @@ async function main() {
 
     // Check if there's already a PR for this branch
     try {
-      const prInfo = execSync(
-        `gh pr list --head ${hotfixBranch} --json number,url --jq '.[0] // empty'`,
-      )
+      const prInfo = execSync(`gh pr list --head ${hotfixBranch} --json number,url --jq '.[0] // empty'`)
         .toString()
         .trim();
       if (prInfo && prInfo !== 'null' && prInfo !== '') {
@@ -116,9 +105,7 @@ async function main() {
         return { existingBranch: hotfixBranch, existingPR: pr };
       } else {
         console.log(`Hotfix branch ${hotfixBranch} exists but has no open PR.`);
-        console.log(
-          `You may need to delete the branch and run this command again.`,
-        );
+        console.log(`You may need to delete the branch and run this command again.`);
         return { existingBranch: hotfixBranch };
       }
     } catch (err) {
@@ -129,9 +116,7 @@ async function main() {
   }
 
   // Create the hotfix branch from the release branch.
-  console.log(
-    `Creating hotfix branch ${hotfixBranch} from ${releaseBranch}...`,
-  );
+  console.log(`Creating hotfix branch ${hotfixBranch} from ${releaseBranch}...`);
   run(`git checkout -b ${hotfixBranch} origin/${releaseBranch}`, dryRun);
 
   // Ensure git user is configured properly for commits
@@ -154,25 +139,16 @@ async function main() {
           .split('\n')
           .filter(
             (line) =>
-              line.startsWith('UU ') ||
-              line.startsWith('AA ') ||
-              line.startsWith('DU ') ||
-              line.startsWith('UD '),
+              line.startsWith('UU ') || line.startsWith('AA ') || line.startsWith('DU ') || line.startsWith('UD ')
           );
 
         if (conflictFiles.length > 0) {
           hasConflicts = true;
-          console.log(
-            `⚠️  Cherry-pick has conflicts in ${conflictFiles.length} file(s):`,
-          );
-          conflictFiles.forEach((file) =>
-            console.log(`   - ${file.substring(3)}`),
-          );
+          console.log(`⚠️  Cherry-pick has conflicts in ${conflictFiles.length} file(s):`);
+          conflictFiles.forEach((file) => console.log(`   - ${file.substring(3)}`));
 
           // Add all files (including conflict markers) and commit
-          console.log(
-            `📝 Creating commit with conflict markers for manual resolution...`,
-          );
+          console.log(`📝 Creating commit with conflict markers for manual resolution...`);
           execSync('git add .');
           execSync(`git commit --no-edit --no-verify`);
           console.log(`✅ Committed cherry-pick with conflict markers`);
@@ -194,9 +170,7 @@ async function main() {
   run(`git push --set-upstream origin ${hotfixBranch}`, dryRun);
 
   // Create the pull request.
-  console.log(
-    `Creating pull request from ${hotfixBranch} to ${releaseBranch}...`,
-  );
+  console.log(`Creating pull request from ${hotfixBranch} to ${releaseBranch}...`);
   let prTitle = `fix(patch): cherry-pick ${commit.substring(0, 7)} to ${releaseBranch} to patch version ${releaseInfo.currentTag} and create version ${releaseInfo.nextVersion}`;
   let prBody = `This PR automatically cherry-picks commit ${commit} to patch version ${releaseInfo.currentTag} in the ${channel} release to create version ${releaseInfo.nextVersion}.`;
 
@@ -230,9 +204,7 @@ The commit has been created with conflict markers for easier manual resolution.
   run(prCommand, dryRun);
 
   if (hasConflicts) {
-    console.log(
-      '⚠️  Patch process completed with conflicts - manual resolution required!',
-    );
+    console.log('⚠️  Patch process completed with conflicts - manual resolution required!');
   } else {
     console.log('✅ Patch process completed successfully!');
   }

@@ -11,10 +11,7 @@ import {
   debugLogger,
   CoreToolCallStatus,
 } from '@google/gemini-cli-core';
-import {
-  type HistoryItemToolGroup,
-  type IndividualToolCallDisplay,
-} from '../types.js';
+import { type HistoryItemToolGroup, type IndividualToolCallDisplay } from '../types.js';
 
 /**
  * Transforms `ToolCall` objects into `HistoryItemToolGroup` objects for UI
@@ -23,7 +20,7 @@ import {
  */
 export function mapToDisplay(
   toolOrTools: ToolCall[] | ToolCall,
-  options: { borderTop?: boolean; borderBottom?: boolean } = {},
+  options: { borderTop?: boolean; borderBottom?: boolean } = {}
 ): HistoryItemToolGroup {
   const toolCalls = Array.isArray(toolOrTools) ? toolOrTools : [toolOrTools];
   const { borderTop, borderBottom } = options;
@@ -49,8 +46,7 @@ export function mapToDisplay(
     };
 
     let resultDisplay: ToolResultDisplay | undefined = undefined;
-    let confirmationDetails: SerializableConfirmationDetails | undefined =
-      undefined;
+    let confirmationDetails: SerializableConfirmationDetails | undefined = undefined;
     let outputFile: string | undefined = undefined;
     let ptyId: number | undefined = undefined;
     let correlationId: string | undefined = undefined;
@@ -78,11 +74,7 @@ export function mapToDisplay(
         break;
       default: {
         const exhaustiveCheck: never = call;
-        debugLogger.warn(
-          `Unhandled tool call status in mapper: ${
-            (exhaustiveCheck as ToolCall).status
-          }`,
-        );
+        debugLogger.warn(`Unhandled tool call status in mapper: ${(exhaustiveCheck as ToolCall).status}`);
         break;
       }
     }

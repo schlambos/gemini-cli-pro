@@ -50,8 +50,8 @@ export async function setup() {
           rm(join(integrationTestsDir, oldRun), {
             recursive: true,
             force: true,
-          }),
-        ),
+          })
+        )
       );
     }
   } catch (e) {

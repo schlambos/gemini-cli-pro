@@ -11,11 +11,7 @@ import { getAllSessionFiles } from '../../utils/sessionUtils.js';
 import { identifySessionsToDelete } from '../../utils/sessionCleanup.js';
 import path from 'node:path';
 
-export function useSessionRetentionCheck(
-  config: Config,
-  settings: Settings,
-  onAutoEnable?: () => void,
-) {
+export function useSessionRetentionCheck(config: Config, settings: Settings, onAutoEnable?: () => void) {
   const [shouldShowWarning, setShouldShowWarning] = useState(false);
   const [sessionsToDeleteCount, setSessionsToDeleteCount] = useState(0);
   const [checkComplete, setCheckComplete] = useState(false);
@@ -24,8 +20,7 @@ export function useSessionRetentionCheck(
     // If warning already acknowledged or retention already enabled, skip check
     if (
       settings.general?.sessionRetention?.warningAcknowledged ||
-      (settings.general?.sessionRetention?.enabled &&
-        settings.general?.sessionRetention?.maxAge !== undefined)
+      (settings.general?.sessionRetention?.enabled && settings.general?.sessionRetention?.maxAge !== undefined)
     ) {
       setShouldShowWarning(false);
       setCheckComplete(true);
@@ -35,10 +30,7 @@ export function useSessionRetentionCheck(
     const checkSessions = async () => {
       try {
         const chatsDir = path.join(config.storage.getProjectTempDir(), 'chats');
-        const allFiles = await getAllSessionFiles(
-          chatsDir,
-          config.getSessionId(),
-        );
+        const allFiles = await getAllSessionFiles(chatsDir, config.getSessionId());
 
         // Calculate how many sessions would be deleted if we applied a 30-day retention
         const sessionsToDelete = await identifySessionsToDelete(allFiles, {

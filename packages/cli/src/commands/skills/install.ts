@@ -10,10 +10,7 @@ import { getErrorMessage } from '../../utils/errors.js';
 import { exitCli } from '../utils.js';
 import { installSkill } from '../../utils/skillUtils.js';
 import chalk from 'chalk';
-import {
-  requestConsentNonInteractive,
-  skillsConsentString,
-} from '../../config/extensions/consent.js';
+import { requestConsentNonInteractive, skillsConsentString } from '../../config/extensions/consent.js';
 
 interface InstallArgs {
   source: string;
@@ -28,18 +25,13 @@ export async function handleInstall(args: InstallArgs) {
     const scope = args.scope ?? 'user';
     const subpath = args.path;
 
-    const requestConsent = async (
-      skills: SkillDefinition[],
-      targetDir: string,
-    ) => {
+    const requestConsent = async (skills: SkillDefinition[], targetDir: string) => {
       if (consent) {
         debugLogger.log('You have consented to the following:');
         debugLogger.log(await skillsConsentString(skills, source, targetDir));
         return true;
       }
-      return requestConsentNonInteractive(
-        await skillsConsentString(skills, source, targetDir),
-      );
+      return requestConsentNonInteractive(await skillsConsentString(skills, source, targetDir));
     };
 
     const installedSkills = await installSkill(
@@ -49,14 +41,14 @@ export async function handleInstall(args: InstallArgs) {
       (msg) => {
         debugLogger.log(msg);
       },
-      requestConsent,
+      requestConsent
     );
 
     for (const skill of installedSkills) {
       debugLogger.log(
         chalk.green(
-          `Successfully installed skill: ${chalk.bold(skill.name)} (scope: ${scope}, location: ${skill.location})`,
-        ),
+          `Successfully installed skill: ${chalk.bold(skill.name)} (scope: ${scope}, location: ${skill.location})`
+        )
       );
     }
   } catch (error) {
@@ -67,30 +59,25 @@ export async function handleInstall(args: InstallArgs) {
 
 export const installCommand: CommandModule = {
   command: 'install <source> [--scope] [--path]',
-  describe:
-    'Installs an agent skill from a git repository URL or a local path.',
+  describe: 'Installs an agent skill from a git repository URL or a local path.',
   builder: (yargs) =>
     yargs
       .positional('source', {
-        describe:
-          'The git repository URL or local path of the skill to install.',
+        describe: 'The git repository URL or local path of the skill to install.',
         type: 'string',
         demandOption: true,
       })
       .option('scope', {
-        describe:
-          'The scope to install the skill into. Defaults to "user" (global).',
+        describe: 'The scope to install the skill into. Defaults to "user" (global).',
         choices: ['user', 'workspace'],
         default: 'user',
       })
       .option('path', {
-        describe:
-          'Sub-path within the repository to install from (only used for git repository sources).',
+        describe: 'Sub-path within the repository to install from (only used for git repository sources).',
         type: 'string',
       })
       .option('consent', {
-        describe:
-          'Acknowledge the security risks of installing a skill and skip the confirmation prompt.',
+        describe: 'Acknowledge the security risks of installing a skill and skip the confirmation prompt.',
         type: 'boolean',
         default: false,
       })

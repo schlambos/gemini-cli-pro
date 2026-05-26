@@ -66,17 +66,14 @@ describe('<ToolMessage /> - Raw Markdown Display Snapshots', () => {
     ({ renderMarkdown, useAlternateBuffer, availableTerminalHeight }) => {
       const { lastFrame } = renderWithProviders(
         <StreamingContext.Provider value={StreamingState.Idle}>
-          <ToolMessage
-            {...baseProps}
-            availableTerminalHeight={availableTerminalHeight}
-          />
+          <ToolMessage {...baseProps} availableTerminalHeight={availableTerminalHeight} />
         </StreamingContext.Provider>,
         {
           uiState: { renderMarkdown, streamingState: StreamingState.Idle },
           useAlternateBuffer,
-        },
+        }
       );
       expect(lastFrame()).toMatchSnapshot();
-    },
+    }
   );
 });

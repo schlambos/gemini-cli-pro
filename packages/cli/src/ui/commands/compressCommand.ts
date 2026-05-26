@@ -23,7 +23,7 @@ export const compressCommand: SlashCommand = {
           type: MessageType.ERROR,
           text: 'Already compressing, wait for previous request to complete',
         },
-        Date.now(),
+        Date.now()
       );
       return;
     }
@@ -41,9 +41,7 @@ export const compressCommand: SlashCommand = {
     try {
       ui.setPendingItem(pendingMessage);
       const promptId = `compress-${Date.now()}`;
-      const compressed = await context.services.config
-        ?.getGeminiClient()
-        ?.tryCompressChat(promptId, true);
+      const compressed = await context.services.config?.getGeminiClient()?.tryCompressChat(promptId, true);
       if (compressed) {
         ui.addItem(
           {
@@ -55,7 +53,7 @@ export const compressCommand: SlashCommand = {
               compressionStatus: compressed.compressionStatus,
             },
           } as HistoryItemCompression,
-          Date.now(),
+          Date.now()
         );
       } else {
         ui.addItem(
@@ -63,18 +61,16 @@ export const compressCommand: SlashCommand = {
             type: MessageType.ERROR,
             text: 'Failed to compress chat history.',
           },
-          Date.now(),
+          Date.now()
         );
       }
     } catch (e) {
       ui.addItem(
         {
           type: MessageType.ERROR,
-          text: `Failed to compress chat history: ${
-            e instanceof Error ? e.message : String(e)
-          }`,
+          text: `Failed to compress chat history: ${e instanceof Error ? e.message : String(e)}`,
         },
-        Date.now(),
+        Date.now()
       );
     } finally {
       ui.setPendingItem(null);

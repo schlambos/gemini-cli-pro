@@ -34,10 +34,7 @@ export interface CoreToolSet {
   grep_search_ripgrep: FunctionDeclaration;
   glob: FunctionDeclaration;
   list_directory: FunctionDeclaration;
-  run_shell_command: (
-    enableInteractiveShell: boolean,
-    enableEfficiency: boolean,
-  ) => FunctionDeclaration;
+  run_shell_command: (enableInteractiveShell: boolean, enableEfficiency: boolean) => FunctionDeclaration;
   replace: FunctionDeclaration;
   google_web_search: FunctionDeclaration;
   web_fetch: FunctionDeclaration;

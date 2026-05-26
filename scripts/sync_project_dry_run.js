@@ -15,12 +15,7 @@ const MAINTAINERS_REPO = 'google-gemini/maintainers-gemini-cli';
 const PARENT_ISSUES = [15374, 15456, 15324];
 
 // Labels to Exclude
-const EXCLUDED_LABELS = [
-  'help wanted',
-  'status/need-triage',
-  'status/need-info',
-  'area/unknown',
-];
+const EXCLUDED_LABELS = ['help wanted', 'status/need-triage', 'status/need-info', 'area/unknown'];
 
 // Labels that force inclusion (override exclusions)
 const FORCE_INCLUDE_LABELS = ['🔒 maintainer only'];
@@ -39,9 +34,7 @@ function runCommand(command) {
 
 function getIssues(repo) {
   console.log(`Fetching open issues from ${repo}...`);
-  const json = runCommand(
-    `gh issue list --repo ${repo} --state open --limit 3000 --json number,title,url,labels`,
-  );
+  const json = runCommand(`gh issue list --repo ${repo} --state open --limit 3000 --json number,title,url,labels`);
   if (!json) {
     return [];
   }
@@ -49,9 +42,7 @@ function getIssues(repo) {
 }
 
 function getIssueBody(repo, number) {
-  const json = runCommand(
-    `gh issue view ${number} --repo ${repo} --json body,title,url,number`,
-  );
+  const json = runCommand(`gh issue view ${number} --repo ${repo} --json body,title,url,number`);
   if (!json) {
     return null;
   }
@@ -60,9 +51,7 @@ function getIssueBody(repo, number) {
 
 function getProjectItems() {
   console.log(`Fetching items from Project ${PROJECT_ID}...`);
-  const json = runCommand(
-    `gh project item-list ${PROJECT_ID} --owner ${ORG} --format json --limit 3000`,
-  );
+  const json = runCommand(`gh project item-list ${PROJECT_ID} --owner ${ORG} --format json --limit 3000`);
   if (!json) {
     return [];
   }
@@ -105,17 +94,13 @@ async function findChildren(repo, number, depth = 0) {
 
   // Regex to find #1234 (local repo) and https://github.com/.../issues/1234 (cross repo)
   // 1. Local references: #1234
-  const localMatches = [
-    ...body.matchAll(/(?<!issue\s)(?<!issues\/)(?<!pull\/)(?<!#)#(\d+)/g),
-  ];
+  const localMatches = [...body.matchAll(/(?<!issue\s)(?<!issues\/)(?<!pull\/)(?<!#)#(\d+)/g)];
   for (const match of localMatches) {
     children.push({ repo, number: parseInt(match[1]) });
   }
 
   // 2. Full URL references
-  const urlMatches = [
-    ...body.matchAll(/https:\/\/github\.com\/([^/]+\/[^/]+)\/issues\/(\d+)/g),
-  ];
+  const urlMatches = [...body.matchAll(/https:\/\/github\.com\/([^/]+\/[^/]+)\/issues\/(\d+)/g)];
   for (const match of urlMatches) {
     children.push({ repo: match[1], number: parseInt(match[2]) });
   }
@@ -134,11 +119,7 @@ async function findChildren(repo, number, depth = 0) {
       allDescendants.push({ ...childDetails, repo: child.repo });
 
       // Recurse
-      const grandChildren = await findChildren(
-        child.repo,
-        child.number,
-        depth + 1,
-      );
+      const grandChildren = await findChildren(child.repo, child.number, depth + 1);
       allDescendants.push(...grandChildren);
     }
   }
@@ -209,16 +190,12 @@ Total Open Gemini Issues: ${issues.length}`);
 
   if (toAdd.length > 0) {
     console.log('\n--- EXAMPLES TO ADD ---');
-    toAdd
-      .slice(0, 5)
-      .forEach((i) => console.log(`[+] #${i.number} ${i.title}`));
+    toAdd.slice(0, 5).forEach((i) => console.log(`[+] #${i.number} ${i.title}`));
   }
 
   if (toRemove.length > 0) {
     console.log('\n--- EXAMPLES TO REMOVE ---');
-    toRemove
-      .slice(0, 5)
-      .forEach((i) => console.log(`[-] ${i.content.title} (${i.status})`));
+    toRemove.slice(0, 5).forEach((i) => console.log(`[-] ${i.content.title} (${i.status})`));
   }
 
   if (process.argv.includes('--execute')) {
@@ -226,17 +203,13 @@ Total Open Gemini Issues: ${issues.length}`);
 
     for (const issue of toAdd) {
       process.stdout.write(`Adding ${issue.url}... `);
-      const res = runCommand(
-        `gh project item-add ${PROJECT_ID} --owner ${ORG} --url "${issue.url}" --format json`,
-      );
+      const res = runCommand(`gh project item-add ${PROJECT_ID} --owner ${ORG} --url "${issue.url}" --format json`);
       process.stdout.write(res ? 'OK\n' : 'FAILED\n');
     }
 
     for (const item of toRemove) {
       process.stdout.write(`Removing ${item.id}... `);
-      const res = runCommand(
-        `gh project item-delete ${PROJECT_ID} --owner ${ORG} --id ${item.id}`,
-      );
+      const res = runCommand(`gh project item-delete ${PROJECT_ID} --owner ${ORG} --id ${item.id}`);
       process.stdout.write(res ? 'OK\n' : 'FAILED\n');
     }
     console.log('Done.');

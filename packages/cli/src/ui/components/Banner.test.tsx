@@ -13,17 +13,13 @@ describe('Banner', () => {
     ['warning mode', true, 'Warning Message'],
     ['info mode', false, 'Info Message'],
   ])('renders in %s', (_, isWarning, text) => {
-    const { lastFrame } = render(
-      <Banner bannerText={text} isWarning={isWarning} width={80} />,
-    );
+    const { lastFrame } = render(<Banner bannerText={text} isWarning={isWarning} width={80} />);
     expect(lastFrame()).toMatchSnapshot();
   });
 
   it('handles newlines in text', () => {
     const text = 'Line 1\\nLine 2';
-    const { lastFrame } = render(
-      <Banner bannerText={text} isWarning={false} width={80} />,
-    );
+    const { lastFrame } = render(<Banner bannerText={text} isWarning={false} width={80} />);
     expect(lastFrame()).toMatchSnapshot();
   });
 });

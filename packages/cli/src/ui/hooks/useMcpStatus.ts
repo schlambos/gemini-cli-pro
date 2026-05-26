@@ -5,22 +5,15 @@
  */
 
 import { useEffect, useState } from 'react';
-import {
-  type Config,
-  coreEvents,
-  MCPDiscoveryState,
-  CoreEvent,
-} from '@google/gemini-cli-core';
+import { type Config, coreEvents, MCPDiscoveryState, CoreEvent } from '@google/gemini-cli-core';
 
 export function useMcpStatus(config: Config) {
   const [discoveryState, setDiscoveryState] = useState<MCPDiscoveryState>(
-    () =>
-      config.getMcpClientManager()?.getDiscoveryState() ??
-      MCPDiscoveryState.NOT_STARTED,
+    () => config.getMcpClientManager()?.getDiscoveryState() ?? MCPDiscoveryState.NOT_STARTED
   );
 
   const [mcpServerCount, setMcpServerCount] = useState<number>(
-    () => config.getMcpClientManager()?.getMcpServerCount() ?? 0,
+    () => config.getMcpClientManager()?.getMcpServerCount() ?? 0
   );
 
   useEffect(() => {

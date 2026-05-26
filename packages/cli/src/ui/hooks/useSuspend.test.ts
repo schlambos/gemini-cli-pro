@@ -4,15 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  afterEach,
-  type Mock,
-} from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 import { act } from 'react';
 import { renderHook } from '../../test-utils/render.js';
 import { useSuspend } from './useSuspend.js';
@@ -25,10 +17,7 @@ import {
   enableLineWrapping,
   disableLineWrapping,
 } from '@google/gemini-cli-core';
-import {
-  cleanupTerminalOnExit,
-  terminalCapabilityManager,
-} from '../utils/terminalCapabilityManager.js';
+import { cleanupTerminalOnExit, terminalCapabilityManager } from '../utils/terminalCapabilityManager.js';
 
 vi.mock('@google/gemini-cli-core', async () => {
   const actual = await vi.importActual('@google/gemini-cli-core');
@@ -65,9 +54,7 @@ describe('useSuspend', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.clearAllMocks();
-    killSpy = vi
-      .spyOn(process, 'kill')
-      .mockReturnValue(true) as unknown as Mock;
+    killSpy = vi.spyOn(process, 'kill').mockReturnValue(true) as unknown as Mock;
     // Default tests to a POSIX platform so suspend path assertions are stable.
     setPlatform('linux');
   });
@@ -83,8 +70,7 @@ describe('useSuspend', () => {
     const setRawMode = vi.fn();
     const refreshStatic = vi.fn();
     const setForceRerenderKey = vi.fn();
-    const enableSupportedModes =
-      terminalCapabilityManager.enableSupportedModes as unknown as Mock;
+    const enableSupportedModes = terminalCapabilityManager.enableSupportedModes as unknown as Mock;
 
     const { result, unmount } = renderHook(() =>
       useSuspend({
@@ -93,14 +79,14 @@ describe('useSuspend', () => {
         refreshStatic,
         setForceRerenderKey,
         shouldUseAlternateScreen: true,
-      }),
+      })
     );
 
     act(() => {
       result.current.handleSuspend();
     });
     expect(handleWarning).toHaveBeenCalledWith(
-      'Press Ctrl+Z again to suspend. Undo has moved to Cmd + Z or Alt/Opt + Z.',
+      'Press Ctrl+Z again to suspend. Undo has moved to Cmd + Z or Alt/Opt + Z.'
     );
 
     act(() => {
@@ -144,7 +130,7 @@ describe('useSuspend', () => {
         refreshStatic,
         setForceRerenderKey,
         shouldUseAlternateScreen: false,
-      }),
+      })
     );
 
     act(() => {
@@ -178,7 +164,7 @@ describe('useSuspend', () => {
         refreshStatic,
         setForceRerenderKey,
         shouldUseAlternateScreen: true,
-      }),
+      })
     );
 
     act(() => {
@@ -190,9 +176,7 @@ describe('useSuspend', () => {
       result.current.handleSuspend();
     });
 
-    expect(handleWarning).toHaveBeenCalledWith(
-      'Ctrl+Z suspend is not supported on Windows.',
-    );
+    expect(handleWarning).toHaveBeenCalledWith('Ctrl+Z suspend is not supported on Windows.');
     expect(killSpy).not.toHaveBeenCalled();
     expect(cleanupTerminalOnExit).not.toHaveBeenCalled();
 

@@ -184,24 +184,22 @@ describe('extractInjections', () => {
     it('should throw an error for a simple unclosed injection', () => {
       const prompt = 'This prompt has !{an unclosed trigger';
       expect(() => extractInjections(prompt, SHELL_TRIGGER)).toThrow(
-        /Invalid syntax: Unclosed injection starting at index 16 \('!{'\)/,
+        /Invalid syntax: Unclosed injection starting at index 16 \('!{'\)/
       );
     });
 
     it('should throw an error if the prompt ends inside a nested block', () => {
       const prompt = 'This fails: !{outer {inner';
       expect(() => extractInjections(prompt, SHELL_TRIGGER)).toThrow(
-        /Invalid syntax: Unclosed injection starting at index 12 \('!{'\)/,
+        /Invalid syntax: Unclosed injection starting at index 12 \('!{'\)/
       );
     });
 
     it('should include the context name in the error message if provided', () => {
       const prompt = 'Failing !{command';
       const contextName = 'test-command';
-      expect(() =>
-        extractInjections(prompt, SHELL_TRIGGER, contextName),
-      ).toThrow(
-        /Invalid syntax in command 'test-command': Unclosed injection starting at index 8/,
+      expect(() => extractInjections(prompt, SHELL_TRIGGER, contextName)).toThrow(
+        /Invalid syntax in command 'test-command': Unclosed injection starting at index 8/
       );
     });
 
@@ -209,14 +207,14 @@ describe('extractInjections', () => {
       // This is functionally the same as an unclosed injection from the parser's perspective.
       const prompt = 'Analyze @{path/with/braces{example.txt}';
       expect(() => extractInjections(prompt, AT_FILE_TRIGGER)).toThrow(
-        /Invalid syntax: Unclosed injection starting at index 8 \('@{'\)/,
+        /Invalid syntax: Unclosed injection starting at index 8 \('@{'\)/
       );
     });
 
     it('should clearly state that unbalanced braces in content are not supported in the error', () => {
       const prompt = 'Analyze @{path/with/braces{example.txt}';
       expect(() => extractInjections(prompt, AT_FILE_TRIGGER)).toThrow(
-        /Paths or commands with unbalanced braces are not supported directly/,
+        /Paths or commands with unbalanced braces are not supported directly/
       );
     });
   });

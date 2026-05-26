@@ -58,14 +58,8 @@ describe('hookSettings', () => {
       const result = enableHook(mockSettings, 'test-hook');
 
       expect(result.status).toBe('success');
-      expect(result.modifiedScopes).toEqual([
-        { scope: SettingScope.User, path: '/mock/user.json' },
-      ]);
-      expect(mockSetValue).toHaveBeenCalledWith(
-        SettingScope.User,
-        'hooksConfig.disabled',
-        [],
-      );
+      expect(result.modifiedScopes).toEqual([{ scope: SettingScope.User, path: '/mock/user.json' }]);
+      expect(mockSetValue).toHaveBeenCalledWith(SettingScope.User, 'hooksConfig.disabled', []);
     });
 
     it('should enable hook in Workspace scope if disabled there', () => {
@@ -74,14 +68,8 @@ describe('hookSettings', () => {
       const result = enableHook(mockSettings, 'test-hook');
 
       expect(result.status).toBe('success');
-      expect(result.modifiedScopes).toEqual([
-        { scope: SettingScope.Workspace, path: '/mock/workspace.json' },
-      ]);
-      expect(mockSetValue).toHaveBeenCalledWith(
-        SettingScope.Workspace,
-        'hooksConfig.disabled',
-        [],
-      );
+      expect(result.modifiedScopes).toEqual([{ scope: SettingScope.Workspace, path: '/mock/workspace.json' }]);
+      expect(mockSetValue).toHaveBeenCalledWith(SettingScope.Workspace, 'hooksConfig.disabled', []);
     });
 
     it('should enable hook in BOTH scopes if disabled in both', () => {
@@ -101,46 +89,24 @@ describe('hookSettings', () => {
         path: '/mock/workspace.json',
       });
 
-      expect(mockSetValue).toHaveBeenCalledWith(
-        SettingScope.Workspace,
-        'hooksConfig.disabled',
-        [],
-      );
-      expect(mockSetValue).toHaveBeenCalledWith(
-        SettingScope.User,
-        'hooksConfig.disabled',
-        ['other'],
-      );
+      expect(mockSetValue).toHaveBeenCalledWith(SettingScope.Workspace, 'hooksConfig.disabled', []);
+      expect(mockSetValue).toHaveBeenCalledWith(SettingScope.User, 'hooksConfig.disabled', ['other']);
     });
   });
 
   describe('disableHook', () => {
     it('should disable hook in the requested scope', () => {
-      const result = disableHook(
-        mockSettings,
-        'test-hook',
-        SettingScope.Workspace,
-      );
+      const result = disableHook(mockSettings, 'test-hook', SettingScope.Workspace);
 
       expect(result.status).toBe('success');
-      expect(result.modifiedScopes).toEqual([
-        { scope: SettingScope.Workspace, path: '/mock/workspace.json' },
-      ]);
-      expect(mockSetValue).toHaveBeenCalledWith(
-        SettingScope.Workspace,
-        'hooksConfig.disabled',
-        ['test-hook'],
-      );
+      expect(result.modifiedScopes).toEqual([{ scope: SettingScope.Workspace, path: '/mock/workspace.json' }]);
+      expect(mockSetValue).toHaveBeenCalledWith(SettingScope.Workspace, 'hooksConfig.disabled', ['test-hook']);
     });
 
     it('should return no-op if already disabled in requested scope', () => {
       mockWorkspace.settings.hooksConfig.disabled = ['test-hook'];
 
-      const result = disableHook(
-        mockSettings,
-        'test-hook',
-        SettingScope.Workspace,
-      );
+      const result = disableHook(mockSettings, 'test-hook', SettingScope.Workspace);
 
       expect(result.status).toBe('no-op');
       expect(mockSetValue).not.toHaveBeenCalled();
@@ -151,24 +117,12 @@ describe('hookSettings', () => {
       mockUser.settings.hooksConfig.disabled = ['test-hook'];
 
       // We request disable in Workspace
-      const result = disableHook(
-        mockSettings,
-        'test-hook',
-        SettingScope.Workspace,
-      );
+      const result = disableHook(mockSettings, 'test-hook', SettingScope.Workspace);
 
       expect(result.status).toBe('success');
-      expect(result.modifiedScopes).toEqual([
-        { scope: SettingScope.Workspace, path: '/mock/workspace.json' },
-      ]);
-      expect(result.alreadyInStateScopes).toEqual([
-        { scope: SettingScope.User, path: '/mock/user.json' },
-      ]);
-      expect(mockSetValue).toHaveBeenCalledWith(
-        SettingScope.Workspace,
-        'hooksConfig.disabled',
-        ['test-hook'],
-      );
+      expect(result.modifiedScopes).toEqual([{ scope: SettingScope.Workspace, path: '/mock/workspace.json' }]);
+      expect(result.alreadyInStateScopes).toEqual([{ scope: SettingScope.User, path: '/mock/user.json' }]);
+      expect(mockSetValue).toHaveBeenCalledWith(SettingScope.Workspace, 'hooksConfig.disabled', ['test-hook']);
     });
 
     it('should return error if invalid scope provided', () => {

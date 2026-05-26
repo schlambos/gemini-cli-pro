@@ -135,5 +135,5 @@ export const AyuLight: Theme = new Theme(
       color: ayuLightColors.AccentRed,
     },
   },
-  ayuLightColors,
+  ayuLightColors
 );

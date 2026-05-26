@@ -7,10 +7,7 @@
 import { renderWithProviders } from '../../../test-utils/render.js';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { ToolGroupMessage } from './ToolGroupMessage.js';
-import {
-  ScrollableList,
-  type ScrollableListRef,
-} from '../shared/ScrollableList.js';
+import { ScrollableList, type ScrollableListRef } from '../shared/ScrollableList.js';
 import { Box, Text } from 'ink';
 import { act, useRef, useEffect } from 'react';
 import { waitFor } from '../../../test-utils/async.js';
@@ -47,20 +44,14 @@ describe('ToolMessage Sticky Header Regression', () => {
     callId: id,
     name,
     description: `Description for ${name}`,
-    resultDisplay: Array.from(
-      { length: 10 },
-      (_, i) => `${resultPrefix}-${String(i + 1).padStart(2, '0')}`,
-    ).join('\n'),
+    resultDisplay: Array.from({ length: 10 }, (_, i) => `${resultPrefix}-${String(i + 1).padStart(2, '0')}`).join('\n'),
     status: CoreToolCallStatus.Success,
     confirmationDetails: undefined,
     renderOutputAsMarkdown: false,
   });
 
   it('verifies that multiple ToolMessages in a ToolGroupMessage in a ScrollableList have sticky headers', async () => {
-    const toolCalls = [
-      createToolCall('1', 'tool-1', 'c1'),
-      createToolCall('2', 'tool-2', 'c2'),
-    ];
+    const toolCalls = [createToolCall('1', 'tool-1', 'c1'), createToolCall('2', 'tool-2', 'c2')];
 
     const terminalWidth = 80;
     const terminalHeight = 5;
@@ -98,7 +89,7 @@ describe('ToolMessage Sticky Header Regression', () => {
       {
         width: terminalWidth,
         uiState: { terminalWidth },
-      },
+      }
     );
 
     // Initial state: tool-1 should be visible
@@ -163,13 +154,7 @@ describe('ToolMessage Sticky Header Regression', () => {
         <ScrollableList
           ref={internalRef}
           data={['item1']}
-          renderItem={() => (
-            <ToolGroupMessage
-              groupId={1}
-              toolCalls={toolCalls}
-              terminalWidth={terminalWidth - 2}
-            />
-          )}
+          renderItem={() => <ToolGroupMessage groupId={1} toolCalls={toolCalls} terminalWidth={terminalWidth - 2} />}
           estimatedItemHeight={() => 30}
           keyExtractor={(item) => item}
           hasFocus={true}
@@ -184,7 +169,7 @@ describe('ToolMessage Sticky Header Regression', () => {
       {
         width: terminalWidth,
         uiState: { terminalWidth },
-      },
+      }
     );
 
     await waitFor(() => {

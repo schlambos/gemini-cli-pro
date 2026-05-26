@@ -44,8 +44,7 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
   const shouldShowPreviewModels = config?.getHasAccessToPreviewModel();
   const useGemini31 = config?.getGemini31LaunchedSync?.() ?? false;
   const selectedAuthType = settings.merged.security.auth.selectedType;
-  const useCustomToolModel =
-    useGemini31 && selectedAuthType === AuthType.USE_GEMINI;
+  const useCustomToolModel = useGemini31 && selectedAuthType === AuthType.USE_GEMINI;
 
   const manualModelSelected = useMemo(() => {
     const manualModels = [
@@ -79,7 +78,7 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
       }
       return false;
     },
-    { isActive: true },
+    { isActive: true }
   );
 
   const mainOptions = useMemo(() => {
@@ -87,15 +86,12 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
       {
         value: DEFAULT_GEMINI_MODEL_AUTO,
         title: getDisplayString(DEFAULT_GEMINI_MODEL_AUTO),
-        description:
-          'Let Gemini CLI decide the best model for the task: gemini-2.5-pro, gemini-2.5-flash',
+        description: 'Let Gemini CLI decide the best model for the task: gemini-2.5-pro, gemini-2.5-flash',
         key: DEFAULT_GEMINI_MODEL_AUTO,
       },
       {
         value: 'Manual',
-        title: manualModelSelected
-          ? `Manual (${manualModelSelected})`
-          : 'Manual',
+        title: manualModelSelected ? `Manual (${manualModelSelected})` : 'Manual',
         description: 'Manually select a model',
         key: 'Manual',
       },
@@ -134,13 +130,9 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
     ];
 
     if (shouldShowPreviewModels) {
-      const previewProModel = useGemini31
-        ? PREVIEW_GEMINI_3_1_MODEL
-        : PREVIEW_GEMINI_MODEL;
+      const previewProModel = useGemini31 ? PREVIEW_GEMINI_3_1_MODEL : PREVIEW_GEMINI_MODEL;
 
-      const previewProValue = useCustomToolModel
-        ? PREVIEW_GEMINI_3_1_CUSTOM_TOOLS_MODEL
-        : previewProModel;
+      const previewProValue = useCustomToolModel ? PREVIEW_GEMINI_3_1_CUSTOM_TOOLS_MODEL : previewProModel;
 
       list.unshift(
         {
@@ -152,7 +144,7 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
           value: PREVIEW_GEMINI_FLASH_MODEL,
           title: PREVIEW_GEMINI_FLASH_MODEL,
           key: PREVIEW_GEMINI_FLASH_MODEL,
-        },
+        }
       );
     }
     return list;
@@ -188,17 +180,11 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
       }
       onClose();
     },
-    [config, onClose, persistMode],
+    [config, onClose, persistMode]
   );
 
   return (
-    <Box
-      borderStyle="round"
-      borderColor={theme.border.default}
-      flexDirection="column"
-      padding={1}
-      width="100%"
-    >
+    <Box borderStyle='round' borderColor={theme.border.default} flexDirection='column' padding={1} width='100%'>
       <Text bold>Select Model</Text>
 
       <Box marginTop={1}>
@@ -209,23 +195,17 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
           showNumbers={true}
         />
       </Box>
-      <Box marginTop={1} flexDirection="column">
+      <Box marginTop={1} flexDirection='column'>
         <Box>
-          <Text color={theme.text.primary}>
-            Remember model for future sessions:{' '}
-          </Text>
-          <Text color={theme.status.success}>
-            {persistMode ? 'true' : 'false'}
-          </Text>
+          <Text color={theme.text.primary}>Remember model for future sessions: </Text>
+          <Text color={theme.status.success}>{persistMode ? 'true' : 'false'}</Text>
         </Box>
         <Text color={theme.text.secondary}>(Press Tab to toggle)</Text>
       </Box>
-      <Box marginTop={1} flexDirection="column">
-        <Text color={theme.text.secondary}>
-          {'> To use a specific Gemini model on startup, use the --model flag.'}
-        </Text>
+      <Box marginTop={1} flexDirection='column'>
+        <Text color={theme.text.secondary}>{'> To use a specific Gemini model on startup, use the --model flag.'}</Text>
       </Box>
-      <Box marginTop={1} flexDirection="column">
+      <Box marginTop={1} flexDirection='column'>
         <Text color={theme.text.secondary}>(Press Esc to close)</Text>
       </Box>
     </Box>

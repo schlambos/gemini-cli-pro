@@ -36,8 +36,7 @@ export async function resolveAuthValue(value: string): Promise<string> {
     const resolved = process.env[envVar];
     if (resolved === undefined || resolved === '') {
       throw new Error(
-        `Environment variable '${envVar}' is not set or is empty. ` +
-          `Please set it before using this agent.`,
+        `Environment variable '${envVar}' is not set or is empty. ` + `Please set it before using this agent.`
       );
     }
     debugLogger.debug(`[AuthValueResolver] Resolved env var: ${envVar}`);
@@ -55,14 +54,10 @@ export async function resolveAuthValue(value: string): Promise<string> {
 
     const shellConfig = getShellConfiguration();
     try {
-      const { stdout } = await spawnAsync(
-        shellConfig.executable,
-        [...shellConfig.argsPrefix, command],
-        {
-          signal: AbortSignal.timeout(COMMAND_TIMEOUT_MS),
-          windowsHide: true,
-        },
-      );
+      const { stdout } = await spawnAsync(shellConfig.executable, [...shellConfig.argsPrefix, command], {
+        signal: AbortSignal.timeout(COMMAND_TIMEOUT_MS),
+        windowsHide: true,
+      });
 
       const trimmed = stdout.trim();
       if (!trimmed) {
@@ -71,9 +66,7 @@ export async function resolveAuthValue(value: string): Promise<string> {
       return trimmed;
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {
-        throw new Error(
-          `Command '${command}' timed out after ${COMMAND_TIMEOUT_MS / 1000} seconds`,
-        );
+        throw new Error(`Command '${command}' timed out after ${COMMAND_TIMEOUT_MS / 1000} seconds`);
       }
       throw error;
     }

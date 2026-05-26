@@ -4,27 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  type Mocked,
-  type Mock,
-} from 'vitest';
+import { describe, it, expect, vi, beforeEach, type Mocked, type Mock } from 'vitest';
 import { GeminiAgent } from './zedIntegration.js';
 import * as acp from '@agentclientprotocol/sdk';
-import {
-  AuthType,
-  type Config,
-  CoreToolCallStatus,
-} from '@google/gemini-cli-core';
+import { AuthType, type Config, CoreToolCallStatus } from '@google/gemini-cli-core';
 import { loadCliConfig, type CliArgs } from '../config/config.js';
-import {
-  SessionSelector,
-  convertSessionToHistoryFormats,
-} from '../utils/sessionUtils.js';
+import { SessionSelector, convertSessionToHistoryFormats } from '../utils/sessionUtils.js';
 import type { LoadedSettings } from '../config/settings.js';
 
 vi.mock('../config/config.js', () => ({
@@ -32,8 +17,7 @@ vi.mock('../config/config.js', () => ({
 }));
 
 vi.mock('../utils/sessionUtils.js', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('../utils/sessionUtils.js')>();
+  const actual = await importOriginal<typeof import('../utils/sessionUtils.js')>();
   return {
     ...actual,
     SessionSelector: vi.fn(),
@@ -157,7 +141,7 @@ describe('GeminiAgent Session Resume', () => {
       expect.objectContaining({
         conversation: sessionData,
         filePath: '/path/to/session.json',
-      }),
+      })
     );
 
     await vi.waitFor(() => {
@@ -168,7 +152,7 @@ describe('GeminiAgent Session Resume', () => {
             sessionUpdate: 'user_message_chunk',
             content: expect.objectContaining({ text: 'Hello' }),
           }),
-        }),
+        })
       );
 
       // Agent thought
@@ -180,7 +164,7 @@ describe('GeminiAgent Session Resume', () => {
               text: '**Thinking**\nabout greeting',
             }),
           }),
-        }),
+        })
       );
 
       // Agent message
@@ -190,7 +174,7 @@ describe('GeminiAgent Session Resume', () => {
             sessionUpdate: 'agent_message_chunk',
             content: expect.objectContaining({ text: 'Hi there' }),
           }),
-        }),
+        })
       );
 
       // Successful tool call → 'completed'
@@ -209,7 +193,7 @@ describe('GeminiAgent Session Resume', () => {
               },
             ],
           }),
-        }),
+        })
       );
 
       // Failed tool call → 'failed'
@@ -221,7 +205,7 @@ describe('GeminiAgent Session Resume', () => {
             status: 'failed',
             title: 'Write File',
           }),
-        }),
+        })
       );
     });
   });

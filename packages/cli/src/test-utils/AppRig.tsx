@@ -30,21 +30,15 @@ import {
   IdeClient,
   debugLogger,
 } from '@google/gemini-cli-core';
-import {
-  type MockShellCommand,
-  MockShellExecutionService,
-} from './MockShellExecutionService.js';
+import { type MockShellCommand, MockShellExecutionService } from './MockShellExecutionService.js';
 import { createMockSettings } from './settings.js';
 import { type LoadedSettings } from '../config/settings.js';
 import { AuthState } from '../ui/types.js';
 
 // Mock core functions globally for tests using AppRig.
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const original =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
-  const { MockShellExecutionService: MockService } = await import(
-    './MockShellExecutionService.js'
-  );
+  const original = await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const { MockShellExecutionService: MockService } = await import('./MockShellExecutionService.js');
   // Register the real execution logic so MockShellExecutionService can fall back to it
   MockService.setOriginalImplementation(original.ShellExecutionService.execute);
 
@@ -107,12 +101,8 @@ export class AppRig {
     this.setupEnvironment();
     this.settings = this.createRigSettings();
 
-    const approvalMode =
-      this.options.configOverrides?.approvalMode ?? ApprovalMode.DEFAULT;
-    const policyEngineConfig = await createPolicyEngineConfig(
-      this.settings.merged,
-      approvalMode,
-    );
+    const approvalMode = this.options.configOverrides?.approvalMode ?? ApprovalMode.DEFAULT;
+    const policyEngineConfig = await createPolicyEngineConfig(this.settings.merged, approvalMode);
 
     const configParams: ConfigParameters = {
       sessionId: this.sessionId,
@@ -153,9 +143,7 @@ export class AppRig {
       MockShellExecutionService.setPassthrough(false);
     } else {
       if (!process.env['GEMINI_API_KEY']) {
-        throw new Error(
-          'GEMINI_API_KEY must be set in the environment for live model tests.',
-        );
+        throw new Error('GEMINI_API_KEY must be set in the environment for live model tests.');
       }
       // For live tests, we allow falling through to the real shell service if no mock matches
       MockShellExecutionService.setPassthrough(true);
@@ -217,16 +205,13 @@ export class AppRig {
       gcConfig.contentGenerator = await createContentGenerator(
         newContentGeneratorConfig,
         this.config!,
-        gcConfig.getSessionId(),
+        gcConfig.getSessionId()
       );
       gcConfig.contentGeneratorConfig = newContentGeneratorConfig;
 
       // Initialize BaseLlmClient now that the ContentGenerator is available
       const { BaseLlmClient } = await import('@google/gemini-cli-core');
-      gcConfig.baseLlmClient = new BaseLlmClient(
-        gcConfig.contentGenerator,
-        this.config!,
-      );
+      gcConfig.baseLlmClient = new BaseLlmClient(gcConfig.contentGenerator, this.config!);
     };
   }
 
@@ -234,47 +219,39 @@ export class AppRig {
     if (!this.config) return;
     const messageBus = this.config.getMessageBus();
 
-    messageBus.subscribe(
-      MessageBusType.TOOL_CALLS_UPDATE,
-      (message: ToolCallsUpdateMessage) => {
-        for (const call of message.toolCalls) {
-          if (call.status === 'awaiting_approval' && call.correlationId) {
-            const details = call.confirmationDetails;
-            const title = 'title' in details ? details.title : '';
-            const toolDisplayName =
-              call.tool?.displayName || title.replace(/^Confirm:\s*/, '');
-            if (!this.pendingConfirmations.has(call.correlationId)) {
-              this.pendingConfirmations.set(call.correlationId, {
-                toolName: call.request.name,
-                toolDisplayName,
-                correlationId: call.correlationId,
-              });
-            }
-          } else if (call.status !== 'awaiting_approval') {
-            for (const [
-              correlationId,
-              pending,
-            ] of this.pendingConfirmations.entries()) {
-              if (pending.toolName === call.request.name) {
-                this.pendingConfirmations.delete(correlationId);
-                break;
-              }
+    messageBus.subscribe(MessageBusType.TOOL_CALLS_UPDATE, (message: ToolCallsUpdateMessage) => {
+      for (const call of message.toolCalls) {
+        if (call.status === 'awaiting_approval' && call.correlationId) {
+          const details = call.confirmationDetails;
+          const title = 'title' in details ? details.title : '';
+          const toolDisplayName = call.tool?.displayName || title.replace(/^Confirm:\s*/, '');
+          if (!this.pendingConfirmations.has(call.correlationId)) {
+            this.pendingConfirmations.set(call.correlationId, {
+              toolName: call.request.name,
+              toolDisplayName,
+              correlationId: call.correlationId,
+            });
+          }
+        } else if (call.status !== 'awaiting_approval') {
+          for (const [correlationId, pending] of this.pendingConfirmations.entries()) {
+            if (pending.toolName === call.request.name) {
+              this.pendingConfirmations.delete(correlationId);
+              break;
             }
           }
         }
-      },
-    );
+      }
+    });
   }
 
   render() {
-    if (!this.config || !this.settings)
-      throw new Error('AppRig not initialized');
+    if (!this.config || !this.settings) throw new Error('AppRig not initialized');
 
     act(() => {
       this.renderResult = renderWithProviders(
         <AppContainer
           config={this.config!}
-          version="test-version"
+          version='test-version'
           initializationResult={{
             authError: null,
             themeError: null,
@@ -290,7 +267,7 @@ export class AppRig {
           uiState: {
             terminalHeight: this.options.terminalHeight ?? 40,
           },
-        },
+        }
       );
     });
   }
@@ -299,11 +276,7 @@ export class AppRig {
     MockShellExecutionService.setMockCommands(commands);
   }
 
-  setToolPolicy(
-    toolName: string | undefined,
-    decision: PolicyDecision,
-    priority = 10,
-  ) {
+  setToolPolicy(toolName: string | undefined, decision: PolicyDecision, priority = 10) {
     if (!this.config) throw new Error('AppRig not initialized');
     this.config.getPolicyEngine().addRule({
       toolName,
@@ -343,13 +316,9 @@ export class AppRig {
 
   private async waitUntil(
     predicate: () => boolean | Promise<boolean>,
-    options: { timeout?: number; interval?: number; message?: string } = {},
+    options: { timeout?: number; interval?: number; message?: string } = {}
   ) {
-    const {
-      timeout = 30000,
-      interval = 100,
-      message = 'Condition timed out',
-    } = options;
+    const { timeout = 30000, interval = 100, message = 'Condition timed out' } = options;
     const start = Date.now();
 
     while (true) {
@@ -367,20 +336,14 @@ export class AppRig {
 
   async waitForPendingConfirmation(
     toolNameOrDisplayName?: string | RegExp,
-    timeout = 30000,
+    timeout = 30000
   ): Promise<PendingConfirmation> {
     const matches = (p: PendingConfirmation) => {
       if (!toolNameOrDisplayName) return true;
       if (typeof toolNameOrDisplayName === 'string') {
-        return (
-          p.toolName === toolNameOrDisplayName ||
-          p.toolDisplayName === toolNameOrDisplayName
-        );
+        return p.toolName === toolNameOrDisplayName || p.toolDisplayName === toolNameOrDisplayName;
       }
-      return (
-        toolNameOrDisplayName.test(p.toolName) ||
-        toolNameOrDisplayName.test(p.toolDisplayName || '')
-      );
+      return toolNameOrDisplayName.test(p.toolName) || toolNameOrDisplayName.test(p.toolDisplayName || '');
     };
 
     let matched: PendingConfirmation | undefined;
@@ -394,7 +357,7 @@ export class AppRig {
         message: `Timed out waiting for pending confirmation: ${toolNameOrDisplayName || 'any'}. Current pending: ${this.getPendingConfirmations()
           .map((p) => p.toolName)
           .join(', ')}`,
-      },
+      }
     );
 
     this.lastAwaitedConfirmation = matched;
@@ -403,16 +366,13 @@ export class AppRig {
 
   async resolveTool(
     toolNameOrDisplayName: string | RegExp | PendingConfirmation,
-    outcome: ToolConfirmationOutcome = ToolConfirmationOutcome.ProceedOnce,
+    outcome: ToolConfirmationOutcome = ToolConfirmationOutcome.ProceedOnce
   ): Promise<void> {
     if (!this.config) throw new Error('AppRig not initialized');
     const messageBus = this.config.getMessageBus();
 
     let pending: PendingConfirmation;
-    if (
-      typeof toolNameOrDisplayName === 'object' &&
-      'correlationId' in toolNameOrDisplayName
-    ) {
+    if (typeof toolNameOrDisplayName === 'object' && 'correlationId' in toolNameOrDisplayName) {
       pending = toolNameOrDisplayName;
     } else {
       pending = await this.waitForPendingConfirmation(toolNameOrDisplayName);
@@ -439,9 +399,7 @@ export class AppRig {
     });
   }
 
-  async resolveAwaitedTool(
-    outcome: ToolConfirmationOutcome = ToolConfirmationOutcome.ProceedOnce,
-  ): Promise<void> {
+  async resolveAwaitedTool(outcome: ToolConfirmationOutcome = ToolConfirmationOutcome.ProceedOnce): Promise<void> {
     if (!this.lastAwaitedConfirmation) {
       throw new Error('No tool has been awaited yet');
     }
@@ -500,14 +458,12 @@ export class AppRig {
     await this.waitUntil(
       () => {
         const frame = this.lastFrame;
-        return typeof pattern === 'string'
-          ? frame.includes(pattern)
-          : pattern.test(frame);
+        return typeof pattern === 'string' ? frame.includes(pattern) : pattern.test(frame);
       },
       {
         timeout,
         message: `Timed out waiting for output: ${pattern}\nLast frame:\n${this.lastFrame}`,
-      },
+      }
     );
   }
 
@@ -523,9 +479,7 @@ export class AppRig {
   async unmount() {
     // Poison the chat recording service to prevent late writes to the test directory
     if (this.config) {
-      const recordingService = this.config
-        .getGeminiClient()
-        ?.getChatRecordingService();
+      const recordingService = this.config.getGeminiClient()?.getChatRecordingService();
       if (recordingService) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-type-assertion
         (recordingService as any).conversationFile = null;
@@ -558,10 +512,7 @@ export class AppRig {
       try {
         fs.rmSync(this.testDir, { recursive: true, force: true });
       } catch (e) {
-        debugLogger.warn(
-          `Failed to cleanup test directory ${this.testDir}:`,
-          e,
-        );
+        debugLogger.warn(`Failed to cleanup test directory ${this.testDir}:`, e);
       }
     }
   }

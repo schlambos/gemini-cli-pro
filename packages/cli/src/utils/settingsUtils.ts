@@ -4,17 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type {
-  Settings,
-  LoadedSettings,
-  LoadableSettingScope,
-} from '../config/settings.js';
-import type {
-  SettingDefinition,
-  SettingsSchema,
-  SettingsType,
-  SettingsValue,
-} from '../config/settingsSchema.js';
+import type { Settings, LoadedSettings, LoadableSettingScope } from '../config/settings.js';
+import type { SettingDefinition, SettingsSchema, SettingsType, SettingsValue } from '../config/settingsSchema.js';
 import { getSettingsSchema } from '../config/settingsSchema.js';
 import type { Config } from '@google/gemini-cli-core';
 import { ExperimentFlags } from '@google/gemini-cli-core';
@@ -42,10 +33,7 @@ let _FLATTENED_SCHEMA: FlattenedSchema | undefined;
 
 /** Returns a flattened schema, the first call is memoized for future requests. */
 export function getFlattenedSchema() {
-  return (
-    _FLATTENED_SCHEMA ??
-    (_FLATTENED_SCHEMA = flattenSchema(getSettingsSchema()))
-  );
+  return _FLATTENED_SCHEMA ?? (_FLATTENED_SCHEMA = flattenSchema(getSettingsSchema()));
 }
 
 function clearFlattenedSchema() {
@@ -55,14 +43,8 @@ function clearFlattenedSchema() {
 /**
  * Get all settings grouped by category
  */
-export function getSettingsByCategory(): Record<
-  string,
-  Array<SettingDefinition & { key: string }>
-> {
-  const categories: Record<
-    string,
-    Array<SettingDefinition & { key: string }>
-  > = {};
+export function getSettingsByCategory(): Record<string, Array<SettingDefinition & { key: string }>> {
+  const categories: Record<string, Array<SettingDefinition & { key: string }>> = {};
 
   Object.values(getFlattenedSchema()).forEach((definition) => {
     const category = definition.category;
@@ -78,9 +60,7 @@ export function getSettingsByCategory(): Record<
 /**
  * Get a setting definition by key
  */
-export function getSettingDefinition(
-  key: string,
-): (SettingDefinition & { key: string }) | undefined {
+export function getSettingDefinition(key: string): (SettingDefinition & { key: string }) | undefined {
   return getFlattenedSchema()[key];
 }
 
@@ -103,15 +83,10 @@ export function getDefaultValue(key: string): SettingsValue {
  * For settings like compressionThreshold, this will return the experiment value if set,
  * otherwise falls back to the schema default.
  */
-export function getEffectiveDefaultValue(
-  key: string,
-  config?: Config,
-): SettingsValue {
+export function getEffectiveDefaultValue(key: string, config?: Config): SettingsValue {
   if (key === 'model.compressionThreshold' && config) {
     const experiments = config.getExperiments();
-    const experimentValue =
-      experiments?.flags[ExperimentFlags.CONTEXT_COMPRESSION_THRESHOLD]
-        ?.floatValue;
+    const experimentValue = experiments?.flags[ExperimentFlags.CONTEXT_COMPRESSION_THRESHOLD]?.floatValue;
     if (experimentValue !== undefined && experimentValue !== 0) {
       return experimentValue;
     }
@@ -132,10 +107,7 @@ export function getRestartRequiredSettings(): string[] {
 /**
  * Recursively gets a value from a nested object using a key path array.
  */
-export function getNestedValue(
-  obj: Record<string, unknown>,
-  path: string[],
-): unknown {
+export function getNestedValue(obj: Record<string, unknown>, path: string[]): unknown {
   const [first, ...rest] = path;
   if (!first || !(first in obj)) {
     return undefined;
@@ -155,11 +127,7 @@ export function getNestedValue(
  * Get the effective value for a setting, considering inheritance from higher scopes
  * Always returns a value (never undefined) - falls back to default if not set anywhere
  */
-export function getEffectiveValue(
-  key: string,
-  settings: Settings,
-  mergedSettings: Settings,
-): SettingsValue {
+export function getEffectiveValue(key: string, settings: Settings, mergedSettings: Settings): SettingsValue {
   const definition = getSettingDefinition(key);
   if (!definition) {
     return undefined;
@@ -195,12 +163,8 @@ export function getAllSettingKeys(): string[] {
 /**
  * Get settings by type
  */
-export function getSettingsByType(
-  type: SettingsType,
-): Array<SettingDefinition & { key: string }> {
-  return Object.values(getFlattenedSchema()).filter(
-    (definition) => definition.type === type,
-  );
+export function getSettingsByType(type: SettingsType): Array<SettingDefinition & { key: string }> {
+  return Object.values(getFlattenedSchema()).filter((definition) => definition.type === type);
 }
 
 /**
@@ -211,9 +175,7 @@ export function getSettingsRequiringRestart(): Array<
     key: string;
   }
 > {
-  return Object.values(getFlattenedSchema()).filter(
-    (definition) => definition.requiresRestart,
-  );
+  return Object.values(getFlattenedSchema()).filter((definition) => definition.requiresRestart);
 }
 
 /**
@@ -240,14 +202,8 @@ export function shouldShowInDialog(key: string): boolean {
 /**
  * Get all settings that should be shown in the dialog, grouped by category
  */
-export function getDialogSettingsByCategory(): Record<
-  string,
-  Array<SettingDefinition & { key: string }>
-> {
-  const categories: Record<
-    string,
-    Array<SettingDefinition & { key: string }>
-  > = {};
+export function getDialogSettingsByCategory(): Record<string, Array<SettingDefinition & { key: string }>> {
+  const categories: Record<string, Array<SettingDefinition & { key: string }>> = {};
 
   Object.values(getFlattenedSchema())
     .filter((definition) => definition.showInDialog !== false)
@@ -265,12 +221,9 @@ export function getDialogSettingsByCategory(): Record<
 /**
  * Get settings by type that should be shown in the dialog
  */
-export function getDialogSettingsByType(
-  type: SettingsType,
-): Array<SettingDefinition & { key: string }> {
+export function getDialogSettingsByType(type: SettingsType): Array<SettingDefinition & { key: string }> {
   return Object.values(getFlattenedSchema()).filter(
-    (definition) =>
-      definition.type === type && definition.showInDialog !== false,
+    (definition) => definition.type === type && definition.showInDialog !== false
   );
 }
 
@@ -291,11 +244,7 @@ export function getDialogSettingKeys(): string[] {
  * Get the current value for a setting in a specific scope
  * Always returns a value (never undefined) - falls back to default if not set anywhere
  */
-export function getSettingValue(
-  key: string,
-  settings: Settings,
-  mergedSettings: Settings,
-): boolean {
+export function getSettingValue(key: string, settings: Settings, mergedSettings: Settings): boolean {
   const definition = getSettingDefinition(key);
   if (!definition) {
     return false; // Default fallback for invalid settings
@@ -326,10 +275,7 @@ export function isSettingModified(key: string, value: boolean): boolean {
 /**
  * Check if a setting exists in the original settings file for a scope
  */
-export function settingExistsInScope(
-  key: string,
-  scopeSettings: Settings,
-): boolean {
+export function settingExistsInScope(key: string, scopeSettings: Settings): boolean {
   const path = key.split('.');
   const value = getNestedValue(scopeSettings as Record<string, unknown>, path);
   return value !== undefined;
@@ -338,11 +284,7 @@ export function settingExistsInScope(
 /**
  * Recursively sets a value in a nested object using a key path array.
  */
-function setNestedValue(
-  obj: Record<string, unknown>,
-  path: string[],
-  value: unknown,
-): Record<string, unknown> {
+function setNestedValue(obj: Record<string, unknown>, path: string[], value: unknown): Record<string, unknown> {
   const [first, ...rest] = path;
   if (!first) {
     return obj;
@@ -365,11 +307,7 @@ function setNestedValue(
 /**
  * Set a setting value in the pending settings
  */
-export function setPendingSettingValue(
-  key: string,
-  value: boolean,
-  pendingSettings: Settings,
-): Settings {
+export function setPendingSettingValue(key: string, value: boolean, pendingSettings: Settings): Settings {
   const path = key.split('.');
   const newSettings = JSON.parse(JSON.stringify(pendingSettings));
   setNestedValue(newSettings, path, value);
@@ -379,11 +317,7 @@ export function setPendingSettingValue(
 /**
  * Generic setter: Set a setting value (boolean, number, string, etc.) in the pending settings
  */
-export function setPendingSettingValueAny(
-  key: string,
-  value: SettingsValue,
-  pendingSettings: Settings,
-): Settings {
+export function setPendingSettingValueAny(key: string, value: SettingsValue, pendingSettings: Settings): Settings {
   const path = key.split('.');
   const newSettings = structuredClone(pendingSettings);
   setNestedValue(newSettings, path, value);
@@ -393,18 +327,14 @@ export function setPendingSettingValueAny(
 /**
  * Check if any modified settings require a restart
  */
-export function hasRestartRequiredSettings(
-  modifiedSettings: Set<string>,
-): boolean {
+export function hasRestartRequiredSettings(modifiedSettings: Set<string>): boolean {
   return Array.from(modifiedSettings).some((key) => requiresRestart(key));
 }
 
 /**
  * Get the restart required settings from a set of modified settings
  */
-export function getRestartRequiredFromModified(
-  modifiedSettings: Set<string>,
-): string[] {
+export function getRestartRequiredFromModified(modifiedSettings: Set<string>): string[] {
   return Array.from(modifiedSettings).filter((key) => requiresRestart(key));
 }
 
@@ -415,23 +345,17 @@ export function saveModifiedSettings(
   modifiedSettings: Set<string>,
   pendingSettings: Settings,
   loadedSettings: LoadedSettings,
-  scope: LoadableSettingScope,
+  scope: LoadableSettingScope
 ): void {
   modifiedSettings.forEach((settingKey) => {
     const path = settingKey.split('.');
-    const value = getNestedValue(
-      pendingSettings as Record<string, unknown>,
-      path,
-    );
+    const value = getNestedValue(pendingSettings as Record<string, unknown>, path);
 
     if (value === undefined) {
       return;
     }
 
-    const existsInOriginalFile = settingExistsInScope(
-      settingKey,
-      loadedSettings.forScope(scope).settings,
-    );
+    const existsInOriginalFile = settingExistsInScope(settingKey, loadedSettings.forScope(scope).settings);
 
     const isDefaultValue = value === getDefaultValue(settingKey);
 
@@ -449,7 +373,7 @@ export function getDisplayValue(
   settings: Settings,
   _mergedSettings: Settings,
   modifiedSettings: Set<string>,
-  pendingSettings?: Settings,
+  pendingSettings?: Settings
 ): string {
   // Prioritize pending changes if user has modified this setting
   const definition = getSettingDefinition(key);
@@ -499,11 +423,7 @@ export function isDefaultValue(key: string, settings: Settings): boolean {
 /**
  * Check if a setting value is inherited (not set at current scope)
  */
-export function isValueInherited(
-  key: string,
-  settings: Settings,
-  _mergedSettings: Settings,
-): boolean {
+export function isValueInherited(key: string, settings: Settings, _mergedSettings: Settings): boolean {
   return !settingExistsInScope(key, settings);
 }
 
@@ -511,11 +431,7 @@ export function isValueInherited(
  * Get the effective value for display, considering inheritance
  * Always returns a boolean value (never undefined)
  */
-export function getEffectiveDisplayValue(
-  key: string,
-  settings: Settings,
-  mergedSettings: Settings,
-): boolean {
+export function getEffectiveDisplayValue(key: string, settings: Settings, mergedSettings: Settings): boolean {
   return getSettingValue(key, settings, mergedSettings);
 }
 

@@ -20,7 +20,7 @@ import type { MCPServerConfig } from '../../config/config.js';
  */
 export function applyAdminAllowlist(
   localMcpServers: Record<string, MCPServerConfig>,
-  adminAllowlist: Record<string, MCPServerConfig> | undefined,
+  adminAllowlist: Record<string, MCPServerConfig> | undefined
 ): {
   mcpServers: Record<string, MCPServerConfig>;
   blockedServerNames: string[];

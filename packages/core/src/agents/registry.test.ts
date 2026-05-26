@@ -29,9 +29,7 @@ import type { AcknowledgedAgentsService } from './acknowledgedAgents.js';
 import { PolicyDecision } from '../policy/types.js';
 
 vi.mock('./agentLoader.js', () => ({
-  loadAgentsFromDirectory: vi
-    .fn()
-    .mockResolvedValue({ agents: [], errors: [] }),
+  loadAgentsFromDirectory: vi.fn().mockResolvedValue({ agents: [], errors: [] }),
 }));
 
 vi.mock('./a2a-client-manager.js', () => ({
@@ -119,16 +117,12 @@ describe('AgentRegistry', () => {
         enableAgents: true,
       });
       const debugRegistry = new TestableAgentRegistry(debugConfig);
-      const debugLogSpy = vi
-        .spyOn(debugLogger, 'log')
-        .mockImplementation(() => {});
+      const debugLogSpy = vi.spyOn(debugLogger, 'log').mockImplementation(() => {});
 
       await debugRegistry.initialize();
 
       const agentCount = debugRegistry.getAllDefinitions().length;
-      expect(debugLogSpy).toHaveBeenCalledWith(
-        `[AgentRegistry] Loaded with ${agentCount} agents.`,
-      );
+      expect(debugLogSpy).toHaveBeenCalledWith(`[AgentRegistry] Loaded with ${agentCount} agents.`);
     });
 
     it('should use default model for codebase investigator for non-preview models', async () => {
@@ -137,14 +131,10 @@ describe('AgentRegistry', () => {
 
       await previewRegistry.initialize();
 
-      const investigatorDef = previewRegistry.getDefinition(
-        'codebase_investigator',
-      ) as LocalAgentDefinition;
+      const investigatorDef = previewRegistry.getDefinition('codebase_investigator') as LocalAgentDefinition;
       expect(investigatorDef).toBeDefined();
       expect(investigatorDef?.modelConfig.model).toBe(DEFAULT_GEMINI_MODEL);
-      expect(
-        investigatorDef?.modelConfig.generateContentConfig?.thinkingConfig,
-      ).toStrictEqual({
+      expect(investigatorDef?.modelConfig.generateContentConfig?.thinkingConfig).toStrictEqual({
         includeThoughts: true,
         thinkingBudget: DEFAULT_THINKING_MODE,
       });
@@ -156,16 +146,10 @@ describe('AgentRegistry', () => {
 
       await previewRegistry.initialize();
 
-      const investigatorDef = previewRegistry.getDefinition(
-        'codebase_investigator',
-      ) as LocalAgentDefinition;
+      const investigatorDef = previewRegistry.getDefinition('codebase_investigator') as LocalAgentDefinition;
       expect(investigatorDef).toBeDefined();
-      expect(investigatorDef?.modelConfig.model).toBe(
-        PREVIEW_GEMINI_FLASH_MODEL,
-      );
-      expect(
-        investigatorDef?.modelConfig.generateContentConfig?.thinkingConfig,
-      ).toStrictEqual({
+      expect(investigatorDef?.modelConfig.model).toBe(PREVIEW_GEMINI_FLASH_MODEL);
+      expect(investigatorDef?.modelConfig.generateContentConfig?.thinkingConfig).toStrictEqual({
         includeThoughts: true,
         thinkingLevel: ThinkingLevel.HIGH,
       });
@@ -179,13 +163,9 @@ describe('AgentRegistry', () => {
 
       await previewRegistry.initialize();
 
-      const investigatorDef = previewRegistry.getDefinition(
-        'codebase_investigator',
-      ) as LocalAgentDefinition;
+      const investigatorDef = previewRegistry.getDefinition('codebase_investigator') as LocalAgentDefinition;
       expect(investigatorDef).toBeDefined();
-      expect(investigatorDef?.modelConfig.model).toBe(
-        PREVIEW_GEMINI_FLASH_MODEL,
-      );
+      expect(investigatorDef?.modelConfig.model).toBe(PREVIEW_GEMINI_FLASH_MODEL);
     });
 
     it('should use the model from the investigator settings', async () => {
@@ -204,13 +184,9 @@ describe('AgentRegistry', () => {
 
       await previewRegistry.initialize();
 
-      const investigatorDef = previewRegistry.getDefinition(
-        'codebase_investigator',
-      ) as LocalAgentDefinition;
+      const investigatorDef = previewRegistry.getDefinition('codebase_investigator') as LocalAgentDefinition;
       expect(investigatorDef).toBeDefined();
-      expect(investigatorDef?.modelConfig.model).toBe(
-        DEFAULT_GEMINI_FLASH_LITE_MODEL,
-      );
+      expect(investigatorDef?.modelConfig.model).toBe(DEFAULT_GEMINI_FLASH_LITE_MODEL);
     });
 
     it('should load agents from user and project directories with correct precedence', async () => {
@@ -243,13 +219,9 @@ describe('AgentRegistry', () => {
       await registry.initialize();
 
       // Project agent should override user agent
-      expect(registry.getDefinition('common-agent')?.description).toBe(
-        'Project version',
-      );
+      expect(registry.getDefinition('common-agent')?.description).toBe('Project version');
       expect(registry.getDefinition('project-only')).toBeDefined();
-      expect(
-        vi.mocked(tomlLoader.loadAgentsFromDirectory),
-      ).toHaveBeenCalledTimes(2);
+      expect(vi.mocked(tomlLoader.loadAgentsFromDirectory)).toHaveBeenCalledTimes(2);
     });
 
     it('should NOT load TOML agents when enableAgents is false', async () => {
@@ -267,9 +239,7 @@ describe('AgentRegistry', () => {
       await disabledRegistry.initialize();
 
       expect(disabledRegistry.getAllDefinitions()).toHaveLength(0);
-      expect(
-        vi.mocked(tomlLoader.loadAgentsFromDirectory),
-      ).not.toHaveBeenCalled();
+      expect(vi.mocked(tomlLoader.loadAgentsFromDirectory)).not.toHaveBeenCalled();
     });
 
     it('should register CLI help agent by default', async () => {
@@ -431,7 +401,7 @@ describe('AgentRegistry', () => {
         acknowledge: vi.fn(),
       };
       vi.spyOn(mockConfig, 'getAcknowledgedAgentsService').mockReturnValue(
-        ackService as unknown as AcknowledgedAgentsService,
+        ackService as unknown as AcknowledgedAgentsService
       );
 
       // Mock A2AClientManager to avoid network calls
@@ -446,14 +416,12 @@ describe('AgentRegistry', () => {
       expect(ackService.isAcknowledged).toHaveBeenCalledWith(
         expect.anything(),
         'RemoteAgent',
-        'https://example.com/card',
+        'https://example.com/card'
       );
 
       // Also verify that the agent's metadata was updated to use the URL as hash
       // Use getDefinition because registerAgent might have been called
-      expect(registry.getDefinition('RemoteAgent')?.metadata?.hash).toBe(
-        'https://example.com/card',
-      );
+      expect(registry.getDefinition('RemoteAgent')?.metadata?.hash).toBe('https://example.com/card');
     });
   });
 
@@ -465,10 +433,7 @@ describe('AgentRegistry', () => {
         modelConfig: { ...MOCK_AGENT_V1.modelConfig, model: 'auto' },
       };
 
-      const registerOverrideSpy = vi.spyOn(
-        mockConfig.modelConfigService,
-        'registerRuntimeModelOverride',
-      );
+      const registerOverrideSpy = vi.spyOn(mockConfig.modelConfigService, 'registerRuntimeModelOverride');
 
       await registry.testRegisterAgent(autoAgent);
 
@@ -476,7 +441,7 @@ describe('AgentRegistry', () => {
       expect(
         mockConfig.modelConfigService.getResolvedConfig({
           model: getModelConfigAlias(autoAgent),
-        }),
+        })
       ).toStrictEqual({
         model: 'auto',
         generateContentConfig: {
@@ -499,7 +464,7 @@ describe('AgentRegistry', () => {
           modelConfig: expect.objectContaining({
             generateContentConfig: expect.any(Object),
           }),
-        }),
+        })
       );
     });
 
@@ -509,12 +474,11 @@ describe('AgentRegistry', () => {
       expect(
         mockConfig.modelConfigService.getResolvedConfig({
           model: getModelConfigAlias(MOCK_AGENT_V1),
-        }),
+        })
       ).toStrictEqual({
         model: MOCK_AGENT_V1.modelConfig.model,
         generateContentConfig: {
-          temperature:
-            MOCK_AGENT_V1.modelConfig.generateContentConfig?.temperature,
+          temperature: MOCK_AGENT_V1.modelConfig.generateContentConfig?.temperature,
           topP: MOCK_AGENT_V1.modelConfig.generateContentConfig?.topP,
           thinkingConfig: {
             includeThoughts: true,
@@ -544,9 +508,7 @@ describe('AgentRegistry', () => {
     it('should log remote agent registration in debug mode', async () => {
       const debugConfig = makeMockedConfig({ debugMode: true });
       const debugRegistry = new TestableAgentRegistry(debugConfig);
-      const debugLogSpy = vi
-        .spyOn(debugLogger, 'log')
-        .mockImplementation(() => {});
+      const debugLogSpy = vi.spyOn(debugLogger, 'log').mockImplementation(() => {});
 
       const remoteAgent: AgentDefinition = {
         kind: 'remote',
@@ -563,7 +525,7 @@ describe('AgentRegistry', () => {
       await debugRegistry.testRegisterAgent(remoteAgent);
 
       expect(debugLogSpy).toHaveBeenCalledWith(
-        `[AgentRegistry] Registered remote agent 'RemoteAgent' with card: https://example.com/card`,
+        `[AgentRegistry] Registered remote agent 'RemoteAgent' with card: https://example.com/card`
       );
     });
 
@@ -573,78 +535,60 @@ describe('AgentRegistry', () => {
         name: 'Agent-123_$pecial.v2',
       };
       await registry.testRegisterAgent(specialAgent);
-      expect(registry.getDefinition('Agent-123_$pecial.v2')).toEqual(
-        specialAgent,
-      );
+      expect(registry.getDefinition('Agent-123_$pecial.v2')).toEqual(specialAgent);
     });
 
     it('should reject an agent definition missing a name', async () => {
       const invalidAgent = { ...MOCK_AGENT_V1, name: '' };
-      const debugWarnSpy = vi
-        .spyOn(debugLogger, 'warn')
-        .mockImplementation(() => {});
+      const debugWarnSpy = vi.spyOn(debugLogger, 'warn').mockImplementation(() => {});
 
       await registry.testRegisterAgent(invalidAgent);
 
       expect(registry.getDefinition('MockAgent')).toBeUndefined();
       expect(debugWarnSpy).toHaveBeenCalledWith(
-        '[AgentRegistry] Skipping invalid agent definition. Missing name or description.',
+        '[AgentRegistry] Skipping invalid agent definition. Missing name or description.'
       );
     });
 
     it('should reject an agent definition missing a description', async () => {
       const invalidAgent = { ...MOCK_AGENT_V1, description: '' };
-      const debugWarnSpy = vi
-        .spyOn(debugLogger, 'warn')
-        .mockImplementation(() => {});
+      const debugWarnSpy = vi.spyOn(debugLogger, 'warn').mockImplementation(() => {});
 
       await registry.testRegisterAgent(invalidAgent as AgentDefinition);
 
       expect(registry.getDefinition('MockAgent')).toBeUndefined();
       expect(debugWarnSpy).toHaveBeenCalledWith(
-        '[AgentRegistry] Skipping invalid agent definition. Missing name or description.',
+        '[AgentRegistry] Skipping invalid agent definition. Missing name or description.'
       );
     });
 
     it('should overwrite an existing agent definition', async () => {
       await registry.testRegisterAgent(MOCK_AGENT_V1);
-      expect(registry.getDefinition('MockAgent')?.description).toBe(
-        'Mock Description V1',
-      );
+      expect(registry.getDefinition('MockAgent')?.description).toBe('Mock Description V1');
 
       await registry.testRegisterAgent(MOCK_AGENT_V2);
-      expect(registry.getDefinition('MockAgent')?.description).toBe(
-        'Mock Description V2 (Updated)',
-      );
+      expect(registry.getDefinition('MockAgent')?.description).toBe('Mock Description V2 (Updated)');
       expect(registry.getAllDefinitions()).toHaveLength(1);
     });
 
     it('should log overwrites when in debug mode', async () => {
       const debugConfig = makeMockedConfig({ debugMode: true });
       const debugRegistry = new TestableAgentRegistry(debugConfig);
-      const debugLogSpy = vi
-        .spyOn(debugLogger, 'log')
-        .mockImplementation(() => {});
+      const debugLogSpy = vi.spyOn(debugLogger, 'log').mockImplementation(() => {});
 
       await debugRegistry.testRegisterAgent(MOCK_AGENT_V1);
       await debugRegistry.testRegisterAgent(MOCK_AGENT_V2);
 
-      expect(debugLogSpy).toHaveBeenCalledWith(
-        `[AgentRegistry] Overriding agent 'MockAgent'`,
-      );
+      expect(debugLogSpy).toHaveBeenCalledWith(`[AgentRegistry] Overriding agent 'MockAgent'`);
     });
 
     it('should not log overwrites when not in debug mode', async () => {
-      const debugLogSpy = vi
-        .spyOn(debugLogger, 'log')
-        .mockImplementation(() => {});
+      const debugLogSpy = vi.spyOn(debugLogger, 'log').mockImplementation(() => {});
 
       await registry.testRegisterAgent(MOCK_AGENT_V1);
       await registry.testRegisterAgent(MOCK_AGENT_V2);
 
-      expect(debugLogSpy).not.toHaveBeenCalledWith(
-        `[AgentRegistry] Overriding agent 'MockAgent'`,
-      );
+      expect(debugLogSpy).not.toHaveBeenCalledWith(`[AgentRegistry] Overriding agent 'MockAgent'`);
     });
 
     it('should handle bulk registrations correctly', async () => {
@@ -652,7 +596,7 @@ describe('AgentRegistry', () => {
         registry.testRegisterAgent({
           ...MOCK_AGENT_V1,
           name: `Agent${i}`,
-        }),
+        })
       );
 
       await Promise.all(promises);
@@ -674,7 +618,7 @@ describe('AgentRegistry', () => {
           toolName: 'PolicyTestAgent',
           decision: PolicyDecision.ALLOW,
           priority: 1.05,
-        }),
+        })
       );
     });
 
@@ -701,7 +645,7 @@ describe('AgentRegistry', () => {
           toolName: 'RemotePolicyAgent',
           decision: PolicyDecision.ASK_USER,
           priority: 1.05,
-        }),
+        })
       );
     });
 
@@ -713,8 +657,7 @@ describe('AgentRegistry', () => {
       const policyEngine = mockConfig.getPolicyEngine();
       // Mock hasRuleForTool to return true when ignoreDynamic=true (simulating a user policy)
       vi.spyOn(policyEngine, 'hasRuleForTool').mockImplementation(
-        (toolName, ignoreDynamic) =>
-          toolName === 'ExistingUserPolicyAgent' && ignoreDynamic === true,
+        (toolName, ignoreDynamic) => toolName === 'ExistingUserPolicyAgent' && ignoreDynamic === true
       );
       const addRuleSpy = vi.spyOn(policyEngine, 'addRule');
 
@@ -746,24 +689,19 @@ describe('AgentRegistry', () => {
 
       // 1. Register local
       await registry.testRegisterAgent(localAgent);
-      expect(addRuleSpy).toHaveBeenLastCalledWith(
-        expect.objectContaining({ decision: PolicyDecision.ALLOW }),
-      );
+      expect(addRuleSpy).toHaveBeenLastCalledWith(expect.objectContaining({ decision: PolicyDecision.ALLOW }));
 
       // 2. Overwrite with remote
       await registry.testRegisterAgent(remoteAgent);
 
       // Verify old dynamic rule was removed
-      expect(removeRuleSpy).toHaveBeenCalledWith(
-        'OverwrittenAgent',
-        'AgentRegistry (Dynamic)',
-      );
+      expect(removeRuleSpy).toHaveBeenCalledWith('OverwrittenAgent', 'AgentRegistry (Dynamic)');
       // Verify new dynamic rule (remote -> ASK_USER) was added
       expect(addRuleSpy).toHaveBeenLastCalledWith(
         expect.objectContaining({
           toolName: 'OverwrittenAgent',
           decision: PolicyDecision.ASK_USER,
-        }),
+        })
       );
     });
   });
@@ -886,9 +824,7 @@ describe('AgentRegistry', () => {
     it('getAllDefinitions should return all registered definitions', () => {
       const all = registry.getAllDefinitions();
       expect(all).toHaveLength(2);
-      expect(all).toEqual(
-        expect.arrayContaining([MOCK_AGENT_V1, ANOTHER_AGENT]),
-      );
+      expect(all).toEqual(expect.arrayContaining([MOCK_AGENT_V1, ANOTHER_AGENT]));
     });
 
     it('getAllDiscoveredAgentNames should return all names including disabled ones', async () => {
@@ -899,9 +835,7 @@ describe('AgentRegistry', () => {
           },
         },
       });
-      const registryWithDisabled = new TestableAgentRegistry(
-        configWithDisabled,
-      );
+      const registryWithDisabled = new TestableAgentRegistry(configWithDisabled);
 
       const enabledAgent = { ...MOCK_AGENT_V1, name: 'EnabledAgent' };
       const disabledAgent = { ...MOCK_AGENT_V1, name: 'DisabledAgent' };
@@ -928,9 +862,7 @@ describe('AgentRegistry', () => {
           },
         },
       });
-      const registryWithDisabled = new TestableAgentRegistry(
-        configWithDisabled,
-      );
+      const registryWithDisabled = new TestableAgentRegistry(configWithDisabled);
 
       const disabledAgent = {
         ...MOCK_AGENT_V1,
@@ -940,12 +872,9 @@ describe('AgentRegistry', () => {
 
       await registryWithDisabled.testRegisterAgent(disabledAgent);
 
-      expect(
-        registryWithDisabled.getDefinition('DisabledAgent'),
-      ).toBeUndefined();
+      expect(registryWithDisabled.getDefinition('DisabledAgent')).toBeUndefined();
 
-      const discovered =
-        registryWithDisabled.getDiscoveredDefinition('DisabledAgent');
+      const discovered = registryWithDisabled.getDiscoveredDefinition('DisabledAgent');
       expect(discovered).toBeDefined();
       expect(discovered?.description).toBe('I am disabled');
     });
@@ -1006,9 +935,7 @@ describe('AgentRegistry', () => {
 
       const def = registry.getDefinition('MockAgent') as LocalAgentDefinition;
       expect(def.runConfig.maxTurns).toBe(50);
-      expect(def.runConfig.maxTimeMinutes).toBe(
-        MOCK_AGENT_V1.runConfig.maxTimeMinutes,
-      );
+      expect(def.runConfig.maxTimeMinutes).toBe(MOCK_AGENT_V1.runConfig.maxTimeMinutes);
     });
 
     it('should apply modelConfig overrides', async () => {
@@ -1094,9 +1021,7 @@ describe('AgentRegistry', () => {
 
       await registry.testRegisterAgent(agentWithGetter);
 
-      const registeredDef = registry.getDefinition(
-        'GetterAgent',
-      ) as LocalAgentDefinition;
+      const registeredDef = registry.getDefinition('GetterAgent') as LocalAgentDefinition;
 
       expect(registeredDef.runConfig.maxTurns).toBe(100);
       expect(getterCalled).toBe(false); // Getter should not have been called yet

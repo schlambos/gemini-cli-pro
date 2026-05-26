@@ -84,8 +84,7 @@ export const GEMINI_3_SET: CoreToolSet = {
 
   grep_search: {
     name: GREP_TOOL_NAME,
-    description:
-      'Searches for a regular expression pattern within file contents. Max 100 matches.',
+    description: 'Searches for a regular expression pattern within file contents. Max 100 matches.',
     parametersJsonSchema: {
       type: 'object',
       properties: {
@@ -131,8 +130,7 @@ export const GEMINI_3_SET: CoreToolSet = {
 
   grep_search_ripgrep: {
     name: GREP_TOOL_NAME,
-    description:
-      'Searches for a regular expression pattern within file contents.',
+    description: 'Searches for a regular expression pattern within file contents.',
     parametersJsonSchema: {
       type: 'object',
       properties: {
@@ -161,8 +159,7 @@ export const GEMINI_3_SET: CoreToolSet = {
           type: 'boolean',
         },
         case_sensitive: {
-          description:
-            'If true, search is case-sensitive. Defaults to false (ignore case) if omitted.',
+          description: 'If true, search is case-sensitive. Defaults to false (ignore case) if omitted.',
           type: 'boolean',
         },
         fixed_strings: {
@@ -176,14 +173,12 @@ export const GEMINI_3_SET: CoreToolSet = {
           type: 'integer',
         },
         after: {
-          description:
-            'Show this many lines after each match (equivalent to grep -A). Defaults to 0 if omitted.',
+          description: 'Show this many lines after each match (equivalent to grep -A). Defaults to 0 if omitted.',
           type: 'integer',
           minimum: 0,
         },
         before: {
-          description:
-            'Show this many lines before each match (equivalent to grep -B). Defaults to 0 if omitted.',
+          description: 'Show this many lines before each match (equivalent to grep -B). Defaults to 0 if omitted.',
           type: 'integer',
           minimum: 0,
         },
@@ -217,8 +212,7 @@ export const GEMINI_3_SET: CoreToolSet = {
       type: 'object',
       properties: {
         pattern: {
-          description:
-            "The glob pattern to match against (e.g., '**/*.py', 'docs/*.md').",
+          description: "The glob pattern to match against (e.g., '**/*.py', 'docs/*.md').",
           type: 'string',
         },
         dir_path: {
@@ -227,8 +221,7 @@ export const GEMINI_3_SET: CoreToolSet = {
           type: 'string',
         },
         case_sensitive: {
-          description:
-            'Optional: Whether the search should be case-sensitive. Defaults to false.',
+          description: 'Optional: Whether the search should be case-sensitive. Defaults to false.',
           type: 'boolean',
         },
         respect_git_ignore: {
@@ -237,8 +230,7 @@ export const GEMINI_3_SET: CoreToolSet = {
           type: 'boolean',
         },
         respect_gemini_ignore: {
-          description:
-            'Optional: Whether to respect .geminiignore patterns when finding files. Defaults to true.',
+          description: 'Optional: Whether to respect .geminiignore patterns when finding files. Defaults to true.',
           type: 'boolean',
         },
       },
@@ -265,8 +257,7 @@ export const GEMINI_3_SET: CoreToolSet = {
           type: 'array',
         },
         file_filtering_options: {
-          description:
-            'Optional: Whether to respect ignore patterns from .gitignore or .geminiignore',
+          description: 'Optional: Whether to respect ignore patterns from .gitignore or .geminiignore',
           type: 'object',
           properties: {
             respect_git_ignore: {
@@ -275,8 +266,7 @@ export const GEMINI_3_SET: CoreToolSet = {
               type: 'boolean',
             },
             respect_gemini_ignore: {
-              description:
-                'Optional: Whether to respect .geminiignore patterns when listing files. Defaults to true.',
+              description: 'Optional: Whether to respect .geminiignore patterns when listing files. Defaults to true.',
               type: 'boolean',
             },
           },
@@ -404,8 +394,7 @@ Use this tool when the user's query implies needing the content of several files
             minLength: 1,
           },
           minItems: 1,
-          description:
-            'An array of glob patterns or paths. Examples: ["src/**/*.ts"], ["README.md", "docs/"]',
+          description: 'An array of glob patterns or paths. Examples: ["src/**/*.ts"], ["README.md", "docs/"]',
         },
         exclude: {
           type: 'array',
@@ -431,8 +420,7 @@ Use this tool when the user's query implies needing the content of several files
           default: true,
         },
         file_filtering_options: {
-          description:
-            'Whether to respect ignore patterns from .gitignore or .geminiignore',
+          description: 'Whether to respect ignore patterns from .gitignore or .geminiignore',
           type: 'object',
           properties: {
             respect_git_ignore: {
@@ -441,8 +429,7 @@ Use this tool when the user's query implies needing the content of several files
               type: 'boolean',
             },
             respect_gemini_ignore: {
-              description:
-                'Optional: Whether to respect .geminiignore patterns when listing files. Defaults to true.',
+              description: 'Optional: Whether to respect .geminiignore patterns when listing files. Defaults to true.',
               type: 'boolean',
             },
           },
@@ -546,8 +533,7 @@ The agent did not use the todo list because this task could be completed by a ti
       properties: {
         todos: {
           type: 'array',
-          description:
-            'The complete list of todo items. This will replace the existing list.',
+          description: 'The complete list of todo items. This will replace the existing list.',
           items: {
             type: 'object',
             description: 'A single todo item.',
@@ -590,8 +576,7 @@ The agent did not use the todo list because this task could be completed by a ti
 
   ask_user: {
     name: ASK_USER_TOOL_NAME,
-    description:
-      'Ask the user one or more questions to gather preferences, clarify requirements, or make decisions.',
+    description: 'Ask the user one or more questions to gather preferences, clarify requirements, or make decisions.',
     parametersJsonSchema: {
       type: 'object',
       required: ['questions'],
@@ -632,21 +617,18 @@ The agent did not use the todo list because this task could be completed by a ti
                   properties: {
                     label: {
                       type: 'string',
-                      description:
-                        'The display text for this option (1-5 words). Example: "OAuth 2.0"',
+                      description: 'The display text for this option (1-5 words). Example: "OAuth 2.0"',
                     },
                     description: {
                       type: 'string',
-                      description:
-                        'Brief explanation of this option. Example: "Industry standard, supports SSO"',
+                      description: 'Brief explanation of this option. Example: "Industry standard, supports SSO"',
                     },
                   },
                 },
               },
               multiSelect: {
                 type: 'boolean',
-                description:
-                  "Only applies when type='choice'. Set to true to allow selecting multiple options.",
+                description: "Only applies when type='choice'. Set to true to allow selecting multiple options.",
               },
               placeholder: {
                 type: 'string',
@@ -662,15 +644,13 @@ The agent did not use the todo list because this task could be completed by a ti
 
   enter_plan_mode: {
     name: ENTER_PLAN_MODE_TOOL_NAME,
-    description:
-      'Switch to Plan Mode to safely research, design, and plan complex changes using read-only tools.',
+    description: 'Switch to Plan Mode to safely research, design, and plan complex changes using read-only tools.',
     parametersJsonSchema: {
       type: 'object',
       properties: {
         reason: {
           type: 'string',
-          description:
-            'Short reason explaining why you are entering plan mode.',
+          description: 'Short reason explaining why you are entering plan mode.',
         },
       },
     },

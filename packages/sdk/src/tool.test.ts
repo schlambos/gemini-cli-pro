@@ -20,7 +20,7 @@ describe('tool()', () => {
         description: 'A test tool',
         inputSchema: z.object({ foo: z.string() }),
       },
-      async () => 'result',
+      async () => 'result'
     );
 
     expect(definition.name).toBe('testTool');
@@ -36,7 +36,7 @@ describe('tool()', () => {
         inputSchema: z.object({ foo: z.string() }),
         sendErrorsToModel: true,
       },
-      async () => 'result',
+      async () => 'result'
     );
 
     expect(definition.sendErrorsToModel).toBe(true);
@@ -51,15 +51,11 @@ describe('SdkTool Execution', () => {
         description: 'Always succeeds',
         inputSchema: z.object({ val: z.string() }),
       },
-      async ({ val }) => `Success: ${val}`,
+      async ({ val }) => `Success: ${val}`
     );
 
     const sdkTool = new SdkTool(definition, mockMessageBus);
-    const invocation = sdkTool.createInvocationWithContext(
-      { val: 'test' },
-      mockMessageBus,
-      undefined,
-    );
+    const invocation = sdkTool.createInvocationWithContext({ val: 'test' }, mockMessageBus, undefined);
     const result = await invocation.execute(new AbortController().signal);
 
     expect(result.llmContent).toBe('Success: test');
@@ -75,19 +71,13 @@ describe('SdkTool Execution', () => {
       },
       async () => {
         throw new Error('Standard error');
-      },
+      }
     );
 
     const sdkTool = new SdkTool(definition, mockMessageBus);
-    const invocation = sdkTool.createInvocationWithContext(
-      {},
-      mockMessageBus,
-      undefined,
-    );
+    const invocation = sdkTool.createInvocationWithContext({}, mockMessageBus, undefined);
 
-    await expect(
-      invocation.execute(new AbortController().signal),
-    ).rejects.toThrow('Standard error');
+    await expect(invocation.execute(new AbortController().signal)).rejects.toThrow('Standard error');
   });
 
   it('catches ModelVisibleError and returns ToolResult error', async () => {
@@ -99,15 +89,11 @@ describe('SdkTool Execution', () => {
       },
       async () => {
         throw new ModelVisibleError('Visible error');
-      },
+      }
     );
 
     const sdkTool = new SdkTool(definition, mockMessageBus);
-    const invocation = sdkTool.createInvocationWithContext(
-      {},
-      mockMessageBus,
-      undefined,
-    );
+    const invocation = sdkTool.createInvocationWithContext({}, mockMessageBus, undefined);
     const result = await invocation.execute(new AbortController().signal);
 
     expect(result.error).toBeDefined();
@@ -125,15 +111,11 @@ describe('SdkTool Execution', () => {
       },
       async () => {
         throw new Error('Standard error');
-      },
+      }
     );
 
     const sdkTool = new SdkTool(definition, mockMessageBus);
-    const invocation = sdkTool.createInvocationWithContext(
-      {},
-      mockMessageBus,
-      undefined,
-    );
+    const invocation = sdkTool.createInvocationWithContext({}, mockMessageBus, undefined);
     const result = await invocation.execute(new AbortController().signal);
 
     expect(result.error).toBeDefined();

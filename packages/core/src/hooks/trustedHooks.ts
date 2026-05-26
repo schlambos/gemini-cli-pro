@@ -7,11 +7,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { Storage } from '../config/storage.js';
-import {
-  getHookKey,
-  type HookDefinition,
-  type HookEventName,
-} from './types.js';
+import { getHookKey, type HookDefinition, type HookEventName } from './types.js';
 import { debugLogger } from '../utils/debugLogger.js';
 
 interface TrustedHooksConfig {
@@ -23,10 +19,7 @@ export class TrustedHooksManager {
   private trustedHooks: TrustedHooksConfig = {};
 
   constructor() {
-    this.configPath = path.join(
-      Storage.getGlobalGeminiDir(),
-      'trusted_hooks.json',
-    );
+    this.configPath = path.join(Storage.getGlobalGeminiDir(), 'trusted_hooks.json');
     this.load();
   }
 
@@ -48,10 +41,7 @@ export class TrustedHooksManager {
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
       }
-      fs.writeFileSync(
-        this.configPath,
-        JSON.stringify(this.trustedHooks, null, 2),
-      );
+      fs.writeFileSync(this.configPath, JSON.stringify(this.trustedHooks, null, 2));
     } catch (error) {
       debugLogger.warn('Failed to save trusted hooks config', error);
     }
@@ -63,10 +53,7 @@ export class TrustedHooksManager {
    * @param hooks The hooks configuration to check
    * @returns List of untrusted hook commands/names
    */
-  getUntrustedHooks(
-    projectPath: string,
-    hooks: { [K in HookEventName]?: HookDefinition[] },
-  ): string[] {
+  getUntrustedHooks(projectPath: string, hooks: { [K in HookEventName]?: HookDefinition[] }): string[] {
     const trustedKeys = new Set(this.trustedHooks[projectPath] || []);
     const untrusted: string[] = [];
 
@@ -93,10 +80,7 @@ export class TrustedHooksManager {
   /**
    * Trust all provided hooks for a project
    */
-  trustHooks(
-    projectPath: string,
-    hooks: { [K in HookEventName]?: HookDefinition[] },
-  ): void {
+  trustHooks(projectPath: string, hooks: { [K in HookEventName]?: HookDefinition[] }): void {
     const currentTrusted = new Set(this.trustedHooks[projectPath] || []);
 
     for (const eventName of Object.keys(hooks)) {

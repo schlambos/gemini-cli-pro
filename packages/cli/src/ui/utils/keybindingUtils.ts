@@ -4,12 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  type Command,
-  type KeyBinding,
-  type KeyBindingConfig,
-  defaultKeyBindings,
-} from '../../config/keyBindings.js';
+import { type Command, type KeyBinding, type KeyBindingConfig, defaultKeyBindings } from '../../config/keyBindings.js';
 
 /**
  * Maps internal key names to user-friendly display names.
@@ -51,10 +46,7 @@ export function formatKeyBinding(binding: KeyBinding): string {
 /**
  * Formats the primary keybinding for a command.
  */
-export function formatCommand(
-  command: Command,
-  config: KeyBindingConfig = defaultKeyBindings,
-): string {
+export function formatCommand(command: Command, config: KeyBindingConfig = defaultKeyBindings): string {
   const bindings = config[command];
   if (!bindings || bindings.length === 0) {
     return '';

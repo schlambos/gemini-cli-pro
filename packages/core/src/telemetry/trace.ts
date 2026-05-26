@@ -4,13 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  diag,
-  SpanStatusCode,
-  trace,
-  type AttributeValue,
-  type SpanOptions,
-} from '@opentelemetry/api';
+import { diag, SpanStatusCode, trace, type AttributeValue, type SpanOptions } from '@opentelemetry/api';
 import { safeJsonStringify } from '../utils/safeJsonStringify.js';
 
 const TRACER_NAME = 'gemini-cli';
@@ -52,12 +46,7 @@ export interface SpanMetadata {
  */
 export async function runInDevTraceSpan<R>(
   opts: SpanOptions & { name: string; noAutoEnd?: boolean },
-  fn: ({
-    metadata,
-  }: {
-    metadata: SpanMetadata;
-    endSpan: () => void;
-  }) => Promise<R>,
+  fn: ({ metadata }: { metadata: SpanMetadata; endSpan: () => void }) => Promise<R>
 ): Promise<R> {
   const { name: spanName, noAutoEnd, ...restOfSpanOpts } = opts;
   if (process.env['GEMINI_DEV_TRACING'] !== 'true') {

@@ -4,17 +4,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type {
-  HistoryItemWithoutId,
-  IndividualToolCallDisplay,
-} from '../types.js';
+import type { HistoryItemWithoutId, IndividualToolCallDisplay } from '../types.js';
 import { useCallback, useReducer, useRef, useEffect } from 'react';
 import type { AnsiOutput, Config, GeminiClient } from '@google/gemini-cli-core';
-import {
-  isBinary,
-  ShellExecutionService,
-  CoreToolCallStatus,
-} from '@google/gemini-cli-core';
+import { isBinary, ShellExecutionService, CoreToolCallStatus } from '@google/gemini-cli-core';
 import { type PartListUnion } from '@google/genai';
 import type { UseHistoryManagerReturn } from './useHistoryManager.js';
 import { SHELL_COMMAND_NAME } from '../constants.js';
@@ -24,22 +17,14 @@ import path from 'node:path';
 import os from 'node:os';
 import fs from 'node:fs';
 import { themeManager } from '../../ui/themes/theme-manager.js';
-import {
-  shellReducer,
-  initialState,
-  type BackgroundShell,
-} from './shellReducer.js';
+import { shellReducer, initialState, type BackgroundShell } from './shellReducer.js';
 export { type BackgroundShell };
 
 export const OUTPUT_UPDATE_INTERVAL_MS = 1000;
 const RESTORE_VISIBILITY_DELAY_MS = 300;
 const MAX_OUTPUT_LENGTH = 10000;
 
-function addShellCommandToGeminiHistory(
-  geminiClient: GeminiClient,
-  rawQuery: string,
-  resultText: string,
-) {
+function addShellCommandToGeminiHistory(geminiClient: GeminiClient, rawQuery: string, resultText: string) {
   const modelContent =
     resultText.length > MAX_OUTPUT_LENGTH
       ? resultText.substring(0, MAX_OUTPUT_LENGTH) + '\n... (truncated)'
@@ -70,9 +55,7 @@ ${modelContent}
  */
 export const useShellCommandProcessor = (
   addItemToHistory: UseHistoryManagerReturn['addItem'],
-  setPendingHistoryItem: React.Dispatch<
-    React.SetStateAction<HistoryItemWithoutId | null>
-  >,
+  setPendingHistoryItem: React.Dispatch<React.SetStateAction<HistoryItemWithoutId | null>>,
   onExec: (command: Promise<void>) => void,
   onDebugMessage: (message: string) => void,
   config: Config,
@@ -81,7 +64,7 @@ export const useShellCommandProcessor = (
   terminalWidth?: number,
   terminalHeight?: number,
   activeToolPtyId?: number,
-  isWaitingForConfirmation?: boolean,
+  isWaitingForConfirmation?: boolean
 ) => {
   const [state, dispatch] = useReducer(shellReducer, initialState);
 
@@ -133,13 +116,7 @@ export const useShellCommandProcessor = (
         clearTimeout(m.restoreTimeout);
       }
     };
-  }, [
-    activePtyId,
-    isWaitingForConfirmation,
-    state.isBackgroundShellVisible,
-    m,
-    dispatch,
-  ]);
+  }, [activePtyId, isWaitingForConfirmation, state.isBackgroundShellVisible, m, dispatch]);
 
   useEffect(
     () => () => {
@@ -149,7 +126,7 @@ export const useShellCommandProcessor = (
       }
       m.subscriptions.clear();
     },
-    [m],
+    [m]
   );
 
   const toggleBackgroundShell = useCallback(() => {
@@ -177,7 +154,7 @@ export const useShellCommandProcessor = (
           type: 'info',
           text: 'No background shells are currently active.',
         },
-        Date.now(),
+        Date.now()
       );
     }
   }, [
@@ -222,7 +199,7 @@ export const useShellCommandProcessor = (
         }
       }
     },
-    [state.backgroundShells, dispatch, m],
+    [state.backgroundShells, dispatch, m]
   );
 
   const registerBackgroundShell = useCallback(
@@ -262,7 +239,7 @@ export const useShellCommandProcessor = (
         dataUnsubscribe();
       });
     },
-    [dispatch, m],
+    [dispatch, m]
   );
 
   const handleShellCommand = useCallback(
@@ -273,10 +250,7 @@ export const useShellCommandProcessor = (
 
       const userMessageTimestamp = Date.now();
       const callId = `shell-${userMessageTimestamp}`;
-      addItemToHistory(
-        { type: 'user_shell', text: rawQuery },
-        userMessageTimestamp,
-      );
+      addItemToHistory({ type: 'user_shell', text: rawQuery }, userMessageTimestamp);
 
       const isWindows = os.platform() === 'win32';
       const targetDir = config.getTargetDir();
@@ -317,9 +291,7 @@ export const useShellCommandProcessor = (
         let executionPid: number | undefined;
 
         const abortHandler = () => {
-          onDebugMessage(
-            `Aborting shell command (PID: ${executionPid ?? 'unknown'})`,
-          );
+          onDebugMessage(`Aborting shell command (PID: ${executionPid ?? 'unknown'})`);
         };
         abortSignal.addEventListener('abort', abortHandler, { once: true });
 
@@ -335,86 +307,82 @@ export const useShellCommandProcessor = (
             defaultBg: activeTheme.colors.Background,
           };
 
-          const { pid, result: resultPromise } =
-            await ShellExecutionService.execute(
-              commandToExecute,
-              targetDir,
-              (event) => {
-                let shouldUpdate = false;
+          const { pid, result: resultPromise } = await ShellExecutionService.execute(
+            commandToExecute,
+            targetDir,
+            (event) => {
+              let shouldUpdate = false;
 
-                switch (event.type) {
-                  case 'data':
-                    if (isBinaryStream) break;
-                    if (typeof event.chunk === 'string') {
-                      if (typeof cumulativeStdout === 'string') {
-                        cumulativeStdout += event.chunk;
-                      } else {
-                        cumulativeStdout = event.chunk;
-                      }
+              switch (event.type) {
+                case 'data':
+                  if (isBinaryStream) break;
+                  if (typeof event.chunk === 'string') {
+                    if (typeof cumulativeStdout === 'string') {
+                      cumulativeStdout += event.chunk;
                     } else {
-                      // AnsiOutput (PTY) is always the full state
                       cumulativeStdout = event.chunk;
                     }
-                    shouldUpdate = true;
-                    break;
-                  case 'binary_detected':
-                    isBinaryStream = true;
-                    shouldUpdate = true;
-                    break;
-                  case 'binary_progress':
-                    isBinaryStream = true;
-                    binaryBytesReceived = event.bytesReceived;
-                    shouldUpdate = true;
-                    break;
-                  case 'exit':
-                    // No action needed for exit event during streaming
-                    break;
-                  default:
-                    throw new Error('An unhandled ShellOutputEvent was found.');
-                }
+                  } else {
+                    // AnsiOutput (PTY) is always the full state
+                    cumulativeStdout = event.chunk;
+                  }
+                  shouldUpdate = true;
+                  break;
+                case 'binary_detected':
+                  isBinaryStream = true;
+                  shouldUpdate = true;
+                  break;
+                case 'binary_progress':
+                  isBinaryStream = true;
+                  binaryBytesReceived = event.bytesReceived;
+                  shouldUpdate = true;
+                  break;
+                case 'exit':
+                  // No action needed for exit event during streaming
+                  break;
+                default:
+                  throw new Error('An unhandled ShellOutputEvent was found.');
+              }
 
-                if (executionPid && m.backgroundedPids.has(executionPid)) {
-                  // If already backgrounded, let the background shell subscription handle it.
-                  dispatch({
-                    type: 'APPEND_SHELL_OUTPUT',
-                    pid: executionPid,
-                    chunk:
-                      event.type === 'data' ? event.chunk : cumulativeStdout,
-                  });
-                  return;
-                }
+              if (executionPid && m.backgroundedPids.has(executionPid)) {
+                // If already backgrounded, let the background shell subscription handle it.
+                dispatch({
+                  type: 'APPEND_SHELL_OUTPUT',
+                  pid: executionPid,
+                  chunk: event.type === 'data' ? event.chunk : cumulativeStdout,
+                });
+                return;
+              }
 
-                let currentDisplayOutput: string | AnsiOutput;
-                if (isBinaryStream) {
-                  currentDisplayOutput =
-                    binaryBytesReceived > 0
-                      ? `[Receiving binary output... ${formatBytes(binaryBytesReceived)} received]`
-                      : '[Binary output detected. Halting stream...]';
-                } else {
-                  currentDisplayOutput = cumulativeStdout;
-                }
+              let currentDisplayOutput: string | AnsiOutput;
+              if (isBinaryStream) {
+                currentDisplayOutput =
+                  binaryBytesReceived > 0
+                    ? `[Receiving binary output... ${formatBytes(binaryBytesReceived)} received]`
+                    : '[Binary output detected. Halting stream...]';
+              } else {
+                currentDisplayOutput = cumulativeStdout;
+              }
 
-                if (shouldUpdate) {
-                  dispatch({ type: 'SET_OUTPUT_TIME', time: Date.now() });
-                  setPendingHistoryItem((prevItem) => {
-                    if (prevItem?.type === 'tool_group') {
-                      return {
-                        ...prevItem,
-                        tools: prevItem.tools.map((tool) =>
-                          tool.callId === callId
-                            ? { ...tool, resultDisplay: currentDisplayOutput }
-                            : tool,
-                        ),
-                      };
-                    }
-                    return prevItem;
-                  });
-                }
-              },
-              abortSignal,
-              config.getEnableInteractiveShell(),
-              shellExecutionConfig,
-            );
+              if (shouldUpdate) {
+                dispatch({ type: 'SET_OUTPUT_TIME', time: Date.now() });
+                setPendingHistoryItem((prevItem) => {
+                  if (prevItem?.type === 'tool_group') {
+                    return {
+                      ...prevItem,
+                      tools: prevItem.tools.map((tool) =>
+                        tool.callId === callId ? { ...tool, resultDisplay: currentDisplayOutput } : tool
+                      ),
+                    };
+                  }
+                  return prevItem;
+                });
+              }
+            },
+            abortSignal,
+            config.getEnableInteractiveShell(),
+            shellExecutionConfig
+          );
 
           executionPid = pid;
           if (pid) {
@@ -423,9 +391,7 @@ export const useShellCommandProcessor = (
               if (prevItem?.type === 'tool_group') {
                 return {
                   ...prevItem,
-                  tools: prevItem.tools.map((tool) =>
-                    tool.callId === callId ? { ...tool, ptyId: pid } : tool,
-                  ),
+                  tools: prevItem.tools.map((tool) => (tool.callId === callId ? { ...tool, ptyId: pid } : tool)),
                 };
               }
               return prevItem;
@@ -442,11 +408,9 @@ export const useShellCommandProcessor = (
 
           let mainContent: string;
           if (isBinary(result.rawOutput)) {
-            mainContent =
-              '[Command produced binary output, which is not shown.]';
+            mainContent = '[Command produced binary output, which is not shown.]';
           } else {
-            mainContent =
-              result.output.trim() || '(Command produced no output)';
+            mainContent = result.output.trim() || '(Command produced no output)';
           }
 
           let finalOutput = mainContent;
@@ -489,7 +453,7 @@ export const useShellCommandProcessor = (
                 type: 'tool_group',
                 tools: [finalToolDisplay],
               } as HistoryItemWithoutId,
-              userMessageTimestamp,
+              userMessageTimestamp
             );
           }
 
@@ -502,7 +466,7 @@ export const useShellCommandProcessor = (
               type: 'error',
               text: `An unexpected error occurred: ${errorMessage}`,
             },
-            userMessageTimestamp,
+            userMessageTimestamp
           );
         } finally {
           abortSignal.removeEventListener('abort', abortHandler);
@@ -531,12 +495,12 @@ export const useShellCommandProcessor = (
       registerBackgroundShell,
       m,
       dispatch,
-    ],
+    ]
   );
 
-  const backgroundShellCount = Array.from(
-    state.backgroundShells.values(),
-  ).filter((s: BackgroundShell) => s.status === 'running').length;
+  const backgroundShellCount = Array.from(state.backgroundShells.values()).filter(
+    (s: BackgroundShell) => s.status === 'running'
+  ).length;
 
   return {
     handleShellCommand,

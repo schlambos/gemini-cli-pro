@@ -33,7 +33,7 @@ describe('isDirectorySecure', () => {
     expect(result.secure).toBe(true);
     expect(spawnAsync).toHaveBeenCalledWith(
       'powershell',
-      expect.arrayContaining(['-Command', expect.stringContaining('Get-Acl')]),
+      expect.arrayContaining(['-Command', expect.stringContaining('Get-Acl')])
     );
   });
 
@@ -52,7 +52,7 @@ describe('isDirectorySecure', () => {
     expect(result.secure).toBe(false);
 
     expect(result.reason).toBe(
-      "Directory 'C:\\Some\\Path' is insecure. The following user groups have write permissions: BUILTIN\\Users. To fix this, remove Write and Modify permissions for these groups from the directory's ACLs.",
+      "Directory 'C:\\Some\\Path' is insecure. The following user groups have write permissions: BUILTIN\\Users. To fix this, remove Write and Modify permissions for these groups from the directory's ACLs."
     );
   });
 
@@ -63,16 +63,14 @@ describe('isDirectorySecure', () => {
       isDirectory: () => true,
     } as unknown as Stats);
 
-    vi.mocked(spawnAsync).mockRejectedValue(
-      new Error('PowerShell is not installed'),
-    );
+    vi.mocked(spawnAsync).mockRejectedValue(new Error('PowerShell is not installed'));
 
     const result = await isDirectorySecure('C:\\Some\\Path');
 
     expect(result.secure).toBe(false);
 
     expect(result.reason).toBe(
-      "A security check for the system policy directory 'C:\\Some\\Path' failed and could not be completed. Please file a bug report. Original error: PowerShell is not installed",
+      "A security check for the system policy directory 'C:\\Some\\Path' failed and could not be completed. Please file a bug report. Original error: PowerShell is not installed"
     );
   });
 
@@ -124,7 +122,7 @@ describe('isDirectorySecure', () => {
     expect(result.secure).toBe(false);
 
     expect(result.reason).toBe(
-      'Directory \'/some/path\' is not owned by root (uid 0). Current uid: 1000. To fix this, run: sudo chown root:root "/some/path"',
+      'Directory \'/some/path\' is not owned by root (uid 0). Current uid: 1000. To fix this, run: sudo chown root:root "/some/path"'
     );
   });
 
@@ -145,7 +143,7 @@ describe('isDirectorySecure', () => {
     expect(result.secure).toBe(false);
 
     expect(result.reason).toBe(
-      'Directory \'/some/path\' is writable by group or others (mode: 775). To fix this, run: sudo chmod g-w,o-w "/some/path"',
+      'Directory \'/some/path\' is writable by group or others (mode: 775). To fix this, run: sudo chmod g-w,o-w "/some/path"'
     );
   });
 
@@ -166,7 +164,7 @@ describe('isDirectorySecure', () => {
     expect(result.secure).toBe(false);
 
     expect(result.reason).toBe(
-      'Directory \'/some/path\' is writable by group or others (mode: 757). To fix this, run: sudo chmod g-w,o-w "/some/path"',
+      'Directory \'/some/path\' is writable by group or others (mode: 757). To fix this, run: sudo chmod g-w,o-w "/some/path"'
     );
   });
 

@@ -30,10 +30,7 @@ const UPGRADE_URL_PAGE = 'https://goo.gle/set-up-gemini-code-assist';
  * This function checks for a new API key in environment variables and
  * refreshes the authentication if a different key is found.
  */
-async function tryRotateApiKey(
-  config: Config,
-  authType?: string,
-): Promise<boolean> {
+async function tryRotateApiKey(config: Config, authType?: string): Promise<boolean> {
   // Support both GEMINI and OPENAI API key modes
   let envKey: string | undefined;
   let authTypeEnum: AuthType | undefined;
@@ -76,7 +73,7 @@ export async function handleFallback(
   config: Config,
   failedModel: string,
   authType?: string,
-  error?: unknown,
+  error?: unknown
 ): Promise<string | boolean | null> {
   // [PATCH:API_KEY_ROTATION_START]
   // First try to rotate API key for GEMINI/OPENAI API key modes
@@ -97,10 +94,7 @@ export async function handleFallback(
   // Resolve fallback policy chain and candidates.
   // 解析回退策略链与候选模型。
   const chain = resolvePolicyChain(config);
-  const { failedPolicy, candidates } = buildFallbackPolicyContext(
-    chain,
-    failedModel,
-  );
+  const { failedPolicy, candidates } = buildFallbackPolicyContext(chain, failedModel);
 
   // Classify failure kind for availability policy decisions.
   // 识别失败类型，用于可用性/策略决策。
@@ -121,24 +115,15 @@ export async function handleFallback(
   } else {
     // Select the first available model from candidates.
     // 从候选模型中选择第一个可用模型。
-    const selection = availability.selectFirstAvailable(
-      candidates.map((policy) => policy.model),
-    );
+    const selection = availability.selectFirstAvailable(candidates.map((policy) => policy.model));
 
     const lastResortPolicy = candidates.find((policy) => policy.isLastResort);
-    const selectedFallbackModel =
-      selection.selectedModel ?? lastResortPolicy?.model;
-    const selectedPolicy = candidates.find(
-      (policy) => policy.model === selectedFallbackModel,
-    );
+    const selectedFallbackModel = selection.selectedModel ?? lastResortPolicy?.model;
+    const selectedPolicy = candidates.find((policy) => policy.model === selectedFallbackModel);
 
     // Abort if the selected model is invalid or unchanged.
     // 若选择无效或未发生变更则终止回退。
-    if (
-      !selectedFallbackModel ||
-      selectedFallbackModel === failedModel ||
-      !selectedPolicy
-    ) {
+    if (!selectedFallbackModel || selectedFallbackModel === failedModel || !selectedPolicy) {
       return null;
     }
 
@@ -201,18 +186,11 @@ async function handleUpgrade() {
   try {
     await openBrowserSecurely(UPGRADE_URL_PAGE);
   } catch (error) {
-    debugLogger.warn(
-      'Failed to open browser automatically:',
-      getErrorMessage(error),
-    );
+    debugLogger.warn('Failed to open browser automatically:', getErrorMessage(error));
   }
 }
 
-async function processIntent(
-  config: Config,
-  intent: FallbackIntent | null,
-  fallbackModel: string,
-): Promise<boolean> {
+async function processIntent(config: Config, intent: FallbackIntent | null, fallbackModel: string): Promise<boolean> {
   switch (intent) {
     case 'retry_always':
       // TODO(telemetry): Implement generic fallback event logging. Existing
@@ -238,8 +216,6 @@ async function processIntent(
       return false;
 
     default:
-      throw new Error(
-        `Unexpected fallback intent received from fallbackModelHandler: "${intent}"`,
-      );
+      throw new Error(`Unexpected fallback intent received from fallbackModelHandler: "${intent}"`);
   }
 }

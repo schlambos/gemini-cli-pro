@@ -4,15 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  describe,
-  expect,
-  it,
-  vi,
-  beforeEach,
-  afterEach,
-  type MockInstance,
-} from 'vitest';
+import { describe, expect, it, vi, beforeEach, afterEach, type MockInstance } from 'vitest';
 import { SimpleExtensionLoader } from './extensionLoader.js';
 import type { Config, GeminiCLIExtension } from '../config/config.js';
 import { type McpClientManager } from '../tools/mcp-client-manager.js';
@@ -32,9 +24,7 @@ describe('SimpleExtensionLoader', () => {
   let mockConfig: Config;
   let extensionReloadingEnabled: boolean;
   let mockMcpClientManager: McpClientManager;
-  let mockGeminiClientSetTools: MockInstance<
-    typeof GeminiClient.prototype.setTools
-  >;
+  let mockGeminiClientSetTools: MockInstance<typeof GeminiClient.prototype.setTools>;
   let mockHookSystemInit: MockInstance;
   let mockAgentRegistryReload: MockInstance;
   let mockSkillsReload: MockInstance;
@@ -91,9 +81,7 @@ describe('SimpleExtensionLoader', () => {
   it('should start active extensions', async () => {
     const loader = new SimpleExtensionLoader([activeExtension]);
     await loader.start(mockConfig);
-    expect(mockMcpClientManager.startExtension).toHaveBeenCalledExactlyOnceWith(
-      activeExtension,
-    );
+    expect(mockMcpClientManager.startExtension).toHaveBeenCalledExactlyOnceWith(activeExtension);
   });
 
   it('should not start inactive extensions', async () => {
@@ -116,89 +104,74 @@ describe('SimpleExtensionLoader', () => {
       await loader.loadExtension(activeExtension);
       expect(mockMcpClientManager.startExtension).not.toHaveBeenCalled();
       await loader.start(mockConfig);
-      expect(
-        mockMcpClientManager.startExtension,
-      ).toHaveBeenCalledExactlyOnceWith(activeExtension);
+      expect(mockMcpClientManager.startExtension).toHaveBeenCalledExactlyOnceWith(activeExtension);
     });
 
-    describe.each([true, false])(
-      'when enableExtensionReloading === $i',
-      (reloadingEnabled) => {
-        beforeEach(() => {
-          extensionReloadingEnabled = reloadingEnabled;
-        });
+    describe.each([true, false])('when enableExtensionReloading === $i', (reloadingEnabled) => {
+      beforeEach(() => {
+        extensionReloadingEnabled = reloadingEnabled;
+      });
 
-        it(`should ${reloadingEnabled ? '' : 'not '}reload extension features`, async () => {
-          const loader = new SimpleExtensionLoader([]);
-          await loader.start(mockConfig);
+      it(`should ${reloadingEnabled ? '' : 'not '}reload extension features`, async () => {
+        const loader = new SimpleExtensionLoader([]);
+        await loader.start(mockConfig);
+        expect(mockMcpClientManager.startExtension).not.toHaveBeenCalled();
+        await loader.loadExtension(activeExtension);
+        if (reloadingEnabled) {
+          expect(mockMcpClientManager.startExtension).toHaveBeenCalledExactlyOnceWith(activeExtension);
+          expect(mockRefreshServerHierarchicalMemory).toHaveBeenCalledOnce();
+          expect(mockHookSystemInit).toHaveBeenCalledOnce();
+          expect(mockGeminiClientSetTools).toHaveBeenCalledOnce();
+          expect(mockAgentRegistryReload).toHaveBeenCalledOnce();
+          expect(mockSkillsReload).toHaveBeenCalledOnce();
+        } else {
           expect(mockMcpClientManager.startExtension).not.toHaveBeenCalled();
-          await loader.loadExtension(activeExtension);
-          if (reloadingEnabled) {
-            expect(
-              mockMcpClientManager.startExtension,
-            ).toHaveBeenCalledExactlyOnceWith(activeExtension);
-            expect(mockRefreshServerHierarchicalMemory).toHaveBeenCalledOnce();
-            expect(mockHookSystemInit).toHaveBeenCalledOnce();
-            expect(mockGeminiClientSetTools).toHaveBeenCalledOnce();
-            expect(mockAgentRegistryReload).toHaveBeenCalledOnce();
-            expect(mockSkillsReload).toHaveBeenCalledOnce();
-          } else {
-            expect(mockMcpClientManager.startExtension).not.toHaveBeenCalled();
-            expect(mockRefreshServerHierarchicalMemory).not.toHaveBeenCalled();
-            expect(mockHookSystemInit).not.toHaveBeenCalled();
-            expect(mockGeminiClientSetTools).not.toHaveBeenCalledOnce();
-            expect(mockAgentRegistryReload).not.toHaveBeenCalled();
-            expect(mockSkillsReload).not.toHaveBeenCalled();
-          }
-          mockRefreshServerHierarchicalMemory.mockClear();
-          mockHookSystemInit.mockClear();
-          mockGeminiClientSetTools.mockClear();
-          mockAgentRegistryReload.mockClear();
-          mockSkillsReload.mockClear();
+          expect(mockRefreshServerHierarchicalMemory).not.toHaveBeenCalled();
+          expect(mockHookSystemInit).not.toHaveBeenCalled();
+          expect(mockGeminiClientSetTools).not.toHaveBeenCalledOnce();
+          expect(mockAgentRegistryReload).not.toHaveBeenCalled();
+          expect(mockSkillsReload).not.toHaveBeenCalled();
+        }
+        mockRefreshServerHierarchicalMemory.mockClear();
+        mockHookSystemInit.mockClear();
+        mockGeminiClientSetTools.mockClear();
+        mockAgentRegistryReload.mockClear();
+        mockSkillsReload.mockClear();
 
-          await loader.unloadExtension(activeExtension);
-          if (reloadingEnabled) {
-            expect(
-              mockMcpClientManager.stopExtension,
-            ).toHaveBeenCalledExactlyOnceWith(activeExtension);
-            expect(mockRefreshServerHierarchicalMemory).toHaveBeenCalledOnce();
-            expect(mockHookSystemInit).toHaveBeenCalledOnce();
-            expect(mockGeminiClientSetTools).toHaveBeenCalledOnce();
-            expect(mockAgentRegistryReload).toHaveBeenCalledOnce();
-            expect(mockSkillsReload).toHaveBeenCalledOnce();
-          } else {
-            expect(mockMcpClientManager.stopExtension).not.toHaveBeenCalled();
-            expect(mockRefreshServerHierarchicalMemory).not.toHaveBeenCalled();
-            expect(mockHookSystemInit).not.toHaveBeenCalled();
-            expect(mockGeminiClientSetTools).not.toHaveBeenCalledOnce();
-            expect(mockAgentRegistryReload).not.toHaveBeenCalled();
-            expect(mockSkillsReload).not.toHaveBeenCalled();
-          }
-        });
+        await loader.unloadExtension(activeExtension);
+        if (reloadingEnabled) {
+          expect(mockMcpClientManager.stopExtension).toHaveBeenCalledExactlyOnceWith(activeExtension);
+          expect(mockRefreshServerHierarchicalMemory).toHaveBeenCalledOnce();
+          expect(mockHookSystemInit).toHaveBeenCalledOnce();
+          expect(mockGeminiClientSetTools).toHaveBeenCalledOnce();
+          expect(mockAgentRegistryReload).toHaveBeenCalledOnce();
+          expect(mockSkillsReload).toHaveBeenCalledOnce();
+        } else {
+          expect(mockMcpClientManager.stopExtension).not.toHaveBeenCalled();
+          expect(mockRefreshServerHierarchicalMemory).not.toHaveBeenCalled();
+          expect(mockHookSystemInit).not.toHaveBeenCalled();
+          expect(mockGeminiClientSetTools).not.toHaveBeenCalledOnce();
+          expect(mockAgentRegistryReload).not.toHaveBeenCalled();
+          expect(mockSkillsReload).not.toHaveBeenCalled();
+        }
+      });
 
-        it.runIf(reloadingEnabled)(
-          'Should only reload memory once all extensions are done',
-          async () => {
-            const anotherExtension = {
-              ...activeExtension,
-              name: 'another-extension',
-            };
-            const loader = new SimpleExtensionLoader([]);
-            await loader.loadExtension(activeExtension);
-            await loader.start(mockConfig);
-            expect(mockRefreshServerHierarchicalMemory).not.toHaveBeenCalled();
-            await Promise.all([
-              loader.unloadExtension(activeExtension),
-              loader.loadExtension(anotherExtension),
-            ]);
-            expect(mockRefreshServerHierarchicalMemory).toHaveBeenCalledOnce();
-            expect(mockHookSystemInit).toHaveBeenCalledOnce();
-            expect(mockAgentRegistryReload).toHaveBeenCalledOnce();
-            expect(mockSkillsReload).toHaveBeenCalledOnce();
-          },
-        );
-      },
-    );
+      it.runIf(reloadingEnabled)('Should only reload memory once all extensions are done', async () => {
+        const anotherExtension = {
+          ...activeExtension,
+          name: 'another-extension',
+        };
+        const loader = new SimpleExtensionLoader([]);
+        await loader.loadExtension(activeExtension);
+        await loader.start(mockConfig);
+        expect(mockRefreshServerHierarchicalMemory).not.toHaveBeenCalled();
+        await Promise.all([loader.unloadExtension(activeExtension), loader.loadExtension(anotherExtension)]);
+        expect(mockRefreshServerHierarchicalMemory).toHaveBeenCalledOnce();
+        expect(mockHookSystemInit).toHaveBeenCalledOnce();
+        expect(mockAgentRegistryReload).toHaveBeenCalledOnce();
+        expect(mockSkillsReload).toHaveBeenCalledOnce();
+      });
+    });
   });
 
   describe('restartExtension', () => {

@@ -16,8 +16,7 @@ import { StatsDisplay } from './StatsDisplay.js';
 
 // Mock the theme module
 vi.mock('../semantic-colors.js', async (importOriginal) => {
-  const original =
-    await importOriginal<typeof import('../semantic-colors.js')>();
+  const original = await importOriginal<typeof import('../semantic-colors.js')>();
   return {
     ...original,
     theme: {
@@ -67,32 +66,23 @@ useSessionStatsMock.mockReturnValue({
 
 describe('Gradient Crash Regression Tests', () => {
   it('<Header /> should not crash when theme.ui.gradient is empty', () => {
-    const { lastFrame } = renderWithProviders(
-      <Header version="1.0.0" nightly={false} />,
-      {
-        width: 120,
-      },
-    );
+    const { lastFrame } = renderWithProviders(<Header version='1.0.0' nightly={false} />, {
+      width: 120,
+    });
     expect(lastFrame()).toBeDefined();
   });
 
   it('<ModelDialog /> should not crash when theme.ui.gradient is empty', () => {
-    const { lastFrame } = renderWithProviders(
-      <ModelDialog onClose={() => {}} />,
-      {
-        width: 120,
-      },
-    );
+    const { lastFrame } = renderWithProviders(<ModelDialog onClose={() => {}} />, {
+      width: 120,
+    });
     expect(lastFrame()).toBeDefined();
   });
 
   it('<Banner /> should not crash when theme.ui.gradient is empty', () => {
-    const { lastFrame } = renderWithProviders(
-      <Banner bannerText="Test Banner" isWarning={false} width={80} />,
-      {
-        width: 120,
-      },
-    );
+    const { lastFrame } = renderWithProviders(<Banner bannerText='Test Banner' isWarning={false} width={80} />, {
+      width: 120,
+    });
     expect(lastFrame()).toBeDefined();
   });
 
@@ -111,15 +101,12 @@ describe('Gradient Crash Regression Tests', () => {
   });
 
   it('<StatsDisplay /> should not crash when theme.ui.gradient is empty', () => {
-    const { lastFrame } = renderWithProviders(
-      <StatsDisplay duration="1s" title="My Stats" />,
-      {
-        width: 120,
-        uiState: {
-          sessionStats: mockSessionStats,
-        },
+    const { lastFrame } = renderWithProviders(<StatsDisplay duration='1s' title='My Stats' />, {
+      width: 120,
+      uiState: {
+        sessionStats: mockSessionStats,
       },
-    );
+    });
     expect(lastFrame()).toBeDefined();
     // Ensure title is rendered
     expect(lastFrame()).toContain('My Stats');

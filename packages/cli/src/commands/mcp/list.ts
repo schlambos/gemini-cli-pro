@@ -26,9 +26,7 @@ const COLOR_YELLOW = '\u001b[33m';
 const COLOR_RED = '\u001b[31m';
 const RESET_COLOR = '\u001b[0m';
 
-export async function getMcpServersFromConfig(
-  settings?: MergedSettings,
-): Promise<{
+export async function getMcpServersFromConfig(settings?: MergedSettings): Promise<{
   mcpServers: Record<string, MCPServerConfig>;
   blockedServerNames: string[];
 }> {
@@ -62,10 +60,7 @@ export async function getMcpServersFromConfig(
   return filteredResult;
 }
 
-async function testMCPConnection(
-  serverName: string,
-  config: MCPServerConfig,
-): Promise<MCPServerStatus> {
+async function testMCPConnection(serverName: string, config: MCPServerConfig): Promise<MCPServerStatus> {
   const client = new Client({
     name: 'mcp-test-client',
     version: '0.0.1',
@@ -81,12 +76,7 @@ async function testMCPConnection(
   let transport;
   try {
     // Use the same transport creation logic as core
-    transport = await createTransport(
-      serverName,
-      config,
-      false,
-      sanitizationConfig,
-    );
+    transport = await createTransport(serverName, config, false, sanitizationConfig);
   } catch (_error) {
     await client.close();
     return MCPServerStatus.DISCONNECTED;
@@ -107,24 +97,17 @@ async function testMCPConnection(
   }
 }
 
-async function getServerStatus(
-  serverName: string,
-  server: MCPServerConfig,
-): Promise<MCPServerStatus> {
+async function getServerStatus(serverName: string, server: MCPServerConfig): Promise<MCPServerStatus> {
   // Test all server types by attempting actual connection
   return testMCPConnection(serverName, server);
 }
 
 export async function listMcpServers(settings?: MergedSettings): Promise<void> {
-  const { mcpServers, blockedServerNames } =
-    await getMcpServersFromConfig(settings);
+  const { mcpServers, blockedServerNames } = await getMcpServersFromConfig(settings);
   const serverNames = Object.keys(mcpServers);
 
   if (blockedServerNames.length > 0) {
-    const message = getAdminBlockedMcpServersMessage(
-      blockedServerNames,
-      undefined,
-    );
+    const message = getAdminBlockedMcpServersMessage(blockedServerNames, undefined);
     debugLogger.log(COLOR_YELLOW + message + RESET_COLOR + '\n');
   }
 
@@ -160,10 +143,7 @@ export async function listMcpServers(settings?: MergedSettings): Promise<void> {
         break;
     }
 
-    let serverInfo =
-      serverName +
-      (server.extension?.name ? ` (from ${server.extension.name})` : '') +
-      ': ';
+    let serverInfo = serverName + (server.extension?.name ? ` (from ${server.extension.name})` : '') + ': ';
     if (server.httpUrl) {
       serverInfo += `${server.httpUrl} (http)`;
     } else if (server.url) {

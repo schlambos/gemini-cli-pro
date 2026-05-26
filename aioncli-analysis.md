@@ -33,7 +33,7 @@
 | ----------------- | ----------------------------------------------------- |
 | 仅支持 Gemini API | 支持 Gemini + OpenAI + DeepSeek + Qwen + 任意兼容 API |
 | 单一认证方式      | 新增 `AuthType.USE_OPENAI` 认证类型                   |
-| 无格式转换        | 完整的 Gemini ↔ OpenAI 格式双向转换                  |
+| 无格式转换        | 完整的 Gemini ↔ OpenAI 格式双向转换                   |
 
 **关键技术实现**:
 
@@ -100,10 +100,7 @@ shouldIncludeMetadata(): boolean {
 // packages/core/src/core/contentGenerator.ts
 export interface ContentGenerator {
   generateContent(request, userPromptId): Promise<GenerateContentResponse>;
-  generateContentStream(
-    request,
-    userPromptId,
-  ): Promise<AsyncGenerator<GenerateContentResponse>>;
+  generateContentStream(request, userPromptId): Promise<AsyncGenerator<GenerateContentResponse>>;
   countTokens(request): Promise<CountTokensResponse>;
   embedContent(request): Promise<EmbedContentResponse>;
 }
@@ -164,9 +161,7 @@ export interface ContentGenerator {
 ```typescript
 // 决策 1: 动态导入避免循环依赖
 if (config.authType === AuthType.USE_OPENAI) {
-  const { OpenAIContentGenerator } = await import(
-    './openaiContentGenerator.js'
-  );
+  const { OpenAIContentGenerator } = await import('./openaiContentGenerator.js');
   return new OpenAIContentGenerator(config.apiKey, config.model, gcConfig);
 }
 
@@ -845,7 +840,7 @@ if (isTimeoutError) {
     `${errorMessage}\n\nTroubleshooting tips:\n` +
       `- Reduce input length or complexity\n` +
       `- Increase timeout in config\n` +
-      `- Check network connectivity`,
+      `- Check network connectivity`
   );
 }
 ```
@@ -1614,26 +1609,26 @@ type Part = TextPart | InlineDataPart | FunctionCallPart | ...;
 
 ### 7. 魔改 Codex 的工作量估算
 
-| 工作项                       | 工作量       | 难度   |
-| ---------------------------- | ------------ | ------ |
-| 学习 Rust + 项目架构         | 2-4 周       | 高     |
-| 实现 Gemini API 适配层       | 4-6 周       | 高     |
+| 工作项                      | 工作量       | 难度   |
+| --------------------------- | ------------ | ------ |
+| 学习 Rust + 项目架构        | 2-4 周       | 高     |
+| 实现 Gemini API 适配层      | 4-6 周       | 高     |
 | 协议转换（SQ/EQ ↔ Promise） | 2-3 周       | 高     |
-| 工具调用映射                 | 2-3 周       | 中     |
-| 沙箱/批准机制适配            | 1-2 周       | 中     |
-| 测试和调试                   | 2-3 周       | 中     |
-| **总计**                     | **13-21 周** | **高** |
+| 工具调用映射                | 2-3 周       | 中     |
+| 沙箱/批准机制适配           | 1-2 周       | 中     |
+| 测试和调试                  | 2-3 周       | 中     |
+| **总计**                    | **13-21 周** | **高** |
 
 ### 8. 反向对比：Gemini CLI 魔改支持 OpenAI 的工作量
 
-| 工作项                       | 工作量     | 难度   |
-| ---------------------------- | ---------- | ------ |
-| 理解 ContentGenerator 接口   | 2-3 天     | 低     |
-| 实现 OpenAIContentGenerator  | 1-2 周     | 中     |
+| 工作项                      | 工作量     | 难度   |
+| --------------------------- | ---------- | ------ |
+| 理解 ContentGenerator 接口  | 2-3 天     | 低     |
+| 实现 OpenAIContentGenerator | 1-2 周     | 中     |
 | 格式转换（Gemini ↔ OpenAI） | 1 周       | 中     |
-| 工具调用适配                 | 3-5 天     | 低     |
-| 测试和调试                   | 1 周       | 低     |
-| **总计**                     | **3-5 周** | **中** |
+| 工具调用适配                | 3-5 天     | 低     |
+| 测试和调试                  | 1 周       | 低     |
+| **总计**                    | **3-5 周** | **中** |
 
 ### 9. 架构设计哲学对比
 
@@ -1745,7 +1740,7 @@ export interface ContentGenerator {
   generateContent(
     request: GenerateContentParameters,
     userPromptId: string,
-    role: LlmRole, // ← 上游新增，接受
+    role: LlmRole // ← 上游新增，接受
   ): Promise<GenerateContentResponse>;
   // ...
 }

@@ -6,18 +6,11 @@
 
 import { debugLogger, type GeminiCLIExtension } from '@google/gemini-cli-core';
 import { getErrorMessage } from '../../utils/errors.js';
-import {
-  ExtensionUpdateState,
-  extensionUpdatesReducer,
-  initialExtensionUpdatesState,
-} from '../state/extensions.js';
+import { ExtensionUpdateState, extensionUpdatesReducer, initialExtensionUpdatesState } from '../state/extensions.js';
 import { useCallback, useEffect, useMemo, useReducer } from 'react';
 import type { UseHistoryManagerReturn } from './useHistoryManager.js';
 import { MessageType, type ConfirmationRequest } from '../types.js';
-import {
-  checkForAllExtensionUpdates,
-  updateExtension,
-} from '../../config/extensions/update.js';
+import { checkForAllExtensionUpdates, updateExtension } from '../../config/extensions/update.js';
 import { type ExtensionUpdateInfo } from '../../config/extension.js';
 import { checkExhaustive } from '@google/gemini-cli-core';
 import type { ExtensionManager } from '../../config/extension-manager.js';
@@ -33,7 +26,7 @@ type ConfirmationRequestAction =
 
 function confirmationRequestsReducer(
   state: ConfirmationRequestWrapper[],
-  action: ConfirmationRequestAction,
+  action: ConfirmationRequestAction
 ): ConfirmationRequestWrapper[] {
   switch (action.type) {
     case 'add':
@@ -46,10 +39,10 @@ function confirmationRequestsReducer(
 }
 
 export const useConfirmUpdateRequests = () => {
-  const [
-    confirmUpdateExtensionRequests,
-    dispatchConfirmUpdateExtensionRequests,
-  ] = useReducer(confirmationRequestsReducer, []);
+  const [confirmUpdateExtensionRequests, dispatchConfirmUpdateExtensionRequests] = useReducer(
+    confirmationRequestsReducer,
+    []
+  );
   const addConfirmUpdateExtensionRequest = useCallback(
     (original: ConfirmationRequest) => {
       const wrappedRequest = {
@@ -68,7 +61,7 @@ export const useConfirmUpdateRequests = () => {
         request: wrappedRequest,
       });
     },
-    [dispatchConfirmUpdateExtensionRequests],
+    [dispatchConfirmUpdateExtensionRequests]
   );
   return {
     addConfirmUpdateExtensionRequest,
@@ -80,36 +73,25 @@ export const useConfirmUpdateRequests = () => {
 export const useExtensionUpdates = (
   extensionManager: ExtensionManager,
   addItem: UseHistoryManagerReturn['addItem'],
-  enableExtensionReloading: boolean,
+  enableExtensionReloading: boolean
 ) => {
   const [extensionsUpdateState, dispatchExtensionStateUpdate] = useReducer(
     extensionUpdatesReducer,
-    initialExtensionUpdatesState,
+    initialExtensionUpdatesState
   );
   const extensions = extensionManager.getExtensions();
 
   useEffect(() => {
     const extensionsToCheck = extensions.filter((extension) => {
-      const currentStatus = extensionsUpdateState.extensionStatuses.get(
-        extension.name,
-      );
+      const currentStatus = extensionsUpdateState.extensionStatuses.get(extension.name);
       if (!currentStatus) return true;
       const currentState = currentStatus.status;
       return !currentState || currentState === ExtensionUpdateState.UNKNOWN;
     });
     if (extensionsToCheck.length === 0) return;
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    checkForAllExtensionUpdates(
-      extensionsToCheck,
-      extensionManager,
-      dispatchExtensionStateUpdate,
-    );
-  }, [
-    extensions,
-    extensionManager,
-    extensionsUpdateState.extensionStatuses,
-    dispatchExtensionStateUpdate,
-  ]);
+    checkForAllExtensionUpdates(extensionsToCheck, extensionManager, dispatchExtensionStateUpdate);
+  }, [extensions, extensionManager, extensionsUpdateState.extensionStatuses, dispatchExtensionStateUpdate]);
 
   useEffect(() => {
     if (extensionsUpdateState.batchChecksInProgress > 0) {
@@ -138,13 +120,8 @@ export const useExtensionUpdates = (
     const pendingUpdates = [];
     const updatePromises: Array<Promise<ExtensionUpdateInfo | undefined>> = [];
     for (const extension of extensions) {
-      const currentState = extensionsUpdateState.extensionStatuses.get(
-        extension.name,
-      );
-      if (
-        !currentState ||
-        currentState.status !== ExtensionUpdateState.UPDATE_AVAILABLE
-      ) {
+      const currentState = extensionsUpdateState.extensionStatuses.get(extension.name);
+      if (!currentState || currentState.status !== ExtensionUpdateState.UPDATE_AVAILABLE) {
         continue;
       }
       const shouldUpdate = shouldDoUpdate(extension);
@@ -163,7 +140,7 @@ export const useExtensionUpdates = (
           extensionManager,
           currentState.status,
           dispatchExtensionStateUpdate,
-          enableExtensionReloading,
+          enableExtensionReloading
         );
         updatePromises.push(updatePromise);
         updatePromise
@@ -174,7 +151,7 @@ export const useExtensionUpdates = (
                 type: MessageType.INFO,
                 text: `Extension "${extension.name}" successfully updated: ${result.originalVersion} → ${result.updatedVersion}.`,
               },
-              Date.now(),
+              Date.now()
             );
           })
           .catch((error) => {
@@ -183,7 +160,7 @@ export const useExtensionUpdates = (
                 type: MessageType.ERROR,
                 text: getErrorMessage(error),
               },
-              Date.now(),
+              Date.now()
             );
           });
       }
@@ -195,7 +172,7 @@ export const useExtensionUpdates = (
           type: MessageType.INFO,
           text: `You have ${pendingUpdates.length} extension${s} with an update available. Run "/extensions update ${pendingUpdates.join(' ')}".`,
         },
-        Date.now(),
+        Date.now()
       );
     }
     if (scheduledUpdate) {
@@ -211,20 +188,11 @@ export const useExtensionUpdates = (
         });
       });
     }
-  }, [
-    extensions,
-    extensionManager,
-    extensionsUpdateState,
-    addItem,
-    enableExtensionReloading,
-  ]);
+  }, [extensions, extensionManager, extensionsUpdateState, addItem, enableExtensionReloading]);
 
   const extensionsUpdateStateComputed = useMemo(() => {
     const result = new Map<string, ExtensionUpdateState>();
-    for (const [
-      key,
-      value,
-    ] of extensionsUpdateState.extensionStatuses.entries()) {
+    for (const [key, value] of extensionsUpdateState.extensionStatuses.entries()) {
       result.set(key, value.status);
     }
     return result;

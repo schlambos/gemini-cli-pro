@@ -45,7 +45,7 @@ describe('coreTools snapshots for specific models', () => {
         platform: {
           get: () => platform,
         },
-      }),
+      })
     );
   };
 

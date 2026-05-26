@@ -4,12 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  type AuthType,
-  type Config,
-  getErrorMessage,
-  ValidationRequiredError,
-} from '@google/gemini-cli-core';
+import { type AuthType, type Config, getErrorMessage, ValidationRequiredError } from '@google/gemini-cli-core';
 
 /**
  * Handles the initial authentication flow.
@@ -17,10 +12,7 @@ import {
  * @param authType The selected auth type.
  * @returns An error message if authentication fails, otherwise null.
  */
-export async function performInitialAuth(
-  config: Config,
-  authType: AuthType | undefined,
-): Promise<string | null> {
+export async function performInitialAuth(config: Config, authType: AuthType | undefined): Promise<string | null> {
   if (!authType) {
     return null;
   }

@@ -28,15 +28,13 @@ export const DefaultAppLayout: React.FC = () => {
   // the right side of the terminal.
   return (
     <Box
-      flexDirection="column"
+      flexDirection='column'
       width={uiState.terminalWidth}
       height={isAlternateBuffer ? terminalHeight : undefined}
-      paddingBottom={
-        isAlternateBuffer && !uiState.copyModeEnabled ? 1 : undefined
-      }
+      paddingBottom={isAlternateBuffer && !uiState.copyModeEnabled ? 1 : undefined}
       flexShrink={0}
       flexGrow={0}
-      overflow="hidden"
+      overflow='hidden'
       ref={uiState.rootUiRef}
     >
       <MainContent />
@@ -52,15 +50,13 @@ export const DefaultAppLayout: React.FC = () => {
               activePid={uiState.activeBackgroundShellPid}
               width={uiState.terminalWidth}
               height={uiState.backgroundShellHeight}
-              isFocused={
-                uiState.embeddedShellFocused && !uiState.dialogsVisible
-              }
+              isFocused={uiState.embeddedShellFocused && !uiState.dialogsVisible}
               isListOpenProp={uiState.isBackgroundShellListOpen}
             />
           </Box>
         )}
       <Box
-        flexDirection="column"
+        flexDirection='column'
         ref={uiState.mainControlsRef}
         flexShrink={0}
         flexGrow={0}
@@ -72,10 +68,7 @@ export const DefaultAppLayout: React.FC = () => {
         {uiState.customDialog ? (
           uiState.customDialog
         ) : uiState.dialogsVisible ? (
-          <DialogManager
-            terminalWidth={uiState.terminalWidth}
-            addItem={uiState.historyManager.addItem}
-          />
+          <DialogManager terminalWidth={uiState.terminalWidth} addItem={uiState.historyManager.addItem} />
         ) : (
           <Composer isFocused={true} />
         )}

@@ -37,9 +37,7 @@ describe('Storage – initialize', () => {
 
   beforeEach(() => {
     ProjectRegistry.prototype.initialize = vi.fn().mockResolvedValue(undefined);
-    ProjectRegistry.prototype.getShortId = vi
-      .fn()
-      .mockReturnValue(PROJECT_SLUG);
+    ProjectRegistry.prototype.getShortId = vi.fn().mockReturnValue(PROJECT_SLUG);
     storage = new Storage(projectRoot);
     vi.clearAllMocks();
 
@@ -49,16 +47,12 @@ describe('Storage – initialize', () => {
 
   it('sets up the registry and performs migration if `getProjectTempDir` is called', async () => {
     await storage.initialize();
-    expect(storage.getProjectTempDir()).toBe(
-      path.join(os.homedir(), GEMINI_DIR, 'tmp', PROJECT_SLUG),
-    );
+    expect(storage.getProjectTempDir()).toBe(path.join(os.homedir(), GEMINI_DIR, 'tmp', PROJECT_SLUG));
 
     // Verify registry initialization
     expect(ProjectRegistry).toHaveBeenCalled();
     expect(vi.mocked(ProjectRegistry).prototype.initialize).toHaveBeenCalled();
-    expect(
-      vi.mocked(ProjectRegistry).prototype.getShortId,
-    ).toHaveBeenCalledWith(projectRoot);
+    expect(vi.mocked(ProjectRegistry).prototype.getShortId).toHaveBeenCalledWith(projectRoot);
 
     // Verify migration calls
     const shortId = 'project-slug';
@@ -90,9 +84,7 @@ describe('Storage - Security', () => {
     vi.mocked(homedir).mockReturnValue('');
 
     // .gemini falls back for backward compatibility
-    expect(Storage.getGlobalGeminiDir()).toBe(
-      path.join(os.tmpdir(), GEMINI_DIR),
-    );
+    expect(Storage.getGlobalGeminiDir()).toBe(path.join(os.tmpdir(), GEMINI_DIR));
 
     // .agents returns empty to avoid insecure fallback WITHOUT throwing error
     expect(Storage.getGlobalAgentsDir()).toBe('');
@@ -141,11 +133,7 @@ describe('Storage – additional helpers', () => {
   });
 
   it('getMcpOAuthTokensPath returns ~/.gemini/mcp-oauth-tokens.json', () => {
-    const expected = path.join(
-      os.homedir(),
-      GEMINI_DIR,
-      'mcp-oauth-tokens.json',
-    );
+    const expected = path.join(os.homedir(), GEMINI_DIR, 'mcp-oauth-tokens.json');
     expect(Storage.getMcpOAuthTokensPath()).toBe(expected);
   });
 
@@ -164,9 +152,7 @@ describe('Storage – additional helpers', () => {
   it('getProjectTempPlansDir returns ~/.gemini/tmp/<identifier>/<sessionId>/plans when sessionId is provided', async () => {
     const sessionId = 'test-session-id';
     const storageWithSession = new Storage(projectRoot, sessionId);
-    ProjectRegistry.prototype.getShortId = vi
-      .fn()
-      .mockReturnValue(PROJECT_SLUG);
+    ProjectRegistry.prototype.getShortId = vi.fn().mockReturnValue(PROJECT_SLUG);
     await storageWithSession.initialize();
     const tempDir = storageWithSession.getProjectTempDir();
     const expected = path.join(tempDir, sessionId, 'plans');
@@ -192,9 +178,7 @@ describe('Storage - System Paths', () => {
     const result = Storage.getSystemSettingsPath();
 
     if (platform === 'darwin') {
-      expect(result).toBe(
-        '/Library/Application Support/GeminiCli/settings.json',
-      );
+      expect(result).toBe('/Library/Application Support/GeminiCli/settings.json');
     } else if (platform === 'win32') {
       expect(result).toBe('C:\\ProgramData\\gemini-cli\\settings.json');
     } else {
@@ -209,8 +193,7 @@ describe('Storage - System Paths', () => {
   });
 
   it('getSystemPoliciesDir returns correct path based on platform and ignores env var', () => {
-    process.env['GEMINI_CLI_SYSTEM_SETTINGS_PATH'] =
-      '/custom/path/settings.json';
+    process.env['GEMINI_CLI_SYSTEM_SETTINGS_PATH'] = '/custom/path/settings.json';
     const platform = os.platform();
     const result = Storage.getSystemPoliciesDir();
 

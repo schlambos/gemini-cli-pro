@@ -17,22 +17,17 @@ const mockCoreEvents = vi.hoisted(() => ({
   drainBacklogs: vi.fn(),
 }));
 
-const mockIsWorkspaceTrusted = vi.hoisted(() =>
-  vi.fn().mockReturnValue({ isTrusted: true, source: 'file' }),
-);
+const mockIsWorkspaceTrusted = vi.hoisted(() => vi.fn().mockReturnValue({ isTrusted: true, source: 'file' }));
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     coreEvents: mockCoreEvents,
     homedir: () => '/mock/home/user',
     Storage: class extends actual.Storage {
-      static override getGlobalSettingsPath = () =>
-        '/mock/home/user/.gemini/settings.json';
-      override getWorkspaceSettingsPath = () =>
-        '/mock/workspace/.gemini/settings.json';
+      static override getGlobalSettingsPath = () => '/mock/home/user/.gemini/settings.json';
+      override getWorkspaceSettingsPath = () => '/mock/workspace/.gemini/settings.json';
       static override getGlobalGeminiDir = () => '/mock/home/user/.gemini';
     },
   };
@@ -77,11 +72,7 @@ vi.mock('fs', async (importOriginal) => {
 });
 
 // Import loadSettings after all mocks are defined
-import {
-  loadSettings,
-  USER_SETTINGS_PATH,
-  type LoadedSettings,
-} from './settings.js';
+import { loadSettings, USER_SETTINGS_PATH, type LoadedSettings } from './settings.js';
 
 const MOCK_WORKSPACE_DIR = '/mock/workspace';
 
@@ -93,9 +84,7 @@ describe('Settings Validation Warning', () => {
   });
 
   it('should emit a warning and NOT throw when settings are invalid', () => {
-    (fs.existsSync as Mock).mockImplementation(
-      (p: string) => p === USER_SETTINGS_PATH,
-    );
+    (fs.existsSync as Mock).mockImplementation((p: string) => p === USER_SETTINGS_PATH);
 
     const invalidSettingsContent = {
       ui: {
@@ -110,8 +99,7 @@ describe('Settings Validation Warning', () => {
     };
 
     (fs.readFileSync as Mock).mockImplementation((p: string) => {
-      if (p === USER_SETTINGS_PATH)
-        return JSON.stringify(invalidSettingsContent);
+      if (p === USER_SETTINGS_PATH) return JSON.stringify(invalidSettingsContent);
       return '{}';
     });
 
@@ -122,17 +110,13 @@ describe('Settings Validation Warning', () => {
     }).not.toThrow();
 
     // Should have recorded a warning in the settings object
-    expect(
-      settings?.errors.some((e) =>
-        e.message.includes("Unrecognized key(s) in object: 'DiffModified'"),
-      ),
-    ).toBe(true);
+    expect(settings?.errors.some((e) => e.message.includes("Unrecognized key(s) in object: 'DiffModified'"))).toBe(
+      true
+    );
   });
 
   it('should throw a fatal error when settings file is not a valid JSON object', () => {
-    (fs.existsSync as Mock).mockImplementation(
-      (p: string) => p === USER_SETTINGS_PATH,
-    );
+    (fs.existsSync as Mock).mockImplementation((p: string) => p === USER_SETTINGS_PATH);
 
     (fs.readFileSync as Mock).mockImplementation((p: string) => {
       if (p === USER_SETTINGS_PATH) return '[]';
@@ -145,9 +129,7 @@ describe('Settings Validation Warning', () => {
   });
 
   it('should throw a fatal error when settings file contains invalid JSON', () => {
-    (fs.existsSync as Mock).mockImplementation(
-      (p: string) => p === USER_SETTINGS_PATH,
-    );
+    (fs.existsSync as Mock).mockImplementation((p: string) => p === USER_SETTINGS_PATH);
 
     (fs.readFileSync as Mock).mockImplementation((p: string) => {
       if (p === USER_SETTINGS_PATH) return '{ "invalid": "json", }'; // Trailing comma is invalid in standard JSON

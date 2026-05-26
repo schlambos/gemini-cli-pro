@@ -5,12 +5,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import {
-  type Config,
-  type CodeAssistServer,
-  UserTierId,
-  getCodeAssistServer,
-} from '@google/gemini-cli-core';
+import { type Config, type CodeAssistServer, UserTierId, getCodeAssistServer } from '@google/gemini-cli-core';
 
 export interface PrivacyState {
   isLoading: boolean;
@@ -79,7 +74,7 @@ export const usePrivacySettings = (config: Config) => {
         });
       }
     },
-    [config],
+    [config]
   );
 
   return {
@@ -98,9 +93,7 @@ function getCodeAssistServerOrFail(config: Config): CodeAssistServer {
   return server;
 }
 
-async function getRemoteDataCollectionOptIn(
-  server: CodeAssistServer,
-): Promise<boolean> {
+async function getRemoteDataCollectionOptIn(server: CodeAssistServer): Promise<boolean> {
   try {
     const resp = await server.getCodeAssistGlobalUserSetting();
     return resp.freeTierDataCollectionOptin;
@@ -120,10 +113,7 @@ async function getRemoteDataCollectionOptIn(
   }
 }
 
-async function setRemoteDataCollectionOptIn(
-  server: CodeAssistServer,
-  optIn: boolean,
-): Promise<boolean> {
+async function setRemoteDataCollectionOptIn(server: CodeAssistServer, optIn: boolean): Promise<boolean> {
   const resp = await server.setCodeAssistGlobalUserSetting({
     cloudaicompanionProject: server.projectId,
     freeTierDataCollectionOptin: optIn,

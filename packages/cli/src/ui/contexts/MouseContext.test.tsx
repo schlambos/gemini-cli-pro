@@ -214,20 +214,15 @@ describe('MouseContext', () => {
         sequence: '\x1b[<68;10;20M',
         expected: { name: 'scroll-up', shift: true },
       }, // Shift + scroll up
-    ])(
-      'should recognize sequence "$sequence" as $expected.name',
-      ({ sequence, expected }) => {
-        const mouseHandler = vi.fn();
-        const { result } = renderHook(() => useMouseContext(), { wrapper });
-        act(() => result.current.subscribe(mouseHandler));
+    ])('should recognize sequence "$sequence" as $expected.name', ({ sequence, expected }) => {
+      const mouseHandler = vi.fn();
+      const { result } = renderHook(() => useMouseContext(), { wrapper });
+      act(() => result.current.subscribe(mouseHandler));
 
-        act(() => stdin.write(sequence));
+      act(() => stdin.write(sequence));
 
-        expect(mouseHandler).toHaveBeenCalledWith(
-          expect.objectContaining({ ...expected }),
-        );
-      },
-    );
+      expect(mouseHandler).toHaveBeenCalledWith(expect.objectContaining({ ...expected }));
+    });
   });
 
   it('should emit a double-click event when two left-presses occur quickly at the same position', () => {
@@ -244,9 +239,7 @@ describe('MouseContext', () => {
     });
 
     expect(handler).toHaveBeenCalledTimes(1);
-    expect(handler).toHaveBeenLastCalledWith(
-      expect.objectContaining({ name: 'left-press', col: 10, row: 20 }),
-    );
+    expect(handler).toHaveBeenLastCalledWith(expect.objectContaining({ name: 'left-press', col: 10, row: 20 }));
 
     // Second click (within threshold)
     act(() => {
@@ -255,9 +248,7 @@ describe('MouseContext', () => {
 
     // Should have called for the second left-press AND the double-click
     expect(handler).toHaveBeenCalledTimes(3);
-    expect(handler).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'double-click', col: 10, row: 20 }),
-    );
+    expect(handler).toHaveBeenCalledWith(expect.objectContaining({ name: 'double-click', col: 10, row: 20 }));
   });
 
   it('should NOT emit a double-click event if clicks are too far apart', () => {
@@ -279,9 +270,7 @@ describe('MouseContext', () => {
     });
 
     expect(handler).toHaveBeenCalledTimes(2);
-    expect(handler).not.toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'double-click' }),
-    );
+    expect(handler).not.toHaveBeenCalledWith(expect.objectContaining({ name: 'double-click' }));
   });
 
   it('should NOT emit a double-click event if too much time passes', async () => {
@@ -308,9 +297,7 @@ describe('MouseContext', () => {
     });
 
     expect(handler).toHaveBeenCalledTimes(2);
-    expect(handler).not.toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'double-click' }),
-    );
+    expect(handler).not.toHaveBeenCalledWith(expect.objectContaining({ name: 'double-click' }));
     vi.useRealTimers();
   });
 });

@@ -4,15 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  afterEach,
-  type Mock,
-} from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { createPolicyUpdater } from './config.js';
@@ -49,9 +41,7 @@ describe('createPolicyUpdater', () => {
     const userPoliciesDir = '/mock/user/policies';
     vi.spyOn(Storage, 'getUserPoliciesDir').mockReturnValue(userPoliciesDir);
     (fs.mkdir as unknown as Mock).mockResolvedValue(undefined);
-    (fs.readFile as unknown as Mock).mockRejectedValue(
-      new Error('File not found'),
-    ); // Simulate new file
+    (fs.readFile as unknown as Mock).mockRejectedValue(new Error('File not found')); // Simulate new file
 
     const mockFileHandle = {
       writeFile: vi.fn().mockResolvedValue(undefined),
@@ -79,13 +69,10 @@ describe('createPolicyUpdater', () => {
 
     // Check written content
     const expectedContent = expect.stringContaining(`toolName = "test_tool"`);
-    expect(mockFileHandle.writeFile).toHaveBeenCalledWith(
-      expectedContent,
-      'utf-8',
-    );
+    expect(mockFileHandle.writeFile).toHaveBeenCalledWith(expectedContent, 'utf-8');
     expect(fs.rename).toHaveBeenCalledWith(
       expect.stringMatching(/\.tmp$/),
-      path.join(userPoliciesDir, 'auto-saved.toml'),
+      path.join(userPoliciesDir, 'auto-saved.toml')
     );
   });
 
@@ -109,9 +96,7 @@ describe('createPolicyUpdater', () => {
     const userPoliciesDir = '/mock/user/policies';
     vi.spyOn(Storage, 'getUserPoliciesDir').mockReturnValue(userPoliciesDir);
     (fs.mkdir as unknown as Mock).mockResolvedValue(undefined);
-    (fs.readFile as unknown as Mock).mockRejectedValue(
-      new Error('File not found'),
-    );
+    (fs.readFile as unknown as Mock).mockRejectedValue(new Error('File not found'));
 
     const mockFileHandle = {
       writeFile: vi.fn().mockResolvedValue(undefined),
@@ -137,15 +122,13 @@ describe('createPolicyUpdater', () => {
     const addedRule = rules.find((r) => r.toolName === toolName);
     expect(addedRule).toBeDefined();
     expect(addedRule?.priority).toBe(2.95);
-    expect(addedRule?.argsPattern).toEqual(
-      new RegExp(`"command":"git\\ status(?:[\\s"]|\\\\")`),
-    );
+    expect(addedRule?.argsPattern).toEqual(new RegExp(`"command":"git\\ status(?:[\\s"]|\\\\")`));
 
     // Verify file written
     expect(fs.open).toHaveBeenCalledWith(expect.stringMatching(/\.tmp$/), 'wx');
     expect(mockFileHandle.writeFile).toHaveBeenCalledWith(
       expect.stringContaining(`commandPrefix = "git status"`),
-      'utf-8',
+      'utf-8'
     );
   });
 
@@ -155,9 +138,7 @@ describe('createPolicyUpdater', () => {
     const userPoliciesDir = '/mock/user/policies';
     vi.spyOn(Storage, 'getUserPoliciesDir').mockReturnValue(userPoliciesDir);
     (fs.mkdir as unknown as Mock).mockResolvedValue(undefined);
-    (fs.readFile as unknown as Mock).mockRejectedValue(
-      new Error('File not found'),
-    );
+    (fs.readFile as unknown as Mock).mockRejectedValue(new Error('File not found'));
 
     const mockFileHandle = {
       writeFile: vi.fn().mockResolvedValue(undefined),
@@ -194,9 +175,7 @@ describe('createPolicyUpdater', () => {
     const userPoliciesDir = '/mock/user/policies';
     vi.spyOn(Storage, 'getUserPoliciesDir').mockReturnValue(userPoliciesDir);
     (fs.mkdir as unknown as Mock).mockResolvedValue(undefined);
-    (fs.readFile as unknown as Mock).mockRejectedValue(
-      new Error('File not found'),
-    );
+    (fs.readFile as unknown as Mock).mockRejectedValue(new Error('File not found'));
 
     const mockFileHandle = {
       writeFile: vi.fn().mockResolvedValue(undefined),

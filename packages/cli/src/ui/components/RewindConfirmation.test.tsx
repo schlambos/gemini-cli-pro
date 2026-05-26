@@ -24,12 +24,8 @@ describe('RewindConfirmation', () => {
     };
     const onConfirm = vi.fn();
     const { lastFrame } = renderWithProviders(
-      <RewindConfirmation
-        stats={stats}
-        onConfirm={onConfirm}
-        terminalWidth={80}
-      />,
-      { width: 80 },
+      <RewindConfirmation stats={stats} onConfirm={onConfirm} terminalWidth={80} />,
+      { width: 80 }
     );
 
     expect(lastFrame()).toMatchSnapshot();
@@ -39,12 +35,8 @@ describe('RewindConfirmation', () => {
   it('renders correctly without stats', () => {
     const onConfirm = vi.fn();
     const { lastFrame } = renderWithProviders(
-      <RewindConfirmation
-        stats={null}
-        onConfirm={onConfirm}
-        terminalWidth={80}
-      />,
-      { width: 80 },
+      <RewindConfirmation stats={null} onConfirm={onConfirm} terminalWidth={80} />,
+      { width: 80 }
     );
 
     expect(lastFrame()).toMatchSnapshot();
@@ -55,12 +47,8 @@ describe('RewindConfirmation', () => {
   it('calls onConfirm with Cancel on Escape', async () => {
     const onConfirm = vi.fn();
     const { stdin } = renderWithProviders(
-      <RewindConfirmation
-        stats={null}
-        onConfirm={onConfirm}
-        terminalWidth={80}
-      />,
-      { width: 80 },
+      <RewindConfirmation stats={null} onConfirm={onConfirm} terminalWidth={80} />,
+      { width: 80 }
     );
 
     await act(async () => {
@@ -76,13 +64,8 @@ describe('RewindConfirmation', () => {
     const onConfirm = vi.fn();
     const timestamp = new Date().toISOString();
     const { lastFrame } = renderWithProviders(
-      <RewindConfirmation
-        stats={null}
-        onConfirm={onConfirm}
-        terminalWidth={80}
-        timestamp={timestamp}
-      />,
-      { width: 80 },
+      <RewindConfirmation stats={null} onConfirm={onConfirm} terminalWidth={80} timestamp={timestamp} />,
+      { width: 80 }
     );
 
     expect(lastFrame()).toMatchSnapshot();

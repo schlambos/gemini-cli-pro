@@ -52,9 +52,7 @@ async function copyDirectory(template: string, path: string) {
 async function handleNew(args: NewArgs) {
   if (args.template) {
     await copyDirectory(args.template, args.path);
-    debugLogger.log(
-      `Successfully created new extension from template "${args.template}" at ${args.path}.`,
-    );
+    debugLogger.log(`Successfully created new extension from template "${args.template}" at ${args.path}.`);
   } else {
     await createDirectory(args.path);
     const extensionName = basename(args.path);
@@ -62,22 +60,15 @@ async function handleNew(args: NewArgs) {
       name: extensionName,
       version: '1.0.0',
     };
-    await writeFile(
-      join(args.path, 'gemini-extension.json'),
-      JSON.stringify(manifest, null, 2),
-    );
+    await writeFile(join(args.path, 'gemini-extension.json'), JSON.stringify(manifest, null, 2));
     debugLogger.log(`Successfully created new extension at ${args.path}.`);
   }
-  debugLogger.log(
-    `You can install this using "gemini extensions link ${args.path}" to test it out.`,
-  );
+  debugLogger.log(`You can install this using "gemini extensions link ${args.path}" to test it out.`);
 }
 
 async function getBoilerplateChoices() {
   const entries = await readdir(EXAMPLES_PATH, { withFileTypes: true });
-  return entries
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name);
+  return entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
 }
 
 export const newCommand: CommandModule = {

@@ -28,8 +28,7 @@ export class FileDiscoveryService {
   private gitIgnoreFilter: GitIgnoreFilter | null = null;
   private geminiIgnoreFilter: IgnoreFileFilter | null = null;
   private customIgnoreFilter: IgnoreFileFilter | null = null;
-  private combinedIgnoreFilter: GitIgnoreFilter | IgnoreFileFilter | null =
-    null;
+  private combinedIgnoreFilter: GitIgnoreFilter | IgnoreFileFilter | null = null;
   private defaultFilterFileOptions: FilterFilesOptions = {
     respectGitIgnore: true,
     respectGeminiIgnore: true,
@@ -43,39 +42,28 @@ export class FileDiscoveryService {
     if (isGitRepository(this.projectRoot)) {
       this.gitIgnoreFilter = new GitIgnoreParser(this.projectRoot);
     }
-    this.geminiIgnoreFilter = new IgnoreFileParser(
-      this.projectRoot,
-      GEMINI_IGNORE_FILE_NAME,
-    );
+    this.geminiIgnoreFilter = new IgnoreFileParser(this.projectRoot, GEMINI_IGNORE_FILE_NAME);
     if (this.defaultFilterFileOptions.customIgnoreFilePaths?.length) {
       this.customIgnoreFilter = new IgnoreFileParser(
         this.projectRoot,
-        this.defaultFilterFileOptions.customIgnoreFilePaths,
+        this.defaultFilterFileOptions.customIgnoreFilePaths
       );
     }
 
     if (this.gitIgnoreFilter) {
       const geminiPatterns = this.geminiIgnoreFilter.getPatterns();
-      const customPatterns = this.customIgnoreFilter
-        ? this.customIgnoreFilter.getPatterns()
-        : [];
+      const customPatterns = this.customIgnoreFilter ? this.customIgnoreFilter.getPatterns() : [];
       // Create combined parser: .gitignore + .geminiignore + custom ignore
       this.combinedIgnoreFilter = new GitIgnoreParser(
         this.projectRoot,
         // customPatterns should go the last to ensure overwriting of geminiPatterns
-        [...geminiPatterns, ...customPatterns],
+        [...geminiPatterns, ...customPatterns]
       );
     } else {
       // Create combined parser when not git repo
       const geminiPatterns = this.geminiIgnoreFilter.getPatterns();
-      const customPatterns = this.customIgnoreFilter
-        ? this.customIgnoreFilter.getPatterns()
-        : [];
-      this.combinedIgnoreFilter = new IgnoreFileParser(
-        this.projectRoot,
-        [...geminiPatterns, ...customPatterns],
-        true,
-      );
+      const customPatterns = this.customIgnoreFilter ? this.customIgnoreFilter.getPatterns() : [];
+      this.combinedIgnoreFilter = new IgnoreFileParser(this.projectRoot, [...geminiPatterns, ...customPatterns], true);
     }
   }
 
@@ -86,12 +74,10 @@ export class FileDiscoveryService {
       this.defaultFilterFileOptions.respectGitIgnore = options.respectGitIgnore;
     }
     if (options.respectGeminiIgnore !== undefined) {
-      this.defaultFilterFileOptions.respectGeminiIgnore =
-        options.respectGeminiIgnore;
+      this.defaultFilterFileOptions.respectGeminiIgnore = options.respectGeminiIgnore;
     }
     if (options.customIgnoreFilePaths) {
-      this.defaultFilterFileOptions.customIgnoreFilePaths =
-        options.customIgnoreFilePaths;
+      this.defaultFilterFileOptions.customIgnoreFilePaths = options.customIgnoreFilePaths;
     }
   }
 
@@ -104,11 +90,7 @@ export class FileDiscoveryService {
       respectGeminiIgnore = this.defaultFilterFileOptions.respectGeminiIgnore,
     } = options;
     return filePaths.filter((filePath) => {
-      if (
-        respectGitIgnore &&
-        respectGeminiIgnore &&
-        this.combinedIgnoreFilter
-      ) {
+      if (respectGitIgnore && respectGeminiIgnore && this.combinedIgnoreFilter) {
         return !this.combinedIgnoreFilter.isIgnored(filePath);
       }
 
@@ -136,7 +118,7 @@ export class FileDiscoveryService {
     opts: FilterFilesOptions = {
       respectGitIgnore: true,
       respectGeminiIgnore: true,
-    },
+    }
   ): FilterReport {
     const filteredPaths = this.filterFiles(filePaths, opts);
     const ignoredCount = filePaths.length - filteredPaths.length;
@@ -150,10 +132,7 @@ export class FileDiscoveryService {
   /**
    * Unified method to check if a file should be ignored based on filtering options
    */
-  shouldIgnoreFile(
-    filePath: string,
-    options: FilterFilesOptions = {},
-  ): boolean {
+  shouldIgnoreFile(filePath: string, options: FilterFilesOptions = {}): boolean {
     return this.filterFiles([filePath], options).length === 0;
   }
 
@@ -162,10 +141,7 @@ export class FileDiscoveryService {
    */
   getIgnoreFilePaths(): string[] {
     const paths: string[] = [];
-    if (
-      this.geminiIgnoreFilter &&
-      this.defaultFilterFileOptions.respectGeminiIgnore
-    ) {
+    if (this.geminiIgnoreFilter && this.defaultFilterFileOptions.respectGeminiIgnore) {
       paths.push(...this.geminiIgnoreFilter.getIgnoreFilePaths());
     }
     if (this.customIgnoreFilter) {
@@ -179,10 +155,7 @@ export class FileDiscoveryService {
    */
   getAllIgnoreFilePaths(): string[] {
     const paths: string[] = [];
-    if (
-      this.gitIgnoreFilter &&
-      this.defaultFilterFileOptions.respectGitIgnore
-    ) {
+    if (this.gitIgnoreFilter && this.defaultFilterFileOptions.respectGitIgnore) {
       const gitIgnorePath = path.join(this.projectRoot, '.gitignore');
       if (fs.existsSync(gitIgnorePath)) {
         paths.push(gitIgnorePath);

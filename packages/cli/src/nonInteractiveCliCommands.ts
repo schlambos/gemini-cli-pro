@@ -6,12 +6,7 @@
 
 import type { PartListUnion } from '@google/genai';
 import { parseSlashCommand } from './utils/commands.js';
-import {
-  FatalInputError,
-  Logger,
-  uiTelemetryService,
-  type Config,
-} from '@google/gemini-cli-core';
+import { FatalInputError, Logger, uiTelemetryService, type Config } from '@google/gemini-cli-core';
 import { CommandService } from './services/CommandService.js';
 import { BuiltinCommandLoader } from './services/BuiltinCommandLoader.js';
 import { FileCommandLoader } from './services/FileCommandLoader.js';
@@ -33,7 +28,7 @@ export const handleSlashCommand = async (
   rawQuery: string,
   abortController: AbortController,
   config: Config,
-  settings: LoadedSettings,
+  settings: LoadedSettings
 ): Promise<PartListUnion | undefined> => {
   const trimmed = rawQuery.trim();
   if (!trimmed.startsWith('/')) {
@@ -41,12 +36,8 @@ export const handleSlashCommand = async (
   }
 
   const commandService = await CommandService.create(
-    [
-      new BuiltinCommandLoader(config),
-      new McpPromptLoader(config),
-      new FileCommandLoader(config),
-    ],
-    abortController.signal,
+    [new BuiltinCommandLoader(config), new McpPromptLoader(config), new FileCommandLoader(config)],
+    abortController.signal
   );
   const commands = commandService.getCommands();
 
@@ -97,13 +88,9 @@ export const handleSlashCommand = async (
             // occur because of YOLO mode.
             // This ensures that if a command *does* request confirmation (e.g.
             // in the future with more granular permissions), it's handled appropriately.
-            throw new FatalInputError(
-              'Exiting due to a confirmation prompt requested by the command.',
-            );
+            throw new FatalInputError('Exiting due to a confirmation prompt requested by the command.');
           default:
-            throw new FatalInputError(
-              'Exiting due to command result that is not supported in non-interactive mode.',
-            );
+            throw new FatalInputError('Exiting due to command result that is not supported in non-interactive mode.');
         }
       }
     }

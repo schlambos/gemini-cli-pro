@@ -54,11 +54,9 @@ describe('ModelRouterService', () => {
         new NumericalClassifierStrategy(),
         new DefaultStrategy(),
       ],
-      'agent-router',
+      'agent-router'
     );
-    vi.mocked(CompositeStrategy).mockImplementation(
-      () => mockCompositeStrategy,
-    );
+    vi.mocked(CompositeStrategy).mockImplementation(() => mockCompositeStrategy);
 
     service = new ModelRouterService(mockConfig);
 
@@ -99,24 +97,16 @@ describe('ModelRouterService', () => {
     };
 
     it('should delegate routing to the composite strategy', async () => {
-      const strategySpy = vi
-        .spyOn(mockCompositeStrategy, 'route')
-        .mockResolvedValue(strategyDecision);
+      const strategySpy = vi.spyOn(mockCompositeStrategy, 'route').mockResolvedValue(strategyDecision);
 
       const decision = await service.route(mockContext);
 
-      expect(strategySpy).toHaveBeenCalledWith(
-        mockContext,
-        mockConfig,
-        mockBaseLlmClient,
-      );
+      expect(strategySpy).toHaveBeenCalledWith(mockContext, mockConfig, mockBaseLlmClient);
       expect(decision).toEqual(strategyDecision);
     });
 
     it('should log a telemetry event on a successful decision', async () => {
-      vi.spyOn(mockCompositeStrategy, 'route').mockResolvedValue(
-        strategyDecision,
-      );
+      vi.spyOn(mockCompositeStrategy, 'route').mockResolvedValue(strategyDecision);
 
       await service.route(mockContext);
 
@@ -128,12 +118,9 @@ describe('ModelRouterService', () => {
         false,
         undefined,
         false,
-        undefined,
+        undefined
       );
-      expect(logModelRouting).toHaveBeenCalledWith(
-        mockConfig,
-        expect.any(ModelRoutingEvent),
-      );
+      expect(logModelRouting).toHaveBeenCalledWith(mockConfig, expect.any(ModelRoutingEvent));
     });
 
     it('should log a telemetry event and return fallback on a failed decision', async () => {
@@ -154,12 +141,9 @@ describe('ModelRouterService', () => {
         true,
         'Strategy failed',
         false,
-        undefined,
+        undefined
       );
-      expect(logModelRouting).toHaveBeenCalledWith(
-        mockConfig,
-        expect.any(ModelRoutingEvent),
-      );
+      expect(logModelRouting).toHaveBeenCalledWith(mockConfig, expect.any(ModelRoutingEvent));
     });
   });
 });

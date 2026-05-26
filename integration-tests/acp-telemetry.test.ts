@@ -56,12 +56,7 @@ describe('ACP telemetry', () => {
 
     child = spawn(
       'node',
-      [
-        bundlePath,
-        '--experimental-acp',
-        '--fake-responses',
-        join(rig.testDir!, 'fake-responses.json'),
-      ],
+      [bundlePath, '--experimental-acp', '--fake-responses', join(rig.testDir!, 'fake-responses.json')],
       {
         cwd: rig.testDir!,
         stdio: ['pipe', 'pipe', 'inherit'],
@@ -74,7 +69,7 @@ describe('ACP telemetry', () => {
           GEMINI_TELEMETRY_OUTFILE: telemetryPath,
           // GEMINI_DEV_TRACING not set: fake responses aren't instrumented for spans
         },
-      },
+      }
     );
 
     const input = Writable.toWeb(child.stdin!);
@@ -109,8 +104,6 @@ describe('ACP telemetry', () => {
 
     // gen_ai.output.messages is the last OTEL log emitted (after prompt response)
     expect(existsSync(telemetryPath)).toBe(true);
-    expect(readFileSync(telemetryPath, 'utf-8')).toContain(
-      'gen_ai.output.messages',
-    );
+    expect(readFileSync(telemetryPath, 'utf-8')).toContain('gen_ai.output.messages');
   });
 });

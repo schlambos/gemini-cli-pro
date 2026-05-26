@@ -8,12 +8,7 @@ import type { CommandContext, SlashCommand } from './types.js';
 import { CommandKind } from './types.js';
 import process from 'node:process';
 import { MessageType, type HistoryItemAbout } from '../types.js';
-import {
-  IdeClient,
-  UserAccountManager,
-  debugLogger,
-  getVersion,
-} from '@google/gemini-cli-core';
+import { IdeClient, UserAccountManager, debugLogger, getVersion } from '@google/gemini-cli-core';
 
 export const aboutCommand: SlashCommand = {
   name: 'about',
@@ -26,14 +21,11 @@ export const aboutCommand: SlashCommand = {
     if (process.env['SANDBOX'] && process.env['SANDBOX'] !== 'sandbox-exec') {
       sandboxEnv = process.env['SANDBOX'];
     } else if (process.env['SANDBOX'] === 'sandbox-exec') {
-      sandboxEnv = `sandbox-exec (${
-        process.env['SEATBELT_PROFILE'] || 'unknown'
-      })`;
+      sandboxEnv = `sandbox-exec (${process.env['SEATBELT_PROFILE'] || 'unknown'})`;
     }
     const modelVersion = context.services.config?.getModel() || 'Unknown';
     const cliVersion = await getVersion();
-    const selectedAuthType =
-      context.services.settings.merged.security.auth.selectedType || '';
+    const selectedAuthType = context.services.settings.merged.security.auth.selectedType || '';
     const gcpProject = process.env['GOOGLE_CLOUD_PROJECT'] || '';
     const ideClient = await getIdeClientName(context);
 

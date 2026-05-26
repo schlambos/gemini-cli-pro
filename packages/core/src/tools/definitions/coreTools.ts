@@ -172,22 +172,12 @@ export const ENTER_PLAN_MODE_DEFINITION: ToolDefinition = {
 // DYNAMIC TOOL DEFINITIONS (LEGACY EXPORTS)
 // ============================================================================
 
-export {
-  getShellToolDescription,
-  getCommandDescription,
-} from './dynamic-declaration-helpers.js';
+export { getShellToolDescription, getCommandDescription } from './dynamic-declaration-helpers.js';
 
-export function getShellDefinition(
-  enableInteractiveShell: boolean,
-  enableEfficiency: boolean,
-): ToolDefinition {
+export function getShellDefinition(enableInteractiveShell: boolean, enableEfficiency: boolean): ToolDefinition {
   return {
     base: getShellDeclaration(enableInteractiveShell, enableEfficiency),
-    overrides: (modelId) =>
-      getToolSet(modelId).run_shell_command(
-        enableInteractiveShell,
-        enableEfficiency,
-      ),
+    overrides: (modelId) => getToolSet(modelId).run_shell_command(enableInteractiveShell, enableEfficiency),
   };
 }
 
@@ -198,9 +188,7 @@ export function getExitPlanModeDefinition(plansDir: string): ToolDefinition {
   };
 }
 
-export function getActivateSkillDefinition(
-  skillNames: string[],
-): ToolDefinition {
+export function getActivateSkillDefinition(skillNames: string[]): ToolDefinition {
   return {
     base: getActivateSkillDeclaration(skillNames),
     overrides: (modelId) => getToolSet(modelId).activate_skill(skillNames),

@@ -99,9 +99,7 @@ describe('useConsoleMessages', () => {
       await vi.advanceTimersByTimeAsync(20);
     });
 
-    expect(result.current.consoleMessages).toEqual([
-      { type: 'log', content: 'Test message', count: 1 },
-    ]);
+    expect(result.current.consoleMessages).toEqual([{ type: 'log', content: 'Test message', count: 1 }]);
   });
 
   it('should batch and count identical consecutive messages', async () => {
@@ -117,9 +115,7 @@ describe('useConsoleMessages', () => {
       await vi.advanceTimersByTimeAsync(20);
     });
 
-    expect(result.current.consoleMessages).toEqual([
-      { type: 'log', content: 'Test message', count: 3 },
-    ]);
+    expect(result.current.consoleMessages).toEqual([{ type: 'log', content: 'Test message', count: 3 }]);
   });
 
   it('should not batch different messages', async () => {

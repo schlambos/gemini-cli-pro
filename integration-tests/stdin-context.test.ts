@@ -5,12 +5,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import {
-  TestRig,
-  printDebugInfo,
-  assertModelHasOutput,
-  checkModelOutputContent,
-} from './test-helper.js';
+import { TestRig, printDebugInfo, assertModelHasOutput, checkModelOutputContent } from './test-helper.js';
 
 describe.skip('stdin context', () => {
   let rig: TestRig;
@@ -47,27 +42,19 @@ describe.skip('stdin context', () => {
     const stdinIndex = historyString.indexOf(randomString);
     const promptIndex = historyString.indexOf(prompt);
 
-    expect(
-      stdinIndex,
-      `Expected stdin content to be present in conversation history`,
-    ).toBeGreaterThan(-1);
+    expect(stdinIndex, `Expected stdin content to be present in conversation history`).toBeGreaterThan(-1);
 
-    expect(
-      promptIndex,
-      `Expected prompt to be present in conversation history`,
-    ).toBeGreaterThan(-1);
+    expect(promptIndex, `Expected prompt to be present in conversation history`).toBeGreaterThan(-1);
 
     expect(
       stdinIndex < promptIndex,
-      `Expected stdin content (index ${stdinIndex}) to appear before prompt (index ${promptIndex}) in conversation history`,
+      `Expected stdin content (index ${stdinIndex}) to appear before prompt (index ${promptIndex}) in conversation history`
     ).toBeTruthy();
 
     // Add debugging information
     if (!result.toLowerCase().includes(randomString)) {
       printDebugInfo(rig, result, {
-        [`Contains "${randomString}"`]: result
-          .toLowerCase()
-          .includes(randomString),
+        [`Contains "${randomString}"`]: result.toLowerCase().includes(randomString),
       });
     }
 
@@ -80,7 +67,7 @@ describe.skip('stdin context', () => {
 
     expect(
       result.toLowerCase().includes(randomString),
-      'Expected the model to identify the secret word from stdin',
+      'Expected the model to identify the secret word from stdin'
     ).toBeTruthy();
   });
 

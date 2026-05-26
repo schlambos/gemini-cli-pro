@@ -17,8 +17,7 @@ import { type MessageActionReturn } from '@google/gemini-cli-core';
  */
 export const terminalSetupCommand: SlashCommand = {
   name: 'terminal-setup',
-  description:
-    'Configure terminal keybindings for multiline input (VS Code, Cursor, Windsurf)',
+  description: 'Configure terminal keybindings for multiline input (VS Code, Cursor, Windsurf)',
   kind: CommandKind.BUILT_IN,
   autoExecute: true,
   action: async (): Promise<MessageActionReturn> => {
@@ -27,8 +26,7 @@ export const terminalSetupCommand: SlashCommand = {
 
       let content = result.message;
       if (result.requiresRestart) {
-        content +=
-          '\n\nPlease restart your terminal for the changes to take effect.';
+        content += '\n\nPlease restart your terminal for the changes to take effect.';
       }
 
       return {

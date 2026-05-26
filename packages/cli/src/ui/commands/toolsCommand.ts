@@ -4,11 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  type CommandContext,
-  type SlashCommand,
-  CommandKind,
-} from './types.js';
+import { type CommandContext, type SlashCommand, CommandKind } from './types.js';
 import { MessageType, type HistoryItemToolsList } from '../types.js';
 
 export const toolsCommand: SlashCommand = {

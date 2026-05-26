@@ -43,31 +43,23 @@ const addHolidayTrees = (art: string): string => {
   });
 
   const tripleTreeWidth = treeWidth * 3 + treeSpacing.length * 2;
-  const paddingCount = Math.max(
-    0,
-    Math.floor((logoWidth - tripleTreeWidth) / 2),
-  );
+  const paddingCount = Math.max(0, Math.floor((logoWidth - tripleTreeWidth) / 2));
   const treePadding = ' '.repeat(paddingCount);
 
-  const centeredTripleTrees = tripleTreeLines
-    .map((line) => treePadding + line)
-    .join('\n');
+  const centeredTripleTrees = tripleTreeLines.map((line) => treePadding + line).join('\n');
 
   // Add vertical padding and the trees below the logo
   return `\n\n${art}\n${centeredTripleTrees}\n\n`;
 };
 
 export const useSnowfall = (displayTitle: string): string => {
-  const isHolidaySeason =
-    new Date().getMonth() === 11 || new Date().getMonth() === 0;
+  const isHolidaySeason = new Date().getMonth() === 11 || new Date().getMonth() === 0;
 
   const currentTheme = themeManager.getActiveTheme();
   const { columns: terminalWidth } = useTerminalSize();
   const { history, historyRemountKey } = useUIState();
 
-  const hasStartedChat = history.some(
-    (item) => item.type === 'user' && item.text !== '/theme',
-  );
+  const hasStartedChat = history.some((item) => item.type === 'user' && item.text !== '/theme');
   const widthOfShortLogo = getAsciiArtWidth(shortAsciiLogo);
 
   const [showSnow, setShowSnow] = useState(true);
@@ -112,9 +104,7 @@ export const useSnowfall = (displayTitle: string): string => {
     const timer = setInterval(() => {
       setSnowflakes((prev) => {
         // Move existing flakes
-        const moved = prev
-          .map((flake) => ({ ...flake, y: flake.y + 1 }))
-          .filter((flake) => flake.y < height);
+        const moved = prev.map((flake) => ({ ...flake, y: flake.y + 1 })).filter((flake) => flake.y < height);
 
         // Spawn new flakes
         // Adjust spawn rate based on width to keep density consistent

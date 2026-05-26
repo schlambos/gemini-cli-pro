@@ -16,14 +16,10 @@ interface TipsProps {
 export const Tips: React.FC<TipsProps> = ({ config }) => {
   const geminiMdFileCount = config.getGeminiMdFileCount();
   return (
-    <Box flexDirection="column">
+    <Box flexDirection='column'>
       <Text color={theme.text.primary}>Tips for getting started:</Text>
-      <Text color={theme.text.primary}>
-        1. Ask questions, edit files, or run commands.
-      </Text>
-      <Text color={theme.text.primary}>
-        2. Be specific for the best results.
-      </Text>
+      <Text color={theme.text.primary}>1. Ask questions, edit files, or run commands.</Text>
+      <Text color={theme.text.primary}>2. Be specific for the best results.</Text>
       {geminiMdFileCount === 0 && (
         <Text color={theme.text.primary}>
           3. Create{' '}

@@ -147,5 +147,5 @@ export const ANSILight: Theme = new Theme(
     },
   },
   ansiLightColors,
-  lightSemanticColors,
+  lightSemanticColors
 );

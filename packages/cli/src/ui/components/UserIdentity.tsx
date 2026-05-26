@@ -8,11 +8,7 @@ import type React from 'react';
 import { useMemo } from 'react';
 import { Box, Text } from 'ink';
 import { theme } from '../semantic-colors.js';
-import {
-  type Config,
-  UserAccountManager,
-  AuthType,
-} from '@google/gemini-cli-core';
+import { type Config, UserAccountManager, AuthType } from '@google/gemini-cli-core';
 
 interface UserIdentityProps {
   config: Config;
@@ -37,7 +33,7 @@ export const UserIdentity: React.FC<UserIdentityProps> = ({ config }) => {
   }
 
   return (
-    <Box marginTop={1} flexDirection="column">
+    <Box marginTop={1} flexDirection='column'>
       <Box>
         <Text color={theme.text.primary}>
           {authType === AuthType.LOGIN_WITH_GOOGLE ? (

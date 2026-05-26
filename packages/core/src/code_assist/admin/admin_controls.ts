@@ -19,9 +19,7 @@ import type { Config } from '../../config/config.js';
 let pollingInterval: NodeJS.Timeout | undefined;
 let currentSettings: AdminControlsSettings | undefined;
 
-export function sanitizeAdminSettings(
-  settings: FetchAdminControlsResponse,
-): AdminControlsSettings {
+export function sanitizeAdminSettings(settings: FetchAdminControlsResponse): AdminControlsSettings {
   const result = FetchAdminControlsResponseSchema.safeParse(settings);
   if (!result.success) {
     return {};
@@ -66,12 +64,9 @@ export function sanitizeAdminSettings(
     cliFeatureSetting: {
       ...sanitized.cliFeatureSetting,
       extensionsSetting: {
-        extensionsEnabled:
-          sanitized.cliFeatureSetting?.extensionsSetting?.extensionsEnabled ??
-          false,
+        extensionsEnabled: sanitized.cliFeatureSetting?.extensionsSetting?.extensionsEnabled ?? false,
       },
-      unmanagedCapabilitiesEnabled:
-        sanitized.cliFeatureSetting?.unmanagedCapabilitiesEnabled ?? false,
+      unmanagedCapabilitiesEnabled: sanitized.cliFeatureSetting?.unmanagedCapabilitiesEnabled ?? false,
     },
     mcpSetting: {
       mcpEnabled: sanitized.mcpSetting?.mcpEnabled ?? false,
@@ -94,7 +89,7 @@ export async function fetchAdminControls(
   server: CodeAssistServer | undefined,
   cachedSettings: AdminControlsSettings | undefined,
   adminControlsEnabled: boolean,
-  onSettingsChanged: (settings: AdminControlsSettings) => void,
+  onSettingsChanged: (settings: AdminControlsSettings) => void
 ): Promise<AdminControlsSettings> {
   if (!server || !server.projectId || !adminControlsEnabled) {
     stopAdminControlsPolling();
@@ -141,7 +136,7 @@ export async function fetchAdminControls(
  */
 export async function fetchAdminControlsOnce(
   server: CodeAssistServer | undefined,
-  adminControlsEnabled: boolean,
+  adminControlsEnabled: boolean
 ): Promise<FetchAdminControlsResponse> {
   if (!server || !server.projectId || !adminControlsEnabled) {
     return {};
@@ -158,10 +153,7 @@ export async function fetchAdminControlsOnce(
 
     return sanitizeAdminSettings(rawSettings);
   } catch (e) {
-    debugLogger.error(
-      'Failed to fetch admin controls: ',
-      e instanceof Error ? e.message : e,
-    );
+    debugLogger.error('Failed to fetch admin controls: ', e instanceof Error ? e.message : e);
     throw e;
   }
 }
@@ -172,7 +164,7 @@ export async function fetchAdminControlsOnce(
 function startAdminControlsPolling(
   server: CodeAssistServer,
   project: string,
-  onSettingsChanged: (settings: AdminControlsSettings) => void,
+  onSettingsChanged: (settings: AdminControlsSettings) => void
 ) {
   stopAdminControlsPolling();
 
@@ -199,7 +191,7 @@ function startAdminControlsPolling(
         debugLogger.error('Failed to poll admin controls: ', e);
       }
     },
-    5 * 60 * 1000,
+    5 * 60 * 1000
   ); // 5 minutes
 }
 
@@ -220,10 +212,7 @@ export function stopAdminControlsPolling() {
  * @param config The application config
  * @returns The formatted error message
  */
-export function getAdminErrorMessage(
-  featureName: string,
-  config: Config | undefined,
-): string {
+export function getAdminErrorMessage(featureName: string, config: Config | undefined): string {
   const server = config ? getCodeAssistServer(config) : undefined;
   const projectId = server?.projectId;
   const projectParam = projectId ? `?project=${projectId}` : '';
@@ -237,10 +226,7 @@ export function getAdminErrorMessage(
  * @param config The application config
  * @returns The formatted error message
  */
-export function getAdminBlockedMcpServersMessage(
-  blockedServers: string[],
-  config: Config | undefined,
-): string {
+export function getAdminBlockedMcpServersMessage(blockedServers: string[], config: Config | undefined): string {
   const server = config ? getCodeAssistServer(config) : undefined;
   const projectId = server?.projectId;
   const projectParam = projectId ? `?project=${projectId}` : '';

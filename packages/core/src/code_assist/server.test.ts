@@ -16,13 +16,7 @@ vi.mock('google-auth-library');
 function createTestServer(headers: Record<string, string> = {}) {
   const mockRequest = vi.fn();
   const client = { request: mockRequest } as unknown as OAuth2Client;
-  const server = new CodeAssistServer(
-    client,
-    'test-project',
-    { headers },
-    'test-session',
-    UserTierId.FREE,
-  );
+  const server = new CodeAssistServer(client, 'test-project', { headers }, 'test-session', UserTierId.FREE);
   return { server, mockRequest, client };
 }
 
@@ -33,13 +27,7 @@ describe('CodeAssistServer', () => {
 
   it('should be able to be constructed', () => {
     const auth = new OAuth2Client();
-    const server = new CodeAssistServer(
-      auth,
-      'test-project',
-      {},
-      'test-session',
-      UserTierId.FREE,
-    );
+    const server = new CodeAssistServer(auth, 'test-project', {}, 'test-session', UserTierId.FREE);
     expect(server).toBeInstanceOf(CodeAssistServer);
   });
 
@@ -70,7 +58,7 @@ describe('CodeAssistServer', () => {
         contents: [{ role: 'user', parts: [{ text: 'request' }] }],
       },
       'user-prompt-id',
-      LlmRole.MAIN,
+      LlmRole.MAIN
     );
 
     expect(mockRequest).toHaveBeenCalledWith({
@@ -89,9 +77,7 @@ describe('CodeAssistServer', () => {
     expect(requestBody.user_prompt_id).toBe('user-prompt-id');
     expect(requestBody.project).toBe('test-project');
 
-    expect(response.candidates?.[0]?.content?.parts?.[0]?.text).toBe(
-      'response',
-    );
+    expect(response.candidates?.[0]?.content?.parts?.[0]?.text).toBe('response');
   });
 
   it('should detect error in generateContent response', async () => {
@@ -104,10 +90,7 @@ describe('CodeAssistServer', () => {
             index: 0,
             content: {
               role: 'model',
-              parts: [
-                { text: 'response' },
-                { functionCall: { name: 'test', args: {} } },
-              ],
+              parts: [{ text: 'response' }, { functionCall: { name: 'test', args: {} } }],
             },
             finishReason: FinishReason.SAFETY,
             safetyRatings: [],
@@ -117,10 +100,7 @@ describe('CodeAssistServer', () => {
     };
     mockRequest.mockResolvedValue({ data: mockResponseData });
 
-    const recordConversationOfferedSpy = vi.spyOn(
-      server,
-      'recordConversationOffered',
-    );
+    const recordConversationOfferedSpy = vi.spyOn(server, 'recordConversationOffered');
 
     await server.generateContent(
       {
@@ -128,13 +108,13 @@ describe('CodeAssistServer', () => {
         contents: [{ role: 'user', parts: [{ text: 'request' }] }],
       },
       'user-prompt-id',
-      LlmRole.MAIN,
+      LlmRole.MAIN
     );
 
     expect(recordConversationOfferedSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         status: ActionStatus.ACTION_STATUS_ERROR_UNKNOWN,
-      }),
+      })
     );
   });
 
@@ -148,10 +128,7 @@ describe('CodeAssistServer', () => {
             index: 0,
             content: {
               role: 'model',
-              parts: [
-                { text: 'response' },
-                { functionCall: { name: 'test', args: {} } },
-              ],
+              parts: [{ text: 'response' }, { functionCall: { name: 'test', args: {} } }],
             },
             finishReason: FinishReason.STOP,
             safetyRatings: [],
@@ -173,7 +150,7 @@ describe('CodeAssistServer', () => {
         contents: [{ role: 'user', parts: [{ text: 'request' }] }],
       },
       'user-prompt-id',
-      LlmRole.MAIN,
+      LlmRole.MAIN
     );
 
     expect(server.recordCodeAssistMetrics).toHaveBeenCalledWith(
@@ -188,12 +165,10 @@ describe('CodeAssistServer', () => {
                 firstMessageLatency: expect.stringMatching(/\d+s/),
               }),
             }),
-            timestamp: expect.stringMatching(
-              /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
-            ),
+            timestamp: expect.stringMatching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/),
           }),
         ]),
-      }),
+      })
     );
   });
 
@@ -212,7 +187,7 @@ describe('CodeAssistServer', () => {
         contents: [{ role: 'user', parts: [{ text: 'request' }] }],
       },
       'user-prompt-id',
-      LlmRole.MAIN,
+      LlmRole.MAIN
     );
 
     const mockResponseData = {
@@ -221,10 +196,7 @@ describe('CodeAssistServer', () => {
         candidates: [
           {
             content: {
-              parts: [
-                { text: 'chunk' },
-                { functionCall: { name: 'test', args: {} } },
-              ],
+              parts: [{ text: 'chunk' }, { functionCall: { name: 'test', args: {} } }],
             },
           },
         ],
@@ -252,12 +224,10 @@ describe('CodeAssistServer', () => {
             conversationOffered: expect.objectContaining({
               traceId: 'stream-trace-id',
             }),
-            timestamp: expect.stringMatching(
-              /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
-            ),
+            timestamp: expect.stringMatching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/),
           }),
         ]),
-      }),
+      })
     );
   });
 
@@ -277,12 +247,10 @@ describe('CodeAssistServer', () => {
         metrics: expect.arrayContaining([
           expect.objectContaining({
             conversationInteraction: interaction,
-            timestamp: expect.stringMatching(
-              /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
-            ),
+            timestamp: expect.stringMatching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/),
           }),
         ]),
-      }),
+      })
     );
   });
 
@@ -301,7 +269,7 @@ describe('CodeAssistServer', () => {
         url: expect.stringContaining(':recordCodeAssistMetrics'),
         method: 'POST',
         body: expect.any(String),
-      }),
+      })
     );
   });
 
@@ -321,9 +289,7 @@ describe('CodeAssistServer', () => {
     it('should construct the default URL correctly', () => {
       const server = new CodeAssistServer({} as never);
       const url = server.getMethodUrl('testMethod');
-      expect(url).toBe(
-        'https://cloudcode-pa.googleapis.com/v1internal:testMethod',
-      );
+      expect(url).toBe('https://cloudcode-pa.googleapis.com/v1internal:testMethod');
     });
 
     it('should use the CODE_ASSIST_ENDPOINT environment variable if set', () => {
@@ -344,9 +310,7 @@ describe('CodeAssistServer', () => {
       process.env['CODE_ASSIST_API_VERSION'] = '';
       const server = new CodeAssistServer({} as never);
       const url = server.getMethodUrl('testMethod');
-      expect(url).toBe(
-        'https://cloudcode-pa.googleapis.com/v1internal:testMethod',
-      );
+      expect(url).toBe('https://cloudcode-pa.googleapis.com/v1internal:testMethod');
     });
   });
 
@@ -374,7 +338,7 @@ describe('CodeAssistServer', () => {
         contents: [{ role: 'user', parts: [{ text: 'request' }] }],
       },
       'user-prompt-id',
-      LlmRole.MAIN,
+      LlmRole.MAIN
     );
 
     // Push SSE data to the stream
@@ -447,10 +411,7 @@ describe('CodeAssistServer', () => {
       metadata: {},
     });
 
-    expect(server.requestPost).toHaveBeenCalledWith(
-      'onboardUser',
-      expect.any(Object),
-    );
+    expect(server.requestPost).toHaveBeenCalledWith('onboardUser', expect.any(Object));
     expect(response.name).toBe('operations/123');
   });
 
@@ -474,9 +435,7 @@ describe('CodeAssistServer', () => {
     expect(server.requestGetOperation).toHaveBeenCalledWith('operations/123');
     expect(response.name).toBe('operations/123');
     expect(response.response?.cloudaicompanionProject?.id).toBe('test-project');
-    expect(response.response?.cloudaicompanionProject?.name).toBe(
-      'projects/test-project',
-    );
+    expect(response.response?.cloudaicompanionProject?.name).toBe('projects/test-project');
   });
 
   it('should call the loadCodeAssist endpoint', async () => {
@@ -497,10 +456,7 @@ describe('CodeAssistServer', () => {
       metadata: {},
     });
 
-    expect(server.requestPost).toHaveBeenCalledWith(
-      'loadCodeAssist',
-      expect.any(Object),
-    );
+    expect(server.requestPost).toHaveBeenCalledWith('loadCodeAssist', expect.any(Object));
     expect(response).toEqual(mockResponse);
   });
 
@@ -524,7 +480,7 @@ describe('CodeAssistServer', () => {
       server.embedContent({
         model: 'test-model',
         contents: [{ role: 'user', parts: [{ text: 'request' }] }],
-      }),
+      })
     ).rejects.toThrow();
   });
 
@@ -549,10 +505,7 @@ describe('CodeAssistServer', () => {
       metadata: {},
     });
 
-    expect(server.requestPost).toHaveBeenCalledWith(
-      'loadCodeAssist',
-      expect.any(Object),
-    );
+    expect(server.requestPost).toHaveBeenCalledWith('loadCodeAssist', expect.any(Object));
     expect(response).toEqual({
       currentTier: { id: UserTierId.STANDARD },
     });
@@ -563,14 +516,9 @@ describe('CodeAssistServer', () => {
     const genericError = new Error('Something else went wrong');
     vi.spyOn(server, 'requestPost').mockRejectedValue(genericError);
 
-    await expect(server.loadCodeAssist({ metadata: {} })).rejects.toThrow(
-      'Something else went wrong',
-    );
+    await expect(server.loadCodeAssist({ metadata: {} })).rejects.toThrow('Something else went wrong');
 
-    expect(server.requestPost).toHaveBeenCalledWith(
-      'loadCodeAssist',
-      expect.any(Object),
-    );
+    expect(server.requestPost).toHaveBeenCalledWith('loadCodeAssist', expect.any(Object));
   });
 
   it('should call the listExperiments endpoint with metadata', async () => {
@@ -604,9 +552,7 @@ describe('CodeAssistServer', () => {
         },
       ],
     };
-    const requestPostSpy = vi
-      .spyOn(server, 'requestPost')
-      .mockResolvedValue(mockResponse);
+    const requestPostSpy = vi.spyOn(server, 'requestPost').mockResolvedValue(mockResponse);
 
     const req = {
       project: 'projects/my-cloudcode-project',

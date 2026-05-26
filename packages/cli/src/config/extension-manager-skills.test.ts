@@ -26,17 +26,12 @@ vi.mock('node:os', async (importOriginal) => {
 
 // Mock @google/gemini-cli-core
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     homedir: mockHomedir,
-    loadAgentsFromDirectory: vi
-      .fn()
-      .mockImplementation(async () => ({ agents: [], errors: [] })),
-    loadSkillsFromDir: (
-      await importOriginal<typeof import('@google/gemini-cli-core')>()
-    ).loadSkillsFromDir,
+    loadAgentsFromDirectory: vi.fn().mockImplementation(async () => ({ agents: [], errors: [] })),
+    loadSkillsFromDir: (await importOriginal<typeof import('@google/gemini-cli-core')>()).loadSkillsFromDir,
   };
 });
 
@@ -101,9 +96,7 @@ describe('ExtensionManager skills validation', () => {
       source: extensionPath,
     });
 
-    expect(debugLogger.debug).toHaveBeenCalledWith(
-      expect.stringContaining('Failed to load skills from'),
-    );
+    expect(debugLogger.debug).toHaveBeenCalledWith(expect.stringContaining('Failed to load skills from'));
   });
 
   it('should emit a warning during load if skills directory is not empty but no skills are loaded', async () => {
@@ -144,9 +137,7 @@ describe('ExtensionManager skills validation', () => {
     // 4. Load extensions
     await newExtensionManager.loadExtensions();
 
-    expect(debugLogger.debug).toHaveBeenCalledWith(
-      expect.stringContaining('Failed to load skills from'),
-    );
+    expect(debugLogger.debug).toHaveBeenCalledWith(expect.stringContaining('Failed to load skills from'));
   });
 
   it('should succeed if skills are correctly loaded', async () => {
@@ -165,10 +156,7 @@ describe('ExtensionManager skills validation', () => {
     const skillsDir = path.join(extensionPath, 'skills');
     const skillSubdir = path.join(skillsDir, 'test-skill');
     fs.mkdirSync(skillSubdir, { recursive: true });
-    fs.writeFileSync(
-      path.join(skillSubdir, 'SKILL.md'),
-      '---\nname: test-skill\ndescription: test desc\n---\nbody',
-    );
+    fs.writeFileSync(path.join(skillSubdir, 'SKILL.md'), '---\nname: test-skill\ndescription: test desc\n---\nbody');
 
     await extensionManager.loadExtensions();
 
@@ -178,8 +166,6 @@ describe('ExtensionManager skills validation', () => {
     });
 
     expect(extension.name).toBe('good-skills-ext');
-    expect(debugLogger.debug).not.toHaveBeenCalledWith(
-      expect.stringContaining('Failed to load skills from'),
-    );
+    expect(debugLogger.debug).not.toHaveBeenCalledWith(expect.stringContaining('Failed to load skills from'));
   });
 });

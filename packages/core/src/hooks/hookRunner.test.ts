@@ -119,19 +119,11 @@ describe('HookRunner', () => {
           source: ConfigSource.Project,
         };
 
-        const result = await hookRunner.executeHook(
-          projectHookConfig,
-          HookEventName.BeforeTool,
-          mockInput,
-        );
+        const result = await hookRunner.executeHook(projectHookConfig, HookEventName.BeforeTool, mockInput);
 
         expect(result.success).toBe(false);
-        expect(result.error?.message).toContain(
-          'Security: Blocked execution of project hook in untrusted folder',
-        );
-        expect(mockDebugLogger.warn).toHaveBeenCalledWith(
-          expect.stringContaining('Security: Blocked execution'),
-        );
+        expect(result.error?.message).toContain('Security: Blocked execution of project hook in untrusted folder');
+        expect(mockDebugLogger.warn).toHaveBeenCalledWith(expect.stringContaining('Security: Blocked execution'));
         expect(spawn).not.toHaveBeenCalled();
       });
 
@@ -145,19 +137,13 @@ describe('HookRunner', () => {
         };
 
         // Mock successful execution
-        mockSpawn.mockProcessOn.mockImplementation(
-          (event: string, callback: (code: number) => void) => {
-            if (event === 'close') {
-              setTimeout(() => callback(0), 10);
-            }
-          },
-        );
+        mockSpawn.mockProcessOn.mockImplementation((event: string, callback: (code: number) => void) => {
+          if (event === 'close') {
+            setTimeout(() => callback(0), 10);
+          }
+        });
 
-        const result = await hookRunner.executeHook(
-          projectHookConfig,
-          HookEventName.BeforeTool,
-          mockInput,
-        );
+        const result = await hookRunner.executeHook(projectHookConfig, HookEventName.BeforeTool, mockInput);
 
         expect(result.success).toBe(true);
         expect(spawn).toHaveBeenCalled();
@@ -173,19 +159,13 @@ describe('HookRunner', () => {
         };
 
         // Mock successful execution
-        mockSpawn.mockProcessOn.mockImplementation(
-          (event: string, callback: (code: number) => void) => {
-            if (event === 'close') {
-              setTimeout(() => callback(0), 10);
-            }
-          },
-        );
+        mockSpawn.mockProcessOn.mockImplementation((event: string, callback: (code: number) => void) => {
+          if (event === 'close') {
+            setTimeout(() => callback(0), 10);
+          }
+        });
 
-        const result = await hookRunner.executeHook(
-          systemHookConfig,
-          HookEventName.BeforeTool,
-          mockInput,
-        );
+        const result = await hookRunner.executeHook(systemHookConfig, HookEventName.BeforeTool, mockInput);
 
         expect(result.success).toBe(true);
         expect(spawn).toHaveBeenCalled();
@@ -203,62 +183,42 @@ describe('HookRunner', () => {
         const mockOutput = { decision: 'allow', reason: 'All good' };
 
         // Mock successful execution
-        mockSpawn.mockStdoutOn.mockImplementation(
-          (event: string, callback: (data: Buffer) => void) => {
-            if (event === 'data') {
-              setImmediate(() =>
-                callback(Buffer.from(JSON.stringify(mockOutput))),
-              );
-            }
-          },
-        );
+        mockSpawn.mockStdoutOn.mockImplementation((event: string, callback: (data: Buffer) => void) => {
+          if (event === 'data') {
+            setImmediate(() => callback(Buffer.from(JSON.stringify(mockOutput))));
+          }
+        });
 
-        mockSpawn.mockProcessOn.mockImplementation(
-          (event: string, callback: (code: number) => void) => {
-            if (event === 'close') {
-              setImmediate(() => callback(0));
-            }
-          },
-        );
+        mockSpawn.mockProcessOn.mockImplementation((event: string, callback: (code: number) => void) => {
+          if (event === 'close') {
+            setImmediate(() => callback(0));
+          }
+        });
 
-        const result = await hookRunner.executeHook(
-          commandConfig,
-          HookEventName.BeforeTool,
-          mockInput,
-        );
+        const result = await hookRunner.executeHook(commandConfig, HookEventName.BeforeTool, mockInput);
 
         expect(result.success).toBe(true);
         expect(result.output).toEqual(mockOutput);
         expect(result.exitCode).toBe(0);
-        expect(mockSpawn.stdin.write).toHaveBeenCalledWith(
-          JSON.stringify(mockInput),
-        );
+        expect(mockSpawn.stdin.write).toHaveBeenCalledWith(JSON.stringify(mockInput));
       });
 
       it('should handle command hook failure', async () => {
         const errorMessage = 'Command failed';
 
-        mockSpawn.mockStderrOn.mockImplementation(
-          (event: string, callback: (data: Buffer) => void) => {
-            if (event === 'data') {
-              setImmediate(() => callback(Buffer.from(errorMessage)));
-            }
-          },
-        );
+        mockSpawn.mockStderrOn.mockImplementation((event: string, callback: (data: Buffer) => void) => {
+          if (event === 'data') {
+            setImmediate(() => callback(Buffer.from(errorMessage)));
+          }
+        });
 
-        mockSpawn.mockProcessOn.mockImplementation(
-          (event: string, callback: (code: number) => void) => {
-            if (event === 'close') {
-              setImmediate(() => callback(1));
-            }
-          },
-        );
+        mockSpawn.mockProcessOn.mockImplementation((event: string, callback: (code: number) => void) => {
+          if (event === 'close') {
+            setImmediate(() => callback(1));
+          }
+        });
 
-        const result = await hookRunner.executeHook(
-          commandConfig,
-          HookEventName.BeforeTool,
-          mockInput,
-        );
+        const result = await hookRunner.executeHook(commandConfig, HookEventName.BeforeTool, mockInput);
 
         expect(result.success).toBe(false);
         expect(result.exitCode).toBe(1);
@@ -277,16 +237,10 @@ describe('HookRunner', () => {
           throw new Error('Spawn error');
         });
 
-        await hookRunner.executeHook(
-          namedConfig,
-          HookEventName.BeforeTool,
-          mockInput,
-        );
+        await hookRunner.executeHook(namedConfig, HookEventName.BeforeTool, mockInput);
 
         expect(mockDebugLogger.warn).toHaveBeenCalledWith(
-          expect.stringContaining(
-            '(hook: my-friendly-hook): Error: Spawn error',
-          ),
+          expect.stringContaining('(hook: my-friendly-hook): Error: Spawn error')
         );
       });
 
@@ -301,13 +255,11 @@ describe('HookRunner', () => {
         let killWasCalled = false;
 
         // Mock a hanging process that registers the close handler but doesn't call it initially
-        mockSpawn.mockProcessOn.mockImplementation(
-          (event: string, callback: (code: number) => void) => {
-            if (event === 'close') {
-              closeCallback = callback; // Store the callback but don't call it yet
-            }
-          },
-        );
+        mockSpawn.mockProcessOn.mockImplementation((event: string, callback: (code: number) => void) => {
+          if (event === 'close') {
+            closeCallback = callback; // Store the callback but don't call it yet
+          }
+        });
 
         // Mock the kill method to simulate the process being killed
         mockSpawn.kill = vi.fn().mockImplementation((_signal: string) => {
@@ -321,11 +273,7 @@ describe('HookRunner', () => {
           return true;
         });
 
-        const result = await hookRunner.executeHook(
-          shortTimeoutConfig,
-          HookEventName.BeforeTool,
-          mockInput,
-        );
+        const result = await hookRunner.executeHook(shortTimeoutConfig, HookEventName.BeforeTool, mockInput);
 
         expect(result.success).toBe(false);
         expect(killWasCalled).toBe(true);
@@ -339,32 +287,24 @@ describe('HookRunner', () => {
           command: '$GEMINI_PROJECT_DIR/hooks/test.sh',
         };
 
-        mockSpawn.mockProcessOn.mockImplementation(
-          (event: string, callback: (code: number) => void) => {
-            if (event === 'close') {
-              setImmediate(() => callback(0));
-            }
-          },
-        );
+        mockSpawn.mockProcessOn.mockImplementation((event: string, callback: (code: number) => void) => {
+          if (event === 'close') {
+            setImmediate(() => callback(0));
+          }
+        });
 
-        await hookRunner.executeHook(
-          configWithEnvVar,
-          HookEventName.BeforeTool,
-          mockInput,
-        );
+        await hookRunner.executeHook(configWithEnvVar, HookEventName.BeforeTool, mockInput);
 
         expect(spawn).toHaveBeenCalledWith(
           expect.stringMatching(/bash|powershell/),
-          expect.arrayContaining([
-            expect.stringMatching(/['"]?\/test\/project['"]?\/hooks\/test\.sh/),
-          ]),
+          expect.arrayContaining([expect.stringMatching(/['"]?\/test\/project['"]?\/hooks\/test\.sh/)]),
           expect.objectContaining({
             shell: false,
             env: expect.objectContaining({
               GEMINI_PROJECT_DIR: '/test/project',
               CLAUDE_PROJECT_DIR: '/test/project',
             }),
-          }),
+          })
         );
       });
 
@@ -381,27 +321,19 @@ describe('HookRunner', () => {
         };
 
         // Mock the process closing immediately
-        mockSpawn.mockProcessOn.mockImplementation(
-          (event: string, callback: (code: number) => void) => {
-            if (event === 'close') {
-              setImmediate(() => callback(0));
-            }
-          },
-        );
+        mockSpawn.mockProcessOn.mockImplementation((event: string, callback: (code: number) => void) => {
+          if (event === 'close') {
+            setImmediate(() => callback(0));
+          }
+        });
 
-        await hookRunner.executeHook(
-          config,
-          HookEventName.BeforeTool,
-          mockMaliciousInput,
-        );
+        await hookRunner.executeHook(config, HookEventName.BeforeTool, mockMaliciousInput);
 
         // If secure, spawn will be called with the shell executable and escaped command
         expect(spawn).toHaveBeenCalledWith(
           expect.stringMatching(/bash|powershell/),
-          expect.arrayContaining([
-            expect.stringMatching(/ls (['"]).*echo.*pwned.*\1/),
-          ]),
-          expect.objectContaining({ shell: false }),
+          expect.arrayContaining([expect.stringMatching(/ls (['"]).*echo.*pwned.*\1/)]),
+          expect.objectContaining({ shell: false })
         );
       });
     });
@@ -415,19 +347,13 @@ describe('HookRunner', () => {
       ];
 
       // Mock both commands to succeed
-      mockSpawn.mockProcessOn.mockImplementation(
-        (event: string, callback: (code: number) => void) => {
-          if (event === 'close') {
-            setImmediate(() => callback(0));
-          }
-        },
-      );
+      mockSpawn.mockProcessOn.mockImplementation((event: string, callback: (code: number) => void) => {
+        if (event === 'close') {
+          setImmediate(() => callback(0));
+        }
+      });
 
-      const results = await hookRunner.executeHooksParallel(
-        configs,
-        HookEventName.BeforeTool,
-        mockInput,
-      );
+      const results = await hookRunner.executeHooksParallel(configs, HookEventName.BeforeTool, mockInput);
 
       expect(results).toHaveLength(2);
       expect(results.every((r) => r.success)).toBe(true);
@@ -435,34 +361,21 @@ describe('HookRunner', () => {
     });
 
     it('should call onHookStart and onHookEnd callbacks', async () => {
-      const configs: HookConfig[] = [
-        { name: 'hook1', type: HookType.Command, command: './hook1.sh' },
-      ];
+      const configs: HookConfig[] = [{ name: 'hook1', type: HookType.Command, command: './hook1.sh' }];
 
-      mockSpawn.mockProcessOn.mockImplementation(
-        (event: string, callback: (code: number) => void) => {
-          if (event === 'close') {
-            setImmediate(() => callback(0));
-          }
-        },
-      );
+      mockSpawn.mockProcessOn.mockImplementation((event: string, callback: (code: number) => void) => {
+        if (event === 'close') {
+          setImmediate(() => callback(0));
+        }
+      });
 
       const onStart = vi.fn();
       const onEnd = vi.fn();
 
-      await hookRunner.executeHooksParallel(
-        configs,
-        HookEventName.BeforeTool,
-        mockInput,
-        onStart,
-        onEnd,
-      );
+      await hookRunner.executeHooksParallel(configs, HookEventName.BeforeTool, mockInput, onStart, onEnd);
 
       expect(onStart).toHaveBeenCalledWith(configs[0], 0);
-      expect(onEnd).toHaveBeenCalledWith(
-        configs[0],
-        expect.objectContaining({ success: true }),
-      );
+      expect(onEnd).toHaveBeenCalledWith(configs[0], expect.objectContaining({ success: true }));
     });
 
     it('should handle mixed success and failure', async () => {
@@ -472,20 +385,14 @@ describe('HookRunner', () => {
       ];
 
       let callCount = 0;
-      mockSpawn.mockProcessOn.mockImplementation(
-        (event: string, callback: (code: number) => void) => {
-          if (event === 'close') {
-            const exitCode = callCount++ === 0 ? 0 : 1; // First succeeds, second fails
-            setImmediate(() => callback(exitCode));
-          }
-        },
-      );
+      mockSpawn.mockProcessOn.mockImplementation((event: string, callback: (code: number) => void) => {
+        if (event === 'close') {
+          const exitCode = callCount++ === 0 ? 0 : 1; // First succeeds, second fails
+          setImmediate(() => callback(exitCode));
+        }
+      });
 
-      const results = await hookRunner.executeHooksParallel(
-        configs,
-        HookEventName.BeforeTool,
-        mockInput,
-      );
+      const results = await hookRunner.executeHooksParallel(configs, HookEventName.BeforeTool, mockInput);
 
       expect(results).toHaveLength(2);
       expect(results[0].success).toBe(true);
@@ -503,24 +410,16 @@ describe('HookRunner', () => {
       const executionOrder: string[] = [];
 
       // Mock both commands to succeed
-      mockSpawn.mockProcessOn.mockImplementation(
-        (event: string, callback: (code: number) => void) => {
-          if (event === 'close') {
-            const args = vi.mocked(spawn).mock.calls[
-              executionOrder.length
-            ][1] as string[];
-            const command = args[args.length - 1];
-            executionOrder.push(command);
-            setImmediate(() => callback(0));
-          }
-        },
-      );
+      mockSpawn.mockProcessOn.mockImplementation((event: string, callback: (code: number) => void) => {
+        if (event === 'close') {
+          const args = vi.mocked(spawn).mock.calls[executionOrder.length][1] as string[];
+          const command = args[args.length - 1];
+          executionOrder.push(command);
+          setImmediate(() => callback(0));
+        }
+      });
 
-      const results = await hookRunner.executeHooksSequential(
-        configs,
-        HookEventName.BeforeTool,
-        mockInput,
-      );
+      const results = await hookRunner.executeHooksSequential(configs, HookEventName.BeforeTool, mockInput);
 
       expect(results).toHaveLength(2);
       expect(results.every((r) => r.success)).toBe(true);
@@ -535,24 +434,16 @@ describe('HookRunner', () => {
         { name: 'hook2', type: HookType.Command, command: './hook2.sh' },
       ];
 
-      mockSpawn.mockProcessOn.mockImplementation(
-        (event: string, callback: (code: number) => void) => {
-          if (event === 'close') {
-            setImmediate(() => callback(0));
-          }
-        },
-      );
+      mockSpawn.mockProcessOn.mockImplementation((event: string, callback: (code: number) => void) => {
+        if (event === 'close') {
+          setImmediate(() => callback(0));
+        }
+      });
 
       const onStart = vi.fn();
       const onEnd = vi.fn();
 
-      await hookRunner.executeHooksSequential(
-        configs,
-        HookEventName.BeforeTool,
-        mockInput,
-        onStart,
-        onEnd,
-      );
+      await hookRunner.executeHooksSequential(configs, HookEventName.BeforeTool, mockInput, onStart, onEnd);
 
       expect(onStart).toHaveBeenCalledTimes(2);
       expect(onEnd).toHaveBeenCalledTimes(2);
@@ -568,29 +459,21 @@ describe('HookRunner', () => {
       ];
 
       let callCount = 0;
-      mockSpawn.mockStderrOn.mockImplementation(
-        (event: string, callback: (data: Buffer) => void) => {
-          if (event === 'data' && callCount === 1) {
-            // Second hook fails
-            setImmediate(() => callback(Buffer.from('Hook 2 failed')));
-          }
-        },
-      );
+      mockSpawn.mockStderrOn.mockImplementation((event: string, callback: (data: Buffer) => void) => {
+        if (event === 'data' && callCount === 1) {
+          // Second hook fails
+          setImmediate(() => callback(Buffer.from('Hook 2 failed')));
+        }
+      });
 
-      mockSpawn.mockProcessOn.mockImplementation(
-        (event: string, callback: (code: number) => void) => {
-          if (event === 'close') {
-            const exitCode = callCount++ === 1 ? 1 : 0; // Second fails, others succeed
-            setImmediate(() => callback(exitCode));
-          }
-        },
-      );
+      mockSpawn.mockProcessOn.mockImplementation((event: string, callback: (code: number) => void) => {
+        if (event === 'close') {
+          const exitCode = callCount++ === 1 ? 1 : 0; // Second fails, others succeed
+          setImmediate(() => callback(exitCode));
+        }
+      });
 
-      const results = await hookRunner.executeHooksSequential(
-        configs,
-        HookEventName.BeforeTool,
-        mockInput,
-      );
+      const results = await hookRunner.executeHooksSequential(configs, HookEventName.BeforeTool, mockInput);
 
       expect(results).toHaveLength(3);
       expect(results[0].success).toBe(true);
@@ -618,41 +501,29 @@ describe('HookRunner', () => {
       };
 
       let hookCallCount = 0;
-      mockSpawn.mockStdoutOn.mockImplementation(
-        (event: string, callback: (data: Buffer) => void) => {
-          if (event === 'data') {
-            if (hookCallCount === 0) {
-              setImmediate(() =>
-                callback(Buffer.from(JSON.stringify(mockOutput1))),
-              );
-            }
+      mockSpawn.mockStdoutOn.mockImplementation((event: string, callback: (data: Buffer) => void) => {
+        if (event === 'data') {
+          if (hookCallCount === 0) {
+            setImmediate(() => callback(Buffer.from(JSON.stringify(mockOutput1))));
           }
-        },
-      );
+        }
+      });
 
-      mockSpawn.mockProcessOn.mockImplementation(
-        (event: string, callback: (code: number) => void) => {
-          if (event === 'close') {
-            hookCallCount++;
-            setImmediate(() => callback(0));
-          }
-        },
-      );
+      mockSpawn.mockProcessOn.mockImplementation((event: string, callback: (code: number) => void) => {
+        if (event === 'close') {
+          hookCallCount++;
+          setImmediate(() => callback(0));
+        }
+      });
 
-      const results = await hookRunner.executeHooksSequential(
-        configs,
-        HookEventName.BeforeAgent,
-        mockBeforeAgentInput,
-      );
+      const results = await hookRunner.executeHooksSequential(configs, HookEventName.BeforeAgent, mockBeforeAgentInput);
 
       expect(results).toHaveLength(2);
       expect(results[0].success).toBe(true);
       expect(results[0].output).toEqual(mockOutput1);
 
       // Verify that the second hook received modified input
-      const secondHookInput = JSON.parse(
-        vi.mocked(mockSpawn.stdin.write).mock.calls[1][0],
-      );
+      const secondHookInput = JSON.parse(vi.mocked(mockSpawn.stdin.write).mock.calls[1][0]);
       expect(secondHookInput.prompt).toContain('Original prompt');
       expect(secondHookInput.prompt).toContain('Context from hook 1');
     });
@@ -681,40 +552,28 @@ describe('HookRunner', () => {
       };
 
       let hookCallCount = 0;
-      mockSpawn.mockStdoutOn.mockImplementation(
-        (event: string, callback: (data: Buffer) => void) => {
-          if (event === 'data') {
-            if (hookCallCount === 0) {
-              setImmediate(() =>
-                callback(Buffer.from(JSON.stringify(mockOutput1))),
-              );
-            }
+      mockSpawn.mockStdoutOn.mockImplementation((event: string, callback: (data: Buffer) => void) => {
+        if (event === 'data') {
+          if (hookCallCount === 0) {
+            setImmediate(() => callback(Buffer.from(JSON.stringify(mockOutput1))));
           }
-        },
-      );
+        }
+      });
 
-      mockSpawn.mockProcessOn.mockImplementation(
-        (event: string, callback: (code: number) => void) => {
-          if (event === 'close') {
-            hookCallCount++;
-            setImmediate(() => callback(0));
-          }
-        },
-      );
+      mockSpawn.mockProcessOn.mockImplementation((event: string, callback: (code: number) => void) => {
+        if (event === 'close') {
+          hookCallCount++;
+          setImmediate(() => callback(0));
+        }
+      });
 
-      const results = await hookRunner.executeHooksSequential(
-        configs,
-        HookEventName.BeforeModel,
-        mockBeforeModelInput,
-      );
+      const results = await hookRunner.executeHooksSequential(configs, HookEventName.BeforeModel, mockBeforeModelInput);
 
       expect(results).toHaveLength(2);
       expect(results[0].success).toBe(true);
 
       // Verify that the second hook received modified input
-      const secondHookInput = JSON.parse(
-        vi.mocked(mockSpawn.stdin.write).mock.calls[1][0],
-      );
+      const secondHookInput = JSON.parse(vi.mocked(mockSpawn.stdin.write).mock.calls[1][0]);
       expect(secondHookInput.llm_request.model).toBe('gemini-1.5-pro');
       expect(secondHookInput.llm_request.temperature).toBe(0.7);
     });
@@ -725,38 +584,26 @@ describe('HookRunner', () => {
         { type: HookType.Command, command: './hook2.sh' },
       ];
 
-      mockSpawn.mockStderrOn.mockImplementation(
-        (event: string, callback: (data: Buffer) => void) => {
-          if (event === 'data') {
-            setImmediate(() => callback(Buffer.from('Hook failed')));
-          }
-        },
-      );
+      mockSpawn.mockStderrOn.mockImplementation((event: string, callback: (data: Buffer) => void) => {
+        if (event === 'data') {
+          setImmediate(() => callback(Buffer.from('Hook failed')));
+        }
+      });
 
-      mockSpawn.mockProcessOn.mockImplementation(
-        (event: string, callback: (code: number) => void) => {
-          if (event === 'close') {
-            setImmediate(() => callback(1)); // All hooks fail
-          }
-        },
-      );
+      mockSpawn.mockProcessOn.mockImplementation((event: string, callback: (code: number) => void) => {
+        if (event === 'close') {
+          setImmediate(() => callback(1)); // All hooks fail
+        }
+      });
 
-      const results = await hookRunner.executeHooksSequential(
-        configs,
-        HookEventName.BeforeTool,
-        mockInput,
-      );
+      const results = await hookRunner.executeHooksSequential(configs, HookEventName.BeforeTool, mockInput);
 
       expect(results).toHaveLength(2);
       expect(results.every((r) => !r.success)).toBe(true);
 
       // Verify that both hooks received the same original input
-      const firstHookInput = JSON.parse(
-        vi.mocked(mockSpawn.stdin.write).mock.calls[0][0],
-      );
-      const secondHookInput = JSON.parse(
-        vi.mocked(mockSpawn.stdin.write).mock.calls[1][0],
-      );
+      const firstHookInput = JSON.parse(vi.mocked(mockSpawn.stdin.write).mock.calls[0][0]);
+      const secondHookInput = JSON.parse(vi.mocked(mockSpawn.stdin.write).mock.calls[1][0]);
       expect(firstHookInput).toEqual(secondHookInput);
     });
   });
@@ -770,27 +617,19 @@ describe('HookRunner', () => {
     it('should handle invalid JSON output gracefully', async () => {
       const invalidJson = '{ "decision": "allow", incomplete';
 
-      mockSpawn.mockStdoutOn.mockImplementation(
-        (event: string, callback: (data: Buffer) => void) => {
-          if (event === 'data') {
-            setImmediate(() => callback(Buffer.from(invalidJson)));
-          }
-        },
-      );
+      mockSpawn.mockStdoutOn.mockImplementation((event: string, callback: (data: Buffer) => void) => {
+        if (event === 'data') {
+          setImmediate(() => callback(Buffer.from(invalidJson)));
+        }
+      });
 
-      mockSpawn.mockProcessOn.mockImplementation(
-        (event: string, callback: (code: number) => void) => {
-          if (event === 'close') {
-            setImmediate(() => callback(0));
-          }
-        },
-      );
+      mockSpawn.mockProcessOn.mockImplementation((event: string, callback: (code: number) => void) => {
+        if (event === 'close') {
+          setImmediate(() => callback(0));
+        }
+      });
 
-      const result = await hookRunner.executeHook(
-        commandConfig,
-        HookEventName.BeforeTool,
-        mockInput,
-      );
+      const result = await hookRunner.executeHook(commandConfig, HookEventName.BeforeTool, mockInput);
 
       expect(result.success).toBe(true);
       expect(result.exitCode).toBe(0);
@@ -804,27 +643,19 @@ describe('HookRunner', () => {
     it('should handle malformed JSON with exit code 0', async () => {
       const malformedJson = 'not json at all';
 
-      mockSpawn.mockStdoutOn.mockImplementation(
-        (event: string, callback: (data: Buffer) => void) => {
-          if (event === 'data') {
-            setImmediate(() => callback(Buffer.from(malformedJson)));
-          }
-        },
-      );
+      mockSpawn.mockStdoutOn.mockImplementation((event: string, callback: (data: Buffer) => void) => {
+        if (event === 'data') {
+          setImmediate(() => callback(Buffer.from(malformedJson)));
+        }
+      });
 
-      mockSpawn.mockProcessOn.mockImplementation(
-        (event: string, callback: (code: number) => void) => {
-          if (event === 'close') {
-            setImmediate(() => callback(0));
-          }
-        },
-      );
+      mockSpawn.mockProcessOn.mockImplementation((event: string, callback: (code: number) => void) => {
+        if (event === 'close') {
+          setImmediate(() => callback(0));
+        }
+      });
 
-      const result = await hookRunner.executeHook(
-        commandConfig,
-        HookEventName.BeforeTool,
-        mockInput,
-      );
+      const result = await hookRunner.executeHook(commandConfig, HookEventName.BeforeTool, mockInput);
 
       expect(result.success).toBe(true);
       expect(result.output).toEqual({
@@ -836,27 +667,19 @@ describe('HookRunner', () => {
     it('should handle invalid JSON with exit code 1 (non-blocking error)', async () => {
       const invalidJson = '{ broken json';
 
-      mockSpawn.mockStderrOn.mockImplementation(
-        (event: string, callback: (data: Buffer) => void) => {
-          if (event === 'data') {
-            setImmediate(() => callback(Buffer.from(invalidJson)));
-          }
-        },
-      );
+      mockSpawn.mockStderrOn.mockImplementation((event: string, callback: (data: Buffer) => void) => {
+        if (event === 'data') {
+          setImmediate(() => callback(Buffer.from(invalidJson)));
+        }
+      });
 
-      mockSpawn.mockProcessOn.mockImplementation(
-        (event: string, callback: (code: number) => void) => {
-          if (event === 'close') {
-            setImmediate(() => callback(1));
-          }
-        },
-      );
+      mockSpawn.mockProcessOn.mockImplementation((event: string, callback: (code: number) => void) => {
+        if (event === 'close') {
+          setImmediate(() => callback(1));
+        }
+      });
 
-      const result = await hookRunner.executeHook(
-        commandConfig,
-        HookEventName.BeforeTool,
-        mockInput,
-      );
+      const result = await hookRunner.executeHook(commandConfig, HookEventName.BeforeTool, mockInput);
 
       expect(result.success).toBe(false);
       expect(result.exitCode).toBe(1);
@@ -869,27 +692,19 @@ describe('HookRunner', () => {
     it('should handle invalid JSON with exit code 2 (blocking error)', async () => {
       const invalidJson = '{ "error": incomplete';
 
-      mockSpawn.mockStderrOn.mockImplementation(
-        (event: string, callback: (data: Buffer) => void) => {
-          if (event === 'data') {
-            setImmediate(() => callback(Buffer.from(invalidJson)));
-          }
-        },
-      );
+      mockSpawn.mockStderrOn.mockImplementation((event: string, callback: (data: Buffer) => void) => {
+        if (event === 'data') {
+          setImmediate(() => callback(Buffer.from(invalidJson)));
+        }
+      });
 
-      mockSpawn.mockProcessOn.mockImplementation(
-        (event: string, callback: (code: number) => void) => {
-          if (event === 'close') {
-            setImmediate(() => callback(2));
-          }
-        },
-      );
+      mockSpawn.mockProcessOn.mockImplementation((event: string, callback: (code: number) => void) => {
+        if (event === 'close') {
+          setImmediate(() => callback(2));
+        }
+      });
 
-      const result = await hookRunner.executeHook(
-        commandConfig,
-        HookEventName.BeforeTool,
-        mockInput,
-      );
+      const result = await hookRunner.executeHook(commandConfig, HookEventName.BeforeTool, mockInput);
 
       expect(result.success).toBe(false);
       expect(result.exitCode).toBe(2);
@@ -900,27 +715,19 @@ describe('HookRunner', () => {
     });
 
     it('should handle empty JSON output', async () => {
-      mockSpawn.mockStdoutOn.mockImplementation(
-        (event: string, callback: (data: Buffer) => void) => {
-          if (event === 'data') {
-            setImmediate(() => callback(Buffer.from('')));
-          }
-        },
-      );
+      mockSpawn.mockStdoutOn.mockImplementation((event: string, callback: (data: Buffer) => void) => {
+        if (event === 'data') {
+          setImmediate(() => callback(Buffer.from('')));
+        }
+      });
 
-      mockSpawn.mockProcessOn.mockImplementation(
-        (event: string, callback: (code: number) => void) => {
-          if (event === 'close') {
-            setImmediate(() => callback(0));
-          }
-        },
-      );
+      mockSpawn.mockProcessOn.mockImplementation((event: string, callback: (code: number) => void) => {
+        if (event === 'close') {
+          setImmediate(() => callback(0));
+        }
+      });
 
-      const result = await hookRunner.executeHook(
-        commandConfig,
-        HookEventName.BeforeTool,
-        mockInput,
-      );
+      const result = await hookRunner.executeHook(commandConfig, HookEventName.BeforeTool, mockInput);
 
       expect(result.success).toBe(true);
       expect(result.exitCode).toBe(0);
@@ -931,27 +738,19 @@ describe('HookRunner', () => {
       const mockOutput = { decision: 'allow', reason: 'All good' };
       const doubleEncodedJson = JSON.stringify(JSON.stringify(mockOutput));
 
-      mockSpawn.mockStdoutOn.mockImplementation(
-        (event: string, callback: (data: Buffer) => void) => {
-          if (event === 'data') {
-            setImmediate(() => callback(Buffer.from(doubleEncodedJson)));
-          }
-        },
-      );
+      mockSpawn.mockStdoutOn.mockImplementation((event: string, callback: (data: Buffer) => void) => {
+        if (event === 'data') {
+          setImmediate(() => callback(Buffer.from(doubleEncodedJson)));
+        }
+      });
 
-      mockSpawn.mockProcessOn.mockImplementation(
-        (event: string, callback: (code: number) => void) => {
-          if (event === 'close') {
-            setImmediate(() => callback(0));
-          }
-        },
-      );
+      mockSpawn.mockProcessOn.mockImplementation((event: string, callback: (code: number) => void) => {
+        if (event === 'close') {
+          setImmediate(() => callback(0));
+        }
+      });
 
-      const result = await hookRunner.executeHook(
-        commandConfig,
-        HookEventName.BeforeTool,
-        mockInput,
-      );
+      const result = await hookRunner.executeHook(commandConfig, HookEventName.BeforeTool, mockInput);
 
       expect(result.success).toBe(true);
       expect(result.output).toEqual(mockOutput);

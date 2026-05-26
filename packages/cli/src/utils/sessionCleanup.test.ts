@@ -7,11 +7,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import {
-  SESSION_FILE_PREFIX,
-  type Config,
-  debugLogger,
-} from '@google/gemini-cli-core';
+import { SESSION_FILE_PREFIX, type Config, debugLogger } from '@google/gemini-cli-core';
 import type { Settings } from '../config/settings.js';
 import { cleanupExpiredSessions } from './sessionCleanup.js';
 import { type SessionInfo, getAllSessionFiles } from './sessionUtils.js';
@@ -23,8 +19,7 @@ vi.mock('./sessionUtils.js', () => ({
 }));
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     Storage: class MockStorage {
@@ -121,7 +116,7 @@ describe('Session Cleanup', () => {
       sessions.map((session) => ({
         fileName: session.fileName,
         sessionInfo: session,
-      })),
+      }))
     );
   });
 
@@ -175,9 +170,7 @@ describe('Session Cleanup', () => {
       expect(result.scanned).toBe(0);
       expect(result.deleted).toBe(0);
       expect(debugLogger.warn).toHaveBeenCalledWith(
-        expect.stringContaining(
-          'Session cleanup disabled: Error: Invalid retention period format',
-        ),
+        expect.stringContaining('Session cleanup disabled: Error: Invalid retention period format')
       );
     });
 
@@ -200,7 +193,7 @@ describe('Session Cleanup', () => {
           messages: [],
           startTime: '2025-01-01T00:00:00Z',
           lastUpdated: '2025-01-01T00:00:00Z',
-        }),
+        })
       );
       mockFs.unlink.mockResolvedValue(undefined);
 
@@ -232,7 +225,7 @@ describe('Session Cleanup', () => {
           messages: [],
           startTime: '2025-01-01T00:00:00Z',
           lastUpdated: '2025-01-01T00:00:00Z',
-        }),
+        })
       );
       mockFs.unlink.mockResolvedValue(undefined);
 
@@ -247,11 +240,9 @@ describe('Session Cleanup', () => {
       const currentSessionPath = path.join(
         '/tmp/test-project',
         'chats',
-        `${SESSION_FILE_PREFIX}2025-01-20T10-30-00-current12.json`,
+        `${SESSION_FILE_PREFIX}2025-01-20T10-30-00-current12.json`
       );
-      expect(
-        unlinkCalls.find((call) => call[0] === currentSessionPath),
-      ).toBeUndefined();
+      expect(unlinkCalls.find((call) => call[0] === currentSessionPath)).toBeUndefined();
     });
 
     it('should handle count-based retention', async () => {
@@ -273,7 +264,7 @@ describe('Session Cleanup', () => {
           messages: [],
           startTime: '2025-01-01T00:00:00Z',
           lastUpdated: '2025-01-01T00:00:00Z',
-        }),
+        })
       );
       mockFs.unlink.mockResolvedValue(undefined);
 
@@ -304,7 +295,7 @@ describe('Session Cleanup', () => {
           messages: [],
           startTime: '2025-01-01T00:00:00Z',
           lastUpdated: '2025-01-01T00:00:00Z',
-        }),
+        })
       );
       mockFs.unlink.mockRejectedValue(new Error('Permission denied'));
 
@@ -350,17 +341,13 @@ describe('Session Cleanup', () => {
       };
 
       // Mock getSessionFiles to throw an error
-      mockGetAllSessionFiles.mockRejectedValue(
-        new Error('Directory access failed'),
-      );
+      mockGetAllSessionFiles.mockRejectedValue(new Error('Directory access failed'));
 
       const result = await cleanupExpiredSessions(config, settings);
 
       expect(result.disabled).toBe(false);
       expect(result.failed).toBe(1);
-      expect(debugLogger.warn).toHaveBeenCalledWith(
-        'Session cleanup failed: Directory access failed',
-      );
+      expect(debugLogger.warn).toHaveBeenCalledWith('Session cleanup failed: Directory access failed');
     });
 
     it('should respect minRetention configuration', async () => {
@@ -404,22 +391,16 @@ describe('Session Cleanup', () => {
           messages: [],
           startTime: '2025-01-01T00:00:00Z',
           lastUpdated: '2025-01-01T00:00:00Z',
-        }),
+        })
       );
       mockFs.unlink.mockResolvedValue(undefined);
 
-      const debugSpy = vi
-        .spyOn(debugLogger, 'debug')
-        .mockImplementation(() => {});
+      const debugSpy = vi.spyOn(debugLogger, 'debug').mockImplementation(() => {});
 
       await cleanupExpiredSessions(config, settings);
 
-      expect(debugSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Session cleanup: deleted'),
-      );
-      expect(debugSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Deleted expired session:'),
-      );
+      expect(debugSpy).toHaveBeenCalledWith(expect.stringContaining('Session cleanup: deleted'));
+      expect(debugSpy).toHaveBeenCalledWith(expect.stringContaining('Deleted expired session:'));
 
       debugSpy.mockRestore();
     });
@@ -498,7 +479,7 @@ describe('Session Cleanup', () => {
         testSessions.map((session) => ({
           fileName: session.fileName,
           sessionInfo: session,
-        })),
+        }))
       );
 
       // Mock successful file operations
@@ -509,7 +490,7 @@ describe('Session Cleanup', () => {
           messages: [],
           startTime: '2025-01-01T00:00:00Z',
           lastUpdated: '2025-01-01T00:00:00Z',
-        }),
+        })
       );
       mockFs.unlink.mockResolvedValue(undefined);
 
@@ -523,27 +504,9 @@ describe('Session Cleanup', () => {
 
       // Verify which files were deleted
       const unlinkCalls = mockFs.unlink.mock.calls.map((call) => call[0]);
-      expect(unlinkCalls).toContain(
-        path.join(
-          '/tmp/test-project',
-          'chats',
-          `${SESSION_FILE_PREFIX}8d.json`,
-        ),
-      );
-      expect(unlinkCalls).toContain(
-        path.join(
-          '/tmp/test-project',
-          'chats',
-          `${SESSION_FILE_PREFIX}15d.json`,
-        ),
-      );
-      expect(unlinkCalls).not.toContain(
-        path.join(
-          '/tmp/test-project',
-          'chats',
-          `${SESSION_FILE_PREFIX}5d.json`,
-        ),
-      );
+      expect(unlinkCalls).toContain(path.join('/tmp/test-project', 'chats', `${SESSION_FILE_PREFIX}8d.json`));
+      expect(unlinkCalls).toContain(path.join('/tmp/test-project', 'chats', `${SESSION_FILE_PREFIX}15d.json`));
+      expect(unlinkCalls).not.toContain(path.join('/tmp/test-project', 'chats', `${SESSION_FILE_PREFIX}5d.json`));
     });
 
     it('should NOT delete sessions within the cutoff date', async () => {
@@ -561,9 +524,7 @@ describe('Session Cleanup', () => {
       const now = new Date();
       const oneDayAgo = new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000);
       const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      const thirteenDaysAgo = new Date(
-        now.getTime() - 13 * 24 * 60 * 60 * 1000,
-      );
+      const thirteenDaysAgo = new Date(now.getTime() - 13 * 24 * 60 * 60 * 1000);
 
       const testSessions: SessionInfo[] = [
         {
@@ -620,7 +581,7 @@ describe('Session Cleanup', () => {
         testSessions.map((session) => ({
           fileName: session.fileName,
           sessionInfo: session,
-        })),
+        }))
       );
 
       // Mock successful file operations
@@ -631,7 +592,7 @@ describe('Session Cleanup', () => {
           messages: [],
           startTime: '2025-01-01T00:00:00Z',
           lastUpdated: '2025-01-01T00:00:00Z',
-        }),
+        })
       );
       mockFs.unlink.mockResolvedValue(undefined);
 
@@ -697,7 +658,7 @@ describe('Session Cleanup', () => {
         sessions.map((session) => ({
           fileName: session.fileName,
           sessionInfo: session,
-        })),
+        }))
       );
 
       // Mock successful file operations
@@ -708,7 +669,7 @@ describe('Session Cleanup', () => {
           messages: [],
           startTime: '2025-01-01T00:00:00Z',
           lastUpdated: '2025-01-01T00:00:00Z',
-        }),
+        })
       );
       mockFs.unlink.mockResolvedValue(undefined);
 
@@ -722,50 +683,14 @@ describe('Session Cleanup', () => {
 
       // Verify which files were deleted (should be the 3 oldest)
       const unlinkCalls = mockFs.unlink.mock.calls.map((call) => call[0]);
-      expect(unlinkCalls).toContain(
-        path.join(
-          '/tmp/test-project',
-          'chats',
-          `${SESSION_FILE_PREFIX}3d.json`,
-        ),
-      );
-      expect(unlinkCalls).toContain(
-        path.join(
-          '/tmp/test-project',
-          'chats',
-          `${SESSION_FILE_PREFIX}4d.json`,
-        ),
-      );
-      expect(unlinkCalls).toContain(
-        path.join(
-          '/tmp/test-project',
-          'chats',
-          `${SESSION_FILE_PREFIX}5d.json`,
-        ),
-      );
+      expect(unlinkCalls).toContain(path.join('/tmp/test-project', 'chats', `${SESSION_FILE_PREFIX}3d.json`));
+      expect(unlinkCalls).toContain(path.join('/tmp/test-project', 'chats', `${SESSION_FILE_PREFIX}4d.json`));
+      expect(unlinkCalls).toContain(path.join('/tmp/test-project', 'chats', `${SESSION_FILE_PREFIX}5d.json`));
 
       // Verify which files were NOT deleted
-      expect(unlinkCalls).not.toContain(
-        path.join(
-          '/tmp/test-project',
-          'chats',
-          `${SESSION_FILE_PREFIX}current.json`,
-        ),
-      );
-      expect(unlinkCalls).not.toContain(
-        path.join(
-          '/tmp/test-project',
-          'chats',
-          `${SESSION_FILE_PREFIX}1d.json`,
-        ),
-      );
-      expect(unlinkCalls).not.toContain(
-        path.join(
-          '/tmp/test-project',
-          'chats',
-          `${SESSION_FILE_PREFIX}2d.json`,
-        ),
-      );
+      expect(unlinkCalls).not.toContain(path.join('/tmp/test-project', 'chats', `${SESSION_FILE_PREFIX}current.json`));
+      expect(unlinkCalls).not.toContain(path.join('/tmp/test-project', 'chats', `${SESSION_FILE_PREFIX}1d.json`));
+      expect(unlinkCalls).not.toContain(path.join('/tmp/test-project', 'chats', `${SESSION_FILE_PREFIX}2d.json`));
     });
 
     it('should handle combined maxAge and maxCount retention (most restrictive wins)', async () => {
@@ -854,7 +779,7 @@ describe('Session Cleanup', () => {
         testSessions.map((session) => ({
           fileName: session.fileName,
           sessionInfo: session,
-        })),
+        }))
       );
 
       // Mock successful file operations
@@ -865,7 +790,7 @@ describe('Session Cleanup', () => {
           messages: [],
           startTime: '2025-01-01T00:00:00Z',
           lastUpdated: '2025-01-01T00:00:00Z',
-        }),
+        })
       );
       mockFs.unlink.mockResolvedValue(undefined);
 
@@ -881,43 +806,13 @@ describe('Session Cleanup', () => {
 
       // Verify which files were deleted
       const unlinkCalls = mockFs.unlink.mock.calls.map((call) => call[0]);
-      expect(unlinkCalls).toContain(
-        path.join(
-          '/tmp/test-project',
-          'chats',
-          `${SESSION_FILE_PREFIX}5d.json`,
-        ),
-      );
-      expect(unlinkCalls).toContain(
-        path.join(
-          '/tmp/test-project',
-          'chats',
-          `${SESSION_FILE_PREFIX}7d.json`,
-        ),
-      );
-      expect(unlinkCalls).toContain(
-        path.join(
-          '/tmp/test-project',
-          'chats',
-          `${SESSION_FILE_PREFIX}12d.json`,
-        ),
-      );
+      expect(unlinkCalls).toContain(path.join('/tmp/test-project', 'chats', `${SESSION_FILE_PREFIX}5d.json`));
+      expect(unlinkCalls).toContain(path.join('/tmp/test-project', 'chats', `${SESSION_FILE_PREFIX}7d.json`));
+      expect(unlinkCalls).toContain(path.join('/tmp/test-project', 'chats', `${SESSION_FILE_PREFIX}12d.json`));
 
       // Verify which files were NOT deleted
-      expect(unlinkCalls).not.toContain(
-        path.join(
-          '/tmp/test-project',
-          'chats',
-          `${SESSION_FILE_PREFIX}current.json`,
-        ),
-      );
-      expect(unlinkCalls).not.toContain(
-        path.join(
-          '/tmp/test-project',
-          'chats',
-          `${SESSION_FILE_PREFIX}3d.json`,
-        ),
-      );
+      expect(unlinkCalls).not.toContain(path.join('/tmp/test-project', 'chats', `${SESSION_FILE_PREFIX}current.json`));
+      expect(unlinkCalls).not.toContain(path.join('/tmp/test-project', 'chats', `${SESSION_FILE_PREFIX}3d.json`));
     });
   });
 
@@ -994,8 +889,8 @@ describe('Session Cleanup', () => {
         expect.stringContaining(
           input === '0d'
             ? 'Invalid retention period: 0d. Value must be greater than 0'
-            : `Invalid retention period format: ${input}`,
-        ),
+            : `Invalid retention period format: ${input}`
+        )
       );
     });
 
@@ -1019,7 +914,7 @@ describe('Session Cleanup', () => {
       expect(result.scanned).toBe(0);
       // Empty string means no valid retention method specified
       expect(debugLogger.warn).toHaveBeenCalledWith(
-        expect.stringContaining('Either maxAge or maxCount must be specified'),
+        expect.stringContaining('Either maxAge or maxCount must be specified')
       );
     });
 
@@ -1086,7 +981,7 @@ describe('Session Cleanup', () => {
       expect(result.disabled).toBe(true);
       expect(result.scanned).toBe(0);
       expect(debugLogger.warn).toHaveBeenCalledWith(
-        expect.stringContaining('Either maxAge or maxCount must be specified'),
+        expect.stringContaining('Either maxAge or maxCount must be specified')
       );
     });
 
@@ -1107,9 +1002,7 @@ describe('Session Cleanup', () => {
 
       expect(result.disabled).toBe(true);
       expect(result.scanned).toBe(0);
-      expect(debugLogger.warn).toHaveBeenCalledWith(
-        expect.stringContaining('maxCount must be at least 1'),
-      );
+      expect(debugLogger.warn).toHaveBeenCalledWith(expect.stringContaining('maxCount must be at least 1'));
     });
 
     describe('maxAge format validation', () => {
@@ -1130,9 +1023,7 @@ describe('Session Cleanup', () => {
 
         expect(result.disabled).toBe(true);
         expect(result.scanned).toBe(0);
-        expect(debugLogger.warn).toHaveBeenCalledWith(
-          expect.stringContaining('Invalid retention period format: 30'),
-        );
+        expect(debugLogger.warn).toHaveBeenCalledWith(expect.stringContaining('Invalid retention period format: 30'));
       });
       it('should reject invalid maxAge format - invalid unit', async () => {
         const config = createMockConfig({
@@ -1151,9 +1042,7 @@ describe('Session Cleanup', () => {
 
         expect(result.disabled).toBe(true);
         expect(result.scanned).toBe(0);
-        expect(debugLogger.warn).toHaveBeenCalledWith(
-          expect.stringContaining('Invalid retention period format: 30x'),
-        );
+        expect(debugLogger.warn).toHaveBeenCalledWith(expect.stringContaining('Invalid retention period format: 30x'));
       });
       it('should reject invalid maxAge format - no number', async () => {
         const config = createMockConfig({
@@ -1172,9 +1061,7 @@ describe('Session Cleanup', () => {
 
         expect(result.disabled).toBe(true);
         expect(result.scanned).toBe(0);
-        expect(debugLogger.warn).toHaveBeenCalledWith(
-          expect.stringContaining('Invalid retention period format: d'),
-        );
+        expect(debugLogger.warn).toHaveBeenCalledWith(expect.stringContaining('Invalid retention period format: d'));
       });
       it('should reject invalid maxAge format - decimal number', async () => {
         const config = createMockConfig({
@@ -1193,9 +1080,7 @@ describe('Session Cleanup', () => {
 
         expect(result.disabled).toBe(true);
         expect(result.scanned).toBe(0);
-        expect(debugLogger.warn).toHaveBeenCalledWith(
-          expect.stringContaining('Invalid retention period format: 1.5d'),
-        );
+        expect(debugLogger.warn).toHaveBeenCalledWith(expect.stringContaining('Invalid retention period format: 1.5d'));
       });
       it('should reject invalid maxAge format - negative number', async () => {
         const config = createMockConfig({
@@ -1214,9 +1099,7 @@ describe('Session Cleanup', () => {
 
         expect(result.disabled).toBe(true);
         expect(result.scanned).toBe(0);
-        expect(debugLogger.warn).toHaveBeenCalledWith(
-          expect.stringContaining('Invalid retention period format: -5d'),
-        );
+        expect(debugLogger.warn).toHaveBeenCalledWith(expect.stringContaining('Invalid retention period format: -5d'));
       });
       it('should accept valid maxAge format - hours', async () => {
         const config = createMockConfig();
@@ -1323,9 +1206,7 @@ describe('Session Cleanup', () => {
         expect(result.disabled).toBe(true);
         expect(result.scanned).toBe(0);
         expect(debugLogger.warn).toHaveBeenCalledWith(
-          expect.stringContaining(
-            'maxAge cannot be less than minRetention (1d)',
-          ),
+          expect.stringContaining('maxAge cannot be less than minRetention (1d)')
         );
       });
       it('should reject maxAge less than custom minRetention', async () => {
@@ -1347,9 +1228,7 @@ describe('Session Cleanup', () => {
         expect(result.disabled).toBe(true);
         expect(result.scanned).toBe(0);
         expect(debugLogger.warn).toHaveBeenCalledWith(
-          expect.stringContaining(
-            'maxAge cannot be less than minRetention (3d)',
-          ),
+          expect.stringContaining('maxAge cannot be less than minRetention (3d)')
         );
       });
       it('should accept maxAge equal to minRetention', async () => {
@@ -1483,9 +1362,7 @@ describe('Session Cleanup', () => {
 
         expect(result.disabled).toBe(true);
         expect(result.scanned).toBe(0);
-        expect(debugLogger.warn).toHaveBeenCalledWith(
-          expect.stringContaining('maxCount must be at least 1'),
-        );
+        expect(debugLogger.warn).toHaveBeenCalledWith(expect.stringContaining('maxCount must be at least 1'));
       });
       it('should accept valid maxCount in normal range', async () => {
         const config = createMockConfig();
@@ -1551,9 +1428,7 @@ describe('Session Cleanup', () => {
         expect(result.disabled).toBe(true);
         expect(result.scanned).toBe(0);
         // Should fail on first validation error (maxAge format)
-        expect(debugLogger.warn).toHaveBeenCalledWith(
-          expect.stringContaining('Invalid retention period format'),
-        );
+        expect(debugLogger.warn).toHaveBeenCalledWith(expect.stringContaining('Invalid retention period format'));
       });
       it('should reject if maxAge is invalid even when maxCount is valid', async () => {
         const config = createMockConfig({
@@ -1575,9 +1450,7 @@ describe('Session Cleanup', () => {
         // Should reject due to invalid maxAge format
         expect(result.disabled).toBe(true);
         expect(result.scanned).toBe(0);
-        expect(debugLogger.warn).toHaveBeenCalledWith(
-          expect.stringContaining('Invalid retention period format'),
-        );
+        expect(debugLogger.warn).toHaveBeenCalledWith(expect.stringContaining('Invalid retention period format'));
       });
     });
 
@@ -1593,9 +1466,7 @@ describe('Session Cleanup', () => {
       };
 
       // Mock getSessionFiles to throw an error
-      mockGetAllSessionFiles.mockRejectedValue(
-        new Error('Failed to read directory'),
-      );
+      mockGetAllSessionFiles.mockRejectedValue(new Error('Failed to read directory'));
 
       // Should not throw, should return a result with errors
       const result = await cleanupExpiredSessions(config, settings);
@@ -1640,12 +1511,8 @@ describe('Session Cleanup', () => {
       expect(result.skipped).toBe(1); // The valid session is kept
 
       // Verify corrupted files were deleted
-      expect(mockFs.unlink).toHaveBeenCalledWith(
-        expect.stringContaining('corrupt1.json'),
-      );
-      expect(mockFs.unlink).toHaveBeenCalledWith(
-        expect.stringContaining('corrupt2.json'),
-      );
+      expect(mockFs.unlink).toHaveBeenCalledWith(expect.stringContaining('corrupt1.json'));
+      expect(mockFs.unlink).toHaveBeenCalledWith(expect.stringContaining('corrupt2.json'));
     });
 
     it('should handle unexpected errors without throwing', async () => {

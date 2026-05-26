@@ -7,11 +7,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { cleanupExpiredSessions } from './sessionCleanup.js';
 import type { Settings } from '../config/settings.js';
-import {
-  SESSION_FILE_PREFIX,
-  type Config,
-  debugLogger,
-} from '@google/gemini-cli-core';
+import { SESSION_FILE_PREFIX, type Config, debugLogger } from '@google/gemini-cli-core';
 
 // Create a mock config for integration testing
 function createTestConfig(): Config {
@@ -78,10 +74,7 @@ describe('Session Cleanup Integration', () => {
 
     // Create an old session file that would normally be deleted
     const oldDate = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000); // 60 days ago
-    const sessionFile = path.join(
-      chatsDir,
-      `${SESSION_FILE_PREFIX}2024-01-01T10-00-00-test123.json`,
-    );
+    const sessionFile = path.join(chatsDir, `${SESSION_FILE_PREFIX}2024-01-01T10-00-00-test123.json`);
     await fs.writeFile(
       sessionFile,
       JSON.stringify({
@@ -89,7 +82,7 @@ describe('Session Cleanup Integration', () => {
         messages: [],
         startTime: oldDate.toISOString(),
         lastUpdated: oldDate.toISOString(),
-      }),
+      })
     );
 
     const config = createTestConfig();
@@ -107,9 +100,7 @@ describe('Session Cleanup Integration', () => {
 
     // Verify the session file still exists (was not deleted)
     const filesAfter = await fs.readdir(chatsDir);
-    expect(filesAfter).toContain(
-      `${SESSION_FILE_PREFIX}2024-01-01T10-00-00-test123.json`,
-    );
+    expect(filesAfter).toContain(`${SESSION_FILE_PREFIX}2024-01-01T10-00-00-test123.json`);
 
     // Cleanup
     await fs.rm(tempDir, { recursive: true });
@@ -138,9 +129,7 @@ describe('Session Cleanup Integration', () => {
 
     // Verify error logging provides visibility into the validation failure
     expect(errorSpy).toHaveBeenCalledWith(
-      expect.stringContaining(
-        'Session cleanup disabled: Error: Invalid retention period format',
-      ),
+      expect.stringContaining('Session cleanup disabled: Error: Invalid retention period format')
     );
 
     errorSpy.mockRestore();
@@ -162,10 +151,7 @@ describe('Session Cleanup Integration', () => {
     const recentDate = new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000); // 5 days ago
 
     // Create an old session file that should be deleted
-    const oldSessionFile = path.join(
-      chatsDir,
-      `${SESSION_FILE_PREFIX}2024-12-01T10-00-00-old12345.json`,
-    );
+    const oldSessionFile = path.join(chatsDir, `${SESSION_FILE_PREFIX}2024-12-01T10-00-00-old12345.json`);
     await fs.writeFile(
       oldSessionFile,
       JSON.stringify({
@@ -173,14 +159,11 @@ describe('Session Cleanup Integration', () => {
         messages: [{ type: 'user', content: 'test message' }],
         startTime: oldDate.toISOString(),
         lastUpdated: oldDate.toISOString(),
-      }),
+      })
     );
 
     // Create a recent session file that should be kept
-    const recentSessionFile = path.join(
-      chatsDir,
-      `${SESSION_FILE_PREFIX}2025-01-15T10-00-00-recent789.json`,
-    );
+    const recentSessionFile = path.join(chatsDir, `${SESSION_FILE_PREFIX}2025-01-15T10-00-00-recent789.json`);
     await fs.writeFile(
       recentSessionFile,
       JSON.stringify({
@@ -188,14 +171,11 @@ describe('Session Cleanup Integration', () => {
         messages: [{ type: 'user', content: 'test message' }],
         startTime: recentDate.toISOString(),
         lastUpdated: recentDate.toISOString(),
-      }),
+      })
     );
 
     // Create a current session file that should always be kept
-    const currentSessionFile = path.join(
-      chatsDir,
-      `${SESSION_FILE_PREFIX}2025-01-20T10-00-00-current123.json`,
-    );
+    const currentSessionFile = path.join(chatsDir, `${SESSION_FILE_PREFIX}2025-01-20T10-00-00-current123.json`);
     await fs.writeFile(
       currentSessionFile,
       JSON.stringify({
@@ -203,7 +183,7 @@ describe('Session Cleanup Integration', () => {
         messages: [{ type: 'user', content: 'test message' }],
         startTime: now.toISOString(),
         lastUpdated: now.toISOString(),
-      }),
+      })
     );
 
     // Configure test with real temp directory
@@ -238,15 +218,9 @@ describe('Session Cleanup Integration', () => {
       // Verify files on disk
       const remainingFiles = await fs.readdir(chatsDir);
       expect(remainingFiles).toHaveLength(2); // Only 2 files should remain
-      expect(remainingFiles).toContain(
-        `${SESSION_FILE_PREFIX}2025-01-15T10-00-00-recent789.json`,
-      );
-      expect(remainingFiles).toContain(
-        `${SESSION_FILE_PREFIX}2025-01-20T10-00-00-current123.json`,
-      );
-      expect(remainingFiles).not.toContain(
-        `${SESSION_FILE_PREFIX}2024-12-01T10-00-00-old12345.json`,
-      );
+      expect(remainingFiles).toContain(`${SESSION_FILE_PREFIX}2025-01-15T10-00-00-recent789.json`);
+      expect(remainingFiles).toContain(`${SESSION_FILE_PREFIX}2025-01-20T10-00-00-current123.json`);
+      expect(remainingFiles).not.toContain(`${SESSION_FILE_PREFIX}2024-12-01T10-00-00-old12345.json`);
     } finally {
       // Clean up test directory
       await fs.rm(tempDir, { recursive: true, force: true });

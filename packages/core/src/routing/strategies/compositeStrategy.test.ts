@@ -6,12 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { CompositeStrategy } from './compositeStrategy.js';
-import type {
-  RoutingContext,
-  RoutingDecision,
-  RoutingStrategy,
-  TerminalStrategy,
-} from '../routingStrategy.js';
+import type { RoutingContext, RoutingDecision, RoutingStrategy, TerminalStrategy } from '../routingStrategy.js';
 import type { Config } from '../../config/config.js';
 import type { BaseLlmClient } from '../../core/baseLlmClient.js';
 import { debugLogger } from '../../utils/debugLogger.js';
@@ -75,27 +70,12 @@ describe('CompositeStrategy', () => {
     };
     vi.spyOn(mockStrategy2, 'route').mockResolvedValue(decision);
 
-    const composite = new CompositeStrategy(
-      [mockStrategy1, mockStrategy2, mockTerminalStrategy],
-      'test-router',
-    );
+    const composite = new CompositeStrategy([mockStrategy1, mockStrategy2, mockTerminalStrategy], 'test-router');
 
-    const result = await composite.route(
-      mockContext,
-      mockConfig,
-      mockBaseLlmClient,
-    );
+    const result = await composite.route(mockContext, mockConfig, mockBaseLlmClient);
 
-    expect(mockStrategy1.route).toHaveBeenCalledWith(
-      mockContext,
-      mockConfig,
-      mockBaseLlmClient,
-    );
-    expect(mockStrategy2.route).toHaveBeenCalledWith(
-      mockContext,
-      mockConfig,
-      mockBaseLlmClient,
-    );
+    expect(mockStrategy1.route).toHaveBeenCalledWith(mockContext, mockConfig, mockBaseLlmClient);
+    expect(mockStrategy2.route).toHaveBeenCalledWith(mockContext, mockConfig, mockBaseLlmClient);
     expect(mockTerminalStrategy.route).not.toHaveBeenCalled();
 
     expect(result.model).toBe('strategy2-model');
@@ -103,16 +83,9 @@ describe('CompositeStrategy', () => {
   });
 
   it('should fall back to the terminal strategy if no other strategy provides a decision', async () => {
-    const composite = new CompositeStrategy(
-      [mockStrategy1, mockStrategy2, mockTerminalStrategy],
-      'test-router',
-    );
+    const composite = new CompositeStrategy([mockStrategy1, mockStrategy2, mockTerminalStrategy], 'test-router');
 
-    const result = await composite.route(
-      mockContext,
-      mockConfig,
-      mockBaseLlmClient,
-    );
+    const result = await composite.route(mockContext, mockConfig, mockBaseLlmClient);
 
     expect(mockStrategy1.route).toHaveBeenCalledTimes(1);
     expect(mockStrategy2.route).toHaveBeenCalledTimes(1);
@@ -123,24 +96,15 @@ describe('CompositeStrategy', () => {
   });
 
   it('should handle errors in non-terminal strategies and continue', async () => {
-    vi.spyOn(mockStrategy1, 'route').mockRejectedValue(
-      new Error('Strategy 1 failed'),
-    );
+    vi.spyOn(mockStrategy1, 'route').mockRejectedValue(new Error('Strategy 1 failed'));
 
-    const composite = new CompositeStrategy(
-      [mockStrategy1, mockTerminalStrategy],
-      'test-router',
-    );
+    const composite = new CompositeStrategy([mockStrategy1, mockTerminalStrategy], 'test-router');
 
-    const result = await composite.route(
-      mockContext,
-      mockConfig,
-      mockBaseLlmClient,
-    );
+    const result = await composite.route(mockContext, mockConfig, mockBaseLlmClient);
 
     expect(debugLogger.warn).toHaveBeenCalledWith(
       "[Routing] Strategy 'strategy1' failed. Continuing to next strategy. Error:",
-      expect.any(Error),
+      expect.any(Error)
     );
     expect(result.model).toBe('terminal-model');
   });
@@ -151,14 +115,12 @@ describe('CompositeStrategy', () => {
 
     const composite = new CompositeStrategy([mockTerminalStrategy]);
 
-    await expect(
-      composite.route(mockContext, mockConfig, mockBaseLlmClient),
-    ).rejects.toThrow(terminalError);
+    await expect(composite.route(mockContext, mockConfig, mockBaseLlmClient)).rejects.toThrow(terminalError);
 
     expect(emitFeedbackSpy).toHaveBeenCalledWith(
       'error',
       "[Routing] Critical Error: Terminal strategy 'terminal' failed. Routing cannot proceed. Error:",
-      terminalError,
+      terminalError
     );
   });
 
@@ -173,16 +135,9 @@ describe('CompositeStrategy', () => {
     };
     vi.spyOn(mockStrategy1, 'route').mockResolvedValue(decision);
 
-    const composite = new CompositeStrategy(
-      [mockStrategy1, mockTerminalStrategy],
-      'my-composite',
-    );
+    const composite = new CompositeStrategy([mockStrategy1, mockTerminalStrategy], 'my-composite');
 
-    const result = await composite.route(
-      mockContext,
-      mockConfig,
-      mockBaseLlmClient,
-    );
+    const result = await composite.route(mockContext, mockConfig, mockBaseLlmClient);
 
     expect(result.model).toBe('some-model');
     expect(result.metadata.source).toBe('my-composite/child-source');
@@ -203,16 +158,9 @@ describe('CompositeStrategy', () => {
     };
     vi.spyOn(mockStrategy1, 'route').mockResolvedValue(decision);
 
-    const composite = new CompositeStrategy(
-      [mockStrategy1, mockTerminalStrategy],
-      'my-composite',
-    );
+    const composite = new CompositeStrategy([mockStrategy1, mockTerminalStrategy], 'my-composite');
 
-    const result = await composite.route(
-      mockContext,
-      mockConfig,
-      mockBaseLlmClient,
-    );
+    const result = await composite.route(mockContext, mockConfig, mockBaseLlmClient);
 
     expect(result.metadata.latencyMs).toBeGreaterThanOrEqual(0);
   });

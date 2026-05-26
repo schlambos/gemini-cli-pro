@@ -53,7 +53,7 @@ describe('listSessions', () => {
       () =>
         ({
           listSessions: mockListSessions,
-        }) as unknown as InstanceType<typeof SessionSelector>,
+        }) as unknown as InstanceType<typeof SessionSelector>
     );
   });
 
@@ -72,9 +72,7 @@ describe('listSessions', () => {
 
     // Assert
     expect(mockListSessions).toHaveBeenCalledOnce();
-    expect(mocks.writeToStdout).toHaveBeenCalledWith(
-      'No previous sessions found for this project.',
-    );
+    expect(mocks.writeToStdout).toHaveBeenCalledWith('No previous sessions found for this project.');
   });
 
   it('should list sessions when sessions are found', async () => {
@@ -131,34 +129,18 @@ describe('listSessions', () => {
     expect(mockListSessions).toHaveBeenCalledOnce();
 
     // Check that the header was displayed
-    expect(mocks.writeToStdout).toHaveBeenCalledWith(
-      '\nAvailable sessions for this project (3):\n',
-    );
+    expect(mocks.writeToStdout).toHaveBeenCalledWith('\nAvailable sessions for this project (3):\n');
 
     // Check that each session was logged
-    expect(mocks.writeToStdout).toHaveBeenCalledWith(
-      expect.stringContaining('1. First user message'),
-    );
-    expect(mocks.writeToStdout).toHaveBeenCalledWith(
-      expect.stringContaining('[session-1]'),
-    );
+    expect(mocks.writeToStdout).toHaveBeenCalledWith(expect.stringContaining('1. First user message'));
+    expect(mocks.writeToStdout).toHaveBeenCalledWith(expect.stringContaining('[session-1]'));
 
-    expect(mocks.writeToStdout).toHaveBeenCalledWith(
-      expect.stringContaining('2. Second user message'),
-    );
-    expect(mocks.writeToStdout).toHaveBeenCalledWith(
-      expect.stringContaining('[session-2]'),
-    );
+    expect(mocks.writeToStdout).toHaveBeenCalledWith(expect.stringContaining('2. Second user message'));
+    expect(mocks.writeToStdout).toHaveBeenCalledWith(expect.stringContaining('[session-2]'));
 
-    expect(mocks.writeToStdout).toHaveBeenCalledWith(
-      expect.stringContaining('3. Current session'),
-    );
-    expect(mocks.writeToStdout).toHaveBeenCalledWith(
-      expect.stringContaining(', current)'),
-    );
-    expect(mocks.writeToStdout).toHaveBeenCalledWith(
-      expect.stringContaining('[current-session-id]'),
-    );
+    expect(mocks.writeToStdout).toHaveBeenCalledWith(expect.stringContaining('3. Current session'));
+    expect(mocks.writeToStdout).toHaveBeenCalledWith(expect.stringContaining(', current)'));
+    expect(mocks.writeToStdout).toHaveBeenCalledWith(expect.stringContaining('[current-session-id]'));
   });
 
   it('should sort sessions by start time (oldest first)', async () => {
@@ -215,9 +197,7 @@ describe('listSessions', () => {
     // Get all the session log calls (skip the header)
     const sessionCalls = mocks.writeToStdout.mock.calls.filter(
       (call): call is [string] =>
-        typeof call[0] === 'string' &&
-        call[0].includes('[session-') &&
-        !call[0].includes('Available sessions'),
+        typeof call[0] === 'string' && call[0].includes('[session-') && !call[0].includes('Available sessions')
     );
 
     // Verify they are sorted by start time (oldest first)
@@ -250,15 +230,9 @@ describe('listSessions', () => {
     await listSessions(mockConfig);
 
     // Assert
-    expect(mocks.writeToStdout).toHaveBeenCalledWith(
-      expect.stringContaining('1. Test message'),
-    );
-    expect(mocks.writeToStdout).toHaveBeenCalledWith(
-      expect.stringContaining('some time ago'),
-    );
-    expect(mocks.writeToStdout).toHaveBeenCalledWith(
-      expect.stringContaining('[abc123def456]'),
-    );
+    expect(mocks.writeToStdout).toHaveBeenCalledWith(expect.stringContaining('1. Test message'));
+    expect(mocks.writeToStdout).toHaveBeenCalledWith(expect.stringContaining('some time ago'));
+    expect(mocks.writeToStdout).toHaveBeenCalledWith(expect.stringContaining('[abc123def456]'));
   });
 
   it('should handle single session', async () => {
@@ -285,15 +259,9 @@ describe('listSessions', () => {
     await listSessions(mockConfig);
 
     // Assert
-    expect(mocks.writeToStdout).toHaveBeenCalledWith(
-      '\nAvailable sessions for this project (1):\n',
-    );
-    expect(mocks.writeToStdout).toHaveBeenCalledWith(
-      expect.stringContaining('1. Only session'),
-    );
-    expect(mocks.writeToStdout).toHaveBeenCalledWith(
-      expect.stringContaining(', current)'),
-    );
+    expect(mocks.writeToStdout).toHaveBeenCalledWith('\nAvailable sessions for this project (1):\n');
+    expect(mocks.writeToStdout).toHaveBeenCalledWith(expect.stringContaining('1. Only session'));
+    expect(mocks.writeToStdout).toHaveBeenCalledWith(expect.stringContaining(', current)'));
   });
 
   it('should display summary as title when available instead of first user message', async () => {
@@ -308,8 +276,7 @@ describe('listSessions', () => {
         lastUpdated: now.toISOString(),
         messageCount: 10,
         displayName: 'Add dark mode to the app', // Summary
-        firstUserMessage:
-          'How do I add dark mode to my React application with CSS variables?',
+        firstUserMessage: 'How do I add dark mode to my React application with CSS variables?',
         isCurrentSession: false,
         index: 1,
         summary: 'Add dark mode to the app',
@@ -322,11 +289,9 @@ describe('listSessions', () => {
     await listSessions(mockConfig);
 
     // Assert: Should show the summary (displayName), not the first user message
-    expect(mocks.writeToStdout).toHaveBeenCalledWith(
-      expect.stringContaining('1. Add dark mode to the app'),
-    );
+    expect(mocks.writeToStdout).toHaveBeenCalledWith(expect.stringContaining('1. Add dark mode to the app'));
     expect(mocks.writeToStdout).not.toHaveBeenCalledWith(
-      expect.stringContaining('How do I add dark mode to my React application'),
+      expect.stringContaining('How do I add dark mode to my React application')
     );
   });
 });
@@ -354,7 +319,7 @@ describe('deleteSession', () => {
       () =>
         ({
           listSessions: mockListSessions,
-        }) as unknown as InstanceType<typeof SessionSelector>,
+        }) as unknown as InstanceType<typeof SessionSelector>
     );
 
     // Mock ChatRecordingService
@@ -362,7 +327,7 @@ describe('deleteSession', () => {
       () =>
         ({
           deleteSession: mockDeleteSession,
-        }) as unknown as InstanceType<typeof ChatRecordingService>,
+        }) as unknown as InstanceType<typeof ChatRecordingService>
     );
   });
 
@@ -379,9 +344,7 @@ describe('deleteSession', () => {
 
     // Assert
     expect(mockListSessions).toHaveBeenCalledOnce();
-    expect(mocks.writeToStderr).toHaveBeenCalledWith(
-      'No sessions found for this project.',
-    );
+    expect(mocks.writeToStderr).toHaveBeenCalledWith('No sessions found for this project.');
     expect(mockDeleteSession).not.toHaveBeenCalled();
   });
 
@@ -412,9 +375,7 @@ describe('deleteSession', () => {
     // Assert
     expect(mockListSessions).toHaveBeenCalledOnce();
     expect(mockDeleteSession).toHaveBeenCalledWith('session-file-123');
-    expect(mocks.writeToStdout).toHaveBeenCalledWith(
-      'Deleted session 1: Test session (some time ago)',
-    );
+    expect(mocks.writeToStdout).toHaveBeenCalledWith('Deleted session 1: Test session (some time ago)');
     expect(mocks.writeToStderr).not.toHaveBeenCalled();
   });
 
@@ -459,9 +420,7 @@ describe('deleteSession', () => {
     // Assert
     expect(mockListSessions).toHaveBeenCalledOnce();
     expect(mockDeleteSession).toHaveBeenCalledWith('session-file-2');
-    expect(mocks.writeToStdout).toHaveBeenCalledWith(
-      'Deleted session 2: Second session (some time ago)',
-    );
+    expect(mocks.writeToStdout).toHaveBeenCalledWith('Deleted session 2: Second session (some time ago)');
   });
 
   it('should display error for invalid session identifier (non-numeric)', async () => {
@@ -489,7 +448,7 @@ describe('deleteSession', () => {
 
     // Assert
     expect(mocks.writeToStderr).toHaveBeenCalledWith(
-      'Invalid session identifier "invalid-id". Use --list-sessions to see available sessions.',
+      'Invalid session identifier "invalid-id". Use --list-sessions to see available sessions.'
     );
     expect(mockDeleteSession).not.toHaveBeenCalled();
   });
@@ -519,7 +478,7 @@ describe('deleteSession', () => {
 
     // Assert
     expect(mocks.writeToStderr).toHaveBeenCalledWith(
-      'Invalid session identifier "999". Use --list-sessions to see available sessions.',
+      'Invalid session identifier "999". Use --list-sessions to see available sessions.'
     );
     expect(mockDeleteSession).not.toHaveBeenCalled();
   });
@@ -549,7 +508,7 @@ describe('deleteSession', () => {
 
     // Assert
     expect(mocks.writeToStderr).toHaveBeenCalledWith(
-      'Invalid session identifier "0". Use --list-sessions to see available sessions.',
+      'Invalid session identifier "0". Use --list-sessions to see available sessions.'
     );
     expect(mockDeleteSession).not.toHaveBeenCalled();
   });
@@ -578,9 +537,7 @@ describe('deleteSession', () => {
     await deleteSession(mockConfig, '1');
 
     // Assert
-    expect(mocks.writeToStderr).toHaveBeenCalledWith(
-      'Cannot delete the current active session.',
-    );
+    expect(mocks.writeToStderr).toHaveBeenCalledWith('Cannot delete the current active session.');
     expect(mockDeleteSession).not.toHaveBeenCalled();
   });
 
@@ -608,9 +565,7 @@ describe('deleteSession', () => {
     await deleteSession(mockConfig, 'current-session-id');
 
     // Assert
-    expect(mocks.writeToStderr).toHaveBeenCalledWith(
-      'Cannot delete the current active session.',
-    );
+    expect(mocks.writeToStderr).toHaveBeenCalledWith('Cannot delete the current active session.');
     expect(mockDeleteSession).not.toHaveBeenCalled();
   });
 
@@ -642,9 +597,7 @@ describe('deleteSession', () => {
 
     // Assert
     expect(mockDeleteSession).toHaveBeenCalledWith('session-file-1');
-    expect(mocks.writeToStderr).toHaveBeenCalledWith(
-      'Failed to delete session: File deletion failed',
-    );
+    expect(mocks.writeToStderr).toHaveBeenCalledWith('Failed to delete session: File deletion failed');
   });
 
   it('should handle non-Error deletion failures', async () => {
@@ -675,9 +628,7 @@ describe('deleteSession', () => {
     await deleteSession(mockConfig, '1');
 
     // Assert
-    expect(mocks.writeToStderr).toHaveBeenCalledWith(
-      'Failed to delete session: Unknown error',
-    );
+    expect(mocks.writeToStderr).toHaveBeenCalledWith('Failed to delete session: Unknown error');
   });
 
   it('should sort sessions before finding by index', async () => {
@@ -733,8 +684,6 @@ describe('deleteSession', () => {
 
     // Assert
     expect(mockDeleteSession).toHaveBeenCalledWith('session-file-1');
-    expect(mocks.writeToStdout).toHaveBeenCalledWith(
-      expect.stringContaining('Oldest session'),
-    );
+    expect(mocks.writeToStdout).toHaveBeenCalledWith(expect.stringContaining('Oldest session'));
   });
 });

@@ -13,9 +13,7 @@ import type { ToolCallRecord } from '../services/chatRecordingService.js';
  * @param resultDisplay The resultDisplay property of a ToolCallRecord.
  * @returns The FileDiff object if found and valid, otherwise undefined.
  */
-export function getFileDiffFromResultDisplay(
-  resultDisplay: ToolCallRecord['resultDisplay'],
-): FileDiff | undefined {
+export function getFileDiffFromResultDisplay(resultDisplay: ToolCallRecord['resultDisplay']): FileDiff | undefined {
   if (
     resultDisplay &&
     typeof resultDisplay === 'object' &&
@@ -31,9 +29,7 @@ export function getFileDiffFromResultDisplay(
   return undefined;
 }
 
-export function computeModelAddedAndRemovedLines(
-  stats: FileDiff['diffStat'] | undefined,
-): {
+export function computeModelAddedAndRemovedLines(stats: FileDiff['diffStat'] | undefined): {
   addedLines: number;
   removedLines: number;
 } {

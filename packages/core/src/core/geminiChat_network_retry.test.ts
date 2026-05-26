@@ -101,16 +101,12 @@ describe('GeminiChat Network Retries', () => {
         })),
       },
       getEnableHooks: vi.fn().mockReturnValue(false),
-      getModelAvailabilityService: vi
-        .fn()
-        .mockReturnValue(createAvailabilityServiceMock()),
+      getModelAvailabilityService: vi.fn().mockReturnValue(createAvailabilityServiceMock()),
     } as unknown as Config;
 
     const mockMessageBus = createMockMessageBus();
     mockConfig.getMessageBus = vi.fn().mockReturnValue(mockMessageBus);
-    mockConfig.getHookSystem = vi
-      .fn()
-      .mockReturnValue(new HookSystem(mockConfig));
+    mockConfig.getHookSystem = vi.fn().mockReturnValue(new HookSystem(mockConfig));
 
     setSimulate429(false);
     chat = new GeminiChat(mockConfig);
@@ -134,7 +130,7 @@ describe('GeminiChat Network Retries', () => {
             candidates: [{ content: { parts: [{ text: 'First part' }] } }],
           } as unknown as GenerateContentResponse;
           throw error503;
-        })(),
+        })()
       )
       .mockImplementationOnce(async () =>
         (async function* () {
@@ -146,7 +142,7 @@ describe('GeminiChat Network Retries', () => {
               },
             ],
           } as unknown as GenerateContentResponse;
-        })(),
+        })()
       );
 
     // 2. Execute sendMessageStream
@@ -155,7 +151,7 @@ describe('GeminiChat Network Retries', () => {
       'test message',
       'prompt-id-retry-network',
       new AbortController().signal,
-      LlmRole.MAIN,
+      LlmRole.MAIN
     );
 
     const events: StreamEvent[] = [];
@@ -168,9 +164,7 @@ describe('GeminiChat Network Retries', () => {
     expect(events.length).toBeGreaterThanOrEqual(3);
 
     const firstChunk = events.find(
-      (e) =>
-        e.type === StreamEventType.CHUNK &&
-        e.value.candidates?.[0]?.content?.parts?.[0]?.text === 'First part',
+      (e) => e.type === StreamEventType.CHUNK && e.value.candidates?.[0]?.content?.parts?.[0]?.text === 'First part'
     );
     expect(firstChunk).toBeDefined();
 
@@ -178,9 +172,7 @@ describe('GeminiChat Network Retries', () => {
     expect(retryEvent).toBeDefined();
 
     const successChunk = events.find(
-      (e) =>
-        e.type === StreamEventType.CHUNK &&
-        e.value.candidates?.[0]?.content?.parts?.[0]?.text === 'Retry success',
+      (e) => e.type === StreamEventType.CHUNK && e.value.candidates?.[0]?.content?.parts?.[0]?.text === 'Retry success'
     );
     expect(successChunk).toBeDefined();
 
@@ -189,7 +181,7 @@ describe('GeminiChat Network Retries', () => {
       expect.anything(),
       expect.objectContaining({
         error_type: 'NETWORK_ERROR',
-      }),
+      })
     );
   });
 
@@ -205,7 +197,7 @@ describe('GeminiChat Network Retries', () => {
             candidates: [{ content: { parts: [{ text: '' }] } }],
           } as GenerateContentResponse; // Dummy yield
           throw fetchError;
-        })(),
+        })()
       )
       .mockImplementationOnce(async () =>
         (async function* () {
@@ -217,7 +209,7 @@ describe('GeminiChat Network Retries', () => {
               },
             ],
           } as unknown as GenerateContentResponse;
-        })(),
+        })()
       );
 
     const stream = await chat.sendMessageStream(
@@ -225,7 +217,7 @@ describe('GeminiChat Network Retries', () => {
       'test message',
       'prompt-id-retry-fetch',
       new AbortController().signal,
-      LlmRole.MAIN,
+      LlmRole.MAIN
     );
 
     const events: StreamEvent[] = [];
@@ -237,9 +229,7 @@ describe('GeminiChat Network Retries', () => {
     expect(retryEvent).toBeDefined();
 
     const successChunk = events.find(
-      (e) =>
-        e.type === StreamEventType.CHUNK &&
-        e.value.candidates?.[0]?.content?.parts?.[0]?.text === 'Success',
+      (e) => e.type === StreamEventType.CHUNK && e.value.candidates?.[0]?.content?.parts?.[0]?.text === 'Success'
     );
     expect(successChunk).toBeDefined();
   });
@@ -250,15 +240,13 @@ describe('GeminiChat Network Retries', () => {
       status: 400,
     });
 
-    vi.mocked(
-      mockContentGenerator.generateContentStream,
-    ).mockImplementationOnce(async () =>
+    vi.mocked(mockContentGenerator.generateContentStream).mockImplementationOnce(async () =>
       (async function* () {
         yield {
           candidates: [{ content: { parts: [{ text: '' }] } }],
         } as GenerateContentResponse; // Dummy yield
         throw error400;
-      })(),
+      })()
     );
 
     const stream = await chat.sendMessageStream(
@@ -266,7 +254,7 @@ describe('GeminiChat Network Retries', () => {
       'test message',
       'prompt-id-no-retry',
       new AbortController().signal,
-      LlmRole.MAIN,
+      LlmRole.MAIN
     );
 
     await expect(async () => {
@@ -280,11 +268,8 @@ describe('GeminiChat Network Retries', () => {
 
   it('should retry on SSL error during connection phase (ERR_SSL_SSLV3_ALERT_BAD_RECORD_MAC)', async () => {
     // Create an SSL error that occurs during connection (before any yield)
-    const sslError = new Error(
-      'SSL routines:ssl3_read_bytes:sslv3 alert bad record mac',
-    );
-    (sslError as NodeJS.ErrnoException).code =
-      'ERR_SSL_SSLV3_ALERT_BAD_RECORD_MAC';
+    const sslError = new Error('SSL routines:ssl3_read_bytes:sslv3 alert bad record mac');
+    (sslError as NodeJS.ErrnoException).code = 'ERR_SSL_SSLV3_ALERT_BAD_RECORD_MAC';
 
     vi.mocked(mockContentGenerator.generateContentStream)
       // First call: throw SSL error immediately (connection phase)
@@ -300,7 +285,7 @@ describe('GeminiChat Network Retries', () => {
               },
             ],
           } as unknown as GenerateContentResponse;
-        })(),
+        })()
       );
 
     const stream = await chat.sendMessageStream(
@@ -308,7 +293,7 @@ describe('GeminiChat Network Retries', () => {
       'test message',
       'prompt-id-ssl-retry',
       new AbortController().signal,
-      LlmRole.MAIN,
+      LlmRole.MAIN
     );
 
     const events: StreamEvent[] = [];
@@ -323,8 +308,7 @@ describe('GeminiChat Network Retries', () => {
     const successChunk = events.find(
       (e) =>
         e.type === StreamEventType.CHUNK &&
-        e.value.candidates?.[0]?.content?.parts?.[0]?.text ===
-          'Success after SSL retry',
+        e.value.candidates?.[0]?.content?.parts?.[0]?.text === 'Success after SSL retry'
     );
     expect(successChunk).toBeDefined();
 
@@ -350,7 +334,7 @@ describe('GeminiChat Network Retries', () => {
               },
             ],
           } as unknown as GenerateContentResponse;
-        })(),
+        })()
       );
 
     const stream = await chat.sendMessageStream(
@@ -358,7 +342,7 @@ describe('GeminiChat Network Retries', () => {
       'test message',
       'prompt-id-connection-retry',
       new AbortController().signal,
-      LlmRole.MAIN,
+      LlmRole.MAIN
     );
 
     const events: StreamEvent[] = [];
@@ -372,8 +356,7 @@ describe('GeminiChat Network Retries', () => {
     const successChunk = events.find(
       (e) =>
         e.type === StreamEventType.CHUNK &&
-        e.value.candidates?.[0]?.content?.parts?.[0]?.text ===
-          'Success after connection retry',
+        e.value.candidates?.[0]?.content?.parts?.[0]?.text === 'Success after connection retry'
     );
     expect(successChunk).toBeDefined();
   });
@@ -381,16 +364,14 @@ describe('GeminiChat Network Retries', () => {
   it('should NOT retry on non-retryable error during connection phase', async () => {
     const nonRetryableError = new Error('Some non-retryable error');
 
-    vi.mocked(mockContentGenerator.generateContentStream).mockRejectedValueOnce(
-      nonRetryableError,
-    );
+    vi.mocked(mockContentGenerator.generateContentStream).mockRejectedValueOnce(nonRetryableError);
 
     const stream = await chat.sendMessageStream(
       { model: 'test-model' },
       'test message',
       'prompt-id-no-connection-retry',
       new AbortController().signal,
-      LlmRole.MAIN,
+      LlmRole.MAIN
     );
 
     await expect(async () => {
@@ -407,7 +388,7 @@ describe('GeminiChat Network Retries', () => {
     // This simulates the exact scenario from issue #17318 where the error
     // occurs during a long session while streaming content
     const sslError = new Error(
-      'request to https://cloudcode-pa.googleapis.com/v1internal:streamGenerateContent failed',
+      'request to https://cloudcode-pa.googleapis.com/v1internal:streamGenerateContent failed'
     ) as NodeJS.ErrnoException & { type?: string };
     sslError.type = 'system';
     sslError.errno = 'ERR_SSL_SSLV3_ALERT_BAD_RECORD_MAC' as unknown as number;
@@ -418,13 +399,11 @@ describe('GeminiChat Network Retries', () => {
       .mockImplementationOnce(async () =>
         (async function* () {
           yield {
-            candidates: [
-              { content: { parts: [{ text: 'Partial response...' }] } },
-            ],
+            candidates: [{ content: { parts: [{ text: 'Partial response...' }] } }],
           } as unknown as GenerateContentResponse;
           // SSL error occurs while waiting for more data
           throw sslError;
-        })(),
+        })()
       )
       // Second call: succeed
       .mockImplementationOnce(async () =>
@@ -437,7 +416,7 @@ describe('GeminiChat Network Retries', () => {
               },
             ],
           } as unknown as GenerateContentResponse;
-        })(),
+        })()
       );
 
     const stream = await chat.sendMessageStream(
@@ -445,7 +424,7 @@ describe('GeminiChat Network Retries', () => {
       'test message',
       'prompt-id-ssl-mid-stream',
       new AbortController().signal,
-      LlmRole.MAIN,
+      LlmRole.MAIN
     );
 
     const events: StreamEvent[] = [];
@@ -456,9 +435,7 @@ describe('GeminiChat Network Retries', () => {
     // Should have received partial content, then retry, then success
     const partialChunk = events.find(
       (e) =>
-        e.type === StreamEventType.CHUNK &&
-        e.value.candidates?.[0]?.content?.parts?.[0]?.text ===
-          'Partial response...',
+        e.type === StreamEventType.CHUNK && e.value.candidates?.[0]?.content?.parts?.[0]?.text === 'Partial response...'
     );
     expect(partialChunk).toBeDefined();
 
@@ -468,8 +445,7 @@ describe('GeminiChat Network Retries', () => {
     const successChunk = events.find(
       (e) =>
         e.type === StreamEventType.CHUNK &&
-        e.value.candidates?.[0]?.content?.parts?.[0]?.text ===
-          'Complete response after retry',
+        e.value.candidates?.[0]?.content?.parts?.[0]?.text === 'Complete response after retry'
     );
     expect(successChunk).toBeDefined();
 
@@ -478,7 +454,7 @@ describe('GeminiChat Network Retries', () => {
       expect.anything(),
       expect.objectContaining({
         error_type: 'NETWORK_ERROR',
-      }),
+      })
     );
   });
 });

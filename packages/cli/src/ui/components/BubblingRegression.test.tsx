@@ -38,7 +38,7 @@ describe('Key Bubbling Regression', () => {
         width={120}
         availableHeight={20}
       />,
-      { width: 120 },
+      { width: 120 }
     );
 
     // 1. Move down to "Enter a custom value" (3rd item)

@@ -20,8 +20,7 @@ import {
 import * as fs from 'node:fs';
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     validatePlanPath: vi.fn(async () => null),
@@ -161,7 +160,7 @@ Implement a comprehensive authentication system with multiple providers.
             writeTextFile: vi.fn(),
           }),
         } as unknown as import('@google/gemini-cli-core').Config,
-      },
+      }
     );
 
   describe.each([{ useAlternateBuffer: true }, { useAlternateBuffer: false }])(
@@ -180,11 +179,7 @@ Implement a comprehensive authentication system with multiple providers.
         });
 
         await waitFor(() => {
-          expect(processSingleFileContent).toHaveBeenCalledWith(
-            mockPlanFullPath,
-            mockPlansDir,
-            expect.anything(),
-          );
+          expect(processSingleFileContent).toHaveBeenCalledWith(mockPlanFullPath, mockPlansDir, expect.anything());
         });
 
         expect(lastFrame()).toMatchSnapshot();
@@ -308,9 +303,7 @@ Implement a comprehensive authentication system with multiple providers.
         });
 
         await waitFor(() => {
-          expect(lastFrame()).toContain(
-            'Error reading plan: Plan file is empty.',
-          );
+          expect(lastFrame()).toContain('Error reading plan: Plan file is empty.');
         });
       });
 
@@ -327,9 +320,7 @@ Implement a comprehensive authentication system with multiple providers.
         });
 
         await waitFor(() => {
-          expect(lastFrame()).toContain(
-            'Implement a comprehensive authentication system',
-          );
+          expect(lastFrame()).toContain('Implement a comprehensive authentication system');
         });
 
         expect(lastFrame()).toMatchSnapshot();
@@ -394,11 +385,7 @@ Implement a comprehensive authentication system with multiple providers.
       it('bubbles up Ctrl+C when feedback is empty while editing', async () => {
         const onBubbledQuit = vi.fn();
 
-        const BubbleListener = ({
-          children,
-        }: {
-          children: React.ReactNode;
-        }) => {
+        const BubbleListener = ({ children }: { children: React.ReactNode }) => {
           useKeypress(
             (key) => {
               if (keyMatchers[Command.QUIT](key)) {
@@ -406,7 +393,7 @@ Implement a comprehensive authentication system with multiple providers.
               }
               return false;
             },
-            { isActive: true },
+            { isActive: true }
           );
           return <>{children}</>;
         };
@@ -436,7 +423,7 @@ Implement a comprehensive authentication system with multiple providers.
                 writeTextFile: vi.fn(),
               }),
             } as unknown as import('@google/gemini-cli-core').Config,
-          },
+          }
         );
 
         await act(async () => {
@@ -535,6 +522,6 @@ Implement a comprehensive authentication system with multiple providers.
         });
         expect(onFeedback).not.toHaveBeenCalled();
       });
-    },
+    }
   );
 });

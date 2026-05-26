@@ -39,13 +39,13 @@ const StatRow: React.FC<{
       <Box width={TOOL_NAME_COL_WIDTH}>
         <Text color={theme.text.link}>{name}</Text>
       </Box>
-      <Box width={CALLS_COL_WIDTH} justifyContent="flex-end">
+      <Box width={CALLS_COL_WIDTH} justifyContent='flex-end'>
         <Text color={theme.text.primary}>{stats.count}</Text>
       </Box>
-      <Box width={SUCCESS_RATE_COL_WIDTH} justifyContent="flex-end">
+      <Box width={SUCCESS_RATE_COL_WIDTH} justifyContent='flex-end'>
         <Text color={successColor}>{successRate.toFixed(1)}%</Text>
       </Box>
-      <Box width={AVG_DURATION_COL_WIDTH} justifyContent="flex-end">
+      <Box width={AVG_DURATION_COL_WIDTH} justifyContent='flex-end'>
         <Text color={theme.text.primary}>{formatDuration(avgDuration)}</Text>
       </Box>
     </Box>
@@ -55,21 +55,12 @@ const StatRow: React.FC<{
 export const ToolStatsDisplay: React.FC = () => {
   const { stats } = useSessionStats();
   const { tools } = stats.metrics;
-  const activeTools = Object.entries(tools.byName).filter(
-    ([, metrics]) => metrics.count > 0,
-  );
+  const activeTools = Object.entries(tools.byName).filter(([, metrics]) => metrics.count > 0);
 
   if (activeTools.length === 0) {
     return (
-      <Box
-        borderStyle="round"
-        borderColor={theme.border.default}
-        paddingTop={1}
-        paddingX={2}
-      >
-        <Text color={theme.text.primary}>
-          No tool calls have been made in this session.
-        </Text>
+      <Box borderStyle='round' borderColor={theme.border.default} paddingTop={1} paddingX={2}>
+        <Text color={theme.text.primary}>No tool calls have been made in this session.</Text>
       </Box>
     );
   }
@@ -81,13 +72,11 @@ export const ToolStatsDisplay: React.FC = () => {
       acc.modify += tool.decisions.modify;
       return acc;
     },
-    { accept: 0, reject: 0, modify: 0 },
+    { accept: 0, reject: 0, modify: 0 }
   );
 
-  const totalReviewed =
-    totalDecisions.accept + totalDecisions.reject + totalDecisions.modify;
-  const agreementRate =
-    totalReviewed > 0 ? (totalDecisions.accept / totalReviewed) * 100 : 0;
+  const totalReviewed = totalDecisions.accept + totalDecisions.reject + totalDecisions.modify;
+  const agreementRate = totalReviewed > 0 ? (totalDecisions.accept / totalReviewed) * 100 : 0;
   const agreementColor = getStatusColor(agreementRate, {
     green: USER_AGREEMENT_RATE_HIGH,
     yellow: USER_AGREEMENT_RATE_MEDIUM,
@@ -95,9 +84,9 @@ export const ToolStatsDisplay: React.FC = () => {
 
   return (
     <Box
-      borderStyle="round"
+      borderStyle='round'
       borderColor={theme.border.default}
-      flexDirection="column"
+      flexDirection='column'
       paddingTop={1}
       paddingX={2}
       width={70}
@@ -114,17 +103,17 @@ export const ToolStatsDisplay: React.FC = () => {
             Tool Name
           </Text>
         </Box>
-        <Box width={CALLS_COL_WIDTH} justifyContent="flex-end">
+        <Box width={CALLS_COL_WIDTH} justifyContent='flex-end'>
           <Text bold color={theme.text.primary}>
             Calls
           </Text>
         </Box>
-        <Box width={SUCCESS_RATE_COL_WIDTH} justifyContent="flex-end">
+        <Box width={SUCCESS_RATE_COL_WIDTH} justifyContent='flex-end'>
           <Text bold color={theme.text.primary}>
             Success Rate
           </Text>
         </Box>
-        <Box width={AVG_DURATION_COL_WIDTH} justifyContent="flex-end">
+        <Box width={AVG_DURATION_COL_WIDTH} justifyContent='flex-end'>
           <Text bold color={theme.text.primary}>
             Avg Duration
           </Text>
@@ -133,13 +122,13 @@ export const ToolStatsDisplay: React.FC = () => {
 
       {/* Divider */}
       <Box
-        borderStyle="single"
+        borderStyle='single'
         borderBottom={true}
         borderTop={false}
         borderLeft={false}
         borderRight={false}
         borderColor={theme.border.default}
-        width="100%"
+        width='100%'
       />
 
       {/* Tool Rows */}
@@ -154,64 +143,54 @@ export const ToolStatsDisplay: React.FC = () => {
         User Decision Summary
       </Text>
       <Box>
-        <Box
-          width={TOOL_NAME_COL_WIDTH + CALLS_COL_WIDTH + SUCCESS_RATE_COL_WIDTH}
-        >
+        <Box width={TOOL_NAME_COL_WIDTH + CALLS_COL_WIDTH + SUCCESS_RATE_COL_WIDTH}>
           <Text color={theme.text.link}>Total Reviewed Suggestions:</Text>
         </Box>
-        <Box width={AVG_DURATION_COL_WIDTH} justifyContent="flex-end">
+        <Box width={AVG_DURATION_COL_WIDTH} justifyContent='flex-end'>
           <Text color={theme.text.primary}>{totalReviewed}</Text>
         </Box>
       </Box>
       <Box>
-        <Box
-          width={TOOL_NAME_COL_WIDTH + CALLS_COL_WIDTH + SUCCESS_RATE_COL_WIDTH}
-        >
+        <Box width={TOOL_NAME_COL_WIDTH + CALLS_COL_WIDTH + SUCCESS_RATE_COL_WIDTH}>
           <Text color={theme.text.primary}> » Accepted:</Text>
         </Box>
-        <Box width={AVG_DURATION_COL_WIDTH} justifyContent="flex-end">
+        <Box width={AVG_DURATION_COL_WIDTH} justifyContent='flex-end'>
           <Text color={theme.status.success}>{totalDecisions.accept}</Text>
         </Box>
       </Box>
       <Box>
-        <Box
-          width={TOOL_NAME_COL_WIDTH + CALLS_COL_WIDTH + SUCCESS_RATE_COL_WIDTH}
-        >
+        <Box width={TOOL_NAME_COL_WIDTH + CALLS_COL_WIDTH + SUCCESS_RATE_COL_WIDTH}>
           <Text color={theme.text.primary}> » Rejected:</Text>
         </Box>
-        <Box width={AVG_DURATION_COL_WIDTH} justifyContent="flex-end">
+        <Box width={AVG_DURATION_COL_WIDTH} justifyContent='flex-end'>
           <Text color={theme.status.error}>{totalDecisions.reject}</Text>
         </Box>
       </Box>
       <Box>
-        <Box
-          width={TOOL_NAME_COL_WIDTH + CALLS_COL_WIDTH + SUCCESS_RATE_COL_WIDTH}
-        >
+        <Box width={TOOL_NAME_COL_WIDTH + CALLS_COL_WIDTH + SUCCESS_RATE_COL_WIDTH}>
           <Text color={theme.text.primary}> » Modified:</Text>
         </Box>
-        <Box width={AVG_DURATION_COL_WIDTH} justifyContent="flex-end">
+        <Box width={AVG_DURATION_COL_WIDTH} justifyContent='flex-end'>
           <Text color={theme.status.warning}>{totalDecisions.modify}</Text>
         </Box>
       </Box>
 
       {/* Divider */}
       <Box
-        borderStyle="single"
+        borderStyle='single'
         borderBottom={true}
         borderTop={false}
         borderLeft={false}
         borderRight={false}
         borderColor={theme.border.default}
-        width="100%"
+        width='100%'
       />
 
       <Box>
-        <Box
-          width={TOOL_NAME_COL_WIDTH + CALLS_COL_WIDTH + SUCCESS_RATE_COL_WIDTH}
-        >
+        <Box width={TOOL_NAME_COL_WIDTH + CALLS_COL_WIDTH + SUCCESS_RATE_COL_WIDTH}>
           <Text color={theme.text.primary}> Overall Agreement Rate:</Text>
         </Box>
-        <Box width={AVG_DURATION_COL_WIDTH} justifyContent="flex-end">
+        <Box width={AVG_DURATION_COL_WIDTH} justifyContent='flex-end'>
           <Text bold color={totalReviewed > 0 ? agreementColor : undefined}>
             {totalReviewed > 0 ? `${agreementRate.toFixed(1)}%` : '--'}
           </Text>

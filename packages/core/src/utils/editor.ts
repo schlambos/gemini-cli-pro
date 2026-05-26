@@ -10,14 +10,7 @@ import { once } from 'node:events';
 import { debugLogger } from './debugLogger.js';
 import { coreEvents, CoreEvent, type EditorSelectedPayload } from './events.js';
 
-const GUI_EDITORS = [
-  'vscode',
-  'vscodium',
-  'windsurf',
-  'cursor',
-  'zed',
-  'antigravity',
-] as const;
+const GUI_EDITORS = ['vscode', 'vscodium', 'windsurf', 'cursor', 'zed', 'antigravity'] as const;
 const TERMINAL_EDITORS = ['vim', 'neovim', 'emacs', 'hx'] as const;
 const EDITORS = [...GUI_EDITORS, ...TERMINAL_EDITORS] as const;
 
@@ -25,8 +18,7 @@ const GUI_EDITORS_SET = new Set<string>(GUI_EDITORS);
 const TERMINAL_EDITORS_SET = new Set<string>(TERMINAL_EDITORS);
 const EDITORS_SET = new Set<string>(EDITORS);
 
-export const NO_EDITOR_AVAILABLE_ERROR =
-  'No external editor is available. Please run /editor to configure one.';
+export const NO_EDITOR_AVAILABLE_ERROR = 'No external editor is available. Please run /editor to configure one.';
 
 export const DEFAULT_GUI_EDITOR: GuiEditorType = 'vscode';
 
@@ -38,9 +30,7 @@ export function isGuiEditor(editor: EditorType): editor is GuiEditorType {
   return GUI_EDITORS_SET.has(editor);
 }
 
-export function isTerminalEditor(
-  editor: EditorType,
-): editor is TerminalEditorType {
+export function isTerminalEditor(editor: EditorType): editor is TerminalEditorType {
   return TERMINAL_EDITORS_SET.has(editor);
 }
 
@@ -81,9 +71,7 @@ interface DiffCommand {
 const execAsync = promisify(exec);
 
 function getCommandExistsCmd(cmd: string): string {
-  return process.platform === 'win32'
-    ? `where.exe ${cmd}`
-    : `command -v ${cmd}`;
+  return process.platform === 'win32' ? `where.exe ${cmd}` : `command -v ${cmd}`;
 }
 
 function commandExists(cmd: string): boolean {
@@ -108,10 +96,7 @@ async function commandExistsAsync(cmd: string): Promise<boolean> {
  * Editor command configurations for different platforms.
  * Each editor can have multiple possible command names, listed in order of preference.
  */
-const editorCommands: Record<
-  EditorType,
-  { win32: string[]; default: string[] }
-> = {
+const editorCommands: Record<EditorType, { win32: string[]; default: string[] }> = {
   vscode: { win32: ['code.cmd'], default: ['code'] },
   vscodium: { win32: ['codium.cmd'], default: ['codium'] },
   windsurf: { win32: ['windsurf'], default: ['windsurf'] },
@@ -129,31 +114,22 @@ const editorCommands: Record<
 
 function getEditorCommands(editor: EditorType): string[] {
   const commandConfig = editorCommands[editor];
-  return process.platform === 'win32'
-    ? commandConfig.win32
-    : commandConfig.default;
+  return process.platform === 'win32' ? commandConfig.win32 : commandConfig.default;
 }
 
 export function hasValidEditorCommand(editor: EditorType): boolean {
   return getEditorCommands(editor).some((cmd) => commandExists(cmd));
 }
 
-export async function hasValidEditorCommandAsync(
-  editor: EditorType,
-): Promise<boolean> {
+export async function hasValidEditorCommandAsync(editor: EditorType): Promise<boolean> {
   return Promise.any(
-    getEditorCommands(editor).map((cmd) =>
-      commandExistsAsync(cmd).then((exists) => exists || Promise.reject()),
-    ),
+    getEditorCommands(editor).map((cmd) => commandExistsAsync(cmd).then((exists) => exists || Promise.reject()))
   ).catch(() => false);
 }
 
 export function getEditorCommand(editor: EditorType): string {
   const commands = getEditorCommands(editor);
-  return (
-    commands.slice(0, -1).find((cmd) => commandExists(cmd)) ||
-    commands[commands.length - 1]
-  );
+  return commands.slice(0, -1).find((cmd) => commandExists(cmd)) || commands[commands.length - 1];
 }
 
 export function allowEditorTypeInSandbox(editor: EditorType): boolean {
@@ -165,12 +141,8 @@ export function allowEditorTypeInSandbox(editor: EditorType): boolean {
   return true;
 }
 
-function isEditorTypeAvailable(
-  editor: string | undefined,
-): editor is EditorType {
-  return (
-    !!editor && isValidEditorType(editor) && allowEditorTypeInSandbox(editor)
-  );
+function isEditorTypeAvailable(editor: string | undefined): editor is EditorType {
+  return !!editor && isValidEditorType(editor) && allowEditorTypeInSandbox(editor);
 }
 
 /**
@@ -185,12 +157,8 @@ export function isEditorAvailable(editor: string | undefined): boolean {
  * Check if the editor is valid and can be used.
  * Returns false if preferred editor is not set / invalid / not available / not allowed in sandbox.
  */
-export async function isEditorAvailableAsync(
-  editor: string | undefined,
-): Promise<boolean> {
-  return (
-    isEditorTypeAvailable(editor) && (await hasValidEditorCommandAsync(editor))
-  );
+export async function isEditorAvailableAsync(editor: string | undefined): Promise<boolean> {
+  return isEditorTypeAvailable(editor) && (await hasValidEditorCommandAsync(editor));
 }
 
 /**
@@ -200,7 +168,7 @@ export async function isEditorAvailableAsync(
  */
 export async function resolveEditorAsync(
   preferredEditor: EditorType | undefined,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ): Promise<EditorType | undefined> {
   if (preferredEditor && (await isEditorAvailableAsync(preferredEditor))) {
     return preferredEditor;
@@ -219,11 +187,7 @@ export async function resolveEditorAsync(
 /**
  * Get the diff command for a specific editor.
  */
-export function getDiffCommand(
-  oldPath: string,
-  newPath: string,
-  editor: EditorType,
-): DiffCommand | null {
+export function getDiffCommand(oldPath: string, newPath: string, editor: EditorType): DiffCommand | null {
   if (!isValidEditorType(editor)) {
     return null;
   }
@@ -269,10 +233,7 @@ export function getDiffCommand(
     case 'emacs':
       return {
         command: 'emacs',
-        args: [
-          '--eval',
-          `(ediff ${escapeELispString(oldPath)} ${escapeELispString(newPath)})`,
-        ],
+        args: ['--eval', `(ediff ${escapeELispString(oldPath)} ${escapeELispString(newPath)})`],
       };
     case 'hx':
       return {
@@ -289,11 +250,7 @@ export function getDiffCommand(
  * Terminal-based editors by default blocks parent process until the editor exits.
  * GUI-based editors require args such as "--wait" to block parent process.
  */
-export async function openDiff(
-  oldPath: string,
-  newPath: string,
-  editor: EditorType,
-): Promise<void> {
+export async function openDiff(oldPath: string, newPath: string, editor: EditorType): Promise<void> {
   const diffCommand = getDiffCommand(oldPath, newPath, editor);
   if (!diffCommand) {
     debugLogger.error('No diff tool available. Install a supported editor.');

@@ -7,10 +7,7 @@
 import { describe, expect } from 'vitest';
 import { ApprovalMode } from '@google/gemini-cli-core';
 import { evalTest } from './test-helper.js';
-import {
-  assertModelHasOutput,
-  checkModelOutputContent,
-} from './test-helper.js';
+import { assertModelHasOutput, checkModelOutputContent } from './test-helper.js';
 
 describe('plan_mode', () => {
   const TEST_PREFIX = 'Plan Mode: ';
@@ -33,9 +30,7 @@ describe('plan_mode', () => {
       const toolLogs = rig.readToolLogs();
 
       const writeTargets = toolLogs
-        .filter((log) =>
-          ['write_file', 'replace'].includes(log.toolRequest.name),
-        )
+        .filter((log) => ['write_file', 'replace'].includes(log.toolRequest.name))
         .map((log) => {
           try {
             return JSON.parse(log.toolRequest.args).file_path;
@@ -44,10 +39,7 @@ describe('plan_mode', () => {
           }
         });
 
-      expect(
-        writeTargets,
-        'Should not attempt to modify README.md in plan mode',
-      ).not.toContain('README.md');
+      expect(writeTargets, 'Should not attempt to modify README.md in plan mode').not.toContain('README.md');
 
       assertModelHasOutput(result);
       checkModelOutputContent(result, {
@@ -67,9 +59,7 @@ describe('plan_mode', () => {
       'I need to build a complex new feature for user authentication. Please create a detailed implementation plan.',
     assert: async (rig, result) => {
       const wasToolCalled = await rig.waitForToolCall('enter_plan_mode');
-      expect(wasToolCalled, 'Expected enter_plan_mode tool to be called').toBe(
-        true,
-      );
+      expect(wasToolCalled, 'Expected enter_plan_mode tool to be called').toBe(true);
       assertModelHasOutput(result);
     },
   });
@@ -81,16 +71,12 @@ describe('plan_mode', () => {
       settings,
     },
     files: {
-      'plans/my-plan.md':
-        '# My Implementation Plan\n\n1. Step one\n2. Step two',
+      'plans/my-plan.md': '# My Implementation Plan\n\n1. Step one\n2. Step two',
     },
-    prompt:
-      'The plan in plans/my-plan.md is solid. Please proceed with the implementation.',
+    prompt: 'The plan in plans/my-plan.md is solid. Please proceed with the implementation.',
     assert: async (rig, result) => {
       const wasToolCalled = await rig.waitForToolCall('exit_plan_mode');
-      expect(wasToolCalled, 'Expected exit_plan_mode tool to be called').toBe(
-        true,
-      );
+      expect(wasToolCalled, 'Expected exit_plan_mode tool to be called').toBe(true);
       assertModelHasOutput(result);
     },
   });
@@ -106,14 +92,9 @@ describe('plan_mode', () => {
       await rig.waitForTelemetryReady();
       const toolLogs = rig.readToolLogs();
 
-      const writeCall = toolLogs.find(
-        (log) => log.toolRequest.name === 'write_file',
-      );
+      const writeCall = toolLogs.find((log) => log.toolRequest.name === 'write_file');
 
-      expect(
-        writeCall,
-        'Should attempt to modify a file in the plans directory when in plan mode',
-      ).toBeDefined();
+      expect(writeCall, 'Should attempt to modify a file in the plans directory when in plan mode').toBeDefined();
 
       if (writeCall) {
         const args = JSON.parse(writeCall.toolRequest.args);

@@ -33,7 +33,7 @@ describe('useHistoryManager', () => {
       expect.objectContaining({
         ...itemData,
         id: expect.any(Number),
-      }),
+      })
     );
     // Basic check that ID incorporates timestamp
     expect(result.current.history[0].id).toBeGreaterThanOrEqual(timestamp);

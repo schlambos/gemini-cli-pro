@@ -8,12 +8,7 @@ import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { act } from 'react';
 import { render } from '../../test-utils/render.js';
 import { useMcpStatus } from './useMcpStatus.js';
-import {
-  MCPDiscoveryState,
-  type Config,
-  CoreEvent,
-  coreEvents,
-} from '@google/gemini-cli-core';
+import { MCPDiscoveryState, type Config, CoreEvent, coreEvents } from '@google/gemini-cli-core';
 
 describe('useMcpStatus', () => {
   let mockConfig: Config;
@@ -65,9 +60,7 @@ describe('useMcpStatus', () => {
   });
 
   it('should not be ready while in progress', () => {
-    mockMcpClientManager.getDiscoveryState.mockReturnValue(
-      MCPDiscoveryState.IN_PROGRESS,
-    );
+    mockMcpClientManager.getDiscoveryState.mockReturnValue(MCPDiscoveryState.IN_PROGRESS);
     mockMcpClientManager.getMcpServerCount.mockReturnValue(1);
     const { result } = renderMcpStatusHook(mockConfig);
 
@@ -76,16 +69,12 @@ describe('useMcpStatus', () => {
 
   it('should update state when McpClientUpdate is emitted', () => {
     mockMcpClientManager.getMcpServerCount.mockReturnValue(1);
-    mockMcpClientManager.getDiscoveryState.mockReturnValue(
-      MCPDiscoveryState.IN_PROGRESS,
-    );
+    mockMcpClientManager.getDiscoveryState.mockReturnValue(MCPDiscoveryState.IN_PROGRESS);
     const { result } = renderMcpStatusHook(mockConfig);
 
     expect(result.current.isMcpReady).toBe(false);
 
-    mockMcpClientManager.getDiscoveryState.mockReturnValue(
-      MCPDiscoveryState.COMPLETED,
-    );
+    mockMcpClientManager.getDiscoveryState.mockReturnValue(MCPDiscoveryState.COMPLETED);
 
     act(() => {
       coreEvents.emit(CoreEvent.McpClientUpdate, new Map());

@@ -6,11 +6,7 @@
 
 import * as Diff from 'diff';
 import type { EditorType } from '../utils/editor.js';
-import {
-  isModifiableDeclarativeTool,
-  modifyWithEditor,
-  type ModifyContext,
-} from '../tools/modifiable-tool.js';
+import { isModifiableDeclarativeTool, modifyWithEditor, type ModifyContext } from '../tools/modifiable-tool.js';
 import type { ToolConfirmationPayload } from '../tools/tools.js';
 import type { WaitingToolCall } from './types.js';
 
@@ -27,7 +23,7 @@ export class ToolModificationHandler {
   async handleModifyWithEditor(
     toolCall: WaitingToolCall,
     editorType: EditorType,
-    signal: AbortSignal,
+    signal: AbortSignal
   ): Promise<ModificationResult | undefined> {
     if (!isModifiableDeclarativeTool(toolCall.tool)) {
       return undefined;
@@ -44,15 +40,13 @@ export class ToolModificationHandler {
           }
         : undefined;
 
-    const { updatedParams, updatedDiff } = await modifyWithEditor<
-      typeof toolCall.request.args
-    >(
+    const { updatedParams, updatedDiff } = await modifyWithEditor<typeof toolCall.request.args>(
       toolCall.request.args,
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
       modifyContext as ModifyContext<typeof toolCall.request.args>,
       editorType,
       signal,
-      contentOverrides,
+      contentOverrides
     );
 
     return {
@@ -67,7 +61,7 @@ export class ToolModificationHandler {
   async applyInlineModify(
     toolCall: WaitingToolCall,
     payload: ToolConfirmationPayload,
-    signal: AbortSignal,
+    signal: AbortSignal
   ): Promise<ModificationResult | undefined> {
     if (
       toolCall.confirmationDetails.type !== 'edit' ||
@@ -78,25 +72,17 @@ export class ToolModificationHandler {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-    const modifyContext = toolCall.tool.getModifyContext(
-      signal,
-    ) as ModifyContext<typeof toolCall.request.args>;
-    const currentContent = await modifyContext.getCurrentContent(
-      toolCall.request.args,
-    );
+    const modifyContext = toolCall.tool.getModifyContext(signal) as ModifyContext<typeof toolCall.request.args>;
+    const currentContent = await modifyContext.getCurrentContent(toolCall.request.args);
 
-    const updatedParams = modifyContext.createUpdatedParams(
-      currentContent,
-      payload.newContent,
-      toolCall.request.args,
-    );
+    const updatedParams = modifyContext.createUpdatedParams(currentContent, payload.newContent, toolCall.request.args);
 
     const updatedDiff = Diff.createPatch(
       modifyContext.getFilePath(toolCall.request.args),
       currentContent,
       payload.newContent,
       'Current',
-      'Proposed',
+      'Proposed'
     );
 
     return {

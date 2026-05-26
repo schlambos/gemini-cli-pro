@@ -42,8 +42,7 @@ describe('useMessageQueue', () => {
           return hookResult;
         },
       },
-      rerender: (newProps: Partial<typeof initialProps>) =>
-        rerender(<TestComponent {...initialProps} {...newProps} />),
+      rerender: (newProps: Partial<typeof initialProps>) => rerender(<TestComponent {...initialProps} {...newProps} />),
     };
   };
 
@@ -72,10 +71,7 @@ describe('useMessageQueue', () => {
       result.current.addMessage('Test message 2');
     });
 
-    expect(result.current.messageQueue).toEqual([
-      'Test message 1',
-      'Test message 2',
-    ]);
+    expect(result.current.messageQueue).toEqual(['Test message 1', 'Test message 2']);
   });
 
   it('should filter out empty messages', () => {
@@ -93,10 +89,7 @@ describe('useMessageQueue', () => {
       result.current.addMessage('Another valid message');
     });
 
-    expect(result.current.messageQueue).toEqual([
-      'Valid message',
-      'Another valid message',
-    ]);
+    expect(result.current.messageQueue).toEqual(['Valid message', 'Another valid message']);
   });
 
   it('should clear queue', () => {
@@ -134,9 +127,7 @@ describe('useMessageQueue', () => {
       result.current.addMessage('Message 3');
     });
 
-    expect(result.current.getQueuedMessagesText()).toBe(
-      'Message 1\n\nMessage 2\n\nMessage 3',
-    );
+    expect(result.current.getQueuedMessagesText()).toBe('Message 1\n\nMessage 2\n\nMessage 3');
   });
 
   it('should auto-submit queued messages when transitioning to Idle and MCP is ready', async () => {
@@ -280,11 +271,7 @@ describe('useMessageQueue', () => {
         result.current.addMessage('Message 3');
       });
 
-      expect(result.current.messageQueue).toEqual([
-        'Message 1',
-        'Message 2',
-        'Message 3',
-      ]);
+      expect(result.current.messageQueue).toEqual(['Message 1', 'Message 2', 'Message 3']);
 
       // Pop all messages
       let poppedMessages: string | undefined;

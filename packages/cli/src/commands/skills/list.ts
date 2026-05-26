@@ -22,16 +22,14 @@ export async function handleList(args: { all?: boolean }) {
     {
       debug: false,
     } as Partial<CliArgs> as CliArgs,
-    { cwd: workspaceDir },
+    { cwd: workspaceDir }
   );
 
   // Initialize to trigger extension loading and skill discovery
   await config.initialize();
 
   const skillManager = config.getSkillManager();
-  const skills = args.all
-    ? skillManager.getAllSkills()
-    : skillManager.getAllSkills().filter((s) => !s.isBuiltin);
+  const skills = args.all ? skillManager.getAllSkills() : skillManager.getAllSkills().filter((s) => !s.isBuiltin);
 
   // Sort skills: non-built-in first, then alphabetically by name
   skills.sort((a, b) => {
@@ -50,9 +48,7 @@ export async function handleList(args: { all?: boolean }) {
   debugLogger.log('');
 
   for (const skill of skills) {
-    const status = skill.disabled
-      ? chalk.red('[Disabled]')
-      : chalk.green('[Enabled]');
+    const status = skill.disabled ? chalk.red('[Disabled]') : chalk.green('[Enabled]');
 
     const builtinSuffix = skill.isBuiltin ? chalk.gray(' [Built-in]') : '';
 

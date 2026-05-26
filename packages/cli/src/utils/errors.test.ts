@@ -4,22 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  vi,
-  type MockInstance,
-  describe,
-  it,
-  expect,
-  beforeEach,
-  afterEach,
-} from 'vitest';
+import { vi, type MockInstance, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import type { Config } from '@google/gemini-cli-core';
-import {
-  OutputFormat,
-  FatalInputError,
-  debugLogger,
-  coreEvents,
-} from '@google/gemini-cli-core';
+import { OutputFormat, FatalInputError, debugLogger, coreEvents } from '@google/gemini-cli-core';
 import {
   getErrorMessage,
   handleError,
@@ -36,8 +23,7 @@ vi.mock('./cleanup.js', () => ({
 
 // Mock the core modules
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const original =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const original = await importOriginal<typeof import('@google/gemini-cli-core')>();
 
   return {
     ...original,
@@ -48,20 +34,19 @@ vi.mock('@google/gemini-cli-core', async (importOriginal) => {
       return `API Error: ${String(error)}`;
     }),
     JsonFormatter: vi.fn().mockImplementation(() => ({
-      formatError: vi.fn(
-        (error: Error, code?: string | number, sessionId?: string) =>
-          JSON.stringify(
-            {
-              ...(sessionId && { session_id: sessionId }),
-              error: {
-                type: error.constructor.name,
-                message: error.message,
-                ...(code && { code }),
-              },
+      formatError: vi.fn((error: Error, code?: string | number, sessionId?: string) =>
+        JSON.stringify(
+          {
+            ...(sessionId && { session_id: sessionId }),
+            error: {
+              type: error.constructor.name,
+              message: error.message,
+              ...(code && { code }),
             },
-            null,
-            2,
-          ),
+          },
+          null,
+          2
+        )
       ),
     })),
     StreamJsonFormatter: vi.fn().mockImplementation(() => ({
@@ -119,12 +104,8 @@ describe('errors', () => {
     vi.clearAllMocks();
 
     // Mock debugLogger
-    debugLoggerErrorSpy = vi
-      .spyOn(debugLogger, 'error')
-      .mockImplementation(() => {});
-    debugLoggerWarnSpy = vi
-      .spyOn(debugLogger, 'warn')
-      .mockImplementation(() => {});
+    debugLoggerErrorSpy = vi.spyOn(debugLogger, 'error').mockImplementation(() => {});
+    debugLoggerWarnSpy = vi.spyOn(debugLogger, 'warn').mockImplementation(() => {});
 
     // Mock coreEvents
     coreEventsEmitFeedbackSpy = vi.mocked(coreEvents.emitFeedback);
@@ -173,9 +154,7 @@ describe('errors', () => {
   describe('handleError', () => {
     describe('in text mode', () => {
       beforeEach(() => {
-        (
-          mockConfig.getOutputFormat as ReturnType<typeof vi.fn>
-        ).mockReturnValue(OutputFormat.TEXT);
+        (mockConfig.getOutputFormat as ReturnType<typeof vi.fn>).mockReturnValue(OutputFormat.TEXT);
       });
 
       it('should re-throw without logging to debugLogger', () => {
@@ -199,9 +178,7 @@ describe('errors', () => {
 
     describe('in JSON mode', () => {
       beforeEach(() => {
-        (
-          mockConfig.getOutputFormat as ReturnType<typeof vi.fn>
-        ).mockReturnValue(OutputFormat.JSON);
+        (mockConfig.getOutputFormat as ReturnType<typeof vi.fn>).mockReturnValue(OutputFormat.JSON);
       });
 
       it('should format error as JSON, emit feedback exactly once, and exit with default code', () => {
@@ -224,8 +201,8 @@ describe('errors', () => {
               },
             },
             null,
-            2,
-          ),
+            2
+          )
         );
         expect(debugLoggerErrorSpy).not.toHaveBeenCalled();
         expect(runSyncCleanupSpy).toHaveBeenCalled();
@@ -251,8 +228,8 @@ describe('errors', () => {
               },
             },
             null,
-            2,
-          ),
+            2
+          )
         );
         expect(debugLoggerErrorSpy).not.toHaveBeenCalled();
       });
@@ -277,8 +254,8 @@ describe('errors', () => {
               },
             },
             null,
-            2,
-          ),
+            2
+          )
         );
         expect(debugLoggerErrorSpy).not.toHaveBeenCalled();
       });
@@ -316,17 +293,15 @@ describe('errors', () => {
               },
             },
             null,
-            2,
-          ),
+            2
+          )
         );
       });
     });
 
     describe('in STREAM_JSON mode', () => {
       beforeEach(() => {
-        (
-          mockConfig.getOutputFormat as ReturnType<typeof vi.fn>
-        ).mockReturnValue(OutputFormat.STREAM_JSON);
+        (mockConfig.getOutputFormat as ReturnType<typeof vi.fn>).mockReturnValue(OutputFormat.STREAM_JSON);
       });
 
       it('should emit result event, run cleanup, and exit', () => {
@@ -355,31 +330,19 @@ describe('errors', () => {
 
     describe('in text mode', () => {
       beforeEach(() => {
-        (
-          mockConfig.getOutputFormat as ReturnType<typeof vi.fn>
-        ).mockReturnValue(OutputFormat.TEXT);
+        (mockConfig.getOutputFormat as ReturnType<typeof vi.fn>).mockReturnValue(OutputFormat.TEXT);
       });
 
       it('should log error message to stderr (via debugLogger) for non-fatal', () => {
         handleToolError(toolName, toolError, mockConfig);
 
-        expect(debugLoggerWarnSpy).toHaveBeenCalledWith(
-          'Error executing tool test-tool: Tool failed',
-        );
+        expect(debugLoggerWarnSpy).toHaveBeenCalledWith('Error executing tool test-tool: Tool failed');
       });
 
       it('should use resultDisplay when provided', () => {
-        handleToolError(
-          toolName,
-          toolError,
-          mockConfig,
-          'CUSTOM_ERROR',
-          'Custom display message',
-        );
+        handleToolError(toolName, toolError, mockConfig, 'CUSTOM_ERROR', 'Custom display message');
 
-        expect(debugLoggerWarnSpy).toHaveBeenCalledWith(
-          'Error executing tool test-tool: Custom display message',
-        );
+        expect(debugLoggerWarnSpy).toHaveBeenCalledWith('Error executing tool test-tool: Custom display message');
       });
 
       it('should emit feedback exactly once for fatal errors and not use debugLogger', () => {
@@ -388,10 +351,7 @@ describe('errors', () => {
         }).toThrow('process.exit called with code: 54');
 
         expect(coreEventsEmitFeedbackSpy).toHaveBeenCalledTimes(1);
-        expect(coreEventsEmitFeedbackSpy).toHaveBeenCalledWith(
-          'error',
-          'Error executing tool test-tool: Tool failed',
-        );
+        expect(coreEventsEmitFeedbackSpy).toHaveBeenCalledWith('error', 'Error executing tool test-tool: Tool failed');
         expect(debugLoggerErrorSpy).not.toHaveBeenCalled();
         expect(runSyncCleanupSpy).toHaveBeenCalled();
       });
@@ -399,23 +359,14 @@ describe('errors', () => {
 
     describe('in JSON mode', () => {
       beforeEach(() => {
-        (
-          mockConfig.getOutputFormat as ReturnType<typeof vi.fn>
-        ).mockReturnValue(OutputFormat.JSON);
+        (mockConfig.getOutputFormat as ReturnType<typeof vi.fn>).mockReturnValue(OutputFormat.JSON);
       });
 
       describe('non-fatal errors', () => {
         it('should log error message to stderr without exiting for recoverable errors', () => {
-          handleToolError(
-            toolName,
-            toolError,
-            mockConfig,
-            'invalid_tool_params',
-          );
+          handleToolError(toolName, toolError, mockConfig, 'invalid_tool_params');
 
-          expect(debugLoggerWarnSpy).toHaveBeenCalledWith(
-            'Error executing tool test-tool: Tool failed',
-          );
+          expect(debugLoggerWarnSpy).toHaveBeenCalledWith('Error executing tool test-tool: Tool failed');
           // Should not exit for non-fatal errors
           expect(processExitSpy).not.toHaveBeenCalled();
           expect(coreEventsEmitFeedbackSpy).not.toHaveBeenCalled();
@@ -424,9 +375,7 @@ describe('errors', () => {
         it('should not exit for file not found errors', () => {
           handleToolError(toolName, toolError, mockConfig, 'file_not_found');
 
-          expect(debugLoggerWarnSpy).toHaveBeenCalledWith(
-            'Error executing tool test-tool: Tool failed',
-          );
+          expect(debugLoggerWarnSpy).toHaveBeenCalledWith('Error executing tool test-tool: Tool failed');
           expect(processExitSpy).not.toHaveBeenCalled();
           expect(coreEventsEmitFeedbackSpy).not.toHaveBeenCalled();
         });
@@ -434,40 +383,23 @@ describe('errors', () => {
         it('should not exit for permission denied errors', () => {
           handleToolError(toolName, toolError, mockConfig, 'permission_denied');
 
-          expect(debugLoggerWarnSpy).toHaveBeenCalledWith(
-            'Error executing tool test-tool: Tool failed',
-          );
+          expect(debugLoggerWarnSpy).toHaveBeenCalledWith('Error executing tool test-tool: Tool failed');
           expect(processExitSpy).not.toHaveBeenCalled();
           expect(coreEventsEmitFeedbackSpy).not.toHaveBeenCalled();
         });
 
         it('should not exit for path not in workspace errors', () => {
-          handleToolError(
-            toolName,
-            toolError,
-            mockConfig,
-            'path_not_in_workspace',
-          );
+          handleToolError(toolName, toolError, mockConfig, 'path_not_in_workspace');
 
-          expect(debugLoggerWarnSpy).toHaveBeenCalledWith(
-            'Error executing tool test-tool: Tool failed',
-          );
+          expect(debugLoggerWarnSpy).toHaveBeenCalledWith('Error executing tool test-tool: Tool failed');
           expect(processExitSpy).not.toHaveBeenCalled();
           expect(coreEventsEmitFeedbackSpy).not.toHaveBeenCalled();
         });
 
         it('should prefer resultDisplay over error message', () => {
-          handleToolError(
-            toolName,
-            toolError,
-            mockConfig,
-            'invalid_tool_params',
-            'Display message',
-          );
+          handleToolError(toolName, toolError, mockConfig, 'invalid_tool_params', 'Display message');
 
-          expect(debugLoggerWarnSpy).toHaveBeenCalledWith(
-            'Error executing tool test-tool: Display message',
-          );
+          expect(debugLoggerWarnSpy).toHaveBeenCalledWith('Error executing tool test-tool: Display message');
           expect(processExitSpy).not.toHaveBeenCalled();
         });
       });
@@ -491,8 +423,8 @@ describe('errors', () => {
                 },
               },
               null,
-              2,
-            ),
+              2
+            )
           );
           expect(debugLoggerErrorSpy).not.toHaveBeenCalled();
           expect(runSyncCleanupSpy).toHaveBeenCalled();
@@ -502,9 +434,7 @@ describe('errors', () => {
 
     describe('in STREAM_JSON mode', () => {
       beforeEach(() => {
-        (
-          mockConfig.getOutputFormat as ReturnType<typeof vi.fn>
-        ).mockReturnValue(OutputFormat.STREAM_JSON);
+        (mockConfig.getOutputFormat as ReturnType<typeof vi.fn>).mockReturnValue(OutputFormat.STREAM_JSON);
       });
 
       it('should emit result event, run cleanup, and exit for fatal errors', () => {
@@ -517,9 +447,7 @@ describe('errors', () => {
 
       it('should log to stderr and not exit for non-fatal errors', () => {
         handleToolError(toolName, toolError, mockConfig, 'invalid_tool_params');
-        expect(debugLoggerWarnSpy).toHaveBeenCalledWith(
-          'Error executing tool test-tool: Tool failed',
-        );
+        expect(debugLoggerWarnSpy).toHaveBeenCalledWith('Error executing tool test-tool: Tool failed');
         expect(processExitSpy).not.toHaveBeenCalled();
       });
     });
@@ -528,9 +456,7 @@ describe('errors', () => {
   describe('handleCancellationError', () => {
     describe('in text mode', () => {
       beforeEach(() => {
-        (
-          mockConfig.getOutputFormat as ReturnType<typeof vi.fn>
-        ).mockReturnValue(OutputFormat.TEXT);
+        (mockConfig.getOutputFormat as ReturnType<typeof vi.fn>).mockReturnValue(OutputFormat.TEXT);
       });
 
       it('should emit feedback exactly once, run cleanup, and exit with 130', () => {
@@ -539,10 +465,7 @@ describe('errors', () => {
         }).toThrow('process.exit called with code: 130');
 
         expect(coreEventsEmitFeedbackSpy).toHaveBeenCalledTimes(1);
-        expect(coreEventsEmitFeedbackSpy).toHaveBeenCalledWith(
-          'error',
-          'Operation cancelled.',
-        );
+        expect(coreEventsEmitFeedbackSpy).toHaveBeenCalledWith('error', 'Operation cancelled.');
         expect(debugLoggerErrorSpy).not.toHaveBeenCalled();
         expect(runSyncCleanupSpy).toHaveBeenCalled();
       });
@@ -550,9 +473,7 @@ describe('errors', () => {
 
     describe('in JSON mode', () => {
       beforeEach(() => {
-        (
-          mockConfig.getOutputFormat as ReturnType<typeof vi.fn>
-        ).mockReturnValue(OutputFormat.JSON);
+        (mockConfig.getOutputFormat as ReturnType<typeof vi.fn>).mockReturnValue(OutputFormat.JSON);
       });
 
       it('should format cancellation as JSON, emit feedback once, and exit with 130', () => {
@@ -573,8 +494,8 @@ describe('errors', () => {
               },
             },
             null,
-            2,
-          ),
+            2
+          )
         );
         expect(debugLoggerErrorSpy).not.toHaveBeenCalled();
       });
@@ -582,9 +503,7 @@ describe('errors', () => {
 
     describe('in STREAM_JSON mode', () => {
       beforeEach(() => {
-        (
-          mockConfig.getOutputFormat as ReturnType<typeof vi.fn>
-        ).mockReturnValue(OutputFormat.STREAM_JSON);
+        (mockConfig.getOutputFormat as ReturnType<typeof vi.fn>).mockReturnValue(OutputFormat.STREAM_JSON);
       });
 
       it('should emit result event and exit with 130', () => {
@@ -599,9 +518,7 @@ describe('errors', () => {
   describe('handleMaxTurnsExceededError', () => {
     describe('in text mode', () => {
       beforeEach(() => {
-        (
-          mockConfig.getOutputFormat as ReturnType<typeof vi.fn>
-        ).mockReturnValue(OutputFormat.TEXT);
+        (mockConfig.getOutputFormat as ReturnType<typeof vi.fn>).mockReturnValue(OutputFormat.TEXT);
       });
 
       it('should emit feedback exactly once, run cleanup, and exit with 53', () => {
@@ -612,7 +529,7 @@ describe('errors', () => {
         expect(coreEventsEmitFeedbackSpy).toHaveBeenCalledTimes(1);
         expect(coreEventsEmitFeedbackSpy).toHaveBeenCalledWith(
           'error',
-          'Reached max session turns for this session. Increase the number of turns by specifying maxSessionTurns in settings.json.',
+          'Reached max session turns for this session. Increase the number of turns by specifying maxSessionTurns in settings.json.'
         );
         expect(debugLoggerErrorSpy).not.toHaveBeenCalled();
         expect(runSyncCleanupSpy).toHaveBeenCalled();
@@ -621,9 +538,7 @@ describe('errors', () => {
 
     describe('in JSON mode', () => {
       beforeEach(() => {
-        (
-          mockConfig.getOutputFormat as ReturnType<typeof vi.fn>
-        ).mockReturnValue(OutputFormat.JSON);
+        (mockConfig.getOutputFormat as ReturnType<typeof vi.fn>).mockReturnValue(OutputFormat.JSON);
       });
 
       it('should format max turns error as JSON, emit feedback once, and exit with 53', () => {
@@ -645,8 +560,8 @@ describe('errors', () => {
               },
             },
             null,
-            2,
-          ),
+            2
+          )
         );
         expect(debugLoggerErrorSpy).not.toHaveBeenCalled();
       });
@@ -654,9 +569,7 @@ describe('errors', () => {
 
     describe('in STREAM_JSON mode', () => {
       beforeEach(() => {
-        (
-          mockConfig.getOutputFormat as ReturnType<typeof vi.fn>
-        ).mockReturnValue(OutputFormat.STREAM_JSON);
+        (mockConfig.getOutputFormat as ReturnType<typeof vi.fn>).mockReturnValue(OutputFormat.STREAM_JSON);
       });
 
       it('should emit result event and exit with 53', () => {

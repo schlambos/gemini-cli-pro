@@ -43,9 +43,7 @@ export enum TrustLevel {
   DO_NOT_TRUST = 'DO_NOT_TRUST',
 }
 
-export function isTrustLevel(
-  value: string | number | boolean | object | null | undefined,
-): value is TrustLevel {
+export function isTrustLevel(value: string | number | boolean | object | null | undefined): value is TrustLevel {
   return (
     typeof value === 'string' &&
     // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
@@ -109,7 +107,7 @@ function getRealPath(location: string): string {
 export class LoadedTrustedFolders {
   constructor(
     readonly user: TrustedFoldersFile,
-    readonly errors: TrustedFoldersError[],
+    readonly errors: TrustedFoldersError[]
   ) {}
 
   get rules(): TrustRule[] {
@@ -129,7 +127,7 @@ export class LoadedTrustedFolders {
   isPathTrusted(
     location: string,
     config?: Record<string, TrustLevel>,
-    headlessOptions?: HeadlessModeOptions,
+    headlessOptions?: HeadlessModeOptions
   ): boolean | undefined {
     if (isHeadlessMode(headlessOptions)) {
       return true;
@@ -143,10 +141,7 @@ export class LoadedTrustedFolders {
     let longestMatchTrust: TrustLevel | undefined = undefined;
 
     for (const [rulePath, trustLevel] of Object.entries(configToUse)) {
-      const effectivePath =
-        trustLevel === TrustLevel.TRUST_PARENT
-          ? path.dirname(rulePath)
-          : rulePath;
+      const effectivePath = trustLevel === TrustLevel.TRUST_PARENT ? path.dirname(rulePath) : rulePath;
 
       // Resolve effectivePath to its realpath for canonical comparison
       const realEffectivePath = getRealPath(effectivePath);
@@ -160,22 +155,16 @@ export class LoadedTrustedFolders {
     }
 
     if (longestMatchTrust === TrustLevel.DO_NOT_TRUST) return false;
-    if (
-      longestMatchTrust === TrustLevel.TRUST_FOLDER ||
-      longestMatchTrust === TrustLevel.TRUST_PARENT
-    )
-      return true;
+    if (longestMatchTrust === TrustLevel.TRUST_FOLDER || longestMatchTrust === TrustLevel.TRUST_PARENT) return true;
 
     return undefined;
   }
 
   async setValue(folderPath: string, trustLevel: TrustLevel): Promise<void> {
     if (this.errors.length > 0) {
-      const errorMessages = this.errors.map(
-        (error) => `Error in ${error.path}: ${error.message}`,
-      );
+      const errorMessages = this.errors.map((error) => `Error in ${error.path}: ${error.message}`);
       throw new FatalConfigError(
-        `Cannot update trusted folders because the configuration file is invalid:\n${errorMessages.join('\n')}\nPlease fix the file manually before trying to update it.`,
+        `Cannot update trusted folders because the configuration file is invalid:\n${errorMessages.join('\n')}\nPlease fix the file manually before trying to update it.`
       );
     }
 
@@ -209,7 +198,7 @@ export class LoadedTrustedFolders {
         coreEvents.emitFeedback(
           'error',
           `Failed to parse trusted folders file at ${this.user.path}. The file may be corrupted.`,
-          error,
+          error
         );
         config = {};
       }
@@ -261,11 +250,7 @@ export function loadTrustedFolders(): LoadedTrustedFolders {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
       const parsed = parseTrustedFoldersJson(content) as Record<string, string>;
 
-      if (
-        typeof parsed !== 'object' ||
-        parsed === null ||
-        Array.isArray(parsed)
-      ) {
+      if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
         errors.push({
           message: 'Trusted folders file is not a valid JSON object.',
           path: userPath,
@@ -291,16 +276,11 @@ export function loadTrustedFolders(): LoadedTrustedFolders {
     });
   }
 
-  loadedTrustedFolders = new LoadedTrustedFolders(
-    { path: userPath, config: userConfig },
-    errors,
-  );
+  loadedTrustedFolders = new LoadedTrustedFolders({ path: userPath, config: userConfig }, errors);
   return loadedTrustedFolders;
 }
 
-export function saveTrustedFolders(
-  trustedFoldersFile: TrustedFoldersFile,
-): void {
+export function saveTrustedFolders(trustedFoldersFile: TrustedFoldersFile): void {
   // Ensure the directory exists
   const dirPath = path.dirname(trustedFoldersFile.path);
   if (!fs.existsSync(dirPath)) {
@@ -338,25 +318,17 @@ export function isFolderTrustEnabled(settings: Settings): boolean {
 function getWorkspaceTrustFromLocalConfig(
   workspaceDir: string,
   trustConfig?: Record<string, TrustLevel>,
-  headlessOptions?: HeadlessModeOptions,
+  headlessOptions?: HeadlessModeOptions
 ): TrustResult {
   const folders = loadTrustedFolders();
   const configToUse = trustConfig ?? folders.user.config;
 
   if (folders.errors.length > 0) {
-    const errorMessages = folders.errors.map(
-      (error) => `Error in ${error.path}: ${error.message}`,
-    );
-    throw new FatalConfigError(
-      `${errorMessages.join('\n')}\nPlease fix the configuration file and try again.`,
-    );
+    const errorMessages = folders.errors.map((error) => `Error in ${error.path}: ${error.message}`);
+    throw new FatalConfigError(`${errorMessages.join('\n')}\nPlease fix the configuration file and try again.`);
   }
 
-  const isTrusted = folders.isPathTrusted(
-    workspaceDir,
-    configToUse,
-    headlessOptions,
-  );
+  const isTrusted = folders.isPathTrusted(workspaceDir, configToUse, headlessOptions);
   return {
     isTrusted,
     source: isTrusted !== undefined ? 'file' : undefined,
@@ -367,7 +339,7 @@ export function isWorkspaceTrusted(
   settings: Settings,
   workspaceDir: string = process.cwd(),
   trustConfig?: Record<string, TrustLevel>,
-  headlessOptions?: HeadlessModeOptions,
+  headlessOptions?: HeadlessModeOptions
 ): TrustResult {
   if (isHeadlessMode(headlessOptions)) {
     return { isTrusted: true, source: undefined };
@@ -383,9 +355,5 @@ export function isWorkspaceTrusted(
   }
 
   // Fall back to the local user configuration
-  return getWorkspaceTrustFromLocalConfig(
-    workspaceDir,
-    trustConfig,
-    headlessOptions,
-  );
+  return getWorkspaceTrustFromLocalConfig(workspaceDir, trustConfig, headlessOptions);
 }

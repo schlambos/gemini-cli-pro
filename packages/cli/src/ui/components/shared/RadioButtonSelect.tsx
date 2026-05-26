@@ -7,10 +7,7 @@
 import type React from 'react';
 import { Text, Box } from 'ink';
 import { theme } from '../../semantic-colors.js';
-import {
-  BaseSelectionList,
-  type RenderItemContext,
-} from './BaseSelectionList.js';
+import { BaseSelectionList, type RenderItemContext } from './BaseSelectionList.js';
 import type { SelectionListItem } from '../../hooks/useSelectionList.js';
 
 /**
@@ -48,10 +45,7 @@ export interface RadioButtonSelectProps<T> {
   /** Whether the hook should have priority over normal subscribers. */
   priority?: boolean;
   /** Optional custom renderer for items. */
-  renderItem?: (
-    item: RadioSelectItem<T>,
-    context: RenderItemContext,
-  ) => React.ReactNode;
+  renderItem?: (item: RadioSelectItem<T>, context: RenderItemContext) => React.ReactNode;
 }
 
 /**
@@ -89,22 +83,19 @@ export function RadioButtonSelect<T>({
           // Handle special theme display case for ThemeDialog compatibility
           if (item.themeNameDisplay && item.themeTypeDisplay) {
             return (
-              <Text color={titleColor} wrap="truncate" key={item.key}>
-                {item.themeNameDisplay}{' '}
-                <Text color={theme.text.secondary}>
-                  {item.themeTypeDisplay}
-                </Text>
+              <Text color={titleColor} wrap='truncate' key={item.key}>
+                {item.themeNameDisplay} <Text color={theme.text.secondary}>{item.themeTypeDisplay}</Text>
               </Text>
             );
           }
           // Regular label display
           return (
-            <Box flexDirection="column">
-              <Text color={titleColor} wrap="truncate">
+            <Box flexDirection='column'>
+              <Text color={titleColor} wrap='truncate'>
                 {item.label}
               </Text>
               {item.sublabel && (
-                <Text color={theme.text.secondary} wrap="truncate">
+                <Text color={theme.text.secondary} wrap='truncate'>
                   {item.sublabel}
                 </Text>
               )}

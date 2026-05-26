@@ -15,7 +15,7 @@ import { debugLogger } from '../utils/debugLogger.js';
 export class MessageBus extends EventEmitter {
   constructor(
     private readonly policyEngine: PolicyEngine,
-    private readonly debug = false,
+    private readonly debug = false
   ) {
     super();
     this.debug = debug;
@@ -26,10 +26,7 @@ export class MessageBus extends EventEmitter {
       return false;
     }
 
-    if (
-      message.type === MessageBusType.TOOL_CONFIRMATION_REQUEST &&
-      !('correlationId' in message)
-    ) {
+    if (message.type === MessageBusType.TOOL_CONFIRMATION_REQUEST && !('correlationId' in message)) {
       return false;
     }
 
@@ -46,16 +43,11 @@ export class MessageBus extends EventEmitter {
     }
     try {
       if (!this.isValidMessage(message)) {
-        throw new Error(
-          `Invalid message structure: ${safeJsonStringify(message)}`,
-        );
+        throw new Error(`Invalid message structure: ${safeJsonStringify(message)}`);
       }
 
       if (message.type === MessageBusType.TOOL_CONFIRMATION_REQUEST) {
-        const { decision } = await this.policyEngine.check(
-          message.toolCall,
-          message.serverName,
-        );
+        const { decision } = await this.policyEngine.check(message.toolCall, message.serverName);
 
         switch (decision) {
           case PolicyDecision.ALLOW:
@@ -94,17 +86,11 @@ export class MessageBus extends EventEmitter {
     }
   }
 
-  subscribe<T extends Message>(
-    type: T['type'],
-    listener: (message: T) => void,
-  ): void {
+  subscribe<T extends Message>(type: T['type'], listener: (message: T) => void): void {
     this.on(type, listener);
   }
 
-  unsubscribe<T extends Message>(
-    type: T['type'],
-    listener: (message: T) => void,
-  ): void {
+  unsubscribe<T extends Message>(type: T['type'], listener: (message: T) => void): void {
     this.off(type, listener);
   }
 
@@ -116,7 +102,7 @@ export class MessageBus extends EventEmitter {
   async request<TRequest extends Message, TResponse extends Message>(
     request: Omit<TRequest, 'correlationId'>,
     responseType: TResponse['type'],
-    timeoutMs: number = 60000,
+    timeoutMs: number = 60000
   ): Promise<TResponse> {
     const correlationId = randomUUID();
 
@@ -133,10 +119,7 @@ export class MessageBus extends EventEmitter {
 
       const responseHandler = (response: TResponse) => {
         // Check if this response matches our request
-        if (
-          'correlationId' in response &&
-          response.correlationId === correlationId
-        ) {
+        if ('correlationId' in response && response.correlationId === correlationId) {
           cleanup();
           resolve(response);
         }

@@ -8,13 +8,7 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import os from 'node:os';
 import fs from 'node:fs';
 import { readFile } from 'node:fs/promises';
-import {
-  getContainerPath,
-  parseImageName,
-  ports,
-  entrypoint,
-  shouldUseCurrentUserInSandbox,
-} from './sandboxUtils.js';
+import { getContainerPath, parseImageName, ports, entrypoint, shouldUseCurrentUserInSandbox } from './sandboxUtils.js';
 
 vi.mock('node:os');
 vi.mock('node:fs');
@@ -69,9 +63,7 @@ describe('sandboxUtils', () => {
     });
 
     it('should handle registry path', () => {
-      expect(parseImageName('gcr.io/my-project/my-image:v1')).toBe(
-        'my-image-v1',
-      );
+      expect(parseImageName('gcr.io/my-project/my-image:v1')).toBe('my-image-v1');
     });
   });
 

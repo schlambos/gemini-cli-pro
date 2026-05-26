@@ -7,12 +7,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { appEvents, AppEvent } from '../../utils/events.js';
 import { coreEvents } from '@google/gemini-cli-core';
-import {
-  profiler,
-  DebugProfiler,
-  ACTION_TIMESTAMP_CAPACITY,
-  FRAME_TIMESTAMP_CAPACITY,
-} from './DebugProfiler.js';
+import { profiler, DebugProfiler, ACTION_TIMESTAMP_CAPACITY, FRAME_TIMESTAMP_CAPACITY } from './DebugProfiler.js';
 import { render } from '../../test-utils/render.js';
 import { useUIState, type UIState } from '../contexts/UIStateContext.js';
 import { FixedDeque } from 'mnemonist';
@@ -32,14 +27,8 @@ describe('DebugProfiler', () => {
     profiler.lastFrameStartTime = 0;
     profiler.openedDebugConsole = false;
     profiler.lastActionTimestamp = 0;
-    profiler.possiblyIdleFrameTimestamps = new FixedDeque<number>(
-      Array,
-      FRAME_TIMESTAMP_CAPACITY,
-    );
-    profiler.actionTimestamps = new FixedDeque<number>(
-      Array,
-      ACTION_TIMESTAMP_CAPACITY,
-    );
+    profiler.possiblyIdleFrameTimestamps = new FixedDeque<number>(Array, FRAME_TIMESTAMP_CAPACITY);
+    profiler.actionTimestamps = new FixedDeque<number>(Array, ACTION_TIMESTAMP_CAPACITY);
     debugState.debugNumAnimatedComponents = 0;
   });
 
@@ -65,9 +54,7 @@ describe('DebugProfiler', () => {
       // To ensure we don't trigger the debounce
       profiler.lastFrameStartTime = 0;
     }
-    expect(profiler.possiblyIdleFrameTimestamps.size).toBe(
-      FRAME_TIMESTAMP_CAPACITY,
-    );
+    expect(profiler.possiblyIdleFrameTimestamps.size).toBe(FRAME_TIMESTAMP_CAPACITY);
   });
 
   it('should drop oldest action timestamps when capacity is reached', () => {
@@ -88,9 +75,7 @@ describe('DebugProfiler', () => {
     profiler.lastFrameStartTime = 0;
     profiler.reportFrameRendered();
 
-    expect(profiler.possiblyIdleFrameTimestamps.size).toBe(
-      FRAME_TIMESTAMP_CAPACITY,
-    );
+    expect(profiler.possiblyIdleFrameTimestamps.size).toBe(FRAME_TIMESTAMP_CAPACITY);
     expect(profiler.possiblyIdleFrameTimestamps.peekFirst()).toBe(1);
   });
 

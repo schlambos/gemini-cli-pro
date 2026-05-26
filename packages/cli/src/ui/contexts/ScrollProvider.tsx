@@ -5,15 +5,7 @@
  */
 
 import type React from 'react';
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { getBoundingBox, type DOMElement } from 'ink';
 import { useMouse, type MouseEvent } from '../hooks/useMouse.js';
 
@@ -40,10 +32,7 @@ interface ScrollContextType {
 
 const ScrollContext = createContext<ScrollContextType | null>(null);
 
-const findScrollableCandidates = (
-  mouseEvent: MouseEvent,
-  scrollables: Map<string, ScrollableEntry>,
-) => {
+const findScrollableCandidates = (mouseEvent: MouseEvent, scrollables: Map<string, ScrollableEntry>) => {
   const candidates: Array<ScrollableEntry & { area: number }> = [];
 
   for (const entry of scrollables.values()) {
@@ -72,12 +61,8 @@ const findScrollableCandidates = (
   return candidates;
 };
 
-export const ScrollProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const [scrollables, setScrollables] = useState(
-    new Map<string, ScrollableEntry>(),
-  );
+export const ScrollProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [scrollables, setScrollables] = useState(new Map<string, ScrollableEntry>());
 
   const register = useCallback((entry: ScrollableEntry) => {
     setScrollables((prev) => new Map(prev).set(entry.id, entry));
@@ -127,21 +112,16 @@ export const ScrollProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const handleScroll = (direction: 'up' | 'down', mouseEvent: MouseEvent) => {
     const delta = direction === 'up' ? -1 : 1;
-    const candidates = findScrollableCandidates(
-      mouseEvent,
-      scrollablesRef.current,
-    );
+    const candidates = findScrollableCandidates(mouseEvent, scrollablesRef.current);
 
     for (const candidate of candidates) {
-      const { scrollTop, scrollHeight, innerHeight } =
-        candidate.getScrollState();
+      const { scrollTop, scrollHeight, innerHeight } = candidate.getScrollState();
       const pendingDelta = pendingScrollsRef.current.get(candidate.id) || 0;
       const effectiveScrollTop = scrollTop + pendingDelta;
 
       // Epsilon to handle floating point inaccuracies.
       const canScrollUp = effectiveScrollTop > 0.001;
-      const canScrollDown =
-        effectiveScrollTop < scrollHeight - innerHeight - 0.001;
+      const canScrollDown = effectiveScrollTop < scrollHeight - innerHeight - 0.001;
 
       if (direction === 'up' && canScrollUp) {
         pendingScrollsRef.current.set(candidate.id, pendingDelta + delta);
@@ -172,27 +152,18 @@ export const ScrollProvider: React.FC<{ children: React.ReactNode }> = ({
 
       // Check if click is on the scrollbar column (x + width)
       // The findScrollableCandidates logic implies scrollbar is at x + width.
-      if (
-        mouseEvent.col === x + width &&
-        mouseEvent.row >= y &&
-        mouseEvent.row < y + height
-      ) {
+      if (mouseEvent.col === x + width && mouseEvent.row >= y && mouseEvent.row < y + height) {
         const { scrollTop, scrollHeight, innerHeight } = entry.getScrollState();
 
         if (scrollHeight <= innerHeight) continue;
 
-        const thumbHeight = Math.max(
-          1,
-          Math.floor((innerHeight / scrollHeight) * innerHeight),
-        );
+        const thumbHeight = Math.max(1, Math.floor((innerHeight / scrollHeight) * innerHeight));
         const maxScrollTop = scrollHeight - innerHeight;
         const maxThumbY = innerHeight - thumbHeight;
 
         if (maxThumbY <= 0) continue;
 
-        const currentThumbY = Math.round(
-          (scrollTop / maxScrollTop) * maxThumbY,
-        );
+        const currentThumbY = Math.round((scrollTop / maxScrollTop) * maxThumbY);
 
         const absoluteThumbTop = y + currentThumbY;
         const absoluteThumbBottom = absoluteThumbTop + thumbHeight;
@@ -201,12 +172,9 @@ export const ScrollProvider: React.FC<{ children: React.ReactNode }> = ({
         const isBottom = mouseEvent.row === y + height - 1;
 
         const hitTop = isTop ? absoluteThumbTop : absoluteThumbTop - 1;
-        const hitBottom = isBottom
-          ? absoluteThumbBottom
-          : absoluteThumbBottom + 1;
+        const hitBottom = isBottom ? absoluteThumbBottom : absoluteThumbBottom + 1;
 
-        const isThumbClick =
-          mouseEvent.row >= hitTop && mouseEvent.row < hitBottom;
+        const isThumbClick = mouseEvent.row >= hitTop && mouseEvent.row < hitBottom;
 
         let offset = 0;
         const relativeMouseY = mouseEvent.row - y;
@@ -216,14 +184,9 @@ export const ScrollProvider: React.FC<{ children: React.ReactNode }> = ({
         } else {
           // Track click - Jump to position
           // Center the thumb on the mouse click
-          const targetThumbY = Math.max(
-            0,
-            Math.min(maxThumbY, relativeMouseY - Math.floor(thumbHeight / 2)),
-          );
+          const targetThumbY = Math.max(0, Math.min(maxThumbY, relativeMouseY - Math.floor(thumbHeight / 2)));
 
-          const newScrollTop = Math.round(
-            (targetThumbY / maxThumbY) * maxScrollTop,
-          );
+          const newScrollTop = Math.round((targetThumbY / maxThumbY) * maxScrollTop);
           if (entry.scrollTo) {
             entry.scrollTo(newScrollTop);
           } else {
@@ -243,10 +206,7 @@ export const ScrollProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     }
 
-    const candidates = findScrollableCandidates(
-      mouseEvent,
-      scrollablesRef.current,
-    );
+    const candidates = findScrollableCandidates(mouseEvent, scrollablesRef.current);
 
     if (candidates.length > 0) {
       // The first candidate is the innermost one.
@@ -276,10 +236,7 @@ export const ScrollProvider: React.FC<{ children: React.ReactNode }> = ({
     const { y } = boundingBox;
     const { scrollTop, scrollHeight, innerHeight } = entry.getScrollState();
 
-    const thumbHeight = Math.max(
-      1,
-      Math.floor((innerHeight / scrollHeight) * innerHeight),
-    );
+    const thumbHeight = Math.max(1, Math.floor((innerHeight / scrollHeight) * innerHeight));
     const maxScrollTop = scrollHeight - innerHeight;
     const maxThumbY = innerHeight - thumbHeight;
 
@@ -288,14 +245,9 @@ export const ScrollProvider: React.FC<{ children: React.ReactNode }> = ({
     const relativeMouseY = mouseEvent.row - y;
     // Calculate the target thumb position based on the mouse position and the offset.
     // We clamp it to the valid range [0, maxThumbY].
-    const targetThumbY = Math.max(
-      0,
-      Math.min(maxThumbY, relativeMouseY - state.offset),
-    );
+    const targetThumbY = Math.max(0, Math.min(maxThumbY, relativeMouseY - state.offset));
 
-    const targetScrollTop = Math.round(
-      (targetThumbY / maxThumbY) * maxScrollTop,
-    );
+    const targetScrollTop = Math.round((targetThumbY / maxThumbY) * maxScrollTop);
 
     if (entry.scrollTo) {
       entry.scrollTo(targetScrollTop, 0);
@@ -332,27 +284,17 @@ export const ScrollProvider: React.FC<{ children: React.ReactNode }> = ({
       }
       return false;
     },
-    { isActive: true },
+    { isActive: true }
   );
 
-  const contextValue = useMemo(
-    () => ({ register, unregister }),
-    [register, unregister],
-  );
+  const contextValue = useMemo(() => ({ register, unregister }), [register, unregister]);
 
-  return (
-    <ScrollContext.Provider value={contextValue}>
-      {children}
-    </ScrollContext.Provider>
-  );
+  return <ScrollContext.Provider value={contextValue}>{children}</ScrollContext.Provider>;
 };
 
 let nextId = 0;
 
-export const useScrollable = (
-  entry: Omit<ScrollableEntry, 'id'>,
-  isActive: boolean,
-) => {
+export const useScrollable = (entry: Omit<ScrollableEntry, 'id'>, isActive: boolean) => {
   const context = useContext(ScrollContext);
   if (!context) {
     throw new Error('useScrollable must be used within a ScrollProvider');

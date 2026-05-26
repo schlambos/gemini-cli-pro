@@ -62,10 +62,7 @@ export function normalizeServerId(serverId: string): string {
  * Check if a server ID is in a settings list (with backward compatibility).
  * Handles case-insensitive matching and plain name fallback for ext: servers.
  */
-export function isInSettingsList(
-  serverId: string,
-  list: string[],
-): { found: boolean; deprecationWarning?: string } {
+export function isInSettingsList(serverId: string, list: string[]): { found: boolean; deprecationWarning?: string } {
   const normalizedId = normalizeServerId(serverId);
   const normalizedList = list.map(normalizeServerId);
 
@@ -104,7 +101,7 @@ export async function canLoadServer(
     allowedList?: string[];
     excludedList?: string[];
     enablement?: EnablementCallbacks;
-  },
+  }
 ): Promise<ServerLoadResult> {
   const normalizedId = normalizeServerId(serverId);
 
@@ -112,18 +109,14 @@ export async function canLoadServer(
   if (!config.adminMcpEnabled) {
     return {
       allowed: false,
-      reason:
-        'MCP servers are disabled by administrator. Check admin settings or contact your admin.',
+      reason: 'MCP servers are disabled by administrator. Check admin settings or contact your admin.',
       blockType: 'admin',
     };
   }
 
   // 2. Allowlist check
   if (config.allowedList && config.allowedList.length > 0) {
-    const { found, deprecationWarning } = isInSettingsList(
-      normalizedId,
-      config.allowedList,
-    );
+    const { found, deprecationWarning } = isInSettingsList(normalizedId, config.allowedList);
     if (deprecationWarning) {
       coreEvents.emitFeedback('warning', deprecationWarning);
     }
@@ -138,10 +131,7 @@ export async function canLoadServer(
 
   // 3. Excludelist check
   if (config.excludedList) {
-    const { found, deprecationWarning } = isInSettingsList(
-      normalizedId,
-      config.excludedList,
-    );
+    const { found, deprecationWarning } = isInSettingsList(normalizedId, config.excludedList);
     if (deprecationWarning) {
       coreEvents.emitFeedback('warning', deprecationWarning);
     }
@@ -164,10 +154,7 @@ export async function canLoadServer(
   }
 
   // 5. File-based enablement check
-  if (
-    config.enablement &&
-    !(await config.enablement.isFileEnabled(normalizedId))
-  ) {
+  if (config.enablement && !(await config.enablement.isFileEnabled(normalizedId))) {
     return {
       allowed: false,
       reason: `Server '${serverId}' is disabled. Run 'gemini mcp enable ${serverId}' to enable.`,
@@ -302,13 +289,10 @@ export class McpServerEnablementManager {
   /**
    * Get all display states (for UI listing).
    */
-  async getAllDisplayStates(
-    serverIds: string[],
-  ): Promise<Record<string, McpServerDisplayState>> {
+  async getAllDisplayStates(serverIds: string[]): Promise<Record<string, McpServerDisplayState>> {
     const result: Record<string, McpServerDisplayState> = {};
     for (const serverId of serverIds) {
-      result[normalizeServerId(serverId)] =
-        await this.getDisplayState(serverId);
+      result[normalizeServerId(serverId)] = await this.getDisplayState(serverId);
     }
     return result;
   }
@@ -361,18 +345,10 @@ export class McpServerEnablementManager {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
       return JSON.parse(content) as McpServerEnablementConfig;
     } catch (error) {
-      if (
-        error instanceof Error &&
-        'code' in error &&
-        error.code === 'ENOENT'
-      ) {
+      if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
         return {};
       }
-      coreEvents.emitFeedback(
-        'error',
-        'Failed to read MCP server enablement config.',
-        error,
-      );
+      coreEvents.emitFeedback('error', 'Failed to read MCP server enablement config.', error);
       return {};
     }
   }

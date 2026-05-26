@@ -12,10 +12,7 @@ import {
   type MultiFolderTrustDialogProps,
 } from './MultiFolderTrustDialog.js';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import {
-  TrustLevel,
-  type LoadedTrustedFolders,
-} from '../../config/trustedFolders.js';
+import { TrustLevel, type LoadedTrustedFolders } from '../../config/trustedFolders.js';
 import * as trustedFolders from '../../config/trustedFolders.js';
 import * as directoryUtils from '../utils/directoryUtils.js';
 import type { Config } from '@google/gemini-cli-core';
@@ -62,24 +59,16 @@ const defaultProps: MultiFolderTrustDialogProps = {
 describe('MultiFolderTrustDialog', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(trustedFolders.loadTrustedFolders).mockReturnValue(
-      mockTrustedFolders,
-    );
+    vi.mocked(trustedFolders.loadTrustedFolders).mockReturnValue(mockTrustedFolders);
     vi.mocked(directoryUtils.expandHomeDir).mockImplementation((p) => p);
-    mockedRadioButtonSelect.mockImplementation((props) => (
-      <div data-testid="RadioButtonSelect" {...props} />
-    ));
+    mockedRadioButtonSelect.mockImplementation((props) => <div data-testid='RadioButtonSelect' {...props} />);
   });
 
   it('renders the dialog with the list of folders', () => {
     const folders = ['/path/to/folder1', '/path/to/folder2'];
-    const { lastFrame } = render(
-      <MultiFolderTrustDialog {...defaultProps} folders={folders} />,
-    );
+    const { lastFrame } = render(<MultiFolderTrustDialog {...defaultProps} folders={folders} />);
 
-    expect(lastFrame()).toContain(
-      'Do you trust the following folders being added to this workspace?',
-    );
+    expect(lastFrame()).toContain('Do you trust the following folders being added to this workspace?');
     expect(lastFrame()).toContain('- /path/to/folder1');
     expect(lastFrame()).toContain('- /path/to/folder2');
   });
@@ -105,9 +94,7 @@ describe('MultiFolderTrustDialog', () => {
       mockConfig,
       mockAddItem,
       [],
-      [
-        'Operation cancelled. The following directories were not added:\n- /path/to/folder1',
-      ],
+      ['Operation cancelled. The following directories were not added:\n- /path/to/folder1']
     );
     expect(mockOnComplete).toHaveBeenCalled();
   });
@@ -125,9 +112,7 @@ describe('MultiFolderTrustDialog', () => {
       mockConfig,
       mockAddItem,
       [],
-      [
-        'The following directories were not added because they were not trusted:\n- /path/to/folder1',
-      ],
+      ['The following directories were not added because they were not trusted:\n- /path/to/folder1']
     );
     expect(mockOnComplete).toHaveBeenCalled();
     expect(mockAddDirectory).not.toHaveBeenCalled();
@@ -136,31 +121,21 @@ describe('MultiFolderTrustDialog', () => {
 
   it('adds directories to workspace context when "Yes" is chosen', async () => {
     const folders = ['/path/to/folder1', '/path/to/folder2'];
-    render(
-      <MultiFolderTrustDialog
-        {...defaultProps}
-        folders={folders}
-        trustedDirs={['/already/trusted']}
-      />,
-    );
+    render(<MultiFolderTrustDialog {...defaultProps} folders={folders} trustedDirs={['/already/trusted']} />);
 
     const { onSelect } = mockedRadioButtonSelect.mock.calls[0][0];
     await act(async () => {
       onSelect(MultiFolderTrustChoice.YES);
     });
 
-    expect(mockAddDirectory).toHaveBeenCalledWith(
-      path.resolve('/path/to/folder1'),
-    );
-    expect(mockAddDirectory).toHaveBeenCalledWith(
-      path.resolve('/path/to/folder2'),
-    );
+    expect(mockAddDirectory).toHaveBeenCalledWith(path.resolve('/path/to/folder1'));
+    expect(mockAddDirectory).toHaveBeenCalledWith(path.resolve('/path/to/folder2'));
     expect(mockSetValue).not.toHaveBeenCalled();
     expect(mockFinishAddingDirectories).toHaveBeenCalledWith(
       mockConfig,
       mockAddItem,
       ['/already/trusted', '/path/to/folder1', '/path/to/folder2'],
-      [],
+      []
     );
     expect(mockOnComplete).toHaveBeenCalled();
   });
@@ -174,27 +149,15 @@ describe('MultiFolderTrustDialog', () => {
       onSelect(MultiFolderTrustChoice.YES_AND_REMEMBER);
     });
 
-    expect(mockAddDirectory).toHaveBeenCalledWith(
-      path.resolve('/path/to/folder1'),
-    );
-    expect(mockSetValue).toHaveBeenCalledWith(
-      path.resolve('/path/to/folder1'),
-      TrustLevel.TRUST_FOLDER,
-    );
-    expect(mockFinishAddingDirectories).toHaveBeenCalledWith(
-      mockConfig,
-      mockAddItem,
-      ['/path/to/folder1'],
-      [],
-    );
+    expect(mockAddDirectory).toHaveBeenCalledWith(path.resolve('/path/to/folder1'));
+    expect(mockSetValue).toHaveBeenCalledWith(path.resolve('/path/to/folder1'), TrustLevel.TRUST_FOLDER);
+    expect(mockFinishAddingDirectories).toHaveBeenCalledWith(mockConfig, mockAddItem, ['/path/to/folder1'], []);
     expect(mockOnComplete).toHaveBeenCalled();
   });
 
   it('shows submitting message after a choice is made', async () => {
     const folders = ['/path/to/folder1'];
-    const { lastFrame } = render(
-      <MultiFolderTrustDialog {...defaultProps} folders={folders} />,
-    );
+    const { lastFrame } = render(<MultiFolderTrustDialog {...defaultProps} folders={folders} />);
 
     const { onSelect } = mockedRadioButtonSelect.mock.calls[0][0];
 
@@ -207,13 +170,7 @@ describe('MultiFolderTrustDialog', () => {
 
   it('shows an error message and completes when config is missing', async () => {
     const folders = ['/path/to/folder1'];
-    render(
-      <MultiFolderTrustDialog
-        {...defaultProps}
-        folders={folders}
-        config={null as unknown as Config}
-      />,
-    );
+    render(<MultiFolderTrustDialog {...defaultProps} folders={folders} config={null as unknown as Config} />);
 
     const { onSelect } = mockedRadioButtonSelect.mock.calls[0][0];
     await act(async () => {
@@ -237,30 +194,20 @@ describe('MultiFolderTrustDialog', () => {
     });
 
     const folders = ['/path/to/good', '/path/to/error'];
-    render(
-      <MultiFolderTrustDialog
-        {...defaultProps}
-        folders={folders}
-        errors={['initial error']}
-      />,
-    );
+    render(<MultiFolderTrustDialog {...defaultProps} folders={folders} errors={['initial error']} />);
 
     const { onSelect } = mockedRadioButtonSelect.mock.calls[0][0];
     await act(async () => {
       onSelect(MultiFolderTrustChoice.YES);
     });
 
-    expect(mockAddDirectory).toHaveBeenCalledWith(
-      path.resolve('/path/to/good'),
-    );
-    expect(mockAddDirectory).not.toHaveBeenCalledWith(
-      path.resolve('/path/to/error'),
-    );
+    expect(mockAddDirectory).toHaveBeenCalledWith(path.resolve('/path/to/good'));
+    expect(mockAddDirectory).not.toHaveBeenCalledWith(path.resolve('/path/to/error'));
     expect(mockFinishAddingDirectories).toHaveBeenCalledWith(
       mockConfig,
       mockAddItem,
       ['/path/to/good'],
-      ['initial error', "Error adding '/path/to/error': Test error"],
+      ['initial error', "Error adding '/path/to/error': Test error"]
     );
     expect(mockOnComplete).toHaveBeenCalled();
   });

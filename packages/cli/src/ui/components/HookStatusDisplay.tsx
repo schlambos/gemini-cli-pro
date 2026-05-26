@@ -13,9 +13,7 @@ interface HookStatusDisplayProps {
   activeHooks: ActiveHook[];
 }
 
-export const HookStatusDisplay: React.FC<HookStatusDisplayProps> = ({
-  activeHooks,
-}) => {
+export const HookStatusDisplay: React.FC<HookStatusDisplayProps> = ({ activeHooks }) => {
   if (activeHooks.length === 0) {
     return null;
   }
@@ -32,7 +30,7 @@ export const HookStatusDisplay: React.FC<HookStatusDisplayProps> = ({
   const text = `${label}: ${displayNames.join(', ')}`;
 
   return (
-    <Text color={theme.status.warning} wrap="truncate">
+    <Text color={theme.status.warning} wrap='truncate'>
       {text}
     </Text>
   );

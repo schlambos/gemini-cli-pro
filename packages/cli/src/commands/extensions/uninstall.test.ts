@@ -4,15 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  vi,
-  describe,
-  it,
-  expect,
-  beforeEach,
-  afterEach,
-  type Mock,
-} from 'vitest';
+import { vi, describe, it, expect, beforeEach, afterEach, type Mock } from 'vitest';
 import { format } from 'node:util';
 import { type Argv } from 'yargs';
 import { handleUninstall, uninstallCommand } from './uninstall.js';
@@ -31,8 +23,7 @@ const mockLoadExtensions = vi.hoisted(() => vi.fn());
 
 // Mock dependencies with hoisted functions
 vi.mock('../../config/extension-manager.js', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('../../config/extension-manager.js')>();
+  const actual = await importOriginal<typeof import('../../config/extension-manager.js')>();
   return {
     ...actual,
     ExtensionManager: vi.fn().mockImplementation(() => ({
@@ -56,8 +47,7 @@ const debugLogger = vi.hoisted(() => ({
 }));
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     coreEvents: {
@@ -106,17 +96,11 @@ describe('extensions uninstall command', () => {
       expect(mockExtensionManager).toHaveBeenCalledWith(
         expect.objectContaining({
           workspaceDir: '/test/dir',
-        }),
+        })
       );
       expect(mockLoadExtensions).toHaveBeenCalled();
-      expect(mockUninstallExtension).toHaveBeenCalledWith(
-        'my-extension',
-        false,
-      );
-      expect(emitConsoleLog).toHaveBeenCalledWith(
-        'log',
-        'Extension "my-extension" successfully uninstalled.',
-      );
+      expect(mockUninstallExtension).toHaveBeenCalledWith('my-extension', false);
+      expect(emitConsoleLog).toHaveBeenCalledWith('log', 'Extension "my-extension" successfully uninstalled.');
       mockCwd.mockRestore();
     });
 
@@ -130,18 +114,9 @@ describe('extensions uninstall command', () => {
       expect(mockUninstallExtension).toHaveBeenCalledWith('ext1', false);
       expect(mockUninstallExtension).toHaveBeenCalledWith('ext2', false);
       expect(mockUninstallExtension).toHaveBeenCalledWith('ext3', false);
-      expect(emitConsoleLog).toHaveBeenCalledWith(
-        'log',
-        'Extension "ext1" successfully uninstalled.',
-      );
-      expect(emitConsoleLog).toHaveBeenCalledWith(
-        'log',
-        'Extension "ext2" successfully uninstalled.',
-      );
-      expect(emitConsoleLog).toHaveBeenCalledWith(
-        'log',
-        'Extension "ext3" successfully uninstalled.',
-      );
+      expect(emitConsoleLog).toHaveBeenCalledWith('log', 'Extension "ext1" successfully uninstalled.');
+      expect(emitConsoleLog).toHaveBeenCalledWith('log', 'Extension "ext2" successfully uninstalled.');
+      expect(emitConsoleLog).toHaveBeenCalledWith('log', 'Extension "ext3" successfully uninstalled.');
       mockCwd.mockRestore();
     });
 
@@ -150,9 +125,7 @@ describe('extensions uninstall command', () => {
       const mockCwd = vi.spyOn(process, 'cwd').mockReturnValue('/test/dir');
       const mockProcessExit = vi
         .spyOn(process, 'exit')
-        .mockImplementation((() => {}) as (
-          code?: string | number | null | undefined,
-        ) => never);
+        .mockImplementation((() => {}) as (code?: string | number | null | undefined) => never);
 
       const error = new Error('Extension not found');
       // Chain sequential mock behaviors - this works with hoisted mocks
@@ -165,18 +138,9 @@ describe('extensions uninstall command', () => {
       await handleUninstall({ names: ['ext1', 'ext2', 'ext3'] });
 
       expect(mockUninstallExtension).toHaveBeenCalledTimes(3);
-      expect(emitConsoleLog).toHaveBeenCalledWith(
-        'log',
-        'Extension "ext1" successfully uninstalled.',
-      );
-      expect(emitConsoleLog).toHaveBeenCalledWith(
-        'error',
-        'Failed to uninstall "ext2": Extension not found',
-      );
-      expect(emitConsoleLog).toHaveBeenCalledWith(
-        'log',
-        'Extension "ext3" successfully uninstalled.',
-      );
+      expect(emitConsoleLog).toHaveBeenCalledWith('log', 'Extension "ext1" successfully uninstalled.');
+      expect(emitConsoleLog).toHaveBeenCalledWith('error', 'Failed to uninstall "ext2": Extension not found');
+      expect(emitConsoleLog).toHaveBeenCalledWith('log', 'Extension "ext3" successfully uninstalled.');
       expect(mockProcessExit).toHaveBeenCalledWith(1);
       mockProcessExit.mockRestore();
       mockCwd.mockRestore();
@@ -187,23 +151,15 @@ describe('extensions uninstall command', () => {
       const mockCwd = vi.spyOn(process, 'cwd').mockReturnValue('/test/dir');
       const mockProcessExit = vi
         .spyOn(process, 'exit')
-        .mockImplementation((() => {}) as (
-          code?: string | number | null | undefined,
-        ) => never);
+        .mockImplementation((() => {}) as (code?: string | number | null | undefined) => never);
       const error = new Error('Extension not found');
       mockUninstallExtension.mockRejectedValue(error);
       mockGetErrorMessage.mockReturnValue('Extension not found');
 
       await handleUninstall({ names: ['ext1', 'ext2'] });
 
-      expect(emitConsoleLog).toHaveBeenCalledWith(
-        'error',
-        'Failed to uninstall "ext1": Extension not found',
-      );
-      expect(emitConsoleLog).toHaveBeenCalledWith(
-        'error',
-        'Failed to uninstall "ext2": Extension not found',
-      );
+      expect(emitConsoleLog).toHaveBeenCalledWith('error', 'Failed to uninstall "ext1": Extension not found');
+      expect(emitConsoleLog).toHaveBeenCalledWith('error', 'Failed to uninstall "ext2": Extension not found');
       expect(mockProcessExit).toHaveBeenCalledWith(1);
       mockProcessExit.mockRestore();
       mockCwd.mockRestore();
@@ -213,19 +169,14 @@ describe('extensions uninstall command', () => {
       const mockCwd = vi.spyOn(process, 'cwd').mockReturnValue('/test/dir');
       const mockProcessExit = vi
         .spyOn(process, 'exit')
-        .mockImplementation((() => {}) as (
-          code?: string | number | null | undefined,
-        ) => never);
+        .mockImplementation((() => {}) as (code?: string | number | null | undefined) => never);
       const error = new Error('Initialization failed');
       mockLoadExtensions.mockRejectedValue(error);
       mockGetErrorMessage.mockReturnValue('Initialization failed message');
 
       await handleUninstall({ names: ['my-extension'] });
 
-      expect(emitConsoleLog).toHaveBeenCalledWith(
-        'error',
-        'Initialization failed message',
-      );
+      expect(emitConsoleLog).toHaveBeenCalledWith('error', 'Initialization failed message');
       expect(mockProcessExit).toHaveBeenCalledWith(1);
       mockProcessExit.mockRestore();
       mockCwd.mockRestore();
@@ -255,12 +206,9 @@ describe('extensions uninstall command', () => {
       });
 
       it('should configure positional argument', () => {
-        (command.builder as (yargs: Argv) => Argv)(
-          yargsMock as unknown as Argv,
-        );
+        (command.builder as (yargs: Argv) => Argv)(yargsMock as unknown as Argv);
         expect(yargsMock.positional).toHaveBeenCalledWith('names', {
-          describe:
-            'The name(s) or source path(s) of the extension(s) to uninstall.',
+          describe: 'The name(s) or source path(s) of the extension(s) to uninstall.',
           type: 'string',
           array: true,
         });
@@ -268,12 +216,10 @@ describe('extensions uninstall command', () => {
       });
 
       it('check function should throw for missing names', () => {
-        (command.builder as (yargs: Argv) => Argv)(
-          yargsMock as unknown as Argv,
-        );
+        (command.builder as (yargs: Argv) => Argv)(yargsMock as unknown as Argv);
         const checkCallback = yargsMock.check.mock.calls[0][0];
         expect(() => checkCallback({ names: [] })).toThrow(
-          'Please include at least one extension name to uninstall as a positional argument.',
+          'Please include at least one extension name to uninstall as a positional argument.'
         );
       });
     });
@@ -287,14 +233,9 @@ describe('extensions uninstall command', () => {
         [key: string]: unknown;
       }
       const argv: TestArgv = { names: ['my-extension'], _: [], $0: '' };
-      await (command.handler as unknown as (args: TestArgv) => Promise<void>)(
-        argv,
-      );
+      await (command.handler as unknown as (args: TestArgv) => Promise<void>)(argv);
 
-      expect(mockUninstallExtension).toHaveBeenCalledWith(
-        'my-extension',
-        false,
-      );
+      expect(mockUninstallExtension).toHaveBeenCalledWith('my-extension', false);
       mockCwd.mockRestore();
     });
   });

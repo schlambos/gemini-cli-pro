@@ -41,21 +41,12 @@ describe('skills link command', () => {
 
   it('should call linkSkill with correct arguments', async () => {
     const sourcePath = '/source/path';
-    mockLinkSkill.mockResolvedValue([
-      { name: 'test-skill', location: '/dest/path' },
-    ]);
+    mockLinkSkill.mockResolvedValue([{ name: 'test-skill', location: '/dest/path' }]);
 
     await handleLink({ path: sourcePath, scope: 'user' });
 
-    expect(mockLinkSkill).toHaveBeenCalledWith(
-      sourcePath,
-      'user',
-      expect.any(Function),
-      expect.any(Function),
-    );
-    expect(debugLogger.log).toHaveBeenCalledWith(
-      expect.stringContaining('Successfully linked skills'),
-    );
+    expect(mockLinkSkill).toHaveBeenCalledWith(sourcePath, 'user', expect.any(Function), expect.any(Function));
+    expect(debugLogger.log).toHaveBeenCalledWith(expect.stringContaining('Successfully linked skills'));
   });
 
   it('should handle linkSkill failure', async () => {

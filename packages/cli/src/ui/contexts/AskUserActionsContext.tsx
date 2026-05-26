@@ -24,15 +24,12 @@ interface AskUserActionsContextValue {
   cancel: () => void;
 }
 
-export const AskUserActionsContext =
-  createContext<AskUserActionsContextValue | null>(null);
+export const AskUserActionsContext = createContext<AskUserActionsContextValue | null>(null);
 
 export const useAskUserActions = () => {
   const context = useContext(AskUserActionsContext);
   if (!context) {
-    throw new Error(
-      'useAskUserActions must be used within an AskUserActionsProvider',
-    );
+    throw new Error('useAskUserActions must be used within an AskUserActionsProvider');
   }
   return context;
 };
@@ -65,12 +62,8 @@ export const AskUserActionsProvider: React.FC<AskUserActionsProviderProps> = ({
       submit: onSubmit,
       cancel: onCancel,
     }),
-    [request, onSubmit, onCancel],
+    [request, onSubmit, onCancel]
   );
 
-  return (
-    <AskUserActionsContext.Provider value={value}>
-      {children}
-    </AskUserActionsContext.Provider>
-  );
+  return <AskUserActionsContext.Provider value={value}>{children}</AskUserActionsContext.Provider>;
 };

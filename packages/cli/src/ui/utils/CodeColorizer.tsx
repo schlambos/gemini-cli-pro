@@ -7,19 +7,10 @@
 import React from 'react';
 import { Text, Box } from 'ink';
 import { common, createLowlight } from 'lowlight';
-import type {
-  Root,
-  Element,
-  Text as HastText,
-  ElementContent,
-  RootContent,
-} from 'hast';
+import type { Root, Element, Text as HastText, ElementContent, RootContent } from 'hast';
 import { themeManager } from '../themes/theme-manager.js';
 import type { Theme } from '../themes/theme.js';
-import {
-  MaxSizedBox,
-  MINIMUM_MAX_HEIGHT,
-} from '../components/shared/MaxSizedBox.js';
+import { MaxSizedBox, MINIMUM_MAX_HEIGHT } from '../components/shared/MaxSizedBox.js';
 import type { LoadedSettings } from '../../config/settings.js';
 import { debugLogger } from '@google/gemini-cli-core';
 import { isAlternateBufferEnabled } from '../hooks/useAlternateBuffer.js';
@@ -30,7 +21,7 @@ const lowlight = createLowlight(common);
 function renderHastNode(
   node: Root | Element | HastText | RootContent,
   theme: Theme,
-  inheritedColor: string | undefined,
+  inheritedColor: string | undefined
 ): React.ReactNode {
   if (node.type === 'text') {
     // Use the color passed down from parent element, or the theme's default.
@@ -60,13 +51,9 @@ function renderHastNode(
 
     // Recursively render children, passing the determined color down
     // Ensure child type matches expected HAST structure (ElementContent is common)
-    const children = node.children?.map(
-      (child: ElementContent, index: number) => (
-        <React.Fragment key={index}>
-          {renderHastNode(child, theme, colorToPassDown)}
-        </React.Fragment>
-      ),
-    );
+    const children = node.children?.map((child: ElementContent, index: number) => (
+      <React.Fragment key={index}>{renderHastNode(child, theme, colorToPassDown)}</React.Fragment>
+    ));
 
     // Element nodes now only group children; color is applied by Text nodes.
     // Use a React Fragment to avoid adding unnecessary elements.
@@ -83,9 +70,7 @@ function renderHastNode(
     // Pass down the initial inheritedColor (likely undefined from the top call)
     // Ensure child type matches expected HAST structure (RootContent is common)
     return node.children?.map((child: RootContent, index: number) => (
-      <React.Fragment key={index}>
-        {renderHastNode(child, theme, inheritedColor)}
-      </React.Fragment>
+      <React.Fragment key={index}>{renderHastNode(child, theme, inheritedColor)}</React.Fragment>
     ));
   }
 
@@ -93,16 +78,10 @@ function renderHastNode(
   return null;
 }
 
-function highlightAndRenderLine(
-  line: string,
-  language: string | null,
-  theme: Theme,
-): React.ReactNode {
+function highlightAndRenderLine(line: string, language: string | null, theme: Theme): React.ReactNode {
   try {
     const getHighlightedLine = () =>
-      !language || !lowlight.registered(language)
-        ? lowlight.highlightAuto(line)
-        : lowlight.highlight(language, line);
+      !language || !lowlight.registered(language) ? lowlight.highlightAuto(line) : lowlight.highlight(language, line);
 
     const renderedNode = renderHastNode(getHighlightedLine(), theme, undefined);
 
@@ -112,11 +91,7 @@ function highlightAndRenderLine(
   }
 }
 
-export function colorizeLine(
-  line: string,
-  language: string | null,
-  theme?: Theme,
-): React.ReactNode {
+export function colorizeLine(line: string, language: string | null, theme?: Theme): React.ReactNode {
   const activeTheme = theme || themeManager.getActiveTheme();
   return highlightAndRenderLine(line, language, activeTheme);
 }
@@ -148,9 +123,7 @@ export function colorizeCode({
 }: ColorizeCodeOptions): React.ReactNode {
   const codeToHighlight = code.replace(/\n$/, '');
   const activeTheme = theme || themeManager.getActiveTheme();
-  const showLineNumbers = hideLineNumbers
-    ? false
-    : settings.merged.ui.showLineNumbers;
+  const showLineNumbers = hideLineNumbers ? false : settings.merged.ui.showLineNumbers;
 
   const useMaxSizedBox = !isAlternateBufferEnabled(settings);
   try {
@@ -172,11 +145,7 @@ export function colorizeCode({
     }
 
     const renderedLines = lines.map((line, index) => {
-      const contentToRender = highlightAndRenderLine(
-        line,
-        language,
-        activeTheme,
-      );
+      const contentToRender = highlightAndRenderLine(line, language, activeTheme);
 
       return (
         <Box key={index} minHeight={1}>
@@ -185,15 +154,13 @@ export function colorizeCode({
               minWidth={padWidth + 1}
               flexShrink={0}
               paddingRight={1}
-              alignItems="flex-start"
-              justifyContent="flex-end"
+              alignItems='flex-start'
+              justifyContent='flex-end'
             >
-              <Text color={activeTheme.colors.Gray}>
-                {`${index + 1 + hiddenLinesCount}`}
-              </Text>
+              <Text color={activeTheme.colors.Gray}>{`${index + 1 + hiddenLinesCount}`}</Text>
             </Box>
           )}
-          <Text color={activeTheme.defaultColor} wrap="wrap">
+          <Text color={activeTheme.defaultColor} wrap='wrap'>
             {contentToRender}
           </Text>
         </Box>
@@ -206,7 +173,7 @@ export function colorizeCode({
           maxHeight={availableHeight}
           maxWidth={maxWidth}
           additionalHiddenLinesCount={hiddenLinesCount}
-          overflowDirection="top"
+          overflowDirection='top'
         >
           {renderedLines}
         </MaxSizedBox>
@@ -214,15 +181,12 @@ export function colorizeCode({
     }
 
     return (
-      <Box flexDirection="column" width={maxWidth}>
+      <Box flexDirection='column' width={maxWidth}>
         {renderedLines}
       </Box>
     );
   } catch (error) {
-    debugLogger.warn(
-      `[colorizeCode] Error highlighting code for language "${language}":`,
-      error,
-    );
+    debugLogger.warn(`[colorizeCode] Error highlighting code for language "${language}":`, error);
     // Fall back to plain text with default color on error
     // Also display line numbers in fallback
     const lines = codeToHighlight.split('\n');
@@ -234,8 +198,8 @@ export function colorizeCode({
             minWidth={padWidth + 1}
             flexShrink={0}
             paddingRight={1}
-            alignItems="flex-start"
-            justifyContent="flex-end"
+            alignItems='flex-start'
+            justifyContent='flex-end'
           >
             <Text color={activeTheme.defaultColor}>{`${index + 1}`}</Text>
           </Box>
@@ -246,18 +210,14 @@ export function colorizeCode({
 
     if (useMaxSizedBox) {
       return (
-        <MaxSizedBox
-          maxHeight={availableHeight}
-          maxWidth={maxWidth}
-          overflowDirection="top"
-        >
+        <MaxSizedBox maxHeight={availableHeight} maxWidth={maxWidth} overflowDirection='top'>
           {fallbackLines}
         </MaxSizedBox>
       );
     }
 
     return (
-      <Box flexDirection="column" width={maxWidth}>
+      <Box flexDirection='column' width={maxWidth}>
         {fallbackLines}
       </Box>
     );

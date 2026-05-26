@@ -14,11 +14,11 @@ import { escapeAnsiCtrlCodes } from '../../ui/utils/textUtils.js';
 import type { ExtensionConfig } from '../extension.js';
 
 export const INSTALL_WARNING_MESSAGE = chalk.yellow(
-  'The extension you are about to install may have been created by a third-party developer and sourced from a public repository. Google does not vet, endorse, or guarantee the functionality or security of extensions. Please carefully inspect any extension and its source code before installing to understand the permissions it requires and the actions it may perform.',
+  'The extension you are about to install may have been created by a third-party developer and sourced from a public repository. Google does not vet, endorse, or guarantee the functionality or security of extensions. Please carefully inspect any extension and its source code before installing to understand the permissions it requires and the actions it may perform.'
 );
 
 export const SKILLS_WARNING_MESSAGE = chalk.yellow(
-  "Agent skills inject specialized instructions and domain-specific knowledge into the agent's system prompt. This can change how the agent interprets your requests and interacts with your environment. Review the skill definitions at the location(s) provided below to ensure they meet your security standards.",
+  "Agent skills inject specialized instructions and domain-specific knowledge into the agent's system prompt. This can change how the agent interprets your requests and interacts with your environment. Review the skill definitions at the location(s) provided below to ensure they meet your security standards."
 );
 
 /**
@@ -28,14 +28,12 @@ export async function skillsConsentString(
   skills: SkillDefinition[],
   source: string,
   targetDir?: string,
-  isLink = false,
+  isLink = false
 ): Promise<string> {
   const action = isLink ? 'Linking' : 'Installing';
   const output: string[] = [];
   output.push(`${action} agent skill(s) from "${source}".`);
-  output.push(
-    `\nThe following agent skill(s) will be ${action.toLowerCase()}:\n`,
-  );
+  output.push(`\nThe following agent skill(s) will be ${action.toLowerCase()}:\n`);
   output.push(...(await renderSkillsList(skills)));
 
   if (targetDir) {
@@ -56,13 +54,9 @@ export async function skillsConsentString(
  * @param consentDescription The description of the thing they will be consenting to.
  * @returns boolean, whether they consented or not.
  */
-export async function requestConsentNonInteractive(
-  consentDescription: string,
-): Promise<boolean> {
+export async function requestConsentNonInteractive(consentDescription: string): Promise<boolean> {
   debugLogger.log(consentDescription);
-  const result = await promptForConsentNonInteractive(
-    'Do you want to continue? [Y/n]: ',
-  );
+  const result = await promptForConsentNonInteractive('Do you want to continue? [Y/n]: ');
   return result;
 }
 
@@ -77,11 +71,11 @@ export async function requestConsentNonInteractive(
  */
 export async function requestConsentInteractive(
   consentDescription: string,
-  addExtensionUpdateConfirmationRequest: (value: ConfirmationRequest) => void,
+  addExtensionUpdateConfirmationRequest: (value: ConfirmationRequest) => void
 ): Promise<boolean> {
   return promptForConsentInteractive(
     consentDescription + '\n\nDo you want to continue?',
-    addExtensionUpdateConfirmationRequest,
+    addExtensionUpdateConfirmationRequest
   );
 }
 
@@ -93,9 +87,7 @@ export async function requestConsentInteractive(
  * @param prompt A yes/no prompt to ask the user
  * @returns Whether or not the user answers 'y' (yes). Defaults to 'yes' on enter.
  */
-async function promptForConsentNonInteractive(
-  prompt: string,
-): Promise<boolean> {
+async function promptForConsentNonInteractive(prompt: string): Promise<boolean> {
   const readline = await import('node:readline');
   const rl = readline.createInterface({
     input: process.stdin,
@@ -121,7 +113,7 @@ async function promptForConsentNonInteractive(
  */
 async function promptForConsentInteractive(
   prompt: string,
-  addExtensionUpdateConfirmationRequest: (value: ConfirmationRequest) => void,
+  addExtensionUpdateConfirmationRequest: (value: ConfirmationRequest) => void
 ): Promise<boolean> {
   return new Promise<boolean>((resolve) => {
     addExtensionUpdateConfirmationRequest({
@@ -140,7 +132,7 @@ async function promptForConsentInteractive(
 async function extensionConsentString(
   extensionConfig: ExtensionConfig,
   hasHooks: boolean,
-  skills: SkillDefinition[] = [],
+  skills: SkillDefinition[] = []
 ): Promise<string> {
   const sanitizedConfig = escapeAnsiCtrlCodes(extensionConfig);
   const output: string[] = [];
@@ -152,25 +144,18 @@ async function extensionConsentString(
     for (const [key, mcpServer] of mcpServerEntries) {
       const isLocal = !!mcpServer.command;
       const source =
-        mcpServer.httpUrl ??
-        `${mcpServer.command || ''}${mcpServer.args ? ' ' + mcpServer.args.join(' ') : ''}`;
+        mcpServer.httpUrl ?? `${mcpServer.command || ''}${mcpServer.args ? ' ' + mcpServer.args.join(' ') : ''}`;
       output.push(`  * ${key} (${isLocal ? 'local' : 'remote'}): ${source}`);
     }
   }
   if (sanitizedConfig.contextFileName) {
-    output.push(
-      `This extension will append info to your gemini.md context using ${sanitizedConfig.contextFileName}`,
-    );
+    output.push(`This extension will append info to your gemini.md context using ${sanitizedConfig.contextFileName}`);
   }
   if (sanitizedConfig.excludeTools) {
-    output.push(
-      `This extension will exclude the following core tools: ${sanitizedConfig.excludeTools}`,
-    );
+    output.push(`This extension will exclude the following core tools: ${sanitizedConfig.excludeTools}`);
   }
   if (hasHooks) {
-    output.push(
-      '⚠️  This extension contains Hooks which can automatically execute commands.',
-    );
+    output.push('⚠️  This extension contains Hooks which can automatically execute commands.');
   }
   if (skills.length > 0) {
     output.push(`\n${chalk.bold('Agent Skills:')}`);
@@ -223,18 +208,14 @@ export async function maybeRequestConsentOrFail(
   previousExtensionConfig?: ExtensionConfig,
   previousHasHooks?: boolean,
   skills: SkillDefinition[] = [],
-  previousSkills: SkillDefinition[] = [],
+  previousSkills: SkillDefinition[] = []
 ) {
-  const extensionConsent = await extensionConsentString(
-    extensionConfig,
-    hasHooks,
-    skills,
-  );
+  const extensionConsent = await extensionConsentString(extensionConfig, hasHooks, skills);
   if (previousExtensionConfig) {
     const previousExtensionConsent = await extensionConsentString(
       previousExtensionConfig,
       previousHasHooks ?? false,
-      previousSkills,
+      previousSkills
     );
     if (previousExtensionConsent === extensionConsent) {
       return;

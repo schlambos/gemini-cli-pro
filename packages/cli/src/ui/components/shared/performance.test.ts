@@ -19,14 +19,14 @@ describe('text-buffer performance', () => {
     const { result } = renderHook(() =>
       useTextBuffer({
         viewport,
-      }),
+      })
     );
 
     const lines = 5000;
     const largeText = Array.from(
       { length: lines },
       (_, i) =>
-        `Line ${i}: some sample text with many @path/to/image${i}.png and maybe some more @path/to/another/image.png references to trigger regex. This line is much longer than the previous one to test wrapping.`,
+        `Line ${i}: some sample text with many @path/to/image${i}.png and maybe some more @path/to/another/image.png references to trigger regex. This line is much longer than the previous one to test wrapping.`
     ).join('\n');
 
     const start = Date.now();
@@ -43,7 +43,7 @@ describe('text-buffer performance', () => {
     const lines = 5000;
     const initialText = Array.from(
       { length: lines },
-      (_, i) => `Line ${i}: some sample text with @path/to/image.png`,
+      (_, i) => `Line ${i}: some sample text with @path/to/image.png`
     ).join('\n');
     const viewport = { width: 80, height: 24 };
 
@@ -51,7 +51,7 @@ describe('text-buffer performance', () => {
       useTextBuffer({
         initialText,
         viewport,
-      }),
+      })
     );
 
     const start = Date.now();
@@ -71,8 +71,7 @@ describe('text-buffer performance', () => {
     const lines = 5000;
     const sampleLines = Array.from(
       { length: lines },
-      (_, i) =>
-        `Line ${i}: some sample text with @path/to/image${i}.png /command and more @file.txt`,
+      (_, i) => `Line ${i}: some sample text with @path/to/image${i}.png /command and more @file.txt`
     );
 
     const start = Date.now();

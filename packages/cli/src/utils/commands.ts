@@ -20,10 +20,7 @@ export type ParsedSlashCommand = {
  * @param commands The list of available top-level slash commands.
  * @returns An object containing the resolved command, its arguments, and its canonical path.
  */
-export const parseSlashCommand = (
-  query: string,
-  commands: readonly SlashCommand[],
-): ParsedSlashCommand => {
+export const parseSlashCommand = (query: string, commands: readonly SlashCommand[]): ParsedSlashCommand => {
   const trimmed = query.trim();
 
   const parts = trimmed.substring(1).trim().split(/\s+/);
@@ -46,9 +43,7 @@ export const parseSlashCommand = (
 
     // Second pass: if no primary name matches, check for an alias.
     if (!foundCommand) {
-      foundCommand = currentCommands.find((cmd) =>
-        cmd.altNames?.includes(part),
-      );
+      foundCommand = currentCommands.find((cmd) => cmd.altNames?.includes(part));
     }
 
     if (foundCommand) {

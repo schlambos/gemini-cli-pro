@@ -24,9 +24,9 @@ describe('SuggestionsDisplay', () => {
         isLoading={true}
         width={80}
         scrollOffset={0}
-        userInput=""
-        mode="reverse"
-      />,
+        userInput=''
+        mode='reverse'
+      />
     );
     expect(lastFrame()).toMatchSnapshot();
   });
@@ -39,9 +39,9 @@ describe('SuggestionsDisplay', () => {
         isLoading={false}
         width={80}
         scrollOffset={0}
-        userInput=""
-        mode="reverse"
-      />,
+        userInput=''
+        mode='reverse'
+      />
     );
     expect(lastFrame()).toBe('');
   });
@@ -54,9 +54,9 @@ describe('SuggestionsDisplay', () => {
         isLoading={false}
         width={80}
         scrollOffset={0}
-        userInput=""
-        mode="reverse"
-      />,
+        userInput=''
+        mode='reverse'
+      />
     );
     expect(lastFrame()).toMatchSnapshot();
   });
@@ -71,9 +71,9 @@ describe('SuggestionsDisplay', () => {
         isLoading={false}
         width={80}
         scrollOffset={0}
-        userInput=""
-        mode="reverse"
-      />,
+        userInput=''
+        mode='reverse'
+      />
     );
     expect(lastFrame()).toMatchSnapshot();
   });
@@ -92,9 +92,9 @@ describe('SuggestionsDisplay', () => {
         isLoading={false}
         width={80}
         scrollOffset={5}
-        userInput=""
-        mode="reverse"
-      />,
+        userInput=''
+        mode='reverse'
+      />
     );
     expect(lastFrame()).toMatchSnapshot();
   });
@@ -115,9 +115,9 @@ describe('SuggestionsDisplay', () => {
         isLoading={false}
         width={80}
         scrollOffset={0}
-        userInput=""
-        mode="reverse"
-      />,
+        userInput=''
+        mode='reverse'
+      />
     );
     expect(lastFrame()).toMatchSnapshot();
   });

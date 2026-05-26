@@ -77,7 +77,7 @@ class LSToolInvocation extends BaseToolInvocation<LSToolParams, ToolResult> {
     params: LSToolParams,
     messageBus: MessageBus,
     _toolName?: string,
-    _toolDisplayName?: string,
+    _toolDisplayName?: string
   ) {
     super(params, messageBus, _toolName, _toolDisplayName);
   }
@@ -111,19 +111,12 @@ class LSToolInvocation extends BaseToolInvocation<LSToolParams, ToolResult> {
    * @returns A string describing the file being read
    */
   getDescription(): string {
-    const relativePath = makeRelative(
-      this.params.dir_path,
-      this.config.getTargetDir(),
-    );
+    const relativePath = makeRelative(this.params.dir_path, this.config.getTargetDir());
     return shortenPath(relativePath);
   }
 
   // Helper for consistent error formatting
-  private errorResult(
-    llmContent: string,
-    returnDisplay: string,
-    type: ToolErrorType,
-  ): ToolResult {
+  private errorResult(llmContent: string, returnDisplay: string, type: ToolErrorType): ToolResult {
     return {
       llmContent,
       // Keep returnDisplay simpler in core logic
@@ -140,15 +133,9 @@ class LSToolInvocation extends BaseToolInvocation<LSToolParams, ToolResult> {
    * @returns Result of the LS operation
    */
   async execute(_signal: AbortSignal): Promise<ToolResult> {
-    const resolvedDirPath = path.resolve(
-      this.config.getTargetDir(),
-      this.params.dir_path,
-    );
+    const resolvedDirPath = path.resolve(this.config.getTargetDir(), this.params.dir_path);
 
-    const validationError = this.config.validatePathAccess(
-      resolvedDirPath,
-      'read',
-    );
+    const validationError = this.config.validatePathAccess(resolvedDirPath, 'read');
     if (validationError) {
       return {
         llmContent: validationError,
@@ -168,14 +155,14 @@ class LSToolInvocation extends BaseToolInvocation<LSToolParams, ToolResult> {
         return this.errorResult(
           `Error: Directory not found or inaccessible: ${resolvedDirPath}`,
           `Directory not found or inaccessible.`,
-          ToolErrorType.FILE_NOT_FOUND,
+          ToolErrorType.FILE_NOT_FOUND
         );
       }
       if (!stats.isDirectory()) {
         return this.errorResult(
           `Error: Path is not a directory: ${resolvedDirPath}`,
           `Path is not a directory.`,
-          ToolErrorType.PATH_IS_NOT_A_DIRECTORY,
+          ToolErrorType.PATH_IS_NOT_A_DIRECTORY
         );
       }
 
@@ -189,24 +176,20 @@ class LSToolInvocation extends BaseToolInvocation<LSToolParams, ToolResult> {
       }
 
       const relativePaths = files.map((file) =>
-        path.relative(
-          this.config.getTargetDir(),
-          path.join(resolvedDirPath, file),
-        ),
+        path.relative(this.config.getTargetDir(), path.join(resolvedDirPath, file))
       );
 
       const fileDiscovery = this.config.getFileService();
-      const { filteredPaths, ignoredCount } =
-        fileDiscovery.filterFilesWithReport(relativePaths, {
-          respectGitIgnore:
-            this.params.file_filtering_options?.respect_git_ignore ??
-            this.config.getFileFilteringOptions().respectGitIgnore ??
-            DEFAULT_FILE_FILTERING_OPTIONS.respectGitIgnore,
-          respectGeminiIgnore:
-            this.params.file_filtering_options?.respect_gemini_ignore ??
-            this.config.getFileFilteringOptions().respectGeminiIgnore ??
-            DEFAULT_FILE_FILTERING_OPTIONS.respectGeminiIgnore,
-        });
+      const { filteredPaths, ignoredCount } = fileDiscovery.filterFilesWithReport(relativePaths, {
+        respectGitIgnore:
+          this.params.file_filtering_options?.respect_git_ignore ??
+          this.config.getFileFilteringOptions().respectGitIgnore ??
+          DEFAULT_FILE_FILTERING_OPTIONS.respectGitIgnore,
+        respectGeminiIgnore:
+          this.params.file_filtering_options?.respect_gemini_ignore ??
+          this.config.getFileFilteringOptions().respectGeminiIgnore ??
+          DEFAULT_FILE_FILTERING_OPTIONS.respectGeminiIgnore,
+      });
 
       const entries = [];
       for (const relativePath of filteredPaths) {
@@ -240,9 +223,7 @@ class LSToolInvocation extends BaseToolInvocation<LSToolParams, ToolResult> {
       });
 
       // Create formatted content for LLM
-      const directoryContent = entries
-        .map((entry) => `${entry.isDirectory ? '[DIR] ' : ''}${entry.name}`)
-        .join('\n');
+      const directoryContent = entries.map((entry) => `${entry.isDirectory ? '[DIR] ' : ''}${entry.name}`).join('\n');
 
       let resultMessage = `Directory listing for ${resolvedDirPath}:\n${directoryContent}`;
       if (ignoredCount > 0) {
@@ -260,11 +241,7 @@ class LSToolInvocation extends BaseToolInvocation<LSToolParams, ToolResult> {
       };
     } catch (error) {
       const errorMsg = `Error listing directory: ${error instanceof Error ? error.message : String(error)}`;
-      return this.errorResult(
-        errorMsg,
-        'Failed to list directory.',
-        ToolErrorType.LS_EXECUTION_ERROR,
-      );
+      return this.errorResult(errorMsg, 'Failed to list directory.', ToolErrorType.LS_EXECUTION_ERROR);
     }
   }
 }
@@ -277,7 +254,7 @@ export class LSTool extends BaseDeclarativeTool<LSToolParams, ToolResult> {
 
   constructor(
     private config: Config,
-    messageBus: MessageBus,
+    messageBus: MessageBus
   ) {
     super(
       LSTool.Name,
@@ -287,7 +264,7 @@ export class LSTool extends BaseDeclarativeTool<LSToolParams, ToolResult> {
       LS_DEFINITION.base.parametersJsonSchema,
       messageBus,
       true,
-      false,
+      false
     );
   }
 
@@ -296,13 +273,8 @@ export class LSTool extends BaseDeclarativeTool<LSToolParams, ToolResult> {
    * @param params Parameters to validate
    * @returns An error message string if invalid, null otherwise
    */
-  protected override validateToolParamValues(
-    params: LSToolParams,
-  ): string | null {
-    const resolvedPath = path.resolve(
-      this.config.getTargetDir(),
-      params.dir_path,
-    );
+  protected override validateToolParamValues(params: LSToolParams): string | null {
+    const resolvedPath = path.resolve(this.config.getTargetDir(), params.dir_path);
     return this.config.validatePathAccess(resolvedPath, 'read');
   }
 
@@ -310,15 +282,9 @@ export class LSTool extends BaseDeclarativeTool<LSToolParams, ToolResult> {
     params: LSToolParams,
     messageBus: MessageBus,
     _toolName?: string,
-    _toolDisplayName?: string,
+    _toolDisplayName?: string
   ): ToolInvocation<LSToolParams, ToolResult> {
-    return new LSToolInvocation(
-      this.config,
-      params,
-      messageBus ?? this.messageBus,
-      _toolName,
-      _toolDisplayName,
-    );
+    return new LSToolInvocation(this.config, params, messageBus ?? this.messageBus, _toolName, _toolDisplayName);
   }
 
   override getSchema(modelId?: string) {

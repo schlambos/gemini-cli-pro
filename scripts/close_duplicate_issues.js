@@ -17,8 +17,7 @@ const argv = yargs(hideBin(process.argv))
   .option('query', {
     alias: 'q',
     type: 'string',
-    description:
-      'Search query to find duplicate issues (e.g. "function response parts")',
+    description: 'Search query to find duplicate issues (e.g. "function response parts")',
     demandOption: true,
   })
   .option('canonical', {
@@ -29,8 +28,7 @@ const argv = yargs(hideBin(process.argv))
   })
   .option('pr', {
     type: 'string',
-    description:
-      'Optional Pull Request URL or ID to mention in the closing comment',
+    description: 'Optional Pull Request URL or ID to mention in the closing comment',
   })
   .option('owner', {
     type: 'string',
@@ -51,8 +49,7 @@ const argv = yargs(hideBin(process.argv))
   .option('auto', {
     type: 'boolean',
     default: false,
-    description:
-      'Automatically close all duplicates without prompting (batch mode)',
+    description: 'Automatically close all duplicates without prompting (batch mode)',
   })
   .help()
   .parse();
@@ -73,12 +70,9 @@ async function run() {
   }
 
   try {
-    const issues = await octokit.paginate(
-      octokit.rest.search.issuesAndPullRequests,
-      {
-        q: fullSearchQuery,
-      },
-    );
+    const issues = await octokit.paginate(octokit.rest.search.issuesAndPullRequests, {
+      q: fullSearchQuery,
+    });
 
     console.log(`Found ${issues.length} issues.`);
 
@@ -88,9 +82,7 @@ async function run() {
         continue;
       }
 
-      console.log(
-        `Processing issue #${issue.number}: ${issue.title} (by @${issue.user?.login})`,
-      );
+      console.log(`Processing issue #${issue.number}: ${issue.title} (by @${issue.user?.login})`);
 
       if (!auto && !dryRun) {
         const response = await prompts({
@@ -136,10 +128,7 @@ async function run() {
           console.log(`  [DRY RUN] Would close issue #${issue.number}`);
         }
       } catch (error) {
-        console.error(
-          `  Failed to process issue #${issue.number}:`,
-          error.message,
-        );
+        console.error(`  Failed to process issue #${issue.number}:`, error.message);
       }
     }
   } catch (error) {

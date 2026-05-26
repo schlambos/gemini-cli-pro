@@ -6,16 +6,7 @@
 
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import {
-  beforeAll,
-  afterAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-  afterEach,
-} from 'vitest';
+import { beforeAll, afterAll, beforeEach, describe, expect, it, vi, afterEach } from 'vitest';
 
 import { createExtension } from '../test-utils/createExtension.js';
 import { ExtensionManager } from './extension-manager.js';
@@ -29,9 +20,7 @@ describe('ExtensionManager theme loading', () => {
   let tempHomeDir: string;
 
   beforeAll(async () => {
-    tempHomeDir = await fs.promises.mkdtemp(
-      path.join(tmpdir(), 'gemini-cli-test-'),
-    );
+    tempHomeDir = await fs.promises.mkdtemp(path.join(tmpdir(), 'gemini-cli-test-'));
   });
 
   afterAll(async () => {

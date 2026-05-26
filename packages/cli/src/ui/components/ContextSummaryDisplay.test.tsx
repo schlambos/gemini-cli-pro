@@ -21,10 +21,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-const renderWithWidth = (
-  width: number,
-  props: React.ComponentProps<typeof ContextSummaryDisplay>,
-) => {
+const renderWithWidth = (width: number, props: React.ComponentProps<typeof ContextSummaryDisplay>) => {
   useTerminalSizeMock.mockReturnValue({ columns: width, rows: 24 });
   return render(<ContextSummaryDisplay {...props} />);
 };
@@ -90,18 +87,12 @@ describe('<ContextSummaryDisplay />', () => {
     };
 
     // At 80 columns, should be on one line
-    const { lastFrame: wideFrame, unmount: unmountWide } = renderWithWidth(
-      80,
-      props,
-    );
+    const { lastFrame: wideFrame, unmount: unmountWide } = renderWithWidth(80, props);
     expect(wideFrame()!.includes('\n')).toBe(false);
     unmountWide();
 
     // At 79 columns, should be on multiple lines
-    const { lastFrame: narrowFrame, unmount: unmountNarrow } = renderWithWidth(
-      79,
-      props,
-    );
+    const { lastFrame: narrowFrame, unmount: unmountNarrow } = renderWithWidth(79, props);
     expect(narrowFrame()!.includes('\n')).toBe(true);
     expect(narrowFrame()!.split('\n').length).toBe(4);
     unmountNarrow();

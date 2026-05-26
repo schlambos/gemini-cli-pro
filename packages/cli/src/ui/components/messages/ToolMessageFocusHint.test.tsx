@@ -10,15 +10,8 @@ import { ShellToolMessage } from './ShellToolMessage.js';
 import { StreamingState } from '../../types.js';
 import { renderWithProviders } from '../../../test-utils/render.js';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import {
-  SHELL_COMMAND_NAME,
-  SHELL_FOCUS_HINT_DELAY_MS,
-} from '../../constants.js';
-import {
-  type Config,
-  type ToolResultDisplay,
-  CoreToolCallStatus,
-} from '@google/gemini-cli-core';
+import { SHELL_COMMAND_NAME, SHELL_FOCUS_HINT_DELAY_MS } from '../../constants.js';
+import { type Config, type ToolResultDisplay, CoreToolCallStatus } from '@google/gemini-cli-core';
 
 vi.mock('../GeminiRespondingSpinner.js', () => ({
   GeminiRespondingSpinner: () => null,
@@ -66,10 +59,9 @@ describe('Focus Hint', () => {
 
   describe.each(testCases)('$componentName', ({ Component }) => {
     it('shows focus hint after delay even with NO output', async () => {
-      const { lastFrame } = renderWithProviders(
-        <Component {...baseProps} resultDisplay={undefined} />,
-        { uiState: { streamingState: StreamingState.Idle } },
-      );
+      const { lastFrame } = renderWithProviders(<Component {...baseProps} resultDisplay={undefined} />, {
+        uiState: { streamingState: StreamingState.Idle },
+      });
 
       // Initially, no focus hint
       expect(lastFrame()).toMatchSnapshot('initial-no-output');
@@ -85,10 +77,9 @@ describe('Focus Hint', () => {
     });
 
     it('shows focus hint after delay with output', async () => {
-      const { lastFrame } = renderWithProviders(
-        <Component {...baseProps} resultDisplay="Some output" />,
-        { uiState: { streamingState: StreamingState.Idle } },
-      );
+      const { lastFrame } = renderWithProviders(<Component {...baseProps} resultDisplay='Some output' />, {
+        uiState: { streamingState: StreamingState.Idle },
+      });
 
       // Initially, no focus hint
       expect(lastFrame()).toMatchSnapshot('initial-with-output');
@@ -106,12 +97,8 @@ describe('Focus Hint', () => {
   it('handles long descriptions by shrinking them to show the focus hint', async () => {
     const longDescription = 'A'.repeat(100);
     const { lastFrame } = renderWithProviders(
-      <ToolMessage
-        {...baseProps}
-        description={longDescription}
-        resultDisplay="output"
-      />,
-      { uiState: { streamingState: StreamingState.Idle } },
+      <ToolMessage {...baseProps} description={longDescription} resultDisplay='output' />,
+      { uiState: { streamingState: StreamingState.Idle } }
     );
 
     act(() => {

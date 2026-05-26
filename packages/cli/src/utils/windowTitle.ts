@@ -55,10 +55,7 @@ export function computeTerminalTitle({
   const getSuffix = (context: string) => ` (${context})`;
 
   let title;
-  if (
-    isConfirming ||
-    streamingState === StreamingState.WaitingForConfirmation
-  ) {
+  if (isConfirming || streamingState === StreamingState.WaitingForConfirmation) {
     const base = '✋  Action Required';
     // Max context length is 80 - base.length - 3 (for ' (' and ')')
     const maxContextLen = MAX_LEN - base.length - 3;
@@ -78,17 +75,14 @@ export function computeTerminalTitle({
     title = `${base}${getSuffix(context)}`;
   } else {
     // Active/Working state
-    const cleanSubject =
-      showThoughts && thoughtSubject?.replace(/[\r\n]+/g, ' ').trim();
+    const cleanSubject = showThoughts && thoughtSubject?.replace(/[\r\n]+/g, ' ').trim();
 
     // If we have a thought subject and it's too long to fit with the suffix,
     // we drop the suffix to maximize space for the thought.
     // Otherwise, we keep the suffix.
     const suffix = getSuffix(displayContext);
     const suffixLen = suffix.length;
-    const canFitThoughtWithSuffix = cleanSubject
-      ? cleanSubject.length + suffixLen + 3 <= MAX_LEN
-      : true;
+    const canFitThoughtWithSuffix = cleanSubject ? cleanSubject.length + suffixLen + 3 <= MAX_LEN : true;
 
     let activeSuffix = '';
     let maxStatusLen = MAX_LEN - 3; // Subtract icon prefix "✦  " (3 chars)
@@ -98,9 +92,7 @@ export function computeTerminalTitle({
       maxStatusLen -= activeSuffix.length;
     }
 
-    const displayStatus = cleanSubject
-      ? truncate(cleanSubject, maxStatusLen)
-      : 'Working…';
+    const displayStatus = cleanSubject ? truncate(cleanSubject, maxStatusLen) : 'Working…';
 
     title = `✦  ${displayStatus}${activeSuffix}`;
   }

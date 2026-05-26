@@ -28,7 +28,7 @@ describe('Edits location eval', () => {
           },
         },
         null,
-        2,
+        2
       ),
       'src/math.ts': `
 export function add(a: number, b: number): number {
@@ -73,19 +73,11 @@ test('capitalize capitalizes the first letter', () => {
     timeout: 180000,
     assert: async (rig) => {
       const toolLogs = rig.readToolLogs();
-      const replaceCalls = toolLogs.filter(
-        (t) => t.toolRequest.name === 'replace',
-      );
-      const writeFileCalls = toolLogs.filter(
-        (t) => t.toolRequest.name === 'write_file',
-      );
+      const replaceCalls = toolLogs.filter((t) => t.toolRequest.name === 'replace');
+      const writeFileCalls = toolLogs.filter((t) => t.toolRequest.name === 'write_file');
 
       expect(replaceCalls.length).toBeGreaterThan(0);
-      expect(
-        writeFileCalls.some((file) =>
-          file.toolRequest.args.includes('.test.ts'),
-        ),
-      ).toBe(false);
+      expect(writeFileCalls.some((file) => file.toolRequest.args.includes('.test.ts'))).toBe(false);
 
       const targetFiles = replaceCalls.map((t) => {
         try {
@@ -97,14 +89,9 @@ test('capitalize capitalizes the first letter', () => {
 
       console.log('DEBUG: targetFiles', targetFiles);
 
-      expect(
-        new Set(targetFiles).size,
-        'Expected only two files changed',
-      ).greaterThanOrEqual(2);
+      expect(new Set(targetFiles).size, 'Expected only two files changed').greaterThanOrEqual(2);
       expect(targetFiles.some((f) => f?.endsWith('src/math.ts'))).toBe(true);
-      expect(targetFiles.some((f) => f?.endsWith('src/math.test.ts'))).toBe(
-        true,
-      );
+      expect(targetFiles.some((f) => f?.endsWith('src/math.test.ts'))).toBe(true);
     },
   });
 });

@@ -8,13 +8,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 
 import type { MCPServerConfig } from '@google/gemini-cli-core';
-import {
-  debugLogger,
-  GEMINI_DIR,
-  getErrorMessage,
-  type TelemetrySettings,
-  homedir,
-} from '@google/gemini-cli-core';
+import { debugLogger, GEMINI_DIR, getErrorMessage, type TelemetrySettings, homedir } from '@google/gemini-cli-core';
 import stripJsonComments from 'strip-json-comments';
 
 export const USER_SETTINGS_DIR = path.join(homedir(), GEMINI_DIR);
@@ -68,9 +62,7 @@ export function loadSettings(workspaceDir: string): Settings {
     if (fs.existsSync(USER_SETTINGS_PATH)) {
       const userContent = fs.readFileSync(USER_SETTINGS_PATH, 'utf-8');
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-      const parsedUserSettings = JSON.parse(
-        stripJsonComments(userContent),
-      ) as Settings;
+      const parsedUserSettings = JSON.parse(stripJsonComments(userContent)) as Settings;
       userSettings = resolveEnvVarsInObject(parsedUserSettings);
     }
   } catch (error: unknown) {
@@ -80,20 +72,14 @@ export function loadSettings(workspaceDir: string): Settings {
     });
   }
 
-  const workspaceSettingsPath = path.join(
-    workspaceDir,
-    GEMINI_DIR,
-    'settings.json',
-  );
+  const workspaceSettingsPath = path.join(workspaceDir, GEMINI_DIR, 'settings.json');
 
   // Load workspace settings
   try {
     if (fs.existsSync(workspaceSettingsPath)) {
       const projectContent = fs.readFileSync(workspaceSettingsPath, 'utf-8');
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-      const parsedWorkspaceSettings = JSON.parse(
-        stripJsonComments(projectContent),
-      ) as Settings;
+      const parsedWorkspaceSettings = JSON.parse(stripJsonComments(projectContent)) as Settings;
       workspaceSettings = resolveEnvVarsInObject(parsedWorkspaceSettings);
     }
   } catch (error: unknown) {
@@ -131,12 +117,7 @@ function resolveEnvVarsInString(value: string): string {
 }
 
 function resolveEnvVarsInObject<T>(obj: T): T {
-  if (
-    obj === null ||
-    obj === undefined ||
-    typeof obj === 'boolean' ||
-    typeof obj === 'number'
-  ) {
+  if (obj === null || obj === undefined || typeof obj === 'boolean' || typeof obj === 'number') {
     return obj;
   }
 

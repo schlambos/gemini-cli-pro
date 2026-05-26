@@ -13,12 +13,10 @@ import { isSubpath, resolveToRealPath } from './paths.js';
  * Shared between backend tools and CLI UI for consistency.
  */
 export const PlanErrorMessages = {
-  PATH_ACCESS_DENIED:
-    'Access denied: plan path must be within the designated plans directory.',
+  PATH_ACCESS_DENIED: 'Access denied: plan path must be within the designated plans directory.',
   FILE_NOT_FOUND: (path: string) =>
     `Plan file does not exist: ${path}. You must create the plan file before requesting approval.`,
-  FILE_EMPTY:
-    'Plan file is empty. You must write content to the plan file before requesting approval.',
+  FILE_EMPTY: 'Plan file is empty. You must write content to the plan file before requesting approval.',
   READ_FAILURE: (detail: string) => `Failed to read plan file: ${detail}`,
 } as const;
 
@@ -29,11 +27,7 @@ export const PlanErrorMessages = {
  * @param targetDir The current working directory (project root).
  * @returns An error message if validation fails, or null if successful.
  */
-export async function validatePlanPath(
-  planPath: string,
-  plansDir: string,
-  targetDir: string,
-): Promise<string | null> {
+export async function validatePlanPath(planPath: string, plansDir: string, targetDir: string): Promise<string | null> {
   const resolvedPath = path.resolve(targetDir, planPath);
   const realPath = resolveToRealPath(resolvedPath);
   const realPlansDir = resolveToRealPath(plansDir);
@@ -54,9 +48,7 @@ export async function validatePlanPath(
  * @param planPath The path to the plan file.
  * @returns An error message if the file is empty or unreadable, or null if successful.
  */
-export async function validatePlanContent(
-  planPath: string,
-): Promise<string | null> {
+export async function validatePlanContent(planPath: string): Promise<string | null> {
   try {
     if (await isEmpty(planPath)) {
       return PlanErrorMessages.FILE_EMPTY;

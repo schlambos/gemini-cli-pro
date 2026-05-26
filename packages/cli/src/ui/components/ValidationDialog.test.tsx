@@ -6,15 +6,7 @@
 
 import { render } from '../../test-utils/render.js';
 import { act } from 'react';
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  afterEach,
-  type Mock,
-} from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 import { ValidationDialog } from './ValidationDialog.js';
 import { RadioButtonSelect } from './shared/RadioButtonSelect.js';
 import type { Key } from '../hooks/useKeypress.js';
@@ -32,12 +24,10 @@ const mockOpenBrowserSecurely = vi.fn();
 const mockShouldLaunchBrowser = vi.fn();
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
-    openBrowserSecurely: (...args: unknown[]) =>
-      mockOpenBrowserSecurely(...args),
+    openBrowserSecurely: (...args: unknown[]) => mockOpenBrowserSecurely(...args),
     shouldLaunchBrowser: () => mockShouldLaunchBrowser(),
   };
 });
@@ -68,13 +58,9 @@ describe('ValidationDialog', () => {
 
   describe('initial render (choosing state)', () => {
     it('should render the main message and two options', () => {
-      const { lastFrame, unmount } = render(
-        <ValidationDialog onChoice={mockOnChoice} />,
-      );
+      const { lastFrame, unmount } = render(<ValidationDialog onChoice={mockOnChoice} />);
 
-      expect(lastFrame()).toContain(
-        'Further action is required to use this service.',
-      );
+      expect(lastFrame()).toContain('Further action is required to use this service.');
       expect(RadioButtonSelect).toHaveBeenCalledWith(
         expect.objectContaining({
           items: [
@@ -90,17 +76,14 @@ describe('ValidationDialog', () => {
             },
           ],
         }),
-        undefined,
+        undefined
       );
       unmount();
     });
 
     it('should render learn more URL when provided', () => {
       const { lastFrame, unmount } = render(
-        <ValidationDialog
-          learnMoreUrl="https://example.com/help"
-          onChoice={mockOnChoice}
-        />,
+        <ValidationDialog learnMoreUrl='https://example.com/help' onChoice={mockOnChoice} />
       );
 
       expect(lastFrame()).toContain('Learn more:');
@@ -159,10 +142,7 @@ describe('ValidationDialog', () => {
 
     it('should open browser and transition to waiting state when verify is selected with a link', async () => {
       const { lastFrame, unmount } = render(
-        <ValidationDialog
-          validationLink="https://accounts.google.com/verify"
-          onChoice={mockOnChoice}
-        />,
+        <ValidationDialog validationLink='https://accounts.google.com/verify' onChoice={mockOnChoice} />
       );
 
       const onSelect = (RadioButtonSelect as Mock).mock.calls[0][0].onSelect;
@@ -170,9 +150,7 @@ describe('ValidationDialog', () => {
         await onSelect('verify');
       });
 
-      expect(mockOpenBrowserSecurely).toHaveBeenCalledWith(
-        'https://accounts.google.com/verify',
-      );
+      expect(mockOpenBrowserSecurely).toHaveBeenCalledWith('https://accounts.google.com/verify');
       expect(lastFrame()).toContain('Waiting for verification...');
       unmount();
     });
@@ -183,10 +161,7 @@ describe('ValidationDialog', () => {
       mockShouldLaunchBrowser.mockReturnValue(false);
 
       const { lastFrame, unmount } = render(
-        <ValidationDialog
-          validationLink="https://accounts.google.com/verify"
-          onChoice={mockOnChoice}
-        />,
+        <ValidationDialog validationLink='https://accounts.google.com/verify' onChoice={mockOnChoice} />
       );
 
       const onSelect = (RadioButtonSelect as Mock).mock.calls[0][0].onSelect;
@@ -206,10 +181,7 @@ describe('ValidationDialog', () => {
       mockOpenBrowserSecurely.mockRejectedValue(new Error('Browser not found'));
 
       const { lastFrame, unmount } = render(
-        <ValidationDialog
-          validationLink="https://accounts.google.com/verify"
-          onChoice={mockOnChoice}
-        />,
+        <ValidationDialog validationLink='https://accounts.google.com/verify' onChoice={mockOnChoice} />
       );
 
       const onSelect = (RadioButtonSelect as Mock).mock.calls[0][0].onSelect;

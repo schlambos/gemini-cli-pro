@@ -39,9 +39,7 @@ describe('CliHelpAgent', () => {
     expect(localAgent.modelConfig?.model).toBe(GEMINI_MODEL_ALIAS_FLASH);
 
     const tools = localAgent.toolConfig?.tools || [];
-    const hasInternalDocsTool = tools.some(
-      (t) => typeof t !== 'string' && t.name === GET_INTERNAL_DOCS_TOOL_NAME,
-    );
+    const hasInternalDocsTool = tools.some((t) => typeof t !== 'string' && t.name === GET_INTERNAL_DOCS_TOOL_NAME);
     expect(hasInternalDocsTool).toBe(true);
   });
 

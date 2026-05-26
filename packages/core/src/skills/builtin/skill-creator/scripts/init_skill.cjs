@@ -178,11 +178,7 @@ async function main() {
   const basePath = path.resolve(args[2]);
 
   // Prevent path traversal
-  if (
-    skillName.includes(path.sep) ||
-    skillName.includes('/') ||
-    skillName.includes('\\')
-  ) {
+  if (skillName.includes(path.sep) || skillName.includes('/') || skillName.includes('\\')) {
     console.error('❌ Error: Skill name cannot contain path separators.');
     process.exit(1);
   }
@@ -210,24 +206,18 @@ async function main() {
 
     fs.writeFileSync(
       path.join(skillDir, 'SKILL.md'),
-      SKILL_TEMPLATE.replace(/{skill_name}/g, skillName).replace(
-        /{skill_title}/g,
-        skillTitle,
-      ),
+      SKILL_TEMPLATE.replace(/{skill_name}/g, skillName).replace(/{skill_title}/g, skillTitle)
     );
     fs.writeFileSync(
       path.join(skillDir, 'scripts/example_script.cjs'),
       EXAMPLE_SCRIPT.replace(/{skill_name}/g, skillName),
-      { mode: 0o755 },
+      { mode: 0o755 }
     );
     fs.writeFileSync(
       path.join(skillDir, 'references/example_reference.md'),
-      EXAMPLE_REFERENCE.replace(/{skill_title}/g, skillTitle),
+      EXAMPLE_REFERENCE.replace(/{skill_title}/g, skillTitle)
     );
-    fs.writeFileSync(
-      path.join(skillDir, 'assets/example_asset.txt'),
-      'Placeholder for assets.',
-    );
+    fs.writeFileSync(path.join(skillDir, 'assets/example_asset.txt'), 'Placeholder for assets.');
 
     console.log(`✅ Skill '${skillName}' initialized at ${skillDir}`);
   } catch (err) {

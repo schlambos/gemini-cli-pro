@@ -58,11 +58,11 @@ async function main() {
     })
     .example(
       '$0 --original-pr 8655 --exit-code 0 --commit abc1234 --channel preview --repository google-gemini/gemini-cli --test',
-      'Test success comment',
+      'Test success comment'
     )
     .example(
       '$0 --original-pr 8655 --exit-code 1 --commit abc1234 --channel stable --repository google-gemini/gemini-cli --test',
-      'Test failure comment',
+      'Test failure comment'
     )
     .help()
     .alias('help', 'h').argv;
@@ -74,22 +74,16 @@ async function main() {
 
   // Get inputs from CLI args or environment
   const originalPr = argv.originalPr || process.env.ORIGINAL_PR;
-  const exitCode =
-    argv.exitCode !== undefined
-      ? argv.exitCode
-      : parseInt(process.env.EXIT_CODE || '1');
+  const exitCode = argv.exitCode !== undefined ? argv.exitCode : parseInt(process.env.EXIT_CODE || '1');
   const commit = argv.commit || process.env.COMMIT;
   const channel = argv.channel || process.env.CHANNEL;
   const environment = argv.environment;
-  const repository =
-    argv.repository || process.env.REPOSITORY || 'google-gemini/gemini-cli';
+  const repository = argv.repository || process.env.REPOSITORY || 'google-gemini/gemini-cli';
   const runId = argv.runId || process.env.GITHUB_RUN_ID || '0';
 
   // Validate required parameters
   if (!runId || runId === '0') {
-    console.warn(
-      'Warning: No valid GitHub run ID found, workflow links may not work correctly',
-    );
+    console.warn('Warning: No valid GitHub run ID found, workflow links may not work correctly');
   }
 
   if (!originalPr) {
@@ -97,9 +91,7 @@ async function main() {
     return;
   }
 
-  console.log(
-    `Analyzing patch creation result for PR ${originalPr} (exit code: ${exitCode})`,
-  );
+  console.log(`Analyzing patch creation result for PR ${originalPr} (exit code: ${exitCode})`);
 
   const [_owner, _repo] = repository.split('/');
   const npmTag = channel === 'stable' ? 'latest' : 'preview';
@@ -131,14 +123,10 @@ async function main() {
     logContent = process.env.LOG_CONTENT || '';
   }
 
-  if (
-    logContent.includes(
-      'Failed to create release branch due to insufficient GitHub App permissions',
-    )
-  ) {
+  if (logContent.includes('Failed to create release branch due to insufficient GitHub App permissions')) {
     // GitHub App permission error - extract manual commands
     const manualCommandsMatch = logContent.match(
-      /📋 Please run these commands manually to create the branch:[\s\S]*?```bash\s*([\s\S]*?)\s*```/,
+      /📋 Please run these commands manually to create the branch:[\s\S]*?```bash\s*([\s\S]*?)\s*```/
     );
     let manualCommands = '';
     if (manualCommandsMatch) {
@@ -209,9 +197,7 @@ A patch branch [\`${branch}\`](https://github.com/${repository}/tree/${branch}) 
         const mockPrNumber = Math.floor(Math.random() * 1000) + 8000;
         const mockPrUrl = `https://github.com/${repository}/pull/${mockPrNumber}`;
 
-        const hasConflicts =
-          logContent.includes('Cherry-pick has conflicts') ||
-          logContent.includes('[CONFLICTS]');
+        const hasConflicts = logContent.includes('Cherry-pick has conflicts') || logContent.includes('[CONFLICTS]');
 
         commentBody = `🚀 **Patch PR Created!**
 
@@ -235,28 +221,15 @@ ${hasConflicts ? '4' : '3'}. You'll receive updates here when the release comple
           const { spawnSync } = await import('node:child_process');
           const result = spawnSync(
             'gh',
-            [
-              'pr',
-              'list',
-              '--head',
-              branch,
-              '--state',
-              'open',
-              '--json',
-              'number,title,url',
-              '--limit',
-              '1',
-            ],
-            { encoding: 'utf8' },
+            ['pr', 'list', '--head', branch, '--state', 'open', '--json', 'number,title,url', '--limit', '1'],
+            { encoding: 'utf8' }
           );
 
           if (result.error) {
             throw result.error;
           }
           if (result.status !== 0) {
-            throw new Error(
-              `gh pr list failed with status ${result.status}: ${result.stderr}`,
-            );
+            throw new Error(`gh pr list failed with status ${result.status}: ${result.stderr}`);
           }
 
           const prListOutput = result.stdout;
@@ -265,9 +238,7 @@ ${hasConflicts ? '4' : '3'}. You'll receive updates here when the release comple
 
           if (prList.length > 0) {
             const pr = prList[0];
-            const hasConflicts =
-              logContent.includes('Cherry-pick has conflicts') ||
-              pr.title.includes('[CONFLICTS]');
+            const hasConflicts = logContent.includes('Cherry-pick has conflicts') || pr.title.includes('[CONFLICTS]');
 
             commentBody = `🚀 **Patch PR Created!**
 
@@ -350,13 +321,9 @@ No output was generated during patch creation.
     writeFileSync(tmpFile, commentBody);
 
     try {
-      const result = spawnSync(
-        'gh',
-        ['pr', 'comment', originalPr.toString(), '--body-file', tmpFile],
-        {
-          stdio: 'inherit',
-        },
-      );
+      const result = spawnSync('gh', ['pr', 'comment', originalPr.toString(), '--body-file', tmpFile], {
+        stdio: 'inherit',
+      });
 
       if (result.error) {
         throw result.error;

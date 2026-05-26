@@ -63,18 +63,13 @@ describe('LocalSubagentInvocation', () => {
     } as unknown as Mocked<LocalAgentExecutor<z.ZodUnknown>>;
 
     MockLocalAgentExecutor.create.mockResolvedValue(
-      mockExecutorInstance as unknown as LocalAgentExecutor<z.ZodTypeAny>,
+      mockExecutorInstance as unknown as LocalAgentExecutor<z.ZodTypeAny>
     );
   });
 
   it('should pass the messageBus to the parent constructor', () => {
     const params = { task: 'Analyze data' };
-    const invocation = new LocalSubagentInvocation(
-      testDefinition,
-      mockConfig,
-      params,
-      mockMessageBus,
-    );
+    const invocation = new LocalSubagentInvocation(testDefinition, mockConfig, params, mockMessageBus);
 
     // Access the protected messageBus property by casting to any
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -84,32 +79,18 @@ describe('LocalSubagentInvocation', () => {
   describe('getDescription', () => {
     it('should format the description with inputs', () => {
       const params = { task: 'Analyze data', priority: 5 };
-      const invocation = new LocalSubagentInvocation(
-        testDefinition,
-        mockConfig,
-        params,
-        mockMessageBus,
-      );
+      const invocation = new LocalSubagentInvocation(testDefinition, mockConfig, params, mockMessageBus);
       const description = invocation.getDescription();
-      expect(description).toBe(
-        "Running subagent 'MockAgent' with inputs: { task: Analyze data, priority: 5 }",
-      );
+      expect(description).toBe("Running subagent 'MockAgent' with inputs: { task: Analyze data, priority: 5 }");
     });
 
     it('should truncate long input values', () => {
       const longTask = 'A'.repeat(100);
       const params = { task: longTask };
-      const invocation = new LocalSubagentInvocation(
-        testDefinition,
-        mockConfig,
-        params,
-        mockMessageBus,
-      );
+      const invocation = new LocalSubagentInvocation(testDefinition, mockConfig, params, mockMessageBus);
       const description = invocation.getDescription();
       // Default INPUT_PREVIEW_MAX_LENGTH is 50
-      expect(description).toBe(
-        `Running subagent 'MockAgent' with inputs: { task: ${'A'.repeat(50)} }`,
-      );
+      expect(description).toBe(`Running subagent 'MockAgent' with inputs: { task: ${'A'.repeat(50)} }`);
     });
 
     it('should truncate the overall description if it exceeds the limit', () => {
@@ -122,20 +103,11 @@ describe('LocalSubagentInvocation', () => {
       for (let i = 0; i < 20; i++) {
         params[`input${i}`] = `value${i}`;
       }
-      const invocation = new LocalSubagentInvocation(
-        longNameDef,
-        mockConfig,
-        params,
-        mockMessageBus,
-      );
+      const invocation = new LocalSubagentInvocation(longNameDef, mockConfig, params, mockMessageBus);
       const description = invocation.getDescription();
       // Default DESCRIPTION_MAX_LENGTH is 200
       expect(description.length).toBe(200);
-      expect(
-        description.startsWith(
-          "Running subagent 'VeryLongAgentNameThatTakesUpSpace'",
-        ),
-      ).toBe(true);
+      expect(description.startsWith("Running subagent 'VeryLongAgentNameThatTakesUpSpace'")).toBe(true);
     });
   });
 
@@ -148,12 +120,7 @@ describe('LocalSubagentInvocation', () => {
     beforeEach(() => {
       signal = new AbortController().signal;
       updateOutput = vi.fn();
-      invocation = new LocalSubagentInvocation(
-        testDefinition,
-        mockConfig,
-        params,
-        mockMessageBus,
-      );
+      invocation = new LocalSubagentInvocation(testDefinition, mockConfig, params, mockMessageBus);
     });
 
     it('should initialize and run the executor successfully', async () => {
@@ -165,11 +132,7 @@ describe('LocalSubagentInvocation', () => {
 
       const result = await invocation.execute(signal, updateOutput);
 
-      expect(MockLocalAgentExecutor.create).toHaveBeenCalledWith(
-        testDefinition,
-        mockConfig,
-        expect.any(Function),
-      );
+      expect(MockLocalAgentExecutor.create).toHaveBeenCalledWith(testDefinition, mockConfig, expect.any(Function));
       expect(updateOutput).toHaveBeenCalledWith('Subagent starting...\n');
 
       expect(mockExecutorInstance.run).toHaveBeenCalledWith(params, signal);
@@ -177,7 +140,7 @@ describe('LocalSubagentInvocation', () => {
       expect(result.llmContent).toEqual([
         {
           text: expect.stringContaining(
-            "Subagent 'MockAgent' finished.\nTermination Reason: GOAL\nResult:\nAnalysis complete.",
+            "Subagent 'MockAgent' finished.\nTermination Reason: GOAL\nResult:\nAnalysis complete."
           ),
         },
       ]);
@@ -273,12 +236,8 @@ describe('LocalSubagentInvocation', () => {
         message: error.message,
         type: ToolErrorType.EXECUTION_FAILED,
       });
-      expect(result.returnDisplay).toBe(
-        `Subagent Failed: MockAgent\nError: ${error.message}`,
-      );
-      expect(result.llmContent).toBe(
-        `Subagent 'MockAgent' failed. Error: ${error.message}`,
-      );
+      expect(result.returnDisplay).toBe(`Subagent Failed: MockAgent\nError: ${error.message}`);
+      expect(result.llmContent).toBe(`Subagent 'MockAgent' failed. Error: ${error.message}`);
     });
 
     it('should handle executor creation failure', async () => {
@@ -304,17 +263,11 @@ describe('LocalSubagentInvocation', () => {
       mockExecutorInstance.run.mockRejectedValue(abortError);
 
       const controller = new AbortController();
-      const executePromise = invocation.execute(
-        controller.signal,
-        updateOutput,
-      );
+      const executePromise = invocation.execute(controller.signal, updateOutput);
       controller.abort();
       const result = await executePromise;
 
-      expect(mockExecutorInstance.run).toHaveBeenCalledWith(
-        params,
-        controller.signal,
-      );
+      expect(mockExecutorInstance.run).toHaveBeenCalledWith(params, controller.signal);
       expect(result.error?.message).toBe('Aborted');
       expect(result.error?.type).toBe(ToolErrorType.EXECUTION_FAILED);
     });

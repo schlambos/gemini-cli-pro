@@ -22,7 +22,7 @@ export function getPromptIdWithFallback(componentName: string): string {
 
   const fallbackId = `${componentName}-fallback-${Date.now()}-${Math.random().toString(16).slice(2)}`;
   debugLogger.warn(
-    `Could not find promptId in context for ${componentName}. This is unexpected. Using a fallback ID: ${fallbackId}`,
+    `Could not find promptId in context for ${componentName}. This is unexpected. Using a fallback ID: ${fallbackId}`
   );
   return fallbackId;
 }

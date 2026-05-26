@@ -13,8 +13,7 @@ import { debugLogger } from '@google/gemini-cli-core';
 
 // Mock dependencies
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     debugLogger: {
@@ -41,10 +40,7 @@ describe('AuthInProgress', () => {
     vi.clearAllMocks();
     vi.useFakeTimers();
     vi.mocked(debugLogger.error).mockImplementation((...args) => {
-      if (
-        typeof args[0] === 'string' &&
-        args[0].includes('was not wrapped in act')
-      ) {
+      if (typeof args[0] === 'string' && args[0].includes('was not wrapped in act')) {
         return;
       }
     });
@@ -84,10 +80,7 @@ describe('AuthInProgress', () => {
     });
 
     expect(onTimeout).toHaveBeenCalled();
-    await vi.waitUntil(
-      () => lastFrame()?.includes('Authentication timed out'),
-      { timeout: 1000 },
-    );
+    await vi.waitUntil(() => lastFrame()?.includes('Authentication timed out'), { timeout: 1000 });
   });
 
   it('clears timer on unmount', () => {

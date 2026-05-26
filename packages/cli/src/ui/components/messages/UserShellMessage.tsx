@@ -16,10 +16,7 @@ interface UserShellMessageProps {
   width: number;
 }
 
-export const UserShellMessage: React.FC<UserShellMessageProps> = ({
-  text,
-  width,
-}) => {
+export const UserShellMessage: React.FC<UserShellMessageProps> = ({ text, width }) => {
   const config = useConfig();
   const useBackgroundColor = config.getUseBackgroundColor();
 
@@ -32,12 +29,7 @@ export const UserShellMessage: React.FC<UserShellMessageProps> = ({
       backgroundOpacity={DEFAULT_BACKGROUND_OPACITY}
       useBackgroundColor={useBackgroundColor}
     >
-      <Box
-        paddingY={0}
-        marginY={useBackgroundColor ? 0 : 1}
-        paddingX={useBackgroundColor ? 1 : 0}
-        width={width}
-      >
+      <Box paddingY={0} marginY={useBackgroundColor ? 0 : 1} paddingX={useBackgroundColor ? 1 : 0} width={width}>
         <Text color={theme.ui.symbol}>$ </Text>
         <Text color={theme.text.primary}>{commandToDisplay}</Text>
       </Box>

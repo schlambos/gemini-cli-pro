@@ -27,18 +27,11 @@ import {
 
 import { getErrorMessage } from '../utils/errors.js';
 import { summarizeToolOutput } from '../utils/summarizer.js';
-import type {
-  ShellExecutionConfig,
-  ShellOutputEvent,
-} from '../services/shellExecutionService.js';
+import type { ShellExecutionConfig, ShellOutputEvent } from '../services/shellExecutionService.js';
 import { ShellExecutionService } from '../services/shellExecutionService.js';
 import { formatBytes } from '../utils/formatters.js';
 import type { AnsiOutput } from '../utils/terminalSerializer.js';
-import {
-  getCommandRoots,
-  initializeShellParsers,
-  stripShellWrapper,
-} from '../utils/shell-utils.js';
+import { getCommandRoots, initializeShellParsers, stripShellWrapper } from '../utils/shell-utils.js';
 import { SHELL_TOOL_NAME } from './tool-names.js';
 import type { MessageBus } from '../confirmation-bus/message-bus.js';
 
@@ -51,16 +44,13 @@ export interface ShellToolParams {
   is_background?: boolean;
 }
 
-export class ShellToolInvocation extends BaseToolInvocation<
-  ShellToolParams,
-  ToolResult
-> {
+export class ShellToolInvocation extends BaseToolInvocation<ShellToolParams, ToolResult> {
   constructor(
     private readonly config: Config,
     params: ShellToolParams,
     messageBus: MessageBus,
     _toolName?: string,
-    _toolDisplayName?: string,
+    _toolDisplayName?: string
   ) {
     super(params, messageBus, _toolName, _toolDisplayName);
   }
@@ -81,13 +71,8 @@ export class ShellToolInvocation extends BaseToolInvocation<
     return description;
   }
 
-  protected override getPolicyUpdateOptions(
-    outcome: ToolConfirmationOutcome,
-  ): PolicyUpdateOptions | undefined {
-    if (
-      outcome === ToolConfirmationOutcome.ProceedAlwaysAndSave ||
-      outcome === ToolConfirmationOutcome.ProceedAlways
-    ) {
+  protected override getPolicyUpdateOptions(outcome: ToolConfirmationOutcome): PolicyUpdateOptions | undefined {
+    if (outcome === ToolConfirmationOutcome.ProceedAlwaysAndSave || outcome === ToolConfirmationOutcome.ProceedAlways) {
       const command = stripShellWrapper(this.params.command);
       const rootCommands = [...new Set(getCommandRoots(command))];
       if (rootCommands.length > 0) {
@@ -99,7 +84,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
   }
 
   protected override async getConfirmationDetails(
-    _abortSignal: AbortSignal,
+    _abortSignal: AbortSignal
   ): Promise<ToolCallConfirmationDetails | false> {
     const command = stripShellWrapper(this.params.command);
     let rootCommands = [...new Set(getCommandRoots(command))];
@@ -133,7 +118,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     signal: AbortSignal,
     updateOutput?: (output: string | AnsiOutput) => void,
     shellExecutionConfig?: ShellExecutionConfig,
-    setPidCallback?: (pid: number) => void,
+    setPidCallback?: (pid: number) => void
   ): Promise<ToolResult> {
     const strippedCommand = stripShellWrapper(this.params.command);
 
@@ -145,9 +130,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     }
 
     const isWindows = os.platform() === 'win32';
-    const tempFileName = `shell_pgrep_${crypto
-      .randomBytes(6)
-      .toString('hex')}.tmp`;
+    const tempFileName = `shell_pgrep_${crypto.randomBytes(6).toString('hex')}.tmp`;
     const tempFilePath = path.join(os.tmpdir(), tempFileName);
 
     const timeoutMs = this.config.getShellToolInactivityTimeout();
@@ -196,73 +179,65 @@ export class ShellToolInvocation extends BaseToolInvocation<
       // Start timeout
       resetTimeout();
 
-      const { result: resultPromise, pid } =
-        await ShellExecutionService.execute(
-          commandToExecute,
-          cwd,
-          (event: ShellOutputEvent) => {
-            resetTimeout(); // Reset timeout on any event
-            if (!updateOutput) {
-              return;
-            }
+      const { result: resultPromise, pid } = await ShellExecutionService.execute(
+        commandToExecute,
+        cwd,
+        (event: ShellOutputEvent) => {
+          resetTimeout(); // Reset timeout on any event
+          if (!updateOutput) {
+            return;
+          }
 
-            let shouldUpdate = false;
+          let shouldUpdate = false;
 
-            switch (event.type) {
-              case 'data':
-                if (isBinaryStream) break;
-                cumulativeOutput = event.chunk;
+          switch (event.type) {
+            case 'data':
+              if (isBinaryStream) break;
+              cumulativeOutput = event.chunk;
+              shouldUpdate = true;
+              break;
+            case 'binary_detected':
+              isBinaryStream = true;
+              cumulativeOutput = '[Binary output detected. Halting stream...]';
+              shouldUpdate = true;
+              break;
+            case 'binary_progress':
+              isBinaryStream = true;
+              cumulativeOutput = `[Receiving binary output... ${formatBytes(event.bytesReceived)} received]`;
+              if (Date.now() - lastUpdateTime > OUTPUT_UPDATE_INTERVAL_MS) {
                 shouldUpdate = true;
-                break;
-              case 'binary_detected':
-                isBinaryStream = true;
-                cumulativeOutput =
-                  '[Binary output detected. Halting stream...]';
-                shouldUpdate = true;
-                break;
-              case 'binary_progress':
-                isBinaryStream = true;
-                cumulativeOutput = `[Receiving binary output... ${formatBytes(
-                  event.bytesReceived,
-                )} received]`;
-                if (Date.now() - lastUpdateTime > OUTPUT_UPDATE_INTERVAL_MS) {
-                  shouldUpdate = true;
-                }
-                break;
-              case 'process':
-                // Process event indicates the command is actively running
-                // Only update periodically to avoid excessive UI updates
-                if (Date.now() - lastUpdateTime > OUTPUT_UPDATE_INTERVAL_MS) {
-                  cumulativeOutput = `[Processing... ${formatBytes(
-                    event.bytesReceived,
-                  )} received]`;
-                  shouldUpdate = true;
-                }
-                break;
-              case 'exit':
-                // Exit event is handled by ShellExecutionService after this callback.
-                // Nothing to display here — just ignore it.
-                break;
-              default: {
-                throw new Error('An unhandled ShellOutputEvent was found.');
               }
+              break;
+            case 'process':
+              // Process event indicates the command is actively running
+              // Only update periodically to avoid excessive UI updates
+              if (Date.now() - lastUpdateTime > OUTPUT_UPDATE_INTERVAL_MS) {
+                cumulativeOutput = `[Processing... ${formatBytes(event.bytesReceived)} received]`;
+                shouldUpdate = true;
+              }
+              break;
+            case 'exit':
+              // Exit event is handled by ShellExecutionService after this callback.
+              // Nothing to display here — just ignore it.
+              break;
+            default: {
+              throw new Error('An unhandled ShellOutputEvent was found.');
             }
+          }
 
-            if (shouldUpdate) {
-              updateOutput(cumulativeOutput);
-              lastUpdateTime = Date.now();
-            }
-          },
-          combinedController.signal,
-          this.config.getEnableInteractiveShell(),
-          {
-            ...shellExecutionConfig,
-            pager: 'cat',
-            sanitizationConfig:
-              shellExecutionConfig?.sanitizationConfig ??
-              this.config.sanitizationConfig,
-          },
-        );
+          if (shouldUpdate) {
+            updateOutput(cumulativeOutput);
+            lastUpdateTime = Date.now();
+          }
+        },
+        combinedController.signal,
+        this.config.getEnableInteractiveShell(),
+        {
+          ...shellExecutionConfig,
+          pager: 'cat',
+          sanitizationConfig: shellExecutionConfig?.sanitizationConfig ?? this.config.sanitizationConfig,
+        }
+      );
 
       if (pid && setPidCallback) {
         setPidCallback(pid);
@@ -273,10 +248,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
       const backgroundPIDs: number[] = [];
       if (os.platform() !== 'win32') {
         if (fs.existsSync(tempFilePath)) {
-          const pgrepLines = fs
-            .readFileSync(tempFilePath, 'utf8')
-            .split(EOL)
-            .filter(Boolean);
+          const pgrepLines = fs.readFileSync(tempFilePath, 'utf8').split(EOL).filter(Boolean);
           for (const line of pgrepLines) {
             if (!/^\d+$/.test(line)) {
               debugLogger.error(`pgrep: ${line}`);
@@ -302,8 +274,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
           ).toFixed(1)} minutes without output.`;
           llmContent = timeoutMessage;
         } else {
-          llmContent =
-            'Command was cancelled by user before it could complete.';
+          llmContent = 'Command was cancelled by user before it could complete.';
         }
         if (result.output.trim()) {
           llmContent += ` Below is the output before it was cancelled:\n${result.output}`;
@@ -324,9 +295,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
           `Error: ${finalError}`, // Use the cleaned error string.
           `Exit Code: ${result.exitCode ?? '(none)'}`,
           `Signal: ${result.signal ?? '(none)'}`,
-          `Background PIDs: ${
-            backgroundPIDs.length ? backgroundPIDs.join(', ') : '(none)'
-          }`,
+          `Background PIDs: ${backgroundPIDs.length ? backgroundPIDs.join(', ') : '(none)'}`,
           `Process Group PGID: ${result.pid ?? '(none)'}`,
         ].join('\n');
       }
@@ -347,9 +316,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
           } else if (result.signal) {
             returnDisplayMessage = `Command terminated by signal: ${result.signal}`;
           } else if (result.error) {
-            returnDisplayMessage = `Command failed: ${getErrorMessage(
-              result.error,
-            )}`;
+            returnDisplayMessage = `Command failed: ${getErrorMessage(result.error)}`;
           } else if (result.exitCode !== null && result.exitCode !== 0) {
             returnDisplayMessage = `Command exited with code: ${result.exitCode}`;
           }
@@ -373,7 +340,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
           { model: 'summarizer-shell' },
           llmContent,
           this.config.getGeminiClient(),
-          signal,
+          signal
         );
         return {
           llmContent: summary,
@@ -428,15 +395,12 @@ function getCommandDescription(): string {
   }
 }
 
-export class ShellTool extends BaseDeclarativeTool<
-  ShellToolParams,
-  ToolResult
-> {
+export class ShellTool extends BaseDeclarativeTool<ShellToolParams, ToolResult> {
   static readonly Name = SHELL_TOOL_NAME;
 
   constructor(
     private readonly config: Config,
-    messageBus: MessageBus,
+    messageBus: MessageBus
   ) {
     void initializeShellParsers().catch(() => {
       // Errors are surfaced when parsing commands.
@@ -468,22 +432,17 @@ export class ShellTool extends BaseDeclarativeTool<
       },
       messageBus,
       false, // output is not markdown
-      true, // output can be updated
+      true // output can be updated
     );
   }
 
-  protected override validateToolParamValues(
-    params: ShellToolParams,
-  ): string | null {
+  protected override validateToolParamValues(params: ShellToolParams): string | null {
     if (!params.command.trim()) {
       return 'Command cannot be empty.';
     }
 
     if (params.dir_path) {
-      const resolvedPath = path.resolve(
-        this.config.getTargetDir(),
-        params.dir_path,
-      );
+      const resolvedPath = path.resolve(this.config.getTargetDir(), params.dir_path);
       const workspaceContext = this.config.getWorkspaceContext();
       if (!workspaceContext.isPathWithinWorkspace(resolvedPath)) {
         return `Directory '${resolvedPath}' is not within any of the registered workspace directories.`;
@@ -496,14 +455,8 @@ export class ShellTool extends BaseDeclarativeTool<
     params: ShellToolParams,
     messageBus: MessageBus,
     _toolName?: string,
-    _toolDisplayName?: string,
+    _toolDisplayName?: string
   ): ToolInvocation<ShellToolParams, ToolResult> {
-    return new ShellToolInvocation(
-      this.config,
-      params,
-      messageBus,
-      _toolName,
-      _toolDisplayName,
-    );
+    return new ShellToolInvocation(this.config, params, messageBus, _toolName, _toolDisplayName);
   }
 }

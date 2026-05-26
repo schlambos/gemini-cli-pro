@@ -23,9 +23,7 @@ describe('reportError', () => {
     // Create a temporary directory for logs
     testDir = await fs.mkdtemp(path.join(os.tmpdir(), 'gemini-report-test-'));
     vi.resetAllMocks();
-    debugLoggerErrorSpy = vi
-      .spyOn(debugLogger, 'error')
-      .mockImplementation(() => {});
+    debugLoggerErrorSpy = vi.spyOn(debugLogger, 'error').mockImplementation(() => {});
     vi.spyOn(Date.prototype, 'toISOString').mockReturnValue(MOCK_TIMESTAMP);
   });
 
@@ -60,7 +58,7 @@ describe('reportError', () => {
     // Verify the user feedback
     expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
       `${baseMessage} Full report available at: ${expectedReportPath}`,
-      error,
+      error
     );
   });
 
@@ -81,7 +79,7 @@ describe('reportError', () => {
 
     expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
       `${baseMessage} Full report available at: ${expectedReportPath}`,
-      error,
+      error
     );
   });
 
@@ -102,7 +100,7 @@ describe('reportError', () => {
 
     expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
       `${baseMessage} Full report available at: ${expectedReportPath}`,
-      error,
+      error
     );
   });
 
@@ -117,16 +115,10 @@ describe('reportError', () => {
 
     expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
       `${baseMessage} Additionally, failed to write detailed error report:`,
-      expect.any(Error), // The actual write error
+      expect.any(Error) // The actual write error
     );
-    expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
-      'Original error that triggered report generation:',
-      error,
-    );
-    expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
-      'Original context:',
-      context,
-    );
+    expect(debugLoggerErrorSpy).toHaveBeenCalledWith('Original error that triggered report generation:', error);
+    expect(debugLoggerErrorSpy).toHaveBeenCalledWith('Original context:', context);
   });
 
   it('should handle stringification failure of report content (e.g. BigInt in context)', async () => {
@@ -135,9 +127,7 @@ describe('reportError', () => {
     const baseMessage = 'Failed operation with BigInt.';
     const context = { a: BigInt(1) }; // BigInt cannot be stringified by JSON.stringify
     const type = 'bigint-fail';
-    const stringifyError = new TypeError(
-      'Do not know how to serialize a BigInt',
-    );
+    const stringifyError = new TypeError('Do not know how to serialize a BigInt');
     const expectedMinimalReportPath = getExpectedReportPath(type);
 
     // Simulate JSON.stringify throwing an error for the full report
@@ -157,14 +147,11 @@ describe('reportError', () => {
 
     expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
       `${baseMessage} Could not stringify report content (likely due to context):`,
-      stringifyError,
+      stringifyError
     );
+    expect(debugLoggerErrorSpy).toHaveBeenCalledWith('Original error that triggered report generation:', error);
     expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
-      'Original error that triggered report generation:',
-      error,
-    );
-    expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
-      'Original context could not be stringified or included in report.',
+      'Original context could not be stringified or included in report.'
     );
 
     // Check that it writes a minimal report
@@ -176,7 +163,7 @@ describe('reportError', () => {
 
     expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
       `${baseMessage} Partial report (excluding context) available at: ${expectedMinimalReportPath}`,
-      error,
+      error
     );
   });
 
@@ -198,7 +185,7 @@ describe('reportError', () => {
 
     expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
       `${baseMessage} Full report available at: ${expectedReportPath}`,
-      error,
+      error
     );
   });
 });

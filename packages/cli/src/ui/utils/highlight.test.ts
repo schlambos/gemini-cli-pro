@@ -10,16 +10,12 @@ import type { Transformation } from '../components/shared/text-buffer.js';
 
 describe('parseInputForHighlighting', () => {
   it('should handle an empty string', () => {
-    expect(parseInputForHighlighting('', 0)).toEqual([
-      { text: '', type: 'default' },
-    ]);
+    expect(parseInputForHighlighting('', 0)).toEqual([{ text: '', type: 'default' }]);
   });
 
   it('should handle text with no commands or files', () => {
     const text = 'this is a normal sentence';
-    expect(parseInputForHighlighting(text, 0)).toEqual([
-      { text, type: 'default' },
-    ]);
+    expect(parseInputForHighlighting(text, 0)).toEqual([{ text, type: 'default' }]);
   });
 
   it('should highlight a single command at the beginning when index is 0', () => {
@@ -48,9 +44,7 @@ describe('parseInputForHighlighting', () => {
 
   it('should not highlight a command in the middle', () => {
     const text = 'I need /help with this';
-    expect(parseInputForHighlighting(text, 0)).toEqual([
-      { text: 'I need /help with this', type: 'default' },
-    ]);
+    expect(parseInputForHighlighting(text, 0)).toEqual([{ text: 'I need /help with this', type: 'default' }]);
   });
 
   it('should highlight a file path in the middle', () => {
@@ -82,9 +76,7 @@ describe('parseInputForHighlighting', () => {
 
   it('should not highlight command at the end of the string', () => {
     const text = 'Get help with /help';
-    expect(parseInputForHighlighting(text, 0)).toEqual([
-      { text: 'Get help with /help', type: 'default' },
-    ]);
+    expect(parseInputForHighlighting(text, 0)).toEqual([{ text: 'Get help with /help', type: 'default' }]);
   });
 
   it('should handle file paths with dots and dashes', () => {
@@ -97,9 +89,7 @@ describe('parseInputForHighlighting', () => {
 
   it('should not highlight command with dashes and numbers not at start', () => {
     const text = 'Run /command-123 now';
-    expect(parseInputForHighlighting(text, 0)).toEqual([
-      { text: 'Run /command-123 now', type: 'default' },
-    ]);
+    expect(parseInputForHighlighting(text, 0)).toEqual([{ text: 'Run /command-123 now', type: 'default' }]);
   });
 
   it('should highlight command with dashes and numbers at start', () => {
@@ -161,7 +151,7 @@ describe('parseInputForHighlighting with Transformations', () => {
       line,
       0, // line index
       transformations,
-      0, // cursor not on transformation
+      0 // cursor not on transformation
     );
 
     expect(result).toEqual([
@@ -176,7 +166,7 @@ describe('parseInputForHighlighting with Transformations', () => {
       line,
       0, // line index
       transformations,
-      11, // cursor on transformation
+      11 // cursor on transformation
     );
 
     expect(result).toEqual([
@@ -240,7 +230,7 @@ describe('parseInputForHighlighting with Transformations', () => {
       line,
       0,
       transformations,
-      10, // cursor at start of transformation
+      10 // cursor at start of transformation
     );
 
     expect(result[1]).toEqual({ text: '@test.png', type: 'file' });

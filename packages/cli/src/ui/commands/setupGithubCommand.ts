@@ -10,12 +10,7 @@ import { Writable } from 'node:stream';
 import { ProxyAgent } from 'undici';
 
 import type { CommandContext } from '../../ui/commands/types.js';
-import {
-  getGitRepoRoot,
-  getLatestGitHubRelease,
-  isGitHubRepository,
-  getGitHubRepoInfo,
-} from '../../utils/gitUtils.js';
+import { getGitRepoRoot, getLatestGitHubRelease, isGitHubRepository, getGitHubRepoInfo } from '../../utils/gitUtils.js';
 
 import type { SlashCommand, SlashCommandActionReturn } from './types.js';
 import { CommandKind } from './types.js';
@@ -37,8 +32,7 @@ export const GITHUB_COMMANDS_PATHS = [
   'pr-review/gemini-review.toml',
 ];
 
-const REPO_DOWNLOAD_URL =
-  'https://raw.githubusercontent.com/google-github-actions/run-gemini-cli';
+const REPO_DOWNLOAD_URL = 'https://raw.githubusercontent.com/google-github-actions/run-gemini-cli';
 const SOURCE_DIR = 'examples/workflows';
 // Generate OS-specific commands to open the GitHub pages needed for setup.
 function getOpenUrlsCommands(readmeUrl: string): string[] {
@@ -50,9 +44,7 @@ function getOpenUrlsCommands(readmeUrl: string): string[] {
 
   const repoInfo = getGitHubRepoInfo();
   if (repoInfo) {
-    urlsToOpen.push(
-      `https://github.com/${repoInfo.owner}/${repoInfo.repo}/settings/secrets/actions`,
-    );
+    urlsToOpen.push(`https://github.com/${repoInfo.owner}/${repoInfo.repo}/settings/secrets/actions`);
   }
 
   // Create and join the individual commands
@@ -83,10 +75,7 @@ export async function updateGitignore(gitRepoRoot: string): Promise<void> {
     } else {
       // Check which entries are missing
       const missingEntries = gitignoreEntries.filter(
-        (entry) =>
-          !existingContent
-            .split(/\r?\n/)
-            .some((line) => line.split('#')[0].trim() === entry),
+        (entry) => !existingContent.split(/\r?\n/).some((line) => line.split('#')[0].trim() === entry)
       );
 
       if (missingEntries.length > 0) {
@@ -121,28 +110,18 @@ async function downloadFiles({
         const response = await fetch(endpoint, {
           method: 'GET',
           dispatcher: proxy ? new ProxyAgent(proxy) : undefined,
-          signal: AbortSignal.any([
-            AbortSignal.timeout(30_000),
-            abortController.signal,
-          ]),
+          signal: AbortSignal.any([AbortSignal.timeout(30_000), abortController.signal]),
         } as RequestInit);
 
         if (!response.ok) {
-          throw new Error(
-            `Invalid response code downloading ${endpoint}: ${response.status} - ${response.statusText}`,
-          );
+          throw new Error(`Invalid response code downloading ${endpoint}: ${response.status} - ${response.statusText}`);
         }
         const body = response.body;
         if (!body) {
-          throw new Error(
-            `Empty body while downloading ${endpoint}: ${response.status} - ${response.statusText}`,
-          );
+          throw new Error(`Empty body while downloading ${endpoint}: ${response.status} - ${response.statusText}`);
         }
 
-        const destination = path.resolve(
-          targetDir,
-          path.basename(fileBasename),
-        );
+        const destination = path.resolve(targetDir, path.basename(fileBasename));
 
         const fileStream = fs.createWriteStream(destination, {
           mode: 0o644, // -rw-r--r--, user(rw), group(r), other(r)
@@ -151,7 +130,7 @@ async function downloadFiles({
         });
 
         await body.pipeTo(Writable.toWeb(fileStream));
-      })(),
+      })()
     );
   }
 
@@ -165,9 +144,7 @@ async function createDirectory(dirPath: string): Promise<void> {
     await fs.promises.mkdir(dirPath, { recursive: true });
   } catch (_error) {
     debugLogger.debug(`Failed to create ${dirPath} directory:`, _error);
-    throw new Error(
-      `Unable to create ${dirPath} directory. Do you have file permissions in the current directory?`,
-    );
+    throw new Error(`Unable to create ${dirPath} directory. Do you have file permissions in the current directory?`);
   }
 }
 
@@ -191,7 +168,7 @@ async function downloadSetupFiles({
           proxy,
           abortController,
         });
-      }),
+      })
     );
   } catch (error) {
     debugLogger.debug('Failed to download required setup files: ', error);
@@ -204,13 +181,9 @@ export const setupGithubCommand: SlashCommand = {
   description: 'Set up GitHub Actions',
   kind: CommandKind.BUILT_IN,
   autoExecute: true,
-  action: async (
-    context: CommandContext,
-  ): Promise<SlashCommandActionReturn> => {
+  action: async (context: CommandContext): Promise<SlashCommandActionReturn> => {
     if (!isGitHubRepository()) {
-      throw new Error(
-        'Unable to determine the GitHub repository. /setup-github must be run from a git repository.',
-      );
+      throw new Error('Unable to determine the GitHub repository. /setup-github must be run from a git repository.');
     }
 
     // Find the root directory of the repo
@@ -219,9 +192,7 @@ export const setupGithubCommand: SlashCommand = {
       gitRepoRoot = getGitRepoRoot();
     } catch (_error) {
       debugLogger.debug(`Failed to get git repo root:`, _error);
-      throw new Error(
-        'Unable to determine the GitHub repository. /setup-github must be run from a git repository.',
-      );
+      throw new Error('Unable to determine the GitHub repository. /setup-github must be run from a git repository.');
     }
 
     // Get the latest release tag from GitHub
@@ -255,7 +226,7 @@ export const setupGithubCommand: SlashCommand = {
       commands.push('set -eEuo pipefail');
     }
     commands.push(
-      `echo "Successfully downloaded ${GITHUB_WORKFLOW_PATHS.length} workflows , ${GITHUB_COMMANDS_PATHS.length} commands and updated .gitignore. Follow the steps in ${readmeUrl} (skipping the /setup-github step) to complete setup."`,
+      `echo "Successfully downloaded ${GITHUB_WORKFLOW_PATHS.length} workflows , ${GITHUB_COMMANDS_PATHS.length} commands and updated .gitignore. Follow the steps in ${readmeUrl} (skipping the /setup-github step) to complete setup."`
     );
     commands.push(...getOpenUrlsCommands(readmeUrl));
 
@@ -264,8 +235,7 @@ export const setupGithubCommand: SlashCommand = {
       type: 'tool',
       toolName: 'run_shell_command',
       toolArgs: {
-        description:
-          'Setting up GitHub Actions to triage issues and review PRs with Gemini.',
+        description: 'Setting up GitHub Actions to triage issues and review PRs with Gemini.',
         command,
       },
     };

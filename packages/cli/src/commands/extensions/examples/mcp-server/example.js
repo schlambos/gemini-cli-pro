@@ -20,9 +20,7 @@ server.registerTool(
     inputSchema: z.object({}).shape,
   },
   async () => {
-    const apiResponse = await fetch(
-      'https://jsonplaceholder.typicode.com/posts',
-    );
+    const apiResponse = await fetch('https://jsonplaceholder.typicode.com/posts');
     const posts = await apiResponse.json();
     const response = { posts: posts.slice(0, 5) };
     return {
@@ -33,7 +31,7 @@ server.registerTool(
         },
       ],
     };
-  },
+  }
 );
 
 server.registerPrompt(
@@ -53,7 +51,7 @@ server.registerPrompt(
         },
       },
     ],
-  }),
+  })
 );
 
 const transport = new StdioServerTransport();

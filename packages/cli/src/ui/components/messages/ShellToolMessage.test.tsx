@@ -5,16 +5,9 @@
  */
 
 import React, { act } from 'react';
-import {
-  ShellToolMessage,
-  type ShellToolMessageProps,
-} from './ShellToolMessage.js';
+import { ShellToolMessage, type ShellToolMessageProps } from './ShellToolMessage.js';
 import { StreamingState } from '../../types.js';
-import {
-  type Config,
-  SHELL_TOOL_NAME,
-  CoreToolCallStatus,
-} from '@google/gemini-cli-core';
+import { type Config, SHELL_TOOL_NAME, CoreToolCallStatus } from '@google/gemini-cli-core';
 import { renderWithProviders } from '../../../test-utils/render.js';
 import { waitFor } from '../../../test-utils/async.js';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -38,10 +31,7 @@ describe('<ShellToolMessage />', () => {
     } as unknown as Config,
   };
 
-  const LONG_OUTPUT = Array.from(
-    { length: 100 },
-    (_, i) => `Line ${i + 1}`,
-  ).join('\n');
+  const LONG_OUTPUT = Array.from({ length: 100 }, (_, i) => `Line ${i + 1}`).join('\n');
 
   const mockSetEmbeddedShellFocused = vi.fn();
   const uiActions = {
@@ -50,7 +40,7 @@ describe('<ShellToolMessage />', () => {
 
   const renderShell = (
     props: Partial<ShellToolMessageProps> = {},
-    options: Parameters<typeof renderWithProviders>[1] = {},
+    options: Parameters<typeof renderWithProviders>[1] = {}
   ) =>
     renderWithProviders(<ShellToolMessage {...baseProps} {...props} />, {
       uiActions,
@@ -65,10 +55,7 @@ describe('<ShellToolMessage />', () => {
       ['SHELL_COMMAND_NAME', SHELL_COMMAND_NAME],
       ['SHELL_TOOL_NAME', SHELL_TOOL_NAME],
     ])('clicks inside the shell area sets focus for %s', async (_, name) => {
-      const { stdin, lastFrame, simulateClick } = renderShell(
-        { name },
-        { mouseEventsEnabled: true },
-      );
+      const { stdin, lastFrame, simulateClick } = renderShell({ name }, { mouseEventsEnabled: true });
 
       await waitFor(() => {
         expect(lastFrame()).toContain('A shell command');
@@ -84,18 +71,10 @@ describe('<ShellToolMessage />', () => {
       let updateStatus: (s: CoreToolCallStatus) => void = () => {};
 
       const Wrapper = () => {
-        const [status, setStatus] = React.useState(
-          CoreToolCallStatus.Executing,
-        );
+        const [status, setStatus] = React.useState(CoreToolCallStatus.Executing);
         updateStatus = setStatus;
         return (
-          <ShellToolMessage
-            {...baseProps}
-            status={status}
-            embeddedShellFocused={true}
-            activeShellPtyId={1}
-            ptyId={1}
-          />
+          <ShellToolMessage {...baseProps} status={status} embeddedShellFocused={true} activeShellPtyId={1} ptyId={1} />
         );
       };
 
@@ -124,21 +103,9 @@ describe('<ShellToolMessage />', () => {
 
   describe('Snapshots', () => {
     it.each([
-      [
-        'renders in Executing state',
-        { status: CoreToolCallStatus.Executing },
-        undefined,
-      ],
-      [
-        'renders in Success state (history mode)',
-        { status: CoreToolCallStatus.Success },
-        undefined,
-      ],
-      [
-        'renders in Error state',
-        { status: CoreToolCallStatus.Error, resultDisplay: 'Error output' },
-        undefined,
-      ],
+      ['renders in Executing state', { status: CoreToolCallStatus.Executing }, undefined],
+      ['renders in Success state (history mode)', { status: CoreToolCallStatus.Success }, undefined],
+      ['renders in Error state', { status: CoreToolCallStatus.Error, resultDisplay: 'Error output' }, undefined],
       [
         'renders in Alternate Buffer mode while focused',
         {
@@ -169,18 +136,8 @@ describe('<ShellToolMessage />', () => {
 
   describe('Height Constraints', () => {
     it.each([
-      [
-        'respects availableTerminalHeight when it is smaller than ACTIVE_SHELL_MAX_LINES',
-        10,
-        8,
-        false,
-      ],
-      [
-        'uses ACTIVE_SHELL_MAX_LINES when availableTerminalHeight is large',
-        100,
-        ACTIVE_SHELL_MAX_LINES,
-        false,
-      ],
+      ['respects availableTerminalHeight when it is smaller than ACTIVE_SHELL_MAX_LINES', 10, 8, false],
+      ['uses ACTIVE_SHELL_MAX_LINES when availableTerminalHeight is large', 100, ACTIVE_SHELL_MAX_LINES, false],
       [
         'uses full availableTerminalHeight when focused in alternate buffer mode',
         100,
@@ -204,7 +161,7 @@ describe('<ShellToolMessage />', () => {
           status: CoreToolCallStatus.Executing,
           embeddedShellFocused: focused,
         },
-        { useAlternateBuffer: true },
+        { useAlternateBuffer: true }
       );
 
       await waitFor(() => {

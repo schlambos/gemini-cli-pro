@@ -59,11 +59,7 @@ export class A2AClientManager {
    * @param authHandler Optional authentication handler to use for this agent.
    * @returns The loaded AgentCard.
    */
-  async loadAgent(
-    name: string,
-    agentCardUrl: string,
-    authHandler?: AuthenticationHandler,
-  ): Promise<AgentCard> {
+  async loadAgent(name: string, agentCardUrl: string, authHandler?: AuthenticationHandler): Promise<AgentCard> {
     if (this.clients.has(name) && this.agentCards.has(name)) {
       throw new Error(`Agent with name '${name}' is already loaded.`);
     }
@@ -75,16 +71,10 @@ export class A2AClientManager {
 
     const resolver = new DefaultAgentCardResolver({ fetchImpl });
 
-    const options = ClientFactoryOptions.createFrom(
-      ClientFactoryOptions.default,
-      {
-        transports: [
-          new RestTransportFactory({ fetchImpl }),
-          new JsonRpcTransportFactory({ fetchImpl }),
-        ],
-        cardResolver: resolver,
-      },
-    );
+    const options = ClientFactoryOptions.createFrom(ClientFactoryOptions.default, {
+      transports: [new RestTransportFactory({ fetchImpl }), new JsonRpcTransportFactory({ fetchImpl })],
+      cardResolver: resolver,
+    });
 
     const factory = new ClientFactory(options);
     const client = await factory.createFromUrl(agentCardUrl, '');
@@ -93,9 +83,7 @@ export class A2AClientManager {
     this.clients.set(name, client);
     this.agentCards.set(name, agentCard);
 
-    debugLogger.debug(
-      `[A2AClientManager] Loaded agent '${name}' from ${agentCardUrl}`,
-    );
+    debugLogger.debug(`[A2AClientManager] Loaded agent '${name}' from ${agentCardUrl}`);
 
     return agentCard;
   }
@@ -120,7 +108,7 @@ export class A2AClientManager {
   async sendMessage(
     agentName: string,
     message: string,
-    options?: { contextId?: string; taskId?: string },
+    options?: { contextId?: string; taskId?: string }
   ): Promise<SendMessageResult> {
     const client = this.clients.get(agentName);
     if (!client) {
@@ -148,9 +136,7 @@ export class A2AClientManager {
       if (error instanceof Error) {
         throw new Error(`${prefix}: ${error.message}`, { cause: error });
       }
-      throw new Error(
-        `${prefix}: Unexpected error during sendMessage: ${String(error)}`,
-      );
+      throw new Error(`${prefix}: Unexpected error during sendMessage: ${String(error)}`);
     }
   }
 

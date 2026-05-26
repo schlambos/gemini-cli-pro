@@ -29,13 +29,9 @@ vi.mock('fs', () => ({
 }));
 
 vi.mock('../core/client.js', () => ({
-  GeminiClient: vi.fn().mockImplementation(function (
-    this: any,
-    _config: Config,
-  ) {
+  GeminiClient: vi.fn().mockImplementation(function (this: any, _config: Config) {
     this.startChat = (...params: any[]) => mockStartChat(...params);
-    this.sendMessageStream = (...params: any[]) =>
-      mockSendMessageStream(...params);
+    this.sendMessageStream = (...params: any[]) => mockSendMessageStream(...params);
     return this;
   }),
 }));
@@ -94,26 +90,18 @@ describe('editCorrector', () => {
       expect(unescapeStringForGeminiBug('\\`')).toBe('`');
     });
     it('should handle multiple escaped sequences', () => {
-      expect(unescapeStringForGeminiBug('Hello\\nWorld\\tTest')).toBe(
-        'Hello\nWorld\tTest',
-      );
+      expect(unescapeStringForGeminiBug('Hello\\nWorld\\tTest')).toBe('Hello\nWorld\tTest');
     });
     it('should not alter already correct sequences', () => {
       expect(unescapeStringForGeminiBug('\n')).toBe('\n');
-      expect(unescapeStringForGeminiBug('Correct string')).toBe(
-        'Correct string',
-      );
+      expect(unescapeStringForGeminiBug('Correct string')).toBe('Correct string');
     });
     it('should handle mixed correct and incorrect sequences', () => {
-      expect(unescapeStringForGeminiBug('\\nCorrect\t\\`')).toBe(
-        '\nCorrect\t`',
-      );
+      expect(unescapeStringForGeminiBug('\\nCorrect\t\\`')).toBe('\nCorrect\t`');
     });
     it('should handle backslash followed by actual newline character', () => {
       expect(unescapeStringForGeminiBug('\\\n')).toBe('\n');
-      expect(unescapeStringForGeminiBug('First line\\\nSecond line')).toBe(
-        'First line\nSecond line',
-      );
+      expect(unescapeStringForGeminiBug('First line\\\nSecond line')).toBe('First line\nSecond line');
     });
     it('should handle multiple backslashes before an escapable character (aggressive unescaping)', () => {
       expect(unescapeStringForGeminiBug('\\\\n')).toBe('\n');
@@ -125,34 +113,22 @@ describe('editCorrector', () => {
     });
     it('should not alter strings with no targeted escape sequences', () => {
       expect(unescapeStringForGeminiBug('abc def')).toBe('abc def');
-      expect(unescapeStringForGeminiBug('C:\\Folder\\File')).toBe(
-        'C:\\Folder\\File',
-      );
+      expect(unescapeStringForGeminiBug('C:\\Folder\\File')).toBe('C:\\Folder\\File');
     });
     it('should correctly process strings with some targeted escapes', () => {
-      expect(unescapeStringForGeminiBug('C:\\Users\\name')).toBe(
-        'C:\\Users\name',
-      );
+      expect(unescapeStringForGeminiBug('C:\\Users\\name')).toBe('C:\\Users\name');
     });
     it('should handle complex cases with mixed slashes and characters', () => {
-      expect(
-        unescapeStringForGeminiBug('\\\\\\\nLine1\\\nLine2\\tTab\\\\`Tick\\"'),
-      ).toBe('\nLine1\nLine2\tTab`Tick"');
+      expect(unescapeStringForGeminiBug('\\\\\\\nLine1\\\nLine2\\tTab\\\\`Tick\\"')).toBe('\nLine1\nLine2\tTab`Tick"');
     });
     it('should handle escaped backslashes', () => {
       expect(unescapeStringForGeminiBug('\\\\')).toBe('\\');
       expect(unescapeStringForGeminiBug('C:\\\\Users')).toBe('C:\\Users');
-      expect(unescapeStringForGeminiBug('path\\\\to\\\\file')).toBe(
-        'path\to\\file',
-      );
+      expect(unescapeStringForGeminiBug('path\\\\to\\\\file')).toBe('path\to\\file');
     });
     it('should handle escaped backslashes mixed with other escapes (aggressive unescaping)', () => {
-      expect(unescapeStringForGeminiBug('line1\\\\\\nline2')).toBe(
-        'line1\nline2',
-      );
-      expect(unescapeStringForGeminiBug('quote\\\\"text\\\\nline')).toBe(
-        'quote"text\nline',
-      );
+      expect(unescapeStringForGeminiBug('line1\\\\\\nline2')).toBe('line1\nline2');
+      expect(unescapeStringForGeminiBug('quote\\\\"text\\\\nline')).toBe('quote"text\nline');
     });
   });
 
@@ -164,10 +140,7 @@ describe('editCorrector', () => {
     const abortSignal = new AbortController().signal;
 
     beforeEach(() => {
-      mockToolRegistry = new ToolRegistry(
-        {} as Config,
-        {} as any,
-      ) as Mocked<ToolRegistry>;
+      mockToolRegistry = new ToolRegistry({} as Config, {} as any) as Mocked<ToolRegistry>;
       const configParams = {
         apiKey: 'test-api-key',
         model: 'test-model',
@@ -210,9 +183,7 @@ describe('editCorrector', () => {
         setGeminiMdFileCount: vi.fn((count: number) => {
           configParams.geminiMdFileCount = count;
         }),
-        getAlwaysSkipModificationConfirmation: vi.fn(
-          () => configParams.alwaysSkipModificationConfirmation,
-        ),
+        getAlwaysSkipModificationConfirmation: vi.fn(() => configParams.alwaysSkipModificationConfirmation),
         setAlwaysSkipModificationConfirmation: vi.fn((skip: boolean) => {
           configParams.alwaysSkipModificationConfirmation = skip;
         }),
@@ -222,24 +193,20 @@ describe('editCorrector', () => {
 
       callCount = 0;
       mockResponses.length = 0;
-      mockGenerateJson = vi
-        .fn()
-        .mockImplementation((_contents, _schema, signal) => {
-          // Check if the signal is aborted. If so, throw an error or return a specific response.
-          if (signal && signal.aborted) {
-            return Promise.reject(new Error('Aborted')); // Or some other specific error/response
-          }
-          const response = mockResponses[callCount];
-          callCount++;
-          if (response === undefined) return Promise.resolve({});
-          return Promise.resolve(response);
-        });
+      mockGenerateJson = vi.fn().mockImplementation((_contents, _schema, signal) => {
+        // Check if the signal is aborted. If so, throw an error or return a specific response.
+        if (signal && signal.aborted) {
+          return Promise.reject(new Error('Aborted')); // Or some other specific error/response
+        }
+        const response = mockResponses[callCount];
+        callCount++;
+        if (response === undefined) return Promise.resolve({});
+        return Promise.resolve(response);
+      });
       mockStartChat = vi.fn();
       mockSendMessageStream = vi.fn();
 
-      mockGeminiClientInstance = new GeminiClient(
-        mockConfigInstance,
-      ) as Mocked<GeminiClient>;
+      mockGeminiClientInstance = new GeminiClient(mockConfigInstance) as Mocked<GeminiClient>;
       mockGeminiClientInstance.getHistory = vi.fn().mockReturnValue([]);
       mockBaseLlmClientInstance = {
         generateJson: mockGenerateJson,
@@ -273,7 +240,7 @@ describe('editCorrector', () => {
           mockGeminiClientInstance,
           mockBaseLlmClientInstance,
           abortSignal,
-          false,
+          false
         );
         expect(mockGenerateJson).toHaveBeenCalledTimes(1);
         expect(result.params.new_string).toBe('replace with "this"');
@@ -294,7 +261,7 @@ describe('editCorrector', () => {
           mockGeminiClientInstance,
           mockBaseLlmClientInstance,
           abortSignal,
-          false,
+          false
         );
         expect(mockGenerateJson).toHaveBeenCalledTimes(0);
         expect(result.params.new_string).toBe('replace with this');
@@ -318,7 +285,7 @@ describe('editCorrector', () => {
           mockGeminiClientInstance,
           mockBaseLlmClientInstance,
           abortSignal,
-          false,
+          false
         );
         expect(mockGenerateJson).toHaveBeenCalledTimes(1);
         expect(result.params.new_string).toBe('replace with "this"');
@@ -339,7 +306,7 @@ describe('editCorrector', () => {
           mockGeminiClientInstance,
           mockBaseLlmClientInstance,
           abortSignal,
-          false,
+          false
         );
         expect(mockGenerateJson).toHaveBeenCalledTimes(0);
         expect(result.params.new_string).toBe('replace with this');
@@ -364,7 +331,7 @@ describe('editCorrector', () => {
           mockGeminiClientInstance,
           mockBaseLlmClientInstance,
           abortSignal,
-          false,
+          false
         );
         expect(mockGenerateJson).toHaveBeenCalledTimes(1);
         expect(result.params.new_string).toBe('replace with "this"');
@@ -385,7 +352,7 @@ describe('editCorrector', () => {
           mockGeminiClientInstance,
           mockBaseLlmClientInstance,
           abortSignal,
-          false,
+          false
         );
         expect(mockGenerateJson).toHaveBeenCalledTimes(0);
         expect(result.params.new_string).toBe('replace with this');
@@ -406,7 +373,7 @@ describe('editCorrector', () => {
           mockGeminiClientInstance,
           mockBaseLlmClientInstance,
           abortSignal,
-          false,
+          false
         );
         expect(mockGenerateJson).toHaveBeenCalledTimes(0);
         expect(result.params.new_string).toBe('replace with foobar');
@@ -432,7 +399,7 @@ describe('editCorrector', () => {
           mockGeminiClientInstance,
           mockBaseLlmClientInstance,
           abortSignal,
-          false,
+          false
         );
         expect(mockGenerateJson).toHaveBeenCalledTimes(1);
         expect(result.params.new_string).toBe(llmNewString);
@@ -457,7 +424,7 @@ describe('editCorrector', () => {
           mockGeminiClientInstance,
           mockBaseLlmClientInstance,
           abortSignal,
-          false,
+          false
         );
         expect(mockGenerateJson).toHaveBeenCalledTimes(2);
         expect(result.params.new_string).toBe(llmNewString);
@@ -480,7 +447,7 @@ describe('editCorrector', () => {
           mockGeminiClientInstance,
           mockBaseLlmClientInstance,
           abortSignal,
-          false,
+          false
         );
         expect(mockGenerateJson).toHaveBeenCalledTimes(1);
         expect(result.params.new_string).toBe('replace with "this"');
@@ -505,7 +472,7 @@ describe('editCorrector', () => {
           mockGeminiClientInstance,
           mockBaseLlmClientInstance,
           abortSignal,
-          false,
+          false
         );
         expect(mockGenerateJson).toHaveBeenCalledTimes(1);
         expect(result.params.new_string).toBe(newStringForLLMAndReturnedByLLM);
@@ -529,15 +496,14 @@ describe('editCorrector', () => {
           mockGeminiClientInstance,
           mockBaseLlmClientInstance,
           abortSignal,
-          false,
+          false
         );
         expect(mockGenerateJson).toHaveBeenCalledTimes(1);
         expect(result.params).toEqual(originalParams);
         expect(result.occurrences).toBe(0);
       });
       it('Test 4.2: unescapedOldStringAttempt results in >1 occurrences -> returns original params, count occurrences', async () => {
-        const currentContent =
-          'This content has find "me" and also find "me" again.';
+        const currentContent = 'This content has find "me" and also find "me" again.';
         const originalParams = {
           file_path: '/test/file.txt',
           old_string: 'find "me"',
@@ -550,7 +516,7 @@ describe('editCorrector', () => {
           mockGeminiClientInstance,
           mockBaseLlmClientInstance,
           abortSignal,
-          false,
+          false
         );
         expect(mockGenerateJson).toHaveBeenCalledTimes(0);
         expect(result.params).toEqual(originalParams);
@@ -576,7 +542,7 @@ describe('editCorrector', () => {
           mockGeminiClientInstance,
           mockBaseLlmClientInstance,
           abortSignal,
-          false,
+          false
         );
         expect(mockGenerateJson).toHaveBeenCalledTimes(2);
         expect(result.params.old_string).toBe(currentContent);
@@ -588,8 +554,7 @@ describe('editCorrector', () => {
     describe('Scenario Group 6: Concurrent Edits', () => {
       it('Test 6.1: should return early if file was modified by another process', async () => {
         const filePath = '/test/file.txt';
-        const currentContent =
-          'This content has been modified by someone else.';
+        const currentContent = 'This content has been modified by someone else.';
         const originalParams = {
           file_path: filePath,
           old_string: 'nonexistent string',
@@ -632,7 +597,7 @@ describe('editCorrector', () => {
           mockGeminiClientInstance,
           mockBaseLlmClientInstance,
           abortSignal,
-          false,
+          false
         );
 
         expect(result.occurrences).toBe(0);
@@ -656,7 +621,7 @@ describe('editCorrector', () => {
           mockGeminiClientInstance,
           mockBaseLlmClientInstance,
           abortSignal,
-          false,
+          false
         );
 
         // old_string should be trimmed to 'find me' because 'find me' also exists uniquely in '  find me'
@@ -681,7 +646,7 @@ describe('editCorrector', () => {
           mockGeminiClientInstance,
           mockBaseLlmClientInstance,
           abortSignal,
-          false,
+          false
         );
 
         expect(result.params.old_string).toBe('find me');
@@ -699,17 +664,15 @@ describe('editCorrector', () => {
     beforeEach(() => {
       callCount = 0;
       mockResponses.length = 0;
-      mockGenerateJson = vi
-        .fn()
-        .mockImplementation((_contents, _schema, signal) => {
-          if (signal && signal.aborted) {
-            return Promise.reject(new Error('Aborted'));
-          }
-          const response = mockResponses[callCount];
-          callCount++;
-          if (response === undefined) return Promise.resolve({});
-          return Promise.resolve(response);
-        });
+      mockGenerateJson = vi.fn().mockImplementation((_contents, _schema, signal) => {
+        if (signal && signal.aborted) {
+          return Promise.reject(new Error('Aborted'));
+        }
+        const response = mockResponses[callCount];
+        callCount++;
+        if (response === undefined) return Promise.resolve({});
+        return Promise.resolve(response);
+      });
 
       mockBaseLlmClientInstance = {
         generateJson: mockGenerateJson,
@@ -727,12 +690,7 @@ describe('editCorrector', () => {
 
     it('should return content unchanged if no escaping issues detected', async () => {
       const content = 'This is normal content without escaping issues';
-      const result = await ensureCorrectFileContent(
-        content,
-        mockBaseLlmClientInstance,
-        abortSignal,
-        false,
-      );
+      const result = await ensureCorrectFileContent(content, mockBaseLlmClientInstance, abortSignal, false);
       expect(result).toBe(content);
       expect(mockGenerateJson).toHaveBeenCalledTimes(0);
     });
@@ -744,12 +702,7 @@ describe('editCorrector', () => {
         corrected_string_escaping: correctedContent,
       });
 
-      const result = await ensureCorrectFileContent(
-        content,
-        mockBaseLlmClientInstance,
-        abortSignal,
-        false,
-      );
+      const result = await ensureCorrectFileContent(content, mockBaseLlmClientInstance, abortSignal, false);
 
       expect(result).toBe(correctedContent);
       expect(mockGenerateJson).toHaveBeenCalledTimes(1);
@@ -765,12 +718,7 @@ describe('editCorrector', () => {
         corrected_string_escaping: correctedContent,
       });
 
-      const result = await ensureCorrectFileContent(
-        content,
-        mockBaseLlmClientInstance,
-        abortSignal,
-        false,
-      );
+      const result = await ensureCorrectFileContent(content, mockBaseLlmClientInstance, abortSignal, false);
 
       expect(result).toBe(correctedContent);
       expect(mockGenerateJson).toHaveBeenCalledTimes(1);
@@ -781,33 +729,21 @@ describe('editCorrector', () => {
       // Mock empty response to simulate LLM failure
       mockResponses.push({});
 
-      const result = await ensureCorrectFileContent(
-        content,
-        mockBaseLlmClientInstance,
-        abortSignal,
-        false,
-      );
+      const result = await ensureCorrectFileContent(content, mockBaseLlmClientInstance, abortSignal, false);
 
       expect(result).toBe(content);
       expect(mockGenerateJson).toHaveBeenCalledTimes(1);
     });
 
     it('should handle various escape sequences that need correction', async () => {
-      const content =
-        'const obj = { name: \\"John\\", age: 30, bio: \\"Developer\\nEngineer\\" };';
-      const correctedContent =
-        'const obj = { name: "John", age: 30, bio: "Developer\nEngineer" };';
+      const content = 'const obj = { name: \\"John\\", age: 30, bio: \\"Developer\\nEngineer\\" };';
+      const correctedContent = 'const obj = { name: "John", age: 30, bio: "Developer\nEngineer" };';
 
       mockResponses.push({
         corrected_string_escaping: correctedContent,
       });
 
-      const result = await ensureCorrectFileContent(
-        content,
-        mockBaseLlmClientInstance,
-        abortSignal,
-        false,
-      );
+      const result = await ensureCorrectFileContent(content, mockBaseLlmClientInstance, abortSignal, false);
 
       expect(result).toBe(correctedContent);
     });

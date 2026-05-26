@@ -16,49 +16,33 @@ describe('IdeTrustChangeDialog', () => {
   });
 
   it('renders the correct message for CONNECTION_CHANGE', () => {
-    const { lastFrame } = renderWithProviders(
-      <IdeTrustChangeDialog reason="CONNECTION_CHANGE" />,
-    );
+    const { lastFrame } = renderWithProviders(<IdeTrustChangeDialog reason='CONNECTION_CHANGE' />);
 
     const frameText = lastFrame();
-    expect(frameText).toContain(
-      'Workspace trust has changed due to a change in the IDE connection.',
-    );
+    expect(frameText).toContain('Workspace trust has changed due to a change in the IDE connection.');
     expect(frameText).toContain("Press 'r' to restart Gemini");
   });
 
   it('renders the correct message for TRUST_CHANGE', () => {
-    const { lastFrame } = renderWithProviders(
-      <IdeTrustChangeDialog reason="TRUST_CHANGE" />,
-    );
+    const { lastFrame } = renderWithProviders(<IdeTrustChangeDialog reason='TRUST_CHANGE' />);
 
     const frameText = lastFrame();
-    expect(frameText).toContain(
-      'Workspace trust has changed due to a change in the IDE trust.',
-    );
+    expect(frameText).toContain('Workspace trust has changed due to a change in the IDE trust.');
     expect(frameText).toContain("Press 'r' to restart Gemini");
   });
 
   it('renders a generic message and logs an error for NONE reason', () => {
-    const debugLoggerWarnSpy = vi
-      .spyOn(debugLogger, 'warn')
-      .mockImplementation(() => {});
-    const { lastFrame } = renderWithProviders(
-      <IdeTrustChangeDialog reason="NONE" />,
-    );
+    const debugLoggerWarnSpy = vi.spyOn(debugLogger, 'warn').mockImplementation(() => {});
+    const { lastFrame } = renderWithProviders(<IdeTrustChangeDialog reason='NONE' />);
 
     const frameText = lastFrame();
     expect(frameText).toContain('Workspace trust has changed.');
-    expect(debugLoggerWarnSpy).toHaveBeenCalledWith(
-      'IdeTrustChangeDialog rendered with unexpected reason "NONE"',
-    );
+    expect(debugLoggerWarnSpy).toHaveBeenCalledWith('IdeTrustChangeDialog rendered with unexpected reason "NONE"');
   });
 
   it('calls relaunchApp when "r" is pressed', () => {
     const relaunchAppSpy = vi.spyOn(processUtils, 'relaunchApp');
-    const { stdin } = renderWithProviders(
-      <IdeTrustChangeDialog reason="NONE" />,
-    );
+    const { stdin } = renderWithProviders(<IdeTrustChangeDialog reason='NONE' />);
 
     stdin.write('r');
 
@@ -67,9 +51,7 @@ describe('IdeTrustChangeDialog', () => {
 
   it('calls relaunchApp when "R" is pressed', () => {
     const relaunchAppSpy = vi.spyOn(processUtils, 'relaunchApp');
-    const { stdin } = renderWithProviders(
-      <IdeTrustChangeDialog reason="CONNECTION_CHANGE" />,
-    );
+    const { stdin } = renderWithProviders(<IdeTrustChangeDialog reason='CONNECTION_CHANGE' />);
 
     stdin.write('R');
 
@@ -78,9 +60,7 @@ describe('IdeTrustChangeDialog', () => {
 
   it('does not call relaunchApp when another key is pressed', async () => {
     const relaunchAppSpy = vi.spyOn(processUtils, 'relaunchApp');
-    const { stdin } = renderWithProviders(
-      <IdeTrustChangeDialog reason="CONNECTION_CHANGE" />,
-    );
+    const { stdin } = renderWithProviders(<IdeTrustChangeDialog reason='CONNECTION_CHANGE' />);
 
     stdin.write('a');
 

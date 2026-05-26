@@ -4,14 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type {
-  Message,
-  Task,
-  Part,
-  TextPart,
-  DataPart,
-  FilePart,
-} from '@a2a-js/sdk';
+import type { Message, Task, Part, TextPart, DataPart, FilePart } from '@a2a-js/sdk';
 
 /**
  * Extracts a human-readable text representation from a Message object.
@@ -72,9 +65,7 @@ export function extractTaskText(task: Task): string {
       const artifactContent = extractPartsText(artifact.parts);
 
       if (artifactContent) {
-        const header = artifact.name
-          ? `Artifact (${artifact.name}):`
-          : 'Artifact:';
+        const header = artifact.name ? `Artifact (${artifact.name}):` : 'Artifact:';
         parts.push(`${header}\n${artifactContent}`);
       }
     }
@@ -133,9 +124,7 @@ export function extractIdsFromResponse(result: Message | Task): {
     if (
       result.status &&
       result.status.state !== 'input-required' &&
-      (result.status.state === 'completed' ||
-        result.status.state === 'failed' ||
-        result.status.state === 'canceled')
+      (result.status.state === 'completed' || result.status.state === 'failed' || result.status.state === 'canceled')
     ) {
       taskId = undefined;
     }

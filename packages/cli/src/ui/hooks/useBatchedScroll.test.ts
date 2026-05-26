@@ -16,9 +16,7 @@ describe('useBatchedScroll', () => {
 
   it('returns updated scrollTop from props', () => {
     let currentScrollTop = 10;
-    const { result, rerender } = renderHook(() =>
-      useBatchedScroll(currentScrollTop),
-    );
+    const { result, rerender } = renderHook(() => useBatchedScroll(currentScrollTop));
 
     expect(result.current.getScrollTop()).toBe(10);
 
@@ -45,9 +43,7 @@ describe('useBatchedScroll', () => {
 
   it('resets pending scrollTop after rerender', () => {
     let currentScrollTop = 10;
-    const { result, rerender } = renderHook(() =>
-      useBatchedScroll(currentScrollTop),
-    );
+    const { result, rerender } = renderHook(() => useBatchedScroll(currentScrollTop));
 
     result.current.setPendingScrollTop(50);
     expect(result.current.getScrollTop()).toBe(50);

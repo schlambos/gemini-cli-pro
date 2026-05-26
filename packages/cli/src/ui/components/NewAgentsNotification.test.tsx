@@ -30,9 +30,7 @@ describe('NewAgentsNotification', () => {
   const onSelect = vi.fn();
 
   it('renders agent list', () => {
-    const { lastFrame, unmount } = render(
-      <NewAgentsNotification agents={mockAgents} onSelect={onSelect} />,
-    );
+    const { lastFrame, unmount } = render(<NewAgentsNotification agents={mockAgents} onSelect={onSelect} />);
 
     const frame = lastFrame();
     expect(frame).toMatchSnapshot();
@@ -48,9 +46,7 @@ describe('NewAgentsNotification', () => {
       inputConfig: { inputSchema: {} },
     }));
 
-    const { lastFrame, unmount } = render(
-      <NewAgentsNotification agents={manyAgents} onSelect={onSelect} />,
-    );
+    const { lastFrame, unmount } = render(<NewAgentsNotification agents={manyAgents} onSelect={onSelect} />);
 
     const frame = lastFrame();
     expect(frame).toMatchSnapshot();
@@ -62,11 +58,11 @@ describe('NewAgentsNotification', () => {
       () =>
         new Promise<void>(() => {
           // Never resolve
-        }),
+        })
     );
 
     const { lastFrame, stdin, unmount } = render(
-      <NewAgentsNotification agents={mockAgents} onSelect={asyncOnSelect} />,
+      <NewAgentsNotification agents={mockAgents} onSelect={asyncOnSelect} />
     );
 
     // Press Enter to select the first option

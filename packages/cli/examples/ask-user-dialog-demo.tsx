@@ -52,32 +52,25 @@ const Demo = () => {
   if (cancelled) {
     return (
       <Box padding={1}>
-        <Text color="red">
-          Dialog was cancelled. Project initialization aborted.
-        </Text>
+        <Text color='red'>Dialog was cancelled. Project initialization aborted.</Text>
       </Box>
     );
   }
 
   if (result) {
     return (
-      <Box
-        flexDirection="column"
-        padding={1}
-        borderStyle="single"
-        borderColor="green"
-      >
-        <Text bold color="green">
+      <Box flexDirection='column' padding={1} borderStyle='single' borderColor='green'>
+        <Text bold color='green'>
           Success! Project Configuration:
         </Text>
         {DEMO_QUESTIONS.map((q, i) => (
           <Box key={i} marginTop={1}>
-            <Text color="gray">{q.header}: </Text>
+            <Text color='gray'>{q.header}: </Text>
             <Text>{result[i] || '(not answered)'}</Text>
           </Box>
         ))}
         <Box marginTop={1}>
-          <Text color="dim">Press Ctrl+C to exit</Text>
+          <Text color='dim'>Press Ctrl+C to exit</Text>
         </Box>
       </Box>
     );
@@ -85,15 +78,11 @@ const Demo = () => {
 
   return (
     <KeypressProvider>
-      <Box padding={1} flexDirection="column">
+      <Box padding={1} flexDirection='column'>
         <Text bold marginBottom={1}>
           AskUserDialog Demo
         </Text>
-        <AskUserDialog
-          questions={DEMO_QUESTIONS}
-          onSubmit={setResult}
-          onCancel={() => setCancelled(true)}
-        />
+        <AskUserDialog questions={DEMO_QUESTIONS} onSubmit={setResult} onCancel={() => setCancelled(true)} />
       </Box>
     </KeypressProvider>
   );

@@ -31,7 +31,7 @@ describe('theme', () => {
 
   it('should return null if theme is found', () => {
     vi.mocked(themeManager.findThemeByName).mockReturnValue(
-      {} as unknown as ReturnType<typeof themeManager.findThemeByName>,
+      {} as unknown as ReturnType<typeof themeManager.findThemeByName>
     );
     const result = validateTheme(mockSettings);
     expect(result).toBeNull();

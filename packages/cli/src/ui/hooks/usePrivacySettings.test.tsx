@@ -14,8 +14,7 @@ import { waitFor } from '../../test-utils/async.js';
 
 // Mock the dependencies
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     getCodeAssistServer: vi.fn(),
@@ -86,9 +85,7 @@ describe('usePrivacySettings', () => {
       expect(result.current.privacyState.isLoading).toBe(false);
     });
 
-    expect(result.current.privacyState.error).toBe(
-      'CodeAssist server is missing a project ID',
-    );
+    expect(result.current.privacyState.error).toBe('CodeAssist server is missing a project ID');
   });
 
   it('should update data collection opt-in setting', async () => {
@@ -121,9 +118,7 @@ describe('usePrivacySettings', () => {
       expect(result.current.privacyState.dataCollectionOptIn).toBe(false);
     });
 
-    expect(
-      mockCodeAssistServer.setCodeAssistGlobalUserSetting,
-    ).toHaveBeenCalledWith({
+    expect(mockCodeAssistServer.setCodeAssistGlobalUserSetting).toHaveBeenCalledWith({
       cloudaicompanionProject: 'test-project-id',
       freeTierDataCollectionOptin: false,
     });

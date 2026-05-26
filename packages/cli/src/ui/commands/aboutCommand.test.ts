@@ -12,8 +12,7 @@ import { MessageType } from '../types.js';
 import { IdeClient, getVersion } from '@google/gemini-cli-core';
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     IdeClient: {
@@ -57,9 +56,7 @@ describe('aboutCommand', () => {
     } as unknown as CommandContext);
 
     vi.mocked(getVersion).mockResolvedValue('test-version');
-    vi.spyOn(mockContext.services.config!, 'getModel').mockReturnValue(
-      'test-model',
-    );
+    vi.spyOn(mockContext.services.config!, 'getModel').mockReturnValue('test-model');
     process.env['GOOGLE_CLOUD_PROJECT'] = 'test-gcp-project';
     Object.defineProperty(process, 'platform', {
       value: 'test-os',
@@ -113,7 +110,7 @@ describe('aboutCommand', () => {
     expect(mockContext.ui.addItem).toHaveBeenCalledWith(
       expect.objectContaining({
         sandboxEnv: 'gemini-sandbox',
-      }),
+      })
     );
   });
 
@@ -129,7 +126,7 @@ describe('aboutCommand', () => {
     expect(mockContext.ui.addItem).toHaveBeenCalledWith(
       expect.objectContaining({
         sandboxEnv: 'sandbox-exec (test-profile)',
-      }),
+      })
     );
   });
 
@@ -155,14 +152,12 @@ describe('aboutCommand', () => {
         selectedAuthType: 'test-auth',
         gcpProject: 'test-gcp-project',
         ideClient: '',
-      }),
+      })
     );
   });
 
   it('should display the tier when getUserTierName returns a value', async () => {
-    vi.mocked(mockContext.services.config!.getUserTierName).mockReturnValue(
-      'Enterprise Tier',
-    );
+    vi.mocked(mockContext.services.config!.getUserTierName).mockReturnValue('Enterprise Tier');
     if (!aboutCommand.action) {
       throw new Error('The about command must have an action.');
     }
@@ -172,7 +167,7 @@ describe('aboutCommand', () => {
     expect(mockContext.ui.addItem).toHaveBeenCalledWith(
       expect.objectContaining({
         tier: 'Enterprise Tier',
-      }),
+      })
     );
   });
 });

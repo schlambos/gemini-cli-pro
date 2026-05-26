@@ -6,10 +6,7 @@
 
 import { useState, useCallback } from 'react';
 import { themeManager } from '../themes/theme-manager.js';
-import type {
-  LoadableSettingScope,
-  LoadedSettings,
-} from '../../config/settings.js'; // Import LoadedSettings, AppSettings, MergedSetting
+import type { LoadableSettingScope, LoadedSettings } from '../../config/settings.js'; // Import LoadedSettings, AppSettings, MergedSetting
 import { MessageType } from '../types.js';
 import process from 'node:process';
 import type { UseHistoryManagerReturn } from './useHistoryManager.js';
@@ -19,10 +16,7 @@ interface UseThemeCommandReturn {
   isThemeDialogOpen: boolean;
   openThemeDialog: () => void;
   closeThemeDialog: () => void;
-  handleThemeSelect: (
-    themeName: string,
-    scope: LoadableSettingScope,
-  ) => Promise<void>;
+  handleThemeSelect: (themeName: string, scope: LoadableSettingScope) => Promise<void>;
   handleThemeHighlight: (themeName: string | undefined) => void;
 }
 
@@ -31,10 +25,9 @@ export const useThemeCommand = (
   setThemeError: (error: string | null) => void,
   addItem: UseHistoryManagerReturn['addItem'],
   initialThemeError: string | null,
-  refreshStatic: () => void,
+  refreshStatic: () => void
 ): UseThemeCommandReturn => {
-  const [isThemeDialogOpen, setIsThemeDialogOpen] =
-    useState(!!initialThemeError);
+  const [isThemeDialogOpen, setIsThemeDialogOpen] = useState(!!initialThemeError);
   const { queryTerminalBackground } = useTerminalContext();
 
   const openThemeDialog = useCallback(async () => {
@@ -44,7 +37,7 @@ export const useThemeCommand = (
           type: MessageType.INFO,
           text: 'Theme configuration unavailable due to NO_COLOR env variable.',
         },
-        Date.now(),
+        Date.now()
       );
       return;
     }
@@ -67,14 +60,14 @@ export const useThemeCommand = (
         setThemeError(null); // Clear any previous theme error on success
       }
     },
-    [setThemeError],
+    [setThemeError]
   );
 
   const handleThemeHighlight = useCallback(
     (themeName: string | undefined) => {
       applyTheme(themeName);
     },
-    [applyTheme],
+    [applyTheme]
   );
 
   const closeThemeDialog = useCallback(() => {
@@ -109,7 +102,7 @@ export const useThemeCommand = (
         setIsThemeDialogOpen(false); // Close the dialog
       }
     },
-    [applyTheme, loadedSettings, refreshStatic, setThemeError],
+    [applyTheme, loadedSettings, refreshStatic, setThemeError]
   );
 
   return {

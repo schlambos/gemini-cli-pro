@@ -23,12 +23,7 @@ const createAnsiToken = (overrides: Partial<AnsiToken>): AnsiToken => ({
 
 describe('<AnsiOutputText />', () => {
   it('renders a simple AnsiOutput object correctly', () => {
-    const data: AnsiOutput = [
-      [
-        createAnsiToken({ text: 'Hello, ' }),
-        createAnsiToken({ text: 'world!' }),
-      ],
-    ];
+    const data: AnsiOutput = [[createAnsiToken({ text: 'Hello, ' }), createAnsiToken({ text: 'world!' })]];
     const { lastFrame } = render(<AnsiOutputText data={data} width={80} />);
     expect(lastFrame()).toBe('Hello, world!');
   });
@@ -80,9 +75,7 @@ describe('<AnsiOutputText />', () => {
       [createAnsiToken({ text: 'Line 3' })],
       [createAnsiToken({ text: 'Line 4' })],
     ];
-    const { lastFrame } = render(
-      <AnsiOutputText data={data} availableTerminalHeight={2} width={80} />,
-    );
+    const { lastFrame } = render(<AnsiOutputText data={data} availableTerminalHeight={2} width={80} />);
     const output = lastFrame();
     expect(output).not.toContain('Line 1');
     expect(output).not.toContain('Line 2');
@@ -97,9 +90,7 @@ describe('<AnsiOutputText />', () => {
       [createAnsiToken({ text: 'Line 3' })],
       [createAnsiToken({ text: 'Line 4' })],
     ];
-    const { lastFrame } = render(
-      <AnsiOutputText data={data} maxLines={2} width={80} />,
-    );
+    const { lastFrame } = render(<AnsiOutputText data={data} maxLines={2} width={80} />);
     const output = lastFrame();
     expect(output).not.toContain('Line 1');
     expect(output).not.toContain('Line 2');
@@ -115,14 +106,7 @@ describe('<AnsiOutputText />', () => {
       [createAnsiToken({ text: 'Line 4' })],
     ];
     // availableTerminalHeight=3, maxLines=2 => show 2 lines
-    const { lastFrame } = render(
-      <AnsiOutputText
-        data={data}
-        availableTerminalHeight={3}
-        maxLines={2}
-        width={80}
-      />,
-    );
+    const { lastFrame } = render(<AnsiOutputText data={data} availableTerminalHeight={3} maxLines={2} width={80} />);
     const output = lastFrame();
     expect(output).not.toContain('Line 2');
     expect(output).toContain('Line 3');
@@ -134,9 +118,7 @@ describe('<AnsiOutputText />', () => {
     for (let i = 0; i < 1000; i++) {
       largeData.push([createAnsiToken({ text: `Line ${i}` })]);
     }
-    const { lastFrame } = render(
-      <AnsiOutputText data={largeData} width={80} />,
-    );
+    const { lastFrame } = render(<AnsiOutputText data={largeData} width={80} />);
     // We are just checking that it renders something without crashing.
     expect(lastFrame()).toBeDefined();
   });

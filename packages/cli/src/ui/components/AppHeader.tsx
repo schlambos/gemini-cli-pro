@@ -30,31 +30,24 @@ export const AppHeader = ({ version, showDetails = true }: AppHeaderProps) => {
 
   if (!showDetails) {
     return (
-      <Box flexDirection="column">
+      <Box flexDirection='column'>
         <Header version={version} nightly={false} />
       </Box>
     );
   }
 
   return (
-    <Box flexDirection="column">
+    <Box flexDirection='column'>
       {!(settings.merged.ui.hideBanner || config.getScreenReader()) && (
         <>
           <Header version={version} nightly={nightly} />
           {bannerVisible && bannerText && (
-            <Banner
-              width={terminalWidth}
-              bannerText={bannerText}
-              isWarning={bannerData.warningText !== ''}
-            />
+            <Banner width={terminalWidth} bannerText={bannerText} isWarning={bannerData.warningText !== ''} />
           )}
         </>
       )}
-      {settings.merged.ui.showUserIdentity !== false && (
-        <UserIdentity config={config} />
-      )}
-      {!(settings.merged.ui.hideTips || config.getScreenReader()) &&
-        showTips && <Tips config={config} />}
+      {settings.merged.ui.showUserIdentity !== false && <UserIdentity config={config} />}
+      {!(settings.merged.ui.hideTips || config.getScreenReader()) && showTips && <Tips config={config} />}
     </Box>
   );
 };

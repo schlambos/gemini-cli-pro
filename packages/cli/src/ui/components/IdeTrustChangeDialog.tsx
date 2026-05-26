@@ -25,27 +25,22 @@ export const IdeTrustChangeDialog = ({ reason }: IdeTrustChangeDialogProps) => {
       }
       return false;
     },
-    { isActive: true },
+    { isActive: true }
   );
 
   let message = 'Workspace trust has changed.';
   if (reason === 'NONE') {
     // This should not happen, but provides a fallback and a debug log.
-    debugLogger.warn(
-      'IdeTrustChangeDialog rendered with unexpected reason "NONE"',
-    );
+    debugLogger.warn('IdeTrustChangeDialog rendered with unexpected reason "NONE"');
   } else if (reason === 'CONNECTION_CHANGE') {
-    message =
-      'Workspace trust has changed due to a change in the IDE connection.';
+    message = 'Workspace trust has changed due to a change in the IDE connection.';
   } else if (reason === 'TRUST_CHANGE') {
     message = 'Workspace trust has changed due to a change in the IDE trust.';
   }
 
   return (
-    <Box borderStyle="round" borderColor={theme.status.warning} paddingX={1}>
-      <Text color={theme.status.warning}>
-        {message} Press &apos;r&apos; to restart Gemini to apply the changes.
-      </Text>
+    <Box borderStyle='round' borderColor={theme.status.warning} paddingX={1}>
+      <Text color={theme.status.warning}>{message} Press &apos;r&apos; to restart Gemini to apply the changes.</Text>
     </Box>
   );
 };

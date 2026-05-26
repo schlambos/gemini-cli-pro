@@ -23,8 +23,7 @@ vi.mock('./StickyHeader.js', async (importOriginal) => {
 });
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     validatePlanPath: vi.fn().mockResolvedValue(undefined),
@@ -77,15 +76,13 @@ describe('ToolConfirmationQueue', () => {
     };
 
     const { lastFrame } = renderWithProviders(
-      <ToolConfirmationQueue
-        confirmingTool={confirmingTool as unknown as ConfirmingToolState}
-      />,
+      <ToolConfirmationQueue confirmingTool={confirmingTool as unknown as ConfirmingToolState} />,
       {
         config: mockConfig,
         uiState: {
           terminalWidth: 80,
         },
-      },
+      }
     );
 
     const output = lastFrame();
@@ -113,15 +110,13 @@ describe('ToolConfirmationQueue', () => {
     };
 
     const { lastFrame } = renderWithProviders(
-      <ToolConfirmationQueue
-        confirmingTool={confirmingTool as unknown as ConfirmingToolState}
-      />,
+      <ToolConfirmationQueue confirmingTool={confirmingTool as unknown as ConfirmingToolState} />,
       {
         config: mockConfig,
         uiState: {
           terminalWidth: 80,
         },
-      },
+      }
     );
 
     expect(lastFrame()).toBe('');
@@ -150,10 +145,8 @@ describe('ToolConfirmationQueue', () => {
     };
 
     const { lastFrame } = renderWithProviders(
-      <Box flexDirection="column" height={30}>
-        <ToolConfirmationQueue
-          confirmingTool={confirmingTool as unknown as ConfirmingToolState}
-        />
+      <Box flexDirection='column' height={30}>
+        <ToolConfirmationQueue confirmingTool={confirmingTool as unknown as ConfirmingToolState} />
       </Box>,
       {
         config: mockConfig,
@@ -164,12 +157,10 @@ describe('ToolConfirmationQueue', () => {
           constrainHeight: true,
           streamingState: StreamingState.WaitingForConfirmation,
         },
-      },
+      }
     );
 
-    await waitFor(() =>
-      expect(lastFrame()).toContain('Press ctrl-o to show more lines'),
-    );
+    await waitFor(() => expect(lastFrame()).toContain('Press ctrl-o to show more lines'));
     expect(lastFrame()).toMatchSnapshot();
     expect(lastFrame()).toContain('Press ctrl-o to show more lines');
   });
@@ -198,9 +189,7 @@ describe('ToolConfirmationQueue', () => {
 
     // Use a small availableTerminalHeight to force truncation
     const { lastFrame } = renderWithProviders(
-      <ToolConfirmationQueue
-        confirmingTool={confirmingTool as unknown as ConfirmingToolState}
-      />,
+      <ToolConfirmationQueue confirmingTool={confirmingTool as unknown as ConfirmingToolState} />,
       {
         config: mockConfig,
         useAlternateBuffer: false,
@@ -211,7 +200,7 @@ describe('ToolConfirmationQueue', () => {
           constrainHeight: true,
           streamingState: StreamingState.WaitingForConfirmation,
         },
-      },
+      }
     );
 
     // With availableTerminalHeight = 10:
@@ -246,9 +235,7 @@ describe('ToolConfirmationQueue', () => {
     };
 
     const { lastFrame } = renderWithProviders(
-      <ToolConfirmationQueue
-        confirmingTool={confirmingTool as unknown as ConfirmingToolState}
-      />,
+      <ToolConfirmationQueue confirmingTool={confirmingTool as unknown as ConfirmingToolState} />,
       {
         config: mockConfig,
         uiState: {
@@ -257,7 +244,7 @@ describe('ToolConfirmationQueue', () => {
           constrainHeight: false,
           streamingState: StreamingState.WaitingForConfirmation,
         },
-      },
+      }
     );
 
     const output = lastFrame();
@@ -283,15 +270,13 @@ describe('ToolConfirmationQueue', () => {
     };
 
     const { lastFrame } = renderWithProviders(
-      <ToolConfirmationQueue
-        confirmingTool={confirmingTool as unknown as ConfirmingToolState}
-      />,
+      <ToolConfirmationQueue confirmingTool={confirmingTool as unknown as ConfirmingToolState} />,
       {
         config: mockConfig,
         uiState: {
           terminalWidth: 80,
         },
-      },
+      }
     );
 
     const output = lastFrame();
@@ -319,15 +304,13 @@ describe('ToolConfirmationQueue', () => {
     };
 
     const { lastFrame } = renderWithProviders(
-      <ToolConfirmationQueue
-        confirmingTool={confirmingTool as unknown as ConfirmingToolState}
-      />,
+      <ToolConfirmationQueue confirmingTool={confirmingTool as unknown as ConfirmingToolState} />,
       {
         config: mockConfig,
         uiState: {
           terminalWidth: 80,
         },
-      },
+      }
     );
 
     await waitFor(() => {

@@ -66,7 +66,7 @@ function usePlanContent(planPath: string, config: Config): PlanContentState {
         const pathError = await validatePlanPath(
           planPath,
           config.storage.getProjectTempPlansDir(),
-          config.getTargetDir(),
+          config.getTargetDir()
         );
         if (ignore) return;
         if (pathError) {
@@ -84,7 +84,7 @@ function usePlanContent(planPath: string, config: Config): PlanContentState {
         const result = await processSingleFileContent(
           planPath,
           config.storage.getProjectTempPlansDir(),
-          config.getFileSystemService(),
+          config.getFileSystemService()
         );
 
         if (ignore) return;
@@ -167,9 +167,7 @@ export const ExitPlanModeDialog: React.FC<ExitPlanModeDialogProps> = ({
   if (planState.status === PlanStatus.Error) {
     return (
       <StatusMessage>
-        <Text color={theme.status.error}>
-          Error reading plan: {planState.error}
-        </Text>
+        <Text color={theme.status.error}>Error reading plan: {planState.error}</Text>
       </StatusMessage>
     );
   }
@@ -184,7 +182,7 @@ export const ExitPlanModeDialog: React.FC<ExitPlanModeDialogProps> = ({
   }
 
   return (
-    <Box flexDirection="column" width={width}>
+    <Box flexDirection='column' width={width}>
       <AskUserDialog
         questions={[
           {
@@ -194,13 +192,11 @@ export const ExitPlanModeDialog: React.FC<ExitPlanModeDialogProps> = ({
             options: [
               {
                 label: ApprovalOption.Auto,
-                description:
-                  'Approves plan and allows tools to run automatically',
+                description: 'Approves plan and allows tools to run automatically',
               },
               {
                 label: ApprovalOption.Manual,
-                description:
-                  'Approves plan but requires confirmation for each tool',
+                description: 'Approves plan but requires confirmation for each tool',
               },
             ],
             placeholder: 'Type your feedback...',

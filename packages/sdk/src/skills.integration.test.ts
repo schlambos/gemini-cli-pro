@@ -17,8 +17,7 @@ const __dirname = dirname(__filename);
 // Set this to true locally when you need to update snapshots
 const RECORD_MODE = process.env['RECORD_NEW_RESPONSES'] === 'true';
 
-const getGoldenPath = (name: string) =>
-  path.resolve(__dirname, '../test-data', `${name}.json`);
+const getGoldenPath = (name: string) => path.resolve(__dirname, '../test-data', `${name}.json`);
 
 const SKILL_DIR = path.resolve(__dirname, '../test-data/skills/pirate-skill');
 const SKILL_ROOT = path.resolve(__dirname, '../test-data/skills');
@@ -40,18 +39,14 @@ describe('GeminiCliAgent Skills Integration', () => {
     // 1. Ask to activate the skill
     const events = [];
     // The prompt explicitly asks to activate the skill by name
-    const stream = agent.sendStream(
-      'Activate the pirate-skill and then tell me a joke.',
-    );
+    const stream = agent.sendStream('Activate the pirate-skill and then tell me a joke.');
 
     for await (const event of stream) {
       events.push(event);
     }
 
     const textEvents = events.filter((e) => e.type === 'content');
-    const responseText = textEvents
-      .map((e) => (typeof e.value === 'string' ? e.value : ''))
-      .join('');
+    const responseText = textEvents.map((e) => (typeof e.value === 'string' ? e.value : '')).join('');
 
     // Expect pirate speak
     expect(responseText.toLowerCase()).toContain('arrr');
@@ -72,18 +67,14 @@ describe('GeminiCliAgent Skills Integration', () => {
 
     // 1. Ask to activate the skill
     const events = [];
-    const stream = agent.sendStream(
-      'Activate the pirate-skill and confirm it is active.',
-    );
+    const stream = agent.sendStream('Activate the pirate-skill and confirm it is active.');
 
     for await (const event of stream) {
       events.push(event);
     }
 
     const textEvents = events.filter((e) => e.type === 'content');
-    const responseText = textEvents
-      .map((e) => (typeof e.value === 'string' ? e.value : ''))
-      .join('');
+    const responseText = textEvents.map((e) => (typeof e.value === 'string' ? e.value : '')).join('');
 
     // Expect confirmation or pirate speak
     expect(responseText.toLowerCase()).toContain('arrr');

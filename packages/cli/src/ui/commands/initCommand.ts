@@ -6,11 +6,7 @@
 
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import type {
-  CommandContext,
-  SlashCommand,
-  SlashCommandActionReturn,
-} from './types.js';
+import type { CommandContext, SlashCommand, SlashCommandActionReturn } from './types.js';
 import { CommandKind } from './types.js';
 import { performInit } from '@google/gemini-cli-core';
 
@@ -19,10 +15,7 @@ export const initCommand: SlashCommand = {
   description: 'Analyzes the project and creates a tailored GEMINI.md file',
   kind: CommandKind.BUILT_IN,
   autoExecute: true,
-  action: async (
-    context: CommandContext,
-    _args: string,
-  ): Promise<SlashCommandActionReturn> => {
+  action: async (context: CommandContext, _args: string): Promise<SlashCommandActionReturn> => {
     if (!context.services.config) {
       return {
         type: 'message',
@@ -44,7 +37,7 @@ export const initCommand: SlashCommand = {
           type: 'info',
           text: 'Empty GEMINI.md created. Now analyzing the project to populate it.',
         },
-        Date.now(),
+        Date.now()
       );
     }
 

@@ -21,8 +21,7 @@ import type { AgentActionResult } from './agentSettings.js';
 
 describe('agentUtils', () => {
   describe('renderAgentActionFeedback', () => {
-    const mockFormatScope = (label: string, path: string) =>
-      `[${label}:${path}]`;
+    const mockFormatScope = (label: string, path: string) => `[${label}:${path}]`;
 
     it('should return error message if status is error', () => {
       const result: AgentActionResult = {
@@ -33,9 +32,7 @@ describe('agentUtils', () => {
         alreadyInStateScopes: [],
         error: 'Something went wrong',
       };
-      expect(renderAgentActionFeedback(result, mockFormatScope)).toBe(
-        'Something went wrong',
-      );
+      expect(renderAgentActionFeedback(result, mockFormatScope)).toBe('Something went wrong');
     });
 
     it('should return default error message if status is error and no error message provided', () => {
@@ -47,7 +44,7 @@ describe('agentUtils', () => {
         alreadyInStateScopes: [],
       };
       expect(renderAgentActionFeedback(result, mockFormatScope)).toBe(
-        'An error occurred while attempting to enable agent "my-agent".',
+        'An error occurred while attempting to enable agent "my-agent".'
       );
     });
 
@@ -59,9 +56,7 @@ describe('agentUtils', () => {
         modifiedScopes: [],
         alreadyInStateScopes: [],
       };
-      expect(renderAgentActionFeedback(result, mockFormatScope)).toBe(
-        'Agent "my-agent" is already enabled.',
-      );
+      expect(renderAgentActionFeedback(result, mockFormatScope)).toBe('Agent "my-agent" is already enabled.');
     });
 
     it('should return no-op message for disable', () => {
@@ -72,9 +67,7 @@ describe('agentUtils', () => {
         modifiedScopes: [],
         alreadyInStateScopes: [],
       };
-      expect(renderAgentActionFeedback(result, mockFormatScope)).toBe(
-        'Agent "my-agent" is already disabled.',
-      );
+      expect(renderAgentActionFeedback(result, mockFormatScope)).toBe('Agent "my-agent" is already disabled.');
     });
 
     it('should return success message for enable (single scope)', () => {
@@ -82,13 +75,11 @@ describe('agentUtils', () => {
         status: 'success',
         agentName: 'my-agent',
         action: 'enable',
-        modifiedScopes: [
-          { scope: SettingScope.User, path: '/path/to/user/settings' },
-        ],
+        modifiedScopes: [{ scope: SettingScope.User, path: '/path/to/user/settings' }],
         alreadyInStateScopes: [],
       };
       expect(renderAgentActionFeedback(result, mockFormatScope)).toBe(
-        'Agent "my-agent" enabled by setting it to enabled in [user:/path/to/user/settings] settings.',
+        'Agent "my-agent" enabled by setting it to enabled in [user:/path/to/user/settings] settings.'
       );
     });
 
@@ -97,9 +88,7 @@ describe('agentUtils', () => {
         status: 'success',
         agentName: 'my-agent',
         action: 'enable',
-        modifiedScopes: [
-          { scope: SettingScope.User, path: '/path/to/user/settings' },
-        ],
+        modifiedScopes: [{ scope: SettingScope.User, path: '/path/to/user/settings' }],
         alreadyInStateScopes: [
           {
             scope: SettingScope.Workspace,
@@ -108,7 +97,7 @@ describe('agentUtils', () => {
         ],
       };
       expect(renderAgentActionFeedback(result, mockFormatScope)).toBe(
-        'Agent "my-agent" enabled by setting it to enabled in [user:/path/to/user/settings] and [project:/path/to/workspace/settings] settings.',
+        'Agent "my-agent" enabled by setting it to enabled in [user:/path/to/user/settings] and [project:/path/to/workspace/settings] settings.'
       );
     });
 
@@ -117,13 +106,11 @@ describe('agentUtils', () => {
         status: 'success',
         agentName: 'my-agent',
         action: 'disable',
-        modifiedScopes: [
-          { scope: SettingScope.User, path: '/path/to/user/settings' },
-        ],
+        modifiedScopes: [{ scope: SettingScope.User, path: '/path/to/user/settings' }],
         alreadyInStateScopes: [],
       };
       expect(renderAgentActionFeedback(result, mockFormatScope)).toBe(
-        'Agent "my-agent" disabled by setting it to disabled in [user:/path/to/user/settings] settings.',
+        'Agent "my-agent" disabled by setting it to disabled in [user:/path/to/user/settings] settings.'
       );
     });
 
@@ -132,9 +119,7 @@ describe('agentUtils', () => {
         status: 'success',
         agentName: 'my-agent',
         action: 'disable',
-        modifiedScopes: [
-          { scope: SettingScope.User, path: '/path/to/user/settings' },
-        ],
+        modifiedScopes: [{ scope: SettingScope.User, path: '/path/to/user/settings' }],
         alreadyInStateScopes: [
           {
             scope: SettingScope.Workspace,
@@ -143,7 +128,7 @@ describe('agentUtils', () => {
         ],
       };
       expect(renderAgentActionFeedback(result, mockFormatScope)).toBe(
-        'Agent "my-agent" is now disabled in both [user:/path/to/user/settings] and [project:/path/to/workspace/settings] settings.',
+        'Agent "my-agent" is now disabled in both [user:/path/to/user/settings] and [project:/path/to/workspace/settings] settings.'
       );
     });
   });

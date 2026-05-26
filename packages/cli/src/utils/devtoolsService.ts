@@ -7,11 +7,7 @@
 import { debugLogger } from '@google/gemini-cli-core';
 import type { Config } from '@google/gemini-cli-core';
 import WebSocket from 'ws';
-import {
-  initActivityLogger,
-  addNetworkTransport,
-  ActivityLogger,
-} from './activityLogger.js';
+import { initActivityLogger, addNetworkTransport, ActivityLogger } from './activityLogger.js';
 
 interface IDevTools {
   start(): Promise<string>;
@@ -58,10 +54,7 @@ function probeDevTools(host: string, port: number): Promise<boolean> {
  * If another instance grabbed it first (race), stop ours and connect as client.
  * Returns { host, port } of the DevTools to connect to.
  */
-async function startOrJoinDevTools(
-  defaultHost: string,
-  defaultPort: number,
-): Promise<{ host: string; port: number }> {
+async function startOrJoinDevTools(defaultHost: string, defaultPort: number): Promise<{ host: string; port: number }> {
   const mod = await import(DEVTOOLS_PKG);
   const devtools: IDevTools = mod.DevTools.getInstance();
   const url = await devtools.start();
@@ -78,9 +71,7 @@ async function startOrJoinDevTools(
   const winnerAlive = await probeDevTools(defaultHost, defaultPort);
   if (winnerAlive) {
     await devtools.stop();
-    debugLogger.log(
-      `DevTools (existing) at: http://${defaultHost}:${defaultPort}`,
-    );
+    debugLogger.log(`DevTools (existing) at: http://${defaultHost}:${defaultPort}`);
     return { host: defaultHost, port: defaultPort };
   }
 
@@ -96,20 +87,13 @@ async function startOrJoinDevTools(
 async function handlePromotion(config: Config) {
   promotionAttempts++;
   if (promotionAttempts > MAX_PROMOTION_ATTEMPTS) {
-    debugLogger.debug(
-      `Giving up on DevTools promotion after ${MAX_PROMOTION_ATTEMPTS} attempts`,
-    );
+    debugLogger.debug(`Giving up on DevTools promotion after ${MAX_PROMOTION_ATTEMPTS} attempts`);
     return;
   }
 
   try {
-    const result = await startOrJoinDevTools(
-      DEFAULT_DEVTOOLS_HOST,
-      DEFAULT_DEVTOOLS_PORT,
-    );
-    addNetworkTransport(config, result.host, result.port, () =>
-      handlePromotion(config),
-    );
+    const result = await startOrJoinDevTools(DEFAULT_DEVTOOLS_HOST, DEFAULT_DEVTOOLS_PORT);
+    addNetworkTransport(config, result.host, result.port, () => handlePromotion(config));
   } catch (err) {
     debugLogger.debug('Failed to promote to DevTools server:', err);
   }
@@ -132,18 +116,10 @@ export async function setupInitialActivityLogger(config: Config) {
 
     // Eagerly probe for an existing DevTools server
     try {
-      const existing = await probeDevTools(
-        DEFAULT_DEVTOOLS_HOST,
-        DEFAULT_DEVTOOLS_PORT,
-      );
+      const existing = await probeDevTools(DEFAULT_DEVTOOLS_HOST, DEFAULT_DEVTOOLS_PORT);
       if (existing) {
         const onReconnectFailed = () => handlePromotion(config);
-        addNetworkTransport(
-          config,
-          DEFAULT_DEVTOOLS_HOST,
-          DEFAULT_DEVTOOLS_PORT,
-          onReconnectFailed,
-        );
+        addNetworkTransport(config, DEFAULT_DEVTOOLS_HOST, DEFAULT_DEVTOOLS_PORT, onReconnectFailed);
         ActivityLogger.getInstance().enableNetworkLogging();
         connectedUrl = `http://localhost:${DEFAULT_DEVTOOLS_PORT}`;
         debugLogger.log(`DevTools (existing) at startup: ${connectedUrl}`);
@@ -173,25 +149,17 @@ async function startDevToolsServerImpl(config: Config): Promise<string> {
   const onReconnectFailed = () => handlePromotion(config);
 
   // Probe for an existing DevTools server
-  const existing = await probeDevTools(
-    DEFAULT_DEVTOOLS_HOST,
-    DEFAULT_DEVTOOLS_PORT,
-  );
+  const existing = await probeDevTools(DEFAULT_DEVTOOLS_HOST, DEFAULT_DEVTOOLS_PORT);
 
   let host = DEFAULT_DEVTOOLS_HOST;
   let port = DEFAULT_DEVTOOLS_PORT;
 
   if (existing) {
-    debugLogger.log(
-      `DevTools (existing) at: http://${DEFAULT_DEVTOOLS_HOST}:${DEFAULT_DEVTOOLS_PORT}`,
-    );
+    debugLogger.log(`DevTools (existing) at: http://${DEFAULT_DEVTOOLS_HOST}:${DEFAULT_DEVTOOLS_PORT}`);
   } else {
     // No existing server — start (or join if we lose the race)
     try {
-      const result = await startOrJoinDevTools(
-        DEFAULT_DEVTOOLS_HOST,
-        DEFAULT_DEVTOOLS_PORT,
-      );
+      const result = await startOrJoinDevTools(DEFAULT_DEVTOOLS_HOST, DEFAULT_DEVTOOLS_PORT);
       host = result.host;
       port = result.port;
     } catch (err) {
@@ -223,7 +191,7 @@ export async function toggleDevToolsPanel(
   config: Config,
   isOpen: boolean,
   toggle: () => void,
-  setOpen: () => void,
+  setOpen: () => void
 ): Promise<void> {
   if (isOpen) {
     toggle();
@@ -231,9 +199,7 @@ export async function toggleDevToolsPanel(
   }
 
   try {
-    const { openBrowserSecurely, shouldLaunchBrowser } = await import(
-      '@google/gemini-cli-core'
-    );
+    const { openBrowserSecurely, shouldLaunchBrowser } = await import('@google/gemini-cli-core');
     const url = await startDevToolsServer(config);
     if (shouldLaunchBrowser()) {
       try {

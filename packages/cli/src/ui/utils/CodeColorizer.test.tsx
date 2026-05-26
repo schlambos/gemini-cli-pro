@@ -24,7 +24,7 @@ describe('colorizeCode', () => {
       },
       { path: '', settings: {}, originalSettings: {} },
       true,
-      [],
+      []
     );
 
     const result = colorizeCode({

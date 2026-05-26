@@ -109,17 +109,12 @@ function fetchHistoricalData() {
 
     // Fetch artifacts for each run
     for (const run of runs) {
-      const tmpDir = fs.mkdtempSync(
-        path.join(os.tmpdir(), `gemini-evals-${run.databaseId}-`),
-      );
+      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), `gemini-evals-${run.databaseId}-`));
       try {
         // Download report.json files.
         // The artifacts are named 'eval-logs-X' or 'eval-logs-MODEL-X'.
         // We use -p to match pattern.
-        execSync(
-          `gh run download ${run.databaseId} -p "eval-logs-*" -D "${tmpDir}"`,
-          { stdio: 'ignore' },
-        );
+        execSync(`gh run download ${run.databaseId} -p "eval-logs-*" -D "${tmpDir}"`, { stdio: 'ignore' });
 
         const runReports = findReports(tmpDir);
         if (runReports.length > 0) {
@@ -129,10 +124,7 @@ function fetchHistoricalData() {
           });
         }
       } catch (error) {
-        console.error(
-          `Failed to download or process artifacts for run ${run.databaseId}:`,
-          error,
-        );
+        console.error(`Failed to download or process artifacts for run ${run.databaseId}:`, error);
       } finally {
         fs.rmSync(tmpDir, { recursive: true, force: true });
       }
@@ -146,9 +138,7 @@ function fetchHistoricalData() {
 
 function generateMarkdown(currentStatsByModel, history) {
   console.log('### Evals Nightly Summary\n');
-  console.log(
-    'See [evals/README.md](https://github.com/google-gemini/gemini-cli/tree/main/evals) for more details.\n',
-  );
+  console.log('See [evals/README.md](https://github.com/google-gemini/gemini-cli/tree/main/evals) for more details.\n');
 
   // Reverse history to show oldest first
   const reversedHistory = [...history].reverse();
@@ -163,13 +153,11 @@ function generateMarkdown(currentStatsByModel, history) {
         acc.total += stats.total;
         return acc;
       },
-      { passed: 0, total: 0 },
+      { passed: 0, total: 0 }
     );
 
     const totalPassRate =
-      totalStats.total > 0
-        ? ((totalStats.passed / totalStats.total) * 100).toFixed(1) + '%'
-        : 'N/A';
+      totalStats.total > 0 ? ((totalStats.passed / totalStats.total) * 100).toFixed(1) + '%' : 'N/A';
 
     console.log(`#### Model: ${model}`);
     console.log(`**Total Pass Rate: ${totalPassRate}**\n`);
@@ -194,9 +182,7 @@ function generateMarkdown(currentStatsByModel, history) {
     const allTestNames = new Set(Object.keys(currentStats));
     for (const item of reversedHistory) {
       if (item.stats[model]) {
-        Object.keys(item.stats[model]).forEach((name) =>
-          allTestNames.add(name),
-        );
+        Object.keys(item.stats[model]).forEach((name) => allTestNames.add(name));
       }
     }
 

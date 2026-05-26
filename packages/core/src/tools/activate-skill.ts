@@ -7,12 +7,7 @@
 import * as path from 'node:path';
 import { getFolderStructure } from '../utils/getFolderStructure.js';
 import type { MessageBus } from '../confirmation-bus/message-bus.js';
-import type {
-  ToolResult,
-  ToolCallConfirmationDetails,
-  ToolInvocation,
-  ToolConfirmationOutcome,
-} from './tools.js';
+import type { ToolResult, ToolCallConfirmationDetails, ToolInvocation, ToolConfirmationOutcome } from './tools.js';
 import { BaseDeclarativeTool, BaseToolInvocation, Kind } from './tools.js';
 import type { Config } from '../config/config.js';
 import { ACTIVATE_SKILL_TOOL_NAME } from './tool-names.js';
@@ -30,10 +25,7 @@ export interface ActivateSkillToolParams {
   name: string;
 }
 
-class ActivateSkillToolInvocation extends BaseToolInvocation<
-  ActivateSkillToolParams,
-  ToolResult
-> {
+class ActivateSkillToolInvocation extends BaseToolInvocation<ActivateSkillToolParams, ToolResult> {
   private cachedFolderStructure: string | undefined;
 
   constructor(
@@ -41,7 +33,7 @@ class ActivateSkillToolInvocation extends BaseToolInvocation<
     params: ActivateSkillToolParams,
     messageBus: MessageBus,
     _toolName?: string,
-    _toolDisplayName?: string,
+    _toolDisplayName?: string
   ) {
     super(params, messageBus, _toolName, _toolDisplayName);
   }
@@ -55,19 +47,15 @@ class ActivateSkillToolInvocation extends BaseToolInvocation<
     return `"${skillName}" (?) unknown skill`;
   }
 
-  private async getOrFetchFolderStructure(
-    skillLocation: string,
-  ): Promise<string> {
+  private async getOrFetchFolderStructure(skillLocation: string): Promise<string> {
     if (this.cachedFolderStructure === undefined) {
-      this.cachedFolderStructure = await getFolderStructure(
-        path.dirname(skillLocation),
-      );
+      this.cachedFolderStructure = await getFolderStructure(path.dirname(skillLocation));
     }
     return this.cachedFolderStructure;
   }
 
   protected override async getConfirmationDetails(
-    _abortSignal: AbortSignal,
+    _abortSignal: AbortSignal
   ): Promise<ToolCallConfirmationDetails | false> {
     if (!this.messageBus) {
       return false;
@@ -84,9 +72,7 @@ class ActivateSkillToolInvocation extends BaseToolInvocation<
       return false;
     }
 
-    const folderStructure = await this.getOrFetchFolderStructure(
-      skill.location,
-    );
+    const folderStructure = await this.getOrFetchFolderStructure(skill.location);
 
     const confirmationDetails: ToolCallConfirmationDetails = {
       type: 'info',
@@ -128,13 +114,9 @@ ${folderStructure}`,
 
     // Add the skill's directory to the workspace context so the agent has permission
     // to read its bundled resources.
-    this.config
-      .getWorkspaceContext()
-      .addDirectory(path.dirname(skill.location));
+    this.config.getWorkspaceContext().addDirectory(path.dirname(skill.location));
 
-    const folderStructure = await this.getOrFetchFolderStructure(
-      skill.location,
-    );
+    const folderStructure = await this.getOrFetchFolderStructure(skill.location);
 
     return {
       llmContent: `<activated_skill name="${skillName}">
@@ -154,15 +136,12 @@ ${folderStructure}`,
 /**
  * Implementation of the ActivateSkill tool logic
  */
-export class ActivateSkillTool extends BaseDeclarativeTool<
-  ActivateSkillToolParams,
-  ToolResult
-> {
+export class ActivateSkillTool extends BaseDeclarativeTool<ActivateSkillToolParams, ToolResult> {
   static readonly Name = ACTIVATE_SKILL_TOOL_NAME;
 
   constructor(
     private config: Config,
-    messageBus: MessageBus,
+    messageBus: MessageBus
   ) {
     const skills = config.getSkillManager().getSkills();
     const skillNames = skills.map((s) => s.name);
@@ -176,7 +155,7 @@ export class ActivateSkillTool extends BaseDeclarativeTool<
       definition.base.parametersJsonSchema,
       messageBus,
       true,
-      false,
+      false
     );
   }
 
@@ -184,23 +163,20 @@ export class ActivateSkillTool extends BaseDeclarativeTool<
     params: ActivateSkillToolParams,
     messageBus: MessageBus,
     _toolName?: string,
-    _toolDisplayName?: string,
+    _toolDisplayName?: string
   ): ToolInvocation<ActivateSkillToolParams, ToolResult> {
     return new ActivateSkillToolInvocation(
       this.config,
       params,
       messageBus,
       _toolName,
-      _toolDisplayName ?? 'Activate Skill',
+      _toolDisplayName ?? 'Activate Skill'
     );
   }
 
   override getSchema(modelId?: string) {
     const skills = this.config.getSkillManager().getSkills();
     const skillNames = skills.map((s) => s.name);
-    return resolveToolDeclaration(
-      getActivateSkillDefinition(skillNames),
-      modelId,
-    );
+    return resolveToolDeclaration(getActivateSkillDefinition(skillNames), modelId);
   }
 }

@@ -5,22 +5,14 @@
  */
 
 import type { ToolEditConfirmationDetails, ToolResult } from './tools.js';
-import {
-  BaseDeclarativeTool,
-  BaseToolInvocation,
-  Kind,
-  ToolConfirmationOutcome,
-} from './tools.js';
+import { BaseDeclarativeTool, BaseToolInvocation, Kind, ToolConfirmationOutcome } from './tools.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { Storage } from '../config/storage.js';
 import * as Diff from 'diff';
 import { DEFAULT_DIFF_OPTIONS } from './diffOptions.js';
 import { tildeifyPath } from '../utils/paths.js';
-import type {
-  ModifiableDeclarativeTool,
-  ModifyContext,
-} from './modifiable-tool.js';
+import type { ModifiableDeclarativeTool, ModifyContext } from './modifiable-tool.js';
 import { ToolErrorType } from './tool-error.js';
 import { MEMORY_TOOL_NAME } from './tool-names.js';
 import type { MessageBus } from '../confirmation-bus/message-bus.js';
@@ -73,10 +65,8 @@ export function getGlobalMemoryFilePath(): string {
  */
 function ensureNewlineSeparation(currentContent: string): string {
   if (currentContent.length === 0) return '';
-  if (currentContent.endsWith('\n\n') || currentContent.endsWith('\r\n\r\n'))
-    return '';
-  if (currentContent.endsWith('\n') || currentContent.endsWith('\r\n'))
-    return '\n';
+  if (currentContent.endsWith('\n\n') || currentContent.endsWith('\r\n\r\n')) return '';
+  if (currentContent.endsWith('\n') || currentContent.endsWith('\r\n')) return '\n';
   return '\n\n';
 }
 
@@ -108,50 +98,29 @@ function computeNewContent(currentContent: string, fact: string): string {
   if (headerIndex === -1) {
     // Header not found, append header and then the entry
     const separator = ensureNewlineSeparation(currentContent);
-    return (
-      currentContent +
-      `${separator}${MEMORY_SECTION_HEADER}\n${newMemoryItem}\n`
-    );
+    return currentContent + `${separator}${MEMORY_SECTION_HEADER}\n${newMemoryItem}\n`;
   } else {
     // Header found, find where to insert the new memory entry
     const startOfSectionContent = headerIndex + MEMORY_SECTION_HEADER.length;
-    let endOfSectionIndex = currentContent.indexOf(
-      '\n## ',
-      startOfSectionContent,
-    );
+    let endOfSectionIndex = currentContent.indexOf('\n## ', startOfSectionContent);
     if (endOfSectionIndex === -1) {
       endOfSectionIndex = currentContent.length; // End of file
     }
 
-    const beforeSectionMarker = currentContent
-      .substring(0, startOfSectionContent)
-      .trimEnd();
-    let sectionContent = currentContent
-      .substring(startOfSectionContent, endOfSectionIndex)
-      .trimEnd();
+    const beforeSectionMarker = currentContent.substring(0, startOfSectionContent).trimEnd();
+    let sectionContent = currentContent.substring(startOfSectionContent, endOfSectionIndex).trimEnd();
     const afterSectionMarker = currentContent.substring(endOfSectionIndex);
 
     sectionContent += `\n${newMemoryItem}`;
-    return (
-      `${beforeSectionMarker}\n${sectionContent.trimStart()}\n${afterSectionMarker}`.trimEnd() +
-      '\n'
-    );
+    return `${beforeSectionMarker}\n${sectionContent.trimStart()}\n${afterSectionMarker}`.trimEnd() + '\n';
   }
 }
 
-class MemoryToolInvocation extends BaseToolInvocation<
-  SaveMemoryParams,
-  ToolResult
-> {
+class MemoryToolInvocation extends BaseToolInvocation<SaveMemoryParams, ToolResult> {
   private static readonly allowlist: Set<string> = new Set();
   private proposedNewContent: string | undefined;
 
-  constructor(
-    params: SaveMemoryParams,
-    messageBus: MessageBus,
-    toolName?: string,
-    displayName?: string,
-  ) {
+  constructor(params: SaveMemoryParams, messageBus: MessageBus, toolName?: string, displayName?: string) {
     super(params, messageBus, toolName, displayName);
   }
 
@@ -161,7 +130,7 @@ class MemoryToolInvocation extends BaseToolInvocation<
   }
 
   protected override async getConfirmationDetails(
-    _abortSignal: AbortSignal,
+    _abortSignal: AbortSignal
   ): Promise<ToolEditConfirmationDetails | false> {
     const memoryFilePath = getGlobalMemoryFilePath();
     const allowlistKey = memoryFilePath;
@@ -176,9 +145,7 @@ class MemoryToolInvocation extends BaseToolInvocation<
     // If an attacker injects modified_content, use it for the diff
     // to expose the attack to the user. Otherwise, compute from 'fact'.
     const contentForDiff =
-      modified_by_user && modified_content !== undefined
-        ? modified_content
-        : computeNewContent(currentContent, fact);
+      modified_by_user && modified_content !== undefined ? modified_content : computeNewContent(currentContent, fact);
 
     this.proposedNewContent = contentForDiff;
 
@@ -189,7 +156,7 @@ class MemoryToolInvocation extends BaseToolInvocation<
       this.proposedNewContent,
       'Current',
       'Proposed',
-      DEFAULT_DIFF_OPTIONS,
+      DEFAULT_DIFF_OPTIONS
     );
 
     const confirmationDetails: ToolEditConfirmationDetails = {
@@ -252,8 +219,7 @@ class MemoryToolInvocation extends BaseToolInvocation<
         returnDisplay: successMessage,
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       return {
         llmContent: JSON.stringify({
           success: false,
@@ -284,13 +250,11 @@ export class MemoryTool
       MEMORY_DEFINITION.base.parametersJsonSchema,
       messageBus,
       true,
-      false,
+      false
     );
   }
 
-  protected override validateToolParamValues(
-    params: SaveMemoryParams,
-  ): string | null {
+  protected override validateToolParamValues(params: SaveMemoryParams): string | null {
     if (params.fact.trim() === '') {
       return 'Parameter "fact" must be a non-empty string.';
     }
@@ -302,14 +266,9 @@ export class MemoryTool
     params: SaveMemoryParams,
     messageBus: MessageBus,
     toolName?: string,
-    displayName?: string,
+    displayName?: string
   ) {
-    return new MemoryToolInvocation(
-      params,
-      messageBus,
-      toolName ?? this.name,
-      displayName ?? this.displayName,
-    );
+    return new MemoryToolInvocation(params, messageBus, toolName ?? this.name, displayName ?? this.displayName);
   }
 
   override getSchema(modelId?: string) {
@@ -319,8 +278,7 @@ export class MemoryTool
   getModifyContext(_abortSignal: AbortSignal): ModifyContext<SaveMemoryParams> {
     return {
       getFilePath: (_params: SaveMemoryParams) => getGlobalMemoryFilePath(),
-      getCurrentContent: async (_params: SaveMemoryParams): Promise<string> =>
-        readMemoryFileContent(),
+      getCurrentContent: async (_params: SaveMemoryParams): Promise<string> => readMemoryFileContent(),
       getProposedContent: async (params: SaveMemoryParams): Promise<string> => {
         const currentContent = await readMemoryFileContent();
         const { fact, modified_by_user, modified_content } = params;
@@ -333,7 +291,7 @@ export class MemoryTool
       createUpdatedParams: (
         _oldContent: string,
         modifiedProposedContent: string,
-        originalParams: SaveMemoryParams,
+        originalParams: SaveMemoryParams
       ): SaveMemoryParams => ({
         ...originalParams,
         modified_by_user: true,

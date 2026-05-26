@@ -36,8 +36,7 @@ vi.mock('node:fs', async (importOriginal) => {
   };
 });
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   const path = await import('node:path');
   class Storage {
     static getGlobalSettingsPath(): string {
@@ -47,13 +46,7 @@ vi.mock('@google/gemini-cli-core', async (importOriginal) => {
       return path.join('/test/home/', actual.GEMINI_DIR, 'tmp', 'mocked_hash');
     }
     getHistoryFilePath(): string {
-      return path.join(
-        '/test/home/',
-        actual.GEMINI_DIR,
-        'tmp',
-        'mocked_hash',
-        'shell_history',
-      );
+      return path.join('/test/home/', actual.GEMINI_DIR, 'tmp', 'mocked_hash', 'shell_history');
     }
     initialize(): Promise<undefined> {
       return Promise.resolve(undefined);
@@ -71,12 +64,7 @@ const MOCKED_PROJECT_ROOT = '/test/project';
 const MOCKED_HOME_DIR = '/test/home';
 const MOCKED_PROJECT_HASH = 'mocked_hash';
 
-const MOCKED_HISTORY_DIR = path.join(
-  MOCKED_HOME_DIR,
-  GEMINI_DIR,
-  'tmp',
-  MOCKED_PROJECT_HASH,
-);
+const MOCKED_HISTORY_DIR = path.join(MOCKED_HOME_DIR, GEMINI_DIR, 'tmp', MOCKED_PROJECT_HASH);
 const MOCKED_HISTORY_FILE = path.join(MOCKED_HISTORY_DIR, 'shell_history');
 
 describe('useShellHistory', () => {
@@ -100,15 +88,10 @@ describe('useShellHistory', () => {
 
   it('should initialize and read the history file from the correct path', async () => {
     mockedFs.readFile.mockResolvedValue('cmd1\ncmd2');
-    const { result, unmount } = renderHook(() =>
-      useShellHistory(MOCKED_PROJECT_ROOT),
-    );
+    const { result, unmount } = renderHook(() => useShellHistory(MOCKED_PROJECT_ROOT));
 
     await waitFor(() => {
-      expect(mockedFs.readFile).toHaveBeenCalledWith(
-        MOCKED_HISTORY_FILE,
-        'utf-8',
-      );
+      expect(mockedFs.readFile).toHaveBeenCalledWith(MOCKED_HISTORY_FILE, 'utf-8');
     });
 
     let command: string | null = null;
@@ -127,9 +110,7 @@ describe('useShellHistory', () => {
     error.code = 'ENOENT';
     mockedFs.readFile.mockRejectedValue(error);
 
-    const { result, unmount } = renderHook(() =>
-      useShellHistory(MOCKED_PROJECT_ROOT),
-    );
+    const { result, unmount } = renderHook(() => useShellHistory(MOCKED_PROJECT_ROOT));
 
     await waitFor(() => {
       expect(mockedFs.readFile).toHaveBeenCalled();
@@ -146,9 +127,7 @@ describe('useShellHistory', () => {
   });
 
   it('should add a command and write to the history file', async () => {
-    const { result, unmount } = renderHook(() =>
-      useShellHistory(MOCKED_PROJECT_ROOT),
-    );
+    const { result, unmount } = renderHook(() => useShellHistory(MOCKED_PROJECT_ROOT));
 
     await waitFor(() => {
       expect(mockedFs.readFile).toHaveBeenCalled();
@@ -164,7 +143,7 @@ describe('useShellHistory', () => {
       });
       expect(mockedFs.writeFile).toHaveBeenCalledWith(
         MOCKED_HISTORY_FILE,
-        'new_command', // Written to file oldest-first.
+        'new_command' // Written to file oldest-first.
       );
     });
 
@@ -179,9 +158,7 @@ describe('useShellHistory', () => {
 
   it('should navigate history correctly with previous/next commands', async () => {
     mockedFs.readFile.mockResolvedValue('cmd1\ncmd2\ncmd3');
-    const { result, unmount } = renderHook(() =>
-      useShellHistory(MOCKED_PROJECT_ROOT),
-    );
+    const { result, unmount } = renderHook(() => useShellHistory(MOCKED_PROJECT_ROOT));
 
     // Wait for history to be loaded: ['cmd3', 'cmd2', 'cmd1']
     await waitFor(() => {
@@ -231,9 +208,7 @@ describe('useShellHistory', () => {
   });
 
   it('should not add empty or whitespace-only commands to history', async () => {
-    const { result, unmount } = renderHook(() =>
-      useShellHistory(MOCKED_PROJECT_ROOT),
-    );
+    const { result, unmount } = renderHook(() => useShellHistory(MOCKED_PROJECT_ROOT));
 
     await waitFor(() => {
       expect(mockedFs.readFile).toHaveBeenCalled();
@@ -252,9 +227,7 @@ describe('useShellHistory', () => {
     const oldCommands = Array.from({ length: 120 }, (_, i) => `old_cmd_${i}`);
     mockedFs.readFile.mockResolvedValue(oldCommands.join('\n'));
 
-    const { result, unmount } = renderHook(() =>
-      useShellHistory(MOCKED_PROJECT_ROOT),
-    );
+    const { result, unmount } = renderHook(() => useShellHistory(MOCKED_PROJECT_ROOT));
     await waitFor(() => {
       expect(mockedFs.readFile).toHaveBeenCalled();
     });
@@ -284,9 +257,7 @@ describe('useShellHistory', () => {
 
   it('should move an existing command to the top when re-added', async () => {
     mockedFs.readFile.mockResolvedValue('cmd1\ncmd2\ncmd3');
-    const { result, unmount } = renderHook(() =>
-      useShellHistory(MOCKED_PROJECT_ROOT),
-    );
+    const { result, unmount } = renderHook(() => useShellHistory(MOCKED_PROJECT_ROOT));
 
     // Initial state: ['cmd3', 'cmd2', 'cmd1']
     await waitFor(() => {

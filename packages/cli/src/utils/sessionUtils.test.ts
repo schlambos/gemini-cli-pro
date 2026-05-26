@@ -84,19 +84,13 @@ describe('SessionSelector', () => {
     };
 
     await fs.writeFile(
-      path.join(
-        chatsDir,
-        `${SESSION_FILE_PREFIX}2024-01-01T10-00-${sessionId1.slice(0, 8)}.json`,
-      ),
-      JSON.stringify(session1, null, 2),
+      path.join(chatsDir, `${SESSION_FILE_PREFIX}2024-01-01T10-00-${sessionId1.slice(0, 8)}.json`),
+      JSON.stringify(session1, null, 2)
     );
 
     await fs.writeFile(
-      path.join(
-        chatsDir,
-        `${SESSION_FILE_PREFIX}2024-01-01T11-00-${sessionId2.slice(0, 8)}.json`,
-      ),
-      JSON.stringify(session2, null, 2),
+      path.join(chatsDir, `${SESSION_FILE_PREFIX}2024-01-01T11-00-${sessionId2.slice(0, 8)}.json`),
+      JSON.stringify(session2, null, 2)
     );
 
     const sessionSelector = new SessionSelector(config);
@@ -150,19 +144,13 @@ describe('SessionSelector', () => {
     };
 
     await fs.writeFile(
-      path.join(
-        chatsDir,
-        `${SESSION_FILE_PREFIX}2024-01-01T10-00-${sessionId1.slice(0, 8)}.json`,
-      ),
-      JSON.stringify(session1, null, 2),
+      path.join(chatsDir, `${SESSION_FILE_PREFIX}2024-01-01T10-00-${sessionId1.slice(0, 8)}.json`),
+      JSON.stringify(session1, null, 2)
     );
 
     await fs.writeFile(
-      path.join(
-        chatsDir,
-        `${SESSION_FILE_PREFIX}2024-01-01T11-00-${sessionId2.slice(0, 8)}.json`,
-      ),
-      JSON.stringify(session2, null, 2),
+      path.join(chatsDir, `${SESSION_FILE_PREFIX}2024-01-01T11-00-${sessionId2.slice(0, 8)}.json`),
+      JSON.stringify(session2, null, 2)
     );
 
     const sessionSelector = new SessionSelector(config);
@@ -214,19 +202,13 @@ describe('SessionSelector', () => {
     };
 
     await fs.writeFile(
-      path.join(
-        chatsDir,
-        `${SESSION_FILE_PREFIX}2024-01-01T10-00-${sessionId1.slice(0, 8)}.json`,
-      ),
-      JSON.stringify(session1, null, 2),
+      path.join(chatsDir, `${SESSION_FILE_PREFIX}2024-01-01T10-00-${sessionId1.slice(0, 8)}.json`),
+      JSON.stringify(session1, null, 2)
     );
 
     await fs.writeFile(
-      path.join(
-        chatsDir,
-        `${SESSION_FILE_PREFIX}2024-01-01T11-00-${sessionId2.slice(0, 8)}.json`,
-      ),
-      JSON.stringify(session2, null, 2),
+      path.join(chatsDir, `${SESSION_FILE_PREFIX}2024-01-01T11-00-${sessionId2.slice(0, 8)}.json`),
+      JSON.stringify(session2, null, 2)
     );
 
     const sessionSelector = new SessionSelector(config);
@@ -275,20 +257,14 @@ describe('SessionSelector', () => {
 
     // File 1
     await fs.writeFile(
-      path.join(
-        chatsDir,
-        `${SESSION_FILE_PREFIX}2024-01-01T10-00-${sessionId.slice(0, 8)}.json`,
-      ),
-      JSON.stringify(sessionOriginal, null, 2),
+      path.join(chatsDir, `${SESSION_FILE_PREFIX}2024-01-01T10-00-${sessionId.slice(0, 8)}.json`),
+      JSON.stringify(sessionOriginal, null, 2)
     );
 
     // File 2 (Simulate a copy or newer version with same ID)
     await fs.writeFile(
-      path.join(
-        chatsDir,
-        `${SESSION_FILE_PREFIX}2024-01-01T11-00-${sessionId.slice(0, 8)}.json`,
-      ),
-      JSON.stringify(sessionDuplicate, null, 2),
+      path.join(chatsDir, `${SESSION_FILE_PREFIX}2024-01-01T11-00-${sessionId.slice(0, 8)}.json`),
+      JSON.stringify(sessionDuplicate, null, 2)
     );
 
     const sessionSelector = new SessionSelector(config);
@@ -323,22 +299,15 @@ describe('SessionSelector', () => {
     };
 
     await fs.writeFile(
-      path.join(
-        chatsDir,
-        `${SESSION_FILE_PREFIX}2024-01-01T10-00-${sessionId1.slice(0, 8)}.json`,
-      ),
-      JSON.stringify(session1, null, 2),
+      path.join(chatsDir, `${SESSION_FILE_PREFIX}2024-01-01T10-00-${sessionId1.slice(0, 8)}.json`),
+      JSON.stringify(session1, null, 2)
     );
 
     const sessionSelector = new SessionSelector(config);
 
-    await expect(
-      sessionSelector.resolveSession('invalid-uuid'),
-    ).rejects.toThrow(SessionError);
+    await expect(sessionSelector.resolveSession('invalid-uuid')).rejects.toThrow(SessionError);
 
-    await expect(sessionSelector.resolveSession('999')).rejects.toThrow(
-      SessionError,
-    );
+    await expect(sessionSelector.resolveSession('999')).rejects.toThrow(SessionError);
   });
 
   it('should not list sessions with only system messages', async () => {
@@ -388,19 +357,13 @@ describe('SessionSelector', () => {
     };
 
     await fs.writeFile(
-      path.join(
-        chatsDir,
-        `${SESSION_FILE_PREFIX}2024-01-01T10-00-${sessionIdWithUser.slice(0, 8)}.json`,
-      ),
-      JSON.stringify(sessionWithUser, null, 2),
+      path.join(chatsDir, `${SESSION_FILE_PREFIX}2024-01-01T10-00-${sessionIdWithUser.slice(0, 8)}.json`),
+      JSON.stringify(sessionWithUser, null, 2)
     );
 
     await fs.writeFile(
-      path.join(
-        chatsDir,
-        `${SESSION_FILE_PREFIX}2024-01-01T11-00-${sessionIdSystemOnly.slice(0, 8)}.json`,
-      ),
-      JSON.stringify(sessionSystemOnly, null, 2),
+      path.join(chatsDir, `${SESSION_FILE_PREFIX}2024-01-01T11-00-${sessionIdSystemOnly.slice(0, 8)}.json`),
+      JSON.stringify(sessionSystemOnly, null, 2)
     );
 
     const sessionSelector = new SessionSelector(config);
@@ -435,11 +398,8 @@ describe('SessionSelector', () => {
     };
 
     await fs.writeFile(
-      path.join(
-        chatsDir,
-        `${SESSION_FILE_PREFIX}2024-01-01T10-00-${sessionIdGeminiOnly.slice(0, 8)}.json`,
-      ),
-      JSON.stringify(sessionGeminiOnly, null, 2),
+      path.join(chatsDir, `${SESSION_FILE_PREFIX}2024-01-01T10-00-${sessionIdGeminiOnly.slice(0, 8)}.json`),
+      JSON.stringify(sessionGeminiOnly, null, 2)
     );
 
     const sessionSelector = new SessionSelector(config);
@@ -646,9 +606,7 @@ describe('formatRelativeTime', () => {
 
     // 5 minutes ago
     const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
-    expect(formatRelativeTime(fiveMinutesAgo.toISOString())).toBe(
-      '5 minutes ago',
-    );
+    expect(formatRelativeTime(fiveMinutesAgo.toISOString())).toBe('5 minutes ago');
 
     // 1 minute ago
     const oneMinuteAgo = new Date(now.getTime() - 1 * 60 * 1000);

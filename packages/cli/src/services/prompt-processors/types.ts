@@ -30,10 +30,7 @@ export interface IPromptProcessor {
    * @returns A promise that resolves to the transformed prompt string, which
    *   will be passed to the next processor or, if it's the last one, sent to the model.
    */
-  process(
-    prompt: PromptPipelineContent,
-    context: CommandContext,
-  ): Promise<PromptPipelineContent>;
+  process(prompt: PromptPipelineContent, context: CommandContext): Promise<PromptPipelineContent>;
 }
 
 /**

@@ -102,10 +102,7 @@ function estimateFunctionResponseTokens(part: Part, depth: number): number {
  * - Text: character-based heuristic (ASCII vs CJK) for small strings, length/4 for massive ones.
  * - Non-text (Tools, etc): JSON string length / 4.
  */
-export function estimateTokenCountSync(
-  parts: Part[],
-  depth: number = 0,
-): number {
+export function estimateTokenCountSync(parts: Part[], depth: number = 0): number {
   if (depth > MAX_RECURSION_DEPTH) {
     return 0;
   }
@@ -138,7 +135,7 @@ export function estimateTokenCountSync(
 export async function calculateRequestTokenCount(
   request: PartListUnion,
   contentGenerator: ContentGenerator,
-  model: string,
+  model: string
 ): Promise<number> {
   const parts: Part[] = Array.isArray(request)
     ? request.map((p) => (typeof p === 'string' ? { text: p } : p))

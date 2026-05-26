@@ -31,9 +31,7 @@ function createWasmPlugins() {
         const specifier = args.path.replace(/\?binary$/, '');
         const resolveDir = args.resolveDir || '';
         const isBareSpecifier =
-          !path.isAbsolute(specifier) &&
-          !specifier.startsWith('./') &&
-          !specifier.startsWith('../');
+          !path.isAbsolute(specifier) && !specifier.startsWith('./') && !specifier.startsWith('../');
 
         let resolvedPath;
         if (isBareSpecifier) {
@@ -41,9 +39,7 @@ function createWasmPlugins() {
             paths: resolveDir ? [resolveDir, __dirname] : [__dirname],
           });
         } else {
-          resolvedPath = path.isAbsolute(specifier)
-            ? specifier
-            : path.join(resolveDir, specifier);
+          resolvedPath = path.isAbsolute(specifier) ? specifier : path.join(resolveDir, specifier);
         }
 
         return { path: resolvedPath, namespace: 'wasm-embedded' };

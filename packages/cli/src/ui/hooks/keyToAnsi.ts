@@ -19,9 +19,7 @@ export function keyToAnsi(key: Key): string | null {
   if (key.ctrl) {
     // Ctrl + letter
     if (key.name >= 'a' && key.name <= 'z') {
-      return String.fromCharCode(
-        key.name.charCodeAt(0) - 'a'.charCodeAt(0) + 1,
-      );
+      return String.fromCharCode(key.name.charCodeAt(0) - 'a'.charCodeAt(0) + 1);
     }
     // Other Ctrl combinations might need specific handling
     switch (key.name) {

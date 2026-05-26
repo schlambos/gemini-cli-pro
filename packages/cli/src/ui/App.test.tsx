@@ -152,22 +152,19 @@ describe('App', () => {
   it.each([
     { key: 'C', stateKey: 'ctrlCPressedOnce' },
     { key: 'D', stateKey: 'ctrlDPressedOnce' },
-  ])(
-    'should show Ctrl+$key exit prompt when dialogs are visible and $stateKey is true',
-    ({ key, stateKey }) => {
-      const uiState = {
-        ...mockUIState,
-        dialogsVisible: true,
-        [stateKey]: true,
-      } as UIState;
+  ])('should show Ctrl+$key exit prompt when dialogs are visible and $stateKey is true', ({ key, stateKey }) => {
+    const uiState = {
+      ...mockUIState,
+      dialogsVisible: true,
+      [stateKey]: true,
+    } as UIState;
 
-      const { lastFrame } = renderWithProviders(<App />, {
-        uiState,
-      });
+    const { lastFrame } = renderWithProviders(<App />, {
+      uiState,
+    });
 
-      expect(lastFrame()).toContain(`Press Ctrl+${key} again to exit.`);
-    },
-  );
+    expect(lastFrame()).toContain(`Press Ctrl+${key} again to exit.`);
+  });
 
   it('should render ScreenReaderAppLayout when screen reader is enabled', () => {
     (useIsScreenReaderEnabled as Mock).mockReturnValue(true);

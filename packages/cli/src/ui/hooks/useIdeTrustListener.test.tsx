@@ -7,12 +7,7 @@
 import { render } from '../../test-utils/render.js';
 import { act } from 'react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import {
-  IdeClient,
-  IDEConnectionStatus,
-  ideContextStore,
-  type IDEConnectionState,
-} from '@google/gemini-cli-core';
+import { IdeClient, IDEConnectionStatus, ideContextStore, type IDEConnectionState } from '@google/gemini-cli-core';
 import { useIdeTrustListener } from './useIdeTrustListener.js';
 import * as trustedFolders from '../../config/trustedFolders.js';
 import { useSettings } from '../contexts/SettingsContext.js';
@@ -20,8 +15,7 @@ import type { LoadedSettings } from '../../config/settings.js';
 
 // Mock dependencies
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const original =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const original = await importOriginal<typeof import('@google/gemini-cli-core')>();
   const ideClientInstance = {
     addTrustChangeListener: vi.fn(),
     removeTrustChangeListener: vi.fn(),
@@ -71,11 +65,9 @@ describe('useIdeTrustListener', () => {
     vi.mocked(mockIdeClient.addTrustChangeListener).mockImplementation((cb) => {
       trustChangeCallback = cb;
     });
-    vi.mocked(mockIdeClient.addStatusChangeListener).mockImplementation(
-      (cb) => {
-        statusChangeCallback = cb;
-      },
-    );
+    vi.mocked(mockIdeClient.addStatusChangeListener).mockImplementation((cb) => {
+      statusChangeCallback = cb;
+    });
   });
 
   const renderTrustListenerHook = async () => {

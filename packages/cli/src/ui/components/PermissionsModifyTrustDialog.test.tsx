@@ -65,9 +65,7 @@ describe('PermissionsModifyTrustDialog', () => {
   });
 
   it('should render the main dialog with current trust level', async () => {
-    const { lastFrame } = renderWithProviders(
-      <PermissionsModifyTrustDialog onExit={vi.fn()} addItem={vi.fn()} />,
-    );
+    const { lastFrame } = renderWithProviders(<PermissionsModifyTrustDialog onExit={vi.fn()} addItem={vi.fn()} />);
 
     await waitFor(() => {
       expect(lastFrame()).toContain('Modify Trust Level');
@@ -87,13 +85,11 @@ describe('PermissionsModifyTrustDialog', () => {
       commitTrustLevelChange: mockCommitTrustLevelChange,
       isFolderTrustEnabled: true,
     });
-    const { lastFrame } = renderWithProviders(
-      <PermissionsModifyTrustDialog onExit={vi.fn()} addItem={vi.fn()} />,
-    );
+    const { lastFrame } = renderWithProviders(<PermissionsModifyTrustDialog onExit={vi.fn()} addItem={vi.fn()} />);
 
     await waitFor(() => {
       expect(lastFrame()).toContain(
-        'Note: This folder behaves as a trusted folder because one of the parent folders is trusted.',
+        'Note: This folder behaves as a trusted folder because one of the parent folders is trusted.'
       );
     });
   });
@@ -109,21 +105,17 @@ describe('PermissionsModifyTrustDialog', () => {
       commitTrustLevelChange: mockCommitTrustLevelChange,
       isFolderTrustEnabled: true,
     });
-    const { lastFrame } = renderWithProviders(
-      <PermissionsModifyTrustDialog onExit={vi.fn()} addItem={vi.fn()} />,
-    );
+    const { lastFrame } = renderWithProviders(<PermissionsModifyTrustDialog onExit={vi.fn()} addItem={vi.fn()} />);
 
     await waitFor(() => {
       expect(lastFrame()).toContain(
-        'Note: This folder behaves as a trusted folder because the connected IDE workspace is trusted.',
+        'Note: This folder behaves as a trusted folder because the connected IDE workspace is trusted.'
       );
     });
   });
 
   it('should render the labels with folder names', async () => {
-    const { lastFrame } = renderWithProviders(
-      <PermissionsModifyTrustDialog onExit={vi.fn()} addItem={vi.fn()} />,
-    );
+    const { lastFrame } = renderWithProviders(<PermissionsModifyTrustDialog onExit={vi.fn()} addItem={vi.fn()} />);
 
     await waitFor(() => {
       expect(lastFrame()).toContain('Trust this folder (dir)');
@@ -134,7 +126,7 @@ describe('PermissionsModifyTrustDialog', () => {
   it('should call onExit when escape is pressed', async () => {
     const onExit = vi.fn();
     const { stdin, lastFrame } = renderWithProviders(
-      <PermissionsModifyTrustDialog onExit={onExit} addItem={vi.fn()} />,
+      <PermissionsModifyTrustDialog onExit={onExit} addItem={vi.fn()} />
     );
 
     await waitFor(() => expect(lastFrame()).not.toContain('Loading...'));
@@ -149,9 +141,7 @@ describe('PermissionsModifyTrustDialog', () => {
   });
 
   it('should commit and restart `r` keypress', async () => {
-    const mockRelaunchApp = vi
-      .spyOn(processUtils, 'relaunchApp')
-      .mockResolvedValue(undefined);
+    const mockRelaunchApp = vi.spyOn(processUtils, 'relaunchApp').mockResolvedValue(undefined);
     mockCommitTrustLevelChange.mockReturnValue(true);
     vi.mocked(usePermissionsModifyTrust).mockReturnValue({
       cwd: '/test/dir',
@@ -166,7 +156,7 @@ describe('PermissionsModifyTrustDialog', () => {
 
     const onExit = vi.fn();
     const { stdin, lastFrame } = renderWithProviders(
-      <PermissionsModifyTrustDialog onExit={onExit} addItem={vi.fn()} />,
+      <PermissionsModifyTrustDialog onExit={onExit} addItem={vi.fn()} />
     );
 
     await waitFor(() => expect(lastFrame()).not.toContain('Loading...'));
@@ -195,7 +185,7 @@ describe('PermissionsModifyTrustDialog', () => {
 
     const onExit = vi.fn();
     const { stdin, lastFrame } = renderWithProviders(
-      <PermissionsModifyTrustDialog onExit={onExit} addItem={vi.fn()} />,
+      <PermissionsModifyTrustDialog onExit={onExit} addItem={vi.fn()} />
     );
 
     await waitFor(() => expect(lastFrame()).not.toContain('Loading...'));

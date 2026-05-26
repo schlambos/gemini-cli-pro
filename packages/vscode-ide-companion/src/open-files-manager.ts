@@ -5,10 +5,7 @@
  */
 
 import * as vscode from 'vscode';
-import type {
-  File,
-  IdeContext,
-} from '@google/gemini-cli-core/src/ide/types.js';
+import type { File, IdeContext } from '@google/gemini-cli-core/src/ide/types.js';
 
 export const MAX_FILES = 10;
 const MAX_SELECTED_TEXT_LENGTH = 16384; // 16 KiB limit
@@ -23,23 +20,19 @@ export class OpenFilesManager {
   private openFiles: File[] = [];
 
   constructor(private readonly context: vscode.ExtensionContext) {
-    const editorWatcher = vscode.window.onDidChangeActiveTextEditor(
-      (editor) => {
-        if (editor && this.isFileUri(editor.document.uri)) {
-          this.addOrMoveToFront(editor);
-          this.fireWithDebounce();
-        }
-      },
-    );
+    const editorWatcher = vscode.window.onDidChangeActiveTextEditor((editor) => {
+      if (editor && this.isFileUri(editor.document.uri)) {
+        this.addOrMoveToFront(editor);
+        this.fireWithDebounce();
+      }
+    });
 
-    const selectionWatcher = vscode.window.onDidChangeTextEditorSelection(
-      (event) => {
-        if (this.isFileUri(event.textEditor.document.uri)) {
-          this.updateActiveContext(event.textEditor);
-          this.fireWithDebounce();
-        }
-      },
-    );
+    const selectionWatcher = vscode.window.onDidChangeTextEditorSelection((event) => {
+      if (this.isFileUri(event.textEditor.document.uri)) {
+        this.updateActiveContext(event.textEditor);
+        this.fireWithDebounce();
+      }
+    });
 
     const closeWatcher = vscode.workspace.onDidCloseTextDocument((document) => {
       if (this.isFileUri(document.uri)) {
@@ -71,19 +64,10 @@ export class OpenFilesManager {
       this.fireWithDebounce();
     });
 
-    context.subscriptions.push(
-      editorWatcher,
-      selectionWatcher,
-      closeWatcher,
-      deleteWatcher,
-      renameWatcher,
-    );
+    context.subscriptions.push(editorWatcher, selectionWatcher, closeWatcher, deleteWatcher, renameWatcher);
 
     // Just add current active file on start-up.
-    if (
-      vscode.window.activeTextEditor &&
-      this.isFileUri(vscode.window.activeTextEditor.document.uri)
-    ) {
+    if (vscode.window.activeTextEditor && this.isFileUri(vscode.window.activeTextEditor.document.uri)) {
       this.addOrMoveToFront(vscode.window.activeTextEditor);
     }
   }
@@ -102,9 +86,7 @@ export class OpenFilesManager {
     }
 
     // Remove if it exists
-    const index = this.openFiles.findIndex(
-      (f) => f.path === editor.document.uri.fsPath,
-    );
+    const index = this.openFiles.findIndex((f) => f.path === editor.document.uri.fsPath);
     if (index !== -1) {
       this.openFiles.splice(index, 1);
     }
@@ -139,9 +121,7 @@ export class OpenFilesManager {
   }
 
   private updateActiveContext(editor: vscode.TextEditor) {
-    const file = this.openFiles.find(
-      (f) => f.path === editor.document.uri.fsPath,
-    );
+    const file = this.openFiles.find((f) => f.path === editor.document.uri.fsPath);
     if (!file || !file.isActive) {
       return;
     }
@@ -153,8 +133,7 @@ export class OpenFilesManager {
         }
       : undefined;
 
-    let selectedText: string | undefined =
-      editor.document.getText(editor.selection) || undefined;
+    let selectedText: string | undefined = editor.document.getText(editor.selection) || undefined;
     if (selectedText && selectedText.length > MAX_SELECTED_TEXT_LENGTH) {
       selectedText = selectedText.substring(0, MAX_SELECTED_TEXT_LENGTH);
     }

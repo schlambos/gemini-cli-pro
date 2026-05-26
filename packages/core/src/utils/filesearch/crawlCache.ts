@@ -14,11 +14,7 @@ const cacheTimers = new Map<string, NodeJS.Timeout>();
  * of ignore files. This ensures that the cache is invalidated if the project
  * or ignore rules change.
  */
-export const getCacheKey = (
-  directory: string,
-  ignoreContent: string,
-  maxDepth?: number,
-): string => {
+export const getCacheKey = (directory: string, ignoreContent: string, maxDepth?: number): string => {
   const hash = crypto.createHash('sha256');
   hash.update(directory);
   hash.update(ignoreContent);

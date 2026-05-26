@@ -4,11 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type {
-  SlashCommand,
-  SlashCommandActionReturn,
-  CommandContext,
-} from './types.js';
+import type { SlashCommand, SlashCommandActionReturn, CommandContext } from './types.js';
 import { CommandKind } from './types.js';
 import type { MessageActionReturn } from '@google/gemini-cli-core';
 import {
@@ -25,11 +21,7 @@ import {
 } from '@google/gemini-cli-core';
 
 import { MessageType, type HistoryItemMcpStatus } from '../types.js';
-import {
-  McpServerEnablementManager,
-  normalizeServerId,
-  canLoadServer,
-} from '../../config/mcp/mcpServerEnablement.js';
+import { McpServerEnablementManager, normalizeServerId, canLoadServer } from '../../config/mcp/mcpServerEnablement.js';
 import { loadSettings } from '../../config/settings.js';
 
 const authCommand: SlashCommand = {
@@ -37,10 +29,7 @@ const authCommand: SlashCommand = {
   description: 'Authenticate with an OAuth-enabled MCP server',
   kind: CommandKind.BUILT_IN,
   autoExecute: true,
-  action: async (
-    context: CommandContext,
-    args: string,
-  ): Promise<MessageActionReturn> => {
+  action: async (context: CommandContext, args: string): Promise<MessageActionReturn> => {
     const serverName = args.trim();
     const { config } = context.services;
 
@@ -62,14 +51,10 @@ const authCommand: SlashCommand = {
         .filter(([_, server]) => server.oauth?.enabled)
         .map(([name, _]) => name);
 
-      const detectedOAuthServers = Array.from(
-        mcpServerRequiresOAuth.keys(),
-      ).filter((name) => mcpServers[name]); // Only include configured servers
+      const detectedOAuthServers = Array.from(mcpServerRequiresOAuth.keys()).filter((name) => mcpServers[name]); // Only include configured servers
 
       // Combine and deduplicate
-      const allOAuthServers = [
-        ...new Set([...configuredOAuthServers, ...detectedOAuthServers]),
-      ];
+      const allOAuthServers = [...new Set([...configuredOAuthServers, ...detectedOAuthServers])];
 
       if (allOAuthServers.length === 0) {
         return {
@@ -164,16 +149,14 @@ const authCommand: SlashCommand = {
     if (!config) return [];
 
     const mcpServers = config.getMcpClientManager()?.getMcpServers() || {};
-    return Object.keys(mcpServers).filter((name) =>
-      name.startsWith(partialArg),
-    );
+    return Object.keys(mcpServers).filter((name) => name.startsWith(partialArg));
   },
 };
 
 const listAction = async (
   context: CommandContext,
   showDescriptions = false,
-  showSchema = false,
+  showSchema = false
 ): Promise<void | MessageActionReturn> => {
   const { config } = context.services;
   if (!config) {
@@ -195,16 +178,11 @@ const listAction = async (
 
   const mcpServers = config.getMcpClientManager()?.getMcpServers() || {};
   const serverNames = Object.keys(mcpServers);
-  const blockedMcpServers =
-    config.getMcpClientManager()?.getBlockedMcpServers() || [];
+  const blockedMcpServers = config.getMcpClientManager()?.getBlockedMcpServers() || [];
 
-  const connectingServers = serverNames.filter(
-    (name) => getMCPServerStatus(name) === MCPServerStatus.CONNECTING,
-  );
+  const connectingServers = serverNames.filter((name) => getMCPServerStatus(name) === MCPServerStatus.CONNECTING);
   const discoveryState = getMCPDiscoveryState();
-  const discoveryInProgress =
-    discoveryState === MCPDiscoveryState.IN_PROGRESS ||
-    connectingServers.length > 0;
+  const discoveryInProgress = discoveryState === MCPDiscoveryState.IN_PROGRESS || connectingServers.length > 0;
 
   const allTools = toolRegistry.getAllTools();
   const mcpTools = allTools.filter((tool) => tool instanceof DiscoveredMCPTool);
@@ -212,15 +190,10 @@ const listAction = async (
   const promptRegistry = config.getPromptRegistry();
   const mcpPrompts = promptRegistry
     .getAllPrompts()
-    .filter(
-      (prompt) =>
-        'serverName' in prompt && serverNames.includes(prompt.serverName),
-    );
+    .filter((prompt) => 'serverName' in prompt && serverNames.includes(prompt.serverName));
 
   const resourceRegistry = config.getResourceRegistry();
-  const mcpResources = resourceRegistry
-    .getAllResources()
-    .filter((entry) => serverNames.includes(entry.serverName));
+  const mcpResources = resourceRegistry.getAllResources().filter((entry) => serverNames.includes(entry.serverName));
 
   const authStatus: HistoryItemMcpStatus['authStatus'] = {};
   const tokenStorage = new MCPOAuthTokenStorage();
@@ -247,8 +220,7 @@ const listAction = async (
   const enablementManager = McpServerEnablementManager.getInstance();
   const enablementState: HistoryItemMcpStatus['enablementState'] = {};
   for (const serverName of serverNames) {
-    enablementState[serverName] =
-      await enablementManager.getDisplayState(serverName);
+    enablementState[serverName] = await enablementManager.getDisplayState(serverName);
   }
 
   const mcpStatusItem: HistoryItemMcpStatus = {
@@ -304,8 +276,7 @@ const descCommand: SlashCommand = {
 
 const schemaCommand: SlashCommand = {
   name: 'schema',
-  description:
-    'List configured MCP servers and tools with descriptions and schemas',
+  description: 'List configured MCP servers and tools with descriptions and schemas',
   kind: CommandKind.BUILT_IN,
   autoExecute: true,
   action: (context) => listAction(context, true, true),
@@ -317,9 +288,7 @@ const refreshCommand: SlashCommand = {
   description: 'Restarts MCP servers',
   kind: CommandKind.BUILT_IN,
   autoExecute: true,
-  action: async (
-    context: CommandContext,
-  ): Promise<void | SlashCommandActionReturn> => {
+  action: async (context: CommandContext): Promise<void | SlashCommandActionReturn> => {
     const { config } = context.services;
     if (!config) {
       return {
@@ -361,7 +330,7 @@ const refreshCommand: SlashCommand = {
 async function handleEnableDisable(
   context: CommandContext,
   args: string,
-  enable: boolean,
+  enable: boolean
 ): Promise<MessageActionReturn> {
   const { config } = context.services;
   if (!config) {
@@ -407,10 +376,7 @@ async function handleEnableDisable(
       allowedList: settings.merged.mcp?.allowed,
       excludedList: settings.merged.mcp?.excluded,
     });
-    if (
-      !result.allowed &&
-      (result.blockType === 'allowlist' || result.blockType === 'excludelist')
-    ) {
+    if (!result.allowed && (result.blockType === 'allowlist' || result.blockType === 'excludelist')) {
       return {
         type: 'message',
         messageType: 'error',
@@ -428,7 +394,7 @@ async function handleEnableDisable(
           type: 'warning',
           text: 'MCP disabled by admin. Will load when enabled.',
         },
-        Date.now(),
+        Date.now()
       );
     }
   } else {
@@ -443,14 +409,10 @@ async function handleEnableDisable(
 
   const mcpClientManager = config.getMcpClientManager();
   if (mcpClientManager) {
-    context.ui.addItem(
-      { type: 'info', text: 'Restarting MCP servers...' },
-      Date.now(),
-    );
+    context.ui.addItem({ type: 'info', text: 'Restarting MCP servers...' }, Date.now());
     await mcpClientManager.restart();
   }
-  if (config.getGeminiClient()?.isInitialized())
-    await config.getGeminiClient().setTools();
+  if (config.getGeminiClient()?.isInitialized()) await config.getGeminiClient().setTools();
   context.ui.reloadCommands();
 
   return { type: 'message', messageType: 'info', content: msg };
@@ -459,13 +421,11 @@ async function handleEnableDisable(
 async function getEnablementCompletion(
   context: CommandContext,
   partialArg: string,
-  showEnabled: boolean,
+  showEnabled: boolean
 ): Promise<string[]> {
   const { config } = context.services;
   if (!config) return [];
-  const servers = Object.keys(
-    config.getMcpClientManager()?.getMcpServers() || {},
-  );
+  const servers = Object.keys(config.getMcpClientManager()?.getMcpServers() || {});
   const manager = McpServerEnablementManager.getInstance();
   const results: string[] = [];
   for (const n of servers) {
@@ -500,14 +460,6 @@ export const mcpCommand: SlashCommand = {
   description: 'Manage configured Model Context Protocol (MCP) servers',
   kind: CommandKind.BUILT_IN,
   autoExecute: false,
-  subCommands: [
-    listCommand,
-    descCommand,
-    schemaCommand,
-    authCommand,
-    refreshCommand,
-    enableCommand,
-    disableCommand,
-  ],
+  subCommands: [listCommand, descCommand, schemaCommand, authCommand, refreshCommand, enableCommand, disableCommand],
   action: async (context: CommandContext) => listAction(context),
 };

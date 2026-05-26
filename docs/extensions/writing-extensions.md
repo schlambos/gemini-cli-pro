@@ -103,9 +103,7 @@ server.registerTool(
     inputSchema: z.object({}).shape,
   },
   async () => {
-    const apiResponse = await fetch(
-      'https://jsonplaceholder.typicode.com/posts',
-    );
+    const apiResponse = await fetch('https://jsonplaceholder.typicode.com/posts');
     const posts = await apiResponse.json();
     const response = { posts: posts.slice(0, 5) };
     return {
@@ -116,7 +114,7 @@ server.registerTool(
         },
       ],
     };
-  },
+  }
 );
 
 const transport = new StdioServerTransport();
@@ -261,8 +259,7 @@ Skills are activated only when needed, which saves context tokens.
     ```markdown
     ---
     name: security-audit
-    description:
-      Expertise in auditing code for security vulnerabilities. Use when the user
+    description: Expertise in auditing code for security vulnerabilities. Use when the user
       asks to "check for security issues" or "audit" their changes.
     ---
 

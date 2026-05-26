@@ -25,7 +25,7 @@ describe('GoogleCredentialProvider', () => {
       url: 'https://test.googleapis.com',
     } as MCPServerConfig;
     expect(() => new GoogleCredentialProvider(config)).toThrow(
-      'Scopes must be provided in the oauth config for Google Credentials provider',
+      'Scopes must be provided in the oauth config for Google Credentials provider'
     );
   });
 
@@ -44,7 +44,7 @@ describe('GoogleCredentialProvider', () => {
       },
     } as MCPServerConfig;
     expect(() => new GoogleCredentialProvider(config)).toThrow(
-      'Host "example.com" is not an allowed host for Google Credential provider.',
+      'Host "example.com" is not an allowed host for Google Credential provider.'
     );
   });
 
@@ -76,7 +76,7 @@ describe('GoogleCredentialProvider', () => {
       },
     } as MCPServerConfig;
     expect(() => new GoogleCredentialProvider(config)).toThrow(
-      'Host "googleapis.com" is not an allowed host for Google Credential provider.',
+      'Host "googleapis.com" is not an allowed host for Google Credential provider.'
     );
   });
 
@@ -183,9 +183,7 @@ describe('GoogleCredentialProvider', () => {
           'X-Goog-User-Project': 'config-project-id',
         },
       };
-      const providerWithHeaders = new GoogleCredentialProvider(
-        configWithHeaders,
-      );
+      const providerWithHeaders = new GoogleCredentialProvider(configWithHeaders);
       const headers = await providerWithHeaders.getRequestHeaders();
       expect(headers).toEqual({
         'X-Goog-User-Project': 'config-project-id',
@@ -199,9 +197,7 @@ describe('GoogleCredentialProvider', () => {
           'x-goog-user-project': 'config-project-id',
         },
       };
-      const providerWithHeaders = new GoogleCredentialProvider(
-        configWithHeaders,
-      );
+      const providerWithHeaders = new GoogleCredentialProvider(configWithHeaders);
       const headers = await providerWithHeaders.getRequestHeaders();
       expect(headers).toEqual({
         'x-goog-user-project': 'config-project-id',

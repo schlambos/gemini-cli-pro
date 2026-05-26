@@ -10,10 +10,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { execSync } from 'node:child_process';
 import { TestRig } from '@google/gemini-cli-test-utils';
-import {
-  createUnauthorizedToolError,
-  parseAgentMarkdown,
-} from '@google/gemini-cli-core';
+import { createUnauthorizedToolError, parseAgentMarkdown } from '@google/gemini-cli-core';
 
 export * from '@google/gemini-cli-test-utils';
 
@@ -59,14 +56,8 @@ export function evalTest(policy: EvalPolicy, evalCase: EvalCase) {
           fs.writeFileSync(fullPath, content);
 
           // If it's an agent file, calculate hash for acknowledgement
-          if (
-            filePath.startsWith('.gemini/agents/') &&
-            filePath.endsWith('.md')
-          ) {
-            const hash = crypto
-              .createHash('sha256')
-              .update(content)
-              .digest('hex');
+          if (filePath.startsWith('.gemini/agents/') && filePath.endsWith('.md')) {
+            const hash = crypto.createHash('sha256').update(content).digest('hex');
 
             try {
               const agentDefs = await parseAgentMarkdown(fullPath, content);
@@ -78,27 +69,16 @@ export function evalTest(policy: EvalPolicy, evalCase: EvalCase) {
                 acknowledgedAgents[projectRoot][agentName] = hash;
               }
             } catch (error) {
-              console.warn(
-                `Failed to parse agent for test acknowledgement: ${filePath}`,
-                error,
-              );
+              console.warn(`Failed to parse agent for test acknowledgement: ${filePath}`, error);
             }
           }
         }
 
         // Write acknowledged_agents.json to the home directory
         if (Object.keys(acknowledgedAgents).length > 0) {
-          const ackPath = path.join(
-            rig.homeDir!,
-            '.gemini',
-            'acknowledgments',
-            'agents.json',
-          );
+          const ackPath = path.join(rig.homeDir!, '.gemini', 'acknowledgments', 'agents.json');
           fs.mkdirSync(path.dirname(ackPath), { recursive: true });
-          fs.writeFileSync(
-            ackPath,
-            JSON.stringify(acknowledgedAgents, null, 2),
-          );
+          fs.writeFileSync(ackPath, JSON.stringify(acknowledgedAgents, null, 2));
         }
 
         const execOptions = { cwd: rig.testDir!, stdio: 'inherit' as const };
@@ -125,12 +105,9 @@ export function evalTest(policy: EvalPolicy, evalCase: EvalCase) {
         },
       });
 
-      const unauthorizedErrorPrefix =
-        createUnauthorizedToolError('').split("'")[0];
+      const unauthorizedErrorPrefix = createUnauthorizedToolError('').split("'")[0];
       if (result.includes(unauthorizedErrorPrefix)) {
-        throw new Error(
-          'Test failed due to unauthorized tool call in output: ' + result,
-        );
+        throw new Error('Test failed due to unauthorized tool call in output: ' + result);
       }
 
       await evalCase.assert(rig, result);
@@ -147,10 +124,7 @@ export function evalTest(policy: EvalPolicy, evalCase: EvalCase) {
         await fs.promises.writeFile(stderrFile, rig._lastRunStderr);
       }
 
-      await fs.promises.writeFile(
-        logFile,
-        JSON.stringify(rig.readToolLogs(), null, 2),
-      );
+      await fs.promises.writeFile(logFile, JSON.stringify(rig.readToolLogs(), null, 2));
       await rig.cleanup();
     }
   };
@@ -161,12 +135,7 @@ export function evalTest(policy: EvalPolicy, evalCase: EvalCase) {
 /**
  * Wraps a test function with the appropriate Vitest 'it' or 'it.skip' based on policy.
  */
-export function runEval(
-  policy: EvalPolicy,
-  name: string,
-  fn: () => Promise<void>,
-  timeout?: number,
-) {
+export function runEval(policy: EvalPolicy, name: string, fn: () => Promise<void>, timeout?: number) {
   if (policy === 'USUALLY_PASSES' && !process.env['RUN_EVALS']) {
     it.skip(name, fn);
   } else {
@@ -187,11 +156,7 @@ export async function prepareLogDir(name: string) {
 export function symlinkNodeModules(testDir: string) {
   const rootNodeModules = path.join(process.cwd(), 'node_modules');
   const testNodeModules = path.join(testDir, 'node_modules');
-  if (
-    testDir &&
-    fs.existsSync(rootNodeModules) &&
-    !fs.existsSync(testNodeModules)
-  ) {
+  if (testDir && fs.existsSync(rootNodeModules) && !fs.existsSync(testNodeModules)) {
     fs.symlinkSync(rootNodeModules, testNodeModules, 'dir');
   }
 }

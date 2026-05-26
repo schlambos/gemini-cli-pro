@@ -67,10 +67,7 @@ function parseAllAtCommands(query: string): AtCommandPart[] {
   let lastIndex = 0;
 
   // Create a new RegExp instance for each call to avoid shared state/lastIndex issues.
-  const atCommandRegex = new RegExp(
-    `(?<!\\\\)@${AT_COMMAND_PATH_REGEX_SOURCE}`,
-    'g',
-  );
+  const atCommandRegex = new RegExp(`(?<!\\\\)@${AT_COMMAND_PATH_REGEX_SOURCE}`, 'g');
 
   let match: RegExpExecArray | null;
 
@@ -99,14 +96,12 @@ function parseAllAtCommands(query: string): AtCommandPart[] {
   }
 
   // Filter out empty text parts that might result from consecutive @paths or leading/trailing spaces
-  return parts.filter(
-    (part) => !(part.type === 'text' && part.content.trim() === ''),
-  );
+  return parts.filter((part) => !(part.type === 'text' && part.content.trim() === ''));
 }
 
 function categorizeAtCommands(
   commandParts: AtCommandPart[],
-  config: Config,
+  config: Config
 ): {
   agentParts: AtCommandPart[];
   resourceParts: AtCommandPart[];
@@ -142,10 +137,7 @@ function categorizeAtCommands(
  * Checks if the query contains any file paths that require read permission.
  * Returns an array of such paths.
  */
-export async function checkPermissions(
-  query: string,
-  config: Config,
-): Promise<string[]> {
+export async function checkPermissions(query: string, config: Config): Promise<string[]> {
   const commandParts = parseAllAtCommands(query);
   const { fileParts } = categorizeAtCommands(commandParts, config);
   const permissionsRequired: string[] = [];
@@ -154,9 +146,7 @@ export async function checkPermissions(
     const pathName = part.content.substring(1);
     if (!pathName) continue;
 
-    const resolvedPathName = resolveToRealPath(
-      path.resolve(config.getTargetDir(), pathName),
-    );
+    const resolvedPathName = resolveToRealPath(path.resolve(config.getTargetDir(), pathName));
 
     if (config.validatePathAccess(resolvedPathName, 'read')) {
       if (await fileExists(resolvedPathName)) {
@@ -186,7 +176,7 @@ async function resolveFilePaths(
   fileParts: AtCommandPart[],
   config: Config,
   onDebugMessage: (message: string) => void,
-  signal: AbortSignal,
+  signal: AbortSignal
 ): Promise<{ resolvedFiles: ResolvedFile[]; ignoredFiles: IgnoredFile[] }> {
   const fileDiscovery = config.getFileService();
   const respectFileIgnore = config.getFileFilteringOptions();
@@ -218,15 +208,10 @@ async function resolveFilePaths(
       });
 
     if (gitIgnored || geminiIgnored) {
-      const reason =
-        gitIgnored && geminiIgnored ? 'both' : gitIgnored ? 'git' : 'gemini';
+      const reason = gitIgnored && geminiIgnored ? 'both' : gitIgnored ? 'git' : 'gemini';
       ignoredFiles.push({ path: pathName, reason });
       const reasonText =
-        reason === 'both'
-          ? 'ignored by both git and gemini'
-          : reason === 'git'
-            ? 'git-ignored'
-            : 'gemini-ignored';
+        reason === 'both' ? 'ignored by both git and gemini' : reason === 'git' ? 'git-ignored' : 'gemini-ignored';
       onDebugMessage(`Path ${pathName} is ${reasonText} and will be skipped.`);
       continue;
     }
@@ -236,9 +221,7 @@ async function resolveFilePaths(
         const absolutePath = path.resolve(dir, pathName);
         const stats = await fs.stat(absolutePath);
 
-        const relativePath = path.isAbsolute(pathName)
-          ? path.relative(dir, absolutePath)
-          : pathName;
+        const relativePath = path.isAbsolute(pathName) ? path.relative(dir, absolutePath) : pathName;
 
         if (stats.isDirectory()) {
           const pathSpec = path.join(relativePath, '**');
@@ -248,9 +231,7 @@ async function resolveFilePaths(
             displayLabel: path.isAbsolute(pathName) ? relativePath : pathName,
             absolutePath,
           });
-          onDebugMessage(
-            `Path ${pathName} resolved to directory, using glob: ${pathSpec}`,
-          );
+          onDebugMessage(`Path ${pathName} resolved to directory, using glob: ${pathSpec}`);
         } else {
           resolvedFiles.push({
             part,
@@ -258,24 +239,20 @@ async function resolveFilePaths(
             displayLabel: path.isAbsolute(pathName) ? relativePath : pathName,
             absolutePath,
           });
-          onDebugMessage(
-            `Path ${pathName} resolved to file: ${absolutePath}, using relative path: ${relativePath}`,
-          );
+          onDebugMessage(`Path ${pathName} resolved to file: ${absolutePath}, using relative path: ${relativePath}`);
         }
         break;
       } catch (error) {
         if (isNodeError(error) && error.code === 'ENOENT') {
           if (config.getEnableRecursiveFileSearch() && globTool) {
-            onDebugMessage(
-              `Path ${pathName} not found directly, attempting glob search.`,
-            );
+            onDebugMessage(`Path ${pathName} not found directly, attempting glob search.`);
             try {
               const globResult = await globTool.buildAndExecute(
                 {
                   pattern: `**/*${pathName}*`,
                   path: dir,
                 },
-                signal,
+                signal
               );
               if (
                 globResult.llmContent &&
@@ -290,44 +267,32 @@ async function resolveFilePaths(
                   resolvedFiles.push({
                     part,
                     pathSpec,
-                    displayLabel: path.isAbsolute(pathName)
-                      ? pathSpec
-                      : pathName,
+                    displayLabel: path.isAbsolute(pathName) ? pathSpec : pathName,
                   });
                   onDebugMessage(
-                    `Glob search for ${pathName} found ${firstMatchAbsolute}, using relative path: ${pathSpec}`,
+                    `Glob search for ${pathName} found ${firstMatchAbsolute}, using relative path: ${pathSpec}`
                   );
                   break;
                 } else {
                   onDebugMessage(
-                    `Glob search for '**/*${pathName}*' did not return a usable path. Path ${pathName} will be skipped.`,
+                    `Glob search for '**/*${pathName}*' did not return a usable path. Path ${pathName} will be skipped.`
                   );
                 }
               } else {
                 onDebugMessage(
-                  `Glob search for '**/*${pathName}*' found no files or an error. Path ${pathName} will be skipped.`,
+                  `Glob search for '**/*${pathName}*' found no files or an error. Path ${pathName} will be skipped.`
                 );
               }
             } catch (globError) {
-              debugLogger.warn(
-                `Error during glob search for ${pathName}: ${getErrorMessage(globError)}`,
-              );
-              onDebugMessage(
-                `Error during glob search for ${pathName}. Path ${pathName} will be skipped.`,
-              );
+              debugLogger.warn(`Error during glob search for ${pathName}: ${getErrorMessage(globError)}`);
+              onDebugMessage(`Error during glob search for ${pathName}. Path ${pathName} will be skipped.`);
             }
           } else {
-            onDebugMessage(
-              `Glob tool not found. Path ${pathName} will be skipped.`,
-            );
+            onDebugMessage(`Glob tool not found. Path ${pathName} will be skipped.`);
           }
         } else {
-          debugLogger.warn(
-            `Error stating path ${pathName}: ${getErrorMessage(error)}`,
-          );
-          onDebugMessage(
-            `Error stating path ${pathName}. Path ${pathName} will be skipped.`,
-          );
+          debugLogger.warn(`Error stating path ${pathName}: ${getErrorMessage(error)}`);
+          onDebugMessage(`Error stating path ${pathName}. Path ${pathName} will be skipped.`);
         }
       }
     }
@@ -339,10 +304,7 @@ async function resolveFilePaths(
 /**
  * Rebuilds the user query, replacing @ commands with their resolved path specs or agent/resource names.
  */
-function constructInitialQuery(
-  commandParts: AtCommandPart[],
-  resolvedFiles: ResolvedFile[],
-): string {
+function constructInitialQuery(commandParts: AtCommandPart[], resolvedFiles: ResolvedFile[]): string {
   const replacementMap = new Map<AtCommandPart, string>();
   for (const rf of resolvedFiles) {
     replacementMap.set(rf.part, rf.pathSpec);
@@ -373,7 +335,7 @@ function constructInitialQuery(
 async function readMcpResources(
   resourceParts: AtCommandPart[],
   config: Config,
-  signal: AbortSignal,
+  signal: AbortSignal
 ): Promise<{
   parts: PartUnion[];
   displays: IndividualToolCallDisplay[];
@@ -395,9 +357,7 @@ async function readMcpResources(
     const client = mcpClientManager?.getClient(resource.serverName);
     try {
       if (!client) {
-        throw new Error(
-          `MCP client for server '${resource.serverName}' is not available or not connected.`,
-        );
+        throw new Error(`MCP client for server '${resource.serverName}' is not available or not connected.`);
       }
       const response = await client.readResource(resource.uri, { signal });
       const resourceParts = convertResourceContentsToParts(response);
@@ -447,9 +407,7 @@ async function readMcpResources(
   }
 
   if (hasError) {
-    const firstError = displays.find(
-      (d) => d.status === CoreToolCallStatus.Error,
-    );
+    const firstError = displays.find((d) => d.status === CoreToolCallStatus.Error);
     return {
       parts: [],
       displays,
@@ -467,7 +425,7 @@ async function readLocalFiles(
   resolvedFiles: ResolvedFile[],
   config: Config,
   signal: AbortSignal,
-  userMessageTimestamp: number,
+  userMessageTimestamp: number
 ): Promise<{
   parts: PartUnion[];
   display?: IndividualToolCallDisplay;
@@ -477,10 +435,7 @@ async function readLocalFiles(
     return { parts: [] };
   }
 
-  const readManyFilesTool = new ReadManyFilesTool(
-    config,
-    config.getMessageBus(),
-  );
+  const readManyFilesTool = new ReadManyFilesTool(config, config.getMessageBus());
 
   const pathSpecsToRead = resolvedFiles.map((rf) => rf.pathSpec);
   const fileLabelsForDisplay = resolvedFiles.map((rf) => rf.displayLabel);
@@ -503,9 +458,7 @@ async function readLocalFiles(
       name: readManyFilesTool.displayName,
       description: invocation.getDescription(),
       status: CoreToolCallStatus.Success,
-      resultDisplay:
-        result.returnDisplay ||
-        `Successfully read: ${fileLabelsForDisplay.join(', ')}`,
+      resultDisplay: result.returnDisplay || `Successfully read: ${fileLabelsForDisplay.join(', ')}`,
       confirmationDetails: undefined,
     };
 
@@ -521,9 +474,7 @@ async function readLocalFiles(
 
             // Find the display label for this path
             const resolvedFile = resolvedFiles.find(
-              (rf) =>
-                rf.absolutePath === filePathSpecInContent ||
-                rf.pathSpec === filePathSpecInContent,
+              (rf) => rf.absolutePath === filePathSpecInContent || rf.pathSpec === filePathSpecInContent
             );
 
             let displayPath = resolvedFile?.displayLabel;
@@ -558,9 +509,7 @@ async function readLocalFiles(
     const errorDisplay: IndividualToolCallDisplay = {
       callId: `client-read-${userMessageTimestamp}`,
       name: readManyFilesTool.displayName,
-      description:
-        invocation?.getDescription() ??
-        'Error attempting to execute tool to read files',
+      description: invocation?.getDescription() ?? 'Error attempting to execute tool to read files',
       status: CoreToolCallStatus.Error,
       resultDisplay: `Error reading files (${fileLabelsForDisplay.join(', ')}): ${getErrorMessage(error)}`,
       confirmationDetails: undefined,
@@ -576,10 +525,7 @@ async function readLocalFiles(
 /**
  * Reports ignored files to the debug log and debug message callback.
  */
-function reportIgnoredFiles(
-  ignoredFiles: IgnoredFile[],
-  onDebugMessage: (message: string) => void,
-): void {
+function reportIgnoredFiles(ignoredFiles: IgnoredFile[], onDebugMessage: (message: string) => void): void {
   const totalIgnored = ignoredFiles.length;
   if (totalIgnored === 0) {
     return;
@@ -631,28 +577,14 @@ export async function handleAtCommand({
 }: HandleAtCommandParams): Promise<HandleAtCommandResult> {
   const commandParts = parseAllAtCommands(query);
 
-  const { agentParts, resourceParts, fileParts } = categorizeAtCommands(
-    commandParts,
-    config,
-  );
+  const { agentParts, resourceParts, fileParts } = categorizeAtCommands(commandParts, config);
 
-  const { resolvedFiles, ignoredFiles } = await resolveFilePaths(
-    fileParts,
-    config,
-    onDebugMessage,
-    signal,
-  );
+  const { resolvedFiles, ignoredFiles } = await resolveFilePaths(fileParts, config, onDebugMessage, signal);
 
   reportIgnoredFiles(ignoredFiles, onDebugMessage);
 
-  if (
-    resolvedFiles.length === 0 &&
-    resourceParts.length === 0 &&
-    agentParts.length === 0
-  ) {
-    onDebugMessage(
-      'No valid file paths, resources, or agents found in @ commands.',
-    );
+  if (resolvedFiles.length === 0 && resourceParts.length === 0 && agentParts.length === 0) {
+    onDebugMessage('No valid file paths, resources, or agents found in @ commands.');
     return { processedQuery: [{ text: query }] };
   }
 
@@ -664,7 +596,7 @@ export async function handleAtCommand({
     const agentNames = agentParts.map((p) => p.content.substring(1));
     const toolsList = agentNames.map((agent) => `'${agent}'`).join(', ');
     const agentNudge = `\n<system_note>\nThe user has explicitly selected the following agent(s): ${agentNames.join(
-      ', ',
+      ', '
     )}. Please use the following tool(s) to delegate the task: ${toolsList}.\n</system_note>\n`;
     processedQueryParts.push({ text: agentNudge });
   }
@@ -687,10 +619,7 @@ export async function handleAtCommand({
     }
   }
 
-  const allDisplays = [
-    ...mcpResult.displays,
-    ...(fileResult.display ? [fileResult.display] : []),
-  ];
+  const allDisplays = [...mcpResult.displays, ...(fileResult.display ? [fileResult.display] : [])];
 
   if (allDisplays.length > 0) {
     addItem(
@@ -698,7 +627,7 @@ export async function handleAtCommand({
         type: 'tool_group',
         tools: allDisplays,
       } as Omit<HistoryItem, 'id'>,
-      userMessageTimestamp,
+      userMessageTimestamp
     );
   }
 

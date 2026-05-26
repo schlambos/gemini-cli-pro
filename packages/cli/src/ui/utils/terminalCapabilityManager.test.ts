@@ -7,10 +7,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TerminalCapabilityManager } from './terminalCapabilityManager.js';
 import { EventEmitter } from 'node:events';
-import {
-  enableKittyKeyboardProtocol,
-  enableModifyOtherKeys,
-} from '@google/gemini-cli-core';
+import { enableKittyKeyboardProtocol, enableModifyOtherKeys } from '@google/gemini-cli-core';
 import * as fs from 'node:fs';
 
 // Mock fs
@@ -37,10 +34,7 @@ describe('TerminalCapabilityManager', () => {
     isTTY?: boolean;
     isRaw?: boolean;
     setRawMode?: (mode: boolean) => void;
-    removeListener?: (
-      event: string,
-      listener: (...args: unknown[]) => void,
-    ) => void;
+    removeListener?: (event: string, listener: (...args: unknown[]) => void) => void;
   };
   let stdout: { isTTY?: boolean; fd?: number };
   // Save original process properties
@@ -298,7 +292,7 @@ describe('TerminalCapabilityManager', () => {
       expect(fs.writeSync).toHaveBeenCalledWith(
         expect.anything(),
         // eslint-disable-next-line no-control-regex
-        expect.stringMatching(/^\x1b\[8m.*\x1b\[2K\r\x1b\[0m$/s),
+        expect.stringMatching(/^\x1b\[8m.*\x1b\[2K\r\x1b\[0m$/s)
       );
     });
   });

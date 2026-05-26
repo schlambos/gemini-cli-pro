@@ -57,21 +57,16 @@ export class FakeContentGenerator implements ContentGenerator {
     return new FakeContentGenerator(responses);
   }
 
-  private getNextResponse<
-    M extends FakeResponse['method'],
-    R = Extract<FakeResponse, { method: M }>['response'],
-  >(method: M, request: unknown): R {
+  private getNextResponse<M extends FakeResponse['method'], R = Extract<FakeResponse, { method: M }>['response']>(
+    method: M,
+    request: unknown
+  ): R {
     const response = this.responses[this.callCounter++];
     if (!response) {
-      throw new Error(
-        `No more mock responses for ${method}, got request:\n` +
-          safeJsonStringify(request),
-      );
+      throw new Error(`No more mock responses for ${method}, got request:\n` + safeJsonStringify(request));
     }
     if (response.method !== method) {
-      throw new Error(
-        `Unexpected response type, next response was for ${response.method} but expected ${method}`,
-      );
+      throw new Error(`Unexpected response type, next response was for ${response.method} but expected ${method}`);
     }
     // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
     return response.response as R;
@@ -81,44 +76,31 @@ export class FakeContentGenerator implements ContentGenerator {
     request: GenerateContentParameters,
     _userPromptId: string,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    role: LlmRole,
+    role: LlmRole
   ): Promise<GenerateContentResponse> {
-    return Object.setPrototypeOf(
-      this.getNextResponse('generateContent', request),
-      GenerateContentResponse.prototype,
-    );
+    return Object.setPrototypeOf(this.getNextResponse('generateContent', request), GenerateContentResponse.prototype);
   }
 
   async generateContentStream(
     request: GenerateContentParameters,
     _userPromptId: string,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    role: LlmRole,
+    role: LlmRole
   ): Promise<AsyncGenerator<GenerateContentResponse>> {
     const responses = this.getNextResponse('generateContentStream', request);
     async function* stream() {
       for (const response of responses) {
-        yield Object.setPrototypeOf(
-          response,
-          GenerateContentResponse.prototype,
-        );
+        yield Object.setPrototypeOf(response, GenerateContentResponse.prototype);
       }
     }
     return stream();
   }
 
-  async countTokens(
-    request: CountTokensParameters,
-  ): Promise<CountTokensResponse> {
+  async countTokens(request: CountTokensParameters): Promise<CountTokensResponse> {
     return this.getNextResponse('countTokens', request);
   }
 
-  async embedContent(
-    request: EmbedContentParameters,
-  ): Promise<EmbedContentResponse> {
-    return Object.setPrototypeOf(
-      this.getNextResponse('embedContent', request),
-      EmbedContentResponse.prototype,
-    );
+  async embedContent(request: EmbedContentParameters): Promise<EmbedContentResponse> {
+    return Object.setPrototypeOf(this.getNextResponse('embedContent', request), EmbedContentResponse.prototype);
   }
 }

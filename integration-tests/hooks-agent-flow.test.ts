@@ -25,10 +25,7 @@ describe('Hooks Agent Flow', () => {
   describe('BeforeAgent Hooks', () => {
     it('should inject additional context via BeforeAgent hook', async () => {
       await rig.setup('should inject additional context via BeforeAgent hook', {
-        fakeResponsesPath: join(
-          import.meta.dirname,
-          'hooks-agent-flow.responses',
-        ),
+        fakeResponsesPath: join(import.meta.dirname, 'hooks-agent-flow.responses'),
       });
 
       const hookScript = `
@@ -79,26 +76,19 @@ describe('Hooks Agent Flow', () => {
       expect(hookTelemetryFound).toBeTruthy();
 
       const hookLogs = rig.readHookLogs();
-      const beforeAgentLog = hookLogs.find(
-        (log) => log.hookCall.hook_event_name === 'BeforeAgent',
-      );
+      const beforeAgentLog = hookLogs.find((log) => log.hookCall.hook_event_name === 'BeforeAgent');
 
       expect(beforeAgentLog).toBeDefined();
       expect(beforeAgentLog?.hookCall.stdout).toContain('injected context');
       expect(beforeAgentLog?.hookCall.stdout).toContain('"decision":"allow"');
-      expect(beforeAgentLog?.hookCall.stdout).toContain(
-        'SYSTEM INSTRUCTION: This is injected context.',
-      );
+      expect(beforeAgentLog?.hookCall.stdout).toContain('SYSTEM INSTRUCTION: This is injected context.');
     });
   });
 
   describe('AfterAgent Hooks', () => {
     it('should receive prompt and response in AfterAgent hook', async () => {
       await rig.setup('should receive prompt and response in AfterAgent hook', {
-        fakeResponsesPath: join(
-          import.meta.dirname,
-          'hooks-agent-flow.responses',
-        ),
+        fakeResponsesPath: join(import.meta.dirname, 'hooks-agent-flow.responses'),
       });
 
       const hookScript = `
@@ -142,9 +132,7 @@ describe('Hooks Agent Flow', () => {
       expect(hookTelemetryFound).toBeTruthy();
 
       const hookLogs = rig.readHookLogs();
-      const afterAgentLog = hookLogs.find(
-        (log) => log.hookCall.hook_event_name === 'AfterAgent',
-      );
+      const afterAgentLog = hookLogs.find((log) => log.hookCall.hook_event_name === 'AfterAgent');
 
       expect(afterAgentLog).toBeDefined();
       // Verify the hook stdout contains the input we echoed which proves the
@@ -157,10 +145,7 @@ describe('Hooks Agent Flow', () => {
 
     it('should process clearContext in AfterAgent hook output', async () => {
       rig.setup('should process clearContext in AfterAgent hook output', {
-        fakeResponsesPath: join(
-          import.meta.dirname,
-          'hooks-system.after-agent.responses',
-        ),
+        fakeResponsesPath: join(import.meta.dirname, 'hooks-system.after-agent.responses'),
       });
 
       // BeforeModel hook to track message counts across LLM calls
@@ -175,10 +160,7 @@ describe('Hooks Agent Flow', () => {
         fs.writeFileSync(${JSON.stringify(messageCountFile)}, JSON.stringify(counts));
         console.log(JSON.stringify({ decision: 'allow' }));
       `;
-      const beforeModelScriptPath = rig.createScript(
-        'before_model_counter.cjs',
-        beforeModelScript,
-      );
+      const beforeModelScriptPath = rig.createScript('before_model_counter.cjs', beforeModelScript);
 
       const afterAgentScript = `
         console.log(JSON.stringify({
@@ -190,10 +172,7 @@ describe('Hooks Agent Flow', () => {
           }
         }));
       `;
-      const afterAgentScriptPath = rig.createScript(
-        'after_agent_clear.cjs',
-        afterAgentScript,
-      );
+      const afterAgentScriptPath = rig.createScript('after_agent_clear.cjs', afterAgentScript);
 
       rig.setup('should process clearContext in AfterAgent hook output', {
         settings: {
@@ -231,9 +210,7 @@ describe('Hooks Agent Flow', () => {
       expect(hookTelemetryFound).toBeTruthy();
 
       const hookLogs = rig.readHookLogs();
-      const afterAgentLog = hookLogs.find(
-        (log) => log.hookCall.hook_event_name === 'AfterAgent',
-      );
+      const afterAgentLog = hookLogs.find((log) => log.hookCall.hook_event_name === 'AfterAgent');
 
       expect(afterAgentLog).toBeDefined();
       expect(afterAgentLog?.hookCall.stdout).toContain('clearContext');
@@ -250,70 +227,51 @@ describe('Hooks Agent Flow', () => {
 
   describe('Multi-step Loops', () => {
     it('should fire BeforeAgent and AfterAgent exactly once per turn despite tool calls', async () => {
-      await rig.setup(
-        'should fire BeforeAgent and AfterAgent exactly once per turn despite tool calls',
-        {
-          fakeResponsesPath: join(
-            import.meta.dirname,
-            'hooks-agent-flow-multistep.responses',
-          ),
-        },
-      );
+      await rig.setup('should fire BeforeAgent and AfterAgent exactly once per turn despite tool calls', {
+        fakeResponsesPath: join(import.meta.dirname, 'hooks-agent-flow-multistep.responses'),
+      });
 
       // Create script files for hooks
-      const baPath = rig.createScript(
-        'ba_fired.cjs',
-        "console.log('BeforeAgent Fired');",
-      );
-      const aaPath = rig.createScript(
-        'aa_fired.cjs',
-        "console.log('AfterAgent Fired');",
-      );
+      const baPath = rig.createScript('ba_fired.cjs', "console.log('BeforeAgent Fired');");
+      const aaPath = rig.createScript('aa_fired.cjs', "console.log('AfterAgent Fired');");
 
-      await rig.setup(
-        'should fire BeforeAgent and AfterAgent exactly once per turn despite tool calls',
-        {
-          settings: {
-            hooksConfig: {
-              enabled: true,
-            },
-            hooks: {
-              BeforeAgent: [
-                {
-                  hooks: [
-                    {
-                      type: 'command',
-                      command: normalizePath(`node "${baPath}"`)!,
-                      timeout: 5000,
-                    },
-                  ],
-                },
-              ],
-              AfterAgent: [
-                {
-                  hooks: [
-                    {
-                      type: 'command',
-                      command: normalizePath(`node "${aaPath}"`)!,
-                      timeout: 5000,
-                    },
-                  ],
-                },
-              ],
-            },
+      await rig.setup('should fire BeforeAgent and AfterAgent exactly once per turn despite tool calls', {
+        settings: {
+          hooksConfig: {
+            enabled: true,
+          },
+          hooks: {
+            BeforeAgent: [
+              {
+                hooks: [
+                  {
+                    type: 'command',
+                    command: normalizePath(`node "${baPath}"`)!,
+                    timeout: 5000,
+                  },
+                ],
+              },
+            ],
+            AfterAgent: [
+              {
+                hooks: [
+                  {
+                    type: 'command',
+                    command: normalizePath(`node "${aaPath}"`)!,
+                    timeout: 5000,
+                  },
+                ],
+              },
+            ],
           },
         },
-      );
+      });
 
       await rig.run({ args: 'Do a multi-step task' });
 
       const hookLogs = rig.readHookLogs();
-      const beforeAgentLogs = hookLogs.filter(
-        (log) => log.hookCall.hook_event_name === 'BeforeAgent',
-      );
-      const afterAgentLogs = hookLogs.filter(
-        (log) => log.hookCall.hook_event_name === 'AfterAgent',
-      );
+      const beforeAgentLogs = hookLogs.filter((log) => log.hookCall.hook_event_name === 'BeforeAgent');
+      const afterAgentLogs = hookLogs.filter((log) => log.hookCall.hook_event_name === 'AfterAgent');
 
       expect(beforeAgentLogs).toHaveLength(1);
 

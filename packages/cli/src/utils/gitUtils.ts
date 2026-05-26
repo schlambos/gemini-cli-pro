@@ -53,9 +53,7 @@ export const getGitRepoRoot = (): string => {
  * getLatestGitHubRelease returns the release tag as a string.
  * @returns string of the release tag (e.g. "v1.2.3").
  */
-export const getLatestGitHubRelease = async (
-  proxy?: string,
-): Promise<string> => {
+export const getLatestGitHubRelease = async (proxy?: string): Promise<string> => {
   try {
     const controller = new AbortController();
 
@@ -73,9 +71,7 @@ export const getLatestGitHubRelease = async (
     } as RequestInit);
 
     if (!response.ok) {
-      throw new Error(
-        `Invalid response code: ${response.status} - ${response.statusText}`,
-      );
+      throw new Error(`Invalid response code: ${response.status} - ${response.statusText}`);
     }
 
     const releaseTag = (await response.json()).tag_name;
@@ -84,13 +80,8 @@ export const getLatestGitHubRelease = async (
     }
     return releaseTag;
   } catch (_error) {
-    debugLogger.debug(
-      `Failed to determine latest run-gemini-cli release:`,
-      _error,
-    );
-    throw new Error(
-      `Unable to determine the latest run-gemini-cli release on GitHub.`,
-    );
+    debugLogger.debug(`Failed to determine latest run-gemini-cli release:`, _error);
+    throw new Error(`Unable to determine the latest run-gemini-cli release on GitHub.`);
   }
 };
 
@@ -110,31 +101,23 @@ export function getGitHubRepoInfo(): { owner: string; repo: string } {
     urlToParse = remoteUrl.replace('git@github.com:', '');
   } else if (remoteUrl.startsWith('git@')) {
     // SSH URL for a different provider (GitLab, Bitbucket, etc.)
-    throw new Error(
-      `Owner & repo could not be extracted from remote URL: ${remoteUrl}`,
-    );
+    throw new Error(`Owner & repo could not be extracted from remote URL: ${remoteUrl}`);
   }
 
   let parsedUrl: URL;
   try {
     parsedUrl = new URL(urlToParse, 'https://github.com');
   } catch {
-    throw new Error(
-      `Owner & repo could not be extracted from remote URL: ${remoteUrl}`,
-    );
+    throw new Error(`Owner & repo could not be extracted from remote URL: ${remoteUrl}`);
   }
 
   if (parsedUrl.host !== 'github.com') {
-    throw new Error(
-      `Owner & repo could not be extracted from remote URL: ${remoteUrl}`,
-    );
+    throw new Error(`Owner & repo could not be extracted from remote URL: ${remoteUrl}`);
   }
 
   const parts = parsedUrl.pathname.split('/').filter((part) => part !== '');
   if (parts.length !== 2 || !parts[0] || !parts[1]) {
-    throw new Error(
-      `Owner & repo could not be extracted from remote URL: ${remoteUrl}`,
-    );
+    throw new Error(`Owner & repo could not be extracted from remote URL: ${remoteUrl}`);
   }
 
   return { owner: parts[0], repo: parts[1].replace(/\.git$/, '') };

@@ -48,9 +48,7 @@ describe('handleAtCommand', () => {
     vi.restoreAllMocks();
     vi.resetAllMocks();
 
-    testRootDir = await fsPromises.mkdtemp(
-      path.join(os.tmpdir(), 'folder-structure-test-'),
-    );
+    testRootDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'folder-structure-test-'));
 
     abortController = new AbortController();
 
@@ -77,8 +75,7 @@ describe('handleAtCommand', () => {
       getFileSystemService: () => new StandardFileSystemService(),
       getEnableRecursiveFileSearch: vi.fn(() => true),
       getWorkspaceContext: () => ({
-        isPathWithinWorkspace: (p: string) =>
-          p.startsWith(testRootDir) || p.startsWith('/private' + testRootDir),
+        isPathWithinWorkspace: (p: string) => p.startsWith(testRootDir) || p.startsWith('/private' + testRootDir),
         getDirectories: () => [testRootDir],
       }),
       storage: {
@@ -96,10 +93,7 @@ describe('handleAtCommand', () => {
 
         const projectTempDir = this.storage.getProjectTempDir();
         const resolvedProjectTempDir = path.resolve(projectTempDir);
-        return (
-          absolutePath.startsWith(resolvedProjectTempDir + path.sep) ||
-          absolutePath === resolvedProjectTempDir
-        );
+        return absolutePath.startsWith(resolvedProjectTempDir + path.sep) || absolutePath === resolvedProjectTempDir;
       },
       validatePathAccess(this: Config, absolutePath: string): string | null {
         if (this.isPathAllowed(absolutePath)) {
@@ -184,10 +178,7 @@ describe('handleAtCommand', () => {
 
   it('should process a valid text file path', async () => {
     const fileContent = 'This is the file content.';
-    const filePath = await createTestFile(
-      path.join(testRootDir, 'path', 'to', 'file.txt'),
-      fileContent,
-    );
+    const filePath = await createTestFile(path.join(testRootDir, 'path', 'to', 'file.txt'), fileContent);
     const relativePath = getRelativePath(filePath);
     const query = `@${filePath}`;
 
@@ -212,20 +203,15 @@ describe('handleAtCommand', () => {
     expect(mockAddItem).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'tool_group',
-        tools: [
-          expect.objectContaining({ status: CoreToolCallStatus.Success }),
-        ],
+        tools: [expect.objectContaining({ status: CoreToolCallStatus.Success })],
       }),
-      125,
+      125
     );
   });
 
   it('should process a valid directory path and convert to glob', async () => {
     const fileContent = 'This is the file content.';
-    const filePath = await createTestFile(
-      path.join(testRootDir, 'path', 'to', 'file.txt'),
-      fileContent,
-    );
+    const filePath = await createTestFile(path.join(testRootDir, 'path', 'to', 'file.txt'), fileContent);
     const dirPath = path.dirname(filePath);
     const relativeDirPath = getRelativePath(dirPath);
     const relativeFilePath = getRelativePath(filePath);
@@ -251,16 +237,13 @@ describe('handleAtCommand', () => {
       ],
     });
     expect(mockOnDebugMessage).toHaveBeenCalledWith(
-      `Path ${dirPath} resolved to directory, using glob: ${resolvedGlob}`,
+      `Path ${dirPath} resolved to directory, using glob: ${resolvedGlob}`
     );
   });
 
   it('should handle query with text before and after @command', async () => {
     const fileContent = 'Markdown content.';
-    const filePath = await createTestFile(
-      path.join(testRootDir, 'doc.md'),
-      fileContent,
-    );
+    const filePath = await createTestFile(path.join(testRootDir, 'doc.md'), fileContent);
     const relativePath = getRelativePath(filePath);
     const textBefore = 'Explain this: ';
     const textAfter = ' in detail.';
@@ -288,10 +271,7 @@ describe('handleAtCommand', () => {
 
   it('should correctly unescape paths with escaped spaces', async () => {
     const fileContent = 'This is the file content.';
-    const filePath = await createTestFile(
-      path.join(testRootDir, 'path', 'to', 'my file.txt'),
-      fileContent,
-    );
+    const filePath = await createTestFile(path.join(testRootDir, 'path', 'to', 'my file.txt'), fileContent);
 
     const query = `@${core.escapePath(filePath)}`;
 
@@ -316,11 +296,9 @@ describe('handleAtCommand', () => {
     expect(mockAddItem).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'tool_group',
-        tools: [
-          expect.objectContaining({ status: CoreToolCallStatus.Success }),
-        ],
+        tools: [expect.objectContaining({ status: CoreToolCallStatus.Success })],
       }),
-      125,
+      125
     );
   }, 10000);
 
@@ -332,14 +310,11 @@ describe('handleAtCommand', () => {
         platform: {
           get: () => 'win32',
         },
-      }),
+      })
     );
 
     const fileContent = 'Content of file with spaces';
-    const filePath = await createTestFile(
-      path.join(testRootDir, 'my folder', 'my file.txt'),
-      fileContent,
-    );
+    const filePath = await createTestFile(path.join(testRootDir, 'my folder', 'my file.txt'), fileContent);
     // On Windows, the user might provide: @"path/to/my file.txt"
     const query = `@"${filePath}"`;
 
@@ -367,10 +342,7 @@ describe('handleAtCommand', () => {
   it('should correctly handle file paths with narrow non-breaking space (NNBSP)', async () => {
     const nnbsp = '\u202F';
     const fileContent = 'NNBSP file content.';
-    const filePath = await createTestFile(
-      path.join(testRootDir, `my${nnbsp}file.txt`),
-      fileContent,
-    );
+    const filePath = await createTestFile(path.join(testRootDir, `my${nnbsp}file.txt`), fileContent);
     const relativePath = getRelativePath(filePath);
     const query = `@${filePath}`;
 
@@ -395,15 +367,9 @@ describe('handleAtCommand', () => {
 
   it('should handle multiple @file references', async () => {
     const content1 = 'Content file1';
-    const file1Path = await createTestFile(
-      path.join(testRootDir, 'file1.txt'),
-      content1,
-    );
+    const file1Path = await createTestFile(path.join(testRootDir, 'file1.txt'), content1);
     const content2 = 'Content file2';
-    const file2Path = await createTestFile(
-      path.join(testRootDir, 'file2.md'),
-      content2,
-    );
+    const file2Path = await createTestFile(path.join(testRootDir, 'file2.md'), content2);
     const query = `@${file1Path} @${file2Path}`;
 
     const result = await handleAtCommand({
@@ -433,16 +399,10 @@ describe('handleAtCommand', () => {
   it('should handle multiple @file references with interleaved text', async () => {
     const text1 = 'Check ';
     const content1 = 'C1';
-    const file1Path = await createTestFile(
-      path.join(testRootDir, 'f1.txt'),
-      content1,
-    );
+    const file1Path = await createTestFile(path.join(testRootDir, 'f1.txt'), content1);
     const text2 = ' and ';
     const content2 = 'C2';
-    const file2Path = await createTestFile(
-      path.join(testRootDir, 'f2.md'),
-      content2,
-    );
+    const file2Path = await createTestFile(path.join(testRootDir, 'f2.md'), content2);
     const text3 = ' please.';
     const query = `${text1}@${file1Path}${text2}@${file2Path}${text3}`;
 
@@ -472,16 +432,10 @@ describe('handleAtCommand', () => {
 
   it('should handle a mix of valid, invalid, and lone @ references', async () => {
     const content1 = 'Valid content 1';
-    const file1Path = await createTestFile(
-      path.join(testRootDir, 'valid1.txt'),
-      content1,
-    );
+    const file1Path = await createTestFile(path.join(testRootDir, 'valid1.txt'), content1);
     const invalidFile = 'nonexistent.txt';
     const content2 = 'Globbed content';
-    const file2Path = await createTestFile(
-      path.join(testRootDir, 'resolved', 'valid2.actual'),
-      content2,
-    );
+    const file2Path = await createTestFile(path.join(testRootDir, 'resolved', 'valid2.actual'), content2);
     const query = `Look at @${file1Path} then @${invalidFile} and also just @ symbol, then @${file2Path}`;
 
     const result = await handleAtCommand({
@@ -506,11 +460,9 @@ describe('handleAtCommand', () => {
         { text: '\n--- End of content ---' },
       ],
     });
+    expect(mockOnDebugMessage).toHaveBeenCalledWith(`Path ${invalidFile} not found directly, attempting glob search.`);
     expect(mockOnDebugMessage).toHaveBeenCalledWith(
-      `Path ${invalidFile} not found directly, attempting glob search.`,
-    );
-    expect(mockOnDebugMessage).toHaveBeenCalledWith(
-      `Glob search for '**/*${invalidFile}*' found no files or an error. Path ${invalidFile} will be skipped.`,
+      `Glob search for '**/*${invalidFile}*' found no files or an error. Path ${invalidFile} will be skipped.`
     );
   });
 
@@ -539,13 +491,10 @@ describe('handleAtCommand', () => {
     });
 
     it('should skip git-ignored files in @ commands', async () => {
-      await createTestFile(
-        path.join(testRootDir, '.gitignore'),
-        'node_modules/package.json',
-      );
+      await createTestFile(path.join(testRootDir, '.gitignore'), 'node_modules/package.json');
       const gitIgnoredFile = await createTestFile(
         path.join(testRootDir, 'node_modules', 'package.json'),
-        'the file contents',
+        'the file contents'
       );
 
       const query = `@${gitIgnoredFile}`;
@@ -562,24 +511,14 @@ describe('handleAtCommand', () => {
       expect(result).toEqual({
         processedQuery: [{ text: query }],
       });
-      expect(mockOnDebugMessage).toHaveBeenCalledWith(
-        `Path ${gitIgnoredFile} is git-ignored and will be skipped.`,
-      );
-      expect(mockOnDebugMessage).toHaveBeenCalledWith(
-        `Ignored 1 files:\nGit-ignored: ${gitIgnoredFile}`,
-      );
+      expect(mockOnDebugMessage).toHaveBeenCalledWith(`Path ${gitIgnoredFile} is git-ignored and will be skipped.`);
+      expect(mockOnDebugMessage).toHaveBeenCalledWith(`Ignored 1 files:\nGit-ignored: ${gitIgnoredFile}`);
     });
 
     it('should process non-git-ignored files normally', async () => {
-      await createTestFile(
-        path.join(testRootDir, '.gitignore'),
-        'node_modules/package.json',
-      );
+      await createTestFile(path.join(testRootDir, '.gitignore'), 'node_modules/package.json');
 
-      const validFile = await createTestFile(
-        path.join(testRootDir, 'src', 'index.ts'),
-        'console.log("Hello world");',
-      );
+      const validFile = await createTestFile(path.join(testRootDir, 'src', 'index.ts'), 'console.log("Hello world");');
       const query = `@${validFile}`;
 
       const result = await handleAtCommand({
@@ -604,14 +543,8 @@ describe('handleAtCommand', () => {
 
     it('should handle mixed git-ignored and valid files', async () => {
       await createTestFile(path.join(testRootDir, '.gitignore'), '.env');
-      const validFile = await createTestFile(
-        path.join(testRootDir, 'README.md'),
-        '# Project README',
-      );
-      const gitIgnoredFile = await createTestFile(
-        path.join(testRootDir, '.env'),
-        'SECRET=123',
-      );
+      const validFile = await createTestFile(path.join(testRootDir, 'README.md'), '# Project README');
+      const gitIgnoredFile = await createTestFile(path.join(testRootDir, '.env'), 'SECRET=123');
       const query = `@${validFile} @${gitIgnoredFile}`;
 
       const result = await handleAtCommand({
@@ -632,18 +565,14 @@ describe('handleAtCommand', () => {
           { text: '\n--- End of content ---' },
         ],
       });
-      expect(mockOnDebugMessage).toHaveBeenCalledWith(
-        `Path ${gitIgnoredFile} is git-ignored and will be skipped.`,
-      );
-      expect(mockOnDebugMessage).toHaveBeenCalledWith(
-        `Ignored 1 files:\nGit-ignored: ${gitIgnoredFile}`,
-      );
+      expect(mockOnDebugMessage).toHaveBeenCalledWith(`Path ${gitIgnoredFile} is git-ignored and will be skipped.`);
+      expect(mockOnDebugMessage).toHaveBeenCalledWith(`Ignored 1 files:\nGit-ignored: ${gitIgnoredFile}`);
     });
 
     it('should always ignore .git directory files', async () => {
       const gitFile = await createTestFile(
         path.join(testRootDir, '.git', 'config'),
-        '[core]\n\trepositoryformatversion = 0\n',
+        '[core]\n\trepositoryformatversion = 0\n'
       );
       const query = `@${gitFile}`;
 
@@ -659,12 +588,8 @@ describe('handleAtCommand', () => {
       expect(result).toEqual({
         processedQuery: [{ text: query }],
       });
-      expect(mockOnDebugMessage).toHaveBeenCalledWith(
-        `Path ${gitFile} is git-ignored and will be skipped.`,
-      );
-      expect(mockOnDebugMessage).toHaveBeenCalledWith(
-        `Ignored 1 files:\nGit-ignored: ${gitFile}`,
-      );
+      expect(mockOnDebugMessage).toHaveBeenCalledWith(`Path ${gitFile} is git-ignored and will be skipped.`);
+      expect(mockOnDebugMessage).toHaveBeenCalledWith(`Ignored 1 files:\nGit-ignored: ${gitFile}`);
     });
   });
 
@@ -686,9 +611,7 @@ describe('handleAtCommand', () => {
         signal: abortController.signal,
       });
 
-      expect(mockOnDebugMessage).toHaveBeenCalledWith(
-        `Glob tool not found. Path ${invalidFile} will be skipped.`,
-      );
+      expect(mockOnDebugMessage).toHaveBeenCalledWith(`Glob tool not found. Path ${invalidFile} will be skipped.`);
       expect(result.processedQuery).toEqual([{ text: query }]);
       expect(result.processedQuery).not.toBeNull();
       expect(result.error).toBeUndefined();
@@ -697,13 +620,10 @@ describe('handleAtCommand', () => {
 
   describe('gemini-ignore filtering', () => {
     it('should skip gemini-ignored files in @ commands', async () => {
-      await createTestFile(
-        path.join(testRootDir, GEMINI_IGNORE_FILE_NAME),
-        'build/output.js',
-      );
+      await createTestFile(path.join(testRootDir, GEMINI_IGNORE_FILE_NAME), 'build/output.js');
       const geminiIgnoredFile = await createTestFile(
         path.join(testRootDir, 'build', 'output.js'),
-        'console.log("Hello");',
+        'console.log("Hello");'
       );
       const query = `@${geminiIgnoredFile}`;
 
@@ -720,22 +640,14 @@ describe('handleAtCommand', () => {
         processedQuery: [{ text: query }],
       });
       expect(mockOnDebugMessage).toHaveBeenCalledWith(
-        `Path ${geminiIgnoredFile} is gemini-ignored and will be skipped.`,
+        `Path ${geminiIgnoredFile} is gemini-ignored and will be skipped.`
       );
-      expect(mockOnDebugMessage).toHaveBeenCalledWith(
-        `Ignored 1 files:\nGemini-ignored: ${geminiIgnoredFile}`,
-      );
+      expect(mockOnDebugMessage).toHaveBeenCalledWith(`Ignored 1 files:\nGemini-ignored: ${geminiIgnoredFile}`);
     });
   });
   it('should process non-ignored files when .geminiignore is present', async () => {
-    await createTestFile(
-      path.join(testRootDir, GEMINI_IGNORE_FILE_NAME),
-      'build/output.js',
-    );
-    const validFile = await createTestFile(
-      path.join(testRootDir, 'src', 'index.ts'),
-      'console.log("Hello world");',
-    );
+    await createTestFile(path.join(testRootDir, GEMINI_IGNORE_FILE_NAME), 'build/output.js');
+    const validFile = await createTestFile(path.join(testRootDir, 'src', 'index.ts'), 'console.log("Hello world");');
     const query = `@${validFile}`;
 
     const result = await handleAtCommand({
@@ -759,17 +671,11 @@ describe('handleAtCommand', () => {
   });
 
   it('should handle mixed gemini-ignored and valid files', async () => {
-    await createTestFile(
-      path.join(testRootDir, GEMINI_IGNORE_FILE_NAME),
-      'dist/bundle.js',
-    );
-    const validFile = await createTestFile(
-      path.join(testRootDir, 'src', 'main.ts'),
-      '// Main application entry',
-    );
+    await createTestFile(path.join(testRootDir, GEMINI_IGNORE_FILE_NAME), 'dist/bundle.js');
+    const validFile = await createTestFile(path.join(testRootDir, 'src', 'main.ts'), '// Main application entry');
     const geminiIgnoredFile = await createTestFile(
       path.join(testRootDir, 'dist', 'bundle.js'),
-      'console.log("bundle");',
+      'console.log("bundle");'
     );
     const query = `@${validFile} @${geminiIgnoredFile}`;
 
@@ -791,12 +697,8 @@ describe('handleAtCommand', () => {
         { text: '\n--- End of content ---' },
       ],
     });
-    expect(mockOnDebugMessage).toHaveBeenCalledWith(
-      `Path ${geminiIgnoredFile} is gemini-ignored and will be skipped.`,
-    );
-    expect(mockOnDebugMessage).toHaveBeenCalledWith(
-      `Ignored 1 files:\nGemini-ignored: ${geminiIgnoredFile}`,
-    );
+    expect(mockOnDebugMessage).toHaveBeenCalledWith(`Path ${geminiIgnoredFile} is gemini-ignored and will be skipped.`);
+    expect(mockOnDebugMessage).toHaveBeenCalledWith(`Ignored 1 files:\nGemini-ignored: ${geminiIgnoredFile}`);
   });
 
   describe('punctuation termination in @ commands', () => {
@@ -805,88 +707,77 @@ describe('handleAtCommand', () => {
         name: 'comma',
         fileName: 'test.txt',
         fileContent: 'File content here',
-        queryTemplate: (filePath: string) =>
-          `Look at @${getRelativePath(filePath)}, then explain it.`,
+        queryTemplate: (filePath: string) => `Look at @${getRelativePath(filePath)}, then explain it.`,
         messageId: 400,
       },
       {
         name: 'period',
         fileName: 'readme.md',
         fileContent: 'File content here',
-        queryTemplate: (filePath: string) =>
-          `Check @${getRelativePath(filePath)}. What does it say?`,
+        queryTemplate: (filePath: string) => `Check @${getRelativePath(filePath)}. What does it say?`,
         messageId: 401,
       },
       {
         name: 'semicolon',
         fileName: 'example.js',
         fileContent: 'Code example',
-        queryTemplate: (filePath: string) =>
-          `Review @${getRelativePath(filePath)}; check for bugs.`,
+        queryTemplate: (filePath: string) => `Review @${getRelativePath(filePath)}; check for bugs.`,
         messageId: 402,
       },
       {
         name: 'exclamation mark',
         fileName: 'important.txt',
         fileContent: 'Important content',
-        queryTemplate: (filePath: string) =>
-          `Look at @${getRelativePath(filePath)}! This is critical.`,
+        queryTemplate: (filePath: string) => `Look at @${getRelativePath(filePath)}! This is critical.`,
         messageId: 403,
       },
       {
         name: 'question mark',
         fileName: 'config.json',
         fileContent: 'Config settings',
-        queryTemplate: (filePath: string) =>
-          `What is in @${getRelativePath(filePath)}? Please explain.`,
+        queryTemplate: (filePath: string) => `What is in @${getRelativePath(filePath)}? Please explain.`,
         messageId: 404,
       },
       {
         name: 'opening parenthesis',
         fileName: 'func.ts',
         fileContent: 'Function definition',
-        queryTemplate: (filePath: string) =>
-          `Analyze @${getRelativePath(filePath)}(the main function).`,
+        queryTemplate: (filePath: string) => `Analyze @${getRelativePath(filePath)}(the main function).`,
         messageId: 405,
       },
       {
         name: 'closing parenthesis',
         fileName: 'data.json',
         fileContent: 'Test data',
-        queryTemplate: (filePath: string) =>
-          `Use data from @${getRelativePath(filePath)}) for testing.`,
+        queryTemplate: (filePath: string) => `Use data from @${getRelativePath(filePath)}) for testing.`,
         messageId: 406,
       },
       {
         name: 'opening square bracket',
         fileName: 'array.js',
         fileContent: 'Array data',
-        queryTemplate: (filePath: string) =>
-          `Check @${getRelativePath(filePath)}[0] for the first element.`,
+        queryTemplate: (filePath: string) => `Check @${getRelativePath(filePath)}[0] for the first element.`,
         messageId: 407,
       },
       {
         name: 'closing square bracket',
         fileName: 'list.md',
         fileContent: 'List content',
-        queryTemplate: (filePath: string) =>
-          `Review item @${getRelativePath(filePath)}] from the list.`,
+        queryTemplate: (filePath: string) => `Review item @${getRelativePath(filePath)}] from the list.`,
         messageId: 408,
       },
       {
         name: 'opening curly brace',
         fileName: 'object.ts',
         fileContent: 'Object definition',
-        queryTemplate: (filePath: string) =>
-          `Parse @${getRelativePath(filePath)}{prop1: value1}.`,
+        queryTemplate: (filePath: string) => `Parse @${getRelativePath(filePath)}{prop1: value1}.`,
         messageId: 409,
       },
       {
         name: 'closing curly brace',
         fileName: 'config.yaml',
         fileContent: 'Configuration',
-        queryTemplate: (filePath: string) =>
-          `Use settings from @${getRelativePath(filePath)}} for deployment.`,
+        queryTemplate: (filePath: string) => `Use settings from @${getRelativePath(filePath)}} for deployment.`,
         messageId: 410,
       },
     ];
@@ -894,10 +785,7 @@ describe('handleAtCommand', () => {
     it.each(punctuationTestCases)(
       'should terminate @path at $name',
       async ({ fileName, fileContent, queryTemplate, messageId }) => {
-        const filePath = await createTestFile(
-          path.join(testRootDir, fileName),
-          fileContent,
-        );
+        const filePath = await createTestFile(path.join(testRootDir, fileName), fileContent);
         const query = queryTemplate(filePath);
 
         const result = await handleAtCommand({
@@ -918,20 +806,14 @@ describe('handleAtCommand', () => {
             { text: '\n--- End of content ---' },
           ],
         });
-      },
+      }
     );
 
     it('should handle multiple @paths terminated by different punctuation', async () => {
       const content1 = 'First file';
-      const file1Path = await createTestFile(
-        path.join(testRootDir, 'first.txt'),
-        content1,
-      );
+      const file1Path = await createTestFile(path.join(testRootDir, 'first.txt'), content1);
       const content2 = 'Second file';
-      const file2Path = await createTestFile(
-        path.join(testRootDir, 'second.txt'),
-        content2,
-      );
+      const file2Path = await createTestFile(path.join(testRootDir, 'second.txt'), content2);
       const query = `Compare @${file1Path}, @${file2Path}; what's different?`;
 
       const result = await handleAtCommand({
@@ -960,10 +842,7 @@ describe('handleAtCommand', () => {
 
     it('should still handle escaped spaces in paths before punctuation', async () => {
       const fileContent = 'Spaced file content';
-      const filePath = await createTestFile(
-        path.join(testRootDir, 'spaced file.txt'),
-        fileContent,
-      );
+      const filePath = await createTestFile(path.join(testRootDir, 'spaced file.txt'), fileContent);
 
       const query = `Check @${core.escapePath(filePath)}, it has spaces.`;
 
@@ -989,10 +868,7 @@ describe('handleAtCommand', () => {
 
     it('should not break file paths with periods in extensions', async () => {
       const fileContent = 'TypeScript content';
-      const filePath = await createTestFile(
-        path.join(testRootDir, 'example.d.ts'),
-        fileContent,
-      );
+      const filePath = await createTestFile(path.join(testRootDir, 'example.d.ts'), fileContent);
       const query = `Analyze @${getRelativePath(filePath)} for type definitions.`;
 
       const result = await handleAtCommand({
@@ -1019,10 +895,7 @@ describe('handleAtCommand', () => {
 
     it('should handle file paths ending with period followed by space', async () => {
       const fileContent = 'Config content';
-      const filePath = await createTestFile(
-        path.join(testRootDir, 'config.json'),
-        fileContent,
-      );
+      const filePath = await createTestFile(path.join(testRootDir, 'config.json'), fileContent);
       const query = `Check @${getRelativePath(filePath)}. This file contains settings.`;
 
       const result = await handleAtCommand({
@@ -1049,10 +922,7 @@ describe('handleAtCommand', () => {
 
     it('should handle comma termination with complex file paths', async () => {
       const fileContent = 'Package info';
-      const filePath = await createTestFile(
-        path.join(testRootDir, 'package.json'),
-        fileContent,
-      );
+      const filePath = await createTestFile(path.join(testRootDir, 'package.json'), fileContent);
       const query = `Review @${getRelativePath(filePath)}, then check dependencies.`;
 
       const result = await handleAtCommand({
@@ -1079,10 +949,7 @@ describe('handleAtCommand', () => {
 
     it('should correctly handle file paths with multiple periods', async () => {
       const fileContent = 'Version info';
-      const filePath = await createTestFile(
-        path.join(testRootDir, 'version.1.2.3.txt'),
-        fileContent,
-      );
+      const filePath = await createTestFile(path.join(testRootDir, 'version.1.2.3.txt'), fileContent);
       const query = `Check @${getRelativePath(filePath)} contains version information.`;
 
       const result = await handleAtCommand({
@@ -1109,10 +976,7 @@ describe('handleAtCommand', () => {
 
     it('should handle end of string termination for period and comma', async () => {
       const fileContent = 'End file content';
-      const filePath = await createTestFile(
-        path.join(testRootDir, 'end.txt'),
-        fileContent,
-      );
+      const filePath = await createTestFile(path.join(testRootDir, 'end.txt'), fileContent);
       const query = `Show me @${getRelativePath(filePath)}.`;
 
       const result = await handleAtCommand({
@@ -1137,10 +1001,7 @@ describe('handleAtCommand', () => {
 
     it('should handle files with special characters in names', async () => {
       const fileContent = 'File with special chars content';
-      const filePath = await createTestFile(
-        path.join(testRootDir, 'file$with&special#chars.txt'),
-        fileContent,
-      );
+      const filePath = await createTestFile(path.join(testRootDir, 'file$with&special#chars.txt'), fileContent);
       const query = `Check @${getRelativePath(filePath)} for content.`;
 
       const result = await handleAtCommand({
@@ -1165,10 +1026,7 @@ describe('handleAtCommand', () => {
 
     it('should handle basic file names without special characters', async () => {
       const fileContent = 'Basic file content';
-      const filePath = await createTestFile(
-        path.join(testRootDir, 'basicfile.txt'),
-        fileContent,
-      );
+      const filePath = await createTestFile(path.join(testRootDir, 'basicfile.txt'), fileContent);
       const query = `Check @${getRelativePath(filePath)} please.`;
 
       const result = await handleAtCommand({
@@ -1196,10 +1054,7 @@ describe('handleAtCommand', () => {
     it('should handle absolute file paths correctly', async () => {
       const fileContent = 'console.log("This is an absolute path test");';
       const relativePath = path.join('src', 'absolute-test.ts');
-      const absolutePath = await createTestFile(
-        path.join(testRootDir, relativePath),
-        fileContent,
-      );
+      const absolutePath = await createTestFile(path.join(testRootDir, relativePath), fileContent);
       const query = `Check @${absolutePath} please.`;
 
       const result = await handleAtCommand({
@@ -1221,20 +1076,14 @@ describe('handleAtCommand', () => {
         ],
       });
 
-      expect(mockOnDebugMessage).toHaveBeenCalledWith(
-        expect.stringContaining(`using relative path: ${relativePath}`),
-      );
+      expect(mockOnDebugMessage).toHaveBeenCalledWith(expect.stringContaining(`using relative path: ${relativePath}`));
     });
 
     it('should handle absolute directory paths correctly', async () => {
-      const fileContent =
-        'export default function test() { return "absolute dir test"; }';
+      const fileContent = 'export default function test() { return "absolute dir test"; }';
       const subDirPath = path.join('src', 'utils');
       const fileName = 'helper.ts';
-      await createTestFile(
-        path.join(testRootDir, subDirPath, fileName),
-        fileContent,
-      );
+      await createTestFile(path.join(testRootDir, subDirPath, fileName), fileContent);
       const absoluteDirPath = path.join(testRootDir, subDirPath);
       const query = `Check @${absoluteDirPath} please.`;
 
@@ -1255,11 +1104,11 @@ describe('handleAtCommand', () => {
           expect.objectContaining({
             text: '\n--- Content from referenced files ---',
           }),
-        ]),
+        ])
       );
 
       expect(mockOnDebugMessage).toHaveBeenCalledWith(
-        expect.stringContaining(`using glob: ${path.join(subDirPath, '**')}`),
+        expect.stringContaining(`using glob: ${path.join(subDirPath, '**')}`)
       );
     });
   });
@@ -1267,10 +1116,7 @@ describe('handleAtCommand', () => {
   it("should not add the user's turn to history, as that is the caller's responsibility", async () => {
     // Arrange
     const fileContent = 'This is the file content.';
-    const filePath = await createTestFile(
-      path.join(testRootDir, 'path', 'to', 'another-file.txt'),
-      fileContent,
-    );
+    const filePath = await createTestFile(path.join(testRootDir, 'path', 'to', 'another-file.txt'), fileContent);
     const query = `A query with @${getRelativePath(filePath)}`;
 
     // Act
@@ -1285,15 +1131,10 @@ describe('handleAtCommand', () => {
 
     // Assert
     // It SHOULD be called for the tool_group
-    expect(mockAddItem).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'tool_group' }),
-      999,
-    );
+    expect(mockAddItem).toHaveBeenCalledWith(expect.objectContaining({ type: 'tool_group' }), 999);
 
     // It should NOT have been called for the user turn
-    const userTurnCalls = mockAddItem.mock.calls.filter(
-      (call) => call[0].type === 'user',
-    );
+    const userTurnCalls = mockAddItem.mock.calls.filter((call) => call[0].type === 'user');
     expect(userTurnCalls).toHaveLength(0);
   });
 
@@ -1310,8 +1151,7 @@ describe('handleAtCommand', () => {
       } as DiscoveredMCPResource;
 
       vi.spyOn(mockConfig, 'getResourceRegistry').mockReturnValue({
-        findResourceByUri: (identifier: string) =>
-          identifier === prefixedUri ? resource : undefined,
+        findResourceByUri: (identifier: string) => (identifier === prefixedUri ? resource : undefined),
         getAllResources: () => [],
       } as never);
 
@@ -1334,18 +1174,13 @@ describe('handleAtCommand', () => {
       expect(readResource).toHaveBeenCalledWith(resourceUri, {
         signal: abortController.signal,
       });
-      const processedParts = Array.isArray(result.processedQuery)
-        ? result.processedQuery
-        : [];
+      const processedParts = Array.isArray(result.processedQuery) ? result.processedQuery : [];
       const containsResourceText = processedParts.some((part) => {
         const text = typeof part === 'string' ? part : part?.text;
         return typeof text === 'string' && text.includes('mcp resource body');
       });
       expect(containsResourceText).toBe(true);
-      expect(mockAddItem).toHaveBeenCalledWith(
-        expect.objectContaining({ type: 'tool_group' }),
-        expect.any(Number),
-      );
+      expect(mockAddItem).toHaveBeenCalledWith(expect.objectContaining({ type: 'tool_group' }), expect.any(Number));
     });
 
     it('returns an error if MCP client is unavailable', async () => {
@@ -1384,29 +1219,24 @@ describe('handleAtCommand', () => {
           tools: expect.arrayContaining([
             expect.objectContaining({
               resultDisplay: expect.stringContaining(
-                "MCP client for server 'server-1' is not available or not connected.",
+                "MCP client for server 'server-1' is not available or not connected."
               ),
             }),
           ]),
         }),
-        expect.any(Number),
+        expect.any(Number)
       );
     });
   });
 
   it('should return error if the read_many_files tool is cancelled by user', async () => {
     const fileContent = 'Some content';
-    const filePath = await createTestFile(
-      path.join(testRootDir, 'file.txt'),
-      fileContent,
-    );
+    const filePath = await createTestFile(path.join(testRootDir, 'file.txt'), fileContent);
     const query = `@${filePath}`;
 
     // Simulate user cancellation
     const mockToolInstance = {
-      buildAndExecute: vi
-        .fn()
-        .mockRejectedValue(new Error('User cancelled operation')),
+      buildAndExecute: vi.fn().mockRejectedValue(new Error('User cancelled operation')),
       displayName: 'Read Many Files',
       build: vi.fn(() => ({
         execute: mockToolInstance.buildAndExecute,
@@ -1414,9 +1244,7 @@ describe('handleAtCommand', () => {
       })),
     };
     const viSpy = vi.spyOn(core, 'ReadManyFilesTool');
-    viSpy.mockImplementation(
-      () => mockToolInstance as unknown as core.ReadManyFilesTool,
-    );
+    viSpy.mockImplementation(() => mockToolInstance as unknown as core.ReadManyFilesTool);
 
     const result = await handleAtCommand({
       query,
@@ -1437,7 +1265,7 @@ describe('handleAtCommand', () => {
         type: 'tool_group',
         tools: [expect.objectContaining({ status: CoreToolCallStatus.Error })],
       }),
-      134,
+      134
     );
   });
 
@@ -1447,8 +1275,7 @@ describe('handleAtCommand', () => {
 
     // Mock getAgentRegistry on the config
     mockConfig.getAgentRegistry = vi.fn().mockReturnValue({
-      getDefinition: (name: string) =>
-        name === agentName || name === otherAgent ? { name } : undefined,
+      getDefinition: (name: string) => (name === agentName || name === otherAgent ? { name } : undefined),
     });
 
     const query = `@${agentName} @${otherAgent}`;
@@ -1464,8 +1291,6 @@ describe('handleAtCommand', () => {
 
     const expectedNudge = `\n<system_note>\nThe user has explicitly selected the following agent(s): ${agentName}, ${otherAgent}. Please use the following tool(s) to delegate the task: '${agentName}', '${otherAgent}'.\n</system_note>\n`;
 
-    expect(result.processedQuery).toContainEqual(
-      expect.objectContaining({ text: expectedNudge }),
-    );
+    expect(result.processedQuery).toContainEqual(expect.objectContaining({ text: expectedNudge }));
   });
 });

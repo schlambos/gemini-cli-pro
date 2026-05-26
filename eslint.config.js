@@ -99,23 +99,11 @@ export default tseslint.config(
       'arrow-body-style': ['error', 'as-needed'],
       curly: ['error', 'multi-line'],
       eqeqeq: ['error', 'always', { null: 'ignore' }],
-      '@typescript-eslint/consistent-type-assertions': [
-        'error',
-        { assertionStyle: 'as' },
-      ],
-      '@typescript-eslint/explicit-member-accessibility': [
-        'error',
-        { accessibility: 'no-public' },
-      ],
+      '@typescript-eslint/consistent-type-assertions': ['error', { assertionStyle: 'as' }],
+      '@typescript-eslint/explicit-member-accessibility': ['error', { accessibility: 'no-public' }],
       '@typescript-eslint/no-explicit-any': 'error',
-      '@typescript-eslint/no-inferrable-types': [
-        'error',
-        { ignoreParameters: true, ignoreProperties: true },
-      ],
-      '@typescript-eslint/consistent-type-imports': [
-        'error',
-        { disallowTypeAnnotations: false },
-      ],
+      '@typescript-eslint/no-inferrable-types': ['error', { ignoreParameters: true, ignoreProperties: true }],
+      '@typescript-eslint/consistent-type-imports': ['error', { disallowTypeAnnotations: false }],
       '@typescript-eslint/no-namespace': ['error', { allowDeclarations: true }],
       '@typescript-eslint/no-unused-vars': [
         'error',
@@ -130,12 +118,7 @@ export default tseslint.config(
       'import/no-internal-modules': [
         'error',
         {
-          allow: [
-            'react-dom/test-utils',
-            'memfs/lib/volume.js',
-            'yargs/**',
-            'msw/node',
-          ],
+          allow: ['react-dom/test-utils', 'memfs/lib/volume.js', 'yargs/**', 'msw/node'],
         },
       ],
       'import/no-relative-packages': 'error',
@@ -150,8 +133,7 @@ export default tseslint.config(
         },
         {
           selector: 'ThrowStatement > Literal:not([value=/^\\w+Error:/])',
-          message:
-            'Do not throw string literals or non-Error objects. Throw new Error("...") instead.',
+          message: 'Do not throw string literals or non-Error objects. Throw new Error("...") instead.',
         },
       ],
       'no-unsafe-finally': 'error',
@@ -264,7 +246,10 @@ export default tseslint.config(
   },
   {
     files: ['./**/*.{tsx,ts,js,cjs}'],
-    ignores: ['packages/core/src/core/openaiContentGenerator.ts', 'packages/core/src/core/openaiContentGenerator.test.ts'],
+    ignores: [
+      'packages/core/src/core/openaiContentGenerator.ts',
+      'packages/core/src/core/openaiContentGenerator.test.ts',
+    ],
     plugins: {
       headers,
       import: importPlugin,
@@ -274,11 +259,7 @@ export default tseslint.config(
         'error',
         {
           source: 'string',
-          content: [
-            '@license',
-            'Copyright (year) Google LLC',
-            'SPDX-License-Identifier: Apache-2.0',
-          ].join('\n'),
+          content: ['@license', 'Copyright (year) Google LLC', 'SPDX-License-Identifier: Apache-2.0'].join('\n'),
           patterns: {
             year: {
               pattern: `202[5-${currentYear.toString().slice(-1)}]`,
@@ -395,5 +376,5 @@ export default tseslint.config(
         },
       ],
     },
-  },
+  }
 );

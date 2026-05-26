@@ -27,10 +27,7 @@ describe('EnterPlanModeTool', () => {
         getProjectTempPlansDir: vi.fn().mockReturnValue('/mock/plans/dir'),
       } as unknown as Config['storage'],
     };
-    tool = new EnterPlanModeTool(
-      mockConfig as Config,
-      mockMessageBus as unknown as MessageBus,
-    );
+    tool = new EnterPlanModeTool(mockConfig as Config, mockMessageBus as unknown as MessageBus);
   });
 
   afterEach(() => {
@@ -46,12 +43,10 @@ describe('EnterPlanModeTool', () => {
         invocation as unknown as {
           getMessageBusDecision: () => Promise<string>;
         },
-        'getMessageBusDecision',
+        'getMessageBusDecision'
       ).mockResolvedValue('ASK_USER');
 
-      const result = await invocation.shouldConfirmExecute(
-        new AbortController().signal,
-      );
+      const result = await invocation.shouldConfirmExecute(new AbortController().signal);
 
       expect(result).not.toBe(false);
       if (result === false) return;
@@ -59,9 +54,7 @@ describe('EnterPlanModeTool', () => {
       expect(result.type).toBe('info');
       expect(result.title).toBe('Enter Plan Mode');
       if (result.type === 'info') {
-        expect(result.prompt).toBe(
-          'This will restrict the agent to read-only tools to allow for safe planning.',
-        );
+        expect(result.prompt).toBe('This will restrict the agent to read-only tools to allow for safe planning.');
       }
     });
 
@@ -73,12 +66,10 @@ describe('EnterPlanModeTool', () => {
         invocation as unknown as {
           getMessageBusDecision: () => Promise<string>;
         },
-        'getMessageBusDecision',
+        'getMessageBusDecision'
       ).mockResolvedValue('ALLOW');
 
-      const result = await invocation.shouldConfirmExecute(
-        new AbortController().signal,
-      );
+      const result = await invocation.shouldConfirmExecute(new AbortController().signal);
 
       expect(result).toBe(false);
     });
@@ -91,12 +82,10 @@ describe('EnterPlanModeTool', () => {
         invocation as unknown as {
           getMessageBusDecision: () => Promise<string>;
         },
-        'getMessageBusDecision',
+        'getMessageBusDecision'
       ).mockResolvedValue('DENY');
 
-      await expect(
-        invocation.shouldConfirmExecute(new AbortController().signal),
-      ).rejects.toThrow(/denied by policy/);
+      await expect(invocation.shouldConfirmExecute(new AbortController().signal)).rejects.toThrow(/denied by policy/);
     });
   });
 
@@ -106,9 +95,7 @@ describe('EnterPlanModeTool', () => {
 
       const result = await invocation.execute(new AbortController().signal);
 
-      expect(mockConfig.setApprovalMode).toHaveBeenCalledWith(
-        ApprovalMode.PLAN,
-      );
+      expect(mockConfig.setApprovalMode).toHaveBeenCalledWith(ApprovalMode.PLAN);
       expect(result.llmContent).toContain('Switching to Plan mode');
       expect(result.returnDisplay).toBe('Switching to Plan mode');
     });
@@ -119,9 +106,7 @@ describe('EnterPlanModeTool', () => {
 
       const result = await invocation.execute(new AbortController().signal);
 
-      expect(mockConfig.setApprovalMode).toHaveBeenCalledWith(
-        ApprovalMode.PLAN,
-      );
+      expect(mockConfig.setApprovalMode).toHaveBeenCalledWith(ApprovalMode.PLAN);
       expect(result.llmContent).toBe('Switching to Plan mode.');
       expect(result.llmContent).not.toContain(reason);
       expect(result.returnDisplay).toContain(reason);
@@ -135,12 +120,10 @@ describe('EnterPlanModeTool', () => {
         invocation as unknown as {
           getMessageBusDecision: () => Promise<string>;
         },
-        'getMessageBusDecision',
+        'getMessageBusDecision'
       ).mockResolvedValue('ASK_USER');
 
-      const details = await invocation.shouldConfirmExecute(
-        new AbortController().signal,
-      );
+      const details = await invocation.shouldConfirmExecute(new AbortController().signal);
       expect(details).not.toBe(false);
 
       if (details) {

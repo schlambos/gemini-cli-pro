@@ -66,25 +66,14 @@ export function useMessageQueue({
 
   // Process queued messages when streaming becomes idle
   useEffect(() => {
-    if (
-      isConfigInitialized &&
-      streamingState === StreamingState.Idle &&
-      isMcpReady &&
-      messageQueue.length > 0
-    ) {
+    if (isConfigInitialized && streamingState === StreamingState.Idle && isMcpReady && messageQueue.length > 0) {
       // Combine all messages with double newlines for clarity
       const combinedMessage = messageQueue.join('\n\n');
       // Clear the queue and submit
       setMessageQueue([]);
       submitQuery(combinedMessage);
     }
-  }, [
-    isConfigInitialized,
-    streamingState,
-    isMcpReady,
-    messageQueue,
-    submitQuery,
-  ]);
+  }, [isConfigInitialized, streamingState, isMcpReady, messageQueue, submitQuery]);
 
   return {
     messageQueue,

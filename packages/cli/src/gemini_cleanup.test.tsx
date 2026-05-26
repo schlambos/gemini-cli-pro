@@ -18,8 +18,7 @@ class MockProcessExitError extends Error {
 }
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     writeToStdout: vi.fn(),
@@ -134,8 +133,7 @@ const { cleanupMockState } = vi.hoisted(() => ({
 
 // Mock sessionCleanup.js at the top level
 vi.mock('./utils/sessionCleanup.js', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('./utils/sessionCleanup.js')>();
+  const actual = await importOriginal<typeof import('./utils/sessionCleanup.js')>();
   return {
     ...actual,
     cleanupExpiredSessions: async () => {
@@ -159,21 +157,15 @@ describe('gemini.tsx main function cleanup', () => {
   });
 
   it('should log error when cleanupExpiredSessions fails', async () => {
-    const { loadCliConfig, parseArguments } = await import(
-      './config/config.js'
-    );
+    const { loadCliConfig, parseArguments } = await import('./config/config.js');
     const { loadSettings } = await import('./config/settings.js');
     cleanupMockState.shouldThrow = true;
     cleanupMockState.called = false;
 
-    const debugLoggerErrorSpy = vi
-      .spyOn(debugLogger, 'error')
-      .mockImplementation(() => {});
-    const processExitSpy = vi
-      .spyOn(process, 'exit')
-      .mockImplementation((code) => {
-        throw new MockProcessExitError(code);
-      });
+    const debugLoggerErrorSpy = vi.spyOn(debugLogger, 'error').mockImplementation(() => {});
+    const processExitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => {
+      throw new MockProcessExitError(code);
+    });
 
     vi.mocked(loadSettings).mockReturnValue({
       merged: { advanced: {}, security: { auth: {} }, ui: {} },
@@ -233,7 +225,7 @@ describe('gemini.tsx main function cleanup', () => {
     expect(cleanupMockState.called).toBe(true);
     expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
       'Failed to cleanup expired sessions:',
-      expect.objectContaining({ message: 'Cleanup failed' }),
+      expect.objectContaining({ message: 'Cleanup failed' })
     );
     expect(processExitSpy).toHaveBeenCalledWith(0); // Should not exit on cleanup failure
     processExitSpy.mockRestore();

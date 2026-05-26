@@ -69,16 +69,13 @@ export class StartupProfiler {
    * Callers should handle the potential `undefined` return value, typically
    * by using optional chaining: `handle?.end()`.
    */
-  start(
-    phaseName: string,
-    details?: Record<string, string | number | boolean>,
-  ): StartupPhaseHandle | undefined {
+  start(phaseName: string, details?: Record<string, string | number | boolean>): StartupPhaseHandle | undefined {
     const existingPhase = this.phases.get(phaseName);
 
     // Error if starting a phase that's already active.
     if (existingPhase && !existingPhase.ended) {
       debugLogger.warn(
-        `[STARTUP] Cannot start phase '${phaseName}': phase is already active. Call end() before starting again.`,
+        `[STARTUP] Cannot start phase '${phaseName}': phase is already active. Call end() before starting again.`
       );
       return undefined;
     }
@@ -107,15 +104,10 @@ export class StartupProfiler {
    * Marks the end of a phase and calculates duration.
    * This is now a private method; callers should use the handle returned by start().
    */
-  private _end(
-    phase: StartupPhase,
-    details?: Record<string, string | number | boolean>,
-  ): void {
+  private _end(phase: StartupPhase, details?: Record<string, string | number | boolean>): void {
     // Error if ending a phase that's already ended.
     if (phase.ended) {
-      debugLogger.warn(
-        `[STARTUP] Cannot end phase '${phase.name}': phase was already ended.`,
-      );
+      debugLogger.warn(`[STARTUP] Cannot end phase '${phase.name}': phase was already ended.`);
       return;
     }
 
@@ -125,7 +117,7 @@ export class StartupProfiler {
     // Check if start mark exists before measuring
     if (performance.getEntriesByName(startMarkName).length === 0) {
       debugLogger.warn(
-        `[STARTUP] Cannot measure phase '${phase.name}': start mark '${startMarkName}' not found (likely cleared by reset).`,
+        `[STARTUP] Cannot measure phase '${phase.name}': start mark '${startMarkName}' not found (likely cleared by reset).`
       );
       phase.ended = true;
       return;
@@ -145,11 +137,7 @@ export class StartupProfiler {
    * Flushes buffered metrics to the telemetry system.
    */
   flush(config: Config): void {
-    debugLogger.debug(
-      '[STARTUP] StartupProfiler.flush() called with',
-      this.phases.size,
-      'phases',
-    );
+    debugLogger.debug('[STARTUP] StartupProfiler.flush() called with', this.phases.size, 'phases');
 
     const commonDetails = {
       os_platform: os.platform(),
@@ -164,9 +152,7 @@ export class StartupProfiler {
     for (const phase of this.phases.values()) {
       // Warn about incomplete phases.
       if (!phase.ended) {
-        debugLogger.warn(
-          `[STARTUP] Phase '${phase.name}' was started but never ended. Skipping metrics.`,
-        );
+        debugLogger.warn(`[STARTUP] Phase '${phase.name}' was started but never ended. Skipping metrics.`);
         continue;
       }
 
@@ -181,21 +167,13 @@ export class StartupProfiler {
           ...phase.details,
         };
 
-        debugLogger.debug(
-          '[STARTUP] Recording metric for phase:',
-          phase.name,
-          'duration:',
-          measure.duration,
-        );
+        debugLogger.debug('[STARTUP] Recording metric for phase:', phase.name, 'duration:', measure.duration);
         recordStartupPerformance(config, measure.duration, {
           phase: phase.name,
           details,
         });
       } else {
-        debugLogger.debug(
-          '[STARTUP] Skipping phase without measure:',
-          phase.name,
-        );
+        debugLogger.debug('[STARTUP] Skipping phase without measure:', phase.name);
       }
     }
 
@@ -211,9 +189,7 @@ export class StartupProfiler {
           cpu_usage_user_usec: phase.cpuUsage.user,
           cpu_usage_system_usec: phase.cpuUsage.system,
           start_time_usec: (performance.timeOrigin + measure.startTime) * 1000,
-          end_time_usec:
-            (performance.timeOrigin + measure.startTime + measure.duration) *
-            1000,
+          end_time_usec: (performance.timeOrigin + measure.startTime + measure.duration) * 1000,
         });
       }
     }
@@ -221,12 +197,7 @@ export class StartupProfiler {
     if (startupPhases.length > 0) {
       logStartupStats(
         config,
-        new StartupStatsEvent(
-          startupPhases,
-          os.platform(),
-          os.release(),
-          fs.existsSync('/.dockerenv'),
-        ),
+        new StartupStatsEvent(startupPhases, os.platform(), os.release(), fs.existsSync('/.dockerenv'))
       );
     }
 

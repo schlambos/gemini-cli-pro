@@ -23,10 +23,7 @@ export async function handleDisable(args: DisableArgs) {
   const settings = loadSettings(workspaceDir);
 
   const result = disableSkill(settings, name, scope);
-  const feedback = renderSkillActionFeedback(
-    result,
-    (label, path) => `${chalk.bold(label)} (${chalk.dim(path)})`,
-  );
+  const feedback = renderSkillActionFeedback(result, (label, path) => `${chalk.bold(label)} (${chalk.dim(path)})`);
   debugLogger.log(feedback);
 }
 
@@ -48,10 +45,7 @@ export const disableCommand: CommandModule = {
         choices: ['user', 'workspace'],
       }),
   handler: async (argv) => {
-    const scope =
-      argv['scope'] === 'workspace'
-        ? SettingScope.Workspace
-        : SettingScope.User;
+    const scope = argv['scope'] === 'workspace' ? SettingScope.Workspace : SettingScope.User;
     await handleDisable({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
       name: argv['name'] as string,

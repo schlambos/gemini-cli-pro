@@ -55,8 +55,7 @@ for metadata and Markdown for instructions. For example:
 ```markdown
 ---
 name: code-reviewer
-description:
-  Use this skill to review code. It supports both local changes and remote Pull
+description: Use this skill to review code. It supports both local changes and remote Pull
   Requests.
 ---
 

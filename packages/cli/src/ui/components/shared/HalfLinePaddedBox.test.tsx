@@ -29,10 +29,10 @@ describe('<HalfLinePaddedBox />', () => {
     vi.mocked(isITerm2).mockReturnValue(false);
 
     const { lastFrame, unmount } = renderWithProviders(
-      <HalfLinePaddedBox backgroundBaseColor="blue" backgroundOpacity={0.5}>
+      <HalfLinePaddedBox backgroundBaseColor='blue' backgroundOpacity={0.5}>
         <Text>Content</Text>
       </HalfLinePaddedBox>,
-      { width: 10 },
+      { width: 10 }
     );
 
     expect(lastFrame()).toMatchSnapshot();
@@ -44,10 +44,10 @@ describe('<HalfLinePaddedBox />', () => {
     vi.mocked(isITerm2).mockReturnValue(true);
 
     const { lastFrame, unmount } = renderWithProviders(
-      <HalfLinePaddedBox backgroundBaseColor="blue" backgroundOpacity={0.5}>
+      <HalfLinePaddedBox backgroundBaseColor='blue' backgroundOpacity={0.5}>
         <Text>Content</Text>
       </HalfLinePaddedBox>,
-      { width: 10 },
+      { width: 10 }
     );
 
     expect(lastFrame()).toMatchSnapshot();
@@ -57,14 +57,10 @@ describe('<HalfLinePaddedBox />', () => {
 
   it('renders nothing when useBackgroundColor is false', async () => {
     const { lastFrame, unmount } = renderWithProviders(
-      <HalfLinePaddedBox
-        backgroundBaseColor="blue"
-        backgroundOpacity={0.5}
-        useBackgroundColor={false}
-      >
+      <HalfLinePaddedBox backgroundBaseColor='blue' backgroundOpacity={0.5} useBackgroundColor={false}>
         <Text>Content</Text>
       </HalfLinePaddedBox>,
-      { width: 10 },
+      { width: 10 }
     );
 
     expect(lastFrame()).toMatchSnapshot();
@@ -76,10 +72,10 @@ describe('<HalfLinePaddedBox />', () => {
     mockUseIsScreenReaderEnabled.mockReturnValue(true);
 
     const { lastFrame, unmount } = renderWithProviders(
-      <HalfLinePaddedBox backgroundBaseColor="blue" backgroundOpacity={0.5}>
+      <HalfLinePaddedBox backgroundBaseColor='blue' backgroundOpacity={0.5}>
         <Text>Content</Text>
       </HalfLinePaddedBox>,
-      { width: 10 },
+      { width: 10 }
     );
 
     expect(lastFrame()).toMatchSnapshot();

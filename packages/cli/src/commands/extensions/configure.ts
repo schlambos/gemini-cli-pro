@@ -6,12 +6,7 @@
 
 import type { CommandModule } from 'yargs';
 import type { ExtensionSettingScope } from '../../config/extensions/extensionSettings.js';
-import {
-  configureAllExtensions,
-  configureExtension,
-  configureSpecificSetting,
-  getExtensionManager,
-} from './utils.js';
+import { configureAllExtensions, configureExtension, configureSpecificSetting, getExtensionManager } from './utils.js';
 import { loadSettings } from '../../config/settings.js';
 import { coreEvents, debugLogger } from '@google/gemini-cli-core';
 import { exitCli } from '../utils.js';
@@ -48,7 +43,7 @@ export const configureCommand: CommandModule<object, ConfigureArgs> = {
     if (!(settings.experimental?.extensionConfig ?? true)) {
       coreEvents.emitFeedback(
         'error',
-        'Extension configuration is currently disabled. Enable it by setting "experimental.extensionConfig" to true.',
+        'Extension configuration is currently disabled. Enable it by setting "experimental.extensionConfig" to true.'
       );
       await exitCli();
       return;
@@ -56,9 +51,7 @@ export const configureCommand: CommandModule<object, ConfigureArgs> = {
 
     if (name) {
       if (name.includes('/') || name.includes('\\') || name.includes('..')) {
-        debugLogger.error(
-          'Invalid extension name. Names cannot contain path separators or "..".',
-        );
+        debugLogger.error('Invalid extension name. Names cannot contain path separators or "..".');
         return;
       }
     }
@@ -72,7 +65,7 @@ export const configureCommand: CommandModule<object, ConfigureArgs> = {
         name,
         setting,
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-        scope as ExtensionSettingScope,
+        scope as ExtensionSettingScope
       );
     }
     // Case 2: Configure all settings for an extension
@@ -81,7 +74,7 @@ export const configureCommand: CommandModule<object, ConfigureArgs> = {
         extensionManager,
         name,
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-        scope as ExtensionSettingScope,
+        scope as ExtensionSettingScope
       );
     }
     // Case 3: Configure all extensions
@@ -89,7 +82,7 @@ export const configureCommand: CommandModule<object, ConfigureArgs> = {
       await configureAllExtensions(
         extensionManager,
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-        scope as ExtensionSettingScope,
+        scope as ExtensionSettingScope
       );
     }
 

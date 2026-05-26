@@ -4,11 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  CommandKind,
-  type CommandContext,
-  type SlashCommand,
-} from './types.js';
+import { CommandKind, type CommandContext, type SlashCommand } from './types.js';
 import { RewindViewer } from '../components/RewindViewer.js';
 import { type HistoryItem } from '../types.js';
 import { convertSessionToHistoryFormats } from '../hooks/useSessionBrowser.js';
@@ -41,7 +37,7 @@ async function rewindConversation(
   client: GeminiClient,
   recordingService: ChatRecordingService,
   messageId: string,
-  newText: string,
+  newText: string
 ) {
   try {
     const conversation = recordingService.rewindTo(messageId);
@@ -54,9 +50,7 @@ async function rewindConversation(
     }
 
     // Convert to UI and Client formats
-    const { uiHistory, clientHistory } = convertSessionToHistoryFormats(
-      conversation.messages,
-    );
+    const { uiHistory, clientHistory } = convertSessionToHistoryFormats(conversation.messages);
 
     client.setHistory(clientHistory as Content[]);
 
@@ -71,7 +65,7 @@ async function rewindConversation(
         ({
           ...item,
           id: startId + idx,
-        }) as HistoryItem,
+        }) as HistoryItem
     );
 
     // 1. Remove component FIRST to avoid flicker and clear the stage
@@ -82,10 +76,7 @@ async function rewindConversation(
   } catch (error) {
     // If an error occurs, we still want to remove the component if possible
     context.ui.removeComponent();
-    coreEvents.emitFeedback(
-      'error',
-      error instanceof Error ? error.message : 'Unknown error during rewind',
-    );
+    coreEvents.emitFeedback('error', error instanceof Error ? error.message : 'Unknown error during rewind');
   }
 }
 
@@ -126,9 +117,7 @@ export const rewindCommand: SlashCommand = {
         content: 'No conversation found.',
       };
 
-    const hasUserInteractions = conversation.messages.some(
-      (msg) => msg.type === 'user',
-    );
+    const hasUserInteractions = conversation.messages.some((msg) => msg.type === 'user');
     if (!hasUserInteractions) {
       return {
         type: 'message',
@@ -166,23 +155,11 @@ export const rewindCommand: SlashCommand = {
                 if (conversation) {
                   await revertFileChanges(conversation, messageId);
                 }
-                await rewindConversation(
-                  context,
-                  client,
-                  recordingService,
-                  messageId,
-                  newText,
-                );
+                await rewindConversation(context, client, recordingService, messageId, newText);
                 return;
 
               case RewindOutcome.RewindOnly:
-                await rewindConversation(
-                  context,
-                  client,
-                  recordingService,
-                  messageId,
-                  newText,
-                );
+                await rewindConversation(context, client, recordingService, messageId, newText);
                 return;
 
               default:

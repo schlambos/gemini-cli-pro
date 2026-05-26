@@ -49,7 +49,7 @@ describe('Telemetry Sanitization', () => {
           0,
           'output',
           'error',
-          undefined,
+          undefined
         );
 
         expect(event['event.name']).toBe('hook_call');
@@ -67,14 +67,7 @@ describe('Telemetry Sanitization', () => {
       });
 
       it('should create an event with minimal fields', () => {
-        const event = new HookCallEvent(
-          'BeforeTool',
-          'command',
-          'test-hook',
-          { tool_name: 'ReadFile' },
-          100,
-          true,
-        );
+        const event = new HookCallEvent('BeforeTool', 'command', 'test-hook', { tool_name: 'ReadFile' }, 100, true);
 
         expect(event.hook_output).toBeUndefined();
         expect(event.exit_code).toBeUndefined();
@@ -98,7 +91,7 @@ describe('Telemetry Sanitization', () => {
           { decision: 'allow' },
           0,
           'hook executed successfully',
-          'no errors',
+          'no errors'
         );
 
         const attributes = event.toOpenTelemetryAttributes(config);
@@ -107,9 +100,7 @@ describe('Telemetry Sanitization', () => {
         expect(attributes['hook_event_name']).toBe('BeforeTool');
         expect(attributes['hook_type']).toBe('command');
         // With logPrompts=true, full hook name is included
-        expect(attributes['hook_name']).toBe(
-          '/path/to/.gemini/hooks/check-secrets.sh --api-key=abc123',
-        );
+        expect(attributes['hook_name']).toBe('/path/to/.gemini/hooks/check-secrets.sh --api-key=abc123');
         expect(attributes['duration_ms']).toBe(100);
         expect(attributes['success']).toBe(true);
         expect(attributes['exit_code']).toBe(0);
@@ -128,7 +119,7 @@ describe('Telemetry Sanitization', () => {
           { tool_name: 'ReadFile', args: { file: 'test.txt' } },
           100,
           true,
-          { decision: 'allow', reason: 'approved' },
+          { decision: 'allow', reason: 'approved' }
         );
 
         const attributes = event.toOpenTelemetryAttributes(config);
@@ -162,7 +153,7 @@ describe('Telemetry Sanitization', () => {
           { decision: 'allow' },
           0,
           'hook executed successfully',
-          'no errors',
+          'no errors'
         );
 
         const attributes = event.toOpenTelemetryAttributes(config);
@@ -236,7 +227,7 @@ describe('Telemetry Sanitization', () => {
             testCase.input,
             { tool_name: 'ReadFile' },
             100,
-            true,
+            true
           );
 
           const attributes = event.toOpenTelemetryAttributes(config);
@@ -257,7 +248,7 @@ describe('Telemetry Sanitization', () => {
           undefined,
           undefined,
           undefined,
-          'Hook execution failed',
+          'Hook execution failed'
         );
 
         const attributes = event.toOpenTelemetryAttributes(config);
@@ -274,42 +265,21 @@ describe('Telemetry Sanitization', () => {
       const config = createMockConfig(false);
 
       it('should handle commands with multiple spaces', () => {
-        const event = new HookCallEvent(
-          'BeforeTool',
-          'command',
-          'python   script.py   --arg1   --arg2',
-          {},
-          100,
-          true,
-        );
+        const event = new HookCallEvent('BeforeTool', 'command', 'python   script.py   --arg1   --arg2', {}, 100, true);
 
         const attributes = event.toOpenTelemetryAttributes(config);
         expect(attributes['hook_name']).toBe('python');
       });
 
       it('should handle mixed path separators', () => {
-        const event = new HookCallEvent(
-          'BeforeTool',
-          'command',
-          '/path/to\\mixed\\separators.sh',
-          {},
-          100,
-          true,
-        );
+        const event = new HookCallEvent('BeforeTool', 'command', '/path/to\\mixed\\separators.sh', {}, 100, true);
 
         const attributes = event.toOpenTelemetryAttributes(config);
         expect(attributes['hook_name']).toBe('separators.sh');
       });
 
       it('should handle trailing slashes', () => {
-        const event = new HookCallEvent(
-          'BeforeTool',
-          'command',
-          '/path/to/directory/',
-          {},
-          100,
-          true,
-        );
+        const event = new HookCallEvent('BeforeTool', 'command', '/path/to/directory/', {}, 100, true);
 
         const attributes = event.toOpenTelemetryAttributes(config);
         expect(attributes['hook_name']).toBe('unknown-command');
@@ -318,33 +288,15 @@ describe('Telemetry Sanitization', () => {
 
     describe('toLogBody', () => {
       it('should format success message correctly', () => {
-        const event = new HookCallEvent(
-          'BeforeTool',
-          'command',
-          'test-hook',
-          {},
-          150,
-          true,
-        );
+        const event = new HookCallEvent('BeforeTool', 'command', 'test-hook', {}, 150, true);
 
-        expect(event.toLogBody()).toBe(
-          'Hook call BeforeTool.test-hook succeeded in 150ms',
-        );
+        expect(event.toLogBody()).toBe('Hook call BeforeTool.test-hook succeeded in 150ms');
       });
 
       it('should format failure message correctly', () => {
-        const event = new HookCallEvent(
-          'AfterTool',
-          'command',
-          'validation-hook',
-          {},
-          75,
-          false,
-        );
+        const event = new HookCallEvent('AfterTool', 'command', 'validation-hook', {}, 75, false);
 
-        expect(event.toLogBody()).toBe(
-          'Hook call AfterTool.validation-hook failed in 75ms',
-        );
+        expect(event.toLogBody()).toBe('Hook call AfterTool.validation-hook failed in 75ms');
       });
     });
 
@@ -375,15 +327,13 @@ describe('Telemetry Sanitization', () => {
             },
           },
           0,
-          'Context added successfully',
+          'Context added successfully'
         );
 
         const attributes = event.toOpenTelemetryAttributes(enterpriseConfig);
 
         // In enterprise mode, everything is logged
-        expect(attributes['hook_name']).toBe(
-          '$GEMINI_PROJECT_DIR/.gemini/hooks/add-context.sh',
-        );
+        expect(attributes['hook_name']).toBe('$GEMINI_PROJECT_DIR/.gemini/hooks/add-context.sh');
         expect(attributes['hook_input']).toBeDefined();
         expect(attributes['hook_output']).toBeDefined();
         expect(attributes['stdout']).toBe('Context added successfully');
@@ -415,7 +365,7 @@ describe('Telemetry Sanitization', () => {
             },
           },
           0,
-          'Context added successfully',
+          'Context added successfully'
         );
 
         const attributes = event.toOpenTelemetryAttributes(publicConfig);
@@ -442,7 +392,7 @@ describe('Telemetry Sanitization', () => {
           'curl https://api.example.com -H "Authorization: Bearer sk-abc123xyz"',
           {},
           100,
-          true,
+          true
         );
 
         const attributes = event.toOpenTelemetryAttributes(config);
@@ -456,7 +406,7 @@ describe('Telemetry Sanitization', () => {
           'psql postgresql://user:password@localhost/db',
           {},
           100,
-          true,
+          true
         );
 
         const attributes = event.toOpenTelemetryAttributes(config);
@@ -464,14 +414,7 @@ describe('Telemetry Sanitization', () => {
       });
 
       it('should sanitize commands with environment variables containing secrets', () => {
-        const event = new HookCallEvent(
-          'BeforeTool',
-          'command',
-          'AWS_SECRET_KEY=abc123 aws s3 ls',
-          {},
-          100,
-          true,
-        );
+        const event = new HookCallEvent('BeforeTool', 'command', 'AWS_SECRET_KEY=abc123 aws s3 ls', {}, 100, true);
 
         const attributes = event.toOpenTelemetryAttributes(config);
         expect(attributes['hook_name']).toBe('AWS_SECRET_KEY=abc123');
@@ -484,7 +427,7 @@ describe('Telemetry Sanitization', () => {
           'python /home/john.doe/projects/secret-scanner/scan.py --config=/etc/secrets.yml',
           {},
           100,
-          true,
+          true
         );
 
         const attributes = event.toOpenTelemetryAttributes(config);

@@ -60,10 +60,7 @@ describe('ripgrep-real-direct', () => {
     // Create test files
     await fs.writeFile(path.join(tempDir, 'file1.txt'), 'hello world\n');
     await fs.mkdir(path.join(tempDir, 'subdir'));
-    await fs.writeFile(
-      path.join(tempDir, 'subdir', 'file2.txt'),
-      'hello universe\n',
-    );
+    await fs.writeFile(path.join(tempDir, 'subdir', 'file2.txt'), 'hello universe\n');
     await fs.writeFile(path.join(tempDir, 'file3.txt'), 'goodbye moon\n');
 
     const config = new MockConfig(tempDir) as unknown as Config;
@@ -97,10 +94,7 @@ describe('ripgrep-real-direct', () => {
 
   it('should respect include filters', async () => {
     // Create a .js file
-    await fs.writeFile(
-      path.join(tempDir, 'script.js'),
-      'console.log("hello");\n',
-    );
+    await fs.writeFile(path.join(tempDir, 'script.js'), 'console.log("hello");\n');
 
     const invocation = tool.build({ pattern: 'hello', include: '*.js' });
     const result = await invocation.execute(new AbortController().signal);
@@ -112,10 +106,7 @@ describe('ripgrep-real-direct', () => {
 
   it('should support context parameters', async () => {
     // Create a file with multiple lines
-    await fs.writeFile(
-      path.join(tempDir, 'context.txt'),
-      'line1\nline2\nline3 match\nline4\nline5\n',
-    );
+    await fs.writeFile(path.join(tempDir, 'context.txt'), 'line1\nline2\nline3 match\nline4\nline5\n');
 
     const invocation = tool.build({
       pattern: 'match',

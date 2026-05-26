@@ -11,32 +11,19 @@ import {
   recordConversationOffered,
   recordToolCallInteractions,
 } from './telemetry.js';
-import {
-  ActionStatus,
-  ConversationInteractionInteraction,
-  InitiationMethod,
-  type StreamingLatency,
-} from './types.js';
-import {
-  FinishReason,
-  GenerateContentResponse,
-  type FunctionCall,
-} from '@google/genai';
+import { ActionStatus, ConversationInteractionInteraction, InitiationMethod, type StreamingLatency } from './types.js';
+import { FinishReason, GenerateContentResponse, type FunctionCall } from '@google/genai';
 import * as codeAssist from './codeAssist.js';
 import type { CodeAssistServer } from './server.js';
 import type { CompletedToolCall } from '../core/coreToolScheduler.js';
-import {
-  ToolConfirmationOutcome,
-  type AnyDeclarativeTool,
-  type AnyToolInvocation,
-} from '../tools/tools.js';
+import { ToolConfirmationOutcome, type AnyDeclarativeTool, type AnyToolInvocation } from '../tools/tools.js';
 import type { Config } from '../config/config.js';
 import type { ToolCallResponseInfo } from '../scheduler/types.js';
 
 function createMockResponse(
   candidates: GenerateContentResponse['candidates'] = [],
   ok = true,
-  functionCalls: FunctionCall[] | undefined = undefined,
+  functionCalls: FunctionCall[] | undefined = undefined
 ) {
   const response = new GenerateContentResponse();
   response.candidates = candidates;
@@ -74,25 +61,18 @@ describe('telemetry', () => {
               parts: [{ text: 'response with ```code```' }],
             },
             citationMetadata: {
-              citations: [
-                { uri: 'https://example.com', startIndex: 0, endIndex: 10 },
-              ],
+              citations: [{ uri: 'https://example.com', startIndex: 0, endIndex: 10 }],
             },
             finishReason: FinishReason.STOP,
           },
         ],
         true,
-        [{ name: 'someTool', args: {} }],
+        [{ name: 'someTool', args: {} }]
       );
       const traceId = 'test-trace-id';
       const streamingLatency: StreamingLatency = { totalLatency: '1s' };
 
-      const result = createConversationOffered(
-        response,
-        traceId,
-        undefined,
-        streamingLatency,
-      );
+      const result = createConversationOffered(response, traceId, undefined, streamingLatency);
 
       expect(result).toEqual({
         citationCount: '1',
@@ -117,45 +97,26 @@ describe('telemetry', () => {
           },
         ],
         true,
-        [], // Empty function calls
+        [] // Empty function calls
       );
-      const result = createConversationOffered(
-        response,
-        'trace-id',
-        undefined,
-        {},
-      );
+      const result = createConversationOffered(response, 'trace-id', undefined, {});
       expect(result).toBeUndefined();
     });
 
     it('should set status to CANCELLED if signal is aborted', () => {
-      const response = createMockResponse([], true, [
-        { name: 'tool', args: {} },
-      ]);
+      const response = createMockResponse([], true, [{ name: 'tool', args: {} }]);
       const signal = new AbortController().signal;
       vi.spyOn(signal, 'aborted', 'get').mockReturnValue(true);
 
-      const result = createConversationOffered(
-        response,
-        'trace-id',
-        signal,
-        {},
-      );
+      const result = createConversationOffered(response, 'trace-id', signal, {});
 
       expect(result?.status).toBe(ActionStatus.ACTION_STATUS_CANCELLED);
     });
 
     it('should set status to ERROR_UNKNOWN if response has error (non-OK SDK response)', () => {
-      const response = createMockResponse([], false, [
-        { name: 'tool', args: {} },
-      ]);
+      const response = createMockResponse([], false, [{ name: 'tool', args: {} }]);
 
-      const result = createConversationOffered(
-        response,
-        'trace-id',
-        undefined,
-        {},
-      );
+      const result = createConversationOffered(response, 'trace-id', undefined, {});
 
       expect(result?.status).toBe(ActionStatus.ACTION_STATUS_ERROR_UNKNOWN);
     });
@@ -169,15 +130,10 @@ describe('telemetry', () => {
           },
         ],
         true,
-        [{ name: 'tool', args: {} }],
+        [{ name: 'tool', args: {} }]
       );
 
-      const result = createConversationOffered(
-        response,
-        'trace-id',
-        undefined,
-        {},
-      );
+      const result = createConversationOffered(response, 'trace-id', undefined, {});
 
       expect(result?.status).toBe(ActionStatus.ACTION_STATUS_ERROR_UNKNOWN);
     });
@@ -185,16 +141,9 @@ describe('telemetry', () => {
     it('should set status to EMPTY if candidates is empty', () => {
       // We force functionCalls to be present to bypass the guard,
       // simulating a state where we want to test the candidates check.
-      const response = createMockResponse([], true, [
-        { name: 'tool', args: {} },
-      ]);
+      const response = createMockResponse([], true, [{ name: 'tool', args: {} }]);
 
-      const result = createConversationOffered(
-        response,
-        'trace-id',
-        undefined,
-        {},
-      );
+      const result = createConversationOffered(response, 'trace-id', undefined, {});
 
       expect(result?.status).toBe(ActionStatus.ACTION_STATUS_EMPTY);
     });
@@ -205,14 +154,12 @@ describe('telemetry', () => {
           {
             index: 0,
             content: {
-              parts: [
-                { text: 'Here is some code:\n```js\nconsole.log("hi")\n```' },
-              ],
+              parts: [{ text: 'Here is some code:\n```js\nconsole.log("hi")\n```' }],
             },
           },
         ],
         true,
-        [{ name: 'tool', args: {} }],
+        [{ name: 'tool', args: {} }]
       );
       const result = createConversationOffered(response, 'id', undefined, {});
       expect(result?.includedCode).toBe(true);
@@ -229,7 +176,7 @@ describe('telemetry', () => {
           },
         ],
         true,
-        [{ name: 'tool', args: {} }],
+        [{ name: 'tool', args: {} }]
       );
       const result = createConversationOffered(response, 'id', undefined, {});
       expect(result?.includedCode).toBe(false);
@@ -249,23 +196,15 @@ describe('telemetry', () => {
         recordConversationOffered: vi.fn(),
       } as unknown as CodeAssistServer;
 
-      const response = createMockResponse([], true, [
-        { name: 'tool', args: {} },
-      ]);
+      const response = createMockResponse([], true, [{ name: 'tool', args: {} }]);
       const streamingLatency = {};
 
-      await recordConversationOffered(
-        serverMock,
-        'trace-id',
-        response,
-        streamingLatency,
-        undefined,
-      );
+      await recordConversationOffered(serverMock, 'trace-id', response, streamingLatency, undefined);
 
       expect(serverMock.recordConversationOffered).toHaveBeenCalledWith(
         expect.objectContaining({
           traceId: 'trace-id',
-        }),
+        })
       );
     });
 
@@ -273,17 +212,9 @@ describe('telemetry', () => {
       const serverMock = {
         recordConversationOffered: vi.fn(),
       } as unknown as CodeAssistServer;
-      const response = createMockResponse([], true, [
-        { name: 'tool', args: {} },
-      ]);
+      const response = createMockResponse([], true, [{ name: 'tool', args: {} }]);
 
-      await recordConversationOffered(
-        serverMock,
-        undefined,
-        response,
-        {},
-        undefined,
-      );
+      await recordConversationOffered(serverMock, undefined, response, {}, undefined);
 
       expect(serverMock.recordConversationOffered).not.toHaveBeenCalled();
     });
@@ -296,9 +227,7 @@ describe('telemetry', () => {
       mockServer = {
         recordConversationInteraction: vi.fn(),
       };
-      vi.spyOn(codeAssist, 'getCodeAssistServer').mockReturnValue(
-        mockServer as unknown as CodeAssistServer,
-      );
+      vi.spyOn(codeAssist, 'getCodeAssistServer').mockReturnValue(mockServer as unknown as CodeAssistServer);
     });
 
     afterEach(() => {

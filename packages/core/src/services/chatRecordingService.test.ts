@@ -8,11 +8,7 @@ import { expect, it, describe, vi, beforeEach, afterEach } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import type {
-  ConversationRecord,
-  ToolCallRecord,
-  MessageRecord,
-} from './chatRecordingService.js';
+import type { ConversationRecord, ToolCallRecord, MessageRecord } from './chatRecordingService.js';
 import { CoreToolCallStatus } from '../scheduler/types.js';
 import type { Content, Part } from '@google/genai';
 import { ChatRecordingService } from './chatRecordingService.js';
@@ -38,9 +34,7 @@ describe('ChatRecordingService', () => {
   let testTempDir: string;
 
   beforeEach(async () => {
-    testTempDir = await fs.promises.mkdtemp(
-      path.join(os.tmpdir(), 'chat-recording-test-'),
-    );
+    testTempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'chat-recording-test-'));
 
     mockConfig = {
       getSessionId: vi.fn().mockReturnValue('test-session-id'),
@@ -123,9 +117,7 @@ describe('ChatRecordingService', () => {
       });
 
       const sessionFile = chatRecordingService.getConversationFilePath()!;
-      const conversation = JSON.parse(
-        fs.readFileSync(sessionFile, 'utf8'),
-      ) as ConversationRecord;
+      const conversation = JSON.parse(fs.readFileSync(sessionFile, 'utf8')) as ConversationRecord;
 
       expect(conversation.messages).toHaveLength(1);
       expect(conversation.messages[0].content).toBe('Hello');
@@ -141,9 +133,7 @@ describe('ChatRecordingService', () => {
       });
 
       const sessionFile = chatRecordingService.getConversationFilePath()!;
-      const conversation = JSON.parse(
-        fs.readFileSync(sessionFile, 'utf8'),
-      ) as ConversationRecord;
+      const conversation = JSON.parse(fs.readFileSync(sessionFile, 'utf8')) as ConversationRecord;
       expect(conversation.messages).toHaveLength(1);
       expect(conversation.messages[0].content).toBe('World');
     });
@@ -183,9 +173,7 @@ describe('ChatRecordingService', () => {
       });
 
       const sessionFile = chatRecordingService.getConversationFilePath()!;
-      const conversation = JSON.parse(
-        fs.readFileSync(sessionFile, 'utf8'),
-      ) as ConversationRecord;
+      const conversation = JSON.parse(fs.readFileSync(sessionFile, 'utf8')) as ConversationRecord;
       const geminiMsg = conversation.messages[0] as MessageRecord & {
         type: 'gemini';
       };
@@ -254,9 +242,7 @@ describe('ChatRecordingService', () => {
       chatRecordingService.recordToolCalls('gemini-pro', [toolCall]);
 
       const sessionFile = chatRecordingService.getConversationFilePath()!;
-      const conversation = JSON.parse(
-        fs.readFileSync(sessionFile, 'utf8'),
-      ) as ConversationRecord;
+      const conversation = JSON.parse(fs.readFileSync(sessionFile, 'utf8')) as ConversationRecord;
       const geminiMsg = conversation.messages[0] as MessageRecord & {
         type: 'gemini';
       };
@@ -281,15 +267,10 @@ describe('ChatRecordingService', () => {
       chatRecordingService.recordToolCalls('gemini-pro', [toolCall]);
 
       const sessionFile = chatRecordingService.getConversationFilePath()!;
-      const conversation = JSON.parse(
-        fs.readFileSync(sessionFile, 'utf8'),
-      ) as ConversationRecord;
+      const conversation = JSON.parse(fs.readFileSync(sessionFile, 'utf8')) as ConversationRecord;
       expect(conversation.messages).toHaveLength(2);
       expect(conversation.messages[1].type).toBe('gemini');
-      expect(
-        (conversation.messages[1] as MessageRecord & { type: 'gemini' })
-          .toolCalls,
-      ).toHaveLength(1);
+      expect((conversation.messages[1] as MessageRecord & { type: 'gemini' }).toolCalls).toHaveLength(1);
     });
   });
 
@@ -300,11 +281,7 @@ describe('ChatRecordingService', () => {
       const sessionFile = path.join(chatsDir, 'test-session-id.json');
       fs.writeFileSync(sessionFile, '{}');
 
-      const toolOutputDir = path.join(
-        testTempDir,
-        'tool-outputs',
-        'session-test-session-id',
-      );
+      const toolOutputDir = path.join(testTempDir, 'tool-outputs', 'session-test-session-id');
       fs.mkdirSync(toolOutputDir, { recursive: true });
 
       chatRecordingService.deleteSession('test-session-id');
@@ -314,9 +291,7 @@ describe('ChatRecordingService', () => {
     });
 
     it('should not throw if session file does not exist', () => {
-      expect(() =>
-        chatRecordingService.deleteSession('non-existent'),
-      ).not.toThrow();
+      expect(() => chatRecordingService.deleteSession('non-existent')).not.toThrow();
     });
   });
 
@@ -331,19 +306,11 @@ describe('ChatRecordingService', () => {
         content: 'ping',
         model: 'm',
       });
-      chatRecordingService.recordDirectories([
-        '/path/to/dir1',
-        '/path/to/dir2',
-      ]);
+      chatRecordingService.recordDirectories(['/path/to/dir1', '/path/to/dir2']);
 
       const sessionFile = chatRecordingService.getConversationFilePath()!;
-      const conversation = JSON.parse(
-        fs.readFileSync(sessionFile, 'utf8'),
-      ) as ConversationRecord;
-      expect(conversation.directories).toEqual([
-        '/path/to/dir1',
-        '/path/to/dir2',
-      ]);
+      const conversation = JSON.parse(fs.readFileSync(sessionFile, 'utf8')) as ConversationRecord;
+      expect(conversation.directories).toEqual(['/path/to/dir1', '/path/to/dir2']);
     });
 
     it('should overwrite existing directories', () => {
@@ -356,9 +323,7 @@ describe('ChatRecordingService', () => {
       chatRecordingService.recordDirectories(['/new/dir1', '/new/dir2']);
 
       const sessionFile = chatRecordingService.getConversationFilePath()!;
-      const conversation = JSON.parse(
-        fs.readFileSync(sessionFile, 'utf8'),
-      ) as ConversationRecord;
+      const conversation = JSON.parse(fs.readFileSync(sessionFile, 'utf8')) as ConversationRecord;
       expect(conversation.directories).toEqual(['/new/dir1', '/new/dir2']);
     });
   });
@@ -384,9 +349,7 @@ describe('ChatRecordingService', () => {
       });
 
       const sessionFile = chatRecordingService.getConversationFilePath()!;
-      let conversation = JSON.parse(
-        fs.readFileSync(sessionFile, 'utf8'),
-      ) as ConversationRecord;
+      let conversation = JSON.parse(fs.readFileSync(sessionFile, 'utf8')) as ConversationRecord;
       const secondMsgId = conversation.messages[1].id;
 
       const result = chatRecordingService.rewindTo(secondMsgId);
@@ -395,9 +358,7 @@ describe('ChatRecordingService', () => {
       expect(result!.messages).toHaveLength(1);
       expect(result!.messages[0].content).toBe('msg1');
 
-      conversation = JSON.parse(
-        fs.readFileSync(sessionFile, 'utf8'),
-      ) as ConversationRecord;
+      conversation = JSON.parse(fs.readFileSync(sessionFile, 'utf8')) as ConversationRecord;
       expect(conversation.messages).toHaveLength(1);
     });
 
@@ -439,11 +400,9 @@ describe('ChatRecordingService', () => {
       const enospcError = new Error('ENOSPC: no space left on device');
       (enospcError as NodeJS.ErrnoException).code = 'ENOSPC';
 
-      const writeFileSyncSpy = vi
-        .spyOn(fs, 'writeFileSync')
-        .mockImplementation(() => {
-          throw enospcError;
-        });
+      const writeFileSyncSpy = vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {
+        throw enospcError;
+      });
 
       // Should not throw when recording a message
       expect(() =>
@@ -451,7 +410,7 @@ describe('ChatRecordingService', () => {
           type: 'user',
           content: 'Hello',
           model: 'gemini-pro',
-        }),
+        })
       ).not.toThrow();
 
       // Recording should be disabled (conversationFile set to null)
@@ -465,11 +424,9 @@ describe('ChatRecordingService', () => {
       const enospcError = new Error('ENOSPC: no space left on device');
       (enospcError as NodeJS.ErrnoException).code = 'ENOSPC';
 
-      const writeFileSyncSpy = vi
-        .spyOn(fs, 'writeFileSync')
-        .mockImplementationOnce(() => {
-          throw enospcError;
-        });
+      const writeFileSyncSpy = vi.spyOn(fs, 'writeFileSync').mockImplementationOnce(() => {
+        throw enospcError;
+      });
 
       chatRecordingService.recordMessage({
         type: 'user',
@@ -505,11 +462,9 @@ describe('ChatRecordingService', () => {
       const enospcError = new Error('ENOSPC: no space left on device');
       (enospcError as NodeJS.ErrnoException).code = 'ENOSPC';
 
-      const writeFileSyncSpy = vi
-        .spyOn(fs, 'writeFileSync')
-        .mockImplementation(() => {
-          throw enospcError;
-        });
+      const writeFileSyncSpy = vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {
+        throw enospcError;
+      });
 
       // Trigger ENOSPC
       chatRecordingService.recordMessage({
@@ -530,11 +485,9 @@ describe('ChatRecordingService', () => {
       const otherError = new Error('Permission denied');
       (otherError as NodeJS.ErrnoException).code = 'EACCES';
 
-      const writeFileSyncSpy = vi
-        .spyOn(fs, 'writeFileSync')
-        .mockImplementation(() => {
-          throw otherError;
-        });
+      const writeFileSyncSpy = vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {
+        throw otherError;
+      });
 
       // Should throw for non-ENOSPC errors
       expect(() =>
@@ -542,7 +495,7 @@ describe('ChatRecordingService', () => {
           type: 'user',
           content: 'Hello',
           model: 'gemini-pro',
-        }),
+        })
       ).toThrow('Permission denied');
 
       // Recording should NOT be disabled for non-ENOSPC errors (file path still exists)
@@ -578,14 +531,11 @@ describe('ChatRecordingService', () => {
       ]);
 
       // 2. Prepare mock history with masked content
-      const maskedSnippet =
-        '<tool_output_masked>short preview</tool_output_masked>';
+      const maskedSnippet = '<tool_output_masked>short preview</tool_output_masked>';
       const history: Content[] = [
         {
           role: 'model',
-          parts: [
-            { functionCall: { name: 'list_files', args: { path: '.' } } },
-          ],
+          parts: [{ functionCall: { name: 'list_files', args: { path: '.' } } }],
         },
         {
           role: 'user',
@@ -606,13 +556,10 @@ describe('ChatRecordingService', () => {
 
       // 4. Verify disk content
       const sessionFile = chatRecordingService.getConversationFilePath()!;
-      const conversation = JSON.parse(
-        fs.readFileSync(sessionFile, 'utf8'),
-      ) as ConversationRecord;
+      const conversation = JSON.parse(fs.readFileSync(sessionFile, 'utf8')) as ConversationRecord;
 
       const geminiMsg = conversation.messages[0];
-      if (geminiMsg.type !== 'gemini')
-        throw new Error('Expected gemini message');
+      if (geminiMsg.type !== 'gemini') throw new Error('Expected gemini message');
       expect(geminiMsg.toolCalls).toBeDefined();
       expect(geminiMsg.toolCalls![0].id).toBe(callId);
       // The implementation stringifies the response object
@@ -676,9 +623,7 @@ describe('ChatRecordingService', () => {
       chatRecordingService.updateMessagesFromHistory(history);
 
       const sessionFile = chatRecordingService.getConversationFilePath()!;
-      const conversation = JSON.parse(
-        fs.readFileSync(sessionFile, 'utf8'),
-      ) as ConversationRecord;
+      const conversation = JSON.parse(fs.readFileSync(sessionFile, 'utf8')) as ConversationRecord;
 
       const lastMsg = conversation.messages[0] as MessageRecord & {
         type: 'gemini';
@@ -732,9 +677,7 @@ describe('ChatRecordingService', () => {
       chatRecordingService.updateMessagesFromHistory(history);
 
       const sessionFile = chatRecordingService.getConversationFilePath()!;
-      const conversation = JSON.parse(
-        fs.readFileSync(sessionFile, 'utf8'),
-      ) as ConversationRecord;
+      const conversation = JSON.parse(fs.readFileSync(sessionFile, 'utf8')) as ConversationRecord;
 
       const lastMsg = conversation.messages[0] as MessageRecord & {
         type: 'gemini';

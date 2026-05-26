@@ -9,10 +9,7 @@ import { rewindCommand } from './rewindCommand.js';
 import { createMockCommandContext } from '../../test-utils/mockCommandContext.js';
 import { waitFor } from '../../test-utils/async.js';
 import { RewindOutcome } from '../components/RewindConfirmation.js';
-import {
-  type OpenCustomDialogActionReturn,
-  type CommandContext,
-} from './types.js';
+import { type OpenCustomDialogActionReturn, type CommandContext } from './types.js';
 import type { ReactElement } from 'react';
 import { coreEvents } from '@google/gemini-cli-core';
 
@@ -33,8 +30,7 @@ const mockRevertFileChanges = vi.fn();
 const mockGetProjectRoot = vi.fn().mockReturnValue('/mock/root');
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     coreEvents: {
@@ -65,11 +61,7 @@ vi.mock('../utils/rewindFileOps.js', () => ({
 }));
 
 interface RewindViewerProps {
-  onRewind: (
-    messageId: string,
-    newText: string,
-    outcome: RewindOutcome,
-  ) => Promise<void>;
+  onRewind: (messageId: string, newText: string, outcome: RewindOutcome) => Promise<void>;
   conversation: unknown;
   onExit: () => void;
 }
@@ -124,10 +116,7 @@ describe('rewindCommand', () => {
 
   it('should handle RewindOnly correctly', async () => {
     // 1. Run the command to get the component
-    const result = (await rewindCommand.action!(
-      mockContext,
-      '',
-    )) as OpenCustomDialogActionReturn;
+    const result = (await rewindCommand.action!(mockContext, '')) as OpenCustomDialogActionReturn;
     const component = result.component as ReactElement<RewindViewerProps>;
 
     // Access onRewind from props
@@ -142,11 +131,8 @@ describe('rewindCommand', () => {
       expect(mockSetHistory).toHaveBeenCalled();
       expect(mockResetContext).toHaveBeenCalled();
       expect(mockLoadHistory).toHaveBeenCalledWith(
-        [
-          expect.objectContaining({ text: 'old user', id: 1 }),
-          expect.objectContaining({ text: 'old gemini', id: 2 }),
-        ],
-        'New Prompt',
+        [expect.objectContaining({ text: 'old user', id: 1 }), expect.objectContaining({ text: 'old gemini', id: 2 })],
+        'New Prompt'
       );
       expect(mockRemoveComponent).toHaveBeenCalled();
     });
@@ -156,59 +142,38 @@ describe('rewindCommand', () => {
   });
 
   it('should handle RewindAndRevert correctly', async () => {
-    const result = (await rewindCommand.action!(
-      mockContext,
-      '',
-    )) as OpenCustomDialogActionReturn;
+    const result = (await rewindCommand.action!(mockContext, '')) as OpenCustomDialogActionReturn;
     const component = result.component as ReactElement<RewindViewerProps>;
     const onRewind = component.props.onRewind;
 
     await onRewind('msg-id-123', 'New Prompt', RewindOutcome.RewindAndRevert);
 
     await waitFor(() => {
-      expect(mockRevertFileChanges).toHaveBeenCalledWith(
-        mockGetConversation(),
-        'msg-id-123',
-      );
+      expect(mockRevertFileChanges).toHaveBeenCalledWith(mockGetConversation(), 'msg-id-123');
       expect(mockRewindTo).toHaveBeenCalledWith('msg-id-123');
-      expect(mockLoadHistory).toHaveBeenCalledWith(
-        expect.any(Array),
-        'New Prompt',
-      );
+      expect(mockLoadHistory).toHaveBeenCalledWith(expect.any(Array), 'New Prompt');
     });
     expect(mockSetInput).not.toHaveBeenCalled();
   });
 
   it('should handle RevertOnly correctly', async () => {
-    const result = (await rewindCommand.action!(
-      mockContext,
-      '',
-    )) as OpenCustomDialogActionReturn;
+    const result = (await rewindCommand.action!(mockContext, '')) as OpenCustomDialogActionReturn;
     const component = result.component as ReactElement<RewindViewerProps>;
     const onRewind = component.props.onRewind;
 
     await onRewind('msg-id-123', 'New Prompt', RewindOutcome.RevertOnly);
 
     await waitFor(() => {
-      expect(mockRevertFileChanges).toHaveBeenCalledWith(
-        mockGetConversation(),
-        'msg-id-123',
-      );
+      expect(mockRevertFileChanges).toHaveBeenCalledWith(mockGetConversation(), 'msg-id-123');
       expect(mockRewindTo).not.toHaveBeenCalled();
       expect(mockRemoveComponent).toHaveBeenCalled();
-      expect(coreEvents.emitFeedback).toHaveBeenCalledWith(
-        'info',
-        'File changes reverted.',
-      );
+      expect(coreEvents.emitFeedback).toHaveBeenCalledWith('info', 'File changes reverted.');
     });
     expect(mockSetInput).not.toHaveBeenCalled();
   });
 
   it('should handle Cancel correctly', async () => {
-    const result = (await rewindCommand.action!(
-      mockContext,
-      '',
-    )) as OpenCustomDialogActionReturn;
+    const result = (await rewindCommand.action!(mockContext, '')) as OpenCustomDialogActionReturn;
     const component = result.component as ReactElement<RewindViewerProps>;
     const onRewind = component.props.onRewind;
 
@@ -223,10 +188,7 @@ describe('rewindCommand', () => {
   });
 
   it('should handle onExit correctly', async () => {
-    const result = (await rewindCommand.action!(
-      mockContext,
-      '',
-    )) as OpenCustomDialogActionReturn;
+    const result = (await rewindCommand.action!(mockContext, '')) as OpenCustomDialogActionReturn;
     const component = result.component as ReactElement<RewindViewerProps>;
     const onExit = component.props.onExit;
 
@@ -236,10 +198,7 @@ describe('rewindCommand', () => {
   });
 
   it('should handle rewind error correctly', async () => {
-    const result = (await rewindCommand.action!(
-      mockContext,
-      '',
-    )) as OpenCustomDialogActionReturn;
+    const result = (await rewindCommand.action!(mockContext, '')) as OpenCustomDialogActionReturn;
     const component = result.component as ReactElement<RewindViewerProps>;
     const onRewind = component.props.onRewind;
 
@@ -250,18 +209,12 @@ describe('rewindCommand', () => {
     await onRewind('msg-1', 'Prompt', RewindOutcome.RewindOnly);
 
     await waitFor(() => {
-      expect(coreEvents.emitFeedback).toHaveBeenCalledWith(
-        'error',
-        'Rewind Failed',
-      );
+      expect(coreEvents.emitFeedback).toHaveBeenCalledWith('error', 'Rewind Failed');
     });
   });
 
   it('should handle null conversation from rewindTo', async () => {
-    const result = (await rewindCommand.action!(
-      mockContext,
-      '',
-    )) as OpenCustomDialogActionReturn;
+    const result = (await rewindCommand.action!(mockContext, '')) as OpenCustomDialogActionReturn;
     const component = result.component as ReactElement<RewindViewerProps>;
     const onRewind = component.props.onRewind;
 
@@ -270,10 +223,7 @@ describe('rewindCommand', () => {
     await onRewind('msg-1', 'Prompt', RewindOutcome.RewindOnly);
 
     await waitFor(() => {
-      expect(coreEvents.emitFeedback).toHaveBeenCalledWith(
-        'error',
-        'Could not fetch conversation file',
-      );
+      expect(coreEvents.emitFeedback).toHaveBeenCalledWith('error', 'Could not fetch conversation file');
       expect(mockRemoveComponent).toHaveBeenCalled();
     });
   });

@@ -20,8 +20,7 @@ const isDryRun = process.argv.includes('--dry-run');
 const REPO = 'google-gemini/gemini-cli';
 const ORG = 'google-gemini';
 const TEAM_SLUG = 'gemini-cli-maintainers';
-const DISCUSSION_URL =
-  'https://github.com/google-gemini/gemini-cli/discussions/16706';
+const DISCUSSION_URL = 'https://github.com/google-gemini/gemini-cli/discussions/16706';
 
 /**
  * Executes a GitHub CLI command safely using an argument array.
@@ -37,9 +36,7 @@ function runGh(args, options = {}) {
   } catch (error) {
     if (!silent) {
       const stderr = error.stderr ? ` Stderr: ${error.stderr.trim()}` : '';
-      console.error(
-        `❌ Error running gh ${args.join(' ')}: ${error.message}${stderr}`,
-      );
+      console.error(`❌ Error running gh ${args.join(' ')}: ${error.message}${stderr}`);
     }
     return null;
   }
@@ -54,10 +51,7 @@ function isMaintainer(username) {
 
   // GitHub returns 404 if user is not a member.
   // We use silent: true to avoid logging 404s as errors.
-  const result = runGh(
-    ['api', `orgs/${ORG}/teams/${TEAM_SLUG}/memberships/${username}`],
-    { silent: true },
-  );
+  const result = runGh(['api', `orgs/${ORG}/teams/${TEAM_SLUG}/memberships/${username}`], { silent: true });
 
   const isMember = result !== null;
   membershipCache.set(username, isMember);
@@ -98,9 +92,7 @@ async function main() {
   let targetPrs = [];
   for (const pr of prs) {
     const author = pr.author.login;
-    const issueCount = pr.closingIssuesReferences
-      ? pr.closingIssuesReferences.length
-      : 0;
+    const issueCount = pr.closingIssuesReferences ? pr.closingIssuesReferences.length : 0;
 
     if (issueCount > 0) {
       // Skip if already linked to an issue
@@ -112,9 +104,7 @@ async function main() {
     }
   }
 
-  console.log(
-    `✅ Found ${targetPrs.length} PRs from non-maintainers without associated issues.`,
-  );
+  console.log(`✅ Found ${targetPrs.length} PRs from non-maintainers without associated issues.`);
 
   const commentBody =
     "\nHi @{AUTHOR}, thank you so much for your contribution to Gemini CLI! We really appreciate the time and effort you've put into this.\n\nWe're making some updates to our contribution process to improve how we track and review changes. Please take a moment to review our recent discussion post: [Improving Our Contribution Process & Introducing New Guidelines](${DISCUSSION_URL}).\n\nKey Update: Starting **January 26, 2026**, the Gemini CLI project will require all pull requests to be associated with an existing issue. Any pull requests not linked to an issue by that date will be automatically closed.\n\nThank you for your understanding and for being a part of our community!\n  ".trim();
@@ -141,13 +131,11 @@ async function main() {
         '--jq',
         `.comments[].body | contains("${DISCUSSION_URL}")`,
       ],
-      { silent: true },
+      { silent: true }
     );
 
     if (existingComments && existingComments.includes('true')) {
-      console.log(
-        `⏭️  PR #${prNumber} already has the notification. Skipping.`,
-      );
+      console.log(`⏭️  PR #${prNumber} already has the notification. Skipping.`);
       skipCount++;
       continue;
     }
@@ -158,15 +146,7 @@ async function main() {
     } else {
       console.log(`💬 Notifying @${author} on PR #${prNumber}...`);
       const personalizedComment = commentBody.replace('{AUTHOR}', author);
-      const result = runGh([
-        'pr',
-        'comment',
-        prNumber,
-        '--repo',
-        REPO,
-        '--body',
-        personalizedComment,
-      ]);
+      const result = runGh(['pr', 'comment', prNumber, '--repo', REPO, '--body', personalizedComment]);
 
       if (result !== null) {
         successCount++;

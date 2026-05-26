@@ -29,17 +29,14 @@ describe('commandsCommand', () => {
       expect(result).toEqual({
         type: 'message',
         messageType: 'info',
-        content:
-          'Use "/commands reload" to reload custom command definitions from .toml files.',
+        content: 'Use "/commands reload" to reload custom command definitions from .toml files.',
       });
     });
   });
 
   describe('reload', () => {
     it('should call reloadCommands and show a success message', async () => {
-      const reloadCmd = commandsCommand.subCommands!.find(
-        (s) => s.name === 'reload',
-      )!;
+      const reloadCmd = commandsCommand.subCommands!.find((s) => s.name === 'reload')!;
 
       await reloadCmd.action!(context, '');
 
@@ -49,7 +46,7 @@ describe('commandsCommand', () => {
           type: MessageType.INFO,
           text: 'Custom commands reloaded successfully.',
         }),
-        expect.any(Number),
+        expect.any(Number)
       );
     });
   });

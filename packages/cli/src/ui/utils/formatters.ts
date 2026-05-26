@@ -4,10 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  REFERENCE_CONTENT_START,
-  REFERENCE_CONTENT_END,
-} from '@google/gemini-cli-core';
+import { REFERENCE_CONTENT_START, REFERENCE_CONTENT_END } from '@google/gemini-cli-core';
 
 export const formatBytes = (bytes: number): string => {
   const gb = bytes / (1024 * 1024 * 1024);
@@ -90,10 +87,7 @@ export const formatTimeAgo = (date: string | number | Date): string => {
  */
 export function stripReferenceContent(text: string): string {
   // Match optional newline, the start marker, content (non-greedy), and the end marker
-  const pattern = new RegExp(
-    `\\n?${REFERENCE_CONTENT_START}[\\s\\S]*?${REFERENCE_CONTENT_END}`,
-    'g',
-  );
+  const pattern = new RegExp(`\\n?${REFERENCE_CONTENT_START}[\\s\\S]*?${REFERENCE_CONTENT_END}`, 'g');
 
   return text.replace(pattern, '').trim();
 }

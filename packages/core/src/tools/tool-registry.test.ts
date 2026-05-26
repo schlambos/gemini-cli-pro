@@ -70,8 +70,7 @@ vi.mock('@modelcontextprotocol/sdk/client/sse.js', () => {
 
 // Mock @google/genai mcpToTool
 vi.mock('@google/genai', async () => {
-  const actualGenai =
-    await vi.importActual<typeof import('@google/genai')>('@google/genai');
+  const actualGenai = await vi.importActual<typeof import('@google/genai')>('@google/genai');
   return {
     ...actualGenai,
     mcpToTool: vi.fn().mockImplementation(() => ({
@@ -107,9 +106,7 @@ vi.mock('./tool-names.js', async (importOriginal) => {
 });
 
 // Helper to create a mock CallableTool for specific test needs
-const createMockCallableTool = (
-  toolDeclarations: FunctionDeclaration[],
-): Mocked<CallableTool> => ({
+const createMockCallableTool = (toolDeclarations: FunctionDeclaration[]): Mocked<CallableTool> => ({
   tool: vi.fn().mockResolvedValue({ functionDeclarations: toolDeclarations }),
   callTool: vi.fn(),
 });
@@ -125,16 +122,8 @@ const createMCPTool = (
   serverName: string,
   toolName: string,
   description: string,
-  mockCallable: CallableTool = {} as CallableTool,
-) =>
-  new DiscoveredMCPTool(
-    mockCallable,
-    serverName,
-    toolName,
-    description,
-    {},
-    mockMessageBusForHelper,
-  );
+  mockCallable: CallableTool = {} as CallableTool
+) => new DiscoveredMCPTool(mockCallable, serverName, toolName, description, {}, mockMessageBusForHelper);
 
 // Helper to create a mock spawn process for tool discovery
 const createDiscoveryProcess = (toolDeclarations: FunctionDeclaration[]) => {
@@ -146,11 +135,7 @@ const createDiscoveryProcess = (toolDeclarations: FunctionDeclaration[]) => {
 
   mockProcess.stdout.on.mockImplementation((event, callback) => {
     if (event === 'data') {
-      callback(
-        Buffer.from(
-          JSON.stringify([{ functionDeclarations: toolDeclarations }]),
-        ),
-      );
+      callback(Buffer.from(JSON.stringify([{ functionDeclarations: toolDeclarations }])));
     }
     return mockProcess as any;
   });
@@ -216,9 +201,7 @@ describe('ToolRegistry', () => {
     unsubscribe: vi.fn(),
   } as unknown as MessageBus;
   let mockConfigGetToolDiscoveryCommand: ReturnType<typeof vi.spyOn>;
-  let mockConfigGetExcludedTools: MockInstance<
-    typeof Config.prototype.getExcludeTools
-  >;
+  let mockConfigGetExcludedTools: MockInstance<typeof Config.prototype.getExcludeTools>;
 
   beforeEach(() => {
     vi.mocked(fs.existsSync).mockReturnValue(true);
@@ -238,10 +221,7 @@ describe('ToolRegistry', () => {
     vi.mocked(mcpToTool).mockClear();
     vi.mocked(mcpToTool).mockReturnValue(createMockCallableTool([]));
 
-    mockConfigGetToolDiscoveryCommand = vi.spyOn(
-      config,
-      'getToolDiscoveryCommand',
-    );
+    mockConfigGetToolDiscoveryCommand = vi.spyOn(config, 'getToolDiscoveryCommand');
     mockConfigGetExcludedTools = vi.spyOn(config, 'getExcludeTools');
     vi.spyOn(config, 'getMcpServers');
     vi.spyOn(config, 'getMcpServerCommand');
@@ -283,11 +263,7 @@ describe('ToolRegistry', () => {
       name: 'excluded-tool-class',
       displayName: 'Excluded Tool Class',
     });
-    const mcpTool = createMCPTool(
-      'mcp-server',
-      'excluded-mcp-tool',
-      'description',
-    );
+    const mcpTool = createMCPTool('mcp-server', 'excluded-mcp-tool', 'description');
     const allowedTool = new MockTool({
       name: 'allowed-tool',
       displayName: 'Allowed Tool',
@@ -344,17 +320,13 @@ describe('ToolRegistry', () => {
       expect(toolRegistry.getAllTools()).toEqual([allowedTool]);
       expect(toolRegistry.getAllToolNames()).toEqual([allowedTool.name]);
       expect(toolRegistry.getFunctionDeclarations()).toEqual(
-        toolRegistry.getFunctionDeclarationsFiltered([allowedTool.name]),
+        toolRegistry.getFunctionDeclarationsFiltered([allowedTool.name])
       );
       for (const tool of tools) {
         expect(toolRegistry.getTool(tool.name)).toBeUndefined();
-        expect(
-          toolRegistry.getFunctionDeclarationsFiltered([tool.name]),
-        ).toHaveLength(0);
+        expect(toolRegistry.getFunctionDeclarationsFiltered([tool.name])).toHaveLength(0);
         if (tool instanceof DiscoveredMCPTool) {
-          expect(toolRegistry.getToolsByServer(tool.serverName)).toHaveLength(
-            0,
-          );
+          expect(toolRegistry.getToolsByServer(tool.serverName)).toHaveLength(0);
         }
       }
     });
@@ -447,7 +419,7 @@ describe('ToolRegistry', () => {
         DISCOVERED_TOOL_PREFIX + 'discovered-1',
         'desc',
         {},
-        mockMessageBus,
+        mockMessageBus
       );
       const mcpZebra = createMCPTool('zebra-server', 'mcp-zebra', 'desc');
       const mcpApple = createMCPTool('apple-server', 'mcp-apple', 'desc');
@@ -491,19 +463,14 @@ describe('ToolRegistry', () => {
       };
 
       const mockSpawn = vi.mocked(spawn);
-      mockSpawn.mockReturnValue(
-        createDiscoveryProcess([unsanitizedToolDeclaration]) as any,
-      );
+      mockSpawn.mockReturnValue(createDiscoveryProcess([unsanitizedToolDeclaration]) as any);
 
       await toolRegistry.discoverAllTools();
 
-      const discoveredTool = toolRegistry.getTool(
-        DISCOVERED_TOOL_PREFIX + 'tool-with-bad-format',
-      );
+      const discoveredTool = toolRegistry.getTool(DISCOVERED_TOOL_PREFIX + 'tool-with-bad-format');
       expect(discoveredTool).toBeDefined();
 
-      const registeredParams = (discoveredTool as DiscoveredTool).schema
-        .parametersJsonSchema;
+      const registeredParams = (discoveredTool as DiscoveredTool).schema.parametersJsonSchema;
       expect(registeredParams).toStrictEqual({
         type: 'object',
         properties: {
@@ -530,26 +497,18 @@ describe('ToolRegistry', () => {
       };
 
       const mockSpawn = vi.mocked(spawn);
-      mockSpawn.mockReturnValueOnce(
-        createDiscoveryProcess([toolDeclaration]) as any,
-      );
+      mockSpawn.mockReturnValueOnce(createDiscoveryProcess([toolDeclaration]) as any);
 
       await toolRegistry.discoverAllTools();
-      const discoveredTool = toolRegistry.getTool(
-        DISCOVERED_TOOL_PREFIX + 'failing-tool',
-      );
+      const discoveredTool = toolRegistry.getTool(DISCOVERED_TOOL_PREFIX + 'failing-tool');
       expect(discoveredTool).toBeDefined();
 
-      mockSpawn.mockReturnValueOnce(
-        createExecutionProcess(1, 'Something went wrong') as any,
-      );
+      mockSpawn.mockReturnValueOnce(createExecutionProcess(1, 'Something went wrong') as any);
 
       const invocation = (discoveredTool as DiscoveredTool).build({});
       const result = await invocation.execute(new AbortController().signal);
 
-      expect(result.error?.type).toBe(
-        ToolErrorType.DISCOVERED_TOOL_EXECUTION_ERROR,
-      );
+      expect(result.error?.type).toBe(ToolErrorType.DISCOVERED_TOOL_EXECUTION_ERROR);
       expect(result.llmContent).toContain('Stderr: Something went wrong');
       expect(result.llmContent).toContain('Exit Code: 1');
     });
@@ -565,14 +524,10 @@ describe('ToolRegistry', () => {
       };
 
       const mockSpawn = vi.mocked(spawn);
-      mockSpawn.mockReturnValueOnce(
-        createDiscoveryProcess([toolDeclaration]) as any,
-      );
+      mockSpawn.mockReturnValueOnce(createDiscoveryProcess([toolDeclaration]) as any);
 
       await toolRegistry.discoverAllTools();
-      const tool = toolRegistry.getTool(
-        DISCOVERED_TOOL_PREFIX + 'policy-test-tool',
-      );
+      const tool = toolRegistry.getTool(DISCOVERED_TOOL_PREFIX + 'policy-test-tool');
       expect(tool).toBeDefined();
       expect((tool as any).messageBus).toBe(mockMessageBus);
 
@@ -633,9 +588,7 @@ describe('ToolRegistry', () => {
       toolRegistry.registerTool(mcpTool);
 
       const fullyQualifiedName = `${serverName}${MCP_QUALIFIED_NAME_SEPARATOR}${toolName}`;
-      const declarations = toolRegistry.getFunctionDeclarationsFiltered([
-        fullyQualifiedName,
-      ]);
+      const declarations = toolRegistry.getFunctionDeclarationsFiltered([fullyQualifiedName]);
 
       expect(declarations).toHaveLength(1);
       expect(declarations[0].name).toBe(toolName);
@@ -667,7 +620,7 @@ describe('ToolRegistry', () => {
         DISCOVERED_TOOL_PREFIX + 'test-tool',
         'A test tool',
         {},
-        mockMessageBus,
+        mockMessageBus
       );
       const params = { param: 'testValue' };
       const invocation = tool.build(params);

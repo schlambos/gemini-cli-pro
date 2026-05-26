@@ -64,24 +64,18 @@ export const HistoryItemDisplay: React.FC<HistoryItemDisplayProps> = ({
   const itemForDisplay = useMemo(() => escapeAnsiCtrlCodes(item), [item]);
 
   return (
-    <Box flexDirection="column" key={itemForDisplay.id} width={terminalWidth}>
+    <Box flexDirection='column' key={itemForDisplay.id} width={terminalWidth}>
       {/* Render standard message types */}
       {itemForDisplay.type === 'thinking' && inlineThinkingMode !== 'off' && (
         <ThinkingMessage thought={itemForDisplay.thought} />
       )}
-      {itemForDisplay.type === 'user' && (
-        <UserMessage text={itemForDisplay.text} width={terminalWidth} />
-      )}
-      {itemForDisplay.type === 'user_shell' && (
-        <UserShellMessage text={itemForDisplay.text} width={terminalWidth} />
-      )}
+      {itemForDisplay.type === 'user' && <UserMessage text={itemForDisplay.text} width={terminalWidth} />}
+      {itemForDisplay.type === 'user_shell' && <UserShellMessage text={itemForDisplay.text} width={terminalWidth} />}
       {itemForDisplay.type === 'gemini' && (
         <GeminiMessage
           text={itemForDisplay.text}
           isPending={isPending}
-          availableTerminalHeight={
-            availableTerminalHeightGemini ?? availableTerminalHeight
-          }
+          availableTerminalHeight={availableTerminalHeightGemini ?? availableTerminalHeight}
           terminalWidth={terminalWidth}
         />
       )}
@@ -89,25 +83,15 @@ export const HistoryItemDisplay: React.FC<HistoryItemDisplayProps> = ({
         <GeminiMessageContent
           text={itemForDisplay.text}
           isPending={isPending}
-          availableTerminalHeight={
-            availableTerminalHeightGemini ?? availableTerminalHeight
-          }
+          availableTerminalHeight={availableTerminalHeightGemini ?? availableTerminalHeight}
           terminalWidth={terminalWidth}
         />
       )}
       {itemForDisplay.type === 'info' && (
-        <InfoMessage
-          text={itemForDisplay.text}
-          icon={itemForDisplay.icon}
-          color={itemForDisplay.color}
-        />
+        <InfoMessage text={itemForDisplay.text} icon={itemForDisplay.icon} color={itemForDisplay.color} />
       )}
-      {itemForDisplay.type === 'warning' && (
-        <WarningMessage text={itemForDisplay.text} />
-      )}
-      {itemForDisplay.type === 'error' && (
-        <ErrorMessage text={itemForDisplay.text} />
-      )}
+      {itemForDisplay.type === 'warning' && <WarningMessage text={itemForDisplay.text} />}
+      {itemForDisplay.type === 'error' && <ErrorMessage text={itemForDisplay.text} />}
       {itemForDisplay.type === 'about' && (
         <AboutBox
           cliVersion={itemForDisplay.cliVersion}
@@ -121,9 +105,7 @@ export const HistoryItemDisplay: React.FC<HistoryItemDisplayProps> = ({
           tier={itemForDisplay.tier}
         />
       )}
-      {itemForDisplay.type === 'help' && commands && (
-        <Help commands={commands} />
-      )}
+      {itemForDisplay.type === 'help' && commands && <Help commands={commands} />}
       {itemForDisplay.type === 'stats' && (
         <StatsDisplay
           duration={itemForDisplay.duration}
@@ -165,12 +147,8 @@ export const HistoryItemDisplay: React.FC<HistoryItemDisplayProps> = ({
         />
       )}
       {itemForDisplay.type === 'tool_stats' && <ToolStatsDisplay />}
-      {itemForDisplay.type === 'model' && (
-        <ModelMessage model={itemForDisplay.model} />
-      )}
-      {itemForDisplay.type === 'quit' && (
-        <SessionSummaryDisplay duration={itemForDisplay.duration} />
-      )}
+      {itemForDisplay.type === 'model' && <ModelMessage model={itemForDisplay.model} />}
+      {itemForDisplay.type === 'quit' && <SessionSummaryDisplay duration={itemForDisplay.duration} />}
       {itemForDisplay.type === 'tool_group' && (
         <ToolGroupMessage
           toolCalls={itemForDisplay.tools}
@@ -183,12 +161,8 @@ export const HistoryItemDisplay: React.FC<HistoryItemDisplayProps> = ({
           borderBottom={itemForDisplay.borderBottom}
         />
       )}
-      {itemForDisplay.type === 'compression' && (
-        <CompressionMessage compression={itemForDisplay.compression} />
-      )}
-      {itemForDisplay.type === 'extensions_list' && (
-        <ExtensionsList extensions={itemForDisplay.extensions} />
-      )}
+      {itemForDisplay.type === 'compression' && <CompressionMessage compression={itemForDisplay.compression} />}
+      {itemForDisplay.type === 'extensions_list' && <ExtensionsList extensions={itemForDisplay.extensions} />}
       {itemForDisplay.type === 'tools_list' && (
         <ToolsList
           terminalWidth={terminalWidth}
@@ -197,26 +171,14 @@ export const HistoryItemDisplay: React.FC<HistoryItemDisplayProps> = ({
         />
       )}
       {itemForDisplay.type === 'skills_list' && (
-        <SkillsList
-          skills={itemForDisplay.skills}
-          showDescriptions={itemForDisplay.showDescriptions}
-        />
+        <SkillsList skills={itemForDisplay.skills} showDescriptions={itemForDisplay.showDescriptions} />
       )}
       {itemForDisplay.type === 'agents_list' && (
-        <AgentsStatus
-          agents={itemForDisplay.agents}
-          terminalWidth={terminalWidth}
-        />
+        <AgentsStatus agents={itemForDisplay.agents} terminalWidth={terminalWidth} />
       )}
-      {itemForDisplay.type === 'mcp_status' && (
-        <McpStatus {...itemForDisplay} serverStatus={getMCPServerStatus} />
-      )}
-      {itemForDisplay.type === 'chat_list' && (
-        <ChatList chats={itemForDisplay.chats} />
-      )}
-      {itemForDisplay.type === 'hooks_list' && (
-        <HooksList hooks={itemForDisplay.hooks} />
-      )}
+      {itemForDisplay.type === 'mcp_status' && <McpStatus {...itemForDisplay} serverStatus={getMCPServerStatus} />}
+      {itemForDisplay.type === 'chat_list' && <ChatList chats={itemForDisplay.chats} />}
+      {itemForDisplay.type === 'hooks_list' && <HooksList hooks={itemForDisplay.hooks} />}
     </Box>
   );
 };

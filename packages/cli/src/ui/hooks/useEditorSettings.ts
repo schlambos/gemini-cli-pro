@@ -5,10 +5,7 @@
  */
 
 import { useState, useCallback } from 'react';
-import type {
-  LoadableSettingScope,
-  LoadedSettings,
-} from '../../config/settings.js';
+import type { LoadableSettingScope, LoadedSettings } from '../../config/settings.js';
 import { MessageType } from '../types.js';
 import type { EditorType } from '@google/gemini-cli-core';
 import {
@@ -25,17 +22,14 @@ import { SettingPaths } from '../../config/settingPaths.js';
 interface UseEditorSettingsReturn {
   isEditorDialogOpen: boolean;
   openEditorDialog: () => void;
-  handleEditorSelect: (
-    editorType: EditorType | undefined,
-    scope: LoadableSettingScope,
-  ) => void;
+  handleEditorSelect: (editorType: EditorType | undefined, scope: LoadableSettingScope) => void;
   exitEditorDialog: () => void;
 }
 
 export const useEditorSettings = (
   loadedSettings: LoadedSettings,
   setEditorError: (error: string | null) => void,
-  addItem: UseHistoryManagerReturn['addItem'],
+  addItem: UseHistoryManagerReturn['addItem']
 ): UseEditorSettingsReturn => {
   const [isEditorDialogOpen, setIsEditorDialogOpen] = useState(false);
 
@@ -45,26 +39,18 @@ export const useEditorSettings = (
 
   const handleEditorSelect = useCallback(
     (editorType: EditorType | undefined, scope: LoadableSettingScope) => {
-      if (
-        editorType &&
-        (!hasValidEditorCommand(editorType) ||
-          !allowEditorTypeInSandbox(editorType))
-      ) {
+      if (editorType && (!hasValidEditorCommand(editorType) || !allowEditorTypeInSandbox(editorType))) {
         return;
       }
 
       try {
-        loadedSettings.setValue(
-          scope,
-          SettingPaths.General.PreferredEditor,
-          editorType,
-        );
+        loadedSettings.setValue(scope, SettingPaths.General.PreferredEditor, editorType);
         addItem(
           {
             type: MessageType.INFO,
             text: `Editor preference ${editorType ? `set to "${getEditorDisplayName(editorType)}"` : 'cleared'} in ${scope} settings.`,
           },
-          Date.now(),
+          Date.now()
         );
         setEditorError(null);
         setIsEditorDialogOpen(false);
@@ -73,7 +59,7 @@ export const useEditorSettings = (
         setEditorError(`Failed to set editor preference: ${error}`);
       }
     },
-    [loadedSettings, setEditorError, addItem],
+    [loadedSettings, setEditorError, addItem]
   );
 
   const exitEditorDialog = useCallback(() => {

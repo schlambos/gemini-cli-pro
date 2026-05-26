@@ -35,14 +35,12 @@ import { type AgentSettings, CoderAgentEvent } from '../types.js';
 export async function loadConfig(
   settings: Settings,
   extensionLoader: ExtensionLoader,
-  taskId: string,
+  taskId: string
 ): Promise<Config> {
   const workspaceDir = process.cwd();
   const adcFilePath = process.env['GOOGLE_APPLICATION_CREDENTIALS'];
 
-  const folderTrust =
-    settings.folderTrust === true ||
-    process.env['GEMINI_FOLDER_TRUST'] === 'true';
+  const folderTrust = settings.folderTrust === true || process.env['GEMINI_FOLDER_TRUST'] === 'true';
 
   let checkpointing = process.env['CHECKPOINTING']
     ? process.env['CHECKPOINTING'] === 'true'
@@ -50,9 +48,7 @@ export async function loadConfig(
 
   if (checkpointing) {
     if (!(await GitService.verifyGitAvailability())) {
-      logger.warn(
-        '[Config] Checkpointing is enabled but git is not installed. Disabling checkpointing.',
-      );
+      logger.warn('[Config] Checkpointing is enabled but git is not installed. Disabling checkpointing.');
       checkpointing = false;
     }
   }
@@ -69,27 +65,21 @@ export async function loadConfig(
     coreTools: settings.coreTools || undefined,
     excludeTools: settings.excludeTools || undefined,
     showMemoryUsage: settings.showMemoryUsage || false,
-    approvalMode:
-      process.env['GEMINI_YOLO_MODE'] === 'true'
-        ? ApprovalMode.YOLO
-        : ApprovalMode.DEFAULT,
+    approvalMode: process.env['GEMINI_YOLO_MODE'] === 'true' ? ApprovalMode.YOLO : ApprovalMode.DEFAULT,
     mcpServers: settings.mcpServers,
     cwd: workspaceDir,
     telemetry: {
       enabled: settings.telemetry?.enabled,
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
       target: settings.telemetry?.target as TelemetryTarget,
-      otlpEndpoint:
-        process.env['OTEL_EXPORTER_OTLP_ENDPOINT'] ??
-        settings.telemetry?.otlpEndpoint,
+      otlpEndpoint: process.env['OTEL_EXPORTER_OTLP_ENDPOINT'] ?? settings.telemetry?.otlpEndpoint,
       logPrompts: settings.telemetry?.logPrompts,
     },
     // Git-aware file filtering settings
     fileFiltering: {
       respectGitIgnore: settings.fileFiltering?.respectGitIgnore,
       respectGeminiIgnore: settings.fileFiltering?.respectGeminiIgnore,
-      enableRecursiveFileSearch:
-        settings.fileFiltering?.enableRecursiveFileSearch,
+      enableRecursiveFileSearch: settings.fileFiltering?.enableRecursiveFileSearch,
       customIgnoreFilePaths: [
         ...(settings.fileFiltering?.customIgnoreFilePaths || []),
         ...(process.env['CUSTOM_IGNORE_FILE_PATHS']
@@ -112,15 +102,14 @@ export async function loadConfig(
     respectGeminiIgnore: configParams?.fileFiltering?.respectGeminiIgnore,
     customIgnoreFilePaths: configParams?.fileFiltering?.customIgnoreFilePaths,
   });
-  const { memoryContent, fileCount, filePaths } =
-    await loadServerHierarchicalMemory(
-      workspaceDir,
-      [workspaceDir],
-      false,
-      fileService,
-      extensionLoader,
-      folderTrust,
-    );
+  const { memoryContent, fileCount, filePaths } = await loadServerHierarchicalMemory(
+    workspaceDir,
+    [workspaceDir],
+    false,
+    fileService,
+    extensionLoader,
+    folderTrust
+  );
   configParams.userMemory = memoryContent;
   configParams.geminiMdFileCount = fileCount;
   configParams.geminiMdFilePaths = filePaths;
@@ -134,18 +123,14 @@ export async function loadConfig(
   const codeAssistServer = getCodeAssistServer(initialConfig);
 
   const adminControlsEnabled =
-    initialConfig.getExperiments()?.flags[ExperimentFlags.ENABLE_ADMIN_CONTROLS]
-      ?.boolValue ?? false;
+    initialConfig.getExperiments()?.flags[ExperimentFlags.ENABLE_ADMIN_CONTROLS]?.boolValue ?? false;
 
   // Initialize final config parameters to the previous parameters.
   // If no admin controls are needed, these will be used as-is for the final
   // config.
   const finalConfigParams = { ...configParams };
   if (adminControlsEnabled) {
-    const adminSettings = await fetchAdminControlsOnce(
-      codeAssistServer,
-      adminControlsEnabled,
-    );
+    const adminSettings = await fetchAdminControlsOnce(codeAssistServer, adminControlsEnabled);
 
     // Admin settings are able to be undefined if unset, but if any are present,
     // we should initialize them all.
@@ -156,8 +141,7 @@ export async function loadConfig(
     if (Object.keys(adminSettings).length !== 0) {
       finalConfigParams.disableYoloMode = !adminSettings.strictModeDisabled;
       finalConfigParams.mcpEnabled = adminSettings.mcpSetting?.mcpEnabled;
-      finalConfigParams.extensionsEnabled =
-        adminSettings.cliFeatureSetting?.extensionsSetting?.extensionsEnabled;
+      finalConfigParams.extensionsEnabled = adminSettings.cliFeatureSetting?.extensionsSetting?.extensionsEnabled;
     }
   }
 
@@ -176,26 +160,20 @@ export function setTargetDir(agentSettings: AgentSettings | undefined): string {
   const originalCWD = process.cwd();
   const targetDir =
     process.env['CODER_AGENT_WORKSPACE_PATH'] ??
-    (agentSettings?.kind === CoderAgentEvent.StateAgentSettingsEvent
-      ? agentSettings.workspacePath
-      : undefined);
+    (agentSettings?.kind === CoderAgentEvent.StateAgentSettingsEvent ? agentSettings.workspacePath : undefined);
 
   if (!targetDir) {
     return originalCWD;
   }
 
-  logger.info(
-    `[CoderAgentExecutor] Overriding workspace path to: ${targetDir}`,
-  );
+  logger.info(`[CoderAgentExecutor] Overriding workspace path to: ${targetDir}`);
 
   try {
     const resolvedPath = path.resolve(targetDir);
     process.chdir(resolvedPath);
     return resolvedPath;
   } catch (e) {
-    logger.error(
-      `[CoderAgentExecutor] Error resolving workspace path: ${e}, returning original os.cwd()`,
-    );
+    logger.error(`[CoderAgentExecutor] Error resolving workspace path: ${e}, returning original os.cwd()`);
     return originalCWD;
   }
 }
@@ -239,7 +217,7 @@ function findEnvFile(startDir: string): string | null {
 async function refreshAuthentication(
   config: Config,
   adcFilePath: string | undefined,
-  logPrefix: string,
+  logPrefix: string
 ): Promise<void> {
   if (process.env['USE_CCPA']) {
     logger.info(`[${logPrefix}] Using CCPA Auth:`);
@@ -249,13 +227,11 @@ async function refreshAuthentication(
       }
     } catch (e) {
       logger.error(
-        `[${logPrefix}] USE_CCPA env var is true but unable to resolve GOOGLE_APPLICATION_CREDENTIALS file path ${adcFilePath}. Error ${e}`,
+        `[${logPrefix}] USE_CCPA env var is true but unable to resolve GOOGLE_APPLICATION_CREDENTIALS file path ${adcFilePath}. Error ${e}`
       );
     }
     await config.refreshAuth(AuthType.LOGIN_WITH_GOOGLE);
-    logger.info(
-      `[${logPrefix}] GOOGLE_CLOUD_PROJECT: ${process.env['GOOGLE_CLOUD_PROJECT']}`,
-    );
+    logger.info(`[${logPrefix}] GOOGLE_CLOUD_PROJECT: ${process.env['GOOGLE_CLOUD_PROJECT']}`);
   } else if (process.env['GEMINI_API_KEY']) {
     logger.info(`[${logPrefix}] Using Gemini API Key`);
     await config.refreshAuth(AuthType.USE_GEMINI);

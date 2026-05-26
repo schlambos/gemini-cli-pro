@@ -6,20 +6,11 @@
 
 import { useEffect, useState } from 'react';
 import { Box, Text } from 'ink';
-import {
-  CoreEvent,
-  coreEvents,
-  type McpClient,
-  MCPServerStatus,
-} from '@google/gemini-cli-core';
+import { CoreEvent, coreEvents, type McpClient, MCPServerStatus } from '@google/gemini-cli-core';
 import { GeminiSpinner } from './GeminiRespondingSpinner.js';
 import { theme } from '../semantic-colors.js';
 
-export const ConfigInitDisplay = ({
-  message: initialMessage = 'Initializing...',
-}: {
-  message?: string;
-}) => {
+export const ConfigInitDisplay = ({ message: initialMessage = 'Initializing...' }: { message?: string }) => {
   const [message, setMessage] = useState(initialMessage);
 
   useEffect(() => {
@@ -45,16 +36,12 @@ export const ConfigInitDisplay = ({
         const suffix = remaining > 0 ? `, +${remaining} more` : '';
         const mcpMessage = `Connecting to MCP servers... (${connected}/${clients.size}) - Waiting for: ${displayedServers}${suffix}`;
         setMessage(
-          initialMessage && initialMessage !== 'Initializing...'
-            ? `${initialMessage} (${mcpMessage})`
-            : mcpMessage,
+          initialMessage && initialMessage !== 'Initializing...' ? `${initialMessage} (${mcpMessage})` : mcpMessage
         );
       } else {
         const mcpMessage = `Connecting to MCP servers... (${connected}/${clients.size})`;
         setMessage(
-          initialMessage && initialMessage !== 'Initializing...'
-            ? `${initialMessage} (${mcpMessage})`
-            : mcpMessage,
+          initialMessage && initialMessage !== 'Initializing...' ? `${initialMessage} (${mcpMessage})` : mcpMessage
         );
       }
     };

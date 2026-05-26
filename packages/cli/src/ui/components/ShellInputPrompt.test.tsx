@@ -18,8 +18,7 @@ vi.mock('../contexts/UIActionsContext.js', () => ({
 // Mock useKeypress
 const mockUseKeypress = vi.fn();
 vi.mock('../hooks/useKeypress.js', () => ({
-  useKeypress: (handler: (input: unknown) => void, options?: unknown) =>
-    mockUseKeypress(handler, options),
+  useKeypress: (handler: (input: unknown) => void, options?: unknown) => mockUseKeypress(handler, options),
 }));
 
 // Mock ShellExecutionService
@@ -47,9 +46,7 @@ describe('ShellInputPrompt', () => {
   });
 
   it('renders nothing', () => {
-    const { lastFrame } = render(
-      <ShellInputPrompt activeShellPtyId={1} focus={true} />,
-    );
+    const { lastFrame } = render(<ShellInputPrompt activeShellPtyId={1} focus={true} />);
     expect(lastFrame()).toBe('');
   });
 
@@ -108,27 +105,18 @@ describe('ShellInputPrompt', () => {
   it.each([
     ['pageup', -15],
     ['pagedown', 15],
-  ])(
-    'handles page scroll %s (Command.PAGE_%s) with default size',
-    (key, expectedScroll) => {
-      render(<ShellInputPrompt activeShellPtyId={1} focus={true} />);
+  ])('handles page scroll %s (Command.PAGE_%s) with default size', (key, expectedScroll) => {
+    render(<ShellInputPrompt activeShellPtyId={1} focus={true} />);
 
-      const handler = mockUseKeypress.mock.calls[0][0];
+    const handler = mockUseKeypress.mock.calls[0][0];
 
-      handler({ name: key, shift: false, alt: false, ctrl: false, cmd: false });
+    handler({ name: key, shift: false, alt: false, ctrl: false, cmd: false });
 
-      expect(mockScrollPty).toHaveBeenCalledWith(1, expectedScroll);
-    },
-  );
+    expect(mockScrollPty).toHaveBeenCalledWith(1, expectedScroll);
+  });
 
   it('respects scrollPageSize prop', () => {
-    render(
-      <ShellInputPrompt
-        activeShellPtyId={1}
-        focus={true}
-        scrollPageSize={10}
-      />,
-    );
+    render(<ShellInputPrompt activeShellPtyId={1} focus={true} scrollPageSize={10} />);
 
     const handler = mockUseKeypress.mock.calls[0][0];
 

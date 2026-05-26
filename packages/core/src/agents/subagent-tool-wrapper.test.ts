@@ -61,11 +61,7 @@ describe('SubagentToolWrapper', () => {
 
   describe('constructor', () => {
     it('should correctly configure the tool properties from the agent definition', () => {
-      const wrapper = new SubagentToolWrapper(
-        mockDefinition,
-        mockConfig,
-        mockMessageBus,
-      );
+      const wrapper = new SubagentToolWrapper(mockDefinition, mockConfig, mockMessageBus);
 
       expect(wrapper.name).toBe(mockDefinition.name);
       expect(wrapper.displayName).toBe(mockDefinition.displayName);
@@ -80,37 +76,23 @@ describe('SubagentToolWrapper', () => {
         ...mockDefinition,
         displayName: undefined,
       };
-      const wrapper = new SubagentToolWrapper(
-        definitionWithoutDisplayName,
-        mockConfig,
-        mockMessageBus,
-      );
+      const wrapper = new SubagentToolWrapper(definitionWithoutDisplayName, mockConfig, mockMessageBus);
       expect(wrapper.displayName).toBe(definitionWithoutDisplayName.name);
     });
 
     it('should generate a valid tool schema using the definition and converted schema', () => {
-      const wrapper = new SubagentToolWrapper(
-        mockDefinition,
-        mockConfig,
-        mockMessageBus,
-      );
+      const wrapper = new SubagentToolWrapper(mockDefinition, mockConfig, mockMessageBus);
       const schema = wrapper.schema;
 
       expect(schema.name).toBe(mockDefinition.name);
       expect(schema.description).toBe(mockDefinition.description);
-      expect(schema.parametersJsonSchema).toEqual(
-        mockDefinition.inputConfig.inputSchema,
-      );
+      expect(schema.parametersJsonSchema).toEqual(mockDefinition.inputConfig.inputSchema);
     });
   });
 
   describe('createInvocation', () => {
     it('should create a LocalSubagentInvocation with the correct parameters', () => {
-      const wrapper = new SubagentToolWrapper(
-        mockDefinition,
-        mockConfig,
-        mockMessageBus,
-      );
+      const wrapper = new SubagentToolWrapper(mockDefinition, mockConfig, mockMessageBus);
       const params: AgentInputs = { goal: 'Test the invocation', priority: 1 };
 
       // The public `build` method calls the protected `createInvocation` after validation
@@ -123,7 +105,7 @@ describe('SubagentToolWrapper', () => {
         params,
         mockMessageBus,
         mockDefinition.name,
-        mockDefinition.displayName,
+        mockDefinition.displayName
       );
     });
 
@@ -133,11 +115,7 @@ describe('SubagentToolWrapper', () => {
         subscribe: vi.fn(),
         unsubscribe: vi.fn(),
       } as unknown as MessageBus;
-      const wrapper = new SubagentToolWrapper(
-        mockDefinition,
-        mockConfig,
-        specificMessageBus,
-      );
+      const wrapper = new SubagentToolWrapper(mockDefinition, mockConfig, specificMessageBus);
       const params: AgentInputs = { goal: 'Test the invocation', priority: 1 };
 
       wrapper.build(params);
@@ -148,24 +126,18 @@ describe('SubagentToolWrapper', () => {
         params,
         specificMessageBus,
         mockDefinition.name,
-        mockDefinition.displayName,
+        mockDefinition.displayName
       );
     });
 
     it('should throw a validation error for invalid parameters before creating an invocation', () => {
-      const wrapper = new SubagentToolWrapper(
-        mockDefinition,
-        mockConfig,
-        mockMessageBus,
-      );
+      const wrapper = new SubagentToolWrapper(mockDefinition, mockConfig, mockMessageBus);
       // Missing the required 'goal' parameter
       const invalidParams = { priority: 1 };
 
       // The `build` method in the base class performs JSON schema validation
       // before calling the protected `createInvocation` method.
-      expect(() => wrapper.build(invalidParams)).toThrow(
-        "params must have required property 'goal'",
-      );
+      expect(() => wrapper.build(invalidParams)).toThrow("params must have required property 'goal'");
       expect(MockedLocalSubagentInvocation).not.toHaveBeenCalled();
     });
   });

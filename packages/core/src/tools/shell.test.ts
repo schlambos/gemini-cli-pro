@@ -4,16 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  vi,
-  describe,
-  it,
-  expect,
-  beforeAll,
-  beforeEach,
-  afterEach,
-  type Mock,
-} from 'vitest';
+import { vi, describe, it, expect, beforeAll, beforeEach, afterEach, type Mock } from 'vitest';
 
 const mockPlatform = vi.hoisted(() => vi.fn());
 
@@ -45,10 +36,7 @@ import { initializeShellParsers } from '../utils/shell-utils.js';
 import { ShellTool } from './shell.js';
 import { debugLogger } from '../index.js';
 import { type Config } from '../config/config.js';
-import {
-  type ShellExecutionResult,
-  type ShellOutputEvent,
-} from '../services/shellExecutionService.js';
+import { type ShellExecutionResult, type ShellOutputEvent } from '../services/shellExecutionService.js';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import { EOL } from 'node:os';
@@ -61,14 +49,8 @@ import { ToolConfirmationOutcome } from './tools.js';
 import { OUTPUT_UPDATE_INTERVAL_MS } from './shell.js';
 import { SHELL_TOOL_NAME } from './tool-names.js';
 import { WorkspaceContext } from '../utils/workspaceContext.js';
-import {
-  createMockMessageBus,
-  getMockMessageBusInstance,
-} from '../test-utils/mock-message-bus.js';
-import {
-  MessageBusType,
-  type UpdatePolicy,
-} from '../confirmation-bus/types.js';
+import { createMockMessageBus, getMockMessageBusInstance } from '../test-utils/mock-message-bus.js';
+import { MessageBusType, type UpdatePolicy } from '../confirmation-bus/types.js';
 import { type MessageBus } from '../confirmation-bus/message-bus.js';
 
 interface TestableMockMessageBus extends MessageBus {
@@ -103,9 +85,7 @@ describe('ShellTool', () => {
       getDebugMode: vi.fn().mockReturnValue(false),
       getTargetDir: vi.fn().mockReturnValue(tempRootDir),
       getSummarizeToolOutputConfig: vi.fn().mockReturnValue(undefined),
-      getWorkspaceContext: vi
-        .fn()
-        .mockReturnValue(new WorkspaceContext(tempRootDir)),
+      getWorkspaceContext: vi.fn().mockReturnValue(new WorkspaceContext(tempRootDir)),
       storage: {
         getProjectTempDir: vi.fn().mockReturnValue('/tmp/project'),
       },
@@ -135,22 +115,15 @@ describe('ShellTool', () => {
     } as unknown as Config;
 
     const bus = createMockMessageBus();
-    const mockBus = getMockMessageBusInstance(
-      bus,
-    ) as unknown as TestableMockMessageBus;
+    const mockBus = getMockMessageBusInstance(bus) as unknown as TestableMockMessageBus;
     mockBus.defaultToolDecision = 'ask_user';
 
     // Simulate policy update
     bus.subscribe(MessageBusType.UPDATE_POLICY, (msg: UpdatePolicy) => {
       if (msg.commandPrefix) {
-        const prefixes = Array.isArray(msg.commandPrefix)
-          ? msg.commandPrefix
-          : [msg.commandPrefix];
+        const prefixes = Array.isArray(msg.commandPrefix) ? msg.commandPrefix : [msg.commandPrefix];
         const current = mockConfig.getAllowedTools() || [];
-        (mockConfig.getAllowedTools as Mock).mockReturnValue([
-          ...current,
-          ...prefixes,
-        ]);
+        (mockConfig.getAllowedTools as Mock).mockReturnValue([...current, ...prefixes]);
         // Simulate Policy Engine allowing the tool after update
         mockBus.defaultToolDecision = 'allow';
       }
@@ -159,11 +132,8 @@ describe('ShellTool', () => {
     shellTool = new ShellTool(mockConfig, bus);
 
     mockPlatform.mockReturnValue('linux');
-    (vi.mocked(crypto.randomBytes) as Mock).mockReturnValue(
-      Buffer.from('abcdef', 'hex'),
-    );
-    process.env['ComSpec'] =
-      'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe';
+    (vi.mocked(crypto.randomBytes) as Mock).mockReturnValue(Buffer.from('abcdef', 'hex'));
+    process.env['ComSpec'] = 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe';
 
     // Capture the output callback to simulate streaming events from the service
     mockShellExecutionService.mockImplementation((_cmd, _cwd, callback) => {
@@ -209,9 +179,7 @@ describe('ShellTool', () => {
     });
 
     it('should throw an error for an empty command', () => {
-      expect(() => shellTool.build({ command: ' ' })).toThrow(
-        'Command cannot be empty.',
-      );
+      expect(() => shellTool.build({ command: ' ' })).toThrow('Command cannot be empty.');
     });
 
     it('should return an invocation for a valid relative directory path', () => {
@@ -224,9 +192,7 @@ describe('ShellTool', () => {
 
     it('should throw an error for a directory outside the workspace', () => {
       const outsidePath = path.resolve(tempRootDir, '../outside');
-      expect(() =>
-        shellTool.build({ command: 'ls', dir_path: outsidePath }),
-      ).toThrow(/Path not in workspace/);
+      expect(() => shellTool.build({ command: 'ls', dir_path: outsidePath })).toThrow(/Path not in workspace/);
     });
 
     it('should return an invocation for a valid absolute directory path', () => {
@@ -241,9 +207,7 @@ describe('ShellTool', () => {
   describe('execute', () => {
     const mockAbortSignal = new AbortController().signal;
 
-    const resolveShellExecution = (
-      result: Partial<ShellExecutionResult> = {},
-    ) => {
+    const resolveShellExecution = (result: Partial<ShellExecutionResult> = {}) => {
       const fullResult: ShellExecutionResult = {
         rawOutput: Buffer.from(result.output || ''),
         output: 'Success',
@@ -276,7 +240,7 @@ describe('ShellTool', () => {
         expect.any(Function),
         expect.any(AbortSignal),
         false,
-        { pager: 'cat', sanitizationConfig: {} },
+        { pager: 'cat', sanitizationConfig: {} }
       );
       expect(result.llmContent).toContain('Background PIDs: 54322');
       // The file should be deleted by the tool
@@ -301,7 +265,7 @@ describe('ShellTool', () => {
         expect.any(Function),
         expect.any(AbortSignal),
         false,
-        { pager: 'cat', sanitizationConfig: {} },
+        { pager: 'cat', sanitizationConfig: {} }
       );
     });
 
@@ -322,7 +286,7 @@ describe('ShellTool', () => {
         expect.any(Function),
         expect.any(AbortSignal),
         false,
-        { pager: 'cat', sanitizationConfig: {} },
+        { pager: 'cat', sanitizationConfig: {} }
       );
     });
 
@@ -368,10 +332,10 @@ describe('ShellTool', () => {
           expect.any(Function),
           expect.any(AbortSignal),
           false,
-          { pager: 'cat', sanitizationConfig: {} },
+          { pager: 'cat', sanitizationConfig: {} }
         );
       },
-      20000,
+      20000
     );
 
     it('should format error messages correctly', async () => {
@@ -411,18 +375,14 @@ describe('ShellTool', () => {
     });
 
     it('should throw an error for invalid parameters', () => {
-      expect(() => shellTool.build({ command: '' })).toThrow(
-        'Command cannot be empty.',
-      );
+      expect(() => shellTool.build({ command: '' })).toThrow('Command cannot be empty.');
     });
 
     it('should summarize output when configured', async () => {
       (mockConfig.getSummarizeToolOutputConfig as Mock).mockReturnValue({
         [SHELL_TOOL_NAME]: { tokenBudget: 1000 },
       });
-      vi.mocked(summarizer.summarizeToolOutput).mockResolvedValue(
-        'summarized output',
-      );
+      vi.mocked(summarizer.summarizeToolOutput).mockResolvedValue('summarized output');
 
       const invocation = shellTool.build({ command: 'ls' });
       const promise = invocation.execute(mockAbortSignal);
@@ -444,7 +404,7 @@ describe('ShellTool', () => {
         { model: 'summarizer-shell' },
         expect.any(String),
         mockConfig.getGeminiClient(),
-        mockAbortSignal,
+        mockAbortSignal
       );
       expect(result.llmContent).toBe('summarized output');
       expect(result.returnDisplay).toBe('long output');
@@ -522,9 +482,7 @@ describe('ShellTool', () => {
 
         mockShellOutputCallback({ type: 'binary_detected' });
         expect(updateOutputMock).toHaveBeenCalledOnce();
-        expect(updateOutputMock).toHaveBeenCalledWith(
-          '[Binary output detected. Halting stream...]',
-        );
+        expect(updateOutputMock).toHaveBeenCalledWith('[Binary output detected. Halting stream...]');
 
         mockShellOutputCallback({
           type: 'binary_progress',
@@ -543,9 +501,7 @@ describe('ShellTool', () => {
 
         // Now it should be called a second time with the latest progress.
         expect(updateOutputMock).toHaveBeenCalledTimes(2);
-        expect(updateOutputMock).toHaveBeenLastCalledWith(
-          '[Receiving binary output... 2.0 KB received]',
-        );
+        expect(updateOutputMock).toHaveBeenLastCalledWith('[Receiving binary output... 2.0 KB received]');
 
         resolveExecutionPromise({
           rawOutput: Buffer.from(''),
@@ -589,17 +545,12 @@ describe('ShellTool', () => {
       const invocation = shellTool.build(params);
 
       // Accessing protected messageBus for testing purposes
-      const bus = (shellTool as unknown as { messageBus: MessageBus })
-        .messageBus;
-      const mockBus = getMockMessageBusInstance(
-        bus,
-      ) as unknown as TestableMockMessageBus;
+      const bus = (shellTool as unknown as { messageBus: MessageBus }).messageBus;
+      const mockBus = getMockMessageBusInstance(bus) as unknown as TestableMockMessageBus;
 
       // Initially needs confirmation
       mockBus.defaultToolDecision = 'ask_user';
-      const confirmation = await invocation.shouldConfirmExecute(
-        new AbortController().signal,
-      );
+      const confirmation = await invocation.shouldConfirmExecute(new AbortController().signal);
 
       expect(confirmation).not.toBe(false);
       expect(confirmation && confirmation.type).toBe('exec');
@@ -611,9 +562,7 @@ describe('ShellTool', () => {
       // After "Always", it should be allowlisted in the mock engine
       mockBus.defaultToolDecision = 'allow';
       const secondInvocation = shellTool.build({ command: 'npm test' });
-      const secondConfirmation = await secondInvocation.shouldConfirmExecute(
-        new AbortController().signal,
-      );
+      const secondConfirmation = await secondInvocation.shouldConfirmExecute(new AbortController().signal);
       expect(secondConfirmation).toBe(false);
     });
 
@@ -637,9 +586,7 @@ describe('ShellTool', () => {
 
     it('should not include efficiency guidelines when disabled', () => {
       mockPlatform.mockReturnValue('linux');
-      vi.mocked(mockConfig.getEnableShellOutputEfficiency).mockReturnValue(
-        false,
-      );
+      vi.mocked(mockConfig.getEnableShellOutputEfficiency).mockReturnValue(false);
       const shellTool = new ShellTool(mockConfig, createMockMessageBus());
       expect(shellTool.description).not.toContain('Efficiency Guidelines:');
     });
@@ -648,9 +595,7 @@ describe('ShellTool', () => {
   describe('llmContent output format', () => {
     const mockAbortSignal = new AbortController().signal;
 
-    const resolveShellExecution = (
-      result: Partial<ShellExecutionResult> = {},
-    ) => {
+    const resolveShellExecution = (result: Partial<ShellExecutionResult> = {}) => {
       const fullResult: ShellExecutionResult = {
         rawOutput: Buffer.from(result.output || ''),
         output: 'Success',
@@ -781,9 +726,7 @@ describe('ShellTool', () => {
       const invocation = shellTool.build({ command });
 
       // @ts-expect-error - getConfirmationDetails is protected
-      const details = await invocation.getConfirmationDetails(
-        new AbortController().signal,
-      );
+      const details = await invocation.getConfirmationDetails(new AbortController().signal);
 
       expect(details).not.toBe(false);
       if (details && details.type === 'exec') {
@@ -797,15 +740,11 @@ describe('ShellTool', () => {
       const invocation = shellTool.build({ command });
 
       // @ts-expect-error - getConfirmationDetails is protected
-      const details = await invocation.getConfirmationDetails(
-        new AbortController().signal,
-      );
+      const details = await invocation.getConfirmationDetails(new AbortController().signal);
 
       expect(details).not.toBe(false);
       if (details && details.type === 'exec') {
-        expect(details.rootCommand).toBe(
-          'cat, redirection (<), grep, redirection (>)',
-        );
+        expect(details.rootCommand).toBe('cat, redirection (<), grep, redirection (>)');
       }
     });
 
@@ -815,9 +754,7 @@ describe('ShellTool', () => {
       const invocation = shellTool.build({ command });
 
       // @ts-expect-error - getConfirmationDetails is protected
-      const details = await invocation.getConfirmationDetails(
-        new AbortController().signal,
-      );
+      const details = await invocation.getConfirmationDetails(new AbortController().signal);
 
       expect(details).not.toBe(false);
       if (details && details.type === 'exec') {

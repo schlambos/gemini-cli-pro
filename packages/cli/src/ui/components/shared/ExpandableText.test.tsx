@@ -16,12 +16,12 @@ describe('ExpandableText', () => {
   it('renders plain label when no match (short label)', () => {
     const { lastFrame, unmount } = render(
       <ExpandableText
-        label="simple command"
-        userInput=""
+        label='simple command'
+        userInput=''
         matchedIndex={undefined}
         textColor={color}
         isExpanded={false}
-      />,
+      />
     );
     expect(lastFrame()).toMatchSnapshot();
     unmount();
@@ -30,12 +30,7 @@ describe('ExpandableText', () => {
   it('truncates long label when collapsed and no match', () => {
     const long = 'x'.repeat(MAX_WIDTH + 25);
     const { lastFrame, unmount } = render(
-      <ExpandableText
-        label={long}
-        userInput=""
-        textColor={color}
-        isExpanded={false}
-      />,
+      <ExpandableText label={long} userInput='' textColor={color} isExpanded={false} />
     );
     const out = lastFrame();
     const f = flat(out);
@@ -48,12 +43,7 @@ describe('ExpandableText', () => {
   it('shows full long label when expanded and no match', () => {
     const long = 'y'.repeat(MAX_WIDTH + 25);
     const { lastFrame, unmount } = render(
-      <ExpandableText
-        label={long}
-        userInput=""
-        textColor={color}
-        isExpanded={true}
-      />,
+      <ExpandableText label={long} userInput='' textColor={color} isExpanded={true} />
     );
     const out = lastFrame();
     const f = flat(out);
@@ -74,7 +64,7 @@ describe('ExpandableText', () => {
         textColor={color}
         isExpanded={true}
       />,
-      100,
+      100
     );
     expect(lastFrame()).toMatchSnapshot();
     expect(lastFrame()).toContain(chalk.inverse(userInput));
@@ -95,7 +85,7 @@ describe('ExpandableText', () => {
         textColor={color}
         isExpanded={false}
       />,
-      100,
+      100
     );
     const out = lastFrame();
     const f = flat(out);
@@ -113,13 +103,7 @@ describe('ExpandableText', () => {
     const label = prefix + core + suffix;
     const matchedIndex = prefix.length;
     const { lastFrame, unmount } = render(
-      <ExpandableText
-        label={label}
-        userInput={core}
-        matchedIndex={matchedIndex}
-        textColor={color}
-        isExpanded={false}
-      />,
+      <ExpandableText label={label} userInput={core} matchedIndex={matchedIndex} textColor={color} isExpanded={false} />
     );
     const out = lastFrame();
     const f = flat(out);
@@ -135,13 +119,7 @@ describe('ExpandableText', () => {
     const customWidth = 50;
     const long = 'z'.repeat(100);
     const { lastFrame, unmount } = render(
-      <ExpandableText
-        label={long}
-        userInput=""
-        textColor={color}
-        isExpanded={false}
-        maxWidth={customWidth}
-      />,
+      <ExpandableText label={long} userInput='' textColor={color} isExpanded={false} maxWidth={customWidth} />
     );
     const out = lastFrame();
     const f = flat(out);

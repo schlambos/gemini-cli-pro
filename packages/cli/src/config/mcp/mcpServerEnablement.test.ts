@@ -8,8 +8,7 @@ import fs from 'node:fs/promises';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     Storage: {
@@ -29,10 +28,7 @@ import {
 
 let inMemoryFs: Record<string, string> = {};
 
-function createMockEnablement(
-  sessionDisabled: boolean,
-  fileEnabled: boolean,
-): EnablementCallbacks {
+function createMockEnablement(sessionDisabled: boolean, fileEnabled: boolean): EnablementCallbacks {
   return {
     isSessionDisabled: () => sessionDisabled,
     isFileEnabled: () => Promise.resolve(fileEnabled),
@@ -101,12 +97,8 @@ describe('McpServerEnablementManager', () => {
       isSessionDisabled: false,
       isPersistentDisabled: false,
     });
-    expect(
-      (await manager.getDisplayState('file-disabled')).isPersistentDisabled,
-    ).toBe(true);
-    expect(
-      (await manager.getDisplayState('session-disabled')).isSessionDisabled,
-    ).toBe(true);
+    expect((await manager.getDisplayState('file-disabled')).isPersistentDisabled).toBe(true);
+    expect((await manager.getDisplayState('session-disabled')).isSessionDisabled).toBe(true);
   });
 
   it('should share session state across getInstance calls', () => {
@@ -181,8 +173,6 @@ describe('helper functions', () => {
   it('isInSettingsList supports ext: backward compat', () => {
     expect(isInSettingsList('playwright', ['playwright']).found).toBe(true);
     expect(isInSettingsList('ext:github:mcp', ['mcp']).found).toBe(true);
-    expect(
-      isInSettingsList('ext:github:mcp', ['mcp']).deprecationWarning,
-    ).toBeTruthy();
+    expect(isInSettingsList('ext:github:mcp', ['mcp']).deprecationWarning).toBeTruthy();
   });
 });

@@ -26,11 +26,8 @@ export function useBackgroundShellManager({
   setEmbeddedShellFocused,
   terminalHeight,
 }: BackgroundShellManagerProps) {
-  const [isBackgroundShellListOpen, setIsBackgroundShellListOpen] =
-    useState(false);
-  const [activeBackgroundShellPid, setActiveBackgroundShellPid] = useState<
-    number | null
-  >(null);
+  const [isBackgroundShellListOpen, setIsBackgroundShellListOpen] = useState(false);
+  const [activeBackgroundShellPid, setActiveBackgroundShellPid] = useState<number | null>(null);
 
   useEffect(() => {
     if (backgroundShells.size === 0) {
@@ -40,25 +37,16 @@ export function useBackgroundShellManager({
       if (isBackgroundShellListOpen) {
         setIsBackgroundShellListOpen(false);
       }
-    } else if (
-      activeBackgroundShellPid === null ||
-      !backgroundShells.has(activeBackgroundShellPid)
-    ) {
+    } else if (activeBackgroundShellPid === null || !backgroundShells.has(activeBackgroundShellPid)) {
       // If active shell is closed or none selected, select the first one (last added usually, or just first in iteration)
       setActiveBackgroundShellPid(backgroundShells.keys().next().value ?? null);
     }
-  }, [
-    backgroundShells,
-    activeBackgroundShellPid,
-    backgroundShellCount,
-    isBackgroundShellListOpen,
-  ]);
+  }, [backgroundShells, activeBackgroundShellPid, backgroundShellCount, isBackgroundShellListOpen]);
 
   useEffect(() => {
     if (embeddedShellFocused) {
       const hasActiveForegroundShell = !!activePtyId;
-      const hasVisibleBackgroundShell =
-        isBackgroundShellVisible && backgroundShells.size > 0;
+      const hasVisibleBackgroundShell = isBackgroundShellVisible && backgroundShells.size > 0;
 
       if (!hasActiveForegroundShell && !hasVisibleBackgroundShell) {
         setEmbeddedShellFocused(false);
@@ -74,11 +62,8 @@ export function useBackgroundShellManager({
   ]);
 
   const backgroundShellHeight = useMemo(
-    () =>
-      isBackgroundShellVisible && backgroundShells.size > 0
-        ? Math.max(Math.floor(terminalHeight * 0.3), 5)
-        : 0,
-    [isBackgroundShellVisible, backgroundShells.size, terminalHeight],
+    () => (isBackgroundShellVisible && backgroundShells.size > 0 ? Math.max(Math.floor(terminalHeight * 0.3), 5) : 0),
+    [isBackgroundShellVisible, backgroundShells.size, terminalHeight]
   );
 
   return {

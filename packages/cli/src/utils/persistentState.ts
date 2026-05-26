@@ -63,16 +63,11 @@ export class PersistentState {
     }
   }
 
-  get<K extends keyof PersistentStateData>(
-    key: K,
-  ): PersistentStateData[K] | undefined {
+  get<K extends keyof PersistentStateData>(key: K): PersistentStateData[K] | undefined {
     return this.load()[key];
   }
 
-  set<K extends keyof PersistentStateData>(
-    key: K,
-    value: PersistentStateData[K],
-  ): void {
+  set<K extends keyof PersistentStateData>(key: K, value: PersistentStateData[K]): void {
     this.load(); // ensure loaded
     this.cache![key] = value;
     this.save();

@@ -8,12 +8,9 @@ import type { GitService } from '../services/gitService.js';
 import type { CommandActionReturn } from './types.js';
 import { type ToolCallData } from '../utils/checkpointUtils.js';
 
-export async function* performRestore<
-  HistoryType = unknown,
-  ArgsType = unknown,
->(
+export async function* performRestore<HistoryType = unknown, ArgsType = unknown>(
   toolCallData: ToolCallData<HistoryType, ArgsType>,
-  gitService: GitService | undefined,
+  gitService: GitService | undefined
 ): AsyncGenerator<CommandActionReturn<HistoryType>> {
   if (toolCallData.history && toolCallData.clientHistory) {
     yield {
@@ -28,8 +25,7 @@ export async function* performRestore<
       yield {
         type: 'message',
         messageType: 'error',
-        content:
-          'Git service is not available, cannot restore checkpoint. Please ensure you are in a git repository.',
+        content: 'Git service is not available, cannot restore checkpoint. Please ensure you are in a git repository.',
       };
       return;
     }

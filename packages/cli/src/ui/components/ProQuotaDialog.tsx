@@ -15,9 +15,7 @@ interface ProQuotaDialogProps {
   message: string;
   isTerminalQuotaError: boolean;
   isModelNotFoundError?: boolean;
-  onChoice: (
-    choice: 'retry_later' | 'retry_once' | 'retry_always' | 'upgrade',
-  ) => void;
+  onChoice: (choice: 'retry_later' | 'retry_once' | 'retry_always' | 'upgrade') => void;
 }
 
 export function ProQuotaDialog({
@@ -83,9 +81,7 @@ export function ProQuotaDialog({
     ];
   }
 
-  const handleSelect = (
-    choice: 'retry_later' | 'retry_once' | 'retry_always' | 'upgrade',
-  ) => {
+  const handleSelect = (choice: 'retry_later' | 'retry_once' | 'retry_always' | 'upgrade') => {
     onChoice(choice);
   };
 
@@ -109,7 +105,7 @@ export function ProQuotaDialog({
   };
 
   return (
-    <Box borderStyle="round" flexDirection="column" padding={1}>
+    <Box borderStyle='round' flexDirection='column' padding={1}>
       <Box marginBottom={1}>{renderMessage(message)}</Box>
       <Box marginTop={1} marginBottom={1}>
         <RadioButtonSelect items={items} onSelect={handleSelect} />

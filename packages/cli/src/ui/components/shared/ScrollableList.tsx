@@ -4,20 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  useRef,
-  forwardRef,
-  useImperativeHandle,
-  useCallback,
-  useMemo,
-  useEffect,
-} from 'react';
+import { useRef, forwardRef, useImperativeHandle, useCallback, useMemo, useEffect } from 'react';
 import type React from 'react';
-import {
-  VirtualizedList,
-  type VirtualizedListRef,
-  SCROLL_TO_ITEM_END,
-} from './VirtualizedList.js';
+import { VirtualizedList, type VirtualizedListRef, SCROLL_TO_ITEM_END } from './VirtualizedList.js';
 import { useScrollable } from '../../contexts/ScrollProvider.js';
 import { Box, type DOMElement } from 'ink';
 import { useAnimatedScrollbar } from '../../hooks/useAnimatedScrollbar.js';
@@ -42,10 +31,7 @@ interface ScrollableListProps<T> extends VirtualizedListProps<T> {
 
 export type ScrollableListRef<T> = VirtualizedListRef<T>;
 
-function ScrollableList<T>(
-  props: ScrollableListProps<T>,
-  ref: React.Ref<ScrollableListRef<T>>,
-) {
+function ScrollableList<T>(props: ScrollableListProps<T>, ref: React.Ref<ScrollableListRef<T>>) {
   const { hasFocus, width } = props;
   const virtualizedListRef = useRef<VirtualizedListRef<T>>(null);
   const containerRef = useRef<DOMElement>(null);
@@ -56,10 +42,8 @@ function ScrollableList<T>(
       scrollBy: (delta) => virtualizedListRef.current?.scrollBy(delta),
       scrollTo: (offset) => virtualizedListRef.current?.scrollTo(offset),
       scrollToEnd: () => virtualizedListRef.current?.scrollToEnd(),
-      scrollToIndex: (params) =>
-        virtualizedListRef.current?.scrollToIndex(params),
-      scrollToItem: (params) =>
-        virtualizedListRef.current?.scrollToItem(params),
+      scrollToIndex: (params) => virtualizedListRef.current?.scrollToIndex(params),
+      scrollToItem: (params) => virtualizedListRef.current?.scrollToItem(params),
       getScrollIndex: () => virtualizedListRef.current?.getScrollIndex() ?? 0,
       getScrollState: () =>
         virtualizedListRef.current?.getScrollState() ?? {
@@ -68,7 +52,7 @@ function ScrollableList<T>(
           innerHeight: 0,
         },
     }),
-    [],
+    []
   );
 
   const getScrollState = useCallback(
@@ -78,15 +62,14 @@ function ScrollableList<T>(
         scrollHeight: 0,
         innerHeight: 0,
       },
-    [],
+    []
   );
 
   const scrollBy = useCallback((delta: number) => {
     virtualizedListRef.current?.scrollBy(delta);
   }, []);
 
-  const { scrollbarColor, flashScrollbar, scrollByWithAnimation } =
-    useAnimatedScrollbar(hasFocus, scrollBy);
+  const { scrollbarColor, flashScrollbar, scrollByWithAnimation } = useAnimatedScrollbar(hasFocus, scrollBy);
 
   const smoothScrollState = useRef<{
     active: boolean;
@@ -116,11 +99,7 @@ function ScrollableList<T>(
         scrollHeight: 0,
         innerHeight: 0,
       };
-      const {
-        scrollTop: startScrollTop,
-        scrollHeight,
-        innerHeight,
-      } = scrollState;
+      const { scrollTop: startScrollTop, scrollHeight, innerHeight } = scrollState;
 
       const maxScrollTop = Math.max(0, scrollHeight - innerHeight);
 
@@ -129,10 +108,7 @@ function ScrollableList<T>(
         effectiveTarget = maxScrollTop;
       }
 
-      const clampedTarget = Math.max(
-        0,
-        Math.min(maxScrollTop, effectiveTarget),
-      );
+      const clampedTarget = Math.max(0, Math.min(maxScrollTop, effectiveTarget));
 
       if (duration === 0) {
         if (targetScrollTop === SCROLL_TO_ITEM_END) {
@@ -160,9 +136,7 @@ function ScrollableList<T>(
           const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 
           const current =
-            smoothScrollState.current.from +
-            (smoothScrollState.current.to - smoothScrollState.current.from) *
-              ease;
+            smoothScrollState.current.from + (smoothScrollState.current.to - smoothScrollState.current.from) * ease;
 
           if (progress >= 1) {
             if (targetScrollTop === SCROLL_TO_ITEM_END) {
@@ -178,7 +152,7 @@ function ScrollableList<T>(
         }, ANIMATION_FRAME_DURATION_MS),
       };
     },
-    [stopSmoothScroll, flashScrollbar],
+    [stopSmoothScroll, flashScrollbar]
   );
 
   useKeypress(
@@ -191,15 +165,10 @@ function ScrollableList<T>(
         stopSmoothScroll();
         scrollByWithAnimation(1);
         return true;
-      } else if (
-        keyMatchers[Command.PAGE_UP](key) ||
-        keyMatchers[Command.PAGE_DOWN](key)
-      ) {
+      } else if (keyMatchers[Command.PAGE_UP](key) || keyMatchers[Command.PAGE_DOWN](key)) {
         const direction = keyMatchers[Command.PAGE_UP](key) ? -1 : 1;
         const scrollState = getScrollState();
-        const current = smoothScrollState.current.active
-          ? smoothScrollState.current.to
-          : scrollState.scrollTop;
+        const current = smoothScrollState.current.active ? smoothScrollState.current.to : scrollState.scrollTop;
         const innerHeight = scrollState.innerHeight;
         smoothScrollTo(current + direction * innerHeight);
         return true;
@@ -212,7 +181,7 @@ function ScrollableList<T>(
       }
       return false;
     },
-    { isActive: hasFocus },
+    { isActive: hasFocus }
   );
 
   const hasFocusCallback = useCallback(() => hasFocus, [hasFocus]);
@@ -227,37 +196,21 @@ function ScrollableList<T>(
       hasFocus: hasFocusCallback,
       flashScrollbar,
     }),
-    [
-      getScrollState,
-      hasFocusCallback,
-      flashScrollbar,
-      scrollByWithAnimation,
-      smoothScrollTo,
-    ],
+    [getScrollState, hasFocusCallback, flashScrollbar, scrollByWithAnimation, smoothScrollTo]
   );
 
   useScrollable(scrollableEntry, true);
 
   return (
-    <Box
-      ref={containerRef}
-      flexGrow={1}
-      flexDirection="column"
-      overflow="hidden"
-      width={width}
-    >
-      <VirtualizedList
-        ref={virtualizedListRef}
-        {...props}
-        scrollbarThumbColor={scrollbarColor}
-      />
+    <Box ref={containerRef} flexGrow={1} flexDirection='column' overflow='hidden' width={width}>
+      <VirtualizedList ref={virtualizedListRef} {...props} scrollbarThumbColor={scrollbarColor} />
     </Box>
   );
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 const ScrollableListWithForwardRef = forwardRef(ScrollableList) as <T>(
-  props: ScrollableListProps<T> & { ref?: React.Ref<ScrollableListRef<T>> },
+  props: ScrollableListProps<T> & { ref?: React.Ref<ScrollableListRef<T>> }
 ) => React.ReactElement;
 
 export { ScrollableListWithForwardRef as ScrollableList };

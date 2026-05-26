@@ -8,11 +8,7 @@ import { type CommandModule } from 'yargs';
 import { loadSettings, SettingScope } from '../../config/settings.js';
 import { requestConsentNonInteractive } from '../../config/extensions/consent.js';
 import { ExtensionManager } from '../../config/extension-manager.js';
-import {
-  debugLogger,
-  FatalConfigError,
-  getErrorMessage,
-} from '@google/gemini-cli-core';
+import { debugLogger, FatalConfigError, getErrorMessage } from '@google/gemini-cli-core';
 import { promptForSetting } from '../../config/extensions/extensionSettings.js';
 import { exitCli } from '../utils.js';
 import { McpServerEnablementManager } from '../../config/mcp/mcpServerEnablement.js';
@@ -40,32 +36,22 @@ export async function handleEnable(args: EnableArgs) {
     }
 
     // Auto-enable any disabled MCP servers for this extension
-    const extension = extensionManager
-      .getExtensions()
-      .find((e) => e.name === args.name);
+    const extension = extensionManager.getExtensions().find((e) => e.name === args.name);
 
     if (extension?.mcpServers) {
       const mcpEnablementManager = McpServerEnablementManager.getInstance();
-      const enabledServers = await mcpEnablementManager.autoEnableServers(
-        Object.keys(extension.mcpServers ?? {}),
-      );
+      const enabledServers = await mcpEnablementManager.autoEnableServers(Object.keys(extension.mcpServers ?? {}));
 
       for (const serverName of enabledServers) {
-        debugLogger.log(
-          `MCP server '${serverName}' was disabled - now enabled.`,
-        );
+        debugLogger.log(`MCP server '${serverName}' was disabled - now enabled.`);
       }
       // Note: No restartServer() - CLI exits immediately, servers load on next session
     }
 
     if (args.scope) {
-      debugLogger.log(
-        `Extension "${args.name}" successfully enabled for scope "${args.scope}".`,
-      );
+      debugLogger.log(`Extension "${args.name}" successfully enabled for scope "${args.scope}".`);
     } else {
-      debugLogger.log(
-        `Extension "${args.name}" successfully enabled in all scopes.`,
-      );
+      debugLogger.log(`Extension "${args.name}" successfully enabled in all scopes.`);
     }
   } catch (error) {
     throw new FatalConfigError(getErrorMessage(error));
@@ -82,8 +68,7 @@ export const enableCommand: CommandModule = {
         type: 'string',
       })
       .option('scope', {
-        describe:
-          'The scope to enable the extension in. If not set, will be enabled in all scopes.',
+        describe: 'The scope to enable the extension in. If not set, will be enabled in all scopes.',
         type: 'string',
       })
       .check((argv) => {
@@ -94,11 +79,9 @@ export const enableCommand: CommandModule = {
             .includes(argv.scope.toLowerCase())
         ) {
           throw new Error(
-            `Invalid scope: ${argv.scope}. Please use one of ${Object.values(
-              SettingScope,
-            )
+            `Invalid scope: ${argv.scope}. Please use one of ${Object.values(SettingScope)
               .map((s) => s.toLowerCase())
-              .join(', ')}.`,
+              .join(', ')}.`
           );
         }
         return true;

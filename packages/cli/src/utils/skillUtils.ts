@@ -6,11 +6,7 @@
 
 import { SettingScope } from '../config/settings.js';
 import type { SkillActionResult } from './skillSettings.js';
-import {
-  Storage,
-  loadSkillsFromDir,
-  type SkillDefinition,
-} from '@google/gemini-cli-core';
+import { Storage, loadSkillsFromDir, type SkillDefinition } from '@google/gemini-cli-core';
 import { cloneFromGit } from '../config/extensions/github.js';
 import extract from 'extract-zip';
 import * as fs from 'node:fs/promises';
@@ -28,15 +24,12 @@ import * as os from 'node:os';
  */
 export function renderSkillActionFeedback(
   result: SkillActionResult,
-  formatScope: (label: string, path: string) => string,
+  formatScope: (label: string, path: string) => string
 ): string {
   const { skillName, action, status, error } = result;
 
   if (status === 'error') {
-    return (
-      error ||
-      `An error occurred while attempting to ${action} skill "${skillName}".`
-    );
+    return error || `An error occurred while attempting to ${action} skill "${skillName}".`;
   }
 
   if (status === 'no-op') {
@@ -45,20 +38,14 @@ export function renderSkillActionFeedback(
 
   const isEnable = action === 'enable';
   const actionVerb = isEnable ? 'enabled' : 'disabled';
-  const preposition = isEnable
-    ? 'by removing it from the disabled list in'
-    : 'by adding it to the disabled list in';
+  const preposition = isEnable ? 'by removing it from the disabled list in' : 'by adding it to the disabled list in';
 
   const formatScopeItem = (s: { scope: SettingScope; path: string }) => {
-    const label =
-      s.scope === SettingScope.Workspace ? 'workspace' : s.scope.toLowerCase();
+    const label = s.scope === SettingScope.Workspace ? 'workspace' : s.scope.toLowerCase();
     return formatScope(label, s.path);
   };
 
-  const totalAffectedScopes = [
-    ...result.modifiedScopes,
-    ...result.alreadyInStateScopes,
-  ];
+  const totalAffectedScopes = [...result.modifiedScopes, ...result.alreadyInStateScopes];
 
   if (totalAffectedScopes.length === 2) {
     const s1 = formatScopeItem(totalAffectedScopes[0]);
@@ -83,26 +70,18 @@ export async function installSkill(
   scope: 'user' | 'workspace',
   subpath: string | undefined,
   onLog: (msg: string) => void,
-  requestConsent: (
-    skills: SkillDefinition[],
-    targetDir: string,
-  ) => Promise<boolean> = () => Promise.resolve(true),
+  requestConsent: (skills: SkillDefinition[], targetDir: string) => Promise<boolean> = () => Promise.resolve(true)
 ): Promise<Array<{ name: string; location: string }>> {
   let sourcePath = source;
   let tempDirToClean: string | undefined = undefined;
 
-  const isGitUrl =
-    source.startsWith('git@') ||
-    source.startsWith('http://') ||
-    source.startsWith('https://');
+  const isGitUrl = source.startsWith('git@') || source.startsWith('http://') || source.startsWith('https://');
 
   const isSkillFile = source.toLowerCase().endsWith('.skill');
 
   try {
     if (isGitUrl) {
-      tempDirToClean = await fs.mkdtemp(
-        path.join(os.tmpdir(), 'gemini-skill-'),
-      );
+      tempDirToClean = await fs.mkdtemp(path.join(os.tmpdir(), 'gemini-skill-'));
       sourcePath = tempDirToClean;
 
       onLog(`Cloning skill from ${source}...`);
@@ -112,12 +91,10 @@ export async function installSkill(
           source,
           type: 'git',
         },
-        tempDirToClean,
+        tempDirToClean
       );
     } else if (isSkillFile) {
-      tempDirToClean = await fs.mkdtemp(
-        path.join(os.tmpdir(), 'gemini-skill-'),
-      );
+      tempDirToClean = await fs.mkdtemp(path.join(os.tmpdir(), 'gemini-skill-'));
       sourcePath = tempDirToClean;
 
       onLog(`Extracting skill from ${source}...`);
@@ -132,10 +109,7 @@ export async function installSkill(
     sourcePath = path.resolve(sourcePath);
 
     // Quick security check to prevent directory traversal out of temp dir when cloning
-    if (
-      tempDirToClean &&
-      !sourcePath.startsWith(path.resolve(tempDirToClean))
-    ) {
+    if (tempDirToClean && !sourcePath.startsWith(path.resolve(tempDirToClean))) {
       throw new Error('Invalid path: Directory traversal not allowed.');
     }
 
@@ -144,16 +118,13 @@ export async function installSkill(
 
     if (skills.length === 0) {
       throw new Error(
-        `No valid skills found in ${source}${subpath ? ` at path "${subpath}"` : ''}. Ensure a SKILL.md file exists with valid frontmatter.`,
+        `No valid skills found in ${source}${subpath ? ` at path "${subpath}"` : ''}. Ensure a SKILL.md file exists with valid frontmatter.`
       );
     }
 
     const workspaceDir = process.cwd();
     const storage = new Storage(workspaceDir);
-    const targetDir =
-      scope === 'workspace'
-        ? storage.getProjectSkillsDir()
-        : Storage.getUserSkillsDir();
+    const targetDir = scope === 'workspace' ? storage.getProjectSkillsDir() : Storage.getUserSkillsDir();
 
     if (!(await requestConsent(skills, targetDir))) {
       throw new Error('Skill installation cancelled by user.');
@@ -193,10 +164,7 @@ export async function linkSkill(
   source: string,
   scope: 'user' | 'workspace',
   onLog: (msg: string) => void,
-  requestConsent: (
-    skills: SkillDefinition[],
-    targetDir: string,
-  ) => Promise<boolean> = () => Promise.resolve(true),
+  requestConsent: (skills: SkillDefinition[], targetDir: string) => Promise<boolean> = () => Promise.resolve(true)
 ): Promise<Array<{ name: string; location: string }>> {
   const sourcePath = path.resolve(source);
 
@@ -204,9 +172,7 @@ export async function linkSkill(
   const skills = await loadSkillsFromDir(sourcePath);
 
   if (skills.length === 0) {
-    throw new Error(
-      `No valid skills found in "${sourcePath}". Ensure a SKILL.md file exists with valid frontmatter.`,
-    );
+    throw new Error(`No valid skills found in "${sourcePath}". Ensure a SKILL.md file exists with valid frontmatter.`);
   }
 
   // Check for internal name collisions
@@ -214,7 +180,7 @@ export async function linkSkill(
   for (const skill of skills) {
     if (seenNames.has(skill.name)) {
       throw new Error(
-        `Duplicate skill name "${skill.name}" found at multiple locations:\n  - ${seenNames.get(skill.name)}\n  - ${skill.location}`,
+        `Duplicate skill name "${skill.name}" found at multiple locations:\n  - ${seenNames.get(skill.name)}\n  - ${skill.location}`
       );
     }
     seenNames.set(skill.name, skill.location);
@@ -222,10 +188,7 @@ export async function linkSkill(
 
   const workspaceDir = process.cwd();
   const storage = new Storage(workspaceDir);
-  const targetDir =
-    scope === 'workspace'
-      ? storage.getProjectSkillsDir()
-      : Storage.getUserSkillsDir();
+  const targetDir = scope === 'workspace' ? storage.getProjectSkillsDir() : Storage.getUserSkillsDir();
 
   if (!(await requestConsent(skills, targetDir))) {
     throw new Error('Skill linking cancelled by user.');
@@ -242,9 +205,7 @@ export async function linkSkill(
 
     const exists = await fs.lstat(destPath).catch(() => null);
     if (exists) {
-      onLog(
-        `Skill "${skillName}" already exists at destination. Overwriting...`,
-      );
+      onLog(`Skill "${skillName}" already exists at destination. Overwriting...`);
       await fs.rm(destPath, { recursive: true, force: true });
     }
 
@@ -258,16 +219,10 @@ export async function linkSkill(
 /**
  * Central logic for uninstalling a skill by name.
  */
-export async function uninstallSkill(
-  name: string,
-  scope: 'user' | 'workspace',
-): Promise<{ location: string } | null> {
+export async function uninstallSkill(name: string, scope: 'user' | 'workspace'): Promise<{ location: string } | null> {
   const workspaceDir = process.cwd();
   const storage = new Storage(workspaceDir);
-  const targetDir =
-    scope === 'workspace'
-      ? storage.getProjectSkillsDir()
-      : Storage.getUserSkillsDir();
+  const targetDir = scope === 'workspace' ? storage.getProjectSkillsDir() : Storage.getUserSkillsDir();
 
   const skillPath = path.join(targetDir, name);
 

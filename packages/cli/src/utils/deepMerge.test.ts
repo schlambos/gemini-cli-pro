@@ -36,8 +36,7 @@ describe('customDeepMerge', () => {
   it('should concatenate arrays with CONCAT strategy', () => {
     const target = { a: [1, 2] };
     const source = { a: [3, 4] };
-    const getMergeStrategy = (path: string[]) =>
-      path.join('.') === 'a' ? MergeStrategy.CONCAT : undefined;
+    const getMergeStrategy = (path: string[]) => (path.join('.') === 'a' ? MergeStrategy.CONCAT : undefined);
     const result = customDeepMerge(getMergeStrategy, target, source);
     expect(result).toEqual({ a: [1, 2, 3, 4] });
   });
@@ -45,8 +44,7 @@ describe('customDeepMerge', () => {
   it('should union arrays with UNION strategy', () => {
     const target = { a: [1, 2, 3] };
     const source = { a: [3, 4, 5] };
-    const getMergeStrategy = (path: string[]) =>
-      path.join('.') === 'a' ? MergeStrategy.UNION : undefined;
+    const getMergeStrategy = (path: string[]) => (path.join('.') === 'a' ? MergeStrategy.UNION : undefined);
     const result = customDeepMerge(getMergeStrategy, target, source);
     expect(result).toEqual({ a: [1, 2, 3, 4, 5] });
   });
@@ -54,8 +52,7 @@ describe('customDeepMerge', () => {
   it('should shallow merge objects with SHALLOW_MERGE strategy', () => {
     const target = { a: { x: 1, y: 1 } };
     const source = { a: { y: 2, z: 2 } };
-    const getMergeStrategy = (path: string[]) =>
-      path.join('.') === 'a' ? MergeStrategy.SHALLOW_MERGE : undefined;
+    const getMergeStrategy = (path: string[]) => (path.join('.') === 'a' ? MergeStrategy.SHALLOW_MERGE : undefined);
     const result = customDeepMerge(getMergeStrategy, target, source);
     // This is still a deep merge, but the properties of the object are merged.
     expect(result).toEqual({ a: { x: 1, y: 2, z: 2 } });

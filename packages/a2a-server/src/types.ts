@@ -4,10 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type {
-  MCPServerStatus,
-  ToolConfirmationOutcome,
-} from '@google/gemini-cli-core';
+import type { MCPServerStatus, ToolConfirmationOutcome } from '@google/gemini-cli-core';
 import type { TaskState } from '@a2a-js/sdk';
 
 // Interfaces and enums for the CoderAgent protocol.
@@ -122,16 +119,14 @@ export type PersistedTaskMetadata = { [k: string]: unknown };
 
 export const METADATA_KEY = '__persistedState';
 
-export function getPersistedState(
-  metadata: PersistedTaskMetadata,
-): PersistedStateMetadata | undefined {
+export function getPersistedState(metadata: PersistedTaskMetadata): PersistedStateMetadata | undefined {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
   return metadata?.[METADATA_KEY] as PersistedStateMetadata | undefined;
 }
 
 export function setPersistedState(
   metadata: PersistedTaskMetadata,
-  state: PersistedStateMetadata,
+  state: PersistedStateMetadata
 ): PersistedTaskMetadata {
   return {
     ...metadata,

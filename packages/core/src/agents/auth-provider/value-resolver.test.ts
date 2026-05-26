@@ -5,11 +5,7 @@
  */
 
 import { describe, it, expect, afterEach, vi } from 'vitest';
-import {
-  resolveAuthValue,
-  needsResolution,
-  maskSensitiveValue,
-} from './value-resolver.js';
+import { resolveAuthValue, needsResolution, maskSensitiveValue } from './value-resolver.js';
 
 describe('value-resolver', () => {
   describe('resolveAuthValue', () => {
@@ -26,14 +22,14 @@ describe('value-resolver', () => {
 
       it('should throw error for unset environment variable', async () => {
         await expect(resolveAuthValue('$UNSET_VAR_12345')).rejects.toThrow(
-          "Environment variable 'UNSET_VAR_12345' is not set or is empty",
+          "Environment variable 'UNSET_VAR_12345' is not set or is empty"
         );
       });
 
       it('should throw error for empty environment variable', async () => {
         vi.stubEnv('EMPTY_VAR', '');
         await expect(resolveAuthValue('$EMPTY_VAR')).rejects.toThrow(
-          "Environment variable 'EMPTY_VAR' is not set or is empty",
+          "Environment variable 'EMPTY_VAR' is not set or is empty"
         );
       });
     });
@@ -50,21 +46,15 @@ describe('value-resolver', () => {
       });
 
       it('should throw error for empty command', async () => {
-        await expect(resolveAuthValue('!')).rejects.toThrow(
-          'Empty command in auth value',
-        );
+        await expect(resolveAuthValue('!')).rejects.toThrow('Empty command in auth value');
       });
 
       it('should throw error for command that returns empty output', async () => {
-        await expect(resolveAuthValue('!echo -n ""')).rejects.toThrow(
-          'returned empty output',
-        );
+        await expect(resolveAuthValue('!echo -n ""')).rejects.toThrow('returned empty output');
       });
 
       it('should throw error for failed command', async () => {
-        await expect(
-          resolveAuthValue('!nonexistent-command-12345'),
-        ).rejects.toThrow(/Command.*failed/);
+        await expect(resolveAuthValue('!nonexistent-command-12345')).rejects.toThrow(/Command.*failed/);
       });
     });
 

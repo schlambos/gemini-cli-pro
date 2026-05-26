@@ -86,11 +86,7 @@ export class Storage {
   }
 
   static getAcknowledgedAgentsPath(): string {
-    return path.join(
-      Storage.getGlobalGeminiDir(),
-      'acknowledgments',
-      'agents.json',
-    );
+    return path.join(Storage.getGlobalGeminiDir(), 'acknowledgments', 'agents.json');
   }
 
   private static getSystemConfigDir(): string {
@@ -172,10 +168,7 @@ export class Storage {
         return;
       }
 
-      const registryPath = path.join(
-        Storage.getGlobalGeminiDir(),
-        'projects.json',
-      );
+      const registryPath = path.join(Storage.getGlobalGeminiDir(), 'projects.json');
       const registry = new ProjectRegistry(registryPath, [
         Storage.getGlobalTempDir(),
         path.join(Storage.getGlobalGeminiDir(), 'history'),

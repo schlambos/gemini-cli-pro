@@ -4,10 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  type TerminalBackgroundColor,
-  terminalCapabilityManager,
-} from '../ui/utils/terminalCapabilityManager.js';
+import { type TerminalBackgroundColor, terminalCapabilityManager } from '../ui/utils/terminalCapabilityManager.js';
 import { themeManager, DEFAULT_THEME } from '../ui/themes/theme-manager.js';
 import { pickDefaultThemeName } from '../ui/themes/theme.js';
 import { getThemeTypeFromBackgroundColor } from '../ui/themes/color-utils.js';
@@ -22,7 +19,7 @@ import { type Config, coreEvents, debugLogger } from '@google/gemini-cli-core';
  */
 export async function setupTerminalAndTheme(
   config: Config,
-  settings: LoadedSettings,
+  settings: LoadedSettings
 ): Promise<TerminalBackgroundColor> {
   let terminalBackground: TerminalBackgroundColor = undefined;
   if (config.isInteractive() && process.stdin.isTTY) {
@@ -38,9 +35,7 @@ export async function setupTerminalAndTheme(
     if (!themeManager.setActiveTheme(settings.merged.ui.theme)) {
       // If the theme is not found during initial load, log a warning and continue.
       // The useThemeCommand hook in AppContainer.tsx will handle opening the dialog.
-      debugLogger.warn(
-        `Warning: Theme "${settings.merged.ui.theme}" not found.`,
-      );
+      debugLogger.warn(`Warning: Theme "${settings.merged.ui.theme}" not found.`);
     }
   } else {
     // If no theme is set, check terminal background color
@@ -48,7 +43,7 @@ export async function setupTerminalAndTheme(
       terminalBackground,
       themeManager.getAllThemes(),
       DEFAULT_THEME.name,
-      'Default Light',
+      'Default Light'
     );
     themeManager.setActiveTheme(themeName);
   }
@@ -59,11 +54,10 @@ export async function setupTerminalAndTheme(
   if (terminalBackground !== undefined) {
     const currentTheme = themeManager.getActiveTheme();
     if (!themeManager.isThemeCompatible(currentTheme, terminalBackground)) {
-      const backgroundType =
-        getThemeTypeFromBackgroundColor(terminalBackground);
+      const backgroundType = getThemeTypeFromBackgroundColor(terminalBackground);
       coreEvents.emitFeedback(
         'warning',
-        `Theme '${currentTheme.name}' (${currentTheme.type}) might look incorrect on your ${backgroundType} terminal background. Type /theme to change theme.`,
+        `Theme '${currentTheme.name}' (${currentTheme.type}) might look incorrect on your ${backgroundType} terminal background. Type /theme to change theme.`
       );
     }
   }

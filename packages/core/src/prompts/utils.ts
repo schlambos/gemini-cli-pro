@@ -43,10 +43,7 @@ export function resolvePathFromEnv(envVar?: string): ResolvedPath {
         customPath = path.join(home, customPath.slice(2));
       }
     } catch (error) {
-      debugLogger.warn(
-        `Could not resolve home directory for path: ${trimmedEnvVar}`,
-        error,
-      );
+      debugLogger.warn(`Could not resolve home directory for path: ${trimmedEnvVar}`, error);
       return { isSwitch: false, value: null, isDisabled: false };
     }
   }
@@ -65,7 +62,7 @@ export function applySubstitutions(
   prompt: string,
   config: Config,
   skillsPrompt: string,
-  isGemini3: boolean = false,
+  isGemini3: boolean = false
 ): string {
   let result = prompt;
 
@@ -79,7 +76,7 @@ export function applySubstitutions(
       .map((d) => ({
         name: d.name,
         description: d.description,
-      })),
+      }))
   );
 
   result = result.replace(/\${SubAgents}/g, subAgentsContent);
@@ -87,17 +84,12 @@ export function applySubstitutions(
   const toolRegistry = config.getToolRegistry();
   const allToolNames = toolRegistry.getAllToolNames();
   const availableToolsList =
-    allToolNames.length > 0
-      ? allToolNames.map((name) => `- ${name}`).join('\n')
-      : 'No tools are currently available.';
+    allToolNames.length > 0 ? allToolNames.map((name) => `- ${name}`).join('\n') : 'No tools are currently available.';
   result = result.replace(/\${AvailableTools}/g, availableToolsList);
 
   for (const toolName of allToolNames) {
     const varName = `${toolName}_ToolName`;
-    result = result.replace(
-      new RegExp(`\\\${\\b${varName}\\b}`, 'g'),
-      toolName,
-    );
+    result = result.replace(new RegExp(`\\\${\\b${varName}\\b}`, 'g'), toolName);
   }
 
   return result;

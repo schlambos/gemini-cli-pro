@@ -51,9 +51,7 @@ export const ContextSummaryDisplay: React.FC<ContextSummaryDisplayProps> = ({
     if (openFileCount === 0) {
       return '';
     }
-    return `${openFileCount} open file${
-      openFileCount > 1 ? 's' : ''
-    } (ctrl+g to view)`;
+    return `${openFileCount} open file${openFileCount > 1 ? 's' : ''} (ctrl+g to view)`;
   })();
 
   const geminiMdText = (() => {
@@ -62,9 +60,7 @@ export const ContextSummaryDisplay: React.FC<ContextSummaryDisplayProps> = ({
     }
     const allNamesTheSame = new Set(contextFileNames).size < 2;
     const name = allNamesTheSame ? contextFileNames[0] : 'context';
-    return `${geminiMdFileCount} ${name} file${
-      geminiMdFileCount > 1 ? 's' : ''
-    }`;
+    return `${geminiMdFileCount} ${name} file${geminiMdFileCount > 1 ? 's' : ''}`;
   })();
 
   const mcpText = (() => {
@@ -74,9 +70,7 @@ export const ContextSummaryDisplay: React.FC<ContextSummaryDisplayProps> = ({
 
     const parts = [];
     if (mcpServerCount > 0) {
-      parts.push(
-        `${mcpServerCount} MCP server${mcpServerCount > 1 ? 's' : ''}`,
-      );
+      parts.push(`${mcpServerCount} MCP server${mcpServerCount > 1 ? 's' : ''}`);
     }
 
     if (blockedMcpServerCount > 0) {
@@ -100,22 +94,14 @@ export const ContextSummaryDisplay: React.FC<ContextSummaryDisplayProps> = ({
     if (backgroundProcessCount === 0) {
       return '';
     }
-    return `${backgroundProcessCount} Background process${
-      backgroundProcessCount > 1 ? 'es' : ''
-    }`;
+    return `${backgroundProcessCount} Background process${backgroundProcessCount > 1 ? 'es' : ''}`;
   })();
 
-  const summaryParts = [
-    openFilesText,
-    geminiMdText,
-    mcpText,
-    skillText,
-    backgroundText,
-  ].filter(Boolean);
+  const summaryParts = [openFilesText, geminiMdText, mcpText, skillText, backgroundText].filter(Boolean);
 
   if (isNarrow) {
     return (
-      <Box flexDirection="column" paddingX={1}>
+      <Box flexDirection='column' paddingX={1}>
         {summaryParts.map((part, index) => (
           <Text key={index} color={theme.text.secondary}>
             - {part}

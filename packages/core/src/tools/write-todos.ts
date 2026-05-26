@@ -5,24 +5,13 @@
  */
 
 import type { ToolInvocation } from './tools.js';
-import {
-  BaseDeclarativeTool,
-  BaseToolInvocation,
-  Kind,
-  type Todo,
-  type ToolResult,
-} from './tools.js';
+import { BaseDeclarativeTool, BaseToolInvocation, Kind, type Todo, type ToolResult } from './tools.js';
 import type { MessageBus } from '../confirmation-bus/message-bus.js';
 import { WRITE_TODOS_TOOL_NAME } from './tool-names.js';
 import { WRITE_TODOS_DEFINITION } from './definitions/coreTools.js';
 import { resolveToolDeclaration } from './definitions/resolver.js';
 
-const TODO_STATUSES = [
-  'pending',
-  'in_progress',
-  'completed',
-  'cancelled',
-] as const;
+const TODO_STATUSES = ['pending', 'in_progress', 'completed', 'cancelled'] as const;
 
 export interface WriteTodosToolParams {
   /**
@@ -31,16 +20,8 @@ export interface WriteTodosToolParams {
   todos: Todo[];
 }
 
-class WriteTodosToolInvocation extends BaseToolInvocation<
-  WriteTodosToolParams,
-  ToolResult
-> {
-  constructor(
-    params: WriteTodosToolParams,
-    messageBus: MessageBus,
-    _toolName?: string,
-    _toolDisplayName?: string,
-  ) {
+class WriteTodosToolInvocation extends BaseToolInvocation<WriteTodosToolParams, ToolResult> {
+  constructor(params: WriteTodosToolParams, messageBus: MessageBus, _toolName?: string, _toolDisplayName?: string) {
     super(params, messageBus, _toolName, _toolDisplayName);
   }
 
@@ -52,16 +33,9 @@ class WriteTodosToolInvocation extends BaseToolInvocation<
     return `Set ${count} todo(s)`;
   }
 
-  async execute(
-    _signal: AbortSignal,
-    _updateOutput?: (output: string) => void,
-  ): Promise<ToolResult> {
+  async execute(_signal: AbortSignal, _updateOutput?: (output: string) => void): Promise<ToolResult> {
     const todos = this.params.todos ?? [];
-    const todoListString = todos
-      .map(
-        (todo, index) => `${index + 1}. [${todo.status}] ${todo.description}`,
-      )
-      .join('\n');
+    const todoListString = todos.map((todo, index) => `${index + 1}. [${todo.status}] ${todo.description}`).join('\n');
 
     const llmContent =
       todos.length > 0
@@ -75,10 +49,7 @@ class WriteTodosToolInvocation extends BaseToolInvocation<
   }
 }
 
-export class WriteTodosTool extends BaseDeclarativeTool<
-  WriteTodosToolParams,
-  ToolResult
-> {
+export class WriteTodosTool extends BaseDeclarativeTool<WriteTodosToolParams, ToolResult> {
   static readonly Name = WRITE_TODOS_TOOL_NAME;
 
   constructor(messageBus: MessageBus) {
@@ -90,7 +61,7 @@ export class WriteTodosTool extends BaseDeclarativeTool<
       WRITE_TODOS_DEFINITION.base.parametersJsonSchema,
       messageBus,
       true, // isOutputMarkdown
-      false, // canUpdateOutput
+      false // canUpdateOutput
     );
   }
 
@@ -98,9 +69,7 @@ export class WriteTodosTool extends BaseDeclarativeTool<
     return resolveToolDeclaration(WRITE_TODOS_DEFINITION, modelId);
   }
 
-  protected override validateToolParamValues(
-    params: WriteTodosToolParams,
-  ): string | null {
+  protected override validateToolParamValues(params: WriteTodosToolParams): string | null {
     const todos = params?.todos;
     if (!params || !Array.isArray(todos)) {
       return '`todos` parameter must be an array';
@@ -118,9 +87,7 @@ export class WriteTodosTool extends BaseDeclarativeTool<
       }
     }
 
-    const inProgressCount = todos.filter(
-      (todo: Todo) => todo.status === 'in_progress',
-    ).length;
+    const inProgressCount = todos.filter((todo: Todo) => todo.status === 'in_progress').length;
 
     if (inProgressCount > 1) {
       return 'Invalid parameters: Only one task can be "in_progress" at a time.';
@@ -133,13 +100,8 @@ export class WriteTodosTool extends BaseDeclarativeTool<
     params: WriteTodosToolParams,
     messageBus: MessageBus,
     _toolName?: string,
-    _displayName?: string,
+    _displayName?: string
   ): ToolInvocation<WriteTodosToolParams, ToolResult> {
-    return new WriteTodosToolInvocation(
-      params,
-      messageBus,
-      _toolName,
-      _displayName,
-    );
+    return new WriteTodosToolInvocation(params, messageBus, _toolName, _displayName);
   }
 }

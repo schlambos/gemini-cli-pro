@@ -15,8 +15,7 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Mock debugLogger
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     debugLogger: {
@@ -44,10 +43,7 @@ describe('IdeIntegrationNudge', () => {
 
   beforeEach(() => {
     vi.mocked(debugLogger.warn).mockImplementation((...args) => {
-      if (
-        typeof args[0] === 'string' &&
-        /was not wrapped in act/.test(args[0])
-      ) {
+      if (typeof args[0] === 'string' && /was not wrapped in act/.test(args[0])) {
         return;
       }
     });
@@ -59,7 +55,7 @@ describe('IdeIntegrationNudge', () => {
     const { lastFrame } = render(
       <KeypressProvider>
         <IdeIntegrationNudge {...defaultProps} />
-      </KeypressProvider>,
+      </KeypressProvider>
     );
     await act(async () => {
       await delay(100);
@@ -77,7 +73,7 @@ describe('IdeIntegrationNudge', () => {
     const { stdin } = render(
       <KeypressProvider>
         <IdeIntegrationNudge {...defaultProps} onComplete={onComplete} />
-      </KeypressProvider>,
+      </KeypressProvider>
     );
 
     await act(async () => {
@@ -101,7 +97,7 @@ describe('IdeIntegrationNudge', () => {
     const { stdin } = render(
       <KeypressProvider>
         <IdeIntegrationNudge {...defaultProps} onComplete={onComplete} />
-      </KeypressProvider>,
+      </KeypressProvider>
     );
 
     await act(async () => {
@@ -129,7 +125,7 @@ describe('IdeIntegrationNudge', () => {
     const { stdin } = render(
       <KeypressProvider>
         <IdeIntegrationNudge {...defaultProps} onComplete={onComplete} />
-      </KeypressProvider>,
+      </KeypressProvider>
     );
 
     await act(async () => {
@@ -161,7 +157,7 @@ describe('IdeIntegrationNudge', () => {
     const { stdin } = render(
       <KeypressProvider>
         <IdeIntegrationNudge {...defaultProps} onComplete={onComplete} />
-      </KeypressProvider>,
+      </KeypressProvider>
     );
 
     await act(async () => {
@@ -188,7 +184,7 @@ describe('IdeIntegrationNudge', () => {
     const { lastFrame, stdin } = render(
       <KeypressProvider>
         <IdeIntegrationNudge {...defaultProps} onComplete={onComplete} />
-      </KeypressProvider>,
+      </KeypressProvider>
     );
 
     await act(async () => {
@@ -197,9 +193,7 @@ describe('IdeIntegrationNudge', () => {
 
     const frame = lastFrame();
 
-    expect(frame).toContain(
-      'If you select Yes, the CLI will have access to your open files',
-    );
+    expect(frame).toContain('If you select Yes, the CLI will have access to your open files');
     expect(frame).not.toContain("we'll install an extension");
 
     // Select "Yes"

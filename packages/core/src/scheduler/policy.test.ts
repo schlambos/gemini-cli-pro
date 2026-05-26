@@ -4,15 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  type Mocked,
-  beforeEach,
-  afterEach,
-} from 'vitest';
+import { describe, it, expect, vi, type Mocked, beforeEach, afterEach } from 'vitest';
 import { checkPolicy, updatePolicy, getPolicyDenialError } from './policy.js';
 import type { Config } from '../config/config.js';
 import type { MessageBus } from '../confirmation-bus/message-bus.js';
@@ -25,11 +17,7 @@ import {
   type ToolExecuteConfirmationDetails,
   type AnyToolInvocation,
 } from '../tools/tools.js';
-import type {
-  ValidatingToolCall,
-  ToolCallRequestInfo,
-  CompletedToolCall,
-} from './types.js';
+import type { ValidatingToolCall, ToolCallRequestInfo, CompletedToolCall } from './types.js';
 import type { PolicyEngine } from '../policy/policy-engine.js';
 import { DiscoveredMCPTool } from '../tools/mcp-tool.js';
 import { CoreToolScheduler } from '../core/coreToolScheduler.js';
@@ -56,10 +44,7 @@ describe('policy.ts', () => {
 
       const result = await checkPolicy(toolCall, mockConfig);
       expect(result.decision).toBe(PolicyDecision.ALLOW);
-      expect(mockPolicyEngine.check).toHaveBeenCalledWith(
-        { name: 'test-tool', args: {} },
-        undefined,
-      );
+      expect(mockPolicyEngine.check).toHaveBeenCalledWith({ name: 'test-tool', args: {} }, undefined);
     });
 
     it('should pass serverName for MCP tools', async () => {
@@ -80,10 +65,7 @@ describe('policy.ts', () => {
       } as ValidatingToolCall;
 
       await checkPolicy(toolCall, mockConfig);
-      expect(mockPolicyEngine.check).toHaveBeenCalledWith(
-        { name: 'mcp-tool', args: {} },
-        'my-server',
-      );
+      expect(mockPolicyEngine.check).toHaveBeenCalledWith({ name: 'mcp-tool', args: {} }, 'my-server');
     });
 
     it('should throw if ASK_USER is returned in non-interactive mode', async () => {
@@ -101,9 +83,7 @@ describe('policy.ts', () => {
         tool: { name: 'test-tool' },
       } as ValidatingToolCall;
 
-      await expect(checkPolicy(toolCall, mockConfig)).rejects.toThrow(
-        /not supported in non-interactive mode/,
-      );
+      await expect(checkPolicy(toolCall, mockConfig)).rejects.toThrow(/not supported in non-interactive mode/);
     });
 
     it('should return DENY without throwing', async () => {
@@ -155,16 +135,12 @@ describe('policy.ts', () => {
 
       const tool = { name: 'replace' } as AnyDeclarativeTool; // 'replace' is in EDIT_TOOL_NAMES
 
-      await updatePolicy(
-        tool,
-        ToolConfirmationOutcome.ProceedAlways,
-        undefined,
-        { config: mockConfig, messageBus: mockMessageBus },
-      );
+      await updatePolicy(tool, ToolConfirmationOutcome.ProceedAlways, undefined, {
+        config: mockConfig,
+        messageBus: mockMessageBus,
+      });
 
-      expect(mockConfig.setApprovalMode).toHaveBeenCalledWith(
-        ApprovalMode.AUTO_EDIT,
-      );
+      expect(mockConfig.setApprovalMode).toHaveBeenCalledWith(ApprovalMode.AUTO_EDIT);
       expect(mockMessageBus.publish).not.toHaveBeenCalled();
     });
 
@@ -177,19 +153,17 @@ describe('policy.ts', () => {
       } as unknown as Mocked<MessageBus>;
       const tool = { name: 'test-tool' } as AnyDeclarativeTool;
 
-      await updatePolicy(
-        tool,
-        ToolConfirmationOutcome.ProceedAlways,
-        undefined,
-        { config: mockConfig, messageBus: mockMessageBus },
-      );
+      await updatePolicy(tool, ToolConfirmationOutcome.ProceedAlways, undefined, {
+        config: mockConfig,
+        messageBus: mockMessageBus,
+      });
 
       expect(mockMessageBus.publish).toHaveBeenCalledWith(
         expect.objectContaining({
           type: MessageBusType.UPDATE_POLICY,
           toolName: 'test-tool',
           persist: false,
-        }),
+        })
       );
     });
 
@@ -202,19 +176,17 @@ describe('policy.ts', () => {
       } as unknown as Mocked<MessageBus>;
       const tool = { name: 'test-tool' } as AnyDeclarativeTool;
 
-      await updatePolicy(
-        tool,
-        ToolConfirmationOutcome.ProceedAlwaysAndSave,
-        undefined,
-        { config: mockConfig, messageBus: mockMessageBus },
-      );
+      await updatePolicy(tool, ToolConfirmationOutcome.ProceedAlwaysAndSave, undefined, {
+        config: mockConfig,
+        messageBus: mockMessageBus,
+      });
 
       expect(mockMessageBus.publish).toHaveBeenCalledWith(
         expect.objectContaining({
           type: MessageBusType.UPDATE_POLICY,
           toolName: 'test-tool',
           persist: true,
-        }),
+        })
       );
     });
 
@@ -245,7 +217,7 @@ describe('policy.ts', () => {
           type: MessageBusType.UPDATE_POLICY,
           toolName: 'run_shell_command',
           commandPrefix: ['ls'],
-        }),
+        })
       );
     });
 
@@ -266,12 +238,10 @@ describe('policy.ts', () => {
         onConfirm: vi.fn(),
       };
 
-      await updatePolicy(
-        tool,
-        ToolConfirmationOutcome.ProceedAlwaysServer,
-        details,
-        { config: mockConfig, messageBus: mockMessageBus },
-      );
+      await updatePolicy(tool, ToolConfirmationOutcome.ProceedAlwaysServer, details, {
+        config: mockConfig,
+        messageBus: mockMessageBus,
+      });
 
       expect(mockMessageBus.publish).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -279,7 +249,7 @@ describe('policy.ts', () => {
           toolName: 'my-server__*',
           mcpName: 'my-server',
           persist: false,
-        }),
+        })
       );
     });
 
@@ -327,12 +297,10 @@ describe('policy.ts', () => {
       } as unknown as Mocked<MessageBus>;
       const tool = { name: 'test-tool' } as AnyDeclarativeTool;
 
-      await updatePolicy(
-        tool,
-        ToolConfirmationOutcome.ModifyWithEditor,
-        undefined,
-        { config: mockConfig, messageBus: mockMessageBus },
-      );
+      await updatePolicy(tool, ToolConfirmationOutcome.ModifyWithEditor, undefined, {
+        config: mockConfig,
+        messageBus: mockMessageBus,
+      });
 
       expect(mockMessageBus.publish).not.toHaveBeenCalled();
     });
@@ -354,12 +322,10 @@ describe('policy.ts', () => {
         onConfirm: vi.fn(),
       };
 
-      await updatePolicy(
-        tool,
-        ToolConfirmationOutcome.ProceedAlwaysTool,
-        details,
-        { config: mockConfig, messageBus: mockMessageBus },
-      );
+      await updatePolicy(tool, ToolConfirmationOutcome.ProceedAlwaysTool, details, {
+        config: mockConfig,
+        messageBus: mockMessageBus,
+      });
 
       expect(mockMessageBus.publish).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -367,7 +333,7 @@ describe('policy.ts', () => {
           toolName: 'mcp-tool', // Specific name, not wildcard
           mcpName: 'my-server',
           persist: false,
-        }),
+        })
       );
     });
 
@@ -399,7 +365,7 @@ describe('policy.ts', () => {
           toolName: 'mcp-tool',
           mcpName: 'my-server',
           persist: false,
-        }),
+        })
       );
     });
 
@@ -420,12 +386,10 @@ describe('policy.ts', () => {
         onConfirm: vi.fn(),
       };
 
-      await updatePolicy(
-        tool,
-        ToolConfirmationOutcome.ProceedAlwaysAndSave,
-        details,
-        { config: mockConfig, messageBus: mockMessageBus },
-      );
+      await updatePolicy(tool, ToolConfirmationOutcome.ProceedAlwaysAndSave, details, {
+        config: mockConfig,
+        messageBus: mockMessageBus,
+      });
 
       expect(mockMessageBus.publish).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -433,7 +397,7 @@ describe('policy.ts', () => {
           toolName: 'mcp-tool',
           mcpName: 'my-server',
           persist: true,
-        }),
+        })
       );
     });
   });
@@ -459,10 +423,7 @@ describe('policy.ts', () => {
         denyMessage: 'Custom Deny',
       };
 
-      const { errorMessage, errorType } = getPolicyDenialError(
-        mockConfig,
-        rule,
-      );
+      const { errorMessage, errorType } = getPolicyDenialError(mockConfig, rule);
 
       expect(errorMessage).toBe('Tool execution denied by policy. Custom Deny');
       expect(errorType).toBe(ToolErrorType.POLICY_VIOLATION);

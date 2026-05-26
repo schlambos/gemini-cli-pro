@@ -22,10 +22,7 @@ export class HookPlanner {
   /**
    * Create execution plan for a hook event
    */
-  createExecutionPlan(
-    eventName: HookEventName,
-    context?: HookEventContext,
-  ): HookExecutionPlan | null {
+  createExecutionPlan(eventName: HookEventName, context?: HookEventContext): HookExecutionPlan | null {
     const hookEntries = this.hookRegistry.getHooksForEvent(eventName);
 
     if (hookEntries.length === 0) {
@@ -33,9 +30,7 @@ export class HookPlanner {
     }
 
     // Filter hooks by matcher
-    const matchingEntries = hookEntries.filter((entry) =>
-      this.matchesContext(entry, context),
-    );
+    const matchingEntries = hookEntries.filter((entry) => this.matchesContext(entry, context));
 
     if (matchingEntries.length === 0) {
       return null;
@@ -48,9 +43,7 @@ export class HookPlanner {
     const hookConfigs = deduplicatedEntries.map((entry) => entry.config);
 
     // Determine execution strategy - if ANY hook definition has sequential=true, run all sequentially
-    const sequential = deduplicatedEntries.some(
-      (entry) => entry.sequential === true,
-    );
+    const sequential = deduplicatedEntries.some((entry) => entry.sequential === true);
 
     const plan: HookExecutionPlan = {
       eventName,
@@ -59,7 +52,7 @@ export class HookPlanner {
     };
 
     debugLogger.debug(
-      `Created execution plan for ${eventName}: ${hookConfigs.length} hook(s) to execute ${sequential ? 'sequentially' : 'in parallel'}`,
+      `Created execution plan for ${eventName}: ${hookConfigs.length} hook(s) to execute ${sequential ? 'sequentially' : 'in parallel'}`
     );
 
     return plan;
@@ -68,10 +61,7 @@ export class HookPlanner {
   /**
    * Check if a hook entry matches the given context
    */
-  private matchesContext(
-    entry: HookRegistryEntry,
-    context?: HookEventContext,
-  ): boolean {
+  private matchesContext(entry: HookRegistryEntry, context?: HookEventContext): boolean {
     if (!entry.matcher || !context) {
       return true; // No matcher means match all
     }

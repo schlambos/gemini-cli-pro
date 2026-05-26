@@ -30,11 +30,7 @@ describe('extension reloading', () => {
   // Fails in linux non-sandbox e2e tests
   // TODO(#14527): Re-enable this once fixed
   // Fails in sandbox mode, can't check for local extension updates.
-  itIf(
-    (!sandboxEnv || sandboxEnv === 'false') &&
-      platform() !== 'win32' &&
-      platform() !== 'linux',
-  )(
+  itIf((!sandboxEnv || sandboxEnv === 'false') && platform() !== 'win32' && platform() !== 'linux')(
     'installs a local extension, updates it, checks it was reloaded properly',
     async () => {
       const serverA = new TestMcpServer();
@@ -65,10 +61,7 @@ describe('extension reloading', () => {
         /* empty */
       }
 
-      const result = await rig.runCommand(
-        ['extensions', 'install', `${rig.testDir!}`],
-        { stdin: 'y\n' },
-      );
+      const result = await rig.runCommand(['extensions', 'install', `${rig.testDir!}`], { stdin: 'y\n' });
       expect(result).toContain('test-extension');
 
       // Now create the update, but its not installed yet
@@ -77,8 +70,7 @@ describe('extension reloading', () => {
         goodbye: () => ({ content: [{ type: 'text', text: 'world' }] }),
       });
       extension.version = '0.0.2';
-      extension.mcpServers['test-server'].httpUrl =
-        `http://localhost:${portB}/mcp`;
+      extension.mcpServers['test-server'].httpUrl = `http://localhost:${portB}/mcp`;
       writeFileSync(testServerPath, safeJsonStringify(extension, 2));
 
       // Start the CLI.
@@ -87,9 +79,7 @@ describe('extension reloading', () => {
       // See the outdated extension
       await run.sendText('/extensions list');
       await run.type('\r');
-      await run.expectText(
-        'test-extension (v0.0.1) - active (update available)',
-      );
+      await run.expectText('test-extension (v0.0.1) - active (update available)');
       // Wait for the UI to settle and retry the command until we see the update
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -101,13 +91,9 @@ describe('extension reloading', () => {
         },
         () => {
           const output = stripAnsi(run.output);
-          return (
-            output.includes(
-              'test-server (from test-extension) - Ready (1 tool)',
-            ) && output.includes('- hello')
-          );
+          return output.includes('test-server (from test-extension) - Ready (1 tool)') && output.includes('- hello');
         },
-        30000, // 30s timeout
+        30000 // 30s timeout
       );
 
       // Update the extension, expect the list to update, and mcp servers as well.
@@ -116,13 +102,9 @@ describe('extension reloading', () => {
       await run.type('\r');
       await new Promise((resolve) => setTimeout(resolve, 500));
       await run.type('\r');
-      await run.expectText(
-        ` * test-server (remote): http://localhost:${portB}/mcp`,
-      );
+      await run.expectText(` * test-server (remote): http://localhost:${portB}/mcp`);
       await run.type('\r'); // consent
-      await run.expectText(
-        'Extension "test-extension" successfully updated: 0.0.1 → 0.0.2',
-      );
+      await run.expectText('Extension "test-extension" successfully updated: 0.0.1 → 0.0.2');
 
       // Poll for the updated extension version
       await rig.pollCommand(
@@ -130,11 +112,8 @@ describe('extension reloading', () => {
           await run.sendText('/extensions list');
           await run.type('\r');
         },
-        () =>
-          stripAnsi(run.output).includes(
-            'test-extension (v0.0.2) - active (updated)',
-          ),
-        30000,
+        () => stripAnsi(run.output).includes('test-extension (v0.0.2) - active (updated)'),
+        30000
       );
 
       // Poll for the updated mcp tool
@@ -145,13 +124,9 @@ describe('extension reloading', () => {
         },
         () => {
           const output = stripAnsi(run.output);
-          return (
-            output.includes(
-              'test-server (from test-extension) - Ready (1 tool)',
-            ) && output.includes('- goodbye')
-          );
+          return output.includes('test-server (from test-extension) - Ready (1 tool)') && output.includes('- goodbye');
         },
-        30000,
+        30000
       );
 
       await run.sendText('/quit');
@@ -161,6 +136,6 @@ describe('extension reloading', () => {
       await serverA.stop();
       await serverB.stop();
       await rig.runCommand(['extensions', 'uninstall', 'test-extension']);
-    },
+    }
   );
 });

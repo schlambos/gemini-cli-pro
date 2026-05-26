@@ -61,7 +61,7 @@ const TestComponent = ({
     Array.from({ length: initialItems }, (_, i) => ({
       id: String(i),
       title: `Item ${i + 1}`,
-    })),
+    }))
   );
 
   const listRef = useRef<ScrollableListRef<Item>>(null);
@@ -88,35 +88,35 @@ const TestComponent = ({
     <MouseProvider mouseEventsEnabled={false}>
       <KeypressProvider>
         <ScrollProvider>
-          <Box flexDirection="column" width={80} height={24} padding={1}>
-            <Box flexGrow={1} borderStyle="round" borderColor="cyan">
+          <Box flexDirection='column' width={80} height={24} padding={1}>
+            <Box flexGrow={1} borderStyle='round' borderColor='cyan'>
               <ScrollableList
                 ref={listRef}
                 data={items}
                 renderItem={({ item, index }) => (
-                  <Box flexDirection="column" paddingBottom={2}>
+                  <Box flexDirection='column' paddingBottom={2}>
                     <Box
                       sticky
-                      flexDirection="column"
+                      flexDirection='column'
                       width={78}
                       opaque
                       stickyChildren={
-                        <Box flexDirection="column" width={78} opaque>
+                        <Box flexDirection='column' width={78} opaque>
                           <Text>{item.title}</Text>
                           <Box
-                            borderStyle="single"
+                            borderStyle='single'
                             borderTop={true}
                             borderBottom={false}
                             borderLeft={false}
                             borderRight={false}
-                            borderColor="gray"
+                            borderColor='gray'
                           />
                         </Box>
                       }
                     >
                       <Text>{item.title}</Text>
                     </Box>
-                    <Text color="gray">{getLorem(index)}</Text>
+                    <Text color='gray'>{getLorem(index)}</Text>
                   </Box>
                 )}
                 estimatedItemHeight={() => 14}
@@ -149,7 +149,7 @@ describe('ScrollableList Demo Behavior', () => {
           onRef={(ref) => {
             listRef = ref;
           }}
-        />,
+        />
       );
       lastFrame = result.lastFrame;
     });
@@ -217,17 +217,14 @@ describe('ScrollableList Demo Behavior', () => {
         <MouseProvider mouseEventsEnabled={false}>
           <KeypressProvider>
             <ScrollProvider>
-              <Box flexDirection="column" width={80} height={10}>
+              <Box flexDirection='column' width={80} height={10}>
                 <ScrollableList
                   ref={ref}
                   data={items}
                   renderItem={({ item, index }) => (
-                    <Box flexDirection="column" height={3}>
+                    <Box flexDirection='column' height={3}>
                       {index === 0 ? (
-                        <Box
-                          sticky
-                          stickyChildren={<Text>[STICKY] {item.title}</Text>}
-                        >
+                        <Box sticky stickyChildren={<Text>[STICKY] {item.title}</Text>}>
                           <Text>[Normal] {item.title}</Text>
                         </Box>
                       ) : (
@@ -316,7 +313,7 @@ describe('ScrollableList Demo Behavior', () => {
           <MouseProvider mouseEventsEnabled={false}>
             <KeypressProvider>
               <ScrollProvider>
-                <Box flexDirection="column" width={80} height={10}>
+                <Box flexDirection='column' width={80} height={10}>
                   <ScrollableList
                     ref={(ref) => {
                       listRef = ref;
@@ -330,7 +327,7 @@ describe('ScrollableList Demo Behavior', () => {
                 </Box>
               </ScrollProvider>
             </KeypressProvider>
-          </MouseProvider>,
+          </MouseProvider>
         );
         lastFrame = result.lastFrame;
         stdin = result.stdin;
@@ -420,7 +417,7 @@ describe('ScrollableList Demo Behavior', () => {
                 </Box>
               </ScrollProvider>
             </KeypressProvider>
-          </MouseProvider>,
+          </MouseProvider>
         );
         lastFrame = result.lastFrame;
       });

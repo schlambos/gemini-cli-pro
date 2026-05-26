@@ -18,13 +18,9 @@ import type { TextBuffer } from './shared/text-buffer.js';
 
 // Mock child components to simplify testing
 vi.mock('./ContextSummaryDisplay.js', () => ({
-  ContextSummaryDisplay: (props: {
-    skillCount: number;
-    backgroundProcessCount: number;
-  }) => (
+  ContextSummaryDisplay: (props: { skillCount: number; backgroundProcessCount: number }) => (
     <Text>
-      Mock Context Summary Display (Skills: {props.skillCount}, Shells:{' '}
-      {props.backgroundProcessCount})
+      Mock Context Summary Display (Skills: {props.skillCount}, Shells: {props.backgroundProcessCount})
     </Text>
   ),
 }));
@@ -73,7 +69,7 @@ const renderStatusDisplay = (
   props: { hideContextSummary: boolean } = { hideContextSummary: false },
   uiState: UIState = createMockUIState(),
   settings = createMockSettings(),
-  config = createMockConfig(),
+  config = createMockConfig()
 ) =>
   render(
     <ConfigContext.Provider value={config as unknown as Config}>
@@ -82,7 +78,7 @@ const renderStatusDisplay = (
           <StatusDisplay {...props} />
         </UIStateContext.Provider>
       </SettingsContext.Provider>
-    </ConfigContext.Provider>,
+    </ConfigContext.Provider>
   );
 
 describe('StatusDisplay', () => {
@@ -114,10 +110,7 @@ describe('StatusDisplay', () => {
     const uiState = createMockUIState({
       activeHooks: [{ name: 'hook', eventName: 'event' }],
     });
-    const { lastFrame } = renderStatusDisplay(
-      { hideContextSummary: false },
-      uiState,
-    );
+    const { lastFrame } = renderStatusDisplay({ hideContextSummary: false }, uiState);
     expect(lastFrame()).toMatchSnapshot();
   });
 
@@ -128,11 +121,7 @@ describe('StatusDisplay', () => {
     const settings = createMockSettings({
       hooksConfig: { notifications: false },
     });
-    const { lastFrame } = renderStatusDisplay(
-      { hideContextSummary: false },
-      uiState,
-      settings,
-    );
+    const { lastFrame } = renderStatusDisplay({ hideContextSummary: false }, uiState, settings);
     expect(lastFrame()).toMatchSnapshot();
   });
 
@@ -140,11 +129,7 @@ describe('StatusDisplay', () => {
     const settings = createMockSettings({
       ui: { hideContextSummary: true },
     });
-    const { lastFrame } = renderStatusDisplay(
-      { hideContextSummary: false },
-      undefined,
-      settings,
-    );
+    const { lastFrame } = renderStatusDisplay({ hideContextSummary: false }, undefined, settings);
     expect(lastFrame()).toBe('');
   });
 
@@ -152,10 +137,7 @@ describe('StatusDisplay', () => {
     const uiState = createMockUIState({
       backgroundShellCount: 3,
     });
-    const { lastFrame } = renderStatusDisplay(
-      { hideContextSummary: false },
-      uiState,
-    );
+    const { lastFrame } = renderStatusDisplay({ hideContextSummary: false }, uiState);
     expect(lastFrame()).toContain('Shells: 3');
   });
 });

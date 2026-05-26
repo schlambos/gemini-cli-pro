@@ -15,8 +15,7 @@ import { waitFor } from '../../test-utils/async.js';
 import { debugLogger } from '@google/gemini-cli-core';
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     isEditorAvailable: () => true, // Mock to behave predictably in CI
@@ -53,16 +52,11 @@ describe('EditorSettingsDialog', () => {
     vi.clearAllMocks();
   });
 
-  const renderWithProvider = (ui: React.ReactNode) =>
-    render(<KeypressProvider>{ui}</KeypressProvider>);
+  const renderWithProvider = (ui: React.ReactNode) => render(<KeypressProvider>{ui}</KeypressProvider>);
 
   it('renders correctly', () => {
     const { lastFrame } = renderWithProvider(
-      <EditorSettingsDialog
-        onSelect={vi.fn()}
-        settings={mockSettings}
-        onExit={vi.fn()}
-      />,
+      <EditorSettingsDialog onSelect={vi.fn()} settings={mockSettings} onExit={vi.fn()} />
     );
     expect(lastFrame()).toMatchSnapshot();
   });
@@ -70,11 +64,7 @@ describe('EditorSettingsDialog', () => {
   it('calls onSelect when an editor is selected', () => {
     const onSelect = vi.fn();
     const { lastFrame } = renderWithProvider(
-      <EditorSettingsDialog
-        onSelect={onSelect}
-        settings={mockSettings}
-        onExit={vi.fn()}
-      />,
+      <EditorSettingsDialog onSelect={onSelect} settings={mockSettings} onExit={vi.fn()} />
     );
 
     expect(lastFrame()).toContain('VS Code');
@@ -82,11 +72,7 @@ describe('EditorSettingsDialog', () => {
 
   it('switches focus between editor and scope sections on Tab', async () => {
     const { lastFrame, stdin } = renderWithProvider(
-      <EditorSettingsDialog
-        onSelect={vi.fn()}
-        settings={mockSettings}
-        onExit={vi.fn()}
-      />,
+      <EditorSettingsDialog onSelect={vi.fn()} settings={mockSettings} onExit={vi.fn()} />
     );
 
     // Initial focus on editor
@@ -102,10 +88,7 @@ describe('EditorSettingsDialog', () => {
     await waitFor(() => {
       const frame = lastFrame() || '';
       if (!frame.includes('> Apply To')) {
-        debugLogger.debug(
-          'Waiting for scope focus. Current frame:',
-          JSON.stringify(frame),
-        );
+        debugLogger.debug('Waiting for scope focus. Current frame:', JSON.stringify(frame));
       }
       expect(frame).toContain('> Apply To');
     });
@@ -125,11 +108,7 @@ describe('EditorSettingsDialog', () => {
   it('calls onExit when Escape is pressed', async () => {
     const onExit = vi.fn();
     const { stdin } = renderWithProvider(
-      <EditorSettingsDialog
-        onSelect={vi.fn()}
-        settings={mockSettings}
-        onExit={onExit}
-      />,
+      <EditorSettingsDialog onSelect={vi.fn()} settings={mockSettings} onExit={onExit} />
     );
 
     await act(async () => {
@@ -158,19 +137,12 @@ describe('EditorSettingsDialog', () => {
     } as unknown as LoadedSettings;
 
     const { lastFrame } = renderWithProvider(
-      <EditorSettingsDialog
-        onSelect={vi.fn()}
-        settings={settingsWithOtherScope}
-        onExit={vi.fn()}
-      />,
+      <EditorSettingsDialog onSelect={vi.fn()} settings={settingsWithOtherScope} onExit={vi.fn()} />
     );
 
     const frame = lastFrame() || '';
     if (!frame.includes('(Also modified')) {
-      debugLogger.debug(
-        'Modified message test failure. Frame:',
-        JSON.stringify(frame),
-      );
+      debugLogger.debug('Modified message test failure. Frame:', JSON.stringify(frame));
     }
     expect(frame).toContain('(Also modified');
   });

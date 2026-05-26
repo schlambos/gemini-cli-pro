@@ -20,7 +20,7 @@ describe('interactive_commands', () => {
           },
         },
         null,
-        2,
+        2
       ),
       'example.test.js': `
         import { test, expect } from 'vitest';
@@ -32,16 +32,11 @@ describe('interactive_commands', () => {
     assert: async (rig, result) => {
       const logs = rig.readToolLogs();
       const vitestCall = logs.find(
-        (l) =>
-          l.toolRequest.name === 'run_shell_command' &&
-          l.toolRequest.args.toLowerCase().includes('vitest'),
+        (l) => l.toolRequest.name === 'run_shell_command' && l.toolRequest.args.toLowerCase().includes('vitest')
       );
 
       expect(vitestCall, 'Agent should have called vitest').toBeDefined();
-      expect(
-        vitestCall?.toolRequest.args,
-        'Agent should have passed run arg',
-      ).toMatch(/\b(run|--run)\b/);
+      expect(vitestCall?.toolRequest.args, 'Agent should have passed run arg').toMatch(/\b(run|--run)\b/);
     },
   });
 
@@ -56,18 +51,13 @@ describe('interactive_commands', () => {
       const scaffoldCall = logs.find(
         (l) =>
           l.toolRequest.name === 'run_shell_command' &&
-          /npm (init|create)|npx create-|yarn create|pnpm create/.test(
-            l.toolRequest.args,
-          ),
+          /npm (init|create)|npx create-|yarn create|pnpm create/.test(l.toolRequest.args)
       );
 
-      expect(
-        scaffoldCall,
-        'Agent should have called a scaffolding command (e.g., npm create)',
-      ).toBeDefined();
+      expect(scaffoldCall, 'Agent should have called a scaffolding command (e.g., npm create)').toBeDefined();
       expect(
         scaffoldCall?.toolRequest.args,
-        'Agent should have passed a non-interactive flag (-y, --yes, or a specific --template)',
+        'Agent should have passed a non-interactive flag (-y, --yes, or a specific --template)'
       ).toMatch(/(?:^|\s)(--yes|-y|--template\s+\S+)(?:\s|$|\\|")/);
     },
   });

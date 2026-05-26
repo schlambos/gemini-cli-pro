@@ -98,10 +98,4 @@ export interface ResultEvent extends BaseJsonStreamEvent {
   stats?: StreamStats;
 }
 
-export type JsonStreamEvent =
-  | InitEvent
-  | MessageEvent
-  | ToolUseEvent
-  | ToolResultEvent
-  | ErrorEvent
-  | ResultEvent;
+export type JsonStreamEvent = InitEvent | MessageEvent | ToolUseEvent | ToolResultEvent | ErrorEvent | ResultEvent;

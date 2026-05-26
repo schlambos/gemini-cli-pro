@@ -10,16 +10,14 @@ import { describe, it, expect } from 'vitest';
 
 describe('InfoMessage', () => {
   it('renders with the correct default prefix and text', () => {
-    const { lastFrame } = render(<InfoMessage text="Just so you know" />);
+    const { lastFrame } = render(<InfoMessage text='Just so you know' />);
     const output = lastFrame();
 
     expect(output).toMatchSnapshot();
   });
 
   it('renders with a custom icon', () => {
-    const { lastFrame } = render(
-      <InfoMessage text="Custom icon test" icon="★" />,
-    );
+    const { lastFrame } = render(<InfoMessage text='Custom icon test' icon='★' />);
     const output = lastFrame();
 
     expect(output).toMatchSnapshot();

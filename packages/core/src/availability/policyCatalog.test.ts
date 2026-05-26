@@ -5,11 +5,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import {
-  createDefaultPolicy,
-  getModelPolicyChain,
-  validateModelPolicyChain,
-} from './policyCatalog.js';
+import { createDefaultPolicy, getModelPolicyChain, validateModelPolicyChain } from './policyCatalog.js';
 import {
   DEFAULT_GEMINI_MODEL,
   PREVIEW_GEMINI_3_1_CUSTOM_TOOLS_MODEL,
@@ -80,20 +76,13 @@ describe('policyCatalog', () => {
   });
 
   it('fails when no policies are marked last-resort', () => {
-    const chain = [
-      createDefaultPolicy('model-a'),
-      createDefaultPolicy('model-b'),
-    ];
-    expect(() => validateModelPolicyChain(chain)).toThrow(
-      'must include an `isLastResort`',
-    );
+    const chain = [createDefaultPolicy('model-a'), createDefaultPolicy('model-b')];
+    expect(() => validateModelPolicyChain(chain)).toThrow('must include an `isLastResort`');
   });
 
   it('fails when a single-model chain is not last-resort', () => {
     const chain = [createDefaultPolicy('lonely-model')];
-    expect(() => validateModelPolicyChain(chain)).toThrow(
-      'must include an `isLastResort`',
-    );
+    expect(() => validateModelPolicyChain(chain)).toThrow('must include an `isLastResort`');
   });
 
   it('fails when multiple policies are marked last-resort', () => {
@@ -101,9 +90,7 @@ describe('policyCatalog', () => {
       { ...createDefaultPolicy('model-a'), isLastResort: true },
       { ...createDefaultPolicy('model-b'), isLastResort: true },
     ];
-    expect(() => validateModelPolicyChain(chain)).toThrow(
-      'must only have one `isLastResort`',
-    );
+    expect(() => validateModelPolicyChain(chain)).toThrow('must only have one `isLastResort`');
   });
 
   it('createDefaultPolicy seeds default actions and states', () => {

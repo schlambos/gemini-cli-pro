@@ -6,19 +6,13 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { initializeApp } from './initializer.js';
-import {
-  IdeClient,
-  logIdeConnection,
-  logCliConfiguration,
-  type Config,
-} from '@google/gemini-cli-core';
+import { IdeClient, logIdeConnection, logCliConfiguration, type Config } from '@google/gemini-cli-core';
 import { performInitialAuth } from './auth.js';
 import { validateTheme } from './theme.js';
 import { type LoadedSettings } from '../config/settings.js';
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     IdeClient: {
@@ -69,18 +63,13 @@ describe('initializer', () => {
     mockIdeClient = {
       connect: vi.fn(),
     };
-    vi.mocked(IdeClient.getInstance).mockResolvedValue(
-      mockIdeClient as unknown as IdeClient,
-    );
+    vi.mocked(IdeClient.getInstance).mockResolvedValue(mockIdeClient as unknown as IdeClient);
     vi.mocked(performInitialAuth).mockResolvedValue(null);
     vi.mocked(validateTheme).mockReturnValue(null);
   });
 
   it('should initialize correctly in non-IDE mode', async () => {
-    const result = await initializeApp(
-      mockConfig as unknown as Config,
-      mockSettings,
-    );
+    const result = await initializeApp(mockConfig as unknown as Config, mockSettings);
 
     expect(result).toEqual({
       authError: null,
@@ -96,10 +85,7 @@ describe('initializer', () => {
 
   it('should initialize correctly in IDE mode', async () => {
     mockConfig.getIdeMode.mockReturnValue(true);
-    const result = await initializeApp(
-      mockConfig as unknown as Config,
-      mockSettings,
-    );
+    const result = await initializeApp(mockConfig as unknown as Config, mockSettings);
 
     expect(result).toEqual({
       authError: null,
@@ -109,18 +95,12 @@ describe('initializer', () => {
     });
     expect(IdeClient.getInstance).toHaveBeenCalled();
     expect(mockIdeClient.connect).toHaveBeenCalled();
-    expect(logIdeConnection).toHaveBeenCalledWith(
-      mockConfig as unknown as Config,
-      expect.any(Object),
-    );
+    expect(logIdeConnection).toHaveBeenCalledWith(mockConfig as unknown as Config, expect.any(Object));
   });
 
   it('should handle auth error', async () => {
     vi.mocked(performInitialAuth).mockResolvedValue('Auth failed');
-    const result = await initializeApp(
-      mockConfig as unknown as Config,
-      mockSettings,
-    );
+    const result = await initializeApp(mockConfig as unknown as Config, mockSettings);
 
     expect(result.authError).toBe('Auth failed');
     expect(result.shouldOpenAuthDialog).toBe(true);
@@ -128,20 +108,14 @@ describe('initializer', () => {
 
   it('should handle undefined auth type', async () => {
     mockSettings.merged.security.auth.selectedType = undefined;
-    const result = await initializeApp(
-      mockConfig as unknown as Config,
-      mockSettings,
-    );
+    const result = await initializeApp(mockConfig as unknown as Config, mockSettings);
 
     expect(result.shouldOpenAuthDialog).toBe(true);
   });
 
   it('should handle theme error', async () => {
     vi.mocked(validateTheme).mockReturnValue('Theme not found');
-    const result = await initializeApp(
-      mockConfig as unknown as Config,
-      mockSettings,
-    );
+    const result = await initializeApp(mockConfig as unknown as Config, mockSettings);
 
     expect(result.themeError).toBe('Theme not found');
   });

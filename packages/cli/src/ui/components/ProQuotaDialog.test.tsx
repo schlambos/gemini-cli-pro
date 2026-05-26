@@ -10,10 +10,7 @@ import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { ProQuotaDialog } from './ProQuotaDialog.js';
 import { RadioButtonSelect } from './shared/RadioButtonSelect.js';
 
-import {
-  PREVIEW_GEMINI_MODEL,
-  DEFAULT_GEMINI_FLASH_MODEL,
-} from '@google/gemini-cli-core';
+import { PREVIEW_GEMINI_MODEL, DEFAULT_GEMINI_FLASH_MODEL } from '@google/gemini-cli-core';
 
 // Mock the child component to make it easier to test the parent
 vi.mock('./shared/RadioButtonSelect.js', () => ({
@@ -33,10 +30,10 @@ describe('ProQuotaDialog', () => {
         <ProQuotaDialog
           failedModel={DEFAULT_GEMINI_FLASH_MODEL}
           fallbackModel={DEFAULT_GEMINI_FLASH_MODEL}
-          message="flash error"
+          message='flash error'
           isTerminalQuotaError={true} // should not matter
           onChoice={mockOnChoice}
-        />,
+        />
       );
 
       expect(RadioButtonSelect).toHaveBeenCalledWith(
@@ -54,7 +51,7 @@ describe('ProQuotaDialog', () => {
             },
           ],
         }),
-        undefined,
+        undefined
       );
       unmount();
     });
@@ -65,13 +62,13 @@ describe('ProQuotaDialog', () => {
       it('should render switch, upgrade, and stop options for paid tiers', () => {
         const { unmount } = render(
           <ProQuotaDialog
-            failedModel="gemini-2.5-pro"
-            fallbackModel="gemini-2.5-flash"
-            message="paid tier quota error"
+            failedModel='gemini-2.5-pro'
+            fallbackModel='gemini-2.5-flash'
+            message='paid tier quota error'
             isTerminalQuotaError={true}
             isModelNotFoundError={false}
             onChoice={mockOnChoice}
-          />,
+          />
         );
 
         expect(RadioButtonSelect).toHaveBeenCalledWith(
@@ -94,7 +91,7 @@ describe('ProQuotaDialog', () => {
               },
             ],
           }),
-          undefined,
+          undefined
         );
         unmount();
       });
@@ -104,10 +101,10 @@ describe('ProQuotaDialog', () => {
           <ProQuotaDialog
             failedModel={PREVIEW_GEMINI_MODEL}
             fallbackModel={PREVIEW_GEMINI_MODEL}
-            message="flash error"
+            message='flash error'
             isTerminalQuotaError={true}
             onChoice={mockOnChoice}
-          />,
+          />
         );
 
         expect(RadioButtonSelect).toHaveBeenCalledWith(
@@ -125,7 +122,7 @@ describe('ProQuotaDialog', () => {
               },
             ],
           }),
-          undefined,
+          undefined
         );
         unmount();
       });
@@ -133,13 +130,13 @@ describe('ProQuotaDialog', () => {
       it('should render switch, upgrade, and stop options for free tier', () => {
         const { unmount } = render(
           <ProQuotaDialog
-            failedModel="gemini-2.5-pro"
-            fallbackModel="gemini-2.5-flash"
-            message="free tier quota error"
+            failedModel='gemini-2.5-pro'
+            fallbackModel='gemini-2.5-flash'
+            message='free tier quota error'
             isTerminalQuotaError={true}
             isModelNotFoundError={false}
             onChoice={mockOnChoice}
-          />,
+          />
         );
 
         expect(RadioButtonSelect).toHaveBeenCalledWith(
@@ -162,7 +159,7 @@ describe('ProQuotaDialog', () => {
               },
             ],
           }),
-          undefined,
+          undefined
         );
         unmount();
       });
@@ -172,13 +169,13 @@ describe('ProQuotaDialog', () => {
       it('should render keep trying, switch, and stop options', () => {
         const { unmount } = render(
           <ProQuotaDialog
-            failedModel="gemini-2.5-pro"
-            fallbackModel="gemini-2.5-flash"
-            message="capacity error"
+            failedModel='gemini-2.5-pro'
+            fallbackModel='gemini-2.5-flash'
+            message='capacity error'
             isTerminalQuotaError={false}
             isModelNotFoundError={false}
             onChoice={mockOnChoice}
-          />,
+          />
         );
 
         expect(RadioButtonSelect).toHaveBeenCalledWith(
@@ -197,7 +194,7 @@ describe('ProQuotaDialog', () => {
               { label: 'Stop', value: 'retry_later', key: 'retry_later' },
             ],
           }),
-          undefined,
+          undefined
         );
         unmount();
       });
@@ -207,13 +204,13 @@ describe('ProQuotaDialog', () => {
       it('should render switch and stop options regardless of tier', () => {
         const { unmount } = render(
           <ProQuotaDialog
-            failedModel="gemini-3-pro-preview"
-            fallbackModel="gemini-2.5-pro"
+            failedModel='gemini-3-pro-preview'
+            fallbackModel='gemini-2.5-pro'
             message="You don't have access to gemini-3-pro-preview yet."
             isTerminalQuotaError={false}
             isModelNotFoundError={true}
             onChoice={mockOnChoice}
-          />,
+          />
         );
 
         expect(RadioButtonSelect).toHaveBeenCalledWith(
@@ -236,7 +233,7 @@ describe('ProQuotaDialog', () => {
               },
             ],
           }),
-          undefined,
+          undefined
         );
         unmount();
       });
@@ -244,13 +241,13 @@ describe('ProQuotaDialog', () => {
       it('should render switch and stop options for paid tier as well', () => {
         const { unmount } = render(
           <ProQuotaDialog
-            failedModel="gemini-3-pro-preview"
-            fallbackModel="gemini-2.5-pro"
+            failedModel='gemini-3-pro-preview'
+            fallbackModel='gemini-2.5-pro'
             message="You don't have access to gemini-3-pro-preview yet."
             isTerminalQuotaError={false}
             isModelNotFoundError={true}
             onChoice={mockOnChoice}
-          />,
+          />
         );
 
         expect(RadioButtonSelect).toHaveBeenCalledWith(
@@ -273,7 +270,7 @@ describe('ProQuotaDialog', () => {
               },
             ],
           }),
-          undefined,
+          undefined
         );
         unmount();
       });
@@ -284,12 +281,12 @@ describe('ProQuotaDialog', () => {
     it('should call onChoice with the selected value', () => {
       const { unmount } = render(
         <ProQuotaDialog
-          failedModel="gemini-2.5-pro"
-          fallbackModel="gemini-2.5-flash"
-          message=""
+          failedModel='gemini-2.5-pro'
+          fallbackModel='gemini-2.5-flash'
+          message=''
           isTerminalQuotaError={false}
           onChoice={mockOnChoice}
-        />,
+        />
       );
 
       const onSelect = (RadioButtonSelect as Mock).mock.calls[0][0].onSelect;

@@ -20,9 +20,7 @@ const simpleAgent = new GeminiCliAgent({
   cwd: '/path/to/some/dir',
 });
 
-for await (const chunk of simpleAgent.sendStream(
-  'what does this project do?',
-)) {
+for await (const chunk of simpleAgent.sendStream('what does this project do?')) {
   console.log(chunk); // equivalent to JSON streaming chunks (probably?) for now
 }
 ```
@@ -116,7 +114,7 @@ const myHook = hook(
         additionalContext: `Reformatted file ${filePath}, read again before modifying further.`,
       },
     };
-  },
+  }
 );
 ```
 
@@ -282,7 +280,7 @@ export interface AgentShell {
   // simple promise-based execution that blocks until complete
   exec(
     cmd: string,
-    options?: AgentShellOptions,
+    options?: AgentShellOptions
   ): Promise<{
     exitCode: number;
     output: string;

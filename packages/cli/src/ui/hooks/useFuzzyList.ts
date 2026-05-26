@@ -7,10 +7,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { AsyncFzf } from 'fzf';
 import { useUIState } from '../contexts/UIStateContext.js';
-import {
-  useTextBuffer,
-  type TextBuffer,
-} from '../components/shared/text-buffer.js';
+import { useTextBuffer, type TextBuffer } from '../components/shared/text-buffer.js';
 import { getCachedStringWidth } from '../utils/textUtils.js';
 
 interface FzfResult {
@@ -49,9 +46,7 @@ export function useFuzzyList<T extends GenericListItem>({
 }: UseFuzzyListProps<T>): UseFuzzyListResult<T> {
   // Search state
   const [searchQuery, setSearchQuery] = useState(initialQuery);
-  const [filteredKeys, setFilteredKeys] = useState<string[]>(() =>
-    items.map((i) => i.key),
-  );
+  const [filteredKeys, setFilteredKeys] = useState<string[]>(() => items.map((i) => i.key));
 
   // FZF instance for fuzzy searching
   const { fzfInstance, searchMap } = useMemo(() => {
@@ -130,12 +125,9 @@ export function useFuzzyList<T extends GenericListItem>({
     let max = 0;
     // We use all items for consistent alignment even when filtered
     items.forEach((item) => {
-      const labelFull =
-        item.label + (item.scopeMessage ? ` ${item.scopeMessage}` : '');
+      const labelFull = item.label + (item.scopeMessage ? ` ${item.scopeMessage}` : '');
       const lWidth = getCachedStringWidth(labelFull);
-      const dWidth = item.description
-        ? getCachedStringWidth(item.description)
-        : 0;
+      const dWidth = item.description ? getCachedStringWidth(item.description) : 0;
       max = Math.max(max, lWidth, dWidth);
     });
     return max;

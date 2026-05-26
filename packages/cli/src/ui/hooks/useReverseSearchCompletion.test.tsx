@@ -34,11 +34,7 @@ describe('useReverseSearchCompletion', () => {
         const mockShellHistory = ['echo hello'];
 
         const { result } = renderHookWithProviders(() =>
-          useReverseSearchCompletion(
-            useTextBufferForTest(''),
-            mockShellHistory,
-            false,
-          ),
+          useReverseSearchCompletion(useTextBufferForTest(''), mockShellHistory, false)
         );
 
         expect(result.current.suggestions).toEqual([]);
@@ -53,13 +49,9 @@ describe('useReverseSearchCompletion', () => {
         const { result, rerender } = renderHookWithProviders(
           ({ text, active }) => {
             const textBuffer = useTextBufferForTest(text);
-            return useReverseSearchCompletion(
-              textBuffer,
-              mockShellHistory,
-              active,
-            );
+            return useReverseSearchCompletion(textBuffer, mockShellHistory, active);
           },
-          { initialProps: { text: 'echo', active: true } },
+          { initialProps: { text: 'echo', active: true } }
         );
 
         // Simulate reverseSearchActive becoming false
@@ -76,11 +68,7 @@ describe('useReverseSearchCompletion', () => {
           const mockShellHistory = ['echo hello'];
 
           const { result } = renderHookWithProviders(() =>
-            useReverseSearchCompletion(
-              useTextBufferForTest('grep'),
-              mockShellHistory,
-              true,
-            ),
+            useReverseSearchCompletion(useTextBufferForTest('grep'), mockShellHistory, true)
           );
 
           act(() => {
@@ -93,11 +81,7 @@ describe('useReverseSearchCompletion', () => {
         it('should handle navigateDown with no suggestions', () => {
           const mockShellHistory = ['echo hello'];
           const { result } = renderHookWithProviders(() =>
-            useReverseSearchCompletion(
-              useTextBufferForTest('grep'),
-              mockShellHistory,
-              true,
-            ),
+            useReverseSearchCompletion(useTextBufferForTest('grep'), mockShellHistory, true)
           );
 
           act(() => {
@@ -118,11 +102,7 @@ describe('useReverseSearchCompletion', () => {
           ];
 
           const { result } = renderHookWithProviders(() =>
-            useReverseSearchCompletion(
-              useTextBufferForTest('echo'),
-              mockShellHistory,
-              true,
-            ),
+            useReverseSearchCompletion(useTextBufferForTest('echo'), mockShellHistory, true)
           );
 
           expect(result.current.suggestions.length).toBe(2);
@@ -145,11 +125,7 @@ describe('useReverseSearchCompletion', () => {
             'echo Hi',
           ];
           const { result } = renderHookWithProviders(() =>
-            useReverseSearchCompletion(
-              useTextBufferForTest('ls'),
-              mockShellHistory,
-              true,
-            ),
+            useReverseSearchCompletion(useTextBufferForTest('ls'), mockShellHistory, true)
           );
 
           expect(result.current.suggestions.length).toBe(2);
@@ -173,11 +149,7 @@ describe('useReverseSearchCompletion', () => {
           ];
 
           const { result } = renderHookWithProviders(() =>
-            useReverseSearchCompletion(
-              useTextBufferForTest('l'),
-              mockShellHistory,
-              true,
-            ),
+            useReverseSearchCompletion(useTextBufferForTest('l'), mockShellHistory, true)
           );
 
           expect(result.current.suggestions.length).toBe(5);
@@ -210,17 +182,10 @@ describe('useReverseSearchCompletion', () => {
         });
 
         it('should handle navigation with large suggestion lists and scrolling', () => {
-          const largeMockCommands = Array.from(
-            { length: 15 },
-            (_, i) => `echo ${i}`,
-          );
+          const largeMockCommands = Array.from({ length: 15 }, (_, i) => `echo ${i}`);
 
           const { result } = renderHookWithProviders(() =>
-            useReverseSearchCompletion(
-              useTextBufferForTest('echo'),
-              largeMockCommands,
-              true,
-            ),
+            useReverseSearchCompletion(useTextBufferForTest('echo'), largeMockCommands, true)
           );
 
           expect(result.current.suggestions.length).toBe(15);
@@ -242,21 +207,18 @@ describe('useReverseSearchCompletion', () => {
     it('filters history by buffer.text and sets showSuggestions', () => {
       const history = ['foo', 'barfoo', 'baz'];
       const { result } = renderHookWithProviders(() =>
-        useReverseSearchCompletion(useTextBufferForTest('foo'), history, true),
+        useReverseSearchCompletion(useTextBufferForTest('foo'), history, true)
       );
 
       // should only return the two entries containing "foo"
-      expect(result.current.suggestions.map((s) => s.value)).toEqual([
-        'foo',
-        'barfoo',
-      ]);
+      expect(result.current.suggestions.map((s) => s.value)).toEqual(['foo', 'barfoo']);
       expect(result.current.showSuggestions).toBe(true);
     });
 
     it('hides suggestions when there are no matches', () => {
       const history = ['alpha', 'beta'];
       const { result } = renderHookWithProviders(() =>
-        useReverseSearchCompletion(useTextBufferForTest('γ'), history, true),
+        useReverseSearchCompletion(useTextBufferForTest('γ'), history, true)
       );
 
       expect(result.current.suggestions).toEqual([]);

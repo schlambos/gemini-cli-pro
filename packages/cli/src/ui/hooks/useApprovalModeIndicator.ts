@@ -5,11 +5,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import {
-  ApprovalMode,
-  type Config,
-  getAdminErrorMessage,
-} from '@google/gemini-cli-core';
+import { ApprovalMode, type Config, getAdminErrorMessage } from '@google/gemini-cli-core';
 import { useKeypress } from './useKeypress.js';
 import { keyMatchers, Command } from '../keyMatchers.js';
 import type { HistoryItemWithoutId } from '../types.js';
@@ -42,16 +38,11 @@ export function useApprovalModeIndicator({
       let nextApprovalMode: ApprovalMode | undefined;
 
       if (keyMatchers[Command.TOGGLE_YOLO](key)) {
-        if (
-          config.isYoloModeDisabled() &&
-          config.getApprovalMode() !== ApprovalMode.YOLO
-        ) {
+        if (config.isYoloModeDisabled() && config.getApprovalMode() !== ApprovalMode.YOLO) {
           if (addItem) {
-            let text =
-              'You cannot enter YOLO mode since it is disabled in your settings.';
+            let text = 'You cannot enter YOLO mode since it is disabled in your settings.';
             const adminSettings = config.getRemoteAdminSettings();
-            const hasSettings =
-              adminSettings && Object.keys(adminSettings).length > 0;
+            const hasSettings = adminSettings && Object.keys(adminSettings).length > 0;
             if (hasSettings && !adminSettings.strictModeDisabled) {
               text = getAdminErrorMessage('YOLO mode', config);
             }
@@ -61,15 +52,12 @@ export function useApprovalModeIndicator({
                 type: MessageType.WARNING,
                 text,
               },
-              Date.now(),
+              Date.now()
             );
           }
           return;
         }
-        nextApprovalMode =
-          config.getApprovalMode() === ApprovalMode.YOLO
-            ? ApprovalMode.DEFAULT
-            : ApprovalMode.YOLO;
+        nextApprovalMode = config.getApprovalMode() === ApprovalMode.YOLO ? ApprovalMode.DEFAULT : ApprovalMode.YOLO;
       } else if (keyMatchers[Command.CYCLE_APPROVAL_MODE](key)) {
         const currentMode = config.getApprovalMode();
         switch (currentMode) {
@@ -77,9 +65,7 @@ export function useApprovalModeIndicator({
             nextApprovalMode = ApprovalMode.AUTO_EDIT;
             break;
           case ApprovalMode.AUTO_EDIT:
-            nextApprovalMode = allowPlanMode
-              ? ApprovalMode.PLAN
-              : ApprovalMode.DEFAULT;
+            nextApprovalMode = allowPlanMode ? ApprovalMode.PLAN : ApprovalMode.DEFAULT;
             break;
           case ApprovalMode.PLAN:
             nextApprovalMode = ApprovalMode.DEFAULT;
@@ -107,13 +93,13 @@ export function useApprovalModeIndicator({
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
                 text: (e as Error).message,
               },
-              Date.now(),
+              Date.now()
             );
           }
         }
       }
     },
-    { isActive },
+    { isActive }
   );
 
   return showApprovalMode;

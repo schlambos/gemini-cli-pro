@@ -303,9 +303,7 @@ export interface FetchAdminControlsRequest {
   project: string;
 }
 
-export type FetchAdminControlsResponse = z.infer<
-  typeof FetchAdminControlsResponseSchema
->;
+export type FetchAdminControlsResponse = z.infer<typeof FetchAdminControlsResponseSchema>;
 
 const ExtensionsSettingSchema = z.object({
   extensionsEnabled: z.boolean().optional(),

@@ -145,5 +145,5 @@ export const DefaultDark: Theme = new Theme(
       width: '100%',
     },
   },
-  darkTheme,
+  darkTheme
 );

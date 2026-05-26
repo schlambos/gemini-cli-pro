@@ -44,7 +44,7 @@ describe('docsCommand', () => {
         type: MessageType.INFO,
         text: `Opening documentation in your browser: ${docsUrl}`,
       },
-      expect.any(Number),
+      expect.any(Number)
     );
 
     expect(open).toHaveBeenCalledWith(docsUrl);
@@ -66,7 +66,7 @@ describe('docsCommand', () => {
         type: MessageType.INFO,
         text: `Please open the following URL in your browser to view the documentation:\n${docsUrl}`,
       },
-      expect.any(Number),
+      expect.any(Number)
     );
 
     // Ensure 'open' was not called in the sandbox
@@ -90,7 +90,7 @@ describe('docsCommand', () => {
         type: MessageType.INFO,
         text: `Opening documentation in your browser: ${docsUrl}`,
       },
-      expect.any(Number),
+      expect.any(Number)
     );
 
     // 'open' should be called in this specific sandbox case

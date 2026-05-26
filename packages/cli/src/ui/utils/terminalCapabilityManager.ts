@@ -51,9 +51,7 @@ export class TerminalCapabilityManager {
    * Triggers a terminal background color query.
    * @param stdout The stdout stream to write to.
    */
-  static queryBackgroundColor(stdout: {
-    write: (data: string) => void | boolean;
-  }): void {
+  static queryBackgroundColor(stdout: { write: (data: string) => void | boolean }): void {
     stdout.write(TerminalCapabilityManager.OSC_11_QUERY);
   }
 
@@ -156,45 +154,30 @@ export class TerminalCapabilityManager {
           const match = buffer.match(TerminalCapabilityManager.OSC_11_REGEX);
           if (match) {
             bgReceived = true;
-            this.terminalBackgroundColor = parseColor(
-              match[1],
-              match[2],
-              match[3],
-            );
-            debugLogger.log(
-              `Detected terminal background color: ${this.terminalBackgroundColor}`,
-            );
+            this.terminalBackgroundColor = parseColor(match[1], match[2], match[3]);
+            debugLogger.log(`Detected terminal background color: ${this.terminalBackgroundColor}`);
           }
         }
 
-        if (
-          !kittyKeyboardReceived &&
-          TerminalCapabilityManager.KITTY_REGEX.test(buffer)
-        ) {
+        if (!kittyKeyboardReceived && TerminalCapabilityManager.KITTY_REGEX.test(buffer)) {
           kittyKeyboardReceived = true;
           this.kittySupported = true;
         }
 
         // check for modifyOtherKeys support
         if (!modifyOtherKeysReceived) {
-          const match = buffer.match(
-            TerminalCapabilityManager.MODIFY_OTHER_KEYS_REGEX,
-          );
+          const match = buffer.match(TerminalCapabilityManager.MODIFY_OTHER_KEYS_REGEX);
           if (match) {
             modifyOtherKeysReceived = true;
             const level = parseInt(match[1], 10);
             this.modifyOtherKeysSupported = level >= 2;
-            debugLogger.log(
-              `Detected modifyOtherKeys support: ${this.modifyOtherKeysSupported} (level ${level})`,
-            );
+            debugLogger.log(`Detected modifyOtherKeys support: ${this.modifyOtherKeysSupported} (level ${level})`);
           }
         }
 
         // Check for Terminal Name/Version response.
         if (!terminalNameReceived) {
-          const match = buffer.match(
-            TerminalCapabilityManager.TERMINAL_NAME_REGEX,
-          );
+          const match = buffer.match(TerminalCapabilityManager.TERMINAL_NAME_REGEX);
           if (match) {
             terminalNameReceived = true;
             this.terminalName = match[1];
@@ -207,9 +190,7 @@ export class TerminalCapabilityManager {
         // that the terminal has processed all our queries. Since we send it
         // last, receiving it means we can stop waiting.
         if (!deviceAttributesReceived) {
-          const match = buffer.match(
-            TerminalCapabilityManager.DEVICE_ATTRIBUTES_REGEX,
-          );
+          const match = buffer.match(TerminalCapabilityManager.DEVICE_ATTRIBUTES_REGEX);
           if (match) {
             deviceAttributesReceived = true;
             cleanup();
@@ -234,7 +215,7 @@ export class TerminalCapabilityManager {
             TerminalCapabilityManager.MODIFY_OTHER_KEYS_QUERY +
             TerminalCapabilityManager.DEVICE_ATTRIBUTES_QUERY +
             TerminalCapabilityManager.CLEAR_LINE_AND_RETURN +
-            TerminalCapabilityManager.RESET_ATTRIBUTES,
+            TerminalCapabilityManager.RESET_ATTRIBUTES
         );
       } catch (e) {
         debugLogger.warn('Failed to write terminal capability queries:', e);
@@ -271,5 +252,4 @@ export class TerminalCapabilityManager {
   }
 }
 
-export const terminalCapabilityManager =
-  TerminalCapabilityManager.getInstance();
+export const terminalCapabilityManager = TerminalCapabilityManager.getInstance();

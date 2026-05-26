@@ -8,14 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import {
-  escapePath,
-  unescapePath,
-  isSubpath,
-  shortenPath,
-  normalizePath,
-  resolveToRealPath,
-} from './paths.js';
+import { escapePath, unescapePath, isSubpath, shortenPath, normalizePath, resolveToRealPath } from './paths.js';
 
 vi.mock('node:fs', async (importOriginal) => {
   const actual = await importOriginal<typeof fs>();
@@ -32,7 +25,7 @@ const mockPlatform = (platform: string) => {
       platform: {
         get: () => platform,
       },
-    }),
+    })
   );
 };
 
@@ -60,16 +53,8 @@ describe('escapePath', () => {
       ['hash symbols', 'file#name.txt', 'file\\#name.txt'],
       ['exclamation marks', 'file!name.txt', 'file\\!name.txt'],
       ['tildes', 'file~name.txt', 'file\\~name.txt'],
-      [
-        'less than and greater than signs',
-        'file<name>.txt',
-        'file\\<name\\>.txt',
-      ],
-      [
-        'multiple special characters',
-        'my file (backup) [v1.2].txt',
-        'my\\ file\\ \\(backup\\)\\ \\[v1.2\\].txt',
-      ],
+      ['less than and greater than signs', 'file<name>.txt', 'file\\<name\\>.txt'],
+      ['multiple special characters', 'my file (backup) [v1.2].txt', 'my\\ file\\ \\(backup\\)\\ \\[v1.2\\].txt'],
       ['normal file', 'normalfile.txt', 'normalfile.txt'],
       ['normal path', 'path/to/normalfile.txt', 'path/to/normalfile.txt'],
       [
@@ -77,17 +62,9 @@ describe('escapePath', () => {
         'My Documents/Project (2024)/file [backup].txt',
         'My\\ Documents/Project\\ \\(2024\\)/file\\ \\[backup\\].txt',
       ],
-      [
-        'real world example 2',
-        'file with $special &chars!.txt',
-        'file\\ with\\ \\$special\\ \\&chars\\!.txt',
-      ],
+      ['real world example 2', 'file with $special &chars!.txt', 'file\\ with\\ \\$special\\ \\&chars\\!.txt'],
       ['empty string', '', ''],
-      [
-        'all special chars',
-        ' ()[]{};&|*?$`\'"#!<>',
-        '\\ \\(\\)\\[\\]\\{\\}\\;\\&\\|\\*\\?\\$\\`\\\'\\"\\#\\!\\<\\>',
-      ],
+      ['all special chars', ' ()[]{};&|*?$`\'"#!<>', '\\ \\(\\)\\[\\]\\{\\}\\;\\&\\|\\*\\?\\$\\`\\\'\\"\\#\\!\\<\\>'],
     ])('should escape %s', (_, input, expected) => {
       expect(escapePath(input)).toBe(expected);
     });
@@ -97,11 +74,7 @@ describe('escapePath', () => {
     beforeEach(() => mockPlatform('win32'));
 
     it.each([
-      [
-        'spaces',
-        'C:\\path with spaces\\file.txt',
-        '"C:\\path with spaces\\file.txt"',
-      ],
+      ['spaces', 'C:\\path with spaces\\file.txt', '"C:\\path with spaces\\file.txt"'],
       ['parentheses', 'file(1).txt', '"file(1).txt"'],
       ['special chars', 'file&name.txt', '"file&name.txt"'],
       ['caret', 'file^name.txt', '"file^name.txt"'],
@@ -124,11 +97,7 @@ describe('unescapePath', () => {
       ['parentheses', 'file\\(1\\).txt', 'file(1).txt'],
       ['square brackets', 'file\\[backup\\].txt', 'file[backup].txt'],
       ['curly braces', 'file\\{temp\\}.txt', 'file{temp}.txt'],
-      [
-        'multiple special characters',
-        'my\\ file\\ \\(backup\\)\\ \\[v1.2\\].txt',
-        'my file (backup) [v1.2].txt',
-      ],
+      ['multiple special characters', 'my\\ file\\ \\(backup\\)\\ \\[v1.2\\].txt', 'my file (backup) [v1.2].txt'],
       ['normal file', 'normalfile.txt', 'normalfile.txt'],
       ['normal path', 'path/to/normalfile.txt', 'path/to/normalfile.txt'],
       ['empty string', '', ''],
@@ -153,11 +122,7 @@ describe('unescapePath', () => {
     beforeEach(() => mockPlatform('win32'));
 
     it.each([
-      [
-        'quoted path',
-        '"C:\\path with spaces\\file.txt"',
-        'C:\\path with spaces\\file.txt',
-      ],
+      ['quoted path', '"C:\\path with spaces\\file.txt"', 'C:\\path with spaces\\file.txt'],
       ['unquoted path', 'C:\\path\\to\\file.txt', 'C:\\path\\to\\file.txt'],
       ['partially quoted', '"C:\\path', '"C:\\path'],
       ['empty string', '', ''],
@@ -165,14 +130,12 @@ describe('unescapePath', () => {
       expect(unescapePath(input)).toBe(expected);
     });
 
-    it.each([
-      'C:\\path\\to\\file.txt',
-      'C:\\path with spaces\\file.txt',
-      'file(1).txt',
-      'file&name.txt',
-    ])('should unescape escaped %s', (input) => {
-      expect(unescapePath(escapePath(input))).toBe(input);
-    });
+    it.each(['C:\\path\\to\\file.txt', 'C:\\path with spaces\\file.txt', 'file(1).txt', 'file&name.txt'])(
+      'should unescape escaped %s',
+      (input) => {
+        expect(unescapePath(escapePath(input))).toBe(input);
+      }
+    );
   });
 });
 
@@ -221,9 +184,7 @@ describe('isSubpath on Windows', () => {
   beforeEach(() => mockPlatform('win32'));
 
   it('should return true for a direct subpath on Windows', () => {
-    expect(isSubpath('C:\\Users\\Test', 'C:\\Users\\Test\\file.txt')).toBe(
-      true,
-    );
+    expect(isSubpath('C:\\Users\\Test', 'C:\\Users\\Test\\file.txt')).toBe(true);
   });
 
   it('should return true for the same path on Windows', () => {
@@ -231,9 +192,7 @@ describe('isSubpath on Windows', () => {
   });
 
   it('should return false for a parent path on Windows', () => {
-    expect(isSubpath('C:\\Users\\Test\\file.txt', 'C:\\Users\\Test')).toBe(
-      false,
-    );
+    expect(isSubpath('C:\\Users\\Test\\file.txt', 'C:\\Users\\Test')).toBe(false);
   });
 
   it('should return false for a different drive on Windows', () => {
@@ -241,15 +200,11 @@ describe('isSubpath on Windows', () => {
   });
 
   it('should be case-insensitive for drive letters on Windows', () => {
-    expect(isSubpath('c:\\Users\\Test', 'C:\\Users\\Test\\file.txt')).toBe(
-      true,
-    );
+    expect(isSubpath('c:\\Users\\Test', 'C:\\Users\\Test\\file.txt')).toBe(true);
   });
 
   it('should be case-insensitive for path components on Windows', () => {
-    expect(isSubpath('C:\\Users\\Test', 'c:\\users\\test\\file.txt')).toBe(
-      true,
-    );
+    expect(isSubpath('C:\\Users\\Test', 'c:\\users\\test\\file.txt')).toBe(true);
   });
 
   it('should handle mixed slashes on Windows', () => {
@@ -257,9 +212,7 @@ describe('isSubpath on Windows', () => {
   });
 
   it('should handle trailing slashes on Windows', () => {
-    expect(isSubpath('C:\\Users\\Test\\', 'C:\\Users\\Test\\file.txt')).toBe(
-      true,
-    );
+    expect(isSubpath('C:\\Users\\Test\\', 'C:\\Users\\Test\\file.txt')).toBe(true);
   });
 
   it('should handle relative paths correctly on Windows', () => {
@@ -297,16 +250,12 @@ describe('shortenPath', () => {
 
     it('should handle deep paths where many segments from the end fit', () => {
       const p = '/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u/v/w/x/y/z/file.txt';
-      expect(shortenPath(p, 45)).toBe(
-        '/a/.../l/m/n/o/p/q/r/s/t/u/v/w/x/y/z/file.txt',
-      );
+      expect(shortenPath(p, 45)).toBe('/a/.../l/m/n/o/p/q/r/s/t/u/v/w/x/y/z/file.txt');
     });
 
     it('should handle a long filename in the root when it needs shortening', () => {
       const p = '/a-very-long-filename-that-needs-to-be-shortened.txt';
-      expect(shortenPath(p, 40)).toBe(
-        '/a-very-long-filen...o-be-shortened.txt',
-      );
+      expect(shortenPath(p, 40)).toBe('/a-very-long-filen...o-be-shortened.txt');
     });
 
     it('should handle root path', () => {
@@ -321,9 +270,7 @@ describe('shortenPath', () => {
 
     it('should handle a path with just a long filename (no root)', () => {
       const p = 'a-very-long-filename-that-needs-to-be-shortened.txt';
-      expect(shortenPath(p, 40)).toBe(
-        'a-very-long-filena...o-be-shortened.txt',
-      );
+      expect(shortenPath(p, 40)).toBe('a-very-long-filena...o-be-shortened.txt');
     });
 
     it('should fallback to truncating earlier segments while keeping the last intact', () => {
@@ -388,30 +335,22 @@ describe('shortenPath', () => {
 
     it('should shorten a long path, keeping more from the end from a longer limit', () => {
       const p = 'C\\path\\to\\a\\very\\long\\directory\\name\\file.txt';
-      expect(shortenPath(p, 42)).toBe(
-        'C\\...\\a\\very\\long\\directory\\name\\file.txt',
-      );
+      expect(shortenPath(p, 42)).toBe('C\\...\\a\\very\\long\\directory\\name\\file.txt');
     });
 
     it('should handle deep paths where few segments from the end fit', () => {
-      const p =
-        'C\\a\\b\\c\\d\\e\\f\\g\\h\\i\\j\\k\\l\\m\\n\\o\\p\\q\\r\\s\\t\\u\\v\\w\\x\\y\\z\\file.txt';
+      const p = 'C\\a\\b\\c\\d\\e\\f\\g\\h\\i\\j\\k\\l\\m\\n\\o\\p\\q\\r\\s\\t\\u\\v\\w\\x\\y\\z\\file.txt';
       expect(shortenPath(p, 22)).toBe('C\\...\\w\\x\\y\\z\\file.txt');
     });
 
     it('should handle deep paths where many segments from the end fit', () => {
-      const p =
-        'C\\a\\b\\c\\d\\e\\f\\g\\h\\i\\j\\k\\l\\m\\n\\o\\p\\q\\r\\s\\t\\u\\v\\w\\x\\y\\z\\file.txt';
-      expect(shortenPath(p, 47)).toBe(
-        'C\\...\\k\\l\\m\\n\\o\\p\\q\\r\\s\\t\\u\\v\\w\\x\\y\\z\\file.txt',
-      );
+      const p = 'C\\a\\b\\c\\d\\e\\f\\g\\h\\i\\j\\k\\l\\m\\n\\o\\p\\q\\r\\s\\t\\u\\v\\w\\x\\y\\z\\file.txt';
+      expect(shortenPath(p, 47)).toBe('C\\...\\k\\l\\m\\n\\o\\p\\q\\r\\s\\t\\u\\v\\w\\x\\y\\z\\file.txt');
     });
 
     it('should handle a long filename in the root when it needs shortening', () => {
       const p = 'C\\a-very-long-filename-that-needs-to-be-shortened.txt';
-      expect(shortenPath(p, 40)).toBe(
-        'C\\a-very-long-file...o-be-shortened.txt',
-      );
+      expect(shortenPath(p, 40)).toBe('C\\a-very-long-file...o-be-shortened.txt');
     });
 
     it('should handle root path', () => {
@@ -426,9 +365,7 @@ describe('shortenPath', () => {
 
     it('should handle a path with just a long filename (no root)', () => {
       const p = 'a-very-long-filename-that-needs-to-be-shortened.txt';
-      expect(shortenPath(p, 40)).toBe(
-        'a-very-long-filena...o-be-shortened.txt',
-      );
+      expect(shortenPath(p, 40)).toBe('a-very-long-filena...o-be-shortened.txt');
     });
 
     it('should fallback to truncating earlier segments while keeping the last intact', () => {
@@ -486,8 +423,7 @@ describe('shortenPath', () => {
 describe('resolveToRealPath', () => {
   it.each([
     {
-      description:
-        'should return path as-is if no special characters or protocol',
+      description: 'should return path as-is if no special characters or protocol',
       input: path.resolve('simple', 'path'),
       expected: path.resolve('simple', 'path'),
     },

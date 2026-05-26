@@ -49,21 +49,18 @@ async function main() {
         packageJsonExists: !!fileContent,
         shellEcho: shellOutput,
       };
-    },
+    }
   );
 
   const agent = new GeminiCliAgent({
-    instructions:
-      'You are a helpful assistant. Use the get_context tool to tell me about my environment.',
+    instructions: 'You are a helpful assistant. Use the get_context tool to tell me about my environment.',
     tools: [getContextTool],
     // Set CWD to the package root so package.json exists
     cwd: process.cwd(),
   });
 
   console.log("Sending prompt: 'What is my current session context?'");
-  for await (const chunk of agent.sendStream(
-    'What is my current session context?',
-  )) {
+  for await (const chunk of agent.sendStream('What is my current session context?')) {
     if (chunk.type === 'content') {
       process.stdout.write(chunk.value || '');
     }

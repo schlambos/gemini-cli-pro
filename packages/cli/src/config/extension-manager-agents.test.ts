@@ -86,7 +86,7 @@ describe('ExtensionManager agents loading', () => {
     fs.mkdirSync(agentsDir, { recursive: true });
     fs.writeFileSync(
       path.join(agentsDir, 'test-agent.md'),
-      '---\nname: test-agent\nkind: local\ndescription: test desc\n---\nbody',
+      '---\nname: test-agent\nkind: local\ndescription: test desc\n---\nbody'
     );
 
     await extensionManager.loadExtensions();
@@ -119,10 +119,7 @@ describe('ExtensionManager agents loading', () => {
     const agentsDir = path.join(extensionPath, 'agents');
     fs.mkdirSync(agentsDir, { recursive: true });
     // Invalid agent (missing description)
-    fs.writeFileSync(
-      path.join(agentsDir, 'bad-agent.md'),
-      '---\nname: bad-agent\nkind: local\n---\nbody',
-    );
+    fs.writeFileSync(path.join(agentsDir, 'bad-agent.md'), '---\nname: bad-agent\nkind: local\n---\nbody');
 
     await extensionManager.loadExtensions();
 
@@ -133,8 +130,6 @@ describe('ExtensionManager agents loading', () => {
 
     expect(extension.name).toBe('bad-agents-ext');
     expect(extension.agents).toEqual([]);
-    expect(debugLogger.warn).toHaveBeenCalledWith(
-      expect.stringContaining('Error loading agent from bad-agents-ext'),
-    );
+    expect(debugLogger.warn).toHaveBeenCalledWith(expect.stringContaining('Error loading agent from bad-agents-ext'));
   });
 });

@@ -4,10 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  renderWithProviders,
-  persistentStateMock,
-} from '../../test-utils/render.js';
+import { renderWithProviders, persistentStateMock } from '../../test-utils/render.js';
 import { AppHeader } from './AppHeader.js';
 import { describe, it, expect, vi } from 'vitest';
 import { makeFakeConfig } from '@google/gemini-cli-core';
@@ -29,13 +26,10 @@ describe('<AppHeader />', () => {
       bannerVisible: true,
     };
 
-    const { lastFrame, unmount } = renderWithProviders(
-      <AppHeader version="1.0.0" />,
-      {
-        config: mockConfig,
-        uiState,
-      },
-    );
+    const { lastFrame, unmount } = renderWithProviders(<AppHeader version='1.0.0' />, {
+      config: mockConfig,
+      uiState,
+    });
 
     expect(lastFrame()).toContain('This is the default banner');
     expect(lastFrame()).toMatchSnapshot();
@@ -53,13 +47,10 @@ describe('<AppHeader />', () => {
       bannerVisible: true,
     };
 
-    const { lastFrame, unmount } = renderWithProviders(
-      <AppHeader version="1.0.0" />,
-      {
-        config: mockConfig,
-        uiState,
-      },
-    );
+    const { lastFrame, unmount } = renderWithProviders(<AppHeader version='1.0.0' />, {
+      config: mockConfig,
+      uiState,
+    });
 
     expect(lastFrame()).toContain('There are capacity issues');
     expect(lastFrame()).toMatchSnapshot();
@@ -76,13 +67,10 @@ describe('<AppHeader />', () => {
       },
     };
 
-    const { lastFrame, unmount } = renderWithProviders(
-      <AppHeader version="1.0.0" />,
-      {
-        config: mockConfig,
-        uiState,
-      },
-    );
+    const { lastFrame, unmount } = renderWithProviders(<AppHeader version='1.0.0' />, {
+      config: mockConfig,
+      uiState,
+    });
 
     expect(lastFrame()).not.toContain('Banner');
     expect(lastFrame()).toMatchSnapshot();
@@ -101,20 +89,14 @@ describe('<AppHeader />', () => {
 
     persistentStateMock.setData({
       defaultBannerShownCount: {
-        [crypto
-          .createHash('sha256')
-          .update(uiState.bannerData.defaultText)
-          .digest('hex')]: 5,
+        [crypto.createHash('sha256').update(uiState.bannerData.defaultText).digest('hex')]: 5,
       },
     });
 
-    const { lastFrame, unmount } = renderWithProviders(
-      <AppHeader version="1.0.0" />,
-      {
-        config: mockConfig,
-        uiState,
-      },
-    );
+    const { lastFrame, unmount } = renderWithProviders(<AppHeader version='1.0.0' />, {
+      config: mockConfig,
+      uiState,
+    });
 
     expect(lastFrame()).not.toContain('This is the default banner');
     expect(lastFrame()).toMatchSnapshot();
@@ -135,20 +117,14 @@ describe('<AppHeader />', () => {
     // and interfering with the expected persistentState.set call.
     persistentStateMock.setData({ tipsShown: 10 });
 
-    const { unmount } = renderWithProviders(<AppHeader version="1.0.0" />, {
+    const { unmount } = renderWithProviders(<AppHeader version='1.0.0' />, {
       config: mockConfig,
       uiState,
     });
 
-    expect(persistentStateMock.set).toHaveBeenCalledWith(
-      'defaultBannerShownCount',
-      {
-        [crypto
-          .createHash('sha256')
-          .update(uiState.bannerData.defaultText)
-          .digest('hex')]: 1,
-      },
-    );
+    expect(persistentStateMock.set).toHaveBeenCalledWith('defaultBannerShownCount', {
+      [crypto.createHash('sha256').update(uiState.bannerData.defaultText).digest('hex')]: 1,
+    });
     unmount();
   });
 
@@ -163,13 +139,10 @@ describe('<AppHeader />', () => {
       bannerVisible: true,
     };
 
-    const { lastFrame, unmount } = renderWithProviders(
-      <AppHeader version="1.0.0" />,
-      {
-        config: mockConfig,
-        uiState,
-      },
-    );
+    const { lastFrame, unmount } = renderWithProviders(<AppHeader version='1.0.0' />, {
+      config: mockConfig,
+      uiState,
+    });
 
     expect(lastFrame()).not.toContain('First line\\nSecond line');
     unmount();
@@ -188,13 +161,10 @@ describe('<AppHeader />', () => {
 
     persistentStateMock.setData({ tipsShown: 5 });
 
-    const { lastFrame, unmount } = renderWithProviders(
-      <AppHeader version="1.0.0" />,
-      {
-        config: mockConfig,
-        uiState,
-      },
-    );
+    const { lastFrame, unmount } = renderWithProviders(<AppHeader version='1.0.0' />, {
+      config: mockConfig,
+      uiState,
+    });
 
     expect(lastFrame()).toContain('Tips');
     expect(persistentStateMock.set).toHaveBeenCalledWith('tipsShown', 6);
@@ -206,12 +176,9 @@ describe('<AppHeader />', () => {
 
     persistentStateMock.setData({ tipsShown: 10 });
 
-    const { lastFrame, unmount } = renderWithProviders(
-      <AppHeader version="1.0.0" />,
-      {
-        config: mockConfig,
-      },
-    );
+    const { lastFrame, unmount } = renderWithProviders(<AppHeader version='1.0.0' />, {
+      config: mockConfig,
+    });
 
     expect(lastFrame()).not.toContain('Tips');
     unmount();
@@ -231,7 +198,7 @@ describe('<AppHeader />', () => {
     };
 
     // First session
-    const session1 = renderWithProviders(<AppHeader version="1.0.0" />, {
+    const session1 = renderWithProviders(<AppHeader version='1.0.0' />, {
       config: mockConfig,
       uiState,
     });
@@ -241,7 +208,7 @@ describe('<AppHeader />', () => {
     session1.unmount();
 
     // Second session - state is persisted in the fake
-    const session2 = renderWithProviders(<AppHeader version="1.0.0" />, {
+    const session2 = renderWithProviders(<AppHeader version='1.0.0' />, {
       config: mockConfig,
     });
 

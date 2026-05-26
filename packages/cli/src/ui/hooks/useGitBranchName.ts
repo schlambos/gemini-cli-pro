@@ -15,20 +15,12 @@ export function useGitBranchName(cwd: string): string | undefined {
 
   const fetchBranchName = useCallback(async () => {
     try {
-      const { stdout } = await spawnAsync(
-        'git',
-        ['rev-parse', '--abbrev-ref', 'HEAD'],
-        { cwd },
-      );
+      const { stdout } = await spawnAsync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], { cwd });
       const branch = stdout.toString().trim();
       if (branch && branch !== 'HEAD') {
         setBranchName(branch);
       } else {
-        const { stdout: hashStdout } = await spawnAsync(
-          'git',
-          ['rev-parse', '--short', 'HEAD'],
-          { cwd },
-        );
+        const { stdout: hashStdout } = await spawnAsync('git', ['rev-parse', '--short', 'HEAD'], { cwd });
         setBranchName(hashStdout.toString().trim());
       }
     } catch (_error) {

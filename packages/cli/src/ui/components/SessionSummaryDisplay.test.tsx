@@ -35,7 +35,7 @@ const renderWithMockedStats = (metrics: SessionMetrics) => {
     startNewPrompt: vi.fn(),
   });
 
-  return renderWithProviders(<SessionSummaryDisplay duration="1h 23m 45s" />, {
+  return renderWithProviders(<SessionSummaryDisplay duration='1h 23m 45s' />, {
     width: 100,
   });
 };

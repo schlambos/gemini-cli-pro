@@ -198,5 +198,5 @@ export const SolarizedLight: Theme = new Theme(
     },
   },
   solarizedLightColors,
-  semanticColors,
+  semanticColors
 );

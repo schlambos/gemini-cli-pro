@@ -39,11 +39,7 @@ function parsePartialPath(partialPath: string): ParsedPath {
   let searchDir: string;
   let filter: string;
 
-  if (
-    partialPath === '' ||
-    partialPath.endsWith('/') ||
-    partialPath.endsWith(path.sep)
-  ) {
+  if (partialPath === '' || partialPath.endsWith('/') || partialPath.endsWith(path.sep)) {
     searchDir = expandedPath;
     filter = '';
   } else {
@@ -51,11 +47,7 @@ function parsePartialPath(partialPath: string): ParsedPath {
     filter = path.basename(expandedPath);
 
     // Special case for ~ because path.dirname('~') can be '.'
-    if (
-      isHomeExpansion &&
-      !partialPath.includes('/') &&
-      !partialPath.includes(path.sep)
-    ) {
+    if (isHomeExpansion && !partialPath.includes('/') && !partialPath.includes(path.sep)) {
       searchDir = homedir();
       filter = partialPath.substring(1);
     }
@@ -63,17 +55,10 @@ function parsePartialPath(partialPath: string): ParsedPath {
 
   // Calculate result prefix
   let resultPrefix = '';
-  if (
-    partialPath === '' ||
-    partialPath.endsWith('/') ||
-    partialPath.endsWith(path.sep)
-  ) {
+  if (partialPath === '' || partialPath.endsWith('/') || partialPath.endsWith(path.sep)) {
     resultPrefix = partialPath;
   } else {
-    const lastSlashIndex = Math.max(
-      partialPath.lastIndexOf('/'),
-      partialPath.lastIndexOf(path.sep),
-    );
+    const lastSlashIndex = Math.max(partialPath.lastIndexOf('/'), partialPath.lastIndexOf(path.sep));
     if (lastSlashIndex !== -1) {
       resultPrefix = partialPath.substring(0, lastSlashIndex + 1);
     } else if (isHomeExpansion) {
@@ -91,9 +76,7 @@ function parsePartialPath(partialPath: string): ParsedPath {
  * @param partialPath The partial path typed by the user.
  * @returns A promise resolving to an array of directory path suggestions.
  */
-export async function getDirectorySuggestions(
-  partialPath: string,
-): Promise<string[]> {
+export async function getDirectorySuggestions(partialPath: string): Promise<string[]> {
   try {
     const { searchDir, filter, resultPrefix } = parsePartialPath(partialPath);
 
@@ -149,13 +132,8 @@ export interface BatchAddResult {
  * Helper to batch add directories to the workspace context.
  * Handles expansion and error formatting.
  */
-export function batchAddDirectories(
-  workspaceContext: WorkspaceContext,
-  paths: string[],
-): BatchAddResult {
-  const result = workspaceContext.addDirectories(
-    paths.map((p) => expandHomeDir(p.trim())),
-  );
+export function batchAddDirectories(workspaceContext: WorkspaceContext, paths: string[]): BatchAddResult {
+  const result = workspaceContext.addDirectories(paths.map((p) => expandHomeDir(p.trim())));
 
   const errors: string[] = [];
   for (const failure of result.failed) {

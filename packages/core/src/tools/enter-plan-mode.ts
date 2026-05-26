@@ -23,13 +23,10 @@ export interface EnterPlanModeParams {
   reason?: string;
 }
 
-export class EnterPlanModeTool extends BaseDeclarativeTool<
-  EnterPlanModeParams,
-  ToolResult
-> {
+export class EnterPlanModeTool extends BaseDeclarativeTool<EnterPlanModeParams, ToolResult> {
   constructor(
     private config: Config,
-    messageBus: MessageBus,
+    messageBus: MessageBus
   ) {
     super(
       ENTER_PLAN_MODE_TOOL_NAME,
@@ -37,7 +34,7 @@ export class EnterPlanModeTool extends BaseDeclarativeTool<
       ENTER_PLAN_MODE_DEFINITION.base.description!,
       Kind.Plan,
       ENTER_PLAN_MODE_DEFINITION.base.parametersJsonSchema,
-      messageBus,
+      messageBus
     );
   }
 
@@ -45,15 +42,9 @@ export class EnterPlanModeTool extends BaseDeclarativeTool<
     params: EnterPlanModeParams,
     messageBus: MessageBus,
     toolName: string,
-    toolDisplayName: string,
+    toolDisplayName: string
   ): EnterPlanModeInvocation {
-    return new EnterPlanModeInvocation(
-      params,
-      messageBus,
-      toolName,
-      toolDisplayName,
-      this.config,
-    );
+    return new EnterPlanModeInvocation(params, messageBus, toolName, toolDisplayName, this.config);
   }
 
   override getSchema(modelId?: string) {
@@ -61,10 +52,7 @@ export class EnterPlanModeTool extends BaseDeclarativeTool<
   }
 }
 
-export class EnterPlanModeInvocation extends BaseToolInvocation<
-  EnterPlanModeParams,
-  ToolResult
-> {
+export class EnterPlanModeInvocation extends BaseToolInvocation<EnterPlanModeParams, ToolResult> {
   private confirmationOutcome: ToolConfirmationOutcome | null = null;
 
   constructor(
@@ -72,7 +60,7 @@ export class EnterPlanModeInvocation extends BaseToolInvocation<
     messageBus: MessageBus,
     toolName: string,
     toolDisplayName: string,
-    private config: Config,
+    private config: Config
   ) {
     super(params, messageBus, toolName, toolDisplayName);
   }
@@ -81,28 +69,21 @@ export class EnterPlanModeInvocation extends BaseToolInvocation<
     return this.params.reason || 'Initiating Plan Mode';
   }
 
-  override async shouldConfirmExecute(
-    abortSignal: AbortSignal,
-  ): Promise<ToolInfoConfirmationDetails | false> {
+  override async shouldConfirmExecute(abortSignal: AbortSignal): Promise<ToolInfoConfirmationDetails | false> {
     const decision = await this.getMessageBusDecision(abortSignal);
     if (decision === 'ALLOW') {
       return false;
     }
 
     if (decision === 'DENY') {
-      throw new Error(
-        `Tool execution for "${
-          this._toolDisplayName || this._toolName
-        }" denied by policy.`,
-      );
+      throw new Error(`Tool execution for "${this._toolDisplayName || this._toolName}" denied by policy.`);
     }
 
     // ASK_USER
     return {
       type: 'info',
       title: 'Enter Plan Mode',
-      prompt:
-        'This will restrict the agent to read-only tools to allow for safe planning.',
+      prompt: 'This will restrict the agent to read-only tools to allow for safe planning.',
       onConfirm: async (outcome: ToolConfirmationOutcome) => {
         this.confirmationOutcome = outcome;
         await this.publishPolicyUpdate(outcome);
@@ -122,9 +103,7 @@ export class EnterPlanModeInvocation extends BaseToolInvocation<
 
     return {
       llmContent: 'Switching to Plan mode.',
-      returnDisplay: this.params.reason
-        ? `Switching to Plan mode: ${this.params.reason}`
-        : 'Switching to Plan mode',
+      returnDisplay: this.params.reason ? `Switching to Plan mode: ${this.params.reason}` : 'Switching to Plan mode',
     };
   }
 }

@@ -21,10 +21,7 @@ interface IdeIntegrationNudgeProps {
   onComplete: (result: IdeIntegrationNudgeResult) => void;
 }
 
-export function IdeIntegrationNudge({
-  ide,
-  onComplete,
-}: IdeIntegrationNudgeProps) {
+export function IdeIntegrationNudge({ ide, onComplete }: IdeIntegrationNudgeProps) {
   useKeypress(
     (key) => {
       if (key.name === 'escape') {
@@ -36,14 +33,13 @@ export function IdeIntegrationNudge({
       }
       return false;
     },
-    { isActive: true },
+    { isActive: true }
   );
 
   const { displayName: ideName } = ide;
   // Assume extension is already installed if the env variables are set.
   const isExtensionPreInstalled =
-    !!process.env['GEMINI_CLI_IDE_SERVER_PORT'] &&
-    !!process.env['GEMINI_CLI_IDE_WORKSPACE_PATH'];
+    !!process.env['GEMINI_CLI_IDE_SERVER_PORT'] && !!process.env['GEMINI_CLI_IDE_WORKSPACE_PATH'];
 
   const OPTIONS: Array<RadioSelectItem<IdeIntegrationNudgeResult>> = [
     {
@@ -82,14 +78,14 @@ export function IdeIntegrationNudge({
 
   return (
     <Box
-      flexDirection="column"
-      borderStyle="round"
+      flexDirection='column'
+      borderStyle='round'
       borderColor={theme.status.warning}
       padding={1}
-      width="100%"
+      width='100%'
       marginLeft={1}
     >
-      <Box marginBottom={1} flexDirection="column">
+      <Box marginBottom={1} flexDirection='column'>
         <Text>
           <Text color={theme.status.warning}>{'> '}</Text>
           {`Do you want to connect ${ideName ?? 'your editor'} to Gemini CLI?`}

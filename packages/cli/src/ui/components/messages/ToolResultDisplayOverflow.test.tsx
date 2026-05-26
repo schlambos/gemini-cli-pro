@@ -47,13 +47,11 @@ describe('ToolResultDisplay Overflow', () => {
           constrainHeight: true,
         },
         useAlternateBuffer: false,
-      },
+      }
     );
 
     // ResizeObserver might take a tick
-    await waitFor(() =>
-      expect(lastFrame()).toContain('Press ctrl-o to show more lines'),
-    );
+    await waitFor(() => expect(lastFrame()).toContain('Press ctrl-o to show more lines'));
 
     const frame = lastFrame();
     expect(frame).toBeDefined();
@@ -61,12 +59,8 @@ describe('ToolResultDisplay Overflow', () => {
       expect(frame).toContain('Press ctrl-o to show more lines');
       // Ensure it's AFTER the bottom border
       const linesOfOutput = frame.split('\n');
-      const bottomBorderIndex = linesOfOutput.findLastIndex((l) =>
-        l.includes('╰─'),
-      );
-      const hintIndex = linesOfOutput.findIndex((l) =>
-        l.includes('Press ctrl-o to show more lines'),
-      );
+      const bottomBorderIndex = linesOfOutput.findLastIndex((l) => l.includes('╰─'));
+      const hintIndex = linesOfOutput.findIndex((l) => l.includes('Press ctrl-o to show more lines'));
       expect(hintIndex).toBeGreaterThan(bottomBorderIndex);
       expect(frame).toMatchSnapshot();
     }

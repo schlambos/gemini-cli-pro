@@ -66,8 +66,7 @@ export class IdeClient {
   private client: Client | undefined = undefined;
   private state: IDEConnectionState = {
     status: IDEConnectionStatus.Disconnected,
-    details:
-      'IDE integration is currently disabled. To enable it, run /ide enable.',
+    details: 'IDE integration is currently disabled. To enable it, run /ide enable.',
   };
   private currentIde: IdeInfo | undefined;
   private ideProcessInfo: { pid: number; command: string } | undefined;
@@ -93,10 +92,7 @@ export class IdeClient {
         const connectionConfig = client.ideProcessInfo
           ? await getConnectionConfigFromFile(client.ideProcessInfo.pid)
           : undefined;
-        client.currentIde = detectIde(
-          client.ideProcessInfo,
-          connectionConfig?.ideInfo,
-        );
+        client.currentIde = detectIde(client.ideProcessInfo, connectionConfig?.ideInfo);
         return client;
       })();
     }
@@ -125,7 +121,7 @@ export class IdeClient {
       this.setState(
         IDEConnectionStatus.Disconnected,
         `IDE integration is not supported in your current environment. To use this feature, run Gemini CLI in one of these supported IDEs: Antigravity, VS Code, or VS Code forks.`,
-        false,
+        false
       );
       return;
     }
@@ -135,17 +131,11 @@ export class IdeClient {
     const connectionConfig = this.ideProcessInfo
       ? await getConnectionConfigFromFile(this.ideProcessInfo.pid)
       : undefined;
-    const authToken =
-      connectionConfig?.authToken ?? process.env['GEMINI_CLI_IDE_AUTH_TOKEN'];
+    const authToken = connectionConfig?.authToken ?? process.env['GEMINI_CLI_IDE_AUTH_TOKEN'];
 
-    const workspacePath =
-      connectionConfig?.workspacePath ??
-      process.env['GEMINI_CLI_IDE_WORKSPACE_PATH'];
+    const workspacePath = connectionConfig?.workspacePath ?? process.env['GEMINI_CLI_IDE_WORKSPACE_PATH'];
 
-    const { isValid, error } = validateWorkspacePath(
-      workspacePath,
-      process.cwd(),
-    );
+    const { isValid, error } = validateWorkspacePath(workspacePath, process.cwd());
 
     if (!isValid) {
       this.setState(IDEConnectionStatus.Disconnected, error, logError);
@@ -154,18 +144,13 @@ export class IdeClient {
 
     if (connectionConfig) {
       if (connectionConfig.port) {
-        const connected = await this.establishHttpConnection(
-          connectionConfig.port,
-          authToken,
-        );
+        const connected = await this.establishHttpConnection(connectionConfig.port, authToken);
         if (connected) {
           return;
         }
       }
       if (connectionConfig.stdio) {
-        const connected = await this.establishStdioConnection(
-          connectionConfig.stdio,
-        );
+        const connected = await this.establishStdioConnection(connectionConfig.stdio);
         if (connected) {
           return;
         }
@@ -174,10 +159,7 @@ export class IdeClient {
 
     const portFromEnv = getPortFromEnv();
     if (portFromEnv) {
-      const connected = await this.establishHttpConnection(
-        portFromEnv,
-        authToken,
-      );
+      const connected = await this.establishHttpConnection(portFromEnv, authToken);
       if (connected) {
         return;
       }
@@ -194,7 +176,7 @@ export class IdeClient {
     this.setState(
       IDEConnectionStatus.Disconnected,
       `Failed to connect to IDE companion extension in ${this.currentIde.displayName}. Please ensure the extension is running. To install the extension, run /ide install.`,
-      logError,
+      logError
     );
   }
 
@@ -216,10 +198,7 @@ export class IdeClient {
    *   whether the diff was 'accepted' or 'rejected' and including the final
    *   content if accepted.
    */
-  async openDiff(
-    filePath: string,
-    newContent: string,
-  ): Promise<DiffUpdateResult> {
+  async openDiff(filePath: string, newContent: string): Promise<DiffUpdateResult> {
     const release = await this.acquireMutex();
 
     const promise = new Promise<DiffUpdateResult>((resolve, reject) => {
@@ -241,19 +220,13 @@ export class IdeClient {
             },
           },
           CallToolResultSchema,
-          { timeout: IDE_REQUEST_TIMEOUT_MS },
+          { timeout: IDE_REQUEST_TIMEOUT_MS }
         )
         .then((parsedResultData) => {
           if (parsedResultData.isError) {
-            const textPart = parsedResultData.content.find(
-              (part) => part.type === 'text',
-            );
-            const errorMessage =
-              textPart?.text ?? `Tool 'openDiff' reported an error.`;
-            logger.debug(
-              `Request for openDiff ${filePath} failed with isError:`,
-              errorMessage,
-            );
+            const textPart = parsedResultData.content.find((part) => part.type === 'text');
+            const errorMessage = textPart?.text ?? `Tool 'openDiff' reported an error.`;
+            logger.debug(`Request for openDiff ${filePath} failed with isError:`, errorMessage);
             this.diffResponses.delete(filePath);
             reject(new Error(errorMessage));
           }
@@ -299,10 +272,7 @@ export class IdeClient {
     return oldMutex.then(() => release);
   }
 
-  async closeDiff(
-    filePath: string,
-    options?: { suppressNotification?: boolean },
-  ): Promise<string | undefined> {
+  async closeDiff(filePath: string, options?: { suppressNotification?: boolean }): Promise<string | undefined> {
     try {
       if (!this.client) {
         return undefined;
@@ -319,7 +289,7 @@ export class IdeClient {
           },
         },
         CallToolResultSchema,
-        { timeout: IDE_REQUEST_TIMEOUT_MS },
+        { timeout: IDE_REQUEST_TIMEOUT_MS }
       );
 
       if (!resultData) {
@@ -327,15 +297,9 @@ export class IdeClient {
       }
 
       if (resultData.isError) {
-        const textPart = resultData.content.find(
-          (part) => part.type === 'text',
-        );
-        const errorMessage =
-          textPart?.text ?? `Tool 'closeDiff' reported an error.`;
-        logger.debug(
-          `Request for closeDiff ${filePath} failed with isError:`,
-          errorMessage,
-        );
+        const textPart = resultData.content.find((part) => part.type === 'text');
+        const errorMessage = textPart?.text ?? `Tool 'closeDiff' reported an error.`;
+        logger.debug(`Request for closeDiff ${filePath} failed with isError:`, errorMessage);
         return undefined;
       }
 
@@ -351,10 +315,7 @@ export class IdeClient {
             return undefined;
           }
         } catch (_e) {
-          logger.debug(
-            `Invalid JSON in closeDiff response for ${filePath}:`,
-            textPart.text,
-          );
+          logger.debug(`Invalid JSON in closeDiff response for ${filePath}:`, textPart.text);
         }
       }
     } catch (err) {
@@ -391,10 +352,7 @@ export class IdeClient {
       await this.closeDiff(filePath);
     }
     this.diffResponses.clear();
-    this.setState(
-      IDEConnectionStatus.Disconnected,
-      'IDE integration disabled. To enable it again, run /ide enable.',
-    );
+    this.setState(IDEConnectionStatus.Disconnected, 'IDE integration disabled. To enable it again, run /ide enable.');
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.client?.close();
   }
@@ -426,30 +384,20 @@ export class IdeClient {
     }
     try {
       logger.debug('Discovering tools from IDE...');
-      const response = await this.client.request(
-        { method: 'tools/list', params: {} },
-        ListToolsResultSchema,
-      );
+      const response = await this.client.request({ method: 'tools/list', params: {} }, ListToolsResultSchema);
 
       // Map the array of tool objects to an array of tool names (strings)
       this.availableTools = response.tools.map((tool) => tool.name);
 
       if (this.availableTools.length > 0) {
-        logger.debug(
-          `Discovered ${this.availableTools.length} tools from IDE: ${this.availableTools.join(', ')}`,
-        );
+        logger.debug(`Discovered ${this.availableTools.length} tools from IDE: ${this.availableTools.join(', ')}`);
       } else {
-        logger.debug(
-          'IDE supports tool discovery, but no tools are available.',
-        );
+        logger.debug('IDE supports tool discovery, but no tools are available.');
       }
     } catch (error) {
       // It's okay if this fails, the IDE might not support it.
       // Don't log an error if the method is not found, which is a common case.
-      if (
-        error instanceof Error &&
-        !error.message?.includes('Method not found')
-      ) {
+      if (error instanceof Error && !error.message?.includes('Method not found')) {
         logger.error(`Error discovering tools from IDE: ${error.message}`);
       } else {
         logger.debug('IDE does not support tool discovery.');
@@ -458,14 +406,9 @@ export class IdeClient {
     }
   }
 
-  private setState(
-    status: IDEConnectionStatus,
-    details?: string,
-    logToConsole = false,
-  ) {
+  private setState(status: IDEConnectionStatus, details?: string, logToConsole = false) {
     const isAlreadyDisconnected =
-      this.state.status === IDEConnectionStatus.Disconnected &&
-      status === IDEConnectionStatus.Disconnected;
+      this.state.status === IDEConnectionStatus.Disconnected && status === IDEConnectionStatus.Disconnected;
 
     // Only update details & log to console if the state wasn't already
     // disconnected, so that the first detail message is preserved.
@@ -495,82 +438,63 @@ export class IdeClient {
       return;
     }
 
-    this.client.setNotificationHandler(
-      IdeContextNotificationSchema,
-      (notification) => {
-        ideContextStore.set(notification.params);
-        const isTrusted = notification.params.workspaceState?.isTrusted;
-        if (isTrusted !== undefined) {
-          for (const listener of this.trustChangeListeners) {
-            listener(isTrusted);
-          }
+    this.client.setNotificationHandler(IdeContextNotificationSchema, (notification) => {
+      ideContextStore.set(notification.params);
+      const isTrusted = notification.params.workspaceState?.isTrusted;
+      if (isTrusted !== undefined) {
+        for (const listener of this.trustChangeListeners) {
+          listener(isTrusted);
         }
-      },
-    );
+      }
+    });
     this.client.onerror = (_error) => {
       const errorMessage = _error instanceof Error ? _error.message : `_error`;
       this.setState(
         IDEConnectionStatus.Disconnected,
         `IDE connection error. The connection was lost unexpectedly. Please try reconnecting by running /ide enable\n${errorMessage}`,
-        true,
+        true
       );
     };
     this.client.onclose = () => {
-      this.setState(
-        IDEConnectionStatus.Disconnected,
-        `IDE connection closed. To reconnect, run /ide enable.`,
-        true,
-      );
+      this.setState(IDEConnectionStatus.Disconnected, `IDE connection closed. To reconnect, run /ide enable.`, true);
     };
-    this.client.setNotificationHandler(
-      IdeDiffAcceptedNotificationSchema,
-      (notification) => {
-        const { filePath, content } = notification.params;
-        const resolver = this.diffResponses.get(filePath);
-        if (resolver) {
-          resolver({ status: 'accepted', content });
-          this.diffResponses.delete(filePath);
-        } else {
-          logger.debug(`No resolver found for ${filePath}`);
-        }
-      },
-    );
+    this.client.setNotificationHandler(IdeDiffAcceptedNotificationSchema, (notification) => {
+      const { filePath, content } = notification.params;
+      const resolver = this.diffResponses.get(filePath);
+      if (resolver) {
+        resolver({ status: 'accepted', content });
+        this.diffResponses.delete(filePath);
+      } else {
+        logger.debug(`No resolver found for ${filePath}`);
+      }
+    });
 
-    this.client.setNotificationHandler(
-      IdeDiffRejectedNotificationSchema,
-      (notification) => {
-        const { filePath } = notification.params;
-        const resolver = this.diffResponses.get(filePath);
-        if (resolver) {
-          resolver({ status: 'rejected', content: undefined });
-          this.diffResponses.delete(filePath);
-        } else {
-          logger.debug(`No resolver found for ${filePath}`);
-        }
-      },
-    );
+    this.client.setNotificationHandler(IdeDiffRejectedNotificationSchema, (notification) => {
+      const { filePath } = notification.params;
+      const resolver = this.diffResponses.get(filePath);
+      if (resolver) {
+        resolver({ status: 'rejected', content: undefined });
+        this.diffResponses.delete(filePath);
+      } else {
+        logger.debug(`No resolver found for ${filePath}`);
+      }
+    });
 
     // For backwards compatibility. Newer extension versions will only send
     // IdeDiffRejectedNotificationSchema.
-    this.client.setNotificationHandler(
-      IdeDiffClosedNotificationSchema,
-      (notification) => {
-        const { filePath } = notification.params;
-        const resolver = this.diffResponses.get(filePath);
-        if (resolver) {
-          resolver({ status: 'rejected', content: undefined });
-          this.diffResponses.delete(filePath);
-        } else {
-          logger.debug(`No resolver found for ${filePath}`);
-        }
-      },
-    );
+    this.client.setNotificationHandler(IdeDiffClosedNotificationSchema, (notification) => {
+      const { filePath } = notification.params;
+      const resolver = this.diffResponses.get(filePath);
+      if (resolver) {
+        resolver({ status: 'rejected', content: undefined });
+        this.diffResponses.delete(filePath);
+      } else {
+        logger.debug(`No resolver found for ${filePath}`);
+      }
+    });
   }
 
-  private async establishHttpConnection(
-    port: string,
-    authToken: string | undefined,
-  ): Promise<boolean> {
+  private async establishHttpConnection(port: string, authToken: string | undefined): Promise<boolean> {
     let transport: StreamableHTTPClientTransport | undefined;
     try {
       const ideServerHost = getIdeServerHost();
@@ -610,10 +534,7 @@ export class IdeClient {
     }
   }
 
-  private async establishStdioConnection({
-    command,
-    args,
-  }: StdioConfig): Promise<boolean> {
+  private async establishStdioConnection({ command, args }: StdioConfig): Promise<boolean> {
     let transport: StdioClientTransport | undefined;
     try {
       logger.debug('Attempting to connect to IDE via stdio');

@@ -50,8 +50,7 @@ vi.mock('./useAlternateBuffer.js', () => ({
 }));
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const original =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const original = await importOriginal<typeof import('@google/gemini-cli-core')>();
 
   return {
     ...original,
@@ -110,10 +109,7 @@ vi.mock('../../utils/cleanup.js', () => ({
   runExitCleanup: mockRunExitCleanup,
 }));
 
-function createTestCommand(
-  overrides: Partial<SlashCommand>,
-  kind: CommandKind = CommandKind.BUILT_IN,
-): SlashCommand {
+function createTestCommand(overrides: Partial<SlashCommand>, kind: CommandKind = CommandKind.BUILT_IN): SlashCommand {
   return {
     name: 'test',
     description: 'a test command',
@@ -165,12 +161,8 @@ describe('useSlashCommandProcessor', () => {
       mcpCommands?: SlashCommand[];
       setIsProcessing?: (isProcessing: boolean) => void;
       refreshStatic?: () => void;
-      openAgentConfigDialog?: (
-        name: string,
-        displayName: string,
-        definition: unknown,
-      ) => void;
-    } = {},
+      openAgentConfigDialog?: (name: string, displayName: string, definition: unknown) => void;
+    } = {}
   ) => {
     const {
       builtinCommands = [],
@@ -200,7 +192,7 @@ describe('useSlashCommandProcessor', () => {
           type,
           text: payload.message,
         },
-        Date.now(),
+        Date.now()
       );
     };
     coreEvents.on(CoreEvent.UserFeedback, handleFeedback);
@@ -243,8 +235,8 @@ describe('useSlashCommandProcessor', () => {
           new Map(), // extensionsUpdateState
           true, // isConfigInitialized
           vi.fn(), // setBannerVisible
-          vi.fn(), // setCustomDialog
-        ),
+          vi.fn() // setCustomDialog
+        )
       );
       result = hook.result;
       unmount = hook.unmount;
@@ -365,7 +357,7 @@ describe('useSlashCommandProcessor', () => {
       });
       const fileCommand = createTestCommand(
         { name: 'override', description: 'file', action: fileAction },
-        CommandKind.FILE,
+        CommandKind.FILE
       );
 
       const result = await setupProcessorHook({
@@ -404,7 +396,7 @@ describe('useSlashCommandProcessor', () => {
           type: MessageType.ERROR,
           text: 'Unknown command: /nonexistent',
         },
-        expect.any(Number),
+        expect.any(Number)
       );
     });
 
@@ -434,11 +426,9 @@ describe('useSlashCommandProcessor', () => {
       expect(mockAddItem).toHaveBeenLastCalledWith(
         {
           type: MessageType.INFO,
-          text: expect.stringContaining(
-            "Command '/parent' requires a subcommand.",
-          ),
+          text: expect.stringContaining("Command '/parent' requires a subcommand."),
         },
-        expect.any(Number),
+        expect.any(Number)
       );
     });
 
@@ -477,7 +467,7 @@ describe('useSlashCommandProcessor', () => {
             addItem: mockAddItem,
           }),
         }),
-        'with args',
+        'with args'
       );
     });
 
@@ -559,29 +549,22 @@ describe('useSlashCommandProcessor', () => {
           commandName: 'modelcmd',
           mockFn: mockOpenModelDialog,
         },
-      ])(
-        'should handle "dialog: $dialogType" action',
-        async ({ dialogType, commandName, mockFn }) => {
-          const command = createTestCommand({
-            name: commandName,
-            action: vi
-              .fn()
-              .mockResolvedValue({ type: 'dialog', dialog: dialogType }),
-          });
-          const result = await setupProcessorHook({
-            builtinCommands: [command],
-          });
-          await waitFor(() =>
-            expect(result.current.slashCommands).toHaveLength(1),
-          );
+      ])('should handle "dialog: $dialogType" action', async ({ dialogType, commandName, mockFn }) => {
+        const command = createTestCommand({
+          name: commandName,
+          action: vi.fn().mockResolvedValue({ type: 'dialog', dialog: dialogType }),
+        });
+        const result = await setupProcessorHook({
+          builtinCommands: [command],
+        });
+        await waitFor(() => expect(result.current.slashCommands).toHaveLength(1));
 
-          await act(async () => {
-            await result.current.handleSlashCommand(`/${commandName}`);
-          });
+        await act(async () => {
+          await result.current.handleSlashCommand(`/${commandName}`);
+        });
 
-          expect(mockFn).toHaveBeenCalled();
-        },
-      );
+        expect(mockFn).toHaveBeenCalled();
+      });
 
       it('should handle "dialog: agentConfig" action with props', async () => {
         const mockOpenAgentConfigDialog = vi.fn();
@@ -605,19 +588,13 @@ describe('useSlashCommandProcessor', () => {
           openAgentConfigDialog: mockOpenAgentConfigDialog,
         });
 
-        await waitFor(() =>
-          expect(result.current.slashCommands).toHaveLength(1),
-        );
+        await waitFor(() => expect(result.current.slashCommands).toHaveLength(1));
 
         await act(async () => {
           await result.current.handleSlashCommand(`/${commandName}`);
         });
 
-        expect(mockOpenAgentConfigDialog).toHaveBeenCalledWith(
-          'test-agent',
-          'Test Agent',
-          agentDefinition,
-        );
+        expect(mockOpenAgentConfigDialog).toHaveBeenCalledWith('test-agent', 'Test Agent', agentDefinition);
       });
     });
 
@@ -652,10 +629,7 @@ describe('useSlashCommandProcessor', () => {
       // ui.clear() is called which calls refreshStatic()
       expect(mockClearItems).toHaveBeenCalledTimes(1);
       expect(mockRefreshStatic).toHaveBeenCalledTimes(1);
-      expect(mockAddItem).toHaveBeenCalledWith(
-        { type: 'user', text: 'old prompt' },
-        expect.any(Number),
-      );
+      expect(mockAddItem).toHaveBeenCalledWith({ type: 'user', text: 'old prompt' }, expect.any(Number));
     });
 
     it('should call refreshStatic exactly once when ui.loadHistory is called', async () => {
@@ -673,9 +647,7 @@ describe('useSlashCommandProcessor', () => {
     });
 
     it('should handle a "quit" action', async () => {
-      const quitAction = vi
-        .fn()
-        .mockResolvedValue({ type: 'quit', messages: ['bye'] });
+      const quitAction = vi.fn().mockResolvedValue({ type: 'quit', messages: ['bye'] });
       const command = createTestCommand({
         name: 'exit',
         action: quitAction,
@@ -702,7 +674,7 @@ describe('useSlashCommandProcessor', () => {
             content: [{ text: 'The actual prompt from the TOML file.' }],
           }),
         },
-        CommandKind.FILE,
+        CommandKind.FILE
       );
 
       const result = await setupProcessorHook({
@@ -720,10 +692,7 @@ describe('useSlashCommandProcessor', () => {
         content: [{ text: 'The actual prompt from the TOML file.' }],
       });
 
-      expect(mockAddItem).toHaveBeenCalledWith(
-        { type: MessageType.USER, text: '/filecmd' },
-        expect.any(Number),
-      );
+      expect(mockAddItem).toHaveBeenCalledWith({ type: MessageType.USER, text: '/filecmd' }, expect.any(Number));
     });
 
     it('should handle "submit_prompt" action returned from a mcp-based command', async () => {
@@ -736,7 +705,7 @@ describe('useSlashCommandProcessor', () => {
             content: [{ text: 'The actual prompt from the mcp command.' }],
           }),
         },
-        CommandKind.MCP_PROMPT,
+        CommandKind.MCP_PROMPT
       );
 
       const result = await setupProcessorHook({
@@ -754,10 +723,7 @@ describe('useSlashCommandProcessor', () => {
         content: [{ text: 'The actual prompt from the mcp command.' }],
       });
 
-      expect(mockAddItem).toHaveBeenCalledWith(
-        { type: MessageType.USER, text: '/mcpcmd' },
-        expect.any(Number),
-      );
+      expect(mockAddItem).toHaveBeenCalledWith({ type: MessageType.USER, text: '/mcpcmd' }, expect.any(Number));
     });
   });
 
@@ -780,7 +746,7 @@ describe('useSlashCommandProcessor', () => {
           type: MessageType.ERROR,
           text: 'Unknown command: /Test',
         },
-        expect.any(Number),
+        expect.any(Number)
       );
     });
 
@@ -802,9 +768,7 @@ describe('useSlashCommandProcessor', () => {
       });
 
       expect(action).toHaveBeenCalledTimes(1);
-      expect(mockAddItem).not.toHaveBeenCalledWith(
-        expect.objectContaining({ type: MessageType.ERROR }),
-      );
+      expect(mockAddItem).not.toHaveBeenCalledWith(expect.objectContaining({ type: MessageType.ERROR }));
     });
 
     it('should handle extra whitespace around the command', async () => {
@@ -849,11 +813,11 @@ describe('useSlashCommandProcessor', () => {
           description: 'mcp',
           action: mcpAction,
         },
-        CommandKind.MCP_PROMPT,
+        CommandKind.MCP_PROMPT
       );
       const fileCommand = createTestCommand(
         { name: 'override', description: 'file', action: fileAction },
-        CommandKind.FILE,
+        CommandKind.FILE
       );
 
       const result = await setupProcessorHook({
@@ -890,7 +854,7 @@ describe('useSlashCommandProcessor', () => {
           name: 'exit',
           action: exitAction,
         },
-        CommandKind.FILE,
+        CommandKind.FILE
       );
 
       // The order of commands in the final loaded array is not guaranteed,
@@ -920,10 +884,7 @@ describe('useSlashCommandProcessor', () => {
         altNames: ['exit'],
         action: vi.fn(),
       });
-      const exitCommand = createTestCommand(
-        { name: 'exit', action: vi.fn() },
-        CommandKind.FILE,
-      );
+      const exitCommand = createTestCommand({ name: 'exit', action: vi.fn() }, CommandKind.FILE);
 
       const result = await setupProcessorHook({
         builtinCommands: [quitCommand],
@@ -936,10 +897,7 @@ describe('useSlashCommandProcessor', () => {
       });
 
       // It should be added to the history.
-      expect(mockAddItem).toHaveBeenCalledWith(
-        { type: MessageType.USER, text: '/exit' },
-        expect.any(Number),
-      );
+      expect(mockAddItem).toHaveBeenCalledWith({ type: MessageType.USER, text: '/exit' }, expect.any(Number));
     });
   });
 
@@ -964,9 +922,7 @@ describe('useSlashCommandProcessor', () => {
       loggingTestCommands = [
         createTestCommand({
           name: 'logtest',
-          action: vi
-            .fn()
-            .mockResolvedValue({ type: 'message', content: 'hello world' }),
+          action: vi.fn().mockResolvedValue({ type: 'message', content: 'hello world' }),
         }),
         createTestCommand({
           name: 'logwithsub',
@@ -1034,10 +990,7 @@ describe('useSlashCommandProcessor', () => {
       });
 
       await waitFor(() => {
-        expect(logSlashCommand).toHaveBeenCalledWith(
-          mockConfig,
-          expect.objectContaining(expectedLog),
-        );
+        expect(logSlashCommand).toHaveBeenCalledWith(mockConfig, expect.objectContaining(expectedLog));
       });
     });
 
@@ -1075,9 +1028,7 @@ describe('useSlashCommandProcessor', () => {
     act(() => {
       coreEvents.emit('extensionsStarting');
     });
-    await waitFor(() =>
-      expect(result.current.slashCommands).toEqual([newCommand]),
-    );
+    await waitFor(() => expect(result.current.slashCommands).toEqual([newCommand]));
   });
 
   describe('Conflict Notifications', () => {
@@ -1088,7 +1039,7 @@ describe('useSlashCommandProcessor', () => {
           name: 'deploy',
           extensionName: 'firebase',
         },
-        CommandKind.FILE,
+        CommandKind.FILE
       );
 
       const result = await setupProcessorHook({
@@ -1103,17 +1054,15 @@ describe('useSlashCommandProcessor', () => {
           type: MessageType.INFO,
           text: expect.stringContaining('Command conflicts detected'),
         }),
-        expect.any(Number),
+        expect.any(Number)
       );
 
       expect(mockAddItem).toHaveBeenCalledWith(
         expect.objectContaining({
           type: MessageType.INFO,
-          text: expect.stringContaining(
-            "- Command '/deploy' from extension 'firebase' was renamed",
-          ),
+          text: expect.stringContaining("- Command '/deploy' from extension 'firebase' was renamed"),
         }),
-        expect.any(Number),
+        expect.any(Number)
       );
     });
 
@@ -1124,7 +1073,7 @@ describe('useSlashCommandProcessor', () => {
           name: 'deploy',
           extensionName: 'firebase',
         },
-        CommandKind.FILE,
+        CommandKind.FILE
       );
 
       const result = await setupProcessorHook({
@@ -1140,7 +1089,7 @@ describe('useSlashCommandProcessor', () => {
           type: MessageType.INFO,
           text: expect.stringContaining('Command conflicts detected'),
         }),
-        expect.any(Number),
+        expect.any(Number)
       );
 
       mockAddItem.mockClear();
@@ -1159,7 +1108,7 @@ describe('useSlashCommandProcessor', () => {
           type: MessageType.INFO,
           text: expect.stringContaining('Command conflicts detected'),
         }),
-        expect.any(Number),
+        expect.any(Number)
       );
     });
 
@@ -1169,14 +1118,14 @@ describe('useSlashCommandProcessor', () => {
           name: 'deploy',
           extensionName: 'firebase',
         },
-        CommandKind.FILE,
+        CommandKind.FILE
       );
       const ext2Command = createTestCommand(
         {
           name: 'deploy',
           extensionName: 'aws',
         },
-        CommandKind.FILE,
+        CommandKind.FILE
       );
 
       const result = await setupProcessorHook({
@@ -1190,7 +1139,7 @@ describe('useSlashCommandProcessor', () => {
           type: MessageType.INFO,
           text: expect.stringContaining("conflicts with extension 'firebase'"),
         }),
-        expect.any(Number),
+        expect.any(Number)
       );
     });
   });

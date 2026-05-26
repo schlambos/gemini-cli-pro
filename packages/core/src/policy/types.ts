@@ -20,12 +20,7 @@ export type HookSource = 'project' | 'user' | 'system' | 'extension';
 /**
  * Array of valid hook source values for runtime validation
  */
-const VALID_HOOK_SOURCES: HookSource[] = [
-  'project',
-  'user',
-  'system',
-  'extension',
-];
+const VALID_HOOK_SOURCES: HookSource[] = ['project', 'user', 'system', 'extension'];
 
 /**
  * Safely extract and validate hook source from input
@@ -93,9 +88,7 @@ export interface InProcessCheckerConfig {
 /**
  * A discriminated union for all safety checker configurations.
  */
-export type SafetyCheckerConfig =
-  | ExternalCheckerConfig
-  | InProcessCheckerConfig;
+export type SafetyCheckerConfig = ExternalCheckerConfig | InProcessCheckerConfig;
 
 export interface PolicyRule {
   /**

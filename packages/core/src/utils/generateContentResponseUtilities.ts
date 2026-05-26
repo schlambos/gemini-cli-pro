@@ -4,12 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type {
-  GenerateContentResponse,
-  Part,
-  FunctionCall,
-  PartListUnion,
-} from '@google/genai';
+import type { GenerateContentResponse, Part, FunctionCall, PartListUnion } from '@google/genai';
 import { getResponseText } from './partUtils.js';
 import { supportsMultimodalFunctionResponse } from '../config/models.js';
 import { debugLogger } from './debugLogger.js';
@@ -17,11 +12,7 @@ import { debugLogger } from './debugLogger.js';
 /**
  * Formats tool output for a Gemini FunctionResponse.
  */
-function createFunctionResponsePart(
-  callId: string,
-  toolName: string,
-  output: string,
-): Part {
+function createFunctionResponsePart(callId: string, toolName: string, output: string): Part {
   return {
     functionResponse: {
       id: callId,
@@ -47,7 +38,7 @@ export function convertToFunctionResponse(
   toolName: string,
   callId: string,
   llmContent: PartListUnion,
-  model: string,
+  model: string
 ): Part[] {
   if (typeof llmContent === 'string') {
     return [createFunctionResponsePart(callId, toolName, llmContent)];
@@ -70,7 +61,7 @@ export function convertToFunctionResponse(
     } else if (part.functionResponse) {
       if (parts.length > 1) {
         debugLogger.warn(
-          'convertToFunctionResponse received multiple parts with a functionResponse. Only the functionResponse will be used, other parts will be ignored',
+          'convertToFunctionResponse received multiple parts with a functionResponse. Only the functionResponse will be used, other parts will be ignored'
         );
       }
       // Handle passthrough case
@@ -103,8 +94,7 @@ export function convertToFunctionResponse(
     if (isMultimodalFRSupported) {
       // Nest inlineData if supported by the model
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-      (part.functionResponse as unknown as { parts: Part[] }).parts =
-        inlineDataParts;
+      (part.functionResponse as unknown as { parts: Part[] }).parts = inlineDataParts;
     } else {
       // Otherwise treat as siblings
       siblingParts.push(...inlineDataParts);
@@ -112,10 +102,7 @@ export function convertToFunctionResponse(
   }
 
   // Add descriptive text if the response object is empty but we have binary content
-  if (
-    textParts.length === 0 &&
-    (inlineDataParts.length > 0 || fileDataParts.length > 0)
-  ) {
+  if (textParts.length === 0 && (inlineDataParts.length > 0 || fileDataParts.length > 0)) {
     const totalBinaryItems = inlineDataParts.length + fileDataParts.length;
     part.functionResponse!.response = {
       output: `Binary content provided (${totalBinaryItems} item(s)).`,
@@ -133,9 +120,7 @@ export function getResponseTextFromParts(parts: Part[]): string | undefined {
   if (!parts) {
     return undefined;
   }
-  const textSegments = parts
-    .map((part) => part.text)
-    .filter((text): text is string => typeof text === 'string');
+  const textSegments = parts.map((part) => part.text).filter((text): text is string => typeof text === 'string');
 
   if (textSegments.length === 0) {
     return undefined;
@@ -143,9 +128,7 @@ export function getResponseTextFromParts(parts: Part[]): string | undefined {
   return textSegments.join('');
 }
 
-export function getFunctionCalls(
-  response: GenerateContentResponse,
-): FunctionCall[] | undefined {
+export function getFunctionCalls(response: GenerateContentResponse): FunctionCall[] | undefined {
   const parts = response.candidates?.[0]?.content?.parts;
   if (!parts) {
     return undefined;
@@ -157,9 +140,7 @@ export function getFunctionCalls(
   return functionCallParts.length > 0 ? functionCallParts : undefined;
 }
 
-export function getFunctionCallsFromParts(
-  parts: Part[],
-): FunctionCall[] | undefined {
+export function getFunctionCallsFromParts(parts: Part[]): FunctionCall[] | undefined {
   if (!parts) {
     return undefined;
   }
@@ -170,9 +151,7 @@ export function getFunctionCallsFromParts(
   return functionCallParts.length > 0 ? functionCallParts : undefined;
 }
 
-export function getFunctionCallsAsJson(
-  response: GenerateContentResponse,
-): string | undefined {
+export function getFunctionCallsAsJson(response: GenerateContentResponse): string | undefined {
   const functionCalls = getFunctionCalls(response);
   if (!functionCalls) {
     return undefined;
@@ -180,9 +159,7 @@ export function getFunctionCallsAsJson(
   return JSON.stringify(functionCalls, null, 2);
 }
 
-export function getFunctionCallsFromPartsAsJson(
-  parts: Part[],
-): string | undefined {
+export function getFunctionCallsFromPartsAsJson(parts: Part[]): string | undefined {
   const functionCalls = getFunctionCallsFromParts(parts);
   if (!functionCalls) {
     return undefined;
@@ -190,9 +167,7 @@ export function getFunctionCallsFromPartsAsJson(
   return JSON.stringify(functionCalls, null, 2);
 }
 
-export function getStructuredResponse(
-  response: GenerateContentResponse,
-): string | undefined {
+export function getStructuredResponse(response: GenerateContentResponse): string | undefined {
   const textContent = getResponseText(response);
   const functionCallsJson = getFunctionCallsAsJson(response);
 
@@ -208,9 +183,7 @@ export function getStructuredResponse(
   return undefined;
 }
 
-export function getStructuredResponseFromParts(
-  parts: Part[],
-): string | undefined {
+export function getStructuredResponseFromParts(parts: Part[]): string | undefined {
   const textContent = getResponseTextFromParts(parts);
   const functionCallsJson = getFunctionCallsFromPartsAsJson(parts);
 

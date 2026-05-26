@@ -5,11 +5,7 @@
  */
 
 import * as path from 'node:path';
-import type {
-  Task as SDKTask,
-  TaskStatusUpdateEvent,
-  SendStreamingMessageSuccessResponse,
-} from '@a2a-js/sdk';
+import type { Task as SDKTask, TaskStatusUpdateEvent, SendStreamingMessageSuccessResponse } from '@a2a-js/sdk';
 import {
   ApprovalMode,
   DEFAULT_GEMINI_MODEL,
@@ -23,9 +19,7 @@ import { createMockMessageBus } from '@google/gemini-cli-core/src/test-utils/moc
 import type { Config, Storage } from '@google/gemini-cli-core';
 import { expect, vi } from 'vitest';
 
-export function createMockConfig(
-  overrides: Partial<Config> = {},
-): Partial<Config> {
+export function createMockConfig(overrides: Partial<Config> = {}): Partial<Config> {
   const tmpDir = tmpdir();
   // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
   const mockConfig = {
@@ -49,8 +43,7 @@ export function createMockConfig(
       getProjectTempDir: () => tmpDir,
       getProjectTempCheckpointsDir: () => path.join(tmpDir, 'checkpoints'),
     } as Storage,
-    getTruncateToolOutputThreshold: () =>
-      DEFAULT_TRUNCATE_TOOL_OUTPUT_THRESHOLD,
+    getTruncateToolOutputThreshold: () => DEFAULT_TRUNCATE_TOOL_OUTPUT_THRESHOLD,
     getActiveModel: vi.fn().mockReturnValue(DEFAULT_GEMINI_MODEL),
     getDebugMode: vi.fn().mockReturnValue(false),
     getContentGeneratorConfig: vi.fn().mockReturnValue({ model: 'gemini-pro' }),
@@ -74,13 +67,9 @@ export function createMockConfig(
     ...overrides,
   } as unknown as Config;
   mockConfig.getMessageBus = vi.fn().mockReturnValue(createMockMessageBus());
-  mockConfig.getHookSystem = vi
-    .fn()
-    .mockReturnValue(new HookSystem(mockConfig));
+  mockConfig.getHookSystem = vi.fn().mockReturnValue(new HookSystem(mockConfig));
 
-  mockConfig.getGeminiClient = vi
-    .fn()
-    .mockReturnValue(new GeminiClient(mockConfig));
+  mockConfig.getGeminiClient = vi.fn().mockReturnValue(new GeminiClient(mockConfig));
 
   mockConfig.getPolicyEngine = vi.fn().mockReturnValue({
     check: async () => {
@@ -95,11 +84,7 @@ export function createMockConfig(
   return mockConfig;
 }
 
-export function createStreamMessageRequest(
-  text: string,
-  messageId: string,
-  taskId?: string,
-) {
+export function createStreamMessageRequest(text: string, messageId: string, taskId?: string) {
   const request: {
     jsonrpc: string;
     id: string;
@@ -146,9 +131,7 @@ export function createStreamMessageRequest(
   return request;
 }
 
-export function assertUniqueFinalEventIsLast(
-  events: SendStreamingMessageSuccessResponse[],
-) {
+export function assertUniqueFinalEventIsLast(events: SendStreamingMessageSuccessResponse[]) {
   // Final event is input-required & final
   // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
   const finalEvent = events[events.length - 1].result as TaskStatusUpdateEvent;
@@ -161,17 +144,15 @@ export function assertUniqueFinalEventIsLast(
   // There is only one event with final and its the last
   expect(
     // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-    events.filter((e) => (e.result as TaskStatusUpdateEvent).final).length,
+    events.filter((e) => (e.result as TaskStatusUpdateEvent).final).length
   ).toBe(1);
   expect(
     // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-    events.findIndex((e) => (e.result as TaskStatusUpdateEvent).final),
+    events.findIndex((e) => (e.result as TaskStatusUpdateEvent).final)
   ).toBe(events.length - 1);
 }
 
-export function assertTaskCreationAndWorkingStatus(
-  events: SendStreamingMessageSuccessResponse[],
-) {
+export function assertTaskCreationAndWorkingStatus(events: SendStreamingMessageSuccessResponse[]) {
   // Initial task creation event
   // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
   const taskEvent = events[0].result as SDKTask;

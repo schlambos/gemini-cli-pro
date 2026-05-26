@@ -24,9 +24,7 @@ describe('keybindingUtils', () => {
     });
 
     it('formats multiple modifiers in order', () => {
-      expect(formatKeyBinding({ key: 'z', ctrl: true, shift: true })).toBe(
-        'Ctrl+Shift+Z',
-      );
+      expect(formatKeyBinding({ key: 'z', ctrl: true, shift: true })).toBe('Ctrl+Shift+Z');
       expect(
         formatKeyBinding({
           key: 'a',
@@ -34,7 +32,7 @@ describe('keybindingUtils', () => {
           alt: true,
           shift: true,
           cmd: true,
-        }),
+        })
       ).toBe('Ctrl+Alt+Shift+Cmd+A');
     });
   });

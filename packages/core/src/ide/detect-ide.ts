@@ -39,9 +39,7 @@ export function isCloudShell(): boolean {
 }
 
 export function isJetBrains(): boolean {
-  return !!process.env['TERMINAL_EMULATOR']
-    ?.toLowerCase()
-    .includes('jetbrains');
+  return !!process.env['TERMINAL_EMULATOR']?.toLowerCase().includes('jetbrains');
 }
 
 export function detectIdeFromEnv(): IdeInfo {
@@ -86,15 +84,12 @@ function verifyVSCode(
   ideProcessInfo: {
     pid: number;
     command: string;
-  },
+  }
 ): IdeInfo {
   if (ide.name !== IDE_DEFINITIONS.vscode.name) {
     return ide;
   }
-  if (
-    !ideProcessInfo.command ||
-    ideProcessInfo.command.toLowerCase().includes('code')
-  ) {
+  if (!ideProcessInfo.command || ideProcessInfo.command.toLowerCase().includes('code')) {
     return IDE_DEFINITIONS.vscode;
   }
   return IDE_DEFINITIONS.vscodefork;
@@ -105,7 +100,7 @@ function verifyJetBrains(
   ideProcessInfo: {
     pid: number;
     command: string;
-  },
+  }
 ): IdeInfo {
   if (ide.name !== IDE_DEFINITIONS.jetbrains.name || !ideProcessInfo.command) {
     return ide;
@@ -138,7 +133,7 @@ export function detectIde(
     pid: number;
     command: string;
   },
-  ideInfoFromFile?: { name?: string; displayName?: string },
+  ideInfoFromFile?: { name?: string; displayName?: string }
 ): IdeInfo | undefined {
   if (ideInfoFromFile?.name && ideInfoFromFile.displayName) {
     return {
@@ -148,16 +143,10 @@ export function detectIde(
   }
 
   // Only VS Code, Sublime Text and JetBrains integrations are currently supported.
-  if (
-    process.env['TERM_PROGRAM'] !== 'vscode' &&
-    process.env['TERM_PROGRAM'] !== 'sublime' &&
-    !isJetBrains()
-  ) {
+  if (process.env['TERM_PROGRAM'] !== 'vscode' && process.env['TERM_PROGRAM'] !== 'sublime' && !isJetBrains()) {
     return undefined;
   }
 
   const ide = detectIdeFromEnv();
-  return isJetBrains()
-    ? verifyJetBrains(ide, ideProcessInfo)
-    : verifyVSCode(ide, ideProcessInfo);
+  return isJetBrains() ? verifyJetBrains(ide, ideProcessInfo) : verifyVSCode(ide, ideProcessInfo);
 }

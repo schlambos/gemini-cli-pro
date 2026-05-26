@@ -7,14 +7,8 @@
 import type { CommandModule } from 'yargs';
 import { debugLogger } from '@google/gemini-cli-core';
 import { getErrorMessage } from '../../utils/errors.js';
-import {
-  INSTALL_WARNING_MESSAGE,
-  requestConsentNonInteractive,
-} from '../../config/extensions/consent.js';
-import {
-  ExtensionManager,
-  inferInstallMetadata,
-} from '../../config/extension-manager.js';
+import { INSTALL_WARNING_MESSAGE, requestConsentNonInteractive } from '../../config/extensions/consent.js';
+import { ExtensionManager, inferInstallMetadata } from '../../config/extension-manager.js';
 import { loadSettings } from '../../config/settings.js';
 import { promptForSetting } from '../../config/extensions/extensionSettings.js';
 import { exitCli } from '../utils.js';
@@ -36,9 +30,7 @@ export async function handleInstall(args: InstallArgs) {
       allowPreRelease: args.allowPreRelease,
     });
 
-    const requestConsent = args.consent
-      ? () => Promise.resolve(true)
-      : requestConsentNonInteractive;
+    const requestConsent = args.consent ? () => Promise.resolve(true) : requestConsentNonInteractive;
     if (args.consent) {
       debugLogger.log('You have consented to the following:');
       debugLogger.log(INSTALL_WARNING_MESSAGE);
@@ -52,11 +44,8 @@ export async function handleInstall(args: InstallArgs) {
       settings: loadSettings(workspaceDir).merged,
     });
     await extensionManager.loadExtensions();
-    const extension =
-      await extensionManager.installOrUpdateExtension(installMetadata);
-    debugLogger.log(
-      `Extension "${extension.name}" installed successfully and enabled.`,
-    );
+    const extension = await extensionManager.installOrUpdateExtension(installMetadata);
+    debugLogger.log(`Extension "${extension.name}" installed successfully and enabled.`);
   } catch (error) {
     debugLogger.error(getErrorMessage(error));
     process.exit(1);
@@ -86,8 +75,7 @@ export const installCommand: CommandModule = {
         type: 'boolean',
       })
       .option('consent', {
-        describe:
-          'Acknowledge the security risks of installing an extension and skip the confirmation prompt.',
+        describe: 'Acknowledge the security risks of installing an extension and skip the confirmation prompt.',
         type: 'boolean',
         default: false,
       })

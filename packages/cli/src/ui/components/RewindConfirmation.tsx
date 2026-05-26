@@ -66,7 +66,7 @@ export const RewindConfirmation: React.FC<RewindConfirmationProps> = ({
       }
       return false;
     },
-    { isActive: true },
+    { isActive: true }
   );
 
   const handleSelect = (outcome: RewindOutcome) => {
@@ -78,16 +78,14 @@ export const RewindConfirmation: React.FC<RewindConfirmationProps> = ({
       return REWIND_OPTIONS;
     }
     return REWIND_OPTIONS.filter(
-      (option) =>
-        option.value !== RewindOutcome.RewindAndRevert &&
-        option.value !== RewindOutcome.RevertOnly,
+      (option) => option.value !== RewindOutcome.RewindAndRevert && option.value !== RewindOutcome.RevertOnly
     );
   }, [stats]);
 
   return (
     <Box
-      flexDirection="column"
-      borderStyle="round"
+      flexDirection='column'
+      borderStyle='round'
       borderColor={theme.border.default}
       padding={1}
       width={terminalWidth}
@@ -98,35 +96,23 @@ export const RewindConfirmation: React.FC<RewindConfirmationProps> = ({
 
       {stats && (
         <Box
-          flexDirection="column"
+          flexDirection='column'
           marginBottom={1}
-          borderStyle="single"
+          borderStyle='single'
           borderColor={theme.border.default}
           paddingX={1}
         >
           <Text color={theme.text.primary}>
-            {stats.fileCount === 1
-              ? `File: ${stats.details?.at(0)?.fileName}`
-              : `${stats.fileCount} files affected`}
+            {stats.fileCount === 1 ? `File: ${stats.details?.at(0)?.fileName}` : `${stats.fileCount} files affected`}
           </Text>
-          <Box flexDirection="row">
-            <Text color={theme.status.success}>
-              Lines added: {stats.addedLines}{' '}
-            </Text>
-            <Text color={theme.status.error}>
-              Lines removed: {stats.removedLines}
-            </Text>
-            {timestamp && (
-              <Text color={theme.text.secondary}>
-                {' '}
-                ({formatTimeAgo(timestamp)})
-              </Text>
-            )}
+          <Box flexDirection='row'>
+            <Text color={theme.status.success}>Lines added: {stats.addedLines} </Text>
+            <Text color={theme.status.error}>Lines removed: {stats.removedLines}</Text>
+            {timestamp && <Text color={theme.text.secondary}> ({formatTimeAgo(timestamp)})</Text>}
           </Box>
           <Box marginTop={1}>
             <Text color={theme.status.warning}>
-              ℹ Rewinding does not affect files edited manually or by the shell
-              tool.
+              ℹ Rewinding does not affect files edited manually or by the shell tool.
             </Text>
           </Box>
         </Box>
@@ -135,12 +121,7 @@ export const RewindConfirmation: React.FC<RewindConfirmationProps> = ({
       {!stats && (
         <Box marginBottom={1}>
           <Text color={theme.text.secondary}>No code changes to revert.</Text>
-          {timestamp && (
-            <Text color={theme.text.secondary}>
-              {' '}
-              ({formatTimeAgo(timestamp)})
-            </Text>
-          )}
+          {timestamp && <Text color={theme.text.secondary}> ({formatTimeAgo(timestamp)})</Text>}
         </Box>
       )}
 
@@ -148,11 +129,7 @@ export const RewindConfirmation: React.FC<RewindConfirmationProps> = ({
         <Text>Select an action:</Text>
       </Box>
 
-      <RadioButtonSelect
-        items={options}
-        onSelect={handleSelect}
-        isFocused={true}
-      />
+      <RadioButtonSelect items={options} onSelect={handleSelect} isFocused={true} />
     </Box>
   );
 };

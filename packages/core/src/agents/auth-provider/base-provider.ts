@@ -37,10 +37,7 @@ export abstract class BaseA2AAuthProvider implements A2AAuthProvider {
    * @param res The response from the server
    * @returns New headers for retry, or undefined if no retry should be made
    */
-  async shouldRetryWithHeaders(
-    _req: RequestInit,
-    res: Response,
-  ): Promise<HttpHeaders | undefined> {
+  async shouldRetryWithHeaders(_req: RequestInit, res: Response): Promise<HttpHeaders | undefined> {
     if (res.status === 401 || res.status === 403) {
       if (this.authRetryCount >= BaseA2AAuthProvider.MAX_AUTH_RETRIES) {
         return undefined; // Max retries exceeded

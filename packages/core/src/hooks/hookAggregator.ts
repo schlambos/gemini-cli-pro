@@ -5,11 +5,7 @@
  */
 
 import { FunctionCallingConfigMode } from '@google/genai';
-import type {
-  HookOutput,
-  HookExecutionResult,
-  BeforeToolSelectionOutput,
-} from './types.js';
+import type { HookOutput, HookExecutionResult, BeforeToolSelectionOutput } from './types.js';
 import {
   DefaultHookOutput,
   BeforeToolHookOutput,
@@ -38,10 +34,7 @@ export class HookAggregator {
   /**
    * Aggregate results from multiple hook executions
    */
-  aggregateResults(
-    results: HookExecutionResult[],
-    eventName: HookEventName,
-  ): AggregatedHookResult {
+  aggregateResults(results: HookExecutionResult[], eventName: HookEventName): AggregatedHookResult {
     const allOutputs: HookOutput[] = [];
     const errors: Error[] = [];
     let totalDuration = 0;
@@ -61,9 +54,7 @@ export class HookAggregator {
 
     // Merge outputs using event-specific strategy
     const mergedOutput = this.mergeOutputs(allOutputs, eventName);
-    const finalOutput = mergedOutput
-      ? this.createSpecificHookOutput(mergedOutput, eventName)
-      : undefined;
+    const finalOutput = mergedOutput ? this.createSpecificHookOutput(mergedOutput, eventName) : undefined;
 
     return {
       success: errors.length === 0,
@@ -80,10 +71,7 @@ export class HookAggregator {
    * Note: We always use the merge logic even for single hooks to ensure
    * consistent default behaviors (e.g., default decision='allow' for OR logic)
    */
-  private mergeOutputs(
-    outputs: HookOutput[],
-    eventName: HookEventName,
-  ): HookOutput | undefined {
+  private mergeOutputs(outputs: HookOutput[], eventName: HookEventName): HookOutput | undefined {
     if (outputs.length === 0) {
       return undefined;
     }
@@ -103,7 +91,7 @@ export class HookAggregator {
       case HookEventName.BeforeToolSelection:
         return this.mergeToolSelectionOutputs(
           // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-          outputs as BeforeToolSelectionOutput[],
+          outputs as BeforeToolSelectionOutput[]
         );
 
       default:
@@ -170,8 +158,7 @@ export class HookAggregator {
 
       // Merge hookSpecificOutput (excluding clearContext which is handled above)
       if (output.hookSpecificOutput) {
-        const { clearContext: _clearContext, ...restSpecificOutput } =
-          output.hookSpecificOutput;
+        const { clearContext: _clearContext, ...restSpecificOutput } = output.hookSpecificOutput;
         merged.hookSpecificOutput = {
           ...(merged.hookSpecificOutput || {}),
           ...restSpecificOutput,
@@ -245,9 +232,7 @@ export class HookAggregator {
    * This means hooks can only add/enable tools, not filter them out individually.
    * If one hook restricts and another re-enables, the union takes the re-enabled tool.
    */
-  private mergeToolSelectionOutputs(
-    outputs: BeforeToolSelectionOutput[],
-  ): BeforeToolSelectionOutput {
+  private mergeToolSelectionOutputs(outputs: BeforeToolSelectionOutput[]): BeforeToolSelectionOutput {
     const merged: BeforeToolSelectionOutput = {};
 
     const allFunctionNames = new Set<string>();
@@ -322,10 +307,7 @@ export class HookAggregator {
   /**
    * Create the appropriate specific hook output class based on event type
    */
-  private createSpecificHookOutput(
-    output: HookOutput,
-    eventName: HookEventName,
-  ): DefaultHookOutput {
+  private createSpecificHookOutput(output: HookOutput, eventName: HookEventName): DefaultHookOutput {
     switch (eventName) {
       case HookEventName.BeforeTool:
         return new BeforeToolHookOutput(output);
@@ -345,20 +327,14 @@ export class HookAggregator {
   /**
    * Extract additional context from hook-specific outputs
    */
-  private extractAdditionalContext(
-    output: HookOutput,
-    contexts: string[],
-  ): void {
+  private extractAdditionalContext(output: HookOutput, contexts: string[]): void {
     const specific = output.hookSpecificOutput;
     if (!specific) {
       return;
     }
 
     // Extract additionalContext from various hook types
-    if (
-      'additionalContext' in specific &&
-      typeof specific['additionalContext'] === 'string'
-    ) {
+    if ('additionalContext' in specific && typeof specific['additionalContext'] === 'string') {
       contexts.push(specific['additionalContext']);
     }
   }

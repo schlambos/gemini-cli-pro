@@ -5,10 +5,7 @@
  */
 
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import {
-  computeTerminalTitle,
-  type TerminalTitleOptions,
-} from './windowTitle.js';
+import { computeTerminalTitle, type TerminalTitleOptions } from './windowTitle.js';
 import { StreamingState } from '../ui/types.js';
 
 describe('computeTerminalTitle', () => {
@@ -43,8 +40,7 @@ describe('computeTerminalTitle', () => {
       exact: true,
     },
     {
-      description:
-        'active state title with "Working…" when thoughts are disabled',
+      description: 'active state title with "Working…" when thoughts are disabled',
       args: {
         streamingState: StreamingState.Responding,
         thoughtSubject: 'Reading files',
@@ -57,8 +53,7 @@ describe('computeTerminalTitle', () => {
       expected: '✦  Working… (my-project)',
     },
     {
-      description:
-        'active state title with thought subject and suffix when thoughts are short enough',
+      description: 'active state title with thought subject and suffix when thoughts are short enough',
       args: {
         streamingState: StreamingState.Responding,
         thoughtSubject: 'Short thought',
@@ -71,8 +66,7 @@ describe('computeTerminalTitle', () => {
       expected: '✦  Short thought (my-project)',
     },
     {
-      description:
-        'fallback active title with suffix if no thought subject is provided even when thoughts are enabled',
+      description: 'fallback active title with suffix if no thought subject is provided even when thoughts are enabled',
       args: {
         streamingState: StreamingState.Responding,
         thoughtSubject: undefined,
@@ -200,27 +194,24 @@ describe('computeTerminalTitle', () => {
       envTitle: 'B'.repeat(100),
       expected: '◇  Ready (BBBBB',
     },
-  ])(
-    'should truncate very long $name to fit within 80 characters',
-    ({ folderName, envTitle, expected }) => {
-      if (envTitle) {
-        vi.stubEnv('CLI_TITLE', envTitle);
-      }
+  ])('should truncate very long $name to fit within 80 characters', ({ folderName, envTitle, expected }) => {
+    if (envTitle) {
+      vi.stubEnv('CLI_TITLE', envTitle);
+    }
 
-      const title = computeTerminalTitle({
-        streamingState: StreamingState.Idle,
-        isConfirming: false,
-        isSilentWorking: false,
-        folderName,
-        showThoughts: false,
-        useDynamicTitle: true,
-      });
+    const title = computeTerminalTitle({
+      streamingState: StreamingState.Idle,
+      isConfirming: false,
+      isSilentWorking: false,
+      folderName,
+      showThoughts: false,
+      useDynamicTitle: true,
+    });
 
-      expect(title.length).toBe(80);
-      expect(title).toContain(expected);
-      expect(title).toContain('…)');
-    },
-  );
+    expect(title.length).toBe(80);
+    expect(title).toContain(expected);
+    expect(title).toContain('…)');
+  });
 
   it('should truncate long folder name when useDynamicTitle is false', () => {
     const longFolderName = 'C'.repeat(100);

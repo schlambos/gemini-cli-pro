@@ -18,10 +18,7 @@ export interface RenderItemContext {
   numberColor: string;
 }
 
-export interface BaseSelectionListProps<
-  T,
-  TItem extends SelectionListItem<T> = SelectionListItem<T>,
-> {
+export interface BaseSelectionListProps<T, TItem extends SelectionListItem<T> = SelectionListItem<T>> {
   items: TItem[];
   initialIndex?: number;
   onSelect: (value: T) => void;
@@ -50,10 +47,7 @@ export interface BaseSelectionListProps<
  * Specific components should use this as a base and provide
  * their own renderItem implementation for custom content.
  */
-export function BaseSelectionList<
-  T,
-  TItem extends SelectionListItem<T> = SelectionListItem<T>,
->({
+export function BaseSelectionList<T, TItem extends SelectionListItem<T> = SelectionListItem<T>>({
   items,
   initialIndex = 0,
   onSelect,
@@ -83,10 +77,7 @@ export function BaseSelectionList<
 
   // Handle scrolling for long lists
   useEffect(() => {
-    const newScrollOffset = Math.max(
-      0,
-      Math.min(activeIndex - maxItemsToShow + 1, items.length - maxItemsToShow),
-    );
+    const newScrollOffset = Math.max(0, Math.min(activeIndex - maxItemsToShow + 1, items.length - maxItemsToShow));
     if (activeIndex < scrollOffset) {
       setScrollOffset(activeIndex);
     } else if (activeIndex >= scrollOffset + maxItemsToShow) {
@@ -98,14 +89,10 @@ export function BaseSelectionList<
   const numberColumnWidth = String(items.length).length;
 
   return (
-    <Box flexDirection="column">
+    <Box flexDirection='column'>
       {/* Use conditional coloring instead of conditional rendering */}
       {showScrollArrows && items.length > maxItemsToShow && (
-        <Text
-          color={scrollOffset > 0 ? theme.text.primary : theme.text.secondary}
-        >
-          ▲
-        </Text>
+        <Text color={scrollOffset > 0 ? theme.text.primary : theme.text.secondary}>▲</Text>
       )}
 
       {visibleItems.map((item, index) => {
@@ -132,30 +119,20 @@ export function BaseSelectionList<
           numberColor = theme.text.secondary;
         }
 
-        const itemNumberText = `${String(itemIndex + 1).padStart(
-          numberColumnWidth,
-        )}.`;
+        const itemNumberText = `${String(itemIndex + 1).padStart(numberColumnWidth)}.`;
 
         return (
-          <Box key={item.key} alignItems="flex-start">
+          <Box key={item.key} alignItems='flex-start'>
             {/* Radio button indicator */}
             <Box minWidth={2} flexShrink={0}>
-              <Text
-                color={isSelected ? theme.status.success : theme.text.primary}
-                aria-hidden
-              >
+              <Text color={isSelected ? theme.status.success : theme.text.primary} aria-hidden>
                 {isSelected ? '●' : ' '}
               </Text>
             </Box>
 
             {/* Item number */}
             {showNumbers && !item.hideNumber && (
-              <Box
-                marginRight={1}
-                flexShrink={0}
-                minWidth={itemNumberText.length}
-                aria-state={{ checked: isSelected }}
-              >
+              <Box marginRight={1} flexShrink={0} minWidth={itemNumberText.length} aria-state={{ checked: isSelected }}>
                 <Text color={numberColor}>{itemNumberText}</Text>
               </Box>
             )}
@@ -173,15 +150,7 @@ export function BaseSelectionList<
       })}
 
       {showScrollArrows && items.length > maxItemsToShow && (
-        <Text
-          color={
-            scrollOffset + maxItemsToShow < items.length
-              ? theme.text.primary
-              : theme.text.secondary
-          }
-        >
-          ▼
-        </Text>
+        <Text color={scrollOffset + maxItemsToShow < items.length ? theme.text.primary : theme.text.secondary}>▼</Text>
       )}
     </Box>
   );

@@ -19,11 +19,7 @@ describe('AppRig', () => {
   });
 
   it('should render the app and handle a simple message', async () => {
-    const fakeResponsesPath = path.join(
-      __dirname,
-      'fixtures',
-      'simple.responses',
-    );
+    const fakeResponsesPath = path.join(__dirname, 'fixtures', 'simple.responses');
     rig = new AppRig({ fakeResponsesPath });
     await rig.initialize();
     rig.render();

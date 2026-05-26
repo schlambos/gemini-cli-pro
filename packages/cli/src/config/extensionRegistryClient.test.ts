@@ -4,19 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  afterEach,
-  type Mock,
-} from 'vitest';
-import {
-  ExtensionRegistryClient,
-  type RegistryExtension,
-} from './extensionRegistryClient.js';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
+import { ExtensionRegistryClient, type RegistryExtension } from './extensionRegistryClient.js';
 import { fetchWithTimeout } from '@google/gemini-cli-core';
 
 vi.mock('@google/gemini-cli-core', () => ({
@@ -113,10 +102,7 @@ describe('ExtensionRegistryClient', () => {
     expect(result.extensions[1].id).toBe('ext2'); // rank 2
     expect(result.total).toBe(3);
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(fetchMock).toHaveBeenCalledWith(
-      'https://geminicli.com/extensions.json',
-      10000,
-    );
+    expect(fetchMock).toHaveBeenCalledWith('https://geminicli.com/extensions.json', 10000);
   });
 
   it('should return extensions sorted alphabetically', async () => {
@@ -220,8 +206,6 @@ describe('ExtensionRegistryClient', () => {
       statusText: 'Not Found',
     });
 
-    await expect(client.getExtensions()).rejects.toThrow(
-      'Failed to fetch extensions: Not Found',
-    );
+    await expect(client.getExtensions()).rejects.toThrow('Failed to fetch extensions: Not Found');
   });
 });

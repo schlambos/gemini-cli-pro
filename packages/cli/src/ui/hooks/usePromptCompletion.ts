@@ -29,21 +29,15 @@ export interface UsePromptCompletionOptions {
   enabled: boolean;
 }
 
-export function usePromptCompletion({
-  buffer,
-  config,
-  enabled,
-}: UsePromptCompletionOptions): PromptCompletion {
+export function usePromptCompletion({ buffer, config, enabled }: UsePromptCompletionOptions): PromptCompletion {
   const [ghostText, setGhostText] = useState<string>('');
   const [isLoadingGhostText, setIsLoadingGhostText] = useState<boolean>(false);
   const abortControllerRef = useRef<AbortController | null>(null);
-  const [justSelectedSuggestion, setJustSelectedSuggestion] =
-    useState<boolean>(false);
+  const [justSelectedSuggestion, setJustSelectedSuggestion] = useState<boolean>(false);
   const lastSelectedTextRef = useRef<string>('');
   const lastRequestedTextRef = useRef<string>('');
 
-  const isPromptCompletionEnabled =
-    enabled && (config?.getEnablePromptCompletion() ?? false);
+  const isPromptCompletionEnabled = enabled && (config?.getEnablePromptCompletion() ?? false);
 
   const clearGhostText = useCallback(() => {
     setGhostText('');
@@ -110,7 +104,7 @@ export function usePromptCompletion({
         { model: 'prompt-completion' },
         contents,
         signal,
-        LlmRole.UTILITY_AUTOCOMPLETE,
+        LlmRole.UTILITY_AUTOCOMPLETE
       );
 
       if (signal.aborted) {
@@ -123,10 +117,7 @@ export function usePromptCompletion({
         if (responseText) {
           const suggestionText = responseText.trim();
 
-          if (
-            suggestionText.length > 0 &&
-            suggestionText.startsWith(trimmedText)
-          ) {
+          if (suggestionText.length > 0 && suggestionText.startsWith(trimmedText)) {
             setGhostText(suggestionText);
           } else {
             clearGhostText();
@@ -134,14 +125,9 @@ export function usePromptCompletion({
         }
       }
     } catch (error) {
-      if (
-        !(
-          signal.aborted ||
-          (error instanceof Error && error.name === 'AbortError')
-        )
-      ) {
+      if (!(signal.aborted || (error instanceof Error && error.name === 'AbortError'))) {
         debugLogger.warn(
-          `[WARN] prompt completion failed: : (${error instanceof Error ? error.message : String(error)})`,
+          `[WARN] prompt completion failed: : (${error instanceof Error ? error.message : String(error)})`
         );
       }
       clearGhostText();
@@ -182,20 +168,11 @@ export function usePromptCompletion({
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     generatePromptSuggestions();
-  }, [
-    buffer.text,
-    generatePromptSuggestions,
-    justSelectedSuggestion,
-    isCursorAtEnd,
-    clearGhostText,
-  ]);
+  }, [buffer.text, generatePromptSuggestions, justSelectedSuggestion, isCursorAtEnd, clearGhostText]);
 
   // Debounce prompt completion
   useEffect(() => {
-    const timeoutId = setTimeout(
-      handlePromptCompletion,
-      PROMPT_COMPLETION_DEBOUNCE_MS,
-    );
+    const timeoutId = setTimeout(handlePromptCompletion, PROMPT_COMPLETION_DEBOUNCE_MS);
     return () => clearTimeout(timeoutId);
   }, [buffer.text, buffer.cursor, handlePromptCompletion]);
 
@@ -208,11 +185,7 @@ export function usePromptCompletion({
       return;
     }
 
-    if (
-      ghostText &&
-      currentText.length > 0 &&
-      !ghostText.startsWith(currentText)
-    ) {
+    if (ghostText && currentText.length > 0 && !ghostText.startsWith(currentText)) {
       clearGhostText();
     }
   }, [buffer.text, buffer.cursor, ghostText, clearGhostText, isCursorAtEnd]);
@@ -227,9 +200,7 @@ export function usePromptCompletion({
 
     const trimmedText = buffer.text.trim();
     return (
-      trimmedText.length >= PROMPT_COMPLETION_MIN_LENGTH &&
-      !isSlashCommand(trimmedText) &&
-      !trimmedText.includes('@')
+      trimmedText.length >= PROMPT_COMPLETION_MIN_LENGTH && !isSlashCommand(trimmedText) && !trimmedText.includes('@')
     );
   }, [buffer.text, isPromptCompletionEnabled, isCursorAtEnd]);
 

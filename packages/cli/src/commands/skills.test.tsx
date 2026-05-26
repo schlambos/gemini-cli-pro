@@ -38,18 +38,16 @@ describe('skillsCommand', () => {
     skillsCommand.builder(mockYargs);
 
     expect(mockYargs.middleware).toHaveBeenCalled();
-    expect(mockYargs.command).toHaveBeenCalledWith(
-      expect.objectContaining({ command: 'list' }),
-    );
+    expect(mockYargs.command).toHaveBeenCalledWith(expect.objectContaining({ command: 'list' }));
     expect(mockYargs.command).toHaveBeenCalledWith(
       expect.objectContaining({
         command: 'enable <name>',
-      }),
+      })
     );
     expect(mockYargs.command).toHaveBeenCalledWith(
       expect.objectContaining({
         command: 'disable <name>',
-      }),
+      })
     );
     expect(mockYargs.demandCommand).toHaveBeenCalledWith(1, expect.any(String));
     expect(mockYargs.version).toHaveBeenCalledWith(false);

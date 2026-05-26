@@ -37,7 +37,7 @@ const ChecklistTitleDisplay: React.FC<{
   }, [items]);
 
   return (
-    <Box flexDirection="row" columnGap={2} height={1}>
+    <Box flexDirection='row' columnGap={2} height={1}>
       <Text color={theme.text.primary} bold aria-label={`${title} list`}>
         {title}
       </Text>
@@ -49,37 +49,23 @@ const ChecklistTitleDisplay: React.FC<{
   );
 };
 
-const ChecklistListDisplay: React.FC<{ items: ChecklistItemData[] }> = ({
-  items,
-}) => (
-  <Box flexDirection="column" aria-role="list">
+const ChecklistListDisplay: React.FC<{ items: ChecklistItemData[] }> = ({ items }) => (
+  <Box flexDirection='column' aria-role='list'>
     {items.map((item, index) => (
-      <ChecklistItem
-        item={item}
-        key={`${index}-${item.label}`}
-        role="listitem"
-      />
+      <ChecklistItem item={item} key={`${index}-${item.label}`} role='listitem' />
     ))}
   </Box>
 );
 
-export const Checklist: React.FC<ChecklistProps> = ({
-  title,
-  items,
-  isExpanded,
-  toggleHint,
-}) => {
+export const Checklist: React.FC<ChecklistProps> = ({ title, items, isExpanded, toggleHint }) => {
   const inProgress: ChecklistItemData | null = useMemo(
     () => items.find((item) => item.status === 'in_progress') || null,
-    [items],
+    [items]
   );
 
   const hasActiveItems = useMemo(
-    () =>
-      items.some(
-        (item) => item.status === 'pending' || item.status === 'in_progress',
-      ),
-    [items],
+    () => items.some((item) => item.status === 'pending' || item.status === 'in_progress'),
+    [items]
   );
 
   if (items.length === 0 || (!isExpanded && !hasActiveItems)) {
@@ -88,7 +74,7 @@ export const Checklist: React.FC<ChecklistProps> = ({
 
   return (
     <Box
-      borderStyle="single"
+      borderStyle='single'
       borderBottom={false}
       borderRight={false}
       borderLeft={false}
@@ -97,26 +83,18 @@ export const Checklist: React.FC<ChecklistProps> = ({
       paddingRight={1}
     >
       {isExpanded ? (
-        <Box flexDirection="column" rowGap={1}>
-          <ChecklistTitleDisplay
-            title={title}
-            items={items}
-            toggleHint={toggleHint}
-          />
+        <Box flexDirection='column' rowGap={1}>
+          <ChecklistTitleDisplay title={title} items={items} toggleHint={toggleHint} />
           <ChecklistListDisplay items={items} />
         </Box>
       ) : (
-        <Box flexDirection="row" columnGap={1} height={1}>
+        <Box flexDirection='row' columnGap={1} height={1}>
           <Box flexShrink={0} flexGrow={0}>
-            <ChecklistTitleDisplay
-              title={title}
-              items={items}
-              toggleHint={toggleHint}
-            />
+            <ChecklistTitleDisplay title={title} items={items} toggleHint={toggleHint} />
           </Box>
           {inProgress && (
             <Box flexShrink={1} flexGrow={1}>
-              <ChecklistItem item={inProgress} wrap="truncate" />
+              <ChecklistItem item={inProgress} wrap='truncate' />
             </Box>
           )}
         </Box>

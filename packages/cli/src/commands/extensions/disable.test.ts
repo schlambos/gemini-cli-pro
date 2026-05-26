@@ -4,24 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  vi,
-  describe,
-  it,
-  expect,
-  beforeEach,
-  afterEach,
-  type Mock,
-} from 'vitest';
+import { vi, describe, it, expect, beforeEach, afterEach, type Mock } from 'vitest';
 import { format } from 'node:util';
 import { type Argv } from 'yargs';
 import { handleDisable, disableCommand } from './disable.js';
 import { ExtensionManager } from '../../config/extension-manager.js';
-import {
-  loadSettings,
-  SettingScope,
-  type LoadedSettings,
-} from '../../config/settings.js';
+import { loadSettings, SettingScope, type LoadedSettings } from '../../config/settings.js';
 import { getErrorMessage } from '../../utils/errors.js';
 
 // Mock dependencies
@@ -36,8 +24,7 @@ const debugLogger = vi.hoisted(() => ({
 }));
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     coreEvents: {
@@ -70,12 +57,8 @@ describe('extensions disable command', () => {
     mockLoadSettings.mockReturnValue({
       merged: {},
     } as unknown as LoadedSettings);
-    mockExtensionManager.prototype.loadExtensions = vi
-      .fn()
-      .mockResolvedValue(undefined);
-    mockExtensionManager.prototype.disableExtension = vi
-      .fn()
-      .mockResolvedValue(undefined);
+    mockExtensionManager.prototype.loadExtensions = vi.fn().mockResolvedValue(undefined);
+    mockExtensionManager.prototype.disableExtension = vi.fn().mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -88,22 +71,19 @@ describe('extensions disable command', () => {
         name: 'my-extension',
         scope: undefined,
         expectedScope: SettingScope.User,
-        expectedLog:
-          'Extension "my-extension" successfully disabled for scope "undefined".',
+        expectedLog: 'Extension "my-extension" successfully disabled for scope "undefined".',
       },
       {
         name: 'my-extension',
         scope: 'user',
         expectedScope: SettingScope.User,
-        expectedLog:
-          'Extension "my-extension" successfully disabled for scope "user".',
+        expectedLog: 'Extension "my-extension" successfully disabled for scope "user".',
       },
       {
         name: 'my-extension',
         scope: 'workspace',
         expectedScope: SettingScope.Workspace,
-        expectedLog:
-          'Extension "my-extension" successfully disabled for scope "workspace".',
+        expectedLog: 'Extension "my-extension" successfully disabled for scope "workspace".',
       },
     ])(
       'should disable an extension in the $expectedScope scope when scope is $scope',
@@ -113,35 +93,24 @@ describe('extensions disable command', () => {
         expect(mockExtensionManager).toHaveBeenCalledWith(
           expect.objectContaining({
             workspaceDir: '/test/dir',
-          }),
+          })
         );
-        expect(
-          mockExtensionManager.prototype.loadExtensions,
-        ).toHaveBeenCalled();
-        expect(
-          mockExtensionManager.prototype.disableExtension,
-        ).toHaveBeenCalledWith(name, expectedScope);
+        expect(mockExtensionManager.prototype.loadExtensions).toHaveBeenCalled();
+        expect(mockExtensionManager.prototype.disableExtension).toHaveBeenCalledWith(name, expectedScope);
         expect(emitConsoleLog).toHaveBeenCalledWith('log', expectedLog);
         mockCwd.mockRestore();
-      },
+      }
     );
 
     it('should log an error message and exit with code 1 when extension disabling fails', async () => {
       const mockProcessExit = vi
         .spyOn(process, 'exit')
-        .mockImplementation((() => {}) as (
-          code?: string | number | null | undefined,
-        ) => never);
+        .mockImplementation((() => {}) as (code?: string | number | null | undefined) => never);
       const error = new Error('Disable failed');
-      (
-        mockExtensionManager.prototype.disableExtension as Mock
-      ).mockRejectedValue(error);
+      (mockExtensionManager.prototype.disableExtension as Mock).mockRejectedValue(error);
       mockGetErrorMessage.mockReturnValue('Disable failed message');
       await handleDisable({ name: 'my-extension' });
-      expect(emitConsoleLog).toHaveBeenCalledWith(
-        'error',
-        'Disable failed message',
-      );
+      expect(emitConsoleLog).toHaveBeenCalledWith('error', 'Disable failed message');
       expect(mockProcessExit).toHaveBeenCalledWith(1);
       mockProcessExit.mockRestore();
     });
@@ -173,9 +142,7 @@ describe('extensions disable command', () => {
       });
 
       it('should configure positional and option arguments', () => {
-        (command.builder as (yargs: Argv) => Argv)(
-          yargsMock as unknown as Argv,
-        );
+        (command.builder as (yargs: Argv) => Argv)(yargsMock as unknown as Argv);
         expect(yargsMock.positional).toHaveBeenCalledWith('name', {
           describe: 'The name of the extension to disable.',
           type: 'string',
@@ -189,29 +156,21 @@ describe('extensions disable command', () => {
       });
 
       it('check function should throw for invalid scope', () => {
-        (command.builder as (yargs: Argv) => Argv)(
-          yargsMock as unknown as Argv,
-        );
+        (command.builder as (yargs: Argv) => Argv)(yargsMock as unknown as Argv);
         const checkCallback = yargsMock.check.mock.calls[0][0];
-        const expectedError = `Invalid scope: invalid. Please use one of ${Object.values(
-          SettingScope,
-        )
+        const expectedError = `Invalid scope: invalid. Please use one of ${Object.values(SettingScope)
           .map((s) => s.toLowerCase())
           .join(', ')}.`;
-        expect(() => checkCallback({ scope: 'invalid' })).toThrow(
-          expectedError,
-        );
+        expect(() => checkCallback({ scope: 'invalid' })).toThrow(expectedError);
       });
 
       it.each(['user', 'workspace', 'USER', 'WorkSpace'])(
         'check function should return true for valid scope "%s"',
         (scope) => {
-          (command.builder as (yargs: Argv) => Argv)(
-            yargsMock as unknown as Argv,
-          );
+          (command.builder as (yargs: Argv) => Argv)(yargsMock as unknown as Argv);
           const checkCallback = yargsMock.check.mock.calls[0][0];
           expect(checkCallback({ scope })).toBe(true);
-        },
+        }
       );
     });
 
@@ -228,21 +187,17 @@ describe('extensions disable command', () => {
         _: [],
         $0: '',
       };
-      await (command.handler as unknown as (args: TestArgv) => Promise<void>)(
-        argv,
-      );
+      await (command.handler as unknown as (args: TestArgv) => Promise<void>)(argv);
       expect(mockExtensionManager).toHaveBeenCalledWith(
         expect.objectContaining({
           workspaceDir: '/test/dir',
-        }),
+        })
       );
       expect(mockExtensionManager.prototype.loadExtensions).toHaveBeenCalled();
-      expect(
-        mockExtensionManager.prototype.disableExtension,
-      ).toHaveBeenCalledWith('test-ext', SettingScope.Workspace);
+      expect(mockExtensionManager.prototype.disableExtension).toHaveBeenCalledWith('test-ext', SettingScope.Workspace);
       expect(emitConsoleLog).toHaveBeenCalledWith(
         'log',
-        'Extension "test-ext" successfully disabled for scope "workspace".',
+        'Extension "test-ext" successfully disabled for scope "workspace".'
       );
       mockCwd.mockRestore();
     });

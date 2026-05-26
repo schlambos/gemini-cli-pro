@@ -95,17 +95,11 @@ function buildSteeringFallbackMessage(hintText: string): string {
   return `Understood. ${safeSlice(normalized, 0, 61)}...`;
 }
 
-export async function generateSteeringAckMessage(
-  llmClient: BaseLlmClient,
-  hintText: string,
-): Promise<string> {
+export async function generateSteeringAckMessage(llmClient: BaseLlmClient, hintText: string): Promise<string> {
   const fallbackText = buildSteeringFallbackMessage(hintText);
 
   const abortController = new AbortController();
-  const timeout = setTimeout(
-    () => abortController.abort(),
-    STEERING_ACK_TIMEOUT_MS,
-  );
+  const timeout = setTimeout(() => abortController.abort(), STEERING_ACK_TIMEOUT_MS);
 
   try {
     return await generateFastAckText(llmClient, {
@@ -133,10 +127,7 @@ export interface GenerateFastAckTextOptions {
   maxOutputChars?: number;
 }
 
-export function truncateFastAckInput(
-  input: string,
-  maxInputChars: number = DEFAULT_MAX_INPUT_CHARS,
-): string {
+export function truncateFastAckInput(input: string, maxInputChars: number = DEFAULT_MAX_INPUT_CHARS): string {
   const suffixLength = safeLength(INPUT_TRUNCATION_SUFFIX);
   if (maxInputChars <= suffixLength) {
     return safeSlice(input, 0, Math.max(maxInputChars, 0));
@@ -150,7 +141,7 @@ export function truncateFastAckInput(
 
 export async function generateFastAckText(
   llmClient: BaseLlmClient,
-  options: GenerateFastAckTextOptions,
+  options: GenerateFastAckTextOptions
 ): Promise<string> {
   const {
     instruction,
@@ -191,9 +182,7 @@ export async function generateFastAckText(
     }
     return responseText;
   } catch (error) {
-    debugLogger.debug(
-      `[FastAckHelper] Generation failed: ${error instanceof Error ? error.message : String(error)}`,
-    );
+    debugLogger.debug(`[FastAckHelper] Generation failed: ${error instanceof Error ? error.message : String(error)}`);
     return fallbackText;
   }
 }

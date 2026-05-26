@@ -32,20 +32,14 @@ describe('ThemeDialog Snapshots', () => {
 
   it('should render correctly in theme selection mode', () => {
     const settings = createMockSettings();
-    const { lastFrame } = renderWithProviders(
-      <ThemeDialog {...baseProps} settings={settings} />,
-      { settings },
-    );
+    const { lastFrame } = renderWithProviders(<ThemeDialog {...baseProps} settings={settings} />, { settings });
 
     expect(lastFrame()).toMatchSnapshot();
   });
 
   it('should render correctly in scope selector mode', async () => {
     const settings = createMockSettings();
-    const { lastFrame, stdin } = renderWithProviders(
-      <ThemeDialog {...baseProps} settings={settings} />,
-      { settings },
-    );
+    const { lastFrame, stdin } = renderWithProviders(<ThemeDialog {...baseProps} settings={settings} />, { settings });
 
     // Press Tab to switch to scope selector mode
     act(() => {
@@ -61,14 +55,9 @@ describe('ThemeDialog Snapshots', () => {
   it('should call onCancel when ESC is pressed', async () => {
     const mockOnCancel = vi.fn();
     const settings = createMockSettings();
-    const { stdin } = renderWithProviders(
-      <ThemeDialog
-        {...baseProps}
-        onCancel={mockOnCancel}
-        settings={settings}
-      />,
-      { settings },
-    );
+    const { stdin } = renderWithProviders(<ThemeDialog {...baseProps} onCancel={mockOnCancel} settings={settings} />, {
+      settings,
+    });
 
     act(() => {
       stdin.write('\x1b');
@@ -81,12 +70,9 @@ describe('ThemeDialog Snapshots', () => {
 
   it('should call onSelect when a theme is selected', async () => {
     const settings = createMockSettings();
-    const { stdin } = renderWithProviders(
-      <ThemeDialog {...baseProps} settings={settings} />,
-      {
-        settings,
-      },
-    );
+    const { stdin } = renderWithProviders(<ThemeDialog {...baseProps} settings={settings} />, {
+      settings,
+    });
 
     // Press Enter to select the theme
     act(() => {
@@ -114,13 +100,10 @@ describe('Initial Theme Selection', () => {
 
   it('should default to a light theme when terminal background is light and no theme is set', () => {
     const settings = createMockSettings(); // No theme set
-    const { lastFrame } = renderWithProviders(
-      <ThemeDialog {...baseProps} settings={settings} />,
-      {
-        settings,
-        uiState: { terminalBackgroundColor: '#FFFFFF' }, // Light background
-      },
-    );
+    const { lastFrame } = renderWithProviders(<ThemeDialog {...baseProps} settings={settings} />, {
+      settings,
+      uiState: { terminalBackgroundColor: '#FFFFFF' }, // Light background
+    });
 
     // The snapshot will show which theme is highlighted.
     // We expect 'DefaultLight' to be the one with the '>' indicator.
@@ -129,13 +112,10 @@ describe('Initial Theme Selection', () => {
 
   it('should default to a dark theme when terminal background is dark and no theme is set', () => {
     const settings = createMockSettings(); // No theme set
-    const { lastFrame } = renderWithProviders(
-      <ThemeDialog {...baseProps} settings={settings} />,
-      {
-        settings,
-        uiState: { terminalBackgroundColor: '#000000' }, // Dark background
-      },
-    );
+    const { lastFrame } = renderWithProviders(<ThemeDialog {...baseProps} settings={settings} />, {
+      settings,
+      uiState: { terminalBackgroundColor: '#000000' }, // Dark background
+    });
 
     // We expect 'DefaultDark' to be highlighted.
     expect(lastFrame()).toMatchSnapshot();
@@ -143,13 +123,10 @@ describe('Initial Theme Selection', () => {
 
   it('should use the theme from settings even if terminal background suggests a different theme type', () => {
     const settings = createMockSettings({ ui: { theme: 'DefaultLight' } }); // Light theme set
-    const { lastFrame } = renderWithProviders(
-      <ThemeDialog {...baseProps} settings={settings} />,
-      {
-        settings,
-        uiState: { terminalBackgroundColor: '#000000' }, // Dark background
-      },
-    );
+    const { lastFrame } = renderWithProviders(<ThemeDialog {...baseProps} settings={settings} />, {
+      settings,
+      uiState: { terminalBackgroundColor: '#000000' }, // Dark background
+    });
 
     // We expect 'DefaultLight' to be highlighted, respecting the settings.
     expect(lastFrame()).toMatchSnapshot();
@@ -167,26 +144,20 @@ describe('Hint Visibility', () => {
 
   it('should show hint when theme background matches terminal background', () => {
     const settings = createMockSettings({ ui: { theme: 'Default' } });
-    const { lastFrame } = renderWithProviders(
-      <ThemeDialog {...baseProps} settings={settings} />,
-      {
-        settings,
-        uiState: { terminalBackgroundColor: '#1E1E2E' },
-      },
-    );
+    const { lastFrame } = renderWithProviders(<ThemeDialog {...baseProps} settings={settings} />, {
+      settings,
+      uiState: { terminalBackgroundColor: '#1E1E2E' },
+    });
 
     expect(lastFrame()).toContain('(Matches terminal)');
   });
 
   it('should not show hint when theme background does not match terminal background', () => {
     const settings = createMockSettings({ ui: { theme: 'Default' } });
-    const { lastFrame } = renderWithProviders(
-      <ThemeDialog {...baseProps} settings={settings} />,
-      {
-        settings,
-        uiState: { terminalBackgroundColor: '#FFFFFF' },
-      },
-    );
+    const { lastFrame } = renderWithProviders(<ThemeDialog {...baseProps} settings={settings} />, {
+      settings,
+      uiState: { terminalBackgroundColor: '#FFFFFF' },
+    });
 
     expect(lastFrame()).not.toContain('(Matches terminal)');
   });

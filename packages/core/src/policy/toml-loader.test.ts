@@ -5,11 +5,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import {
-  PolicyDecision,
-  ApprovalMode,
-  PRIORITY_SUBAGENT_TOOL,
-} from './types.js';
+import { PolicyDecision, ApprovalMode, PRIORITY_SUBAGENT_TOOL } from './types.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import * as os from 'node:os';
@@ -39,10 +35,7 @@ describe('policy-toml-loader', () => {
     }
   });
 
-  async function runLoadPoliciesFromToml(
-    tomlContent: string,
-    fileName = 'test.toml',
-  ): Promise<PolicyLoadResult> {
+  async function runLoadPoliciesFromToml(tomlContent: string, fileName = 'test.toml'): Promise<PolicyLoadResult> {
     await fs.writeFile(path.join(tempDir, fileName), tomlContent);
     const getPolicyTier = (_dir: string) => 1;
     return loadPoliciesFromToml([tempDir], getPolicyTier);
@@ -80,12 +73,8 @@ priority = 100
       expect(result.rules).toHaveLength(2);
       expect(result.rules[0].toolName).toBe('run_shell_command');
       expect(result.rules[1].toolName).toBe('run_shell_command');
-      expect(
-        result.rules[0].argsPattern?.test('{"command":"git status"}'),
-      ).toBe(true);
-      expect(result.rules[1].argsPattern?.test('{"command":"git log"}')).toBe(
-        true,
-      );
+      expect(result.rules[0].argsPattern?.test('{"command":"git status"}')).toBe(true);
+      expect(result.rules[1].argsPattern?.test('{"command":"git log"}')).toBe(true);
       expect(result.errors).toHaveLength(0);
     });
 
@@ -99,15 +88,9 @@ priority = 100
 `);
 
       expect(result.rules).toHaveLength(1);
-      expect(
-        result.rules[0].argsPattern?.test('{"command":"git status"}'),
-      ).toBe(true);
-      expect(
-        result.rules[0].argsPattern?.test('{"command":"git log --all"}'),
-      ).toBe(true);
-      expect(
-        result.rules[0].argsPattern?.test('{"command":"git branch"}'),
-      ).toBe(false);
+      expect(result.rules[0].argsPattern?.test('{"command":"git status"}')).toBe(true);
+      expect(result.rules[0].argsPattern?.test('{"command":"git log --all"}')).toBe(true);
+      expect(result.rules[0].argsPattern?.test('{"command":"git branch"}')).toBe(false);
       expect(result.errors).toHaveLength(0);
     });
 
@@ -123,9 +106,7 @@ priority = 100
       expect(result.rules).toHaveLength(1);
       // The generated pattern is "command":"^git status
       // This will NOT match '{"command":"git status"}' because of the '{"' at the start.
-      expect(
-        result.rules[0].argsPattern?.test('{"command":"git status"}'),
-      ).toBe(false);
+      expect(result.rules[0].argsPattern?.test('{"command":"git status"}')).toBe(false);
       expect(result.errors).toHaveLength(0);
     });
 
@@ -138,11 +119,7 @@ priority = 100
 `);
 
       expect(result.rules).toHaveLength(3);
-      expect(result.rules.map((r) => r.toolName)).toEqual([
-        'glob',
-        'grep',
-        'read',
-      ]);
+      expect(result.rules.map((r) => r.toolName)).toEqual(['glob', 'grep', 'read']);
       expect(result.errors).toHaveLength(0);
     });
 
@@ -225,7 +202,7 @@ toolName = "tier2-tool"
 decision = "allow"
 priority = 100
 modes = ["autoEdit"]
-`,
+`
       );
 
       const getPolicyTier = (_dir: string) => 2; // Tier 2
@@ -320,12 +297,8 @@ priority = 100
 
       expect(result.rules).toHaveLength(1);
       // The regex should have escaped the * and .
-      expect(
-        result.rules[0].argsPattern?.test('{"command":"git log file.txt"}'),
-      ).toBe(false);
-      expect(
-        result.rules[0].argsPattern?.test('{"command":"git log *.txt"}'),
-      ).toBe(true);
+      expect(result.rules[0].argsPattern?.test('{"command":"git log file.txt"}')).toBe(false);
+      expect(result.rules[0].argsPattern?.test('{"command":"git log *.txt"}')).toBe(true);
       expect(result.errors).toHaveLength(0);
     });
 
@@ -337,7 +310,7 @@ priority = 100
 toolName = "glob"
 decision = "allow"
 priority = 100
-`,
+`
       );
 
       await fs.writeFile(
@@ -347,7 +320,7 @@ priority = 100
 toolName = "grep"
 decision = "allow"
 priority = -1
-`,
+`
       );
 
       const getPolicyTier = (_dir: string) => 1;
@@ -515,10 +488,7 @@ priority = 100
 
     it('should load an individual policy file', async () => {
       const filePath = path.join(tempDir, 'single-rule.toml');
-      await fs.writeFile(
-        filePath,
-        '[[rule]]\ntoolName = "test-tool"\ndecision = "allow"\npriority = 500\n',
-      );
+      await fs.writeFile(filePath, '[[rule]]\ntoolName = "test-tool"\ndecision = "allow"\npriority = 500\n');
 
       const getPolicyTier = (_dir: string) => 1;
       const result = await loadPoliciesFromToml([filePath], getPolicyTier);
@@ -547,18 +517,13 @@ priority = 100
     it('should override default subagent rules when in Plan Mode', async () => {
       const planTomlPath = path.resolve(__dirname, 'policies', 'plan.toml');
       const fileContent = await fs.readFile(planTomlPath, 'utf-8');
-      const tempPolicyDir = await fs.mkdtemp(
-        path.join(os.tmpdir(), 'plan-policy-test-'),
-      );
+      const tempPolicyDir = await fs.mkdtemp(path.join(os.tmpdir(), 'plan-policy-test-'));
       try {
         await fs.writeFile(path.join(tempPolicyDir, 'plan.toml'), fileContent);
         const getPolicyTier = () => 1; // Default tier
 
         // 1. Load the actual Plan Mode policies
-        const result = await loadPoliciesFromToml(
-          [tempPolicyDir],
-          getPolicyTier,
-        );
+        const result = await loadPoliciesFromToml([tempPolicyDir], getPolicyTier);
 
         // 2. Initialize Policy Engine with these rules
         const engine = new PolicyEngine({
@@ -576,23 +541,16 @@ priority = 100
 
         // 4. Verify Behavior:
         // The Plan Mode "Catch-All Deny" (from plan.toml) should override the Subagent Allow
-        const checkResult = await engine.check(
-          { name: 'codebase_investigator' },
-          undefined,
-        );
+        const checkResult = await engine.check({ name: 'codebase_investigator' }, undefined);
 
-        expect(
-          checkResult.decision,
-          'Subagent should be DENIED in Plan Mode',
-        ).toBe(PolicyDecision.DENY);
+        expect(checkResult.decision, 'Subagent should be DENIED in Plan Mode').toBe(PolicyDecision.DENY);
 
         // 5. Verify Explicit Allows still work
         // e.g. 'read_file' should be allowed because its priority in plan.toml (70) is higher than the deny (60)
         const readResult = await engine.check({ name: 'read_file' }, undefined);
-        expect(
-          readResult.decision,
-          'Explicitly allowed tools (read_file) should be ALLOWED in Plan Mode',
-        ).toBe(PolicyDecision.ALLOW);
+        expect(readResult.decision, 'Explicitly allowed tools (read_file) should be ALLOWED in Plan Mode').toBe(
+          PolicyDecision.ALLOW
+        );
       } finally {
         await fs.rm(tempPolicyDir, { recursive: true, force: true });
       }

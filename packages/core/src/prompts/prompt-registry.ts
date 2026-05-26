@@ -17,9 +17,7 @@ export class PromptRegistry {
   registerPrompt(prompt: DiscoveredMCPPrompt): void {
     if (this.prompts.has(prompt.name)) {
       const newName = `${prompt.serverName}_${prompt.name}`;
-      debugLogger.warn(
-        `Prompt with name "${prompt.name}" is already registered. Renaming to "${newName}".`,
-      );
+      debugLogger.warn(`Prompt with name "${prompt.name}" is already registered. Renaming to "${newName}".`);
       this.prompts.set(newName, { ...prompt, name: newName });
     } else {
       this.prompts.set(prompt.name, prompt);
@@ -30,9 +28,7 @@ export class PromptRegistry {
    * Returns an array of all registered and discovered prompt instances.
    */
   getAllPrompts(): DiscoveredMCPPrompt[] {
-    return Array.from(this.prompts.values()).sort((a, b) =>
-      a.name.localeCompare(b.name),
-    );
+    return Array.from(this.prompts.values()).sort((a, b) => a.name.localeCompare(b.name));
   }
 
   /**

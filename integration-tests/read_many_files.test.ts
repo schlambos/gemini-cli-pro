@@ -5,12 +5,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import {
-  TestRig,
-  printDebugInfo,
-  assertModelHasOutput,
-  checkModelOutputContent,
-} from './test-helper.js';
+import { TestRig, printDebugInfo, assertModelHasOutput, checkModelOutputContent } from './test-helper.js';
 
 describe('read_many_files', () => {
   let rig: TestRig;
@@ -35,9 +30,7 @@ describe('read_many_files', () => {
     // Check for either read_many_files or multiple read_file calls
     const allTools = rig.readToolLogs();
     const readManyFilesCall = await rig.waitForToolCall('read_many_files');
-    const readFileCalls = allTools.filter(
-      (t) => t.toolRequest.name === 'read_file',
-    );
+    const readFileCalls = allTools.filter((t) => t.toolRequest.name === 'read_file');
 
     // Accept either read_many_files OR at least 2 read_file calls
     const foundValidPattern = readManyFilesCall || readFileCalls.length >= 2;
@@ -50,10 +43,7 @@ describe('read_many_files', () => {
       });
     }
 
-    expect(
-      foundValidPattern,
-      'Expected to find either read_many_files or multiple read_file tool calls',
-    ).toBeTruthy();
+    expect(foundValidPattern, 'Expected to find either read_many_files or multiple read_file tool calls').toBeTruthy();
 
     assertModelHasOutput(result);
     checkModelOutputContent(result, { testName: 'Read many files test' });

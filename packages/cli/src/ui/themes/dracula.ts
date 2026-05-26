@@ -120,5 +120,5 @@ export const Dracula: Theme = new Theme(
       fontStyle: 'italic',
     },
   },
-  draculaColors,
+  draculaColors
 );

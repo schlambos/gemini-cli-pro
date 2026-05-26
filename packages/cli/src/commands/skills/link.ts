@@ -10,10 +10,7 @@ import chalk from 'chalk';
 
 import { getErrorMessage } from '../../utils/errors.js';
 import { exitCli } from '../utils.js';
-import {
-  requestConsentNonInteractive,
-  skillsConsentString,
-} from '../../config/extensions/consent.js';
+import { requestConsentNonInteractive, skillsConsentString } from '../../config/extensions/consent.js';
 import { linkSkill } from '../../utils/skillUtils.js';
 
 interface LinkArgs {
@@ -31,19 +28,14 @@ export async function handleLink(args: LinkArgs) {
       scope,
       (msg) => debugLogger.log(msg),
       async (skills, targetDir) => {
-        const consentString = await skillsConsentString(
-          skills,
-          args.path,
-          targetDir,
-          true,
-        );
+        const consentString = await skillsConsentString(skills, args.path, targetDir, true);
         if (consent) {
           debugLogger.log('You have consented to the following:');
           debugLogger.log(consentString);
           return true;
         }
         return requestConsentNonInteractive(consentString);
-      },
+      }
     );
 
     debugLogger.log(chalk.green('\nSuccessfully linked skills.'));
@@ -55,8 +47,7 @@ export async function handleLink(args: LinkArgs) {
 
 export const linkCommand: CommandModule = {
   command: 'link <path>',
-  describe:
-    'Links an agent skill from a local path. Updates to the source will be reflected immediately.',
+  describe: 'Links an agent skill from a local path. Updates to the source will be reflected immediately.',
   builder: (yargs) =>
     yargs
       .positional('path', {
@@ -65,14 +56,12 @@ export const linkCommand: CommandModule = {
         demandOption: true,
       })
       .option('scope', {
-        describe:
-          'The scope to link the skill into. Defaults to "user" (global).',
+        describe: 'The scope to link the skill into. Defaults to "user" (global).',
         choices: ['user', 'workspace'],
         default: 'user',
       })
       .option('consent', {
-        describe:
-          'Acknowledge the security risks of linking a skill and skip the confirmation prompt.',
+        describe: 'Acknowledge the security risks of linking a skill and skip the confirmation prompt.',
         type: 'boolean',
         default: false,
       })

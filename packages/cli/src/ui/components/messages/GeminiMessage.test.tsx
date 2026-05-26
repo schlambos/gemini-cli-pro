@@ -21,45 +21,31 @@ describe('<GeminiMessage /> - Raw Markdown Display Snapshots', () => {
       renderMarkdown: false,
       description: '(raw markdown with syntax highlighting, no line numbers)',
     },
-  ])(
-    'renders with renderMarkdown=$renderMarkdown $description',
-    ({ renderMarkdown }) => {
-      const { lastFrame } = renderWithProviders(
-        <GeminiMessage {...baseProps} />,
-        {
-          uiState: { renderMarkdown, streamingState: StreamingState.Idle },
-        },
-      );
-      expect(lastFrame()).toMatchSnapshot();
-    },
-  );
+  ])('renders with renderMarkdown=$renderMarkdown $description', ({ renderMarkdown }) => {
+    const { lastFrame } = renderWithProviders(<GeminiMessage {...baseProps} />, {
+      uiState: { renderMarkdown, streamingState: StreamingState.Idle },
+    });
+    expect(lastFrame()).toMatchSnapshot();
+  });
 
   it.each([{ renderMarkdown: true }, { renderMarkdown: false }])(
     'renders pending state with renderMarkdown=$renderMarkdown',
     ({ renderMarkdown }) => {
-      const { lastFrame } = renderWithProviders(
-        <GeminiMessage {...baseProps} isPending={true} />,
-        {
-          uiState: { renderMarkdown, streamingState: StreamingState.Idle },
-        },
-      );
+      const { lastFrame } = renderWithProviders(<GeminiMessage {...baseProps} isPending={true} />, {
+        uiState: { renderMarkdown, streamingState: StreamingState.Idle },
+      });
       expect(lastFrame()).toMatchSnapshot();
-    },
+    }
   );
 
   it('wraps long lines correctly in raw markdown mode', () => {
     const terminalWidth = 20;
-    const text =
-      'This is a long line that should wrap correctly without truncation';
+    const text = 'This is a long line that should wrap correctly without truncation';
     const { lastFrame } = renderWithProviders(
-      <GeminiMessage
-        text={text}
-        isPending={false}
-        terminalWidth={terminalWidth}
-      />,
+      <GeminiMessage text={text} isPending={false} terminalWidth={terminalWidth} />,
       {
         uiState: { renderMarkdown: false, streamingState: StreamingState.Idle },
-      },
+      }
     );
     expect(lastFrame()).toMatchSnapshot();
   });

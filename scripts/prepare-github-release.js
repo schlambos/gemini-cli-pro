@@ -25,18 +25,13 @@ if (fs.existsSync(sourceBundleDir)) {
   fs.cpSync(sourceBundleDir, destBundleDir, { recursive: true });
   console.log('Copied bundle/ directory to packages/cli/');
 } else {
-  console.error(
-    'Error: bundle/ directory not found at project root. Please run `npm run bundle` first.',
-  );
+  console.error('Error: bundle/ directory not found at project root. Please run `npm run bundle` first.');
   process.exit(1);
 }
 
 // Overwrite the .npmrc in the core package to point to the GitHub registry.
 const coreNpmrcPath = path.resolve(rootDir, 'packages/core/.npmrc');
-fs.writeFileSync(
-  coreNpmrcPath,
-  '@google-gemini:registry=https://npm.pkg.github.com/',
-);
+fs.writeFileSync(coreNpmrcPath, '@google-gemini:registry=https://npm.pkg.github.com/');
 console.log('Wrote .npmrc for @google-gemini scope to packages/core/');
 
 // Update @google/gemini-cli

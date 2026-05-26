@@ -26,8 +26,7 @@ vi.mock('node:os', async (importOriginal) => {
 
 // Mock @google/gemini-cli-core
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     homedir: mockHomedir,
@@ -105,7 +104,7 @@ name: my-skill
 description: test
 ---
 Use key: \${MY_API_KEY}
-`,
+`
     );
 
     await extensionManager.loadExtensions();
@@ -155,7 +154,7 @@ name: my-agent
 description: test
 ---
 System using model: \${MODEL_NAME}
-`,
+`
     );
 
     await extensionManager.loadExtensions();
@@ -173,9 +172,7 @@ System using model: \${MODEL_NAME}
     expect(extension.agents).toHaveLength(1);
     const agent = extension.agents![0];
     if (agent.kind === 'local') {
-      expect(agent.promptConfig.systemPrompt).toContain(
-        'System using model: gemini-pro',
-      );
+      expect(agent.promptConfig.systemPrompt).toContain('System using model: gemini-pro');
     } else {
       throw new Error('Expected local agent');
     }
@@ -219,7 +216,7 @@ System using model: \${MODEL_NAME}
             },
           ],
         },
-      }),
+      })
     );
 
     // Enable hooks in settings
@@ -248,9 +245,7 @@ System using model: \${MODEL_NAME}
 
     expect(extension.hooks).toBeDefined();
     expect(extension.hooks?.BeforeTool).toHaveLength(1);
-    expect(extension.hooks?.BeforeTool![0].hooks[0].env?.['HOOK_CMD']).toBe(
-      'hello-world',
-    );
+    expect(extension.hooks?.BeforeTool![0].hooks[0].env?.['HOOK_CMD']).toBe('hello-world');
   });
 
   it('should pick up new settings after restartExtension', async () => {
@@ -279,7 +274,7 @@ System using model: \${MODEL_NAME}
     fs.mkdirSync(skillSubdir, { recursive: true });
     fs.writeFileSync(
       path.join(skillSubdir, 'SKILL.md'),
-      '---\nname: my-skill\ndescription: test\n---\nValue is: ${MY_VALUE}',
+      '---\nname: my-skill\ndescription: test\n---\nValue is: ${MY_VALUE}'
     );
 
     await extensionManager.loadExtensions();
@@ -292,11 +287,8 @@ System using model: \${MODEL_NAME}
     });
     expect(extension.skills![0].body).toContain('Value is: first');
 
-    const { updateSetting, ExtensionSettingScope } = await import(
-      './extensions/extensionSettings.js'
-    );
-    const extensionConfig =
-      await extensionManager.loadExtensionConfig(extensionPath);
+    const { updateSetting, ExtensionSettingScope } = await import('./extensions/extensionSettings.js');
+    const extensionConfig = await extensionManager.loadExtensionConfig(extensionPath);
 
     const mockRequestSetting = vi.fn().mockResolvedValue('second');
     await updateSetting(
@@ -305,14 +297,12 @@ System using model: \${MODEL_NAME}
       'MY_VALUE',
       mockRequestSetting,
       ExtensionSettingScope.USER,
-      process.cwd(),
+      process.cwd()
     );
 
     await extensionManager.restartExtension(extension);
 
-    const reloadedExtension = extensionManager
-      .getExtensions()
-      .find((e) => e.name === extensionName)!;
+    const reloadedExtension = extensionManager.getExtensions().find((e) => e.name === extensionName)!;
     expect(reloadedExtension.skills![0].body).toContain('Value is: second');
   });
 });

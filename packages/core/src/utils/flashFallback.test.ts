@@ -7,12 +7,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Config } from '../config/config.js';
 import fs from 'node:fs';
-import {
-  setSimulate429,
-  disableSimulationAfterFallback,
-  shouldSimulate429,
-  resetRequestCounter,
-} from './testUtils.js';
+import { setSimulate429, disableSimulationAfterFallback, shouldSimulate429, resetRequestCounter } from './testUtils.js';
 import { DEFAULT_GEMINI_FLASH_MODEL } from '../config/models.js';
 import { retryWithBackoff } from './retry.js';
 import { AuthType } from '../core/contentGenerator.js';
@@ -60,11 +55,7 @@ describe('Retry Utility Fallback Integration', () => {
     config.setFallbackModelHandler(fallbackHandler);
 
     // Call the handler directly via the config property
-    const result = await config.fallbackModelHandler!(
-      'gemini-2.5-pro',
-      DEFAULT_GEMINI_FLASH_MODEL,
-      new Error('test'),
-    );
+    const result = await config.fallbackModelHandler!('gemini-2.5-pro', DEFAULT_GEMINI_FLASH_MODEL, new Error('test'));
 
     // Verify it returns the correct intent
     expect(result).toBe('retry_always');
@@ -76,12 +67,8 @@ describe('Retry Utility Fallback Integration', () => {
 
     const mockApiCall = vi
       .fn()
-      .mockRejectedValueOnce(
-        new TerminalQuotaError('Daily limit', mockGoogleApiError),
-      )
-      .mockRejectedValueOnce(
-        new TerminalQuotaError('Daily limit', mockGoogleApiError),
-      )
+      .mockRejectedValueOnce(new TerminalQuotaError('Daily limit', mockGoogleApiError))
+      .mockRejectedValueOnce(new TerminalQuotaError('Daily limit', mockGoogleApiError))
       .mockResolvedValueOnce('success after fallback');
 
     const mockPersistent429Callback = vi.fn(async (_authType?: string) => {
@@ -98,10 +85,7 @@ describe('Retry Utility Fallback Integration', () => {
     });
 
     expect(fallbackCalled).toBe(true);
-    expect(mockPersistent429Callback).toHaveBeenCalledWith(
-      AuthType.LOGIN_WITH_GOOGLE,
-      expect.any(TerminalQuotaError),
-    );
+    expect(mockPersistent429Callback).toHaveBeenCalledWith(AuthType.LOGIN_WITH_GOOGLE, expect.any(TerminalQuotaError));
     expect(result).toBe('success after fallback');
     expect(mockApiCall).toHaveBeenCalledTimes(3);
   });
@@ -109,11 +93,7 @@ describe('Retry Utility Fallback Integration', () => {
   it('should not trigger onPersistent429 for API key users', async () => {
     const fallbackCallback = vi.fn();
 
-    const mockApiCall = vi
-      .fn()
-      .mockRejectedValueOnce(
-        new TerminalQuotaError('Daily limit', mockGoogleApiError),
-      );
+    const mockApiCall = vi.fn().mockRejectedValueOnce(new TerminalQuotaError('Daily limit', mockGoogleApiError));
 
     const promise = retryWithBackoff(mockApiCall, {
       maxAttempts: 2,

@@ -52,10 +52,7 @@ const MAX_CONCURRENT_ANALYSIS = 10;
 
 const getReactionCount = (issue: Issue | undefined) => {
   if (!issue || !issue.reactionGroups) return 0;
-  return issue.reactionGroups.reduce(
-    (acc, group) => acc + group.users.totalCount,
-    0,
-  );
+  return issue.reactionGroups.reduce((acc, group) => acc + group.users.totalCount, 0);
 };
 
 export const TriageIssues = ({
@@ -81,9 +78,7 @@ export const TriageIssues = ({
   const [targetExpanded, setTargetExpanded] = useState(false);
   const [targetScrollOffset, setTargetScrollOffset] = useState(0);
   const [isEditingComment, setIsEditingComment] = useState(false);
-  const [processedHistory, setProcessedHistory] = useState<ProcessedIssue[]>(
-    [],
-  );
+  const [processedHistory, setProcessedHistory] = useState<ProcessedIssue[]>([]);
   const [showHistory, setShowHistory] = useState(false);
 
   const abortControllerRef = useRef<AbortController>(new AbortController());
@@ -92,7 +87,7 @@ export const TriageIssues = ({
     () => () => {
       abortControllerRef.current.abort();
     },
-    [],
+    []
   );
 
   // Buffer for editing comment
@@ -102,9 +97,7 @@ export const TriageIssues = ({
   });
 
   const currentIssue = state.issues[state.currentIndex];
-  const analysis = currentIssue
-    ? state.analysisCache.get(currentIssue.number)
-    : undefined;
+  const analysis = currentIssue ? state.analysisCache.get(currentIssue.number) : undefined;
 
   // Initialize comment buffer when analysis changes or when starting to edit
   useEffect(() => {
@@ -160,7 +153,7 @@ export const TriageIssues = ({
         }));
       }
     },
-    [until],
+    [until]
   );
 
   useEffect(() => {
@@ -229,7 +222,7 @@ Return a JSON object with:
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
       return response as unknown as AnalysisResult;
     },
-    [config],
+    [config]
   );
 
   // Background Analysis Queue
@@ -238,15 +231,8 @@ Return a JSON object with:
 
     const analyzeNext = async () => {
       const issuesToAnalyze = state.issues
-        .slice(
-          state.currentIndex,
-          state.currentIndex + MAX_CONCURRENT_ANALYSIS + 20,
-        )
-        .filter(
-          (issue) =>
-            !state.analysisCache.has(issue.number) &&
-            !state.analyzingIds.has(issue.number),
-        )
+        .slice(state.currentIndex, state.currentIndex + MAX_CONCURRENT_ANALYSIS + 20)
+        .filter((issue) => !state.analysisCache.has(issue.number) && !state.analyzingIds.has(issue.number))
         .slice(0, MAX_CONCURRENT_ANALYSIS - state.analyzingIds.size);
 
       if (issuesToAnalyze.length === 0) return;
@@ -283,13 +269,7 @@ Return a JSON object with:
     };
 
     void analyzeNext();
-  }, [
-    state.issues,
-    state.currentIndex,
-    state.analysisCache,
-    state.analyzingIds,
-    analyzeIssue,
-  ]);
+  }, [state.issues, state.currentIndex, state.analysisCache, state.analyzingIds, analyzeIssue]);
 
   const handleNext = useCallback(() => {
     const nextIndex = state.currentIndex + 1;
@@ -382,11 +362,7 @@ Return a JSON object with:
       }
 
       if (showHistory) {
-        if (
-          keyMatchers[Command.ESCAPE](key) ||
-          input === 'h' ||
-          input === 'q'
-        ) {
+        if (keyMatchers[Command.ESCAPE](key) || input === 'h' || input === 'q') {
           setShowHistory(false);
         }
         return;
@@ -425,9 +401,7 @@ Return a JSON object with:
 
       if (keyMatchers[Command.NAVIGATION_DOWN](key)) {
         const targetLines = currentIssue.body.split('\n');
-        const visibleLines = targetExpanded
-          ? VISIBLE_LINES_EXPANDED
-          : VISIBLE_LINES_COLLAPSED;
+        const visibleLines = targetExpanded ? VISIBLE_LINES_EXPANDED : VISIBLE_LINES_COLLAPSED;
         const maxScroll = Math.max(0, targetLines.length - visibleLines);
         setTargetScrollOffset((prev) => Math.min(prev + 1, maxScroll));
       }
@@ -435,13 +409,13 @@ Return a JSON object with:
         setTargetScrollOffset((prev) => Math.max(0, prev - 1));
       }
     },
-    { isActive: true },
+    { isActive: true }
   );
 
   if (state.status === 'loading') {
     return (
       <Box>
-        <Spinner type="dots" />
+        <Spinner type='dots' />
         <Text> {state.message}</Text>
       </Box>
     );
@@ -449,34 +423,24 @@ Return a JSON object with:
 
   if (showHistory) {
     return (
-      <Box
-        flexDirection="column"
-        borderStyle="double"
-        borderColor="yellow"
-        padding={1}
-      >
-        <Text bold color="yellow">
+      <Box flexDirection='column' borderStyle='double' borderColor='yellow' padding={1}>
+        <Text bold color='yellow'>
           Processed Issues History:
         </Text>
-        <Box flexDirection="column" marginTop={1}>
+        <Box flexDirection='column' marginTop={1}>
           {processedHistory.length === 0 ? (
-            <Text color="gray">No issues processed yet.</Text>
+            <Text color='gray'>No issues processed yet.</Text>
           ) : (
             processedHistory.map((item, i) => (
               <Text key={i}>
                 <Text bold>#{item.number}</Text> {item.title.slice(0, 40)}...
-                <Text color={item.action === 'close' ? 'red' : 'gray'}>
-                  {' '}
-                  [{item.action.toUpperCase()}]
-                </Text>
+                <Text color={item.action === 'close' ? 'red' : 'gray'}> [{item.action.toUpperCase()}]</Text>
               </Text>
             ))
           )}
         </Box>
         <Box marginTop={1}>
-          <Text color="gray">
-            Press &apos;h&apos; or &apos;Esc&apos; to return.
-          </Text>
+          <Text color='gray'>Press &apos;h&apos; or &apos;Esc&apos; to return.</Text>
         </Box>
       </Box>
     );
@@ -484,12 +448,12 @@ Return a JSON object with:
 
   if (state.status === 'completed') {
     return (
-      <Box flexDirection="column" padding={1}>
-        <Text color="green" bold>
+      <Box flexDirection='column' padding={1}>
+        <Text color='green' bold>
           {state.message}
         </Text>
         <Box marginTop={1}>
-          <Text color="gray">Press any key or &apos;q&apos; to exit.</Text>
+          <Text color='gray'>Press any key or &apos;q&apos; to exit.</Text>
         </Box>
       </Box>
     );
@@ -497,14 +461,12 @@ Return a JSON object with:
 
   if (state.status === 'error') {
     return (
-      <Box flexDirection="column" padding={1}>
-        <Text color="red" bold>
+      <Box flexDirection='column' padding={1}>
+        <Text color='red' bold>
           {state.message}
         </Text>
         <Box marginTop={1}>
-          <Text color="gray">
-            Press &apos;q&apos; or &apos;Esc&apos; to exit.
-          </Text>
+          <Text color='gray'>Press &apos;q&apos; or &apos;Esc&apos; to exit.</Text>
         </Box>
       </Box>
     );
@@ -514,7 +476,7 @@ Return a JSON object with:
     if (state.status === 'analyzing') {
       return (
         <Box>
-          <Spinner type="dots" />
+          <Spinner type='dots' />
           <Text> {state.message}</Text>
         </Box>
       );
@@ -524,138 +486,106 @@ Return a JSON object with:
 
   const targetBody = currentIssue.body || '';
   const targetLines = targetBody.split('\n');
-  const visibleLines = targetExpanded
-    ? VISIBLE_LINES_EXPANDED
-    : VISIBLE_LINES_COLLAPSED;
-  const targetViewLines = targetLines.slice(
-    targetScrollOffset,
-    targetScrollOffset + visibleLines,
-  );
+  const visibleLines = targetExpanded ? VISIBLE_LINES_EXPANDED : VISIBLE_LINES_COLLAPSED;
+  const targetViewLines = targetLines.slice(targetScrollOffset, targetScrollOffset + visibleLines);
 
   return (
-    <Box flexDirection="column">
-      <Box flexDirection="row" justifyContent="space-between">
-        <Box flexDirection="column">
-          <Text bold color="cyan">
-            Triage Potential Candidates ({state.currentIndex + 1}/
-            {state.issues.length}){until ? ` (until ${until})` : ''}
+    <Box flexDirection='column'>
+      <Box flexDirection='row' justifyContent='space-between'>
+        <Box flexDirection='column'>
+          <Text bold color='cyan'>
+            Triage Potential Candidates ({state.currentIndex + 1}/{state.issues.length})
+            {until ? ` (until ${until})` : ''}
           </Text>
           {!until && (
-            <Text color="gray" dimColor>
+            <Text color='gray' dimColor>
               Tip: use --until YYYY-MM-DD to triage older issues.
             </Text>
           )}
         </Box>
-        <Text color="gray">[h] History | [q] Quit</Text>
+        <Text color='gray'>[h] History | [q] Quit</Text>
       </Box>
 
       {/* Issue Detail */}
-      <Box
-        flexDirection="column"
-        borderStyle="single"
-        borderColor="cyan"
-        paddingX={1}
-      >
-        <Box flexDirection="row" justifyContent="space-between">
+      <Box flexDirection='column' borderStyle='single' borderColor='cyan' paddingX={1}>
+        <Box flexDirection='row' justifyContent='space-between'>
           <Text>
             Issue:{' '}
-            <Text bold color="yellow">
+            <Text bold color='yellow'>
               #{currentIssue.number}
             </Text>{' '}
             - {currentIssue.title}
           </Text>
-          <Text color="gray">
-            Author: {currentIssue.author?.login} | 👍{' '}
-            {getReactionCount(currentIssue)}
+          <Text color='gray'>
+            Author: {currentIssue.author?.login} | 👍 {getReactionCount(currentIssue)}
           </Text>
         </Box>
-        <Text color="gray" wrap="truncate-end">
+        <Text color='gray' wrap='truncate-end'>
           {currentIssue.url}
         </Text>
-        <Box
-          marginTop={1}
-          flexDirection="column"
-          minHeight={Math.min(targetLines.length, visibleLines)}
-        >
+        <Box marginTop={1} flexDirection='column' minHeight={Math.min(targetLines.length, visibleLines)}>
           {targetViewLines.map((line, i) => (
-            <Text key={i} italic wrap="truncate-end">
+            <Text key={i} italic wrap='truncate-end'>
               {line}
             </Text>
           ))}
           {!targetExpanded && targetLines.length > VISIBLE_LINES_COLLAPSED && (
-            <Text color="gray">... (press &apos;e&apos; to expand)</Text>
+            <Text color='gray'>... (press &apos;e&apos; to expand)</Text>
           )}
-          {targetExpanded &&
-            targetLines.length >
-              targetScrollOffset + VISIBLE_LINES_EXPANDED && (
-              <Text color="gray">... (more below)</Text>
-            )}
+          {targetExpanded && targetLines.length > targetScrollOffset + VISIBLE_LINES_EXPANDED && (
+            <Text color='gray'>... (more below)</Text>
+          )}
         </Box>
       </Box>
 
       {/* Gemini Analysis */}
-      <Box
-        marginTop={1}
-        padding={1}
-        borderStyle="round"
-        borderColor="blue"
-        flexDirection="column"
-      >
+      <Box marginTop={1} padding={1} borderStyle='round' borderColor='blue' flexDirection='column'>
         {state.status === 'analyzing' ? (
           <Box>
-            <Spinner type="dots" />
+            <Spinner type='dots' />
             <Text> Analyzing issue with Gemini...</Text>
           </Box>
         ) : analysis ? (
           <>
-            <Box flexDirection="row">
-              <Text bold color="blue">
+            <Box flexDirection='row'>
+              <Text bold color='blue'>
                 Gemini Recommendation:{' '}
               </Text>
-              <Text color="red" bold>
+              <Text color='red' bold>
                 CLOSE
               </Text>
             </Box>
             <Text italic>Reason: {analysis.reason}</Text>
           </>
         ) : (
-          <Text color="gray">Waiting for analysis...</Text>
+          <Text color='gray'>Waiting for analysis...</Text>
         )}
       </Box>
 
       {/* Action Section */}
-      <Box marginTop={1} flexDirection="column">
+      <Box marginTop={1} flexDirection='column'>
         {isEditingComment ? (
-          <Box
-            flexDirection="column"
-            borderStyle="single"
-            borderColor="magenta"
-            padding={1}
-          >
-            <Text bold color="magenta">
+          <Box flexDirection='column' borderStyle='single' borderColor='magenta' padding={1}>
+            <Text bold color='magenta'>
               Edit Closing Comment (Enter to confirm, Esc to cancel):
             </Text>
             <Box marginTop={1}>
-              <TextInput
-                buffer={commentBuffer}
-                onSubmit={performClose}
-                onCancel={() => setIsEditingComment(false)}
-              />
+              <TextInput buffer={commentBuffer} onSubmit={performClose} onCancel={() => setIsEditingComment(false)} />
             </Box>
           </Box>
         ) : (
-          <Box flexDirection="row" gap={2}>
-            <Box flexDirection="column">
+          <Box flexDirection='row' gap={2}>
+            <Box flexDirection='column'>
               <Text bold>Actions:</Text>
               <Text>[c] Close Issue (with comment)</Text>
               <Text>[s] Skip / Next</Text>
               <Text>[e] Expand/Collapse Body</Text>
             </Box>
-            <Box flexDirection="column" flexGrow={1} marginLeft={2}>
-              <Text bold color="gray">
+            <Box flexDirection='column' flexGrow={1} marginLeft={2}>
+              <Text bold color='gray'>
                 Suggested Comment:
               </Text>
-              <Text italic color="gray" wrap="truncate-end">
+              <Text italic color='gray' wrap='truncate-end'>
                 &quot;{analysis?.suggested_comment}&quot;
               </Text>
             </Box>

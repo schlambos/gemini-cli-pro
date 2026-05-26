@@ -4,19 +4,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  getCheckpointInfoList,
-  getToolCallDataSchema,
-  isNodeError,
-  performRestore,
-} from '@google/gemini-cli-core';
+import { getCheckpointInfoList, getToolCallDataSchema, isNodeError, performRestore } from '@google/gemini-cli-core';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import type {
-  Command,
-  CommandContext,
-  CommandExecutionResponse,
-} from './types.js';
+import type { Command, CommandContext, CommandExecutionResponse } from './types.js';
 
 export class RestoreCommand implements Command {
   readonly name = 'restore';
@@ -26,10 +17,7 @@ export class RestoreCommand implements Command {
   readonly requiresWorkspace = true;
   readonly subCommands = [new ListCheckpointsCommand()];
 
-  async execute(
-    context: CommandContext,
-    args: string[],
-  ): Promise<CommandExecutionResponse> {
+  async execute(context: CommandContext, args: string[]): Promise<CommandExecutionResponse> {
     const { config, git: gitService } = context;
     const argsStr = args.join(' ');
 
@@ -45,9 +33,7 @@ export class RestoreCommand implements Command {
         };
       }
 
-      const selectedFile = argsStr.endsWith('.json')
-        ? argsStr
-        : `${argsStr}.json`;
+      const selectedFile = argsStr.endsWith('.json') ? argsStr : `${argsStr}.json`;
 
       const checkpointDir = config.storage.getProjectTempCheckpointsDir();
       const filePath = path.join(checkpointDir, selectedFile);
@@ -84,10 +70,7 @@ export class RestoreCommand implements Command {
         };
       }
 
-      const restoreResultGenerator = performRestore(
-        parseResult.data,
-        gitService,
-      );
+      const restoreResultGenerator = performRestore(parseResult.data, gitService);
       const restoreResult = [];
       for await (const result of restoreResultGenerator) {
         restoreResult.push(result);

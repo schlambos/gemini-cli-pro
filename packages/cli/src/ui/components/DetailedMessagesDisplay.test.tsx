@@ -19,7 +19,7 @@ vi.mock('./shared/ScrollableList.js', () => ({
     data: unknown[];
     renderItem: (props: { item: unknown }) => React.ReactNode;
   }) => (
-    <Box flexDirection="column">
+    <Box flexDirection='column'>
       {data.map((item: unknown, index: number) => (
         <Box key={index}>{renderItem({ item })}</Box>
       ))}
@@ -29,14 +29,7 @@ vi.mock('./shared/ScrollableList.js', () => ({
 
 describe('DetailedMessagesDisplay', () => {
   it('renders nothing when messages are empty', () => {
-    const { lastFrame } = render(
-      <DetailedMessagesDisplay
-        messages={[]}
-        maxHeight={10}
-        width={80}
-        hasFocus={false}
-      />,
-    );
+    const { lastFrame } = render(<DetailedMessagesDisplay messages={[]} maxHeight={10} width={80} hasFocus={false} />);
     expect(lastFrame()).toBe('');
   });
 
@@ -49,12 +42,7 @@ describe('DetailedMessagesDisplay', () => {
     ];
 
     const { lastFrame } = render(
-      <DetailedMessagesDisplay
-        messages={messages}
-        maxHeight={20}
-        width={80}
-        hasFocus={true}
-      />,
+      <DetailedMessagesDisplay messages={messages} maxHeight={20} width={80} hasFocus={true} />
     );
     const output = lastFrame();
 
@@ -62,17 +50,10 @@ describe('DetailedMessagesDisplay', () => {
   });
 
   it('renders message counts', () => {
-    const messages: ConsoleMessageItem[] = [
-      { type: 'log', content: 'Repeated message', count: 5 },
-    ];
+    const messages: ConsoleMessageItem[] = [{ type: 'log', content: 'Repeated message', count: 5 }];
 
     const { lastFrame } = render(
-      <DetailedMessagesDisplay
-        messages={messages}
-        maxHeight={10}
-        width={80}
-        hasFocus={false}
-      />,
+      <DetailedMessagesDisplay messages={messages} maxHeight={10} width={80} hasFocus={false} />
     );
     const output = lastFrame();
 

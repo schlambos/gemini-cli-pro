@@ -10,11 +10,7 @@ import fs from 'node:fs/promises';
 
 import { vi, describe, expect, it, afterEach, beforeEach } from 'vitest';
 import * as gitUtils from '../../utils/gitUtils.js';
-import {
-  setupGithubCommand,
-  updateGitignore,
-  GITHUB_WORKFLOW_PATHS,
-} from './setupGithubCommand.js';
+import { setupGithubCommand, updateGitignore, GITHUB_WORKFLOW_PATHS } from './setupGithubCommand.js';
 import type { CommandContext } from './types.js';
 import * as commandUtils from '../utils/commandUtils.js';
 import type { ToolActionReturn } from '@google/gemini-cli-core';
@@ -41,9 +37,7 @@ describe('setupGithubCommand', async () => {
 
   beforeEach(async () => {
     vi.resetAllMocks();
-    scratchDir = await fs.mkdtemp(
-      path.join(os.tmpdir(), 'setup-github-command-'),
-    );
+    scratchDir = await fs.mkdtemp(path.join(os.tmpdir(), 'setup-github-command-'));
   });
 
   afterEach(async () => {
@@ -71,21 +65,14 @@ describe('setupGithubCommand', async () => {
 
     vi.mocked(gitUtils.isGitHubRepository).mockReturnValueOnce(true);
     vi.mocked(gitUtils.getGitRepoRoot).mockReturnValueOnce(fakeRepoRoot);
-    vi.mocked(gitUtils.getLatestGitHubRelease).mockResolvedValueOnce(
-      fakeReleaseVersion,
-    );
+    vi.mocked(gitUtils.getLatestGitHubRelease).mockResolvedValueOnce(fakeReleaseVersion);
     vi.mocked(gitUtils.getGitHubRepoInfo).mockReturnValue({
       owner: fakeRepoOwner,
       repo: fakeRepoName,
     });
-    vi.mocked(commandUtils.getUrlOpenCommand).mockReturnValueOnce(
-      'fakeOpenCommand',
-    );
+    vi.mocked(commandUtils.getUrlOpenCommand).mockReturnValueOnce('fakeOpenCommand');
 
-    const result = (await setupGithubCommand.action?.(
-      {} as CommandContext,
-      '',
-    )) as ToolActionReturn;
+    const result = (await setupGithubCommand.action?.({} as CommandContext, '')) as ToolActionReturn;
 
     const { command } = result.toolArgs;
 
@@ -97,12 +84,7 @@ describe('setupGithubCommand', async () => {
 
     // Verify that the workflows were downloaded
     for (const workflow of workflows) {
-      const workflowFile = path.join(
-        scratchDir,
-        '.github',
-        'workflows',
-        workflow,
-      );
+      const workflowFile = path.join(scratchDir, '.github', 'workflows', workflow);
       const contents = await fs.readFile(workflowFile, 'utf8');
       expect(contents).toContain(workflow);
     }
@@ -141,21 +123,14 @@ describe('setupGithubCommand', async () => {
 
     vi.mocked(gitUtils.isGitHubRepository).mockReturnValueOnce(true);
     vi.mocked(gitUtils.getGitRepoRoot).mockReturnValueOnce(fakeRepoRoot);
-    vi.mocked(gitUtils.getLatestGitHubRelease).mockResolvedValueOnce(
-      fakeReleaseVersion,
-    );
+    vi.mocked(gitUtils.getLatestGitHubRelease).mockResolvedValueOnce(fakeReleaseVersion);
     vi.mocked(gitUtils.getGitHubRepoInfo).mockReturnValue({
       owner: fakeRepoOwner,
       repo: fakeRepoName,
     });
-    vi.mocked(commandUtils.getUrlOpenCommand).mockReturnValueOnce(
-      'fakeOpenCommand',
-    );
+    vi.mocked(commandUtils.getUrlOpenCommand).mockReturnValueOnce('fakeOpenCommand');
 
-    const result = (await setupGithubCommand.action?.(
-      {} as CommandContext,
-      '',
-    )) as ToolActionReturn;
+    const result = (await setupGithubCommand.action?.({} as CommandContext, '')) as ToolActionReturn;
 
     const { command } = result.toolArgs;
 
@@ -167,12 +142,7 @@ describe('setupGithubCommand', async () => {
 
     // Verify that the workflows were downloaded
     for (const workflow of workflows) {
-      const workflowFile = path.join(
-        scratchDir,
-        '.github',
-        'workflows',
-        workflow,
-      );
+      const workflowFile = path.join(scratchDir, '.github', 'workflows', workflow);
       const contents = await fs.readFile(workflowFile, 'utf8');
       expect(contents).toContain(workflow);
     }
@@ -200,22 +170,20 @@ describe('setupGithubCommand', async () => {
       new Response('Not Found', {
         status: 404,
         statusText: 'Not Found',
-      }),
+      })
     );
 
     vi.mocked(gitUtils.isGitHubRepository).mockReturnValueOnce(true);
     vi.mocked(gitUtils.getGitRepoRoot).mockReturnValueOnce(fakeRepoRoot);
-    vi.mocked(gitUtils.getLatestGitHubRelease).mockResolvedValueOnce(
-      fakeReleaseVersion,
-    );
+    vi.mocked(gitUtils.getLatestGitHubRelease).mockResolvedValueOnce(fakeReleaseVersion);
     vi.mocked(gitUtils.getGitHubRepoInfo).mockReturnValue({
       owner: 'fake',
       repo: 'repo',
     });
 
-    await expect(
-      setupGithubCommand.action?.({} as CommandContext, ''),
-    ).rejects.toThrow(/Invalid response code downloading.*404 - Not Found/);
+    await expect(setupGithubCommand.action?.({} as CommandContext, '')).rejects.toThrow(
+      /Invalid response code downloading.*404 - Not Found/
+    );
   });
 });
 
@@ -248,9 +216,7 @@ describe('updateGitignore', () => {
 
     const content = await fs.readFile(gitignorePath, 'utf8');
 
-    expect(content).toBe(
-      '# Existing content\nnode_modules/\n\n.gemini/\ngha-creds-*.json\n',
-    );
+    expect(content).toBe('# Existing content\nnode_modules/\n\n.gemini/\ngha-creds-*.json\n');
   });
 
   it('does not add duplicate entries', async () => {
@@ -320,20 +286,13 @@ describe('updateGitignore', () => {
   });
 
   it('handles permission errors gracefully', async () => {
-    const consoleSpy = vi
-      .spyOn(debugLogger, 'debug')
-      .mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(debugLogger, 'debug').mockImplementation(() => {});
 
     const fsModule = await import('node:fs');
-    const writeFileSpy = vi
-      .spyOn(fsModule.promises, 'writeFile')
-      .mockRejectedValue(new Error('Permission denied'));
+    const writeFileSpy = vi.spyOn(fsModule.promises, 'writeFile').mockRejectedValue(new Error('Permission denied'));
 
     await expect(updateGitignore(scratchDir)).resolves.toBeUndefined();
-    expect(consoleSpy).toHaveBeenCalledWith(
-      'Failed to update .gitignore:',
-      expect.any(Error),
-    );
+    expect(consoleSpy).toHaveBeenCalledWith('Failed to update .gitignore:', expect.any(Error));
 
     writeFileSpy.mockRestore();
     consoleSpy.mockRestore();

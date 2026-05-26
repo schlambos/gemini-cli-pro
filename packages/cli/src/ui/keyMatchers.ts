@@ -29,11 +29,7 @@ function matchKeyBinding(keyBinding: KeyBinding, key: Key): boolean {
 /**
  * Checks if a key matches any of the bindings for a command
  */
-function matchCommand(
-  command: Command,
-  key: Key,
-  config: KeyBindingConfig = defaultKeyBindings,
-): boolean {
+function matchCommand(command: Command, key: Key, config: KeyBindingConfig = defaultKeyBindings): boolean {
   const bindings = config[command];
   return bindings.some((binding) => matchKeyBinding(binding, key));
 }
@@ -53,9 +49,7 @@ export type KeyMatchers = {
 /**
  * Creates key matchers from a key binding configuration
  */
-export function createKeyMatchers(
-  config: KeyBindingConfig = defaultKeyBindings,
-): KeyMatchers {
+export function createKeyMatchers(config: KeyBindingConfig = defaultKeyBindings): KeyMatchers {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
   const matchers = {} as { [C in Command]: KeyMatcher };
 

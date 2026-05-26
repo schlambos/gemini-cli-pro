@@ -30,15 +30,11 @@ vi.mock('../core/tokenLimits.js');
 
 describe('findCompressSplitPoint', () => {
   it('should throw an error for non-positive numbers', () => {
-    expect(() => findCompressSplitPoint([], 0)).toThrow(
-      'Fraction must be between 0 and 1',
-    );
+    expect(() => findCompressSplitPoint([], 0)).toThrow('Fraction must be between 0 and 1');
   });
 
   it('should throw an error for a fraction greater than or equal to 1', () => {
-    expect(() => findCompressSplitPoint([], 1)).toThrow(
-      'Fraction must be between 0 and 1',
-    );
+    expect(() => findCompressSplitPoint([], 1)).toThrow('Fraction must be between 0 and 1');
   });
 
   it('should handle an empty history', () => {
@@ -89,9 +85,7 @@ describe('findCompressSplitPoint', () => {
   });
 
   it('should handle a history with only one item', () => {
-    const historyWithEmptyParts: Content[] = [
-      { role: 'user', parts: [{ text: 'Message 1' }] },
-    ];
+    const historyWithEmptyParts: Content[] = [{ role: 'user', parts: [{ text: 'Message 1' }] }];
     expect(findCompressSplitPoint(historyWithEmptyParts, 0.5)).toBe(0);
   });
 
@@ -110,24 +104,14 @@ describe('findCompressSplitPoint', () => {
 
 describe('modelStringToModelConfigAlias', () => {
   it('should return the default model for unexpected aliases', () => {
-    expect(modelStringToModelConfigAlias('gemini-flash-flash')).toBe(
-      'chat-compression-default',
-    );
+    expect(modelStringToModelConfigAlias('gemini-flash-flash')).toBe('chat-compression-default');
   });
 
   it('should handle valid names', () => {
-    expect(modelStringToModelConfigAlias('gemini-3-pro-preview')).toBe(
-      'chat-compression-3-pro',
-    );
-    expect(modelStringToModelConfigAlias('gemini-2.5-pro')).toBe(
-      'chat-compression-2.5-pro',
-    );
-    expect(modelStringToModelConfigAlias('gemini-2.5-flash')).toBe(
-      'chat-compression-2.5-flash',
-    );
-    expect(modelStringToModelConfigAlias('gemini-2.5-flash-lite')).toBe(
-      'chat-compression-2.5-flash-lite',
-    );
+    expect(modelStringToModelConfigAlias('gemini-3-pro-preview')).toBe('chat-compression-3-pro');
+    expect(modelStringToModelConfigAlias('gemini-2.5-pro')).toBe('chat-compression-2.5-pro');
+    expect(modelStringToModelConfigAlias('gemini-2.5-flash')).toBe('chat-compression-2.5-flash');
+    expect(modelStringToModelConfigAlias('gemini-2.5-flash-lite')).toBe('chat-compression-2.5-flash-lite');
   });
 });
 
@@ -140,9 +124,7 @@ describe('ChatCompressionService', () => {
   const mockPromptId = 'test-prompt-id';
 
   beforeEach(() => {
-    testTempDir = fs.mkdtempSync(
-      path.join(os.tmpdir(), 'chat-compression-test-'),
-    );
+    testTempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'chat-compression-test-'));
     service = new ChatCompressionService();
     mockChat = {
       getHistory: vi.fn(),
@@ -190,9 +172,7 @@ describe('ChatCompressionService', () => {
       },
     } as unknown as Config;
 
-    vi.mocked(getInitialChatHistory).mockImplementation(
-      async (_config, extraHistory) => extraHistory || [],
-    );
+    vi.mocked(getInitialChatHistory).mockImplementation(async (_config, extraHistory) => extraHistory || []);
   });
 
   afterEach(() => {
@@ -204,38 +184,20 @@ describe('ChatCompressionService', () => {
 
   it('should return NOOP if history is empty', async () => {
     vi.mocked(mockChat.getHistory).mockReturnValue([]);
-    const result = await service.compress(
-      mockChat,
-      mockPromptId,
-      false,
-      mockModel,
-      mockConfig,
-      false,
-    );
+    const result = await service.compress(mockChat, mockPromptId, false, mockModel, mockConfig, false);
     expect(result.info.compressionStatus).toBe(CompressionStatus.NOOP);
     expect(result.newHistory).toBeNull();
   });
 
   it('should return NOOP if previously failed and not forced', async () => {
-    vi.mocked(mockChat.getHistory).mockReturnValue([
-      { role: 'user', parts: [{ text: 'hi' }] },
-    ]);
-    const result = await service.compress(
-      mockChat,
-      mockPromptId,
-      false,
-      mockModel,
-      mockConfig,
-      true,
-    );
+    vi.mocked(mockChat.getHistory).mockReturnValue([{ role: 'user', parts: [{ text: 'hi' }] }]);
+    const result = await service.compress(mockChat, mockPromptId, false, mockModel, mockConfig, true);
     expect(result.info.compressionStatus).toBe(CompressionStatus.NOOP);
     expect(result.newHistory).toBeNull();
   });
 
   it('should return NOOP if under token threshold and not forced', async () => {
-    vi.mocked(mockChat.getHistory).mockReturnValue([
-      { role: 'user', parts: [{ text: 'hi' }] },
-    ]);
+    vi.mocked(mockChat.getHistory).mockReturnValue([{ role: 'user', parts: [{ text: 'hi' }] }]);
     vi.mocked(mockChat.getLastPromptTokenCount).mockReturnValue(600);
     vi.mocked(tokenLimit).mockReturnValue(1000);
     // Threshold is 0.5 * 1000 = 500. 600 > 500, so it SHOULD compress.
@@ -244,14 +206,7 @@ describe('ChatCompressionService', () => {
     vi.mocked(mockConfig.getCompressionThreshold).mockResolvedValue(0.7);
     // 600 < 700, so NOOP.
 
-    const result = await service.compress(
-      mockChat,
-      mockPromptId,
-      false,
-      mockModel,
-      mockConfig,
-      false,
-    );
+    const result = await service.compress(mockChat, mockPromptId, false, mockModel, mockConfig, false);
     expect(result.info.compressionStatus).toBe(CompressionStatus.NOOP);
     expect(result.newHistory).toBeNull();
   });
@@ -267,22 +222,13 @@ describe('ChatCompressionService', () => {
     vi.mocked(mockChat.getLastPromptTokenCount).mockReturnValue(600000);
     // 600k > 500k (0.5 * 1M), so should compress.
 
-    const result = await service.compress(
-      mockChat,
-      mockPromptId,
-      false,
-      mockModel,
-      mockConfig,
-      false,
-    );
+    const result = await service.compress(mockChat, mockPromptId, false, mockModel, mockConfig, false);
 
     expect(result.info.compressionStatus).toBe(CompressionStatus.COMPRESSED);
     expect(result.newHistory).not.toBeNull();
     // It should contain the final verified summary
     expect(result.newHistory![0].parts![0].text).toBe('Verified Summary');
-    expect(mockConfig.getBaseLlmClient().generateContent).toHaveBeenCalledTimes(
-      2,
-    );
+    expect(mockConfig.getBaseLlmClient().generateContent).toHaveBeenCalledTimes(2);
   });
 
   it('should fall back to initial summary if verification response is empty', async () => {
@@ -304,18 +250,9 @@ describe('ChatCompressionService', () => {
           candidates: [{ content: { parts: [{ text: '   ' }] } }],
         } as unknown as GenerateContentResponse),
     };
-    vi.mocked(mockConfig.getBaseLlmClient).mockReturnValue(
-      mockLlmClient as unknown as BaseLlmClient,
-    );
+    vi.mocked(mockConfig.getBaseLlmClient).mockReturnValue(mockLlmClient as unknown as BaseLlmClient);
 
-    const result = await service.compress(
-      mockChat,
-      mockPromptId,
-      false,
-      mockModel,
-      mockConfig,
-      false,
-    );
+    const result = await service.compress(mockChat, mockPromptId, false, mockModel, mockConfig, false);
 
     expect(result.info.compressionStatus).toBe(CompressionStatus.COMPRESSED);
     expect(result.newHistory![0].parts![0].text).toBe('Initial Summary');
@@ -335,21 +272,11 @@ describe('ChatCompressionService', () => {
     vi.mocked(mockChat.getLastPromptTokenCount).mockReturnValue(800);
     vi.mocked(tokenLimit).mockReturnValue(1000);
 
-    await service.compress(
-      mockChat,
-      mockPromptId,
-      false,
-      mockModel,
-      mockConfig,
-      false,
-    );
+    await service.compress(mockChat, mockPromptId, false, mockModel, mockConfig, false);
 
-    const firstCall = vi.mocked(mockConfig.getBaseLlmClient().generateContent)
-      .mock.calls[0][0];
+    const firstCall = vi.mocked(mockConfig.getBaseLlmClient().generateContent).mock.calls[0][0];
     const lastContent = firstCall.contents?.[firstCall.contents.length - 1];
-    expect(lastContent?.parts?.[0].text).toContain(
-      'A previous <state_snapshot> exists',
-    );
+    expect(lastContent?.parts?.[0].text).toContain('A previous <state_snapshot> exists');
   });
 
   it('should force compress even if under threshold', async () => {
@@ -368,7 +295,7 @@ describe('ChatCompressionService', () => {
       true, // forced
       mockModel,
       mockConfig,
-      false,
+      false
     );
 
     expect(result.info.compressionStatus).toBe(CompressionStatus.COMPRESSED);
@@ -395,22 +322,11 @@ describe('ChatCompressionService', () => {
     } as unknown as GenerateContentResponse);
 
     // Inflate the token count by spying on calculateRequestTokenCount
-    vi.spyOn(tokenCalculation, 'calculateRequestTokenCount').mockResolvedValue(
-      10000,
-    );
+    vi.spyOn(tokenCalculation, 'calculateRequestTokenCount').mockResolvedValue(10000);
 
-    const result = await service.compress(
-      mockChat,
-      mockPromptId,
-      true,
-      mockModel,
-      mockConfig,
-      false,
-    );
+    const result = await service.compress(mockChat, mockPromptId, true, mockModel, mockConfig, false);
 
-    expect(result.info.compressionStatus).toBe(
-      CompressionStatus.COMPRESSION_FAILED_INFLATED_TOKEN_COUNT,
-    );
+    expect(result.info.compressionStatus).toBe(CompressionStatus.COMPRESSION_FAILED_INFLATED_TOKEN_COUNT);
     expect(result.newHistory).toBeNull();
   });
 
@@ -435,22 +351,11 @@ describe('ChatCompressionService', () => {
         ],
       } as unknown as GenerateContentResponse),
     };
-    vi.mocked(mockConfig.getBaseLlmClient).mockReturnValue(
-      mockLlmClient as unknown as BaseLlmClient,
-    );
+    vi.mocked(mockConfig.getBaseLlmClient).mockReturnValue(mockLlmClient as unknown as BaseLlmClient);
 
-    const result = await service.compress(
-      mockChat,
-      mockPromptId,
-      false,
-      mockModel,
-      mockConfig,
-      false,
-    );
+    const result = await service.compress(mockChat, mockPromptId, false, mockModel, mockConfig, false);
 
-    expect(result.info.compressionStatus).toBe(
-      CompressionStatus.COMPRESSION_FAILED_EMPTY_SUMMARY,
-    );
+    expect(result.info.compressionStatus).toBe(CompressionStatus.COMPRESSION_FAILED_EMPTY_SUMMARY);
     expect(result.newHistory).toBeNull();
   });
 
@@ -495,23 +400,14 @@ describe('ChatCompressionService', () => {
 
       vi.mocked(mockChat.getHistory).mockReturnValue(history);
 
-      const result = await service.compress(
-        mockChat,
-        mockPromptId,
-        true,
-        mockModel,
-        mockConfig,
-        false,
-      );
+      const result = await service.compress(mockChat, mockPromptId, true, mockModel, mockConfig, false);
 
       expect(result.info.compressionStatus).toBe(CompressionStatus.COMPRESSED);
 
       // Verify the new history contains the truncated message
       const keptHistory = result.newHistory!.slice(2); // After summary and 'Got it'
       const truncatedPart = keptHistory[1].parts![0].functionResponse;
-      expect(truncatedPart?.response?.['output']).toContain(
-        'Output too large.',
-      );
+      expect(truncatedPart?.response?.['output']).toContain('Output too large.');
 
       // Verify a file was actually created in the tool_output subdirectory
       const toolOutputDir = path.join(testTempDir, TOOL_OUTPUTS_DIR);
@@ -561,14 +457,7 @@ describe('ChatCompressionService', () => {
 
       vi.mocked(mockChat.getHistory).mockReturnValue(history);
 
-      const result = await service.compress(
-        mockChat,
-        mockPromptId,
-        true,
-        mockModel,
-        mockConfig,
-        false,
-      );
+      const result = await service.compress(mockChat, mockPromptId, true, mockModel, mockConfig, false);
 
       // Verify it compressed
       expect(result.newHistory).not.toBeNull();
@@ -577,16 +466,13 @@ describe('ChatCompressionService', () => {
       const shellResponse = keptHistory.find(
         (h) =>
           h.parts?.some((p) => p.functionResponse?.name === 'shell') &&
-          (h.parts?.[0].functionResponse?.response?.['output'] as string)
-            ?.length < 100000,
+          (h.parts?.[0].functionResponse?.response?.['output'] as string)?.length < 100000
       );
       const truncatedPart = shellResponse!.parts![0].functionResponse;
       const content = truncatedPart?.response?.['output'] as string;
 
       // DEFAULT_TRUNCATE_TOOL_OUTPUT_THRESHOLD = 40000 -> head=8000 (20%), tail=32000 (80%)
-      expect(content).toContain(
-        'Showing first 8,000 and last 32,000 characters',
-      );
+      expect(content).toContain('Showing first 8,000 and last 32,000 characters');
     });
 
     it('should use character-based truncation for massive single-line raw strings', async () => {
@@ -627,30 +513,20 @@ describe('ChatCompressionService', () => {
 
       vi.mocked(mockChat.getHistory).mockReturnValue(history);
 
-      const result = await service.compress(
-        mockChat,
-        mockPromptId,
-        true,
-        mockModel,
-        mockConfig,
-        false,
-      );
+      const result = await service.compress(mockChat, mockPromptId, true, mockModel, mockConfig, false);
 
       expect(result.newHistory).not.toBeNull();
       const keptHistory = result.newHistory!.slice(2);
       const rawResponse = keptHistory.find(
         (h) =>
           h.parts?.some((p) => p.functionResponse?.name === 'raw_tool') &&
-          (h.parts?.[0].functionResponse?.response?.['output'] as string)
-            ?.length < 100000,
+          (h.parts?.[0].functionResponse?.response?.['output'] as string)?.length < 100000
       );
       const truncatedPart = rawResponse!.parts![0].functionResponse;
       const content = truncatedPart?.response?.['output'] as string;
 
       // DEFAULT_TRUNCATE_TOOL_OUTPUT_THRESHOLD = 40000 -> head=8000 (20%), tail=32000 (80%)
-      expect(content).toContain(
-        'Showing first 8,000 and last 32,000 characters',
-      );
+      expect(content).toContain('Showing first 8,000 and last 32,000 characters');
     });
 
     it('should fallback to original content and still update budget if truncation fails', async () => {
@@ -690,26 +566,15 @@ describe('ChatCompressionService', () => {
       vi.mocked(mockChat.getHistory).mockReturnValue(history);
 
       // Simulate failure in saving the truncated output
-      vi.spyOn(fileUtils, 'saveTruncatedToolOutput').mockRejectedValue(
-        new Error('Disk Full'),
-      );
+      vi.spyOn(fileUtils, 'saveTruncatedToolOutput').mockRejectedValue(new Error('Disk Full'));
 
-      const result = await service.compress(
-        mockChat,
-        mockPromptId,
-        true,
-        mockModel,
-        mockConfig,
-        false,
-      );
+      const result = await service.compress(mockChat, mockPromptId, true, mockModel, mockConfig, false);
 
       expect(result.info.compressionStatus).toBe(CompressionStatus.COMPRESSED);
 
       // Verify the new history contains the ORIGINAL message (not truncated)
       const keptHistory = result.newHistory!.slice(2);
-      const toolResponseTurn = keptHistory.find((h) =>
-        h.parts?.some((p) => p.functionResponse?.name === 'grep'),
-      );
+      const toolResponseTurn = keptHistory.find((h) => h.parts?.some((p) => p.functionResponse?.name === 'grep'));
       const preservedPart = toolResponseTurn!.parts![0].functionResponse;
       expect(preservedPart?.response).toEqual({ content: largeResponse });
     });
@@ -751,25 +616,15 @@ describe('ChatCompressionService', () => {
       vi.mocked(mockChat.getLastPromptTokenCount).mockReturnValue(600000);
       vi.mocked(tokenLimit).mockReturnValue(1_000_000);
 
-      const result = await service.compress(
-        mockChat,
-        mockPromptId,
-        true,
-        mockModel,
-        mockConfig,
-        false,
-      );
+      const result = await service.compress(mockChat, mockPromptId, true, mockModel, mockConfig, false);
 
       expect(result.info.compressionStatus).toBe(CompressionStatus.COMPRESSED);
 
       // 1. Verify that the summary was generated from the ORIGINAL high-fidelity history
-      const generateContentCall = vi.mocked(
-        mockConfig.getBaseLlmClient().generateContent,
-      ).mock.calls[0][0];
+      const generateContentCall = vi.mocked(mockConfig.getBaseLlmClient().generateContent).mock.calls[0][0];
       const historySentToSummarizer = generateContentCall.contents;
 
-      const summarizerGrepResponse =
-        historySentToSummarizer[0].parts![0].functionResponse;
+      const summarizerGrepResponse = historySentToSummarizer[0].parts![0].functionResponse;
       // Should be original content because total tokens < 1M
       expect(summarizerGrepResponse?.response).toEqual({
         content: massiveText,
@@ -778,12 +633,10 @@ describe('ChatCompressionService', () => {
       // 2. Verify that the PRESERVED history (the active window) IS truncated
       const keptHistory = result.newHistory!.slice(2); // Skip summary + ack
       const preservedToolTurn = keptHistory.find((h) =>
-        h.parts?.some((p) => p.functionResponse?.name === 'massive_preserved'),
+        h.parts?.some((p) => p.functionResponse?.name === 'massive_preserved')
       );
       const preservedPart = preservedToolTurn!.parts![0].functionResponse;
-      expect(preservedPart?.response?.['output']).toContain(
-        'Output too large.',
-      );
+      expect(preservedPart?.response?.['output']).toContain('Output too large.');
     });
 
     it('should fall back to truncated history for summarization when original is massive (>1M tokens)', async () => {
@@ -808,29 +661,17 @@ describe('ChatCompressionService', () => {
       vi.mocked(mockChat.getHistory).mockReturnValue(history);
       vi.mocked(tokenLimit).mockReturnValue(1_000_000);
 
-      const result = await service.compress(
-        mockChat,
-        mockPromptId,
-        true,
-        mockModel,
-        mockConfig,
-        false,
-      );
+      const result = await service.compress(mockChat, mockPromptId, true, mockModel, mockConfig, false);
 
       expect(result.info.compressionStatus).toBe(CompressionStatus.COMPRESSED);
 
       // Verify that the summary was generated from the TRUNCATED history
-      const generateContentCall = vi.mocked(
-        mockConfig.getBaseLlmClient().generateContent,
-      ).mock.calls[0][0];
+      const generateContentCall = vi.mocked(mockConfig.getBaseLlmClient().generateContent).mock.calls[0][0];
       const historySentToSummarizer = generateContentCall.contents;
 
-      const summarizerGrepResponse =
-        historySentToSummarizer[0].parts![0].functionResponse;
+      const summarizerGrepResponse = historySentToSummarizer[0].parts![0].functionResponse;
       // Should be truncated because original > 1M tokens
-      expect(summarizerGrepResponse?.response?.['output']).toContain(
-        'Output too large.',
-      );
+      expect(summarizerGrepResponse?.response?.['output']).toContain('Output too large.');
     });
   });
 });

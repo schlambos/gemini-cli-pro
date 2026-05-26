@@ -388,16 +388,7 @@ then be used to authenticate with the MCP server.
   "mcpServers": {
     "dockerizedServer": {
       "command": "docker",
-      "args": [
-        "run",
-        "-i",
-        "--rm",
-        "-e",
-        "API_KEY",
-        "-v",
-        "${PWD}:/workspace",
-        "my-mcp-server:latest"
-      ],
+      "args": ["run", "-i", "--rm", "-e", "API_KEY", "-v", "${PWD}:/workspace", "my-mcp-server:latest"],
       "env": {
         "API_KEY": "$EXTERNAL_SERVICE_TOKEN"
       }
@@ -870,7 +861,7 @@ server.registerPrompt(
         },
       },
     ],
-  }),
+  })
 );
 
 const transport = new StdioServerTransport();

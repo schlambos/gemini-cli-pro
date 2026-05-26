@@ -15,20 +15,14 @@ vi.mock('../../utils/commandUtils.js', () => ({
 
 describe('UserMessage', () => {
   it('renders normal user message with correct prefix', () => {
-    const { lastFrame } = renderWithProviders(
-      <UserMessage text="Hello Gemini" width={80} />,
-      { width: 80 },
-    );
+    const { lastFrame } = renderWithProviders(<UserMessage text='Hello Gemini' width={80} />, { width: 80 });
     const output = lastFrame();
 
     expect(output).toMatchSnapshot();
   });
 
   it('renders slash command message', () => {
-    const { lastFrame } = renderWithProviders(
-      <UserMessage text="/help" width={80} />,
-      { width: 80 },
-    );
+    const { lastFrame } = renderWithProviders(<UserMessage text='/help' width={80} />, { width: 80 });
     const output = lastFrame();
 
     expect(output).toMatchSnapshot();
@@ -36,10 +30,7 @@ describe('UserMessage', () => {
 
   it('renders multiline user message', () => {
     const message = 'Line 1\nLine 2';
-    const { lastFrame } = renderWithProviders(
-      <UserMessage text={message} width={80} />,
-      { width: 80 },
-    );
+    const { lastFrame } = renderWithProviders(<UserMessage text={message} width={80} />, { width: 80 });
     const output = lastFrame();
 
     expect(output).toMatchSnapshot();
@@ -47,10 +38,7 @@ describe('UserMessage', () => {
 
   it('transforms image paths in user message', () => {
     const message = 'Check out this image: @/path/to/my-image.png';
-    const { lastFrame } = renderWithProviders(
-      <UserMessage text={message} width={80} />,
-      { width: 80 },
-    );
+    const { lastFrame } = renderWithProviders(<UserMessage text={message} width={80} />, { width: 80 });
     const output = lastFrame();
 
     expect(output).toContain('[Image my-image.png]');

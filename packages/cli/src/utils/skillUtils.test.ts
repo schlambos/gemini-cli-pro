@@ -30,10 +30,7 @@ describe('skillUtils', () => {
       const mockSkillSourceDir = path.join(tempDir, 'mock-skill-source');
       const skillSubDir = path.join(mockSkillSourceDir, 'test-skill');
       await fs.mkdir(skillSubDir, { recursive: true });
-      await fs.writeFile(
-        path.join(skillSubDir, 'SKILL.md'),
-        '---\nname: test-skill\ndescription: test\n---\nbody',
-      );
+      await fs.writeFile(path.join(skillSubDir, 'SKILL.md'), '---\nname: test-skill\ndescription: test\n---\nbody');
 
       const skills = await linkSkill(mockSkillSourceDir, 'workspace', () => {});
       expect(skills.length).toBe(1);
@@ -51,10 +48,7 @@ describe('skillUtils', () => {
       const mockSkillSourceDir = path.join(tempDir, 'mock-skill-source');
       const skillSubDir = path.join(mockSkillSourceDir, 'test-skill');
       await fs.mkdir(skillSubDir, { recursive: true });
-      await fs.writeFile(
-        path.join(skillSubDir, 'SKILL.md'),
-        '---\nname: test-skill\ndescription: test\n---\nbody',
-      );
+      await fs.writeFile(path.join(skillSubDir, 'SKILL.md'), '---\nname: test-skill\ndescription: test\n---\nbody');
 
       const targetDir = path.join(tempDir, '.gemini/skills');
       await fs.mkdir(targetDir, { recursive: true });
@@ -72,16 +66,13 @@ describe('skillUtils', () => {
       const mockSkillSourceDir = path.join(tempDir, 'mock-skill-source');
       const skillSubDir = path.join(mockSkillSourceDir, 'test-skill');
       await fs.mkdir(skillSubDir, { recursive: true });
-      await fs.writeFile(
-        path.join(skillSubDir, 'SKILL.md'),
-        '---\nname: test-skill\ndescription: test\n---\nbody',
-      );
+      await fs.writeFile(path.join(skillSubDir, 'SKILL.md'), '---\nname: test-skill\ndescription: test\n---\nbody');
 
       const requestConsent = vi.fn().mockResolvedValue(false);
 
-      await expect(
-        linkSkill(mockSkillSourceDir, 'workspace', () => {}, requestConsent),
-      ).rejects.toThrow('Skill linking cancelled by user.');
+      await expect(linkSkill(mockSkillSourceDir, 'workspace', () => {}, requestConsent)).rejects.toThrow(
+        'Skill linking cancelled by user.'
+      );
 
       expect(requestConsent).toHaveBeenCalled();
 
@@ -99,16 +90,16 @@ describe('skillUtils', () => {
       await fs.mkdir(skillDir2, { recursive: true });
       await fs.writeFile(
         path.join(skillDir1, 'SKILL.md'),
-        '---\nname: duplicate-skill\ndescription: desc1\n---\nbody1',
+        '---\nname: duplicate-skill\ndescription: desc1\n---\nbody1'
       );
       await fs.writeFile(
         path.join(skillDir2, 'SKILL.md'),
-        '---\nname: duplicate-skill\ndescription: desc2\n---\nbody2',
+        '---\nname: duplicate-skill\ndescription: desc2\n---\nbody2'
       );
 
-      await expect(
-        linkSkill(mockSkillSourceDir, 'workspace', () => {}),
-      ).rejects.toThrow('Duplicate skill name "duplicate-skill" found');
+      await expect(linkSkill(mockSkillSourceDir, 'workspace', () => {})).rejects.toThrow(
+        'Duplicate skill name "duplicate-skill" found'
+      );
     });
   });
 
@@ -123,12 +114,7 @@ describe('skillUtils', () => {
       return;
     }
 
-    const skills = await installSkill(
-      skillPath,
-      'workspace',
-      undefined,
-      () => {},
-    );
+    const skills = await installSkill(skillPath, 'workspace', undefined, () => {});
     expect(skills.length).toBeGreaterThan(0);
     expect(skills[0].name).toBe('weather-skill');
 
@@ -137,9 +123,7 @@ describe('skillUtils', () => {
     const installedExists = await fs.stat(installedPath).catch(() => null);
     expect(installedExists?.isDirectory()).toBe(true);
 
-    const skillMdExists = await fs
-      .stat(path.join(installedPath, 'SKILL.md'))
-      .catch(() => null);
+    const skillMdExists = await fs.stat(path.join(installedPath, 'SKILL.md')).catch(() => null);
     expect(skillMdExists?.isFile()).toBe(true);
   });
 
@@ -148,17 +132,9 @@ describe('skillUtils', () => {
     const mockSkillDir = path.join(tempDir, 'mock-skill-source');
     const skillSubDir = path.join(mockSkillDir, 'test-skill');
     await fs.mkdir(skillSubDir, { recursive: true });
-    await fs.writeFile(
-      path.join(skillSubDir, 'SKILL.md'),
-      '---\nname: test-skill\ndescription: test\n---\nbody',
-    );
+    await fs.writeFile(path.join(skillSubDir, 'SKILL.md'), '---\nname: test-skill\ndescription: test\n---\nbody');
 
-    const skills = await installSkill(
-      mockSkillDir,
-      'workspace',
-      undefined,
-      () => {},
-    );
+    const skills = await installSkill(mockSkillDir, 'workspace', undefined, () => {});
     expect(skills.length).toBe(1);
     expect(skills[0].name).toBe('test-skill');
 
@@ -171,22 +147,13 @@ describe('skillUtils', () => {
     const mockSkillDir = path.join(tempDir, 'mock-skill-source');
     const skillSubDir = path.join(mockSkillDir, 'test-skill');
     await fs.mkdir(skillSubDir, { recursive: true });
-    await fs.writeFile(
-      path.join(skillSubDir, 'SKILL.md'),
-      '---\nname: test-skill\ndescription: test\n---\nbody',
-    );
+    await fs.writeFile(path.join(skillSubDir, 'SKILL.md'), '---\nname: test-skill\ndescription: test\n---\nbody');
 
     const requestConsent = vi.fn().mockResolvedValue(false);
 
-    await expect(
-      installSkill(
-        mockSkillDir,
-        'workspace',
-        undefined,
-        () => {},
-        requestConsent,
-      ),
-    ).rejects.toThrow('Skill installation cancelled by user.');
+    await expect(installSkill(mockSkillDir, 'workspace', undefined, () => {}, requestConsent)).rejects.toThrow(
+      'Skill installation cancelled by user.'
+    );
 
     expect(requestConsent).toHaveBeenCalled();
 

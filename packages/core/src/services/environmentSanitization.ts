@@ -12,11 +12,10 @@ export type EnvironmentSanitizationConfig = {
 
 export function sanitizeEnvironment(
   processEnv: NodeJS.ProcessEnv,
-  config: EnvironmentSanitizationConfig,
+  config: EnvironmentSanitizationConfig
 ): NodeJS.ProcessEnv {
   // Enable strict sanitization in GitHub actions.
-  const isStrictSanitization =
-    !!processEnv['GITHUB_SHA'] || processEnv['SURFACE'] === 'Github';
+  const isStrictSanitization = !!processEnv['GITHUB_SHA'] || processEnv['SURFACE'] === 'Github';
 
   // Always sanitize when in GitHub actions.
   if (!config.enableEnvironmentVariableRedaction && !isStrictSanitization) {
@@ -25,25 +24,13 @@ export function sanitizeEnvironment(
 
   const results: NodeJS.ProcessEnv = {};
 
-  const allowedSet = new Set(
-    (config.allowedEnvironmentVariables || []).map((k) => k.toUpperCase()),
-  );
-  const blockedSet = new Set(
-    (config.blockedEnvironmentVariables || []).map((k) => k.toUpperCase()),
-  );
+  const allowedSet = new Set((config.allowedEnvironmentVariables || []).map((k) => k.toUpperCase()));
+  const blockedSet = new Set((config.blockedEnvironmentVariables || []).map((k) => k.toUpperCase()));
 
   for (const key in processEnv) {
     const value = processEnv[key];
 
-    if (
-      !shouldRedactEnvironmentVariable(
-        key,
-        value,
-        allowedSet,
-        blockedSet,
-        isStrictSanitization,
-      )
-    ) {
+    if (!shouldRedactEnvironmentVariable(key, value, allowedSet, blockedSet, isStrictSanitization)) {
       results[key] = value;
     }
   }
@@ -51,60 +38,57 @@ export function sanitizeEnvironment(
   return results;
 }
 
-export const ALWAYS_ALLOWED_ENVIRONMENT_VARIABLES: ReadonlySet<string> =
-  new Set([
-    // Cross-platform
-    'PATH',
-    // Windows specific
-    'SYSTEMROOT',
-    'COMSPEC',
-    'PATHEXT',
-    'WINDIR',
-    'TEMP',
-    'TMP',
-    'USERPROFILE',
-    'SYSTEMDRIVE',
-    // Unix/Linux/macOS specific
-    'HOME',
-    'LANG',
-    'SHELL',
-    'TMPDIR',
-    'USER',
-    'LOGNAME',
-    // GitHub Action-related variables
-    'ADDITIONAL_CONTEXT',
-    'AVAILABLE_LABELS',
-    'BRANCH_NAME',
-    'DESCRIPTION',
-    'EVENT_NAME',
-    'GITHUB_ENV',
-    'IS_PULL_REQUEST',
-    'ISSUES_TO_TRIAGE',
-    'ISSUE_BODY',
-    'ISSUE_NUMBER',
-    'ISSUE_TITLE',
-    'PULL_REQUEST_NUMBER',
-    'REPOSITORY',
-    'TITLE',
-    'TRIGGERING_ACTOR',
-  ]);
+export const ALWAYS_ALLOWED_ENVIRONMENT_VARIABLES: ReadonlySet<string> = new Set([
+  // Cross-platform
+  'PATH',
+  // Windows specific
+  'SYSTEMROOT',
+  'COMSPEC',
+  'PATHEXT',
+  'WINDIR',
+  'TEMP',
+  'TMP',
+  'USERPROFILE',
+  'SYSTEMDRIVE',
+  // Unix/Linux/macOS specific
+  'HOME',
+  'LANG',
+  'SHELL',
+  'TMPDIR',
+  'USER',
+  'LOGNAME',
+  // GitHub Action-related variables
+  'ADDITIONAL_CONTEXT',
+  'AVAILABLE_LABELS',
+  'BRANCH_NAME',
+  'DESCRIPTION',
+  'EVENT_NAME',
+  'GITHUB_ENV',
+  'IS_PULL_REQUEST',
+  'ISSUES_TO_TRIAGE',
+  'ISSUE_BODY',
+  'ISSUE_NUMBER',
+  'ISSUE_TITLE',
+  'PULL_REQUEST_NUMBER',
+  'REPOSITORY',
+  'TITLE',
+  'TRIGGERING_ACTOR',
+]);
 
-export const NEVER_ALLOWED_ENVIRONMENT_VARIABLES: ReadonlySet<string> = new Set(
-  [
-    'CLIENT_ID',
-    'DB_URI',
-    'CONNECTION_STRING',
-    'AWS_DEFAULT_REGION',
-    'AZURE_CLIENT_ID',
-    'AZURE_TENANT_ID',
-    'SLACK_WEBHOOK_URL',
-    'TWILIO_ACCOUNT_SID',
-    'DATABASE_URL',
-    'GOOGLE_CLOUD_PROJECT',
-    'GOOGLE_CLOUD_ACCOUNT',
-    'FIREBASE_PROJECT_ID',
-  ],
-);
+export const NEVER_ALLOWED_ENVIRONMENT_VARIABLES: ReadonlySet<string> = new Set([
+  'CLIENT_ID',
+  'DB_URI',
+  'CONNECTION_STRING',
+  'AWS_DEFAULT_REGION',
+  'AZURE_CLIENT_ID',
+  'AZURE_TENANT_ID',
+  'SLACK_WEBHOOK_URL',
+  'TWILIO_ACCOUNT_SID',
+  'DATABASE_URL',
+  'GOOGLE_CLOUD_PROJECT',
+  'GOOGLE_CLOUD_ACCOUNT',
+  'FIREBASE_PROJECT_ID',
+]);
 
 export const NEVER_ALLOWED_NAME_PATTERNS = [
   /TOKEN/i,
@@ -143,7 +127,7 @@ function shouldRedactEnvironmentVariable(
   value: string | undefined,
   allowedSet?: Set<string>,
   blockedSet?: Set<string>,
-  isStrictSanitization = false,
+  isStrictSanitization = false
 ): boolean {
   key = key.toUpperCase();
   value = value?.toUpperCase();
@@ -157,10 +141,7 @@ function shouldRedactEnvironmentVariable(
   }
 
   // These are never redacted.
-  if (
-    ALWAYS_ALLOWED_ENVIRONMENT_VARIABLES.has(key) ||
-    key.startsWith('GEMINI_CLI_')
-  ) {
+  if (ALWAYS_ALLOWED_ENVIRONMENT_VARIABLES.has(key) || key.startsWith('GEMINI_CLI_')) {
     return false;
   }
 

@@ -4,12 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type {
-  Config,
-  ToolCallRequestInfo,
-  ResumedSessionData,
-  UserFeedbackPayload,
-} from '@google/gemini-cli-core';
+import type { Config, ToolCallRequestInfo, ResumedSessionData, UserFeedbackPayload } from '@google/gemini-cli-core';
 import { isSlashCommand } from './ui/utils/commandUtils.js';
 import type { LoadedSettings } from './config/settings.js';
 import {
@@ -39,12 +34,7 @@ import { convertSessionToHistoryFormats } from './ui/hooks/useSessionBrowser.js'
 import { handleSlashCommand } from './nonInteractiveCliCommands.js';
 import { ConsolePatcher } from './ui/utils/ConsolePatcher.js';
 import { handleAtCommand } from './ui/hooks/atCommandProcessor.js';
-import {
-  handleError,
-  handleToolError,
-  handleCancellationError,
-  handleMaxTurnsExceededError,
-} from './utils/errors.js';
+import { handleError, handleToolError, handleCancellationError, handleMaxTurnsExceededError } from './utils/errors.js';
 import { TextOutput } from './ui/utils/textOutput.js';
 
 interface RunNonInteractiveParams {
@@ -72,9 +62,7 @@ export async function runNonInteractive({
     });
 
     if (process.env['GEMINI_CLI_ACTIVITY_LOG_TARGET']) {
-      const { setupInitialActivityLogger } = await import(
-        './utils/devtoolsService.js'
-      );
+      const { setupInitialActivityLogger } = await import('./utils/devtoolsService.js');
       await setupInitialActivityLogger(config);
     }
 
@@ -86,18 +74,13 @@ export async function runNonInteractive({
       process.stderr.write(`[${prefix}] ${payload.message}\n`);
       if (payload.error && config.getDebugMode()) {
         const errorToLog =
-          payload.error instanceof Error
-            ? payload.error.stack || payload.error.message
-            : String(payload.error);
+          payload.error instanceof Error ? payload.error.stack || payload.error.message : String(payload.error);
         process.stderr.write(`${errorToLog}\n`);
       }
     };
 
     const startTime = Date.now();
-    const streamFormatter =
-      config.getOutputFormat() === OutputFormat.STREAM_JSON
-        ? new StreamJsonFormatter()
-        : null;
+    const streamFormatter = config.getOutputFormat() === OutputFormat.STREAM_JSON ? new StreamJsonFormatter() : null;
 
     const abortController = new AbortController();
 
@@ -130,10 +113,7 @@ export async function runNonInteractive({
       readline.emitKeypressEvents(process.stdin, rl);
 
       // Listen for Ctrl+C
-      const keypressHandler = (
-        str: string,
-        key: { name?: string; ctrl?: boolean },
-      ) => {
+      const keypressHandler = (str: string, key: { name?: string; ctrl?: boolean }) => {
         // Detect Ctrl+C: either ctrl+c key combo or raw character code 3
         if ((key && key.ctrl && key.name === 'c') || str === '\u0003') {
           // Only handle once
@@ -185,13 +165,9 @@ export async function runNonInteractive({
     try {
       consolePatcher.patch();
 
-      if (
-        config.getRawOutput() &&
-        !config.getAcceptRawOutputRisk() &&
-        config.getOutputFormat() === OutputFormat.TEXT
-      ) {
+      if (config.getRawOutput() && !config.getAcceptRawOutputRisk() && config.getOutputFormat() === OutputFormat.TEXT) {
         process.stderr.write(
-          '[WARNING] --raw-output is enabled. Model output is not sanitized and may contain harmful ANSI sequences (e.g. for phishing or command injection). Use --accept-raw-output-risk to suppress this warning.\n',
+          '[WARNING] --raw-output is enabled. Model output is not sanitized and may contain harmful ANSI sequences (e.g. for phishing or command injection). Use --accept-raw-output-risk to suppress this warning.\n'
         );
       }
 
@@ -220,10 +196,8 @@ export async function runNonInteractive({
       // Initialize chat.  Resume if resume data is passed.
       if (resumedSessionData) {
         await geminiClient.resumeChat(
-          convertSessionToHistoryFormats(
-            resumedSessionData.conversation.messages,
-          ).clientHistory,
-          resumedSessionData,
+          convertSessionToHistoryFormats(resumedSessionData.conversation.messages).clientHistory,
+          resumedSessionData
         );
       }
 
@@ -240,12 +214,7 @@ export async function runNonInteractive({
       let query: Part[] | undefined;
 
       if (isSlashCommand(input)) {
-        const slashCommandResult = await handleSlashCommand(
-          input,
-          abortController,
-          config,
-          settings,
-        );
+        const slashCommandResult = await handleSlashCommand(input, abortController, config, settings);
         // If a slash command is found and returns a prompt, use it.
         // Otherwise, slashCommandResult falls through to the default prompt
         // handling.
@@ -268,9 +237,7 @@ export async function runNonInteractive({
         if (error || !processedQuery) {
           // An error occurred during @include processing (e.g., file not found).
           // The error message is already logged by handleAtCommand.
-          throw new FatalInputError(
-            error || 'Exiting due to an error processing the @ command.',
-          );
+          throw new FatalInputError(error || 'Exiting due to an error processing the @ command.');
         }
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
         query = processedQuery as Part[];
@@ -291,10 +258,7 @@ export async function runNonInteractive({
       let turnCount = 0;
       while (true) {
         turnCount++;
-        if (
-          config.getMaxSessionTurns() >= 0 &&
-          turnCount > config.getMaxSessionTurns()
-        ) {
+        if (config.getMaxSessionTurns() >= 0 && turnCount > config.getMaxSessionTurns()) {
           handleMaxTurnsExceededError(config);
         }
         const toolCallRequests: ToolCallRequestInfo[] = [];
@@ -305,7 +269,7 @@ export async function runNonInteractive({
           prompt_id,
           undefined,
           false,
-          turnCount === 1 ? input : undefined,
+          turnCount === 1 ? input : undefined
         );
 
         let responseText = '';
@@ -315,8 +279,7 @@ export async function runNonInteractive({
           }
 
           if (event.type === GeminiEventType.Content) {
-            const isRaw =
-              config.getRawOutput() || config.getAcceptRawOutputRisk();
+            const isRaw = config.getRawOutput() || config.getAcceptRawOutputRisk();
             const output = isRaw ? event.value : stripAnsi(event.value);
             if (streamFormatter) {
               streamFormatter.emitEvent({
@@ -377,10 +340,7 @@ export async function runNonInteractive({
                 type: JsonStreamEventType.RESULT,
                 timestamp: new Date().toISOString(),
                 status: 'success',
-                stats: streamFormatter.convertToStreamStats(
-                  metrics,
-                  durationMs,
-                ),
+                stats: streamFormatter.convertToStreamStats(metrics, durationMs),
               });
             }
             return;
@@ -394,10 +354,7 @@ export async function runNonInteractive({
 
         if (toolCallRequests.length > 0) {
           textOutput.ensureTrailingNewline();
-          const completedToolCalls = await scheduler.schedule(
-            toolCallRequests,
-            abortController.signal,
-          );
+          const completedToolCalls = await scheduler.schedule(toolCallRequests, abortController.signal);
           const toolResponseParts: Part[] = [];
 
           for (const completedToolCall of completedToolCalls) {
@@ -409,12 +366,8 @@ export async function runNonInteractive({
                 type: JsonStreamEventType.TOOL_RESULT,
                 timestamp: new Date().toISOString(),
                 tool_id: requestInfo.callId,
-                status:
-                  completedToolCall.status === 'error' ? 'error' : 'success',
-                output:
-                  typeof toolResponse.resultDisplay === 'string'
-                    ? toolResponse.resultDisplay
-                    : undefined,
+                status: completedToolCall.status === 'error' ? 'error' : 'success',
+                output: typeof toolResponse.resultDisplay === 'string' ? toolResponse.resultDisplay : undefined,
                 error: toolResponse.error
                   ? {
                       type: toolResponse.errorType || 'TOOL_EXECUTION_ERROR',
@@ -430,9 +383,7 @@ export async function runNonInteractive({
                 toolResponse.error,
                 config,
                 toolResponse.errorType || 'TOOL_EXECUTION_ERROR',
-                typeof toolResponse.resultDisplay === 'string'
-                  ? toolResponse.resultDisplay
-                  : undefined,
+                typeof toolResponse.resultDisplay === 'string' ? toolResponse.resultDisplay : undefined
               );
             }
 
@@ -443,22 +394,17 @@ export async function runNonInteractive({
 
           // Record tool calls with full metadata before sending responses to Gemini
           try {
-            const currentModel =
-              geminiClient.getCurrentSequenceModel() ?? config.getModel();
-            geminiClient
-              .getChat()
-              .recordCompletedToolCalls(currentModel, completedToolCalls);
+            const currentModel = geminiClient.getCurrentSequenceModel() ?? config.getModel();
+            geminiClient.getChat().recordCompletedToolCalls(currentModel, completedToolCalls);
 
             await recordToolCallInteractions(config, completedToolCalls);
           } catch (error) {
-            debugLogger.error(
-              `Error recording completed tool call information: ${error}`,
-            );
+            debugLogger.error(`Error recording completed tool call information: ${error}`);
           }
 
           // Check if any tool requested to stop execution immediately
           const stopExecutionTool = completedToolCalls.find(
-            (tc) => tc.response.errorType === ToolErrorType.STOP_EXECUTION,
+            (tc) => tc.response.errorType === ToolErrorType.STOP_EXECUTION
           );
 
           if (stopExecutionTool && stopExecutionTool.response.error) {
@@ -476,17 +422,12 @@ export async function runNonInteractive({
                 type: JsonStreamEventType.RESULT,
                 timestamp: new Date().toISOString(),
                 status: 'success',
-                stats: streamFormatter.convertToStreamStats(
-                  metrics,
-                  durationMs,
-                ),
+                stats: streamFormatter.convertToStreamStats(metrics, durationMs),
               });
             } else if (config.getOutputFormat() === OutputFormat.JSON) {
               const formatter = new JsonFormatter();
               const stats = uiTelemetryService.getMetrics();
-              textOutput.write(
-                formatter.format(config.getSessionId(), responseText, stats),
-              );
+              textOutput.write(formatter.format(config.getSessionId(), responseText, stats));
             } else {
               textOutput.ensureTrailingNewline(); // Ensure a final newline
             }
@@ -508,9 +449,7 @@ export async function runNonInteractive({
           } else if (config.getOutputFormat() === OutputFormat.JSON) {
             const formatter = new JsonFormatter();
             const stats = uiTelemetryService.getMetrics();
-            textOutput.write(
-              formatter.format(config.getSessionId(), responseText, stats),
-            );
+            textOutput.write(formatter.format(config.getSessionId(), responseText, stats));
           } else {
             textOutput.ensureTrailingNewline(); // Ensure a final newline
           }

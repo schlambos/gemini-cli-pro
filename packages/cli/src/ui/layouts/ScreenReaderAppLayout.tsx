@@ -21,22 +21,14 @@ export const ScreenReaderAppLayout: React.FC = () => {
   useFlickerDetector(rootUiRef, terminalHeight);
 
   return (
-    <Box
-      flexDirection="column"
-      width="90%"
-      height="100%"
-      ref={uiState.rootUiRef}
-    >
+    <Box flexDirection='column' width='90%' height='100%' ref={uiState.rootUiRef}>
       <Notifications />
       <Footer />
-      <Box flexGrow={1} overflow="hidden">
+      <Box flexGrow={1} overflow='hidden'>
         <MainContent />
       </Box>
       {uiState.dialogsVisible ? (
-        <DialogManager
-          terminalWidth={uiState.terminalWidth}
-          addItem={uiState.historyManager.addItem}
-        />
+        <DialogManager terminalWidth={uiState.terminalWidth} addItem={uiState.historyManager.addItem} />
       ) : (
         <Composer />
       )}

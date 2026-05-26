@@ -4,11 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  CompressionStatus,
-  type ChatCompressionInfo,
-  type GeminiClient,
-} from '@google/gemini-cli-core';
+import { CompressionStatus, type ChatCompressionInfo, type GeminiClient } from '@google/gemini-cli-core';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { compressCommand } from './compressCommand.js';
 import { createMockCommandContext } from '../../test-utils/mockCommandContext.js';
@@ -48,7 +44,7 @@ describe('compressCommand', () => {
         type: MessageType.ERROR,
         text: 'Already compressing, wait for previous request to complete',
       }),
-      expect.any(Number),
+      expect.any(Number)
     );
     expect(context.ui.setPendingItem).not.toHaveBeenCalled();
     expect(mockTryCompressChat).not.toHaveBeenCalled();
@@ -74,10 +70,7 @@ describe('compressCommand', () => {
       },
     });
 
-    expect(mockTryCompressChat).toHaveBeenCalledWith(
-      expect.stringMatching(/^compress-\d+$/),
-      true,
-    );
+    expect(mockTryCompressChat).toHaveBeenCalledWith(expect.stringMatching(/^compress-\d+$/), true);
 
     expect(context.ui.addItem).toHaveBeenCalledWith(
       {
@@ -89,7 +82,7 @@ describe('compressCommand', () => {
           newTokenCount: 100,
         },
       },
-      expect.any(Number),
+      expect.any(Number)
     );
 
     expect(context.ui.setPendingItem).toHaveBeenNthCalledWith(2, null);
@@ -105,7 +98,7 @@ describe('compressCommand', () => {
         type: MessageType.ERROR,
         text: 'Failed to compress chat history.',
       }),
-      expect.any(Number),
+      expect.any(Number)
     );
     expect(context.ui.setPendingItem).toHaveBeenCalledWith(null);
   });
@@ -121,7 +114,7 @@ describe('compressCommand', () => {
         type: MessageType.ERROR,
         text: `Failed to compress chat history: ${error.message}`,
       }),
-      expect.any(Number),
+      expect.any(Number)
     );
     expect(context.ui.setPendingItem).toHaveBeenCalledWith(null);
   });

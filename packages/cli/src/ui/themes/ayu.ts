@@ -109,5 +109,5 @@ export const AyuDark: Theme = new Theme(
       fontStyle: 'italic',
     },
   },
-  ayuDarkColors,
+  ayuDarkColors
 );

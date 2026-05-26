@@ -59,28 +59,19 @@ export const MaxSizedBox: React.FC<MaxSizedBoxProps> = ({
         observerRef.current = observer;
       }
     },
-    [maxHeight],
+    [maxHeight]
   );
 
-  const effectiveMaxHeight =
-    maxHeight !== undefined
-      ? Math.max(Math.round(maxHeight), MINIMUM_MAX_HEIGHT)
-      : undefined;
+  const effectiveMaxHeight = maxHeight !== undefined ? Math.max(Math.round(maxHeight), MINIMUM_MAX_HEIGHT) : undefined;
 
   const isOverflowing =
-    (effectiveMaxHeight !== undefined && contentHeight > effectiveMaxHeight) ||
-    additionalHiddenLinesCount > 0;
+    (effectiveMaxHeight !== undefined && contentHeight > effectiveMaxHeight) || additionalHiddenLinesCount > 0;
 
   // If we're overflowing, we need to hide at least 1 line for the message.
   const visibleContentHeight =
-    isOverflowing && effectiveMaxHeight !== undefined
-      ? effectiveMaxHeight - 1
-      : effectiveMaxHeight;
+    isOverflowing && effectiveMaxHeight !== undefined ? effectiveMaxHeight - 1 : effectiveMaxHeight;
 
-  const hiddenLinesCount =
-    visibleContentHeight !== undefined
-      ? Math.max(0, contentHeight - visibleContentHeight)
-      : 0;
+  const hiddenLinesCount = visibleContentHeight !== undefined ? Math.max(0, contentHeight - visibleContentHeight) : 0;
 
   const totalHiddenLines = hiddenLinesCount + additionalHiddenLinesCount;
 
@@ -98,47 +89,34 @@ export const MaxSizedBox: React.FC<MaxSizedBoxProps> = ({
 
   if (effectiveMaxHeight === undefined) {
     return (
-      <Box flexDirection="column" width={maxWidth}>
+      <Box flexDirection='column' width={maxWidth}>
         {children}
       </Box>
     );
   }
 
-  const offset =
-    hiddenLinesCount > 0 && overflowDirection === 'top' ? -hiddenLinesCount : 0;
+  const offset = hiddenLinesCount > 0 && overflowDirection === 'top' ? -hiddenLinesCount : 0;
 
   return (
-    <Box
-      flexDirection="column"
-      width={maxWidth}
-      maxHeight={effectiveMaxHeight}
-      flexShrink={0}
-    >
+    <Box flexDirection='column' width={maxWidth} maxHeight={effectiveMaxHeight} flexShrink={0}>
       {totalHiddenLines > 0 && overflowDirection === 'top' && (
-        <Text color={theme.text.secondary} wrap="truncate">
-          ... first {totalHiddenLines} line{totalHiddenLines === 1 ? '' : 's'}{' '}
-          hidden ...
+        <Text color={theme.text.secondary} wrap='truncate'>
+          ... first {totalHiddenLines} line{totalHiddenLines === 1 ? '' : 's'} hidden ...
         </Text>
       )}
       <Box
-        flexDirection="column"
-        overflow="hidden"
+        flexDirection='column'
+        overflow='hidden'
         flexGrow={0}
         maxHeight={isOverflowing ? visibleContentHeight : undefined}
       >
-        <Box
-          flexDirection="column"
-          ref={onRefChange}
-          flexShrink={0}
-          marginTop={offset}
-        >
+        <Box flexDirection='column' ref={onRefChange} flexShrink={0} marginTop={offset}>
           {children}
         </Box>
       </Box>
       {totalHiddenLines > 0 && overflowDirection === 'bottom' && (
-        <Text color={theme.text.secondary} wrap="truncate">
-          ... last {totalHiddenLines} line{totalHiddenLines === 1 ? '' : 's'}{' '}
-          hidden ...
+        <Text color={theme.text.secondary} wrap='truncate'>
+          ... last {totalHiddenLines} line{totalHiddenLines === 1 ? '' : 's'} hidden ...
         </Text>
       )}
     </Box>

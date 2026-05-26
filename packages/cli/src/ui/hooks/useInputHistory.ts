@@ -38,9 +38,7 @@ export function useInputHistory({
 
   // Cache stores text and cursor offset for each history index level.
   // Level -1 is the current unsubmitted prompt.
-  const historyCacheRef = useRef<
-    Record<number, { text: string; offset: number }>
-  >({});
+  const historyCacheRef = useRef<Record<number, { text: string; offset: number }>>({});
 
   const resetHistoryNav = useCallback(() => {
     setHistoryIndex(-1);
@@ -56,7 +54,7 @@ export function useInputHistory({
       }
       resetHistoryNav();
     },
-    [onSubmit, resetHistoryNav],
+    [onSubmit, resetHistoryNav]
   );
 
   const navigateTo = useCallback(
@@ -79,15 +77,9 @@ export function useInputHistory({
       // 1. We are returning to the compose prompt (-1)
       // 2. OR we are returning to the level we occupied *just before* the current one.
       // AND in both cases, the cursor was not at the very first or last character.
-      const isReturningToPrevious =
-        nextIndex === -1 || nextIndex === previousHistoryIndexRef.current;
+      const isReturningToPrevious = nextIndex === -1 || nextIndex === previousHistoryIndexRef.current;
 
-      if (
-        isReturningToPrevious &&
-        saved &&
-        saved.offset > 0 &&
-        saved.offset < cpLen(saved.text)
-      ) {
+      if (isReturningToPrevious && saved && saved.offset > 0 && saved.offset < cpLen(saved.text)) {
         onChange(saved.text, saved.offset);
       } else if (nextIndex === -1) {
         onChange(saved ? saved.text : '', defaultCursor);
@@ -104,7 +96,7 @@ export function useInputHistory({
       // Record the level we just came from for the next navigation
       previousHistoryIndexRef.current = prevIndexBeforeMove;
     },
-    [historyIndex, currentQuery, currentCursorOffset, userMessages, onChange],
+    [historyIndex, currentQuery, currentCursorOffset, userMessages, onChange]
   );
 
   const navigateUp = useCallback(() => {

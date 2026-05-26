@@ -24,9 +24,7 @@ const requireModule = createModuleRequire(import.meta.url);
  * 2. require.resolve from process.cwd() context (for Electron packaged apps)
  * 3. Direct path in node_modules relative to process.cwd()
  */
-export async function readWasmBinaryFromDisk(
-  specifier: string,
-): Promise<Uint8Array> {
+export async function readWasmBinaryFromDisk(specifier: string): Promise<Uint8Array> {
   const errors: Error[] = [];
 
   // Strategy 1: Standard require.resolve from import.meta.url
@@ -40,9 +38,7 @@ export async function readWasmBinaryFromDisk(
 
   // Strategy 2: require.resolve from process.cwd() context (for Electron)
   try {
-    const cwdRequire = createModuleRequire(
-      path.join(process.cwd(), 'package.json'),
-    );
+    const cwdRequire = createModuleRequire(path.join(process.cwd(), 'package.json'));
     const resolvedPath = cwdRequire.resolve(specifier);
     const buffer = await fsPromises.readFile(resolvedPath);
     return new Uint8Array(buffer);
@@ -74,16 +70,13 @@ export async function readWasmBinaryFromDisk(
   }
 
   // All strategies failed
-  debugLogger.warn(
-    `Failed to load WASM file: ${specifier}`,
-    errors.map((e) => e.message).join('; '),
-  );
+  debugLogger.warn(`Failed to load WASM file: ${specifier}`, errors.map((e) => e.message).join('; '));
   throw errors[0] || new Error(`Cannot find WASM file: ${specifier}`);
 }
 
 export async function loadWasmBinary(
   dynamicImport: () => Promise<{ default: Uint8Array }>,
-  fallbackSpecifier: string,
+  fallbackSpecifier: string
 ): Promise<Uint8Array> {
   try {
     const module = await dynamicImport();
@@ -130,21 +123,11 @@ interface BOMInfo {
 export function detectBOM(buf: Buffer): BOMInfo | null {
   if (buf.length >= 4) {
     // UTF-32 LE: FF FE 00 00
-    if (
-      buf[0] === 0xff &&
-      buf[1] === 0xfe &&
-      buf[2] === 0x00 &&
-      buf[3] === 0x00
-    ) {
+    if (buf[0] === 0xff && buf[1] === 0xfe && buf[2] === 0x00 && buf[3] === 0x00) {
       return { encoding: 'utf32le', bomLength: 4 };
     }
     // UTF-32 BE: 00 00 FE FF
-    if (
-      buf[0] === 0x00 &&
-      buf[1] === 0x00 &&
-      buf[2] === 0xfe &&
-      buf[3] === 0xff
-    ) {
+    if (buf[0] === 0x00 && buf[1] === 0x00 && buf[2] === 0xfe && buf[3] === 0xff) {
       return { encoding: 'utf32be', bomLength: 4 };
     }
   }
@@ -156,11 +139,7 @@ export function detectBOM(buf: Buffer): BOMInfo | null {
   }
   if (buf.length >= 2) {
     // UTF-16 LE: FF FE  (but not UTF-32 LE already matched above)
-    if (
-      buf[0] === 0xff &&
-      buf[1] === 0xfe &&
-      (buf.length < 4 || buf[2] !== 0x00 || buf[3] !== 0x00)
-    ) {
+    if (buf[0] === 0xff && buf[1] === 0xfe && (buf.length < 4 || buf[2] !== 0x00 || buf[3] !== 0x00)) {
       return { encoding: 'utf16le', bomLength: 2 };
     }
     // UTF-16 BE: FE FF
@@ -192,16 +171,8 @@ function decodeUTF32(buf: Buffer, littleEndian: boolean): string {
   let out = '';
   for (let i = 0; i < usable; i += 4) {
     const cp = littleEndian
-      ? (buf[i] |
-          (buf[i + 1] << 8) |
-          (buf[i + 2] << 16) |
-          (buf[i + 3] << 24)) >>>
-        0
-      : (buf[i + 3] |
-          (buf[i + 2] << 8) |
-          (buf[i + 1] << 16) |
-          (buf[i] << 24)) >>>
-        0;
+      ? (buf[i] | (buf[i + 1] << 8) | (buf[i + 2] << 16) | (buf[i + 3] << 24)) >>> 0
+      : (buf[i + 3] | (buf[i + 2] << 8) | (buf[i + 1] << 16) | (buf[i] << 24)) >>> 0;
     // Valid planes: 0x0000..0x10FFFF excluding surrogates
     if (cp <= 0x10ffff && !(cp >= 0xd800 && cp <= 0xdfff)) {
       out += String.fromCodePoint(cp);
@@ -262,25 +233,18 @@ export function getSpecificMimeType(filePath: string): string | undefined {
  * @param rootDirectory The absolute root directory.
  * @returns True if the path is within the root directory, false otherwise.
  */
-export function isWithinRoot(
-  pathToCheck: string,
-  rootDirectory: string,
-): boolean {
+export function isWithinRoot(pathToCheck: string, rootDirectory: string): boolean {
   const normalizedPathToCheck = path.resolve(pathToCheck);
   const normalizedRootDirectory = path.resolve(rootDirectory);
 
   // Ensure the rootDirectory path ends with a separator for correct startsWith comparison,
   // unless it's the root path itself (e.g., '/' or 'C:\').
   const rootWithSeparator =
-    normalizedRootDirectory === path.sep ||
-    normalizedRootDirectory.endsWith(path.sep)
+    normalizedRootDirectory === path.sep || normalizedRootDirectory.endsWith(path.sep)
       ? normalizedRootDirectory
       : normalizedRootDirectory + path.sep;
 
-  return (
-    normalizedPathToCheck === normalizedRootDirectory ||
-    normalizedPathToCheck.startsWith(rootWithSeparator)
-  );
+  return normalizedPathToCheck === normalizedRootDirectory || normalizedPathToCheck.startsWith(rootWithSeparator);
 }
 
 /**
@@ -318,9 +282,7 @@ export async function isEmpty(filePath: string): Promise<boolean> {
       });
 
       const bom = detectBOM(buffer);
-      const content = bom
-        ? buffer.subarray(bom.bomLength).toString('utf8')
-        : buffer.toString('utf8');
+      const content = bom ? buffer.subarray(bom.bomLength).toString('utf8') : buffer.toString('utf8');
 
       return content.trim().length === 0;
     } finally {
@@ -367,7 +329,7 @@ export async function isBinaryFile(filePath: string): Promise<boolean> {
   } catch (error) {
     debugLogger.warn(
       `Failed to check if file is binary: ${filePath}`,
-      error instanceof Error ? error.message : String(error),
+      error instanceof Error ? error.message : String(error)
     );
     return false;
   } finally {
@@ -377,7 +339,7 @@ export async function isBinaryFile(filePath: string): Promise<boolean> {
       } catch (closeError) {
         debugLogger.warn(
           `Failed to close file handle for: ${filePath}`,
-          closeError instanceof Error ? closeError.message : String(closeError),
+          closeError instanceof Error ? closeError.message : String(closeError)
         );
       }
     }
@@ -390,7 +352,7 @@ export async function isBinaryFile(filePath: string): Promise<boolean> {
  * @returns Promise that resolves to 'text', 'image', 'pdf', 'audio', 'video', 'binary' or 'svg'.
  */
 export async function detectFileType(
-  filePath: string,
+  filePath: string
 ): Promise<'text' | 'image' | 'pdf' | 'audio' | 'video' | 'binary' | 'svg'> {
   const ext = path.extname(filePath).toLowerCase();
 
@@ -411,10 +373,7 @@ export async function detectFileType(
       return 'image';
     }
     // Verify audio/video with content check to avoid MIME misidentification (#16888)
-    if (
-      lookedUpMimeType.startsWith('audio/') ||
-      lookedUpMimeType.startsWith('video/')
-    ) {
+    if (lookedUpMimeType.startsWith('audio/') || lookedUpMimeType.startsWith('video/')) {
       if (!(await isBinaryFile(filePath))) {
         return 'text';
       }
@@ -463,14 +422,13 @@ export async function processSingleFileContent(
   rootDirectory: string,
   fileSystemService: FileSystemService,
   offset?: number,
-  limit?: number,
+  limit?: number
 ): Promise<ProcessedFileReadResult> {
   try {
     if (!fs.existsSync(filePath)) {
       // Sync check is acceptable before async read
       return {
-        llmContent:
-          'Could not read file because no file was found at the specified path.',
+        llmContent: 'Could not read file because no file was found at the specified path.',
         returnDisplay: 'File not found.',
         error: `File not found: ${filePath}`,
         errorType: ToolErrorType.FILE_NOT_FOUND,
@@ -479,8 +437,7 @@ export async function processSingleFileContent(
     const stats = await fs.promises.stat(filePath);
     if (stats.isDirectory()) {
       return {
-        llmContent:
-          'Could not read file because the provided path is a directory, not a file.',
+        llmContent: 'Could not read file because the provided path is a directory, not a file.',
         returnDisplay: 'Path is a directory.',
         error: `Path is a directory, not a file: ${filePath}`,
         errorType: ToolErrorType.TARGET_IS_DIRECTORY,
@@ -498,9 +455,7 @@ export async function processSingleFileContent(
     }
 
     const fileType = await detectFileType(filePath);
-    const relativePathForDisplay = path
-      .relative(rootDirectory, filePath)
-      .replace(/\\/g, '/');
+    const relativePathForDisplay = path.relative(rootDirectory, filePath).replace(/\\/g, '/');
 
     switch (fileType) {
       case 'binary': {
@@ -530,8 +485,7 @@ export async function processSingleFileContent(
         const originalLineCount = lines.length;
 
         const startLine = offset || 0;
-        const effectiveLimit =
-          limit === undefined ? DEFAULT_MAX_LINES_TEXT_FILE : limit;
+        const effectiveLimit = limit === undefined ? DEFAULT_MAX_LINES_TEXT_FILE : limit;
         // Ensure endLine does not exceed originalLineCount
         const endLine = Math.min(startLine + effectiveLimit, originalLineCount);
         // Ensure selectedLines doesn't try to slice beyond array bounds if startLine is too high
@@ -542,15 +496,12 @@ export async function processSingleFileContent(
         const formattedLines = selectedLines.map((line) => {
           if (line.length > MAX_LINE_LENGTH_TEXT_FILE) {
             linesWereTruncatedInLength = true;
-            return (
-              line.substring(0, MAX_LINE_LENGTH_TEXT_FILE) + '... [truncated]'
-            );
+            return line.substring(0, MAX_LINE_LENGTH_TEXT_FILE) + '... [truncated]';
           }
           return line;
         });
 
-        const contentRangeTruncated =
-          startLine > 0 || endLine < originalLineCount;
+        const contentRangeTruncated = startLine > 0 || endLine < originalLineCount;
         const isTruncated = contentRangeTruncated || linesWereTruncatedInLength;
         const llmContent = formattedLines.join('\n');
 
@@ -603,9 +554,7 @@ export async function processSingleFileContent(
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    const displayPath = path
-      .relative(rootDirectory, filePath)
-      .replace(/\\/g, '/');
+    const displayPath = path.relative(rootDirectory, filePath).replace(/\\/g, '/');
     return {
       llmContent: `Error reading file ${displayPath}: ${errorMessage}`,
       returnDisplay: `Error reading file ${displayPath}: ${errorMessage}`,
@@ -636,11 +585,7 @@ export function sanitizeFilenamePart(part: string): string {
  * Formats a truncated message for tool output.
  * Shows the first 20% and last 80% of the allowed characters with a marker in between.
  */
-export function formatTruncatedToolOutput(
-  contentStr: string,
-  outputFile: string,
-  maxChars: number,
-): string {
+export function formatTruncatedToolOutput(contentStr: string, outputFile: string, maxChars: number): string {
   if (contentStr.length <= maxChars) return contentStr;
 
   const headChars = Math.floor(maxChars * 0.2);
@@ -668,13 +613,11 @@ export async function saveTruncatedToolOutput(
   toolName: string,
   id: string | number, // Accept string (callId) or number (truncationId)
   projectTempDir: string,
-  sessionId?: string,
+  sessionId?: string
 ): Promise<{ outputFile: string }> {
   const safeToolName = sanitizeFilenamePart(toolName).toLowerCase();
   const safeId = sanitizeFilenamePart(id.toString()).toLowerCase();
-  const fileName = safeId.startsWith(safeToolName)
-    ? `${safeId}.txt`
-    : `${safeToolName}_${safeId}.txt`;
+  const fileName = safeId.startsWith(safeToolName) ? `${safeId}.txt` : `${safeToolName}_${safeId}.txt`;
 
   let toolOutputDir = path.join(projectTempDir, TOOL_OUTPUTS_DIR);
   if (sessionId) {

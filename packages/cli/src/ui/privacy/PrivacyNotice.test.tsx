@@ -7,11 +7,7 @@
 import { render } from '../../test-utils/render.js';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { PrivacyNotice } from './PrivacyNotice.js';
-import type {
-  AuthType,
-  Config,
-  ContentGeneratorConfig,
-} from '@google/gemini-cli-core';
+import type { AuthType, Config, ContentGeneratorConfig } from '@google/gemini-cli-core';
 
 // Mock child components
 vi.mock('./GeminiPrivacyNotice.js', async () => {
@@ -62,18 +58,13 @@ describe('PrivacyNotice', () => {
       authType: 'UNKNOWN' as AuthType,
       expectedComponent: 'CloudFreePrivacyNotice',
     },
-  ])(
-    'renders $expectedComponent when authType is $authType',
-    ({ authType, expectedComponent }) => {
-      vi.mocked(mockConfig.getContentGeneratorConfig).mockReturnValue({
-        authType,
-      } as unknown as ContentGeneratorConfig);
+  ])('renders $expectedComponent when authType is $authType', ({ authType, expectedComponent }) => {
+    vi.mocked(mockConfig.getContentGeneratorConfig).mockReturnValue({
+      authType,
+    } as unknown as ContentGeneratorConfig);
 
-      const { lastFrame } = render(
-        <PrivacyNotice config={mockConfig} onExit={onExit} />,
-      );
+    const { lastFrame } = render(<PrivacyNotice config={mockConfig} onExit={onExit} />);
 
-      expect(lastFrame()).toContain(expectedComponent);
-    },
-  );
+    expect(lastFrame()).toContain(expectedComponent);
+  });
 });

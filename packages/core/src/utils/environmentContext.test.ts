@@ -4,19 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  afterEach,
-  type Mock,
-} from 'vitest';
-import {
-  getEnvironmentContext,
-  getDirectoryContextString,
-} from './environmentContext.js';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
+import { getEnvironmentContext, getDirectoryContextString } from './environmentContext.js';
 import type { Config } from '../config/config.js';
 import type { Storage } from '../config/storage.js';
 import { getFolderStructure } from './getFolderStructure.js';
@@ -51,26 +40,18 @@ describe('getDirectoryContextString', () => {
     const contextString = await getDirectoryContextString(mockConfig as Config);
     expect(contextString).toContain('- **Workspace Directories:**');
     expect(contextString).toContain('  - /test/dir');
-    expect(contextString).toContain(
-      '- **Directory Structure:**\n\nMock Folder Structure',
-    );
+    expect(contextString).toContain('- **Directory Structure:**\n\nMock Folder Structure');
   });
 
   it('should return context string for multiple directories', async () => {
-    (
-      vi.mocked(mockConfig.getWorkspaceContext!)().getDirectories as Mock
-    ).mockReturnValue(['/test/dir1', '/test/dir2']);
-    vi.mocked(getFolderStructure)
-      .mockResolvedValueOnce('Structure 1')
-      .mockResolvedValueOnce('Structure 2');
+    (vi.mocked(mockConfig.getWorkspaceContext!)().getDirectories as Mock).mockReturnValue(['/test/dir1', '/test/dir2']);
+    vi.mocked(getFolderStructure).mockResolvedValueOnce('Structure 1').mockResolvedValueOnce('Structure 2');
 
     const contextString = await getDirectoryContextString(mockConfig as Config);
     expect(contextString).toContain('- **Workspace Directories:**');
     expect(contextString).toContain('  - /test/dir1');
     expect(contextString).toContain('  - /test/dir2');
-    expect(contextString).toContain(
-      '- **Directory Structure:**\n\nStructure 1\nStructure 2',
-    );
+    expect(contextString).toContain('- **Directory Structure:**\n\nStructure 1\nStructure 2');
   });
 });
 
@@ -113,9 +94,7 @@ describe('getEnvironmentContext', () => {
     expect(context).toContain('<session_context>');
     expect(context).toContain('- **Workspace Directories:**');
     expect(context).toContain('  - /test/dir');
-    expect(context).toContain(
-      '- **Directory Structure:**\n\nMock Folder Structure',
-    );
+    expect(context).toContain('- **Directory Structure:**\n\nMock Folder Structure');
     expect(context).toContain('Mock Environment Memory');
     expect(context).toContain('</session_context>');
     expect(getFolderStructure).toHaveBeenCalledWith('/test/dir', {
@@ -124,12 +103,8 @@ describe('getEnvironmentContext', () => {
   });
 
   it('should return basic environment context for multiple directories', async () => {
-    (
-      vi.mocked(mockConfig.getWorkspaceContext!)().getDirectories as Mock
-    ).mockReturnValue(['/test/dir1', '/test/dir2']);
-    vi.mocked(getFolderStructure)
-      .mockResolvedValueOnce('Structure 1')
-      .mockResolvedValueOnce('Structure 2');
+    (vi.mocked(mockConfig.getWorkspaceContext!)().getDirectories as Mock).mockReturnValue(['/test/dir1', '/test/dir2']);
+    vi.mocked(getFolderStructure).mockResolvedValueOnce('Structure 1').mockResolvedValueOnce('Structure 2');
 
     const parts = await getEnvironmentContext(mockConfig as Config);
 
@@ -140,17 +115,13 @@ describe('getEnvironmentContext', () => {
     expect(context).toContain('- **Workspace Directories:**');
     expect(context).toContain('  - /test/dir1');
     expect(context).toContain('  - /test/dir2');
-    expect(context).toContain(
-      '- **Directory Structure:**\n\nStructure 1\nStructure 2',
-    );
+    expect(context).toContain('- **Directory Structure:**\n\nStructure 1\nStructure 2');
     expect(context).toContain('</session_context>');
     expect(getFolderStructure).toHaveBeenCalledTimes(2);
   });
 
   it('should omit directory structure when getIncludeDirectoryTree is false', async () => {
-    (vi.mocked(mockConfig.getIncludeDirectoryTree!) as Mock).mockReturnValue(
-      false,
-    );
+    (vi.mocked(mockConfig.getIncludeDirectoryTree!) as Mock).mockReturnValue(false);
 
     const parts = await getEnvironmentContext(mockConfig as Config);
 

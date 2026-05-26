@@ -5,20 +5,9 @@
  */
 
 import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
-import type {
-  Counter,
-  Meter,
-  Attributes,
-  Context,
-  Histogram,
-} from '@opentelemetry/api';
+import type { Counter, Meter, Attributes, Context, Histogram } from '@opentelemetry/api';
 import type { Config } from '../config/config.js';
-import {
-  FileOperation,
-  MemoryMetricType,
-  ToolExecutionPhase,
-  ApiRequestPhase,
-} from './metrics.js';
+import { FileOperation, MemoryMetricType, ToolExecutionPhase, ApiRequestPhase } from './metrics.js';
 import { makeFakeConfig } from '../test-utils/config.js';
 import {
   ModelRoutingEvent,
@@ -28,18 +17,11 @@ import {
 } from './types.js';
 import { AgentTerminateMode } from '../agents/types.js';
 
-const mockCounterAddFn: Mock<
-  (value: number, attributes?: Attributes, context?: Context) => void
-> = vi.fn();
-const mockHistogramRecordFn: Mock<
-  (value: number, attributes?: Attributes, context?: Context) => void
-> = vi.fn();
+const mockCounterAddFn: Mock<(value: number, attributes?: Attributes, context?: Context) => void> = vi.fn();
+const mockHistogramRecordFn: Mock<(value: number, attributes?: Attributes, context?: Context) => void> = vi.fn();
 
-const mockCreateCounterFn: Mock<(name: string, options?: unknown) => Counter> =
-  vi.fn();
-const mockCreateHistogramFn: Mock<
-  (name: string, options?: unknown) => Histogram
-> = vi.fn();
+const mockCreateCounterFn: Mock<(name: string, options?: unknown) => Counter> = vi.fn();
+const mockCreateHistogramFn: Mock<(name: string, options?: unknown) => Histogram> = vi.fn();
 
 const mockCounterInstance: Counter = {
   add: mockCounterAddFn,
@@ -124,35 +106,28 @@ describe('Telemetry Metrics', () => {
     initializeMetricsModule = metricsJsModule.initializeMetrics;
     recordTokenUsageMetricsModule = metricsJsModule.recordTokenUsageMetrics;
     recordFileOperationMetricModule = metricsJsModule.recordFileOperationMetric;
-    recordChatCompressionMetricsModule =
-      metricsJsModule.recordChatCompressionMetrics;
+    recordChatCompressionMetricsModule = metricsJsModule.recordChatCompressionMetrics;
     recordModelRoutingMetricsModule = metricsJsModule.recordModelRoutingMetrics;
     recordStartupPerformanceModule = metricsJsModule.recordStartupPerformance;
     recordMemoryUsageModule = metricsJsModule.recordMemoryUsage;
     recordCpuUsageModule = metricsJsModule.recordCpuUsage;
     recordToolQueueDepthModule = metricsJsModule.recordToolQueueDepth;
-    recordToolExecutionBreakdownModule =
-      metricsJsModule.recordToolExecutionBreakdown;
+    recordToolExecutionBreakdownModule = metricsJsModule.recordToolExecutionBreakdown;
     recordTokenEfficiencyModule = metricsJsModule.recordTokenEfficiency;
     recordApiRequestBreakdownModule = metricsJsModule.recordApiRequestBreakdown;
     recordPerformanceScoreModule = metricsJsModule.recordPerformanceScore;
-    recordPerformanceRegressionModule =
-      metricsJsModule.recordPerformanceRegression;
+    recordPerformanceRegressionModule = metricsJsModule.recordPerformanceRegression;
     recordBaselineComparisonModule = metricsJsModule.recordBaselineComparison;
-    recordGenAiClientTokenUsageModule =
-      metricsJsModule.recordGenAiClientTokenUsage;
-    recordGenAiClientOperationDurationModule =
-      metricsJsModule.recordGenAiClientOperationDuration;
+    recordGenAiClientTokenUsageModule = metricsJsModule.recordGenAiClientTokenUsage;
+    recordGenAiClientOperationDurationModule = metricsJsModule.recordGenAiClientOperationDuration;
     recordFlickerFrameModule = metricsJsModule.recordFlickerFrame;
     recordExitFailModule = metricsJsModule.recordExitFail;
     recordAgentRunMetricsModule = metricsJsModule.recordAgentRunMetrics;
     recordLinesChangedModule = metricsJsModule.recordLinesChanged;
     recordSlowRenderModule = metricsJsModule.recordSlowRender;
     recordPlanExecutionModule = metricsJsModule.recordPlanExecution;
-    recordKeychainAvailabilityModule =
-      metricsJsModule.recordKeychainAvailability;
-    recordTokenStorageInitializationModule =
-      metricsJsModule.recordTokenStorageInitialization;
+    recordKeychainAvailabilityModule = metricsJsModule.recordKeychainAvailability;
+    recordTokenStorageInitializationModule = metricsJsModule.recordTokenStorageInitialization;
 
     const otelApiModule = await import('@opentelemetry/api');
 
@@ -323,26 +298,23 @@ describe('Telemetry Metrics', () => {
       { type: 'cache', tokens: 75, model: 'gemini-pro' },
       { type: 'tool', tokens: 125, model: 'gemini-pro' },
       { type: 'input', tokens: 200, model: 'gemini-different-model' },
-    ])(
-      'should record token usage for $type type with $tokens tokens for model $model',
-      ({ type, tokens, model }) => {
-        initializeMetricsModule(mockConfig);
-        mockCounterAddFn.mockClear();
+    ])('should record token usage for $type type with $tokens tokens for model $model', ({ type, tokens, model }) => {
+      initializeMetricsModule(mockConfig);
+      mockCounterAddFn.mockClear();
 
-        recordTokenUsageMetricsModule(mockConfig, tokens, {
-          model,
-          type: type as 'input' | 'output' | 'thought' | 'cache' | 'tool',
-        });
+      recordTokenUsageMetricsModule(mockConfig, tokens, {
+        model,
+        type: type as 'input' | 'output' | 'thought' | 'cache' | 'tool',
+      });
 
-        expect(mockCounterAddFn).toHaveBeenCalledWith(tokens, {
-          'session.id': 'test-session-id',
-          'installation.id': 'test-installation-id',
-          'user.email': 'test@example.com',
-          model,
-          type,
-        });
-      },
-    );
+      expect(mockCounterAddFn).toHaveBeenCalledWith(tokens, {
+        'session.id': 'test-session-id',
+        'installation.id': 'test-installation-id',
+        'user.email': 'test@example.com',
+        model,
+        type,
+      });
+    });
   });
 
   describe('recordLinesChanged metric', () => {
@@ -483,14 +455,7 @@ describe('Telemetry Metrics', () => {
     } as unknown as Config;
 
     it('should not record metrics if not initialized', () => {
-      const event = new ModelRoutingEvent(
-        'gemini-pro',
-        'default',
-        100,
-        'test-reason',
-        false,
-        undefined,
-      );
+      const event = new ModelRoutingEvent('gemini-pro', 'default', 100, 'test-reason', false, undefined);
       recordModelRoutingMetricsModule(mockConfig, event);
       expect(mockHistogramRecordFn).not.toHaveBeenCalled();
       expect(mockCounterAddFn).not.toHaveBeenCalled();
@@ -498,14 +463,7 @@ describe('Telemetry Metrics', () => {
 
     it('should record latency for a successful routing decision', () => {
       initializeMetricsModule(mockConfig);
-      const event = new ModelRoutingEvent(
-        'gemini-pro',
-        'default',
-        150,
-        'test-reason',
-        false,
-        undefined,
-      );
+      const event = new ModelRoutingEvent('gemini-pro', 'default', 150, 'test-reason', false, undefined);
       recordModelRoutingMetricsModule(mockConfig, event);
 
       expect(mockHistogramRecordFn).toHaveBeenCalledWith(150, {
@@ -523,14 +481,7 @@ describe('Telemetry Metrics', () => {
 
     it('should record latency and failure for a failed routing decision', () => {
       initializeMetricsModule(mockConfig);
-      const event = new ModelRoutingEvent(
-        'gemini-pro',
-        'Classifier',
-        200,
-        'test-reason',
-        true,
-        'test-error',
-      );
+      const event = new ModelRoutingEvent('gemini-pro', 'Classifier', 200, 'test-reason', true, 'test-error');
       recordModelRoutingMetricsModule(mockConfig, event);
 
       expect(mockHistogramRecordFn).toHaveBeenCalledWith(200, {
@@ -564,13 +515,7 @@ describe('Telemetry Metrics', () => {
     } as unknown as Config;
 
     it('should not record metrics if not initialized', () => {
-      const event = new AgentFinishEvent(
-        'agent-123',
-        'TestAgent',
-        1000,
-        5,
-        AgentTerminateMode.GOAL,
-      );
+      const event = new AgentFinishEvent('agent-123', 'TestAgent', 1000, 5, AgentTerminateMode.GOAL);
       recordAgentRunMetricsModule(mockConfig, event);
       expect(mockCounterAddFn).not.toHaveBeenCalled();
       expect(mockHistogramRecordFn).not.toHaveBeenCalled();
@@ -581,13 +526,7 @@ describe('Telemetry Metrics', () => {
       mockCounterAddFn.mockClear();
       mockHistogramRecordFn.mockClear();
 
-      const event = new AgentFinishEvent(
-        'agent-123',
-        'TestAgent',
-        1000,
-        5,
-        AgentTerminateMode.GOAL,
-      );
+      const event = new AgentFinishEvent('agent-123', 'TestAgent', 1000, 5, AgentTerminateMode.GOAL);
       recordAgentRunMetricsModule(mockConfig, event);
 
       // Verify agent run counter
@@ -886,17 +825,14 @@ describe('Telemetry Metrics', () => {
           },
         });
 
-        expect(mockHistogramRecordFn).toHaveBeenCalledWith(
-          floatingPointDuration,
-          {
-            'session.id': 'test-session-id',
-            'installation.id': 'test-installation-id',
-            'user.email': 'test@example.com',
-            phase: 'total_startup',
-            is_tty: true,
-            has_question: false,
-          },
-        );
+        expect(mockHistogramRecordFn).toHaveBeenCalledWith(floatingPointDuration, {
+          'session.id': 'test-session-id',
+          'installation.id': 'test-installation-id',
+          'user.email': 'test@example.com',
+          phase: 'total_startup',
+          is_tty: true,
+          has_question: false,
+        });
       });
     });
 
@@ -927,34 +863,28 @@ describe('Telemetry Metrics', () => {
           component: undefined,
           value: 15728640,
         },
-      ])(
-        'should record memory usage for $memory_type',
-        ({ memory_type, component, value }) => {
-          initializeMetricsModule(mockConfig);
-          mockHistogramRecordFn.mockClear();
+      ])('should record memory usage for $memory_type', ({ memory_type, component, value }) => {
+        initializeMetricsModule(mockConfig);
+        mockHistogramRecordFn.mockClear();
 
-          recordMemoryUsageModule(mockConfig, value, {
-            memory_type,
-            component,
-          });
+        recordMemoryUsageModule(mockConfig, value, {
+          memory_type,
+          component,
+        });
 
-          const expectedAttributes: Record<string, unknown> = {
-            'session.id': 'test-session-id',
-            'installation.id': 'test-installation-id',
-            'user.email': 'test@example.com',
-            memory_type,
-          };
+        const expectedAttributes: Record<string, unknown> = {
+          'session.id': 'test-session-id',
+          'installation.id': 'test-installation-id',
+          'user.email': 'test@example.com',
+          memory_type,
+        };
 
-          if (component) {
-            expectedAttributes['component'] = component;
-          }
+        if (component) {
+          expectedAttributes['component'] = component;
+        }
 
-          expect(mockHistogramRecordFn).toHaveBeenCalledWith(
-            value,
-            expectedAttributes,
-          );
-        },
-      );
+        expect(mockHistogramRecordFn).toHaveBeenCalledWith(value, expectedAttributes);
+      });
     });
 
     describe('recordCpuUsage', () => {
@@ -1379,9 +1309,7 @@ describe('Telemetry Metrics', () => {
           category: 'testing',
         });
 
-        expect(diagSpy).toHaveBeenCalledWith(
-          'Baseline value is zero, skipping comparison.',
-        );
+        expect(diagSpy).toHaveBeenCalledWith('Baseline value is zero, skipping comparison.');
         expect(mockHistogramRecordFn).not.toHaveBeenCalled();
       });
     });
@@ -1390,8 +1318,7 @@ describe('Telemetry Metrics', () => {
       let recordHookCallMetricsModule: typeof import('./metrics.js').recordHookCallMetrics;
 
       beforeEach(async () => {
-        recordHookCallMetricsModule = (await import('./metrics.js'))
-          .recordHookCallMetrics;
+        recordHookCallMetricsModule = (await import('./metrics.js')).recordHookCallMetrics;
       });
 
       it('should record hook call metrics with counter and histogram', () => {
@@ -1399,13 +1326,7 @@ describe('Telemetry Metrics', () => {
         mockCounterAddFn.mockClear();
         mockHistogramRecordFn.mockClear();
 
-        recordHookCallMetricsModule(
-          mockConfig,
-          'BeforeTool',
-          'test-hook',
-          150,
-          true,
-        );
+        recordHookCallMetricsModule(mockConfig, 'BeforeTool', 'test-hook', 150, true);
 
         // Verify counter recorded
         expect(mockCounterAddFn).toHaveBeenCalledWith(1, {
@@ -1438,7 +1359,7 @@ describe('Telemetry Metrics', () => {
           'BeforeTool',
           '/path/to/.gemini/hooks/check-secrets.sh --api-key=abc123',
           150,
-          true,
+          true
         );
 
         // Verify hook name is sanitized (detailed sanitization tested in hook-call-event.test.ts)
@@ -1457,13 +1378,7 @@ describe('Telemetry Metrics', () => {
         mockCounterAddFn.mockClear();
 
         // Success case
-        recordHookCallMetricsModule(
-          mockConfig,
-          'BeforeTool',
-          'test-hook',
-          100,
-          true,
-        );
+        recordHookCallMetricsModule(mockConfig, 'BeforeTool', 'test-hook', 100, true);
 
         expect(mockCounterAddFn).toHaveBeenNthCalledWith(
           1,
@@ -1472,17 +1387,11 @@ describe('Telemetry Metrics', () => {
             hook_event_name: 'BeforeTool',
             hook_name: 'test-hook',
             success: true,
-          }),
+          })
         );
 
         // Failure case
-        recordHookCallMetricsModule(
-          mockConfig,
-          'AfterTool',
-          'test-hook',
-          150,
-          false,
-        );
+        recordHookCallMetricsModule(mockConfig, 'AfterTool', 'test-hook', 150, false);
 
         expect(mockCounterAddFn).toHaveBeenNthCalledWith(
           2,
@@ -1491,7 +1400,7 @@ describe('Telemetry Metrics', () => {
             hook_event_name: 'AfterTool',
             hook_name: 'test-hook',
             success: false,
-          }),
+          })
         );
       });
     });

@@ -47,9 +47,7 @@ describe('SearchableList', () => {
     mockOnClose = vi.fn();
   });
 
-  const renderList = (
-    props: Partial<SearchableListProps<GenericListItem>> = {},
-  ) => {
+  const renderList = (props: Partial<SearchableListProps<GenericListItem>> = {}) => {
     const defaultProps: SearchableListProps<GenericListItem> = {
       title: 'Test List',
       items: mockItems,
@@ -61,7 +59,7 @@ describe('SearchableList', () => {
     return render(
       <KeypressProvider>
         <SearchableList {...defaultProps} />
-      </KeypressProvider>,
+      </KeypressProvider>
     );
   };
 

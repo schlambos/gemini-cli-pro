@@ -35,7 +35,7 @@ const buildShortcutItems = (): ShortcutItem[] => {
 };
 
 const Shortcut: React.FC<{ item: ShortcutItem }> = ({ item }) => (
-  <Box flexDirection="row">
+  <Box flexDirection='row'>
     <Box flexShrink={0} marginRight={1}>
       <Text color={theme.text.accent}>{item.key}</Text>
     </Box>
@@ -66,15 +66,11 @@ export const ShortcutsHelp: React.FC = () => {
       ];
 
   return (
-    <Box flexDirection="column" width="100%">
-      <SectionHeader title="Shortcuts (for more, see /help)" />
-      <Box flexDirection="row" flexWrap="wrap" paddingLeft={1} paddingRight={2}>
+    <Box flexDirection='column' width='100%'>
+      <SectionHeader title='Shortcuts (for more, see /help)' />
+      <Box flexDirection='row' flexWrap='wrap' paddingLeft={1} paddingRight={2}>
         {itemsForDisplay.map((item, index) => (
-          <Box
-            key={`${item.key}-${index}`}
-            width={isNarrow ? '100%' : '33%'}
-            paddingRight={isNarrow ? 0 : 2}
-          >
+          <Box key={`${item.key}-${index}`} width={isNarrow ? '100%' : '33%'} paddingRight={isNarrow ? 0 : 2}>
             <Shortcut item={item} />
           </Box>
         ))}

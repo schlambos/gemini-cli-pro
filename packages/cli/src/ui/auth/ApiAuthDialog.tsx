@@ -22,12 +22,7 @@ interface ApiAuthDialogProps {
   defaultValue?: string;
 }
 
-export function ApiAuthDialog({
-  onSubmit,
-  onCancel,
-  error,
-  defaultValue = '',
-}: ApiAuthDialogProps): React.JSX.Element {
+export function ApiAuthDialog({ onSubmit, onCancel, error, defaultValue = '' }: ApiAuthDialogProps): React.JSX.Element {
   const { terminalWidth } = useUIState();
   const viewportWidth = terminalWidth - 8;
 
@@ -37,7 +32,7 @@ export function ApiAuthDialog({
     () => () => {
       pendingPromise.current?.cancel();
     },
-    [],
+    []
   );
 
   const initialApiKey = defaultValue;
@@ -49,8 +44,7 @@ export function ApiAuthDialog({
       width: viewportWidth,
       height: 4,
     },
-    inputFilter: (text) =>
-      text.replace(/[^a-zA-Z0-9_-]/g, '').replace(/[\r\n]/g, ''),
+    inputFilter: (text) => text.replace(/[^a-zA-Z0-9_-]/g, '').replace(/[\r\n]/g, ''),
     singleLine: true,
   });
 
@@ -65,7 +59,7 @@ export function ApiAuthDialog({
     const wrappedPromise = new Promise<void>((resolve, reject) => {
       clearApiKey().then(
         () => !isCancelled && resolve(),
-        (error) => !isCancelled && reject(error),
+        (error) => !isCancelled && reject(error)
       );
     });
 
@@ -92,44 +86,29 @@ export function ApiAuthDialog({
       }
       return false;
     },
-    { isActive: true },
+    { isActive: true }
   );
 
   return (
-    <Box
-      borderStyle="round"
-      borderColor={theme.border.focused}
-      flexDirection="column"
-      padding={1}
-      width="100%"
-    >
+    <Box borderStyle='round' borderColor={theme.border.focused} flexDirection='column' padding={1} width='100%'>
       <Text bold color={theme.text.primary}>
         Enter Gemini API Key
       </Text>
-      <Box marginTop={1} flexDirection="column">
+      <Box marginTop={1} flexDirection='column'>
         <Text color={theme.text.primary}>
-          Please enter your Gemini API key. It will be securely stored in your
-          system keychain.
+          Please enter your Gemini API key. It will be securely stored in your system keychain.
         </Text>
         <Text color={theme.text.secondary}>
-          You can get an API key from{' '}
-          <Text color={theme.text.link}>
-            https://aistudio.google.com/app/apikey
-          </Text>
+          You can get an API key from <Text color={theme.text.link}>https://aistudio.google.com/app/apikey</Text>
         </Text>
       </Box>
-      <Box marginTop={1} flexDirection="row">
-        <Box
-          borderStyle="round"
-          borderColor={theme.border.default}
-          paddingX={1}
-          flexGrow={1}
-        >
+      <Box marginTop={1} flexDirection='row'>
+        <Box borderStyle='round' borderColor={theme.border.default} paddingX={1} flexGrow={1}>
           <TextInput
             buffer={buffer}
             onSubmit={handleSubmit}
             onCancel={onCancel}
-            placeholder="Paste your API key here"
+            placeholder='Paste your API key here'
           />
         </Box>
       </Box>
@@ -139,9 +118,7 @@ export function ApiAuthDialog({
         </Box>
       )}
       <Box marginTop={1}>
-        <Text color={theme.text.secondary}>
-          (Press Enter to submit, Esc to cancel, Ctrl+C to clear stored key)
-        </Text>
+        <Text color={theme.text.secondary}>(Press Enter to submit, Esc to cancel, Ctrl+C to clear stored key)</Text>
       </Box>
     </Box>
   );

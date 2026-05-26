@@ -9,10 +9,7 @@ import { ClassifierStrategy } from './classifierStrategy.js';
 import type { RoutingContext } from '../routingStrategy.js';
 import type { Config } from '../../config/config.js';
 import type { BaseLlmClient } from '../../core/baseLlmClient.js';
-import {
-  isFunctionCall,
-  isFunctionResponse,
-} from '../../utils/messageInspectors.js';
+import { isFunctionCall, isFunctionResponse } from '../../utils/messageInspectors.js';
 import {
   DEFAULT_GEMINI_FLASH_MODEL,
   DEFAULT_GEMINI_MODEL,
@@ -72,11 +69,7 @@ describe('ClassifierStrategy', () => {
     vi.mocked(mockConfig.getNumericalRoutingEnabled).mockResolvedValue(true);
     vi.mocked(mockConfig.getModel).mockReturnValue(PREVIEW_GEMINI_MODEL_AUTO);
 
-    const decision = await strategy.route(
-      mockContext,
-      mockConfig,
-      mockBaseLlmClient,
-    );
+    const decision = await strategy.route(mockContext, mockConfig, mockBaseLlmClient);
 
     expect(decision).toBeNull();
     expect(mockBaseLlmClient.generateJson).not.toHaveBeenCalled();
@@ -90,11 +83,7 @@ describe('ClassifierStrategy', () => {
       model_choice: 'flash',
     });
 
-    const decision = await strategy.route(
-      mockContext,
-      mockConfig,
-      mockBaseLlmClient,
-    );
+    const decision = await strategy.route(mockContext, mockConfig, mockBaseLlmClient);
 
     expect(decision).not.toBeNull();
     expect(mockBaseLlmClient.generateJson).toHaveBeenCalled();
@@ -105,9 +94,7 @@ describe('ClassifierStrategy', () => {
       reasoning: 'Simple task',
       model_choice: 'flash',
     };
-    vi.mocked(mockBaseLlmClient.generateJson).mockResolvedValue(
-      mockApiResponse,
-    );
+    vi.mocked(mockBaseLlmClient.generateJson).mockResolvedValue(mockApiResponse);
 
     await strategy.route(mockContext, mockConfig, mockBaseLlmClient);
 
@@ -115,7 +102,7 @@ describe('ClassifierStrategy', () => {
       expect.objectContaining({
         modelConfigKey: { model: mockResolvedConfig.model },
         promptId: 'test-prompt-id',
-      }),
+      })
     );
   });
 
@@ -124,15 +111,9 @@ describe('ClassifierStrategy', () => {
       reasoning: 'This is a simple task.',
       model_choice: 'flash',
     };
-    vi.mocked(mockBaseLlmClient.generateJson).mockResolvedValue(
-      mockApiResponse,
-    );
+    vi.mocked(mockBaseLlmClient.generateJson).mockResolvedValue(mockApiResponse);
 
-    const decision = await strategy.route(
-      mockContext,
-      mockConfig,
-      mockBaseLlmClient,
-    );
+    const decision = await strategy.route(mockContext, mockConfig, mockBaseLlmClient);
 
     expect(mockBaseLlmClient.generateJson).toHaveBeenCalledOnce();
     expect(decision).toEqual({
@@ -150,16 +131,10 @@ describe('ClassifierStrategy', () => {
       reasoning: 'This is a complex task.',
       model_choice: 'pro',
     };
-    vi.mocked(mockBaseLlmClient.generateJson).mockResolvedValue(
-      mockApiResponse,
-    );
+    vi.mocked(mockBaseLlmClient.generateJson).mockResolvedValue(mockApiResponse);
     mockContext.request = [{ text: 'how do I build a spaceship?' }];
 
-    const decision = await strategy.route(
-      mockContext,
-      mockConfig,
-      mockBaseLlmClient,
-    );
+    const decision = await strategy.route(mockContext, mockConfig, mockBaseLlmClient);
 
     expect(mockBaseLlmClient.generateJson).toHaveBeenCalledOnce();
     expect(decision).toEqual({
@@ -173,17 +148,11 @@ describe('ClassifierStrategy', () => {
   });
 
   it('should return null if the classifier API call fails', async () => {
-    const consoleWarnSpy = vi
-      .spyOn(debugLogger, 'warn')
-      .mockImplementation(() => {});
+    const consoleWarnSpy = vi.spyOn(debugLogger, 'warn').mockImplementation(() => {});
     const testError = new Error('API Failure');
     vi.mocked(mockBaseLlmClient.generateJson).mockRejectedValue(testError);
 
-    const decision = await strategy.route(
-      mockContext,
-      mockConfig,
-      mockBaseLlmClient,
-    );
+    const decision = await strategy.route(mockContext, mockConfig, mockBaseLlmClient);
 
     expect(decision).toBeNull();
     expect(consoleWarnSpy).toHaveBeenCalled();
@@ -191,22 +160,14 @@ describe('ClassifierStrategy', () => {
   });
 
   it('should return null if the classifier returns a malformed JSON object', async () => {
-    const consoleWarnSpy = vi
-      .spyOn(debugLogger, 'warn')
-      .mockImplementation(() => {});
+    const consoleWarnSpy = vi.spyOn(debugLogger, 'warn').mockImplementation(() => {});
     const malformedApiResponse = {
       reasoning: 'This is a simple task.',
       // model_choice is missing, which will cause a Zod parsing error.
     };
-    vi.mocked(mockBaseLlmClient.generateJson).mockResolvedValue(
-      malformedApiResponse,
-    );
+    vi.mocked(mockBaseLlmClient.generateJson).mockResolvedValue(malformedApiResponse);
 
-    const decision = await strategy.route(
-      mockContext,
-      mockConfig,
-      mockBaseLlmClient,
-    );
+    const decision = await strategy.route(mockContext, mockConfig, mockBaseLlmClient);
 
     expect(decision).toBeNull();
     expect(consoleWarnSpy).toHaveBeenCalled();
@@ -219,9 +180,7 @@ describe('ClassifierStrategy', () => {
       { role: 'model', parts: [{ functionCall: { name: 'test_tool' } }] },
       {
         role: 'user',
-        parts: [
-          { functionResponse: { name: 'test_tool', response: { ok: true } } },
-        ],
+        parts: [{ functionResponse: { name: 'test_tool', response: { ok: true } } }],
       },
       { role: 'user', parts: [{ text: 'another user turn' }] },
     ];
@@ -229,14 +188,11 @@ describe('ClassifierStrategy', () => {
       reasoning: 'Simple.',
       model_choice: 'flash',
     };
-    vi.mocked(mockBaseLlmClient.generateJson).mockResolvedValue(
-      mockApiResponse,
-    );
+    vi.mocked(mockBaseLlmClient.generateJson).mockResolvedValue(mockApiResponse);
 
     await strategy.route(mockContext, mockConfig, mockBaseLlmClient);
 
-    const generateJsonCall = vi.mocked(mockBaseLlmClient.generateJson).mock
-      .calls[0][0];
+    const generateJsonCall = vi.mocked(mockBaseLlmClient.generateJson).mock.calls[0][0];
     const contents = generateJsonCall.contents;
 
     const expectedContents = [
@@ -265,58 +221,43 @@ describe('ClassifierStrategy', () => {
       reasoning: 'Simple.',
       model_choice: 'flash',
     };
-    vi.mocked(mockBaseLlmClient.generateJson).mockResolvedValue(
-      mockApiResponse,
-    );
+    vi.mocked(mockBaseLlmClient.generateJson).mockResolvedValue(mockApiResponse);
 
     await strategy.route(mockContext, mockConfig, mockBaseLlmClient);
 
-    const generateJsonCall = vi.mocked(mockBaseLlmClient.generateJson).mock
-      .calls[0][0];
+    const generateJsonCall = vi.mocked(mockBaseLlmClient.generateJson).mock.calls[0][0];
     const contents = generateJsonCall.contents;
 
     // Manually calculate what the history should be
     const HISTORY_SEARCH_WINDOW = 20;
     const HISTORY_TURNS_FOR_CONTEXT = 4;
     const historySlice = longHistory.slice(-HISTORY_SEARCH_WINDOW);
-    const cleanHistory = historySlice.filter(
-      (content) => !isFunctionCall(content) && !isFunctionResponse(content),
-    );
+    const cleanHistory = historySlice.filter((content) => !isFunctionCall(content) && !isFunctionResponse(content));
     const finalHistory = cleanHistory.slice(-HISTORY_TURNS_FOR_CONTEXT);
 
-    expect(contents).toEqual([
-      ...finalHistory,
-      { role: 'user', parts: mockContext.request },
-    ]);
+    expect(contents).toEqual([...finalHistory, { role: 'user', parts: mockContext.request }]);
     // There should be 4 history items + the current request
     expect(contents).toHaveLength(5);
   });
 
   it('should use a fallback promptId if not found in context', async () => {
-    const consoleWarnSpy = vi
-      .spyOn(debugLogger, 'warn')
-      .mockImplementation(() => {});
+    const consoleWarnSpy = vi.spyOn(debugLogger, 'warn').mockImplementation(() => {});
     vi.spyOn(promptIdContext, 'getStore').mockReturnValue(undefined);
     const mockApiResponse = {
       reasoning: 'Simple.',
       model_choice: 'flash',
     };
-    vi.mocked(mockBaseLlmClient.generateJson).mockResolvedValue(
-      mockApiResponse,
-    );
+    vi.mocked(mockBaseLlmClient.generateJson).mockResolvedValue(mockApiResponse);
 
     await strategy.route(mockContext, mockConfig, mockBaseLlmClient);
 
-    const generateJsonCall = vi.mocked(mockBaseLlmClient.generateJson).mock
-      .calls[0][0];
+    const generateJsonCall = vi.mocked(mockBaseLlmClient.generateJson).mock.calls[0][0];
 
-    expect(generateJsonCall.promptId).toMatch(
-      /^classifier-router-fallback-\d+-\w+$/,
-    );
+    expect(generateJsonCall.promptId).toMatch(/^classifier-router-fallback-\d+-\w+$/);
     expect(consoleWarnSpy).toHaveBeenCalledWith(
       expect.stringContaining(
-        'Could not find promptId in context for classifier-router. This is unexpected. Using a fallback ID:',
-      ),
+        'Could not find promptId in context for classifier-router. This is unexpected. Using a fallback ID:'
+      )
     );
     consoleWarnSpy.mockRestore();
   });
@@ -327,20 +268,14 @@ describe('ClassifierStrategy', () => {
       reasoning: 'Choice is flash',
       model_choice: 'flash',
     };
-    vi.mocked(mockBaseLlmClient.generateJson).mockResolvedValue(
-      mockApiResponse,
-    );
+    vi.mocked(mockBaseLlmClient.generateJson).mockResolvedValue(mockApiResponse);
 
     const contextWithRequestedModel = {
       ...mockContext,
       requestedModel,
     } as RoutingContext;
 
-    const decision = await strategy.route(
-      contextWithRequestedModel,
-      mockConfig,
-      mockBaseLlmClient,
-    );
+    const decision = await strategy.route(contextWithRequestedModel, mockConfig, mockBaseLlmClient);
 
     expect(decision).not.toBeNull();
     // Since requestedModel is Pro, and choice is flash, it should resolve to Flash
@@ -355,15 +290,9 @@ describe('ClassifierStrategy', () => {
         reasoning: 'Complex task',
         model_choice: 'pro',
       };
-      vi.mocked(mockBaseLlmClient.generateJson).mockResolvedValue(
-        mockApiResponse,
-      );
+      vi.mocked(mockBaseLlmClient.generateJson).mockResolvedValue(mockApiResponse);
 
-      const decision = await strategy.route(
-        mockContext,
-        mockConfig,
-        mockBaseLlmClient,
-      );
+      const decision = await strategy.route(mockContext, mockConfig, mockBaseLlmClient);
 
       expect(decision?.model).toBe(PREVIEW_GEMINI_3_1_MODEL);
     });
@@ -378,15 +307,9 @@ describe('ClassifierStrategy', () => {
         reasoning: 'Complex task',
         model_choice: 'pro',
       };
-      vi.mocked(mockBaseLlmClient.generateJson).mockResolvedValue(
-        mockApiResponse,
-      );
+      vi.mocked(mockBaseLlmClient.generateJson).mockResolvedValue(mockApiResponse);
 
-      const decision = await strategy.route(
-        mockContext,
-        mockConfig,
-        mockBaseLlmClient,
-      );
+      const decision = await strategy.route(mockContext, mockConfig, mockBaseLlmClient);
 
       expect(decision?.model).toBe(PREVIEW_GEMINI_3_1_CUSTOM_TOOLS_MODEL);
     });

@@ -33,8 +33,7 @@ vi.mock('@google/gemini-cli-core', async () => {
   return {
     ...actual,
     getDisplayString: (val: string) => mockGetDisplayString(val),
-    logModelSlashCommand: (config: Config, event: ModelSlashCommandEvent) =>
-      mockLogModelSlashCommand(config, event),
+    logModelSlashCommand: (config: Config, event: ModelSlashCommandEvent) => mockLogModelSlashCommand(config, event),
     ModelSlashCommandEvent: class {
       constructor(model: string) {
         mockModelSlashCommandEvent(model);
@@ -80,10 +79,7 @@ describe('<ModelDialog />', () => {
     });
   });
 
-  const renderComponent = (
-    configValue = mockConfig as Config,
-    authType = AuthType.LOGIN_WITH_GOOGLE,
-  ) => {
+  const renderComponent = (configValue = mockConfig as Config, authType = AuthType.LOGIN_WITH_GOOGLE) => {
     const settings = createMockSettings({
       security: {
         auth: {
@@ -139,7 +135,7 @@ describe('<ModelDialog />', () => {
     await waitFor(() => {
       expect(mockSetModel).toHaveBeenCalledWith(
         DEFAULT_GEMINI_MODEL_AUTO,
-        true, // Session only by default
+        true // Session only by default
       );
       expect(mockOnClose).toHaveBeenCalled();
     });
@@ -189,7 +185,7 @@ describe('<ModelDialog />', () => {
     await waitFor(() => {
       expect(mockSetModel).toHaveBeenCalledWith(
         DEFAULT_GEMINI_MODEL_AUTO,
-        false, // Persist enabled
+        false // Persist enabled
       );
       expect(mockOnClose).toHaveBeenCalled();
     });
@@ -275,10 +271,7 @@ describe('<ModelDialog />', () => {
 
     it('shows Gemini 3.1 models in manual view when Gemini 3.1 IS launched', async () => {
       mockGetGemini31LaunchedSync.mockReturnValue(true);
-      const { lastFrame, stdin, unmount } = renderComponent(
-        mockConfig as Config,
-        AuthType.USE_VERTEX_AI,
-      );
+      const { lastFrame, stdin, unmount } = renderComponent(mockConfig as Config, AuthType.USE_VERTEX_AI);
 
       // Go to manual view
       await act(async () => {
@@ -298,10 +291,7 @@ describe('<ModelDialog />', () => {
 
     it('uses custom tools model when Gemini 3.1 IS launched and auth is Gemini API Key', async () => {
       mockGetGemini31LaunchedSync.mockReturnValue(true);
-      const { stdin, unmount } = renderComponent(
-        mockConfig as Config,
-        AuthType.USE_GEMINI,
-      );
+      const { stdin, unmount } = renderComponent(mockConfig as Config, AuthType.USE_GEMINI);
 
       // Go to manual view
       await act(async () => {
@@ -317,10 +307,7 @@ describe('<ModelDialog />', () => {
       });
 
       await waitFor(() => {
-        expect(mockSetModel).toHaveBeenCalledWith(
-          PREVIEW_GEMINI_3_1_CUSTOM_TOOLS_MODEL,
-          true,
-        );
+        expect(mockSetModel).toHaveBeenCalledWith(PREVIEW_GEMINI_3_1_CUSTOM_TOOLS_MODEL, true);
       });
       unmount();
     });

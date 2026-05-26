@@ -15,10 +15,7 @@ import type { CommandContext } from '../../ui/commands/types.js';
  * This processor is only used if the prompt does NOT contain {{args}}.
  */
 export class DefaultArgumentProcessor implements IPromptProcessor {
-  async process(
-    prompt: PromptPipelineContent,
-    context: CommandContext,
-  ): Promise<PromptPipelineContent> {
+  async process(prompt: PromptPipelineContent, context: CommandContext): Promise<PromptPipelineContent> {
     if (context.invocation?.args) {
       return appendToLastTextPart(prompt, context.invocation.raw);
     }

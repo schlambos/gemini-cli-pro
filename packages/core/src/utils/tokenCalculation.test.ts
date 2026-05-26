@@ -5,10 +5,7 @@
  */
 
 import { describe, it, expect, vi } from 'vitest';
-import {
-  calculateRequestTokenCount,
-  estimateTokenCountSync,
-} from './tokenCalculation.js';
+import { calculateRequestTokenCount, estimateTokenCountSync } from './tokenCalculation.js';
 import type { ContentGenerator } from '../core/contentGenerator.js';
 import type { Part } from '@google/genai';
 
@@ -26,11 +23,7 @@ describe('tokenCalculation', () => {
       });
       const request = [{ inlineData: { mimeType: 'image/png', data: 'data' } }];
 
-      const count = await calculateRequestTokenCount(
-        request,
-        mockContentGenerator,
-        model,
-      );
+      const count = await calculateRequestTokenCount(request, mockContentGenerator, model);
 
       expect(count).toBe(100);
       expect(mockContentGenerator.countTokens).toHaveBeenCalled();
@@ -40,11 +33,7 @@ describe('tokenCalculation', () => {
       vi.mocked(mockContentGenerator.countTokens).mockClear();
       const request = [{ functionCall: { name: 'foo', args: { bar: 'baz' } } }];
 
-      const count = await calculateRequestTokenCount(
-        request,
-        mockContentGenerator,
-        model,
-      );
+      const count = await calculateRequestTokenCount(request, mockContentGenerator, model);
 
       expect(count).toBeGreaterThan(0);
       expect(mockContentGenerator.countTokens).not.toHaveBeenCalled();
@@ -55,11 +44,7 @@ describe('tokenCalculation', () => {
       // 12 chars. 12 * 0.25 = 3 tokens.
       const request = 'Hello world!';
 
-      const count = await calculateRequestTokenCount(
-        request,
-        mockContentGenerator,
-        model,
-      );
+      const count = await calculateRequestTokenCount(request, mockContentGenerator, model);
 
       expect(count).toBe(3);
       expect(mockContentGenerator.countTokens).not.toHaveBeenCalled();
@@ -70,11 +55,7 @@ describe('tokenCalculation', () => {
       // 2 chars. 2 * 1.3 = 2.6 -> floor(2.6) = 2.
       const request = '你好';
 
-      const count = await calculateRequestTokenCount(
-        request,
-        mockContentGenerator,
-        model,
-      );
+      const count = await calculateRequestTokenCount(request, mockContentGenerator, model);
 
       expect(count).toBeGreaterThanOrEqual(2);
       expect(mockContentGenerator.countTokens).not.toHaveBeenCalled();
@@ -87,11 +68,7 @@ describe('tokenCalculation', () => {
       // Total: 3.1 -> 3
       const request = 'Hi你好';
 
-      const count = await calculateRequestTokenCount(
-        request,
-        mockContentGenerator,
-        model,
-      );
+      const count = await calculateRequestTokenCount(request, mockContentGenerator, model);
 
       expect(count).toBe(3);
       expect(mockContentGenerator.countTokens).not.toHaveBeenCalled();
@@ -99,46 +76,25 @@ describe('tokenCalculation', () => {
 
     it('should handle empty text', async () => {
       const request = '';
-      const count = await calculateRequestTokenCount(
-        request,
-        mockContentGenerator,
-        model,
-      );
+      const count = await calculateRequestTokenCount(request, mockContentGenerator, model);
       expect(count).toBe(0);
     });
 
     it('should fallback to local estimation when countTokens API fails', async () => {
-      vi.mocked(mockContentGenerator.countTokens).mockRejectedValue(
-        new Error('API error'),
-      );
-      const request = [
-        { text: 'Hello' },
-        { inlineData: { mimeType: 'image/png', data: 'data' } },
-      ];
+      vi.mocked(mockContentGenerator.countTokens).mockRejectedValue(new Error('API error'));
+      const request = [{ text: 'Hello' }, { inlineData: { mimeType: 'image/png', data: 'data' } }];
 
-      const count = await calculateRequestTokenCount(
-        request,
-        mockContentGenerator,
-        model,
-      );
+      const count = await calculateRequestTokenCount(request, mockContentGenerator, model);
 
       expect(count).toBe(3001);
       expect(mockContentGenerator.countTokens).toHaveBeenCalled();
     });
 
     it('should use fixed estimate for images in fallback', async () => {
-      vi.mocked(mockContentGenerator.countTokens).mockRejectedValue(
-        new Error('API error'),
-      );
-      const request = [
-        { inlineData: { mimeType: 'image/png', data: 'large_data' } },
-      ];
+      vi.mocked(mockContentGenerator.countTokens).mockRejectedValue(new Error('API error'));
+      const request = [{ inlineData: { mimeType: 'image/png', data: 'large_data' } }];
 
-      const count = await calculateRequestTokenCount(
-        request,
-        mockContentGenerator,
-        model,
-      );
+      const count = await calculateRequestTokenCount(request, mockContentGenerator, model);
 
       expect(count).toBe(3000);
     });
@@ -147,33 +103,19 @@ describe('tokenCalculation', () => {
       vi.mocked(mockContentGenerator.countTokens).mockResolvedValue({
         totalTokens: 5160,
       });
-      const request = [
-        { inlineData: { mimeType: 'application/pdf', data: 'pdf_data' } },
-      ];
+      const request = [{ inlineData: { mimeType: 'application/pdf', data: 'pdf_data' } }];
 
-      const count = await calculateRequestTokenCount(
-        request,
-        mockContentGenerator,
-        model,
-      );
+      const count = await calculateRequestTokenCount(request, mockContentGenerator, model);
 
       expect(count).toBe(5160);
       expect(mockContentGenerator.countTokens).toHaveBeenCalled();
     });
 
     it('should use fixed estimate for PDFs in fallback', async () => {
-      vi.mocked(mockContentGenerator.countTokens).mockRejectedValue(
-        new Error('API error'),
-      );
-      const request = [
-        { inlineData: { mimeType: 'application/pdf', data: 'large_pdf_data' } },
-      ];
+      vi.mocked(mockContentGenerator.countTokens).mockRejectedValue(new Error('API error'));
+      const request = [{ inlineData: { mimeType: 'application/pdf', data: 'large_pdf_data' } }];
 
-      const count = await calculateRequestTokenCount(
-        request,
-        mockContentGenerator,
-        model,
-      );
+      const count = await calculateRequestTokenCount(request, mockContentGenerator, model);
 
       // PDF estimate: 25800 tokens (~100 pages at 258 tokens/page)
       expect(count).toBe(25800);

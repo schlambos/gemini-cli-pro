@@ -9,16 +9,8 @@ import { renderWithProviders } from '../../../test-utils/render.js';
 import type { Text } from 'ink';
 import { Box } from 'ink';
 import type React from 'react';
-import {
-  RadioButtonSelect,
-  type RadioSelectItem,
-  type RadioButtonSelectProps,
-} from './RadioButtonSelect.js';
-import {
-  BaseSelectionList,
-  type BaseSelectionListProps,
-  type RenderItemContext,
-} from './BaseSelectionList.js';
+import { RadioButtonSelect, type RadioSelectItem, type RadioButtonSelectProps } from './RadioButtonSelect.js';
+import { BaseSelectionList, type BaseSelectionListProps, type RenderItemContext } from './BaseSelectionList.js';
 
 vi.mock('./BaseSelectionList.js', () => ({
   BaseSelectionList: vi.fn(() => null),
@@ -30,27 +22,19 @@ vi.mock('../../semantic-colors.js', () => ({
   },
 }));
 
-const MockedBaseSelectionList = vi.mocked(
-  BaseSelectionList,
-) as unknown as ReturnType<typeof vi.fn>;
+const MockedBaseSelectionList = vi.mocked(BaseSelectionList) as unknown as ReturnType<typeof vi.fn>;
 
-type RadioRenderItemFn = (
-  item: RadioSelectItem<string>,
-  context: RenderItemContext,
-) => React.JSX.Element;
+type RadioRenderItemFn = (item: RadioSelectItem<string>, context: RenderItemContext) => React.JSX.Element;
 const extractRenderItem = (): RadioRenderItemFn => {
   const mockCalls = MockedBaseSelectionList.mock.calls;
 
   if (mockCalls.length === 0) {
     throw new Error(
-      'BaseSelectionList was not called. Ensure RadioButtonSelect is rendered before calling extractRenderItem.',
+      'BaseSelectionList was not called. Ensure RadioButtonSelect is rendered before calling extractRenderItem.'
     );
   }
 
-  const props = mockCalls[0][0] as BaseSelectionListProps<
-    string,
-    RadioSelectItem<string>
-  >;
+  const props = mockCalls[0][0] as BaseSelectionListProps<string, RadioSelectItem<string>>;
 
   if (typeof props.renderItem !== 'function') {
     throw new Error('renderItem prop was not found on BaseSelectionList call.');
@@ -69,9 +53,7 @@ describe('RadioButtonSelect', () => {
     { label: 'Option 3', value: 'three', disabled: true, key: 'three' },
   ];
 
-  const renderComponent = (
-    props: Partial<RadioButtonSelectProps<string>> = {},
-  ) => {
+  const renderComponent = (props: Partial<RadioButtonSelectProps<string>> = {}) => {
     const defaultProps: RadioButtonSelectProps<string> = {
       items: ITEMS,
       onSelect: mockOnSelect,
@@ -105,7 +87,7 @@ describe('RadioButtonSelect', () => {
           ...props,
           renderItem: expect.any(Function),
         }),
-        undefined,
+        undefined
       );
     });
 
@@ -123,7 +105,7 @@ describe('RadioButtonSelect', () => {
           maxItemsToShow: 10,
           showNumbers: true,
         }),
-        undefined,
+        undefined
       );
     });
   });
@@ -149,9 +131,7 @@ describe('RadioButtonSelect', () => {
       expect(result.type).toBe(Box);
       const props = result.props as { children: React.ReactNode };
       const textComponent = (props.children as React.ReactElement[])[0];
-      const textProps = textComponent?.props as React.ComponentProps<
-        typeof Text
-      >;
+      const textProps = textComponent?.props as React.ComponentProps<typeof Text>;
 
       expect(textProps?.color).toBe(mockContext.titleColor);
       expect(textProps?.children).toBe('Option 1');
@@ -175,9 +155,7 @@ describe('RadioButtonSelect', () => {
       const children = result?.props?.children;
 
       if (!Array.isArray(children) || children.length < 3) {
-        throw new Error(
-          'Expected children to be an array with at least 3 elements for theme display',
-        );
+        throw new Error('Expected children to be an array with at least 3 elements for theme display');
       }
 
       expect(children[0]).toBe('Theme A');
@@ -204,9 +182,7 @@ describe('RadioButtonSelect', () => {
       expect(result.type).toBe(Box);
       const props = result.props as { children: React.ReactNode };
       const textComponent = (props.children as React.ReactElement[])[0];
-      const textProps = textComponent?.props as React.ComponentProps<
-        typeof Text
-      >;
+      const textProps = textComponent?.props as React.ComponentProps<typeof Text>;
       expect(textProps?.children).toBe('Incomplete Theme');
     });
   });

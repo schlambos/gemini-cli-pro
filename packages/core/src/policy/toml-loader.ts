@@ -41,8 +41,7 @@ const PolicyRuleSchema = z.object({
     .int({ message: 'priority must be an integer' })
     .min(0, { message: 'priority must be >= 0' })
     .max(999, {
-      message:
-        'priority must be <= 999 to prevent tier overflow. Priorities >= 1000 would jump to the next tier.',
+      message: 'priority must be <= 999 to prevent tier overflow. Priorities >= 1000 would jump to the next tier.',
     }),
   modes: z.array(z.nativeEnum(ApprovalMode)).optional(),
   allow_redirection: z.boolean().optional(),
@@ -149,10 +148,7 @@ function formatSchemaError(error: ZodError, ruleIndex: number): string {
  * Validates shell command convenience syntax rules.
  * Returns an error message if invalid, or null if valid.
  */
-function validateShellCommandSyntax(
-  rule: PolicyRuleToml,
-  ruleIndex: number,
-): string | null {
+function validateShellCommandSyntax(rule: PolicyRuleToml, ruleIndex: number): string | null {
   const hasCommandPrefix = rule.commandPrefix !== undefined;
   const hasCommandRegex = rule.commandRegex !== undefined;
   const hasArgsPattern = rule.argsPattern !== undefined;
@@ -216,7 +212,7 @@ function transformPriority(priority: number, tier: number): number {
  */
 export async function loadPoliciesFromToml(
   policyPaths: string[],
-  getPolicyTier: (path: string) => number,
+  getPolicyTier: (path: string) => number
 ): Promise<PolicyLoadResult> {
   const rules: PolicyRule[] = [];
   const checkers: SafetyCheckerRule[] = [];
@@ -282,8 +278,7 @@ export async function loadPoliciesFromToml(
             errorType: 'toml_parse',
             message: 'TOML parsing failed',
             details: error.message,
-            suggestion:
-              'Check for syntax errors like missing quotes, brackets, or commas',
+            suggestion: 'Check for syntax errors like missing quotes, brackets, or commas',
           });
           continue;
         }
@@ -298,8 +293,7 @@ export async function loadPoliciesFromToml(
             errorType: 'schema_validation',
             message: 'Schema validation failed',
             details: formatSchemaError(validationResult.error, 0),
-            suggestion:
-              'Ensure all required fields (decision, priority) are present with correct types',
+            suggestion: 'Ensure all required fields (decision, priority) are present with correct types',
           });
           continue;
         }
@@ -327,11 +321,7 @@ export async function loadPoliciesFromToml(
         // Transform rules
         const parsedRules: PolicyRule[] = (validationResult.data.rule ?? [])
           .flatMap((rule) => {
-            const argsPatterns = buildArgsPatterns(
-              rule.argsPattern,
-              rule.commandPrefix,
-              rule.commandRegex,
-            );
+            const argsPatterns = buildArgsPatterns(rule.argsPattern, rule.commandPrefix, rule.commandRegex);
 
             // For each argsPattern, expand toolName arrays
             return argsPatterns.flatMap((argsPattern) => {
@@ -377,8 +367,7 @@ export async function loadPoliciesFromToml(
                       errorType: 'regex_compilation',
                       message: 'Invalid regex pattern',
                       details: `Pattern: ${argsPattern}\nError: ${error.message}`,
-                      suggestion:
-                        'Check regex syntax for errors like unmatched brackets or invalid escape sequences',
+                      suggestion: 'Check regex syntax for errors like unmatched brackets or invalid escape sequences',
                     });
                     return null;
                   }
@@ -391,8 +380,7 @@ export async function loadPoliciesFromToml(
                       errorType: 'regex_compilation',
                       message: 'Unsafe regex pattern (potential ReDoS)',
                       details: `Pattern: ${argsPattern}`,
-                      suggestion:
-                        'Avoid nested quantifiers or extremely long patterns',
+                      suggestion: 'Avoid nested quantifiers or extremely long patterns',
                     });
                     return null;
                   }
@@ -409,15 +397,9 @@ export async function loadPoliciesFromToml(
         rules.push(...parsedRules);
 
         // Transform checkers
-        const parsedCheckers: SafetyCheckerRule[] = (
-          validationResult.data.safety_checker ?? []
-        )
+        const parsedCheckers: SafetyCheckerRule[] = (validationResult.data.safety_checker ?? [])
           .flatMap((checker) => {
-            const argsPatterns = buildArgsPatterns(
-              checker.argsPattern,
-              checker.commandPrefix,
-              checker.commandRegex,
-            );
+            const argsPatterns = buildArgsPatterns(checker.argsPattern, checker.commandPrefix, checker.commandRegex);
 
             return argsPatterns.flatMap((argsPattern) => {
               const toolNames: Array<string | undefined> = checker.toolName
@@ -467,8 +449,7 @@ export async function loadPoliciesFromToml(
                       fileName: file,
                       tier: tierName,
                       errorType: 'regex_compilation',
-                      message:
-                        'Unsafe regex pattern in safety checker (potential ReDoS)',
+                      message: 'Unsafe regex pattern in safety checker (potential ReDoS)',
                       details: `Pattern: ${argsPattern}`,
                     });
                     return null;

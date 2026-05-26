@@ -24,11 +24,7 @@ import type { Theme, ThemeType, ColorsTheme } from './theme.js';
 import type { CustomTheme } from '@google/gemini-cli-core';
 import { createCustomTheme, validateCustomTheme } from './theme.js';
 import type { SemanticColors } from './semantic-tokens.js';
-import {
-  interpolateColor,
-  getThemeTypeFromBackgroundColor,
-  resolveColor,
-} from './color-utils.js';
+import { interpolateColor, getThemeTypeFromBackgroundColor, resolveColor } from './color-utils.js';
 import { DEFAULT_BORDER_OPACITY } from '../constants.js';
 import { ANSI } from './ansi.js';
 import { ANSILight } from './ansi-light.js';
@@ -97,11 +93,7 @@ class ThemeManager {
   }
 
   isDefaultTheme(themeName: string | undefined): boolean {
-    return (
-      themeName === undefined ||
-      themeName === DEFAULT_THEME.name ||
-      themeName === DefaultLight.name
-    );
+    return themeName === undefined || themeName === DEFAULT_THEME.name || themeName === DefaultLight.name;
   }
 
   /**
@@ -115,9 +107,7 @@ class ThemeManager {
       return;
     }
 
-    for (const [name, customThemeConfig] of Object.entries(
-      customThemesSettings,
-    )) {
+    for (const [name, customThemeConfig] of Object.entries(customThemesSettings)) {
       const validation = validateCustomTheme(customThemeConfig);
       if (validation.isValid) {
         if (validation.warning) {
@@ -141,11 +131,7 @@ class ThemeManager {
       }
     }
     // If the current active theme is a settings theme, keep it if still valid
-    if (
-      this.activeTheme &&
-      this.activeTheme.type === 'custom' &&
-      this.settingsThemes.has(this.activeTheme.name)
-    ) {
+    if (this.activeTheme && this.activeTheme.type === 'custom' && this.settingsThemes.has(this.activeTheme.name)) {
       this.activeTheme = this.settingsThemes.get(this.activeTheme.name)!;
     }
   }
@@ -155,27 +141,19 @@ class ThemeManager {
    * @param extensionName The name of the extension providing the themes.
    * @param customThemes Custom themes from extensions.
    */
-  registerExtensionThemes(
-    extensionName: string,
-    customThemes?: CustomTheme[],
-  ): void {
+  registerExtensionThemes(extensionName: string, customThemes?: CustomTheme[]): void {
     if (!customThemes) {
       return;
     }
 
-    debugLogger.log(
-      `Registering extension themes for "${extensionName}":`,
-      customThemes,
-    );
+    debugLogger.log(`Registering extension themes for "${extensionName}":`, customThemes);
 
     for (const customThemeConfig of customThemes) {
       const namespacedName = `${customThemeConfig.name} (${extensionName})`;
 
       // Check for collisions with built-in themes (unlikely with prefix, but safe)
       if (this.availableThemes.some((t) => t.name === namespacedName)) {
-        debugLogger.warn(
-          `Theme name collision: "${namespacedName}" is a built-in theme. Skipping.`,
-        );
+        debugLogger.warn(`Theme name collision: "${namespacedName}" is a built-in theme. Skipping.`);
         continue;
       }
 
@@ -196,15 +174,10 @@ class ThemeManager {
           this.extensionThemes.set(namespacedName, theme);
           debugLogger.log(`Registered theme: ${namespacedName}`);
         } catch (error) {
-          debugLogger.warn(
-            `Failed to load custom theme "${namespacedName}":`,
-            error,
-          );
+          debugLogger.warn(`Failed to load custom theme "${namespacedName}":`, error);
         }
       } else {
-        debugLogger.warn(
-          `Invalid custom theme "${namespacedName}": ${validation.error}`,
-        );
+        debugLogger.warn(`Invalid custom theme "${namespacedName}": ${validation.error}`);
       }
     }
   }
@@ -214,10 +187,7 @@ class ThemeManager {
    * @param extensionName The name of the extension.
    * @param customThemes Custom themes to unregister.
    */
-  unregisterExtensionThemes(
-    extensionName: string,
-    customThemes?: CustomTheme[],
-  ): void {
+  unregisterExtensionThemes(extensionName: string, customThemes?: CustomTheme[]): void {
     if (!customThemes) {
       return;
     }
@@ -264,9 +234,7 @@ class ThemeManager {
     }
 
     if (this.activeTheme) {
-      const isBuiltIn = this.availableThemes.some(
-        (t) => t.name === this.activeTheme.name,
-      );
+      const isBuiltIn = this.availableThemes.some((t) => t.name === this.activeTheme.name);
       const isCustom =
         [...this.settingsThemes.values()].includes(this.activeTheme) ||
         [...this.extensionThemes.values()].includes(this.activeTheme) ||
@@ -303,10 +271,7 @@ class ThemeManager {
     }
 
     const colors = activeTheme.colors;
-    if (
-      this.terminalBackground &&
-      this.isThemeCompatible(activeTheme, this.terminalBackground)
-    ) {
+    if (this.terminalBackground && this.isThemeCompatible(activeTheme, this.terminalBackground)) {
       this.cachedColors = {
         ...colors,
         Background: this.terminalBackground,
@@ -332,10 +297,7 @@ class ThemeManager {
     }
 
     const semanticColors = activeTheme.semanticColors;
-    if (
-      this.terminalBackground &&
-      this.isThemeCompatible(activeTheme, this.terminalBackground)
-    ) {
+    if (this.terminalBackground && this.isThemeCompatible(activeTheme, this.terminalBackground)) {
       this.cachedSemanticColors = {
         ...semanticColors,
         background: {
@@ -344,19 +306,11 @@ class ThemeManager {
         },
         border: {
           ...semanticColors.border,
-          default: interpolateColor(
-            this.terminalBackground,
-            activeTheme.colors.Gray,
-            DEFAULT_BORDER_OPACITY,
-          ),
+          default: interpolateColor(this.terminalBackground, activeTheme.colors.Gray, DEFAULT_BORDER_OPACITY),
         },
         ui: {
           ...semanticColors.ui,
-          dark: interpolateColor(
-            activeTheme.colors.Gray,
-            this.terminalBackground,
-            0.5,
-          ),
+          dark: interpolateColor(activeTheme.colors.Gray, this.terminalBackground, 0.5),
         },
       };
     } else {
@@ -367,10 +321,7 @@ class ThemeManager {
     return this.cachedSemanticColors;
   }
 
-  isThemeCompatible(
-    activeTheme: Theme,
-    terminalBackground: string | undefined,
-  ): boolean {
+  isThemeCompatible(activeTheme: Theme, terminalBackground: string | undefined): boolean {
     if (activeTheme.type === 'ansi') {
       return true;
     }
@@ -382,10 +333,7 @@ class ThemeManager {
 
     const themeType =
       activeTheme.type === 'custom'
-        ? getThemeTypeFromBackgroundColor(
-            resolveColor(activeTheme.colors.Background) ||
-              activeTheme.colors.Background,
-          )
+        ? getThemeTypeFromBackgroundColor(resolveColor(activeTheme.colors.Background) || activeTheme.colors.Background)
         : activeTheme.type;
 
     return themeType === backgroundType;
@@ -413,11 +361,7 @@ class ThemeManager {
    * @returns True if the theme is custom.
    */
   isCustomTheme(themeName: string): boolean {
-    return (
-      this.settingsThemes.has(themeName) ||
-      this.extensionThemes.has(themeName) ||
-      this.fileThemes.has(themeName)
-    );
+    return this.settingsThemes.has(themeName) || this.extensionThemes.has(themeName) || this.fileThemes.has(themeName);
   }
 
   /**
@@ -482,11 +426,7 @@ class ThemeManager {
   }
 
   private isPath(themeName: string): boolean {
-    return (
-      themeName.endsWith('.json') ||
-      themeName.startsWith('.') ||
-      path.isAbsolute(themeName)
-    );
+    return themeName.endsWith('.json') || themeName.startsWith('.') || path.isAbsolute(themeName);
   }
 
   private loadThemeFromFile(themePath: string): Theme | undefined {
@@ -503,8 +443,7 @@ class ThemeManager {
       const homeDir = path.resolve(homedir());
       if (!canonicalPath.startsWith(homeDir)) {
         debugLogger.warn(
-          `Theme file at "${themePath}" is outside your home directory. ` +
-            `Only load themes from trusted sources.`,
+          `Theme file at "${themePath}" is outside your home directory. ` + `Only load themes from trusted sources.`
         );
         return undefined;
       }
@@ -516,9 +455,7 @@ class ThemeManager {
 
       const validation = validateCustomTheme(customThemeConfig);
       if (!validation.isValid) {
-        debugLogger.warn(
-          `Invalid custom theme from file "${themePath}": ${validation.error}`,
-        );
+        debugLogger.warn(`Invalid custom theme from file "${themePath}": ${validation.error}`);
         return undefined;
       }
 
@@ -540,13 +477,8 @@ class ThemeManager {
     } catch (error) {
       // Any error in the process (file not found, bad JSON, etc.) is caught here.
       // We can return undefined silently for file-not-found, and warn for others.
-      if (
-        !(error instanceof Error && 'code' in error && error.code === 'ENOENT')
-      ) {
-        debugLogger.warn(
-          `Could not load theme from file "${themePath}":`,
-          error,
-        );
+      if (!(error instanceof Error && 'code' in error && error.code === 'ENOENT')) {
+        debugLogger.warn(`Could not load theme from file "${themePath}":`, error);
       }
       return undefined;
     }
@@ -558,9 +490,7 @@ class ThemeManager {
     }
 
     // First check built-in themes
-    const builtInTheme = this.availableThemes.find(
-      (theme) => theme.name === themeName,
-    );
+    const builtInTheme = this.availableThemes.find((theme) => theme.name === themeName);
     if (builtInTheme) {
       return builtInTheme;
     }

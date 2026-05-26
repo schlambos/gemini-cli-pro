@@ -6,11 +6,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { Box, Text, useIsScreenReaderEnabled } from 'ink';
-import {
-  ApprovalMode,
-  checkExhaustive,
-  CoreToolCallStatus,
-} from '@google/gemini-cli-core';
+import { ApprovalMode, checkExhaustive, CoreToolCallStatus } from '@google/gemini-cli-core';
 import { LoadingIndicator } from './LoadingIndicator.js';
 import { StatusDisplay } from './StatusDisplay.js';
 import { ToastDisplay, shouldShowToast } from './ToastDisplay.js';
@@ -58,21 +54,14 @@ export const Composer = ({ isFocused = true }: { isFocused?: boolean }) => {
   const { showApprovalModeIndicator } = uiState;
   const showUiDetails = uiState.cleanUiDetailsVisible;
   const suggestionsPosition = isAlternateBuffer ? 'above' : 'below';
-  const hideContextSummary =
-    suggestionsVisible && suggestionsPosition === 'above';
+  const hideContextSummary = suggestionsVisible && suggestionsPosition === 'above';
 
   const hasPendingToolConfirmation = useMemo(
     () =>
       (uiState.pendingHistoryItems ?? [])
-        .filter(
-          (item): item is HistoryItemToolGroup => item.type === 'tool_group',
-        )
-        .some((item) =>
-          item.tools.some(
-            (tool) => tool.status === CoreToolCallStatus.AwaitingApproval,
-          ),
-        ),
-    [uiState.pendingHistoryItems],
+        .filter((item): item is HistoryItemToolGroup => item.type === 'tool_group')
+        .some((item) => item.tools.some((tool) => tool.status === CoreToolCallStatus.AwaitingApproval)),
+    [uiState.pendingHistoryItems]
   );
 
   const hasPendingActionRequired =
@@ -85,9 +74,7 @@ export const Composer = ({ isFocused = true }: { isFocused?: boolean }) => {
     Boolean(uiState.quota.validationRequest) ||
     Boolean(uiState.customDialog);
   const isPassiveShortcutsHelpState =
-    uiState.isInputActive &&
-    uiState.streamingState === StreamingState.Idle &&
-    !hasPendingActionRequired;
+    uiState.isInputActive && uiState.streamingState === StreamingState.Idle && !hasPendingActionRequired;
 
   const { setShortcutsHelpVisible } = uiActions;
 
@@ -95,25 +82,17 @@ export const Composer = ({ isFocused = true }: { isFocused?: boolean }) => {
     if (uiState.shortcutsHelpVisible && !isPassiveShortcutsHelpState) {
       setShortcutsHelpVisible(false);
     }
-  }, [
-    uiState.shortcutsHelpVisible,
-    isPassiveShortcutsHelpState,
-    setShortcutsHelpVisible,
-  ]);
+  }, [uiState.shortcutsHelpVisible, isPassiveShortcutsHelpState, setShortcutsHelpVisible]);
 
   const showShortcutsHelp =
-    uiState.shortcutsHelpVisible &&
-    uiState.streamingState === StreamingState.Idle &&
-    !hasPendingActionRequired;
+    uiState.shortcutsHelpVisible && uiState.streamingState === StreamingState.Idle && !hasPendingActionRequired;
   const hasToast = shouldShowToast(uiState);
   const showLoadingIndicator =
     (!uiState.embeddedShellFocused || uiState.isBackgroundShellVisible) &&
     uiState.streamingState === StreamingState.Responding &&
     !hasPendingActionRequired;
-  const hideUiDetailsForSuggestions =
-    suggestionsVisible && suggestionsPosition === 'above';
-  const showApprovalIndicator =
-    !uiState.shellModeActive && !hideUiDetailsForSuggestions;
+  const hideUiDetailsForSuggestions = suggestionsVisible && suggestionsPosition === 'above';
+  const showApprovalIndicator = !uiState.shellModeActive && !hideUiDetailsForSuggestions;
   const showRawMarkdownIndicator = !uiState.renderMarkdown;
   let modeBleedThrough: { text: string; color: string } | null = null;
   switch (showApprovalModeIndicator) {
@@ -135,20 +114,15 @@ export const Composer = ({ isFocused = true }: { isFocused?: boolean }) => {
       break;
   }
 
-  const hideMinimalModeHintWhileBusy =
-    !showUiDetails && (showLoadingIndicator || hasPendingActionRequired);
-  const minimalModeBleedThrough = hideMinimalModeHintWhileBusy
-    ? null
-    : modeBleedThrough;
+  const hideMinimalModeHintWhileBusy = !showUiDetails && (showLoadingIndicator || hasPendingActionRequired);
+  const minimalModeBleedThrough = hideMinimalModeHintWhileBusy ? null : modeBleedThrough;
   const hasMinimalStatusBleedThrough = shouldShowToast(uiState);
 
   const showMinimalContextBleedThrough =
     !settings.merged.ui.footer.hideContextPercentage &&
     isContextUsageHigh(
       uiState.sessionStats.lastPromptTokenCount,
-      typeof uiState.currentModel === 'string'
-        ? uiState.currentModel
-        : undefined,
+      typeof uiState.currentModel === 'string' ? uiState.currentModel : undefined
     );
   const hideShortcutsHintForSuggestions = hideUiDetailsForSuggestions;
   const showShortcutsHint =
@@ -156,44 +130,26 @@ export const Composer = ({ isFocused = true }: { isFocused?: boolean }) => {
     !hideShortcutsHintForSuggestions &&
     !hideMinimalModeHintWhileBusy &&
     !hasPendingActionRequired;
-  const showMinimalModeBleedThrough =
-    !hideUiDetailsForSuggestions && Boolean(minimalModeBleedThrough);
+  const showMinimalModeBleedThrough = !hideUiDetailsForSuggestions && Boolean(minimalModeBleedThrough);
   const showMinimalInlineLoading = !showUiDetails && showLoadingIndicator;
   const showMinimalBleedThroughRow =
-    !showUiDetails &&
-    (showMinimalModeBleedThrough ||
-      hasMinimalStatusBleedThrough ||
-      showMinimalContextBleedThrough);
+    !showUiDetails && (showMinimalModeBleedThrough || hasMinimalStatusBleedThrough || showMinimalContextBleedThrough);
   const showMinimalMetaRow =
-    !showUiDetails &&
-    (showMinimalInlineLoading ||
-      showMinimalBleedThroughRow ||
-      showShortcutsHint);
+    !showUiDetails && (showMinimalInlineLoading || showMinimalBleedThroughRow || showShortcutsHint);
 
   return (
-    <Box
-      flexDirection="column"
-      width={uiState.terminalWidth}
-      flexGrow={0}
-      flexShrink={0}
-    >
-      {(!uiState.slashCommands ||
-        !uiState.isConfigInitialized ||
-        uiState.isResuming) && (
-        <ConfigInitDisplay
-          message={uiState.isResuming ? 'Resuming session...' : undefined}
-        />
+    <Box flexDirection='column' width={uiState.terminalWidth} flexGrow={0} flexShrink={0}>
+      {(!uiState.slashCommands || !uiState.isConfigInitialized || uiState.isResuming) && (
+        <ConfigInitDisplay message={uiState.isResuming ? 'Resuming session...' : undefined} />
       )}
 
-      {showUiDetails && (
-        <QueuedMessageDisplay messageQueue={uiState.messageQueue} />
-      )}
+      {showUiDetails && <QueuedMessageDisplay messageQueue={uiState.messageQueue} />}
 
       {showUiDetails && <TodoTray />}
 
-      <Box marginTop={1} width="100%" flexDirection="column">
+      <Box marginTop={1} width='100%' flexDirection='column'>
         <Box
-          width="100%"
+          width='100%'
           flexDirection={isNarrow ? 'column' : 'row'}
           alignItems={isNarrow ? 'flex-start' : 'center'}
           justifyContent={isNarrow ? 'flex-start' : 'space-between'}
@@ -201,7 +157,7 @@ export const Composer = ({ isFocused = true }: { isFocused?: boolean }) => {
           <Box
             marginLeft={1}
             marginRight={isNarrow ? 0 : 1}
-            flexDirection="row"
+            flexDirection='row'
             alignItems={isNarrow ? 'flex-start' : 'center'}
             flexGrow={1}
           >
@@ -209,43 +165,34 @@ export const Composer = ({ isFocused = true }: { isFocused?: boolean }) => {
               <LoadingIndicator
                 inline
                 thought={
-                  uiState.streamingState ===
-                    StreamingState.WaitingForConfirmation ||
+                  uiState.streamingState === StreamingState.WaitingForConfirmation ||
                   config.getAccessibility()?.enableLoadingPhrases === false
                     ? undefined
                     : uiState.thought
                 }
                 currentLoadingPhrase={
-                  config.getAccessibility()?.enableLoadingPhrases === false
-                    ? undefined
-                    : uiState.currentLoadingPhrase
+                  config.getAccessibility()?.enableLoadingPhrases === false ? undefined : uiState.currentLoadingPhrase
                 }
-                thoughtLabel={
-                  inlineThinkingMode === 'full' ? 'Thinking ...' : undefined
-                }
+                thoughtLabel={inlineThinkingMode === 'full' ? 'Thinking ...' : undefined}
                 elapsedTime={uiState.elapsedTime}
               />
             )}
           </Box>
-          <Box
-            marginTop={isNarrow ? 1 : 0}
-            flexDirection="column"
-            alignItems={isNarrow ? 'flex-start' : 'flex-end'}
-          >
+          <Box marginTop={isNarrow ? 1 : 0} flexDirection='column' alignItems={isNarrow ? 'flex-start' : 'flex-end'}>
             {showUiDetails && showShortcutsHint && <ShortcutsHint />}
           </Box>
         </Box>
         {showMinimalMetaRow && (
           <Box
-            justifyContent="space-between"
-            width="100%"
+            justifyContent='space-between'
+            width='100%'
             flexDirection={isNarrow ? 'column' : 'row'}
             alignItems={isNarrow ? 'flex-start' : 'center'}
           >
             <Box
               marginLeft={1}
               marginRight={isNarrow ? 0 : 1}
-              flexDirection="row"
+              flexDirection='row'
               alignItems={isNarrow ? 'flex-start' : 'center'}
               flexGrow={1}
             >
@@ -253,36 +200,23 @@ export const Composer = ({ isFocused = true }: { isFocused?: boolean }) => {
                 <LoadingIndicator
                   inline
                   thought={
-                    uiState.streamingState ===
-                      StreamingState.WaitingForConfirmation ||
+                    uiState.streamingState === StreamingState.WaitingForConfirmation ||
                     config.getAccessibility()?.enableLoadingPhrases === false
                       ? undefined
                       : uiState.thought
                   }
                   currentLoadingPhrase={
-                    config.getAccessibility()?.enableLoadingPhrases === false
-                      ? undefined
-                      : uiState.currentLoadingPhrase
+                    config.getAccessibility()?.enableLoadingPhrases === false ? undefined : uiState.currentLoadingPhrase
                   }
-                  thoughtLabel={
-                    inlineThinkingMode === 'full' ? 'Thinking ...' : undefined
-                  }
+                  thoughtLabel={inlineThinkingMode === 'full' ? 'Thinking ...' : undefined}
                   elapsedTime={uiState.elapsedTime}
                 />
               )}
               {showMinimalModeBleedThrough && minimalModeBleedThrough && (
-                <Text color={minimalModeBleedThrough.color}>
-                  ● {minimalModeBleedThrough.text}
-                </Text>
+                <Text color={minimalModeBleedThrough.color}>● {minimalModeBleedThrough.text}</Text>
               )}
               {hasMinimalStatusBleedThrough && (
-                <Box
-                  marginLeft={
-                    showMinimalInlineLoading || showMinimalModeBleedThrough
-                      ? 1
-                      : 0
-                  }
-                >
+                <Box marginLeft={showMinimalInlineLoading || showMinimalModeBleedThrough ? 1 : 0}>
                   <ToastDisplay />
                 </Box>
               )}
@@ -302,12 +236,8 @@ export const Composer = ({ isFocused = true }: { isFocused?: boolean }) => {
                 )}
                 {showShortcutsHint && (
                   <Box
-                    marginLeft={
-                      showMinimalContextBleedThrough && !isNarrow ? 1 : 0
-                    }
-                    marginTop={
-                      showMinimalContextBleedThrough && isNarrow ? 1 : 0
-                    }
+                    marginLeft={showMinimalContextBleedThrough && !isNarrow ? 1 : 0}
+                    marginTop={showMinimalContextBleedThrough && isNarrow ? 1 : 0}
                   >
                     <ShortcutsHint />
                   </Box>
@@ -320,29 +250,16 @@ export const Composer = ({ isFocused = true }: { isFocused?: boolean }) => {
         {showUiDetails && <HorizontalLine />}
         {showUiDetails && (
           <Box
-            justifyContent={
-              settings.merged.ui.hideContextSummary
-                ? 'flex-start'
-                : 'space-between'
-            }
-            width="100%"
+            justifyContent={settings.merged.ui.hideContextSummary ? 'flex-start' : 'space-between'}
+            width='100%'
             flexDirection={isNarrow ? 'column' : 'row'}
             alignItems={isNarrow ? 'flex-start' : 'center'}
           >
-            <Box
-              marginLeft={1}
-              marginRight={isNarrow ? 0 : 1}
-              flexDirection="row"
-              alignItems="center"
-              flexGrow={1}
-            >
+            <Box marginLeft={1} marginRight={isNarrow ? 0 : 1} flexDirection='row' alignItems='center' flexGrow={1}>
               {hasToast ? (
                 <ToastDisplay />
               ) : (
-                <Box
-                  flexDirection={isNarrow ? 'column' : 'row'}
-                  alignItems={isNarrow ? 'flex-start' : 'center'}
-                >
+                <Box flexDirection={isNarrow ? 'column' : 'row'} alignItems={isNarrow ? 'flex-start' : 'center'}>
                   {showApprovalIndicator && (
                     <ApprovalModeIndicator
                       approvalMode={showApprovalModeIndicator}
@@ -353,9 +270,7 @@ export const Composer = ({ isFocused = true }: { isFocused?: boolean }) => {
                     <>
                       {uiState.shellModeActive && (
                         <Box
-                          marginLeft={
-                            showApprovalIndicator && !isNarrow ? 1 : 0
-                          }
+                          marginLeft={showApprovalIndicator && !isNarrow ? 1 : 0}
                           marginTop={showApprovalIndicator && isNarrow ? 1 : 0}
                         >
                           <ShellModeIndicator />
@@ -363,20 +278,8 @@ export const Composer = ({ isFocused = true }: { isFocused?: boolean }) => {
                       )}
                       {showRawMarkdownIndicator && (
                         <Box
-                          marginLeft={
-                            (showApprovalIndicator ||
-                              uiState.shellModeActive) &&
-                            !isNarrow
-                              ? 1
-                              : 0
-                          }
-                          marginTop={
-                            (showApprovalIndicator ||
-                              uiState.shellModeActive) &&
-                            isNarrow
-                              ? 1
-                              : 0
-                          }
+                          marginLeft={(showApprovalIndicator || uiState.shellModeActive) && !isNarrow ? 1 : 0}
+                          marginTop={(showApprovalIndicator || uiState.shellModeActive) && isNarrow ? 1 : 0}
                         >
                           <RawMarkdownIndicator />
                         </Box>
@@ -387,14 +290,8 @@ export const Composer = ({ isFocused = true }: { isFocused?: boolean }) => {
               )}
             </Box>
 
-            <Box
-              marginTop={isNarrow ? 1 : 0}
-              flexDirection="column"
-              alignItems={isNarrow ? 'flex-start' : 'flex-end'}
-            >
-              {!showLoadingIndicator && (
-                <StatusDisplay hideContextSummary={hideContextSummary} />
-              )}
+            <Box marginTop={isNarrow ? 1 : 0} flexDirection='column' alignItems={isNarrow ? 'flex-start' : 'flex-end'}>
+              {!showLoadingIndicator && <StatusDisplay hideContextSummary={hideContextSummary} />}
             </Box>
           </Box>
         )}
@@ -402,12 +299,10 @@ export const Composer = ({ isFocused = true }: { isFocused?: boolean }) => {
 
       {showUiDetails && uiState.showErrorDetails && (
         <OverflowProvider>
-          <Box flexDirection="column">
+          <Box flexDirection='column'>
             <DetailedMessagesDisplay
               messages={uiState.filteredConsoleMessages}
-              maxHeight={
-                uiState.constrainHeight ? debugConsoleMaxHeight : undefined
-              }
+              maxHeight={uiState.constrainHeight ? debugConsoleMaxHeight : undefined}
               width={uiState.terminalWidth}
               hasFocus={uiState.showErrorDetails}
             />
@@ -452,9 +347,7 @@ export const Composer = ({ isFocused = true }: { isFocused?: boolean }) => {
         />
       )}
 
-      {showUiDetails &&
-        !settings.merged.ui.hideFooter &&
-        !isScreenReaderEnabled && <Footer />}
+      {showUiDetails && !settings.merged.ui.hideFooter && !isScreenReaderEnabled && <Footer />}
     </Box>
   );
 };

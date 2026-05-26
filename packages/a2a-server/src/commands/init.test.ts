@@ -18,8 +18,7 @@ import type { CommandActionReturn, Config } from '@google/gemini-cli-core';
 import { logger } from '../utils/logger.js';
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     performInit: vi.fn(),
@@ -101,7 +100,7 @@ describe('InitCommand', () => {
               parts: [{ kind: 'text', text: 'GEMINI.md already exists.' }],
             }),
           }),
-        }),
+        })
       );
 
       expect(publishSpy).toHaveBeenCalledWith(
@@ -113,7 +112,7 @@ describe('InitCommand', () => {
               parts: [{ kind: 'text', text: 'GEMINI.md already exists.' }],
             }),
           }),
-        }),
+        })
       );
     });
 
@@ -135,7 +134,7 @@ describe('InitCommand', () => {
               parts: [{ kind: 'text', text: 'An error occurred.' }],
             }),
           }),
-        }),
+        })
       );
     });
 
@@ -150,11 +149,7 @@ describe('InitCommand', () => {
       it('writes the file and executes the agent', async () => {
         await command.execute(context, []);
 
-        expect(fs.writeFileSync).toHaveBeenCalledWith(
-          path.join(mockWorkspacePath, 'GEMINI.md'),
-          '',
-          'utf8',
-        );
+        expect(fs.writeFileSync).toHaveBeenCalledWith(path.join(mockWorkspacePath, 'GEMINI.md'), '', 'utf8');
         expect(mockExecute).toHaveBeenCalled();
       });
 
@@ -178,7 +173,7 @@ describe('InitCommand', () => {
               },
             }),
           }),
-          eventBus,
+          eventBus
         );
       });
     });

@@ -7,11 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderWithProviders } from '../../../test-utils/render.js';
 import { waitFor } from '../../../test-utils/async.js';
-import {
-  BaseSelectionList,
-  type BaseSelectionListProps,
-  type RenderItemContext,
-} from './BaseSelectionList.js';
+import { BaseSelectionList, type BaseSelectionListProps, type RenderItemContext } from './BaseSelectionList.js';
 import { useSelectionList } from '../../hooks/useSelectionList.js';
 import { Text } from 'ink';
 import type { theme } from '../../semantic-colors.js';
@@ -44,12 +40,9 @@ describe('BaseSelectionList', () => {
   // Helper to render the component with default props
   const renderComponent = (
     props: Partial<
-      BaseSelectionListProps<
-        string,
-        { value: string; label: string; disabled?: boolean; key: string }
-      >
+      BaseSelectionListProps<string, { value: string; label: string; disabled?: boolean; key: string }>
     > = {},
-    activeIndex: number = 0,
+    activeIndex: number = 0
   ) => {
     vi.mocked(useSelectionList).mockReturnValue({
       activeIndex,
@@ -57,10 +50,9 @@ describe('BaseSelectionList', () => {
     });
 
     mockRenderItem.mockImplementation(
-      (
-        item: { value: string; label: string; disabled?: boolean; key: string },
-        context: RenderItemContext,
-      ) => <Text color={context.titleColor}>{item.label}</Text>,
+      (item: { value: string; label: string; disabled?: boolean; key: string }, context: RenderItemContext) => (
+        <Text color={context.titleColor}>{item.label}</Text>
+      )
     );
 
     const defaultProps: BaseSelectionListProps<
@@ -132,14 +124,8 @@ describe('BaseSelectionList', () => {
     it('should use the activeIndex returned by the hook', () => {
       renderComponent({}, 2); // Active index is C
 
-      expect(mockRenderItem).toHaveBeenCalledWith(
-        items[0],
-        expect.objectContaining({ isSelected: false }),
-      );
-      expect(mockRenderItem).toHaveBeenCalledWith(
-        items[2],
-        expect.objectContaining({ isSelected: true }),
-      );
+      expect(mockRenderItem).toHaveBeenCalledWith(items[0], expect.objectContaining({ isSelected: false }));
+      expect(mockRenderItem).toHaveBeenCalledWith(items[2], expect.objectContaining({ isSelected: true }));
     });
   });
 
@@ -154,7 +140,7 @@ describe('BaseSelectionList', () => {
           titleColor: mockTheme.status.success,
           numberColor: mockTheme.status.success,
           isSelected: true,
-        }),
+        })
       );
     });
 
@@ -168,7 +154,7 @@ describe('BaseSelectionList', () => {
           titleColor: mockTheme.text.primary,
           numberColor: mockTheme.text.primary,
           isSelected: false,
-        }),
+        })
       );
     });
 
@@ -182,7 +168,7 @@ describe('BaseSelectionList', () => {
           titleColor: mockTheme.text.secondary,
           numberColor: mockTheme.text.secondary,
           isSelected: false,
-        }),
+        })
       );
     });
 
@@ -197,7 +183,7 @@ describe('BaseSelectionList', () => {
           titleColor: mockTheme.status.success,
           numberColor: mockTheme.status.success,
           isSelected: true,
-        }),
+        })
       );
     });
   });
@@ -250,7 +236,7 @@ describe('BaseSelectionList', () => {
           isSelected: true,
           titleColor: mockTheme.status.success,
           numberColor: mockTheme.text.secondary,
-        }),
+        })
       );
     });
   });
@@ -265,10 +251,7 @@ describe('BaseSelectionList', () => {
 
     const renderScrollableList = (initialActiveIndex: number = 0) => {
       // Define the props used for the initial render and subsequent rerenders
-      const componentProps: BaseSelectionListProps<
-        string,
-        { value: string; label: string; key: string }
-      > = {
+      const componentProps: BaseSelectionListProps<string, { value: string; label: string; key: string }> = {
         items: longList,
         maxItemsToShow: MAX_ITEMS,
         onSelect: mockOnSelect,
@@ -281,15 +264,11 @@ describe('BaseSelectionList', () => {
         setActiveIndex: vi.fn(),
       });
 
-      mockRenderItem.mockImplementation(
-        (item: (typeof longList)[0], context: RenderItemContext) => (
-          <Text color={context.titleColor}>{item.label}</Text>
-        ),
-      );
+      mockRenderItem.mockImplementation((item: (typeof longList)[0], context: RenderItemContext) => (
+        <Text color={context.titleColor}>{item.label}</Text>
+      ));
 
-      const { rerender, lastFrame } = renderWithProviders(
-        <BaseSelectionList {...componentProps} />,
-      );
+      const { rerender, lastFrame } = renderWithProviders(<BaseSelectionList {...componentProps} />);
 
       // Function to simulate the activeIndex changing over time
       const updateActiveIndex = async (newIndex: number) => {
@@ -404,12 +383,12 @@ describe('BaseSelectionList', () => {
 
       expect(mockRenderItem).toHaveBeenCalledWith(
         expect.objectContaining({ value: 'Item 1' }),
-        expect.objectContaining({ isSelected: false }),
+        expect.objectContaining({ isSelected: false })
       );
 
       expect(mockRenderItem).toHaveBeenCalledWith(
         expect.objectContaining({ value: 'Item 2' }),
-        expect.objectContaining({ isSelected: true }),
+        expect.objectContaining({ isSelected: true })
       );
     });
 
@@ -420,22 +399,19 @@ describe('BaseSelectionList', () => {
         // Item 6 (index 5) should be selected
         expect(mockRenderItem).toHaveBeenCalledWith(
           expect.objectContaining({ value: 'Item 6' }),
-          expect.objectContaining({ isSelected: true }),
+          expect.objectContaining({ isSelected: true })
         );
 
         // Item 4 (index 3) should not be selected
         expect(mockRenderItem).toHaveBeenCalledWith(
           expect.objectContaining({ value: 'Item 4' }),
-          expect.objectContaining({ isSelected: false }),
+          expect.objectContaining({ isSelected: false })
         );
       });
     });
 
     it('should handle maxItemsToShow larger than the list length', () => {
-      const { lastFrame } = renderComponent(
-        { items: longList, maxItemsToShow: 15 },
-        0,
-      );
+      const { lastFrame } = renderComponent({ items: longList, maxItemsToShow: 15 }, 0);
       const output = lastFrame();
 
       // Should show all available items (10 items)
@@ -471,7 +447,7 @@ describe('BaseSelectionList', () => {
           maxItemsToShow: MAX_ITEMS,
           showScrollArrows: true,
         },
-        0,
+        0
       );
 
       await waitFor(() => {
@@ -480,10 +456,7 @@ describe('BaseSelectionList', () => {
     });
 
     it('should show arrows and correct items when scrolled to the middle', async () => {
-      const { lastFrame } = renderComponent(
-        { items: longList, maxItemsToShow: MAX_ITEMS, showScrollArrows: true },
-        5,
-      );
+      const { lastFrame } = renderComponent({ items: longList, maxItemsToShow: MAX_ITEMS, showScrollArrows: true }, 5);
 
       await waitFor(() => {
         expect(lastFrame()).toMatchSnapshot();
@@ -491,10 +464,7 @@ describe('BaseSelectionList', () => {
     });
 
     it('should show arrows and correct items when scrolled to the end', async () => {
-      const { lastFrame } = renderComponent(
-        { items: longList, maxItemsToShow: MAX_ITEMS, showScrollArrows: true },
-        9,
-      );
+      const { lastFrame } = renderComponent({ items: longList, maxItemsToShow: MAX_ITEMS, showScrollArrows: true }, 9);
 
       await waitFor(() => {
         expect(lastFrame()).toMatchSnapshot();

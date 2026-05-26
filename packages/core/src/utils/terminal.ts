@@ -17,7 +17,7 @@ export function disableMouseTracking() {
       '\x1b[?1015l', // urxvt extended mouse mode
       '\x1b[?1006l', // SGR-style mouse tracking
       '\x1b[?1002l', // Button-event tracking
-    ].join(''),
+    ].join('')
   );
 }
 
@@ -73,9 +73,6 @@ export function exitAlternateScreen() {
   writeToStdout('\x1b[?1049l');
 }
 
-export function shouldEnterAlternateScreen(
-  useAlternateBuffer: boolean,
-  isScreenReader: boolean,
-): boolean {
+export function shouldEnterAlternateScreen(useAlternateBuffer: boolean, isScreenReader: boolean): boolean {
   return useAlternateBuffer && !isScreenReader;
 }

@@ -22,10 +22,7 @@ vi.mock('ink', async (importOriginal) => {
 });
 
 vi.mock('../../hooks/useAnimatedScrollbar.js', () => ({
-  useAnimatedScrollbar: (
-    hasFocus: boolean,
-    scrollBy: (delta: number) => void,
-  ) => ({
+  useAnimatedScrollbar: (hasFocus: boolean, scrollBy: (delta: number) => void) => ({
     scrollbarColor: 'white',
     flashScrollbar: vi.fn(),
     scrollByWithAnimation: scrollBy,
@@ -41,7 +38,7 @@ describe('<Scrollable />', () => {
     const { lastFrame } = renderWithProviders(
       <Scrollable hasFocus={false} height={5}>
         <Text>Hello World</Text>
-      </Scrollable>,
+      </Scrollable>
     );
     expect(lastFrame()).toContain('Hello World');
   });
@@ -52,7 +49,7 @@ describe('<Scrollable />', () => {
         <Text>Line 1</Text>
         <Text>Line 2</Text>
         <Text>Line 3</Text>
-      </Scrollable>,
+      </Scrollable>
     );
     expect(lastFrame()).toContain('Line 1');
     expect(lastFrame()).toContain('Line 2');
@@ -65,20 +62,18 @@ describe('<Scrollable />', () => {
         <Text>Line 1</Text>
         <Text>Line 2</Text>
         <Text>Line 3</Text>
-      </Scrollable>,
+      </Scrollable>
     );
     expect(lastFrame()).toMatchSnapshot();
   });
 
   it('updates scroll position correctly when scrollBy is called multiple times in the same tick', () => {
     let capturedEntry: ScrollProviderModule.ScrollableEntry | undefined;
-    vi.spyOn(ScrollProviderModule, 'useScrollable').mockImplementation(
-      (entry, isActive) => {
-        if (isActive) {
-          capturedEntry = entry as ScrollProviderModule.ScrollableEntry;
-        }
-      },
-    );
+    vi.spyOn(ScrollProviderModule, 'useScrollable').mockImplementation((entry, isActive) => {
+      if (isActive) {
+        capturedEntry = entry as ScrollProviderModule.ScrollableEntry;
+      }
+    });
 
     renderWithProviders(
       <Scrollable hasFocus={true} height={5}>
@@ -92,7 +87,7 @@ describe('<Scrollable />', () => {
         <Text>Line 8</Text>
         <Text>Line 9</Text>
         <Text>Line 10</Text>
-      </Scrollable>,
+      </Scrollable>
     );
 
     expect(capturedEntry).toBeDefined();
@@ -155,53 +150,39 @@ describe('<Scrollable />', () => {
         keySequence: '\u001B[1;2B', // Shift+Down
         expectedScrollTop: 0,
       },
-    ])(
-      '$name',
-      async ({
-        initialScrollTop,
-        scrollHeight,
-        keySequence,
-        expectedScrollTop,
-      }) => {
-        // Dynamically import ink to mock getScrollHeight
-        const ink = await import('ink');
-        vi.mocked(ink.getScrollHeight).mockReturnValue(scrollHeight);
+    ])('$name', async ({ initialScrollTop, scrollHeight, keySequence, expectedScrollTop }) => {
+      // Dynamically import ink to mock getScrollHeight
+      const ink = await import('ink');
+      vi.mocked(ink.getScrollHeight).mockReturnValue(scrollHeight);
 
-        let capturedEntry: ScrollProviderModule.ScrollableEntry | undefined;
-        vi.spyOn(ScrollProviderModule, 'useScrollable').mockImplementation(
-          (entry, isActive) => {
-            if (isActive) {
-              capturedEntry = entry as ScrollProviderModule.ScrollableEntry;
-            }
-          },
-        );
+      let capturedEntry: ScrollProviderModule.ScrollableEntry | undefined;
+      vi.spyOn(ScrollProviderModule, 'useScrollable').mockImplementation((entry, isActive) => {
+        if (isActive) {
+          capturedEntry = entry as ScrollProviderModule.ScrollableEntry;
+        }
+      });
 
-        const { stdin } = renderWithProviders(
-          <Scrollable hasFocus={true} height={5}>
-            <Text>Content</Text>
-          </Scrollable>,
-        );
+      const { stdin } = renderWithProviders(
+        <Scrollable hasFocus={true} height={5}>
+          <Text>Content</Text>
+        </Scrollable>
+      );
 
-        // Ensure initial state using existing scrollBy method
-        act(() => {
-          // Reset to top first, then scroll to desired start position
-          capturedEntry!.scrollBy(-100);
-          if (initialScrollTop > 0) {
-            capturedEntry!.scrollBy(initialScrollTop);
-          }
-        });
-        expect(capturedEntry!.getScrollState().scrollTop).toBe(
-          initialScrollTop,
-        );
+      // Ensure initial state using existing scrollBy method
+      act(() => {
+        // Reset to top first, then scroll to desired start position
+        capturedEntry!.scrollBy(-100);
+        if (initialScrollTop > 0) {
+          capturedEntry!.scrollBy(initialScrollTop);
+        }
+      });
+      expect(capturedEntry!.getScrollState().scrollTop).toBe(initialScrollTop);
 
-        act(() => {
-          stdin.write(keySequence);
-        });
+      act(() => {
+        stdin.write(keySequence);
+      });
 
-        expect(capturedEntry!.getScrollState().scrollTop).toBe(
-          expectedScrollTop,
-        );
-      },
-    );
+      expect(capturedEntry!.getScrollState().scrollTop).toBe(expectedScrollTop);
+    });
   });
 });

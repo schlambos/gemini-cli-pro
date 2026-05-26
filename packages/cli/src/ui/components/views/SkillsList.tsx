@@ -14,10 +14,7 @@ interface SkillsListProps {
   showDescriptions: boolean;
 }
 
-export const SkillsList: React.FC<SkillsListProps> = ({
-  skills,
-  showDescriptions,
-}) => {
+export const SkillsList: React.FC<SkillsListProps> = ({ skills, showDescriptions }) => {
   const sortSkills = (a: SkillDefinition, b: SkillDefinition) => {
     if (a.isBuiltin === b.isBuiltin) {
       return a.name.localeCompare(b.name);
@@ -30,27 +27,18 @@ export const SkillsList: React.FC<SkillsListProps> = ({
   const disabledSkills = skills.filter((s) => s.disabled).sort(sortSkills);
 
   const renderSkill = (skill: SkillDefinition) => (
-    <Box key={skill.name} flexDirection="row">
+    <Box key={skill.name} flexDirection='row'>
       <Text color={theme.text.primary}>{'  '}- </Text>
-      <Box flexDirection="column">
-        <Box flexDirection="row">
-          <Text
-            bold
-            color={skill.disabled ? theme.text.secondary : theme.text.link}
-          >
+      <Box flexDirection='column'>
+        <Box flexDirection='row'>
+          <Text bold color={skill.disabled ? theme.text.secondary : theme.text.link}>
             {skill.name}
           </Text>
-          {skill.isBuiltin && (
-            <Text color={theme.text.secondary}>{' [Built-in]'}</Text>
-          )}
+          {skill.isBuiltin && <Text color={theme.text.secondary}>{' [Built-in]'}</Text>}
         </Box>
         {showDescriptions && skill.description && (
           <Box marginLeft={2}>
-            <Text
-              color={skill.disabled ? theme.text.secondary : theme.text.primary}
-            >
-              {skill.description}
-            </Text>
+            <Text color={skill.disabled ? theme.text.secondary : theme.text.primary}>{skill.description}</Text>
           </Box>
         )}
       </Box>
@@ -58,9 +46,9 @@ export const SkillsList: React.FC<SkillsListProps> = ({
   );
 
   return (
-    <Box flexDirection="column" marginBottom={1}>
+    <Box flexDirection='column' marginBottom={1}>
       {enabledSkills.length > 0 && (
-        <Box flexDirection="column">
+        <Box flexDirection='column'>
           <Text bold color={theme.text.primary}>
             Available Agent Skills:
           </Text>
@@ -76,7 +64,7 @@ export const SkillsList: React.FC<SkillsListProps> = ({
       )}
 
       {disabledSkills.length > 0 && (
-        <Box flexDirection="column">
+        <Box flexDirection='column'>
           <Text bold color={theme.text.secondary}>
             Disabled Skills:
           </Text>
@@ -85,9 +73,7 @@ export const SkillsList: React.FC<SkillsListProps> = ({
         </Box>
       )}
 
-      {skills.length === 0 && (
-        <Text color={theme.text.primary}> No skills available</Text>
-      )}
+      {skills.length === 0 && <Text color={theme.text.primary}> No skills available</Text>}
     </Box>
   );
 };

@@ -30,9 +30,7 @@ describe('permissionsCommand', () => {
 
   it('should have the correct name and description', () => {
     expect(permissionsCommand.name).toBe('permissions');
-    expect(permissionsCommand.description).toBe(
-      'Manage folder trust settings and other permissions',
-    );
+    expect(permissionsCommand.description).toBe('Manage folder trust settings and other permissions');
   });
 
   it('should be a built-in command', () => {
@@ -40,21 +38,17 @@ describe('permissionsCommand', () => {
   });
 
   it('should have a trust subcommand', () => {
-    const trustCommand = permissionsCommand.subCommands?.find(
-      (cmd) => cmd.name === 'trust',
-    );
+    const trustCommand = permissionsCommand.subCommands?.find((cmd) => cmd.name === 'trust');
     expect(trustCommand).toBeDefined();
     expect(trustCommand?.name).toBe('trust');
     expect(trustCommand?.description).toBe(
-      'Manage folder trust settings. Usage: /permissions trust [<directory-path>]',
+      'Manage folder trust settings. Usage: /permissions trust [<directory-path>]'
     );
     expect(trustCommand?.kind).toBe(CommandKind.BUILT_IN);
   });
 
   it('should return an action to open the permissions dialog with a specified directory', () => {
-    const trustCommand = permissionsCommand.subCommands?.find(
-      (cmd) => cmd.name === 'trust',
-    );
+    const trustCommand = permissionsCommand.subCommands?.find((cmd) => cmd.name === 'trust');
     const actionResult = trustCommand?.action?.(mockContext, '/test/dir');
     expect(actionResult).toEqual({
       type: 'dialog',
@@ -66,9 +60,7 @@ describe('permissionsCommand', () => {
   });
 
   it('should return an action to open the permissions dialog with the current directory if no path is provided', () => {
-    const trustCommand = permissionsCommand.subCommands?.find(
-      (cmd) => cmd.name === 'trust',
-    );
+    const trustCommand = permissionsCommand.subCommands?.find((cmd) => cmd.name === 'trust');
     const actionResult = trustCommand?.action?.(mockContext, '');
     expect(actionResult).toEqual({
       type: 'dialog',
@@ -80,29 +72,20 @@ describe('permissionsCommand', () => {
   });
 
   it('should return an error message if the provided path does not exist', () => {
-    const trustCommand = permissionsCommand.subCommands?.find(
-      (cmd) => cmd.name === 'trust',
-    );
+    const trustCommand = permissionsCommand.subCommands?.find((cmd) => cmd.name === 'trust');
     vi.mocked(fs).statSync.mockImplementation(() => {
       throw new Error('ENOENT: no such file or directory');
     });
-    const actionResult = trustCommand?.action?.(
-      mockContext,
-      '/nonexistent/dir',
-    );
+    const actionResult = trustCommand?.action?.(mockContext, '/nonexistent/dir');
     expect(actionResult).toEqual({
       type: 'message',
       messageType: 'error',
-      content: `Error accessing path: ${path.resolve(
-        '/nonexistent/dir',
-      )}. ENOENT: no such file or directory`,
+      content: `Error accessing path: ${path.resolve('/nonexistent/dir')}. ENOENT: no such file or directory`,
     });
   });
 
   it('should return an error message if the provided path is not a directory', () => {
-    const trustCommand = permissionsCommand.subCommands?.find(
-      (cmd) => cmd.name === 'trust',
-    );
+    const trustCommand = permissionsCommand.subCommands?.find((cmd) => cmd.name === 'trust');
     vi.mocked(fs).statSync.mockReturnValue({
       isDirectory: vi.fn(() => false),
     } as unknown as fs.Stats);

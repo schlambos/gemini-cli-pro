@@ -18,9 +18,7 @@ interface LoopDetectionConfirmationProps {
   onComplete: (result: LoopDetectionConfirmationResult) => void;
 }
 
-export function LoopDetectionConfirmation({
-  onComplete,
-}: LoopDetectionConfirmationProps) {
+export function LoopDetectionConfirmation({ onComplete }: LoopDetectionConfirmationProps) {
   useKeypress(
     (key) => {
       if (key.name === 'escape') {
@@ -31,7 +29,7 @@ export function LoopDetectionConfirmation({
       }
       return false;
     },
-    { isActive: true },
+    { isActive: true }
   );
 
   const OPTIONS: Array<RadioSelectItem<LoopDetectionConfirmationResult>> = [
@@ -52,23 +50,17 @@ export function LoopDetectionConfirmation({
   ];
 
   return (
-    <Box width="100%" flexDirection="row">
-      <Box
-        flexDirection="column"
-        borderStyle="round"
-        borderColor={theme.status.warning}
-        flexGrow={1}
-        marginLeft={1}
-      >
-        <Box paddingX={1} paddingY={0} flexDirection="column">
+    <Box width='100%' flexDirection='row'>
+      <Box flexDirection='column' borderStyle='round' borderColor={theme.status.warning} flexGrow={1} marginLeft={1}>
+        <Box paddingX={1} paddingY={0} flexDirection='column'>
           <Box minHeight={1}>
             <Box minWidth={3}>
-              <Text color={theme.status.warning} aria-label="Loop detected:">
+              <Text color={theme.status.warning} aria-label='Loop detected:'>
                 ?
               </Text>
             </Box>
             <Box>
-              <Text wrap="truncate-end">
+              <Text wrap='truncate-end'>
                 <Text color={theme.text.primary} bold>
                   A potential loop was detected
                 </Text>{' '}
@@ -76,11 +68,10 @@ export function LoopDetectionConfirmation({
             </Box>
           </Box>
           <Box marginTop={1}>
-            <Box flexDirection="column">
+            <Box flexDirection='column'>
               <Text color={theme.text.secondary}>
-                This can happen due to repetitive tool calls or other model
-                behavior. Do you want to keep loop detection enabled or disable
-                it for this session?
+                This can happen due to repetitive tool calls or other model behavior. Do you want to keep loop detection
+                enabled or disable it for this session?
               </Text>
               <Box marginTop={1}>
                 <RadioButtonSelect items={OPTIONS} onSelect={onComplete} />

@@ -21,10 +21,7 @@ import {
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { type UseHistoryManagerReturn } from './useHistoryManager.js';
 import { MessageType } from '../types.js';
-import {
-  type ProQuotaDialogRequest,
-  type ValidationDialogRequest,
-} from '../contexts/UIStateContext.js';
+import { type ProQuotaDialogRequest, type ValidationDialogRequest } from '../contexts/UIStateContext.js';
 
 interface UseQuotaAndFallbackArgs {
   config: Config;
@@ -41,10 +38,8 @@ export function useQuotaAndFallback({
   setModelSwitchedFromQuotaError,
   onShowAuthSelection,
 }: UseQuotaAndFallbackArgs) {
-  const [proQuotaRequest, setProQuotaRequest] =
-    useState<ProQuotaDialogRequest | null>(null);
-  const [validationRequest, setValidationRequest] =
-    useState<ValidationDialogRequest | null>(null);
+  const [proQuotaRequest, setProQuotaRequest] = useState<ProQuotaDialogRequest | null>(null);
+  const [validationRequest, setValidationRequest] = useState<ValidationDialogRequest | null>(null);
   const isDialogPending = useRef(false);
   const isValidationPending = useRef(false);
 
@@ -53,23 +48,18 @@ export function useQuotaAndFallback({
     const fallbackHandler: FallbackModelHandler = async (
       failedModel,
       fallbackModel,
-      error,
+      error
     ): Promise<FallbackIntent | null> => {
       // Fallbacks are currently only handled for OAuth users.
       const contentGeneratorConfig = config.getContentGeneratorConfig();
-      if (
-        !contentGeneratorConfig ||
-        contentGeneratorConfig.authType !== AuthType.LOGIN_WITH_GOOGLE
-      ) {
+      if (!contentGeneratorConfig || contentGeneratorConfig.authType !== AuthType.LOGIN_WITH_GOOGLE) {
         return null;
       }
 
       let message: string;
       let isTerminalQuotaError = false;
       let isModelNotFoundError = false;
-      const usageLimitReachedModel = isProModel(failedModel)
-        ? 'all Pro models'
-        : failedModel;
+      const usageLimitReachedModel = isProModel(failedModel) ? 'all Pro models' : failedModel;
       if (error instanceof TerminalQuotaError) {
         isTerminalQuotaError = true;
         // Common part of the message for both tiers
@@ -90,10 +80,7 @@ export function useQuotaAndFallback({
           ];
           message = messageLines.join('\n');
         } else {
-          const messageLines = [
-            `Model "${failedModel}" was not found or is invalid.`,
-            `/model to switch models.`,
-          ];
+          const messageLines = [`Model "${failedModel}" was not found or is invalid.`, `/model to switch models.`];
           message = messageLines.join('\n');
         }
       } else {
@@ -113,18 +100,16 @@ export function useQuotaAndFallback({
       }
       isDialogPending.current = true;
 
-      const intent: FallbackIntent = await new Promise<FallbackIntent>(
-        (resolve) => {
-          setProQuotaRequest({
-            failedModel,
-            fallbackModel,
-            resolve,
-            message,
-            isTerminalQuotaError,
-            isModelNotFoundError,
-          });
-        },
-      );
+      const intent: FallbackIntent = await new Promise<FallbackIntent>((resolve) => {
+        setProQuotaRequest({
+          failedModel,
+          fallbackModel,
+          resolve,
+          message,
+          isTerminalQuotaError,
+          isModelNotFoundError,
+        });
+      });
 
       return intent;
     };
@@ -137,24 +122,22 @@ export function useQuotaAndFallback({
     const validationHandler: ValidationHandler = async (
       validationLink,
       validationDescription,
-      learnMoreUrl,
+      learnMoreUrl
     ): Promise<ValidationIntent> => {
       if (isValidationPending.current) {
         return 'cancel'; // A validation dialog is already active
       }
       isValidationPending.current = true;
 
-      const intent: ValidationIntent = await new Promise<ValidationIntent>(
-        (resolve) => {
-          // Call setValidationRequest directly - same pattern as proQuotaRequest
-          setValidationRequest({
-            validationLink,
-            validationDescription,
-            learnMoreUrl,
-            resolve,
-          });
-        },
-      );
+      const intent: ValidationIntent = await new Promise<ValidationIntent>((resolve) => {
+        // Call setValidationRequest directly - same pattern as proQuotaRequest
+        setValidationRequest({
+          validationLink,
+          validationDescription,
+          learnMoreUrl,
+          resolve,
+        });
+      });
 
       return intent;
     };
@@ -182,12 +165,12 @@ export function useQuotaAndFallback({
               type: MessageType.INFO,
               text: `Switched to fallback model ${proQuotaRequest.fallbackModel}`,
             },
-            Date.now(),
+            Date.now()
           );
         }
       }
     },
-    [proQuotaRequest, historyManager, config, setModelSwitchedFromQuotaError],
+    [proQuotaRequest, historyManager, config, setModelSwitchedFromQuotaError]
   );
 
   const handleValidationChoice = useCallback(
@@ -205,7 +188,7 @@ export function useQuotaAndFallback({
         onShowAuthSelection();
       }
     },
-    [validationRequest, onShowAuthSelection],
+    [validationRequest, onShowAuthSelection]
   );
 
   return {

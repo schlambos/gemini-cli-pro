@@ -38,8 +38,7 @@ function getArgs() {
       string: true,
     })
     .option('cli-package-name', {
-      description:
-        'fully qualified package name with scope (e.g @google/gemini-cli)',
+      description: 'fully qualified package name with scope (e.g @google/gemini-cli)',
       string: true,
       default: '@google/gemini-cli',
     })
@@ -59,11 +58,7 @@ function getArgs() {
 function getLatestTag(pattern) {
   const command = `git tag -l '${pattern}'`;
   try {
-    const tags = execSync(command)
-      .toString()
-      .trim()
-      .split('\n')
-      .filter(Boolean);
+    const tags = execSync(command).toString().trim().split('\n').filter(Boolean);
     if (tags.length === 0) return '';
 
     // Convert tags to versions (remove 'v' prefix) and sort by semver
@@ -77,9 +72,7 @@ function getLatestTag(pattern) {
     // Return the latest version with 'v' prefix restored
     return `v${versions[0]}`;
   } catch (error) {
-    console.error(
-      `Failed to get latest git tag for pattern "${pattern}": ${error.message}`,
-    );
+    console.error(`Failed to get latest git tag for pattern "${pattern}": ${error.message}`);
     return '';
   }
 }
@@ -89,9 +82,7 @@ function getVersionFromNPM({ args, npmDistTag } = {}) {
   try {
     return execSync(command).toString().trim();
   } catch (error) {
-    console.error(
-      `Failed to get NPM version for dist-tag "${npmDistTag}": ${error.message}`,
-    );
+    console.error(`Failed to get NPM version for dist-tag "${npmDistTag}": ${error.message}`);
     return '';
   }
 }
@@ -114,9 +105,7 @@ function isVersionDeprecated({ args, version } = {}) {
     return output.length > 0;
   } catch (error) {
     // This command shouldn't fail for existing versions, but as a safeguard:
-    console.error(
-      `Failed to check deprecation status for ${version}: ${error.message}`,
-    );
+    console.error(`Failed to check deprecation status for ${version}: ${error.message}`);
     return false; // Assume not deprecated on error to avoid breaking the release.
   }
 }
@@ -128,33 +117,25 @@ function detectRollbackAndGetBaseline({ args, npmDistTag } = {}) {
 
   // Get all published versions
   const allVersions = getAllVersionsFromNPM({ args });
-  if (allVersions.length === 0)
-    return { baseline: distTagVersion, isRollback: false };
+  if (allVersions.length === 0) return { baseline: distTagVersion, isRollback: false };
 
   // Filter versions by type to match the dist-tag
   let matchingVersions;
   if (npmDistTag === TAG_LATEST) {
     // Stable versions: no prerelease identifiers
-    matchingVersions = allVersions.filter(
-      (v) => semver.valid(v) && !semver.prerelease(v),
-    );
+    matchingVersions = allVersions.filter((v) => semver.valid(v) && !semver.prerelease(v));
   } else if (npmDistTag === TAG_PREVIEW) {
     // Preview versions: contain -preview
-    matchingVersions = allVersions.filter(
-      (v) => semver.valid(v) && v.includes('-preview'),
-    );
+    matchingVersions = allVersions.filter((v) => semver.valid(v) && v.includes('-preview'));
   } else if (npmDistTag === TAG_NIGHTLY) {
     // Nightly versions: contain -nightly
-    matchingVersions = allVersions.filter(
-      (v) => semver.valid(v) && v.includes('-nightly'),
-    );
+    matchingVersions = allVersions.filter((v) => semver.valid(v) && v.includes('-nightly'));
   } else {
     // For other dist-tags, just use the dist-tag version
     return { baseline: distTagVersion, isRollback: false };
   }
 
-  if (matchingVersions.length === 0)
-    return { baseline: distTagVersion, isRollback: false };
+  if (matchingVersions.length === 0) return { baseline: distTagVersion, isRollback: false };
 
   // Sort by semver to get a list from highest to lowest
   matchingVersions.sort((a, b) => semver.rcompare(a, b));
@@ -226,9 +207,7 @@ function doesVersionExist({ args, version } = {}) {
       error.message.includes('not found') ||
       error.status === 1;
     if (!isExpectedNotFound) {
-      console.error(
-        `Failed to check GitHub releases for conflicts: ${error.message}`,
-      );
+      console.error(`Failed to check GitHub releases for conflicts: ${error.message}`);
     }
   }
 
@@ -247,7 +226,7 @@ function getAndVerifyTags({ npmDistTag, args } = {}) {
   if (rollbackInfo.isRollback) {
     // Rollback scenario: warn about the rollback but don't fail
     console.error(
-      `Rollback detected! NPM ${npmDistTag} tag is ${rollbackInfo.distTagVersion}, but using ${baselineVersion} as baseline for next version calculation (highest existing version).`,
+      `Rollback detected! NPM ${npmDistTag} tag is ${rollbackInfo.distTagVersion}, but using ${baselineVersion} as baseline for next version calculation (highest existing version).`
     );
   }
 
@@ -313,9 +292,7 @@ function validateVersion(version, format, name) {
   };
 
   if (!versionRegex[format] || !versionRegex[format].test(version)) {
-    throw new Error(
-      `Invalid ${name}: ${version}. Must be in ${format} format.`,
-    );
+    throw new Error(`Invalid ${name}: ${version}. Must be in ${format} format.`);
   }
 }
 
@@ -351,11 +328,7 @@ function getPreviewVersion(args) {
   let releaseVersion;
   if (args['preview_version_override']) {
     const overrideVersion = args['preview_version_override'].replace(/^v/, '');
-    validateVersion(
-      overrideVersion,
-      'X.Y.Z-preview.N',
-      'preview_version_override',
-    );
+    validateVersion(overrideVersion, 'X.Y.Z-preview.N', 'preview_version_override');
     releaseVersion = overrideVersion;
   } else {
     const major = semver.major(latestStableVersion);
@@ -379,9 +352,7 @@ function getPreviewVersion(args) {
 function getPatchVersion(args) {
   const patchFrom = args['patch-from'];
   if (!patchFrom || (patchFrom !== 'stable' && patchFrom !== TAG_PREVIEW)) {
-    throw new Error(
-      'Patch type must be specified with --patch-from=stable or --patch-from=preview',
-    );
+    throw new Error('Patch type must be specified with --patch-from=stable or --patch-from=preview');
   }
   const distTag = patchFrom === 'stable' ? TAG_LATEST : TAG_PREVIEW;
   const { latestVersion, latestTag } = getAndVerifyTags({
@@ -405,9 +376,7 @@ function getPatchVersion(args) {
     // For preview versions, increment the preview number: 0.6.0-preview.2 -> 0.6.0-preview.3
     const [version, prereleasePart] = latestVersion.split('-');
     if (!prereleasePart || !prereleasePart.startsWith('preview.')) {
-      throw new Error(
-        `Invalid preview version format: ${latestVersion}. Expected format like "0.6.0-preview.2"`,
-      );
+      throw new Error(`Invalid preview version format: ${latestVersion}. Expected format like "0.6.0-preview.2"`);
     }
 
     const previewNumber = parseInt(prereleasePart.split('.')[1]);
@@ -435,18 +404,14 @@ export function getVersion(options = {}) {
       // Nightly versions include a git hash, so conflicts are highly unlikely
       // and indicate a problem. We'll still validate but not auto-increment.
       if (doesVersionExist({ args, version: versionData.releaseVersion })) {
-        throw new Error(
-          `Version conflict! Nightly version ${versionData.releaseVersion} already exists.`,
-        );
+        throw new Error(`Version conflict! Nightly version ${versionData.releaseVersion} already exists.`);
       }
       break;
     case 'promote-nightly':
       versionData = promoteNightlyVersion({ args });
       // A promoted nightly version is still a nightly, so we should check for conflicts.
       if (doesVersionExist({ args, version: versionData.releaseVersion })) {
-        throw new Error(
-          `Version conflict! Promoted nightly version ${versionData.releaseVersion} already exists.`,
-        );
+        throw new Error(`Version conflict! Promoted nightly version ${versionData.releaseVersion} already exists.`);
       }
       break;
     case 'stable':

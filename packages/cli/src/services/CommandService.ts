@@ -36,7 +36,7 @@ export class CommandService {
    */
   private constructor(
     private readonly commands: readonly SlashCommand[],
-    private readonly conflicts: readonly CommandConflict[],
+    private readonly conflicts: readonly CommandConflict[]
   ) {}
 
   /**
@@ -58,13 +58,8 @@ export class CommandService {
    * @param signal An AbortSignal to cancel the loading process.
    * @returns A promise that resolves to a new, fully initialized `CommandService` instance.
    */
-  static async create(
-    loaders: ICommandLoader[],
-    signal: AbortSignal,
-  ): Promise<CommandService> {
-    const results = await Promise.allSettled(
-      loaders.map((loader) => loader.loadCommands(signal)),
-    );
+  static async create(loaders: ICommandLoader[], signal: AbortSignal): Promise<CommandService> {
+    const results = await Promise.allSettled(loaders.map((loader) => loader.loadCommands(signal)));
 
     const allCommands: SlashCommand[] = [];
     for (const result of results) {
@@ -124,8 +119,8 @@ export class CommandService {
             renamedTo: l.renamedTo,
             loserExtensionName: l.command.extensionName,
             winnerExtensionName: c.winner.extensionName,
-          })),
-        ),
+          }))
+        )
       );
     }
 

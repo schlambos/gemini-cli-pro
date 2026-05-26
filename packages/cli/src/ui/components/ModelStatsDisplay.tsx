@@ -8,22 +8,11 @@ import type React from 'react';
 import { Box, Text } from 'ink';
 import { theme } from '../semantic-colors.js';
 import { formatDuration } from '../utils/formatters.js';
-import {
-  calculateAverageLatency,
-  calculateCacheHitRate,
-  calculateErrorRate,
-} from '../utils/computeStats.js';
-import {
-  useSessionStats,
-  type ModelMetrics,
-} from '../contexts/SessionContext.js';
+import { calculateAverageLatency, calculateCacheHitRate, calculateErrorRate } from '../utils/computeStats.js';
+import { useSessionStats, type ModelMetrics } from '../contexts/SessionContext.js';
 import { Table, type Column } from './Table.js';
 import { useSettings } from '../contexts/SettingsContext.js';
-import {
-  getDisplayString,
-  isAutoModel,
-  LlmRole,
-} from '@google/gemini-cli-core';
+import { getDisplayString, isAutoModel, LlmRole } from '@google/gemini-cli-core';
 import type { QuotaStats } from '../types.js';
 import { QuotaStatsInfo } from './QuotaStatsInfo.js';
 
@@ -61,40 +50,23 @@ export const ModelStatsDisplay: React.FC<ModelStatsDisplayProps> = ({
   const { models } = stats.metrics;
   const settings = useSettings();
   const showUserIdentity = settings.merged.ui.showUserIdentity;
-  const activeModels = Object.entries(models).filter(
-    ([, metrics]) => metrics.api.totalRequests > 0,
-  );
+  const activeModels = Object.entries(models).filter(([, metrics]) => metrics.api.totalRequests > 0);
 
   if (activeModels.length === 0) {
     return (
-      <Box
-        borderStyle="round"
-        borderColor={theme.border.default}
-        paddingTop={1}
-        paddingX={2}
-      >
-        <Text color={theme.text.primary}>
-          No API calls have been made in this session.
-        </Text>
+      <Box borderStyle='round' borderColor={theme.border.default} paddingTop={1} paddingX={2}>
+        <Text color={theme.text.primary}>No API calls have been made in this session.</Text>
       </Box>
     );
   }
 
   const modelNames = activeModels.map(([name]) => name);
 
-  const hasThoughts = activeModels.some(
-    ([, metrics]) => metrics.tokens.thoughts > 0,
-  );
+  const hasThoughts = activeModels.some(([, metrics]) => metrics.tokens.thoughts > 0);
   const hasTool = activeModels.some(([, metrics]) => metrics.tokens.tool > 0);
-  const hasCached = activeModels.some(
-    ([, metrics]) => metrics.tokens.cached > 0,
-  );
+  const hasCached = activeModels.some(([, metrics]) => metrics.tokens.cached > 0);
 
-  const allRoles = [
-    ...new Set(
-      activeModels.flatMap(([, metrics]) => Object.keys(metrics.roles ?? {})),
-    ),
-  ]
+  const allRoles = [...new Set(activeModels.flatMap(([, metrics]) => Object.keys(metrics.roles ?? {})))]
     .filter((role): role is LlmRole => {
       const validRoles: string[] = Object.values(LlmRole);
       return validRoles.includes(role);
@@ -109,10 +81,8 @@ export const ModelStatsDisplay: React.FC<ModelStatsDisplayProps> = ({
   // Helper to create a row with values for each model
   const createRow = (
     metric: string,
-    getValue: (
-      metrics: (typeof activeModels)[0][1],
-    ) => string | React.ReactNode,
-    options: { isSection?: boolean; isSubtle?: boolean } = {},
+    getValue: (metrics: (typeof activeModels)[0][1]) => string | React.ReactNode,
+    options: { isSection?: boolean; isSubtle?: boolean } = {}
   ): StatRowData => {
     const row: StatRowData = {
       metric,
@@ -134,42 +104,24 @@ export const ModelStatsDisplay: React.FC<ModelStatsDisplayProps> = ({
     createRow('Errors', (m) => {
       const errorRate = calculateErrorRate(m);
       return (
-        <Text
-          color={
-            m.api.totalErrors > 0 ? theme.status.error : theme.text.primary
-          }
-        >
+        <Text color={m.api.totalErrors > 0 ? theme.status.error : theme.text.primary}>
           {m.api.totalErrors.toLocaleString()} ({errorRate.toFixed(1)}%)
         </Text>
       );
-    }),
+    })
   );
-  rows.push(
-    createRow('Avg Latency', (m) => formatDuration(calculateAverageLatency(m))),
-  );
+  rows.push(createRow('Avg Latency', (m) => formatDuration(calculateAverageLatency(m))));
 
   // Spacer
   rows.push({ metric: '' });
 
   // Tokens Section
   rows.push({ metric: 'Tokens', isSection: true });
+  rows.push(createRow('Total', (m) => <Text color={theme.text.secondary}>{m.tokens.total.toLocaleString()}</Text>));
   rows.push(
-    createRow('Total', (m) => (
-      <Text color={theme.text.secondary}>
-        {m.tokens.total.toLocaleString()}
-      </Text>
-    )),
-  );
-  rows.push(
-    createRow(
-      'Input',
-      (m) => (
-        <Text color={theme.text.primary}>
-          {m.tokens.input.toLocaleString()}
-        </Text>
-      ),
-      { isSubtle: true },
-    ),
+    createRow('Input', (m) => <Text color={theme.text.primary}>{m.tokens.input.toLocaleString()}</Text>, {
+      isSubtle: true,
+    })
   );
 
   if (hasCached) {
@@ -184,49 +136,31 @@ export const ModelStatsDisplay: React.FC<ModelStatsDisplayProps> = ({
             </Text>
           );
         },
-        { isSubtle: true },
-      ),
+        { isSubtle: true }
+      )
     );
   }
 
   if (hasThoughts) {
     rows.push(
-      createRow(
-        'Thoughts',
-        (m) => (
-          <Text color={theme.text.primary}>
-            {m.tokens.thoughts.toLocaleString()}
-          </Text>
-        ),
-        { isSubtle: true },
-      ),
+      createRow('Thoughts', (m) => <Text color={theme.text.primary}>{m.tokens.thoughts.toLocaleString()}</Text>, {
+        isSubtle: true,
+      })
     );
   }
 
   if (hasTool) {
     rows.push(
-      createRow(
-        'Tool',
-        (m) => (
-          <Text color={theme.text.primary}>
-            {m.tokens.tool.toLocaleString()}
-          </Text>
-        ),
-        { isSubtle: true },
-      ),
+      createRow('Tool', (m) => <Text color={theme.text.primary}>{m.tokens.tool.toLocaleString()}</Text>, {
+        isSubtle: true,
+      })
     );
   }
 
   rows.push(
-    createRow(
-      'Output',
-      (m) => (
-        <Text color={theme.text.primary}>
-          {m.tokens.candidates.toLocaleString()}
-        </Text>
-      ),
-      { isSubtle: true },
-    ),
+    createRow('Output', (m) => <Text color={theme.text.primary}>{m.tokens.candidates.toLocaleString()}</Text>, {
+      isSubtle: true,
+    })
   );
 
   // Roles Section
@@ -245,10 +179,7 @@ export const ModelStatsDisplay: React.FC<ModelStatsDisplayProps> = ({
       // We don't populate model values for the role header row
       rows.push(roleHeaderRow);
 
-      const addRoleMetric = (
-        metric: string,
-        getValue: (r: RoleMetrics) => string | React.ReactNode,
-      ) => {
+      const addRoleMetric = (metric: string, getValue: (r: RoleMetrics) => string | React.ReactNode) => {
         const row: StatRowData = {
           metric,
           isSubtle: true,
@@ -265,21 +196,9 @@ export const ModelStatsDisplay: React.FC<ModelStatsDisplayProps> = ({
       };
 
       addRoleMetric('Requests', (r) => r.totalRequests.toLocaleString());
-      addRoleMetric('Input', (r) => (
-        <Text color={theme.text.primary}>
-          {r.tokens.input.toLocaleString()}
-        </Text>
-      ));
-      addRoleMetric('Output', (r) => (
-        <Text color={theme.text.primary}>
-          {r.tokens.candidates.toLocaleString()}
-        </Text>
-      ));
-      addRoleMetric('Cache Reads', (r) => (
-        <Text color={theme.text.secondary}>
-          {r.tokens.cached.toLocaleString()}
-        </Text>
-      ));
+      addRoleMetric('Input', (r) => <Text color={theme.text.primary}>{r.tokens.input.toLocaleString()}</Text>);
+      addRoleMetric('Output', (r) => <Text color={theme.text.primary}>{r.tokens.candidates.toLocaleString()}</Text>);
+      addRoleMetric('Cache Reads', (r) => <Text color={theme.text.secondary}>{r.tokens.cached.toLocaleString()}</Text>);
     });
   }
 
@@ -289,10 +208,7 @@ export const ModelStatsDisplay: React.FC<ModelStatsDisplayProps> = ({
       header: 'Metric',
       width: 28,
       renderCell: (row) => (
-        <Text
-          bold={row.isSection}
-          color={row.isSection ? theme.text.primary : theme.text.link}
-        >
+        <Text bold={row.isSection} color={row.isSection ? theme.text.primary : theme.text.link}>
           {row.isSubtle ? `  ↳ ${row.metric}` : row.metric}
         </Text>
       ),
@@ -315,18 +231,10 @@ export const ModelStatsDisplay: React.FC<ModelStatsDisplayProps> = ({
   ];
 
   const isAuto = currentModel && isAutoModel(currentModel);
-  const statsTitle = isAuto
-    ? `${getDisplayString(currentModel)} Stats For Nerds`
-    : 'Model Stats For Nerds';
+  const statsTitle = isAuto ? `${getDisplayString(currentModel)} Stats For Nerds` : 'Model Stats For Nerds';
 
   return (
-    <Box
-      borderStyle="round"
-      borderColor={theme.border.default}
-      flexDirection="column"
-      paddingTop={1}
-      paddingX={2}
-    >
+    <Box borderStyle='round' borderColor={theme.border.default} flexDirection='column' paddingTop={1} paddingX={2}>
       <Text bold color={theme.text.accent}>
         {statsTitle}
       </Text>
@@ -354,16 +262,9 @@ export const ModelStatsDisplay: React.FC<ModelStatsDisplayProps> = ({
           <Text color={theme.text.primary}>{tier}</Text>
         </Box>
       )}
-      {isAuto &&
-        pooledRemaining !== undefined &&
-        pooledLimit !== undefined &&
-        pooledLimit > 0 && (
-          <QuotaStatsInfo
-            remaining={pooledRemaining}
-            limit={pooledLimit}
-            resetTime={pooledResetTime}
-          />
-        )}
+      {isAuto && pooledRemaining !== undefined && pooledLimit !== undefined && pooledLimit > 0 && (
+        <QuotaStatsInfo remaining={pooledRemaining} limit={pooledLimit} resetTime={pooledResetTime} />
+      )}
       {(showUserIdentity || isAuto) && <Box height={1} />}
 
       <Table data={rows} columns={columns} />

@@ -4,15 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  type Mock,
-  type MockInstance,
-} from 'vitest';
+import { describe, it, expect, vi, beforeEach, type Mock, type MockInstance } from 'vitest';
 import yargs, { type Argv } from 'yargs';
 import { addCommand } from './add.js';
 import { loadSettings, SettingScope } from '../../config/settings.js';
@@ -59,9 +51,7 @@ describe('mcp add command', () => {
     parser = yargsInstance;
     mockSetValue = vi.fn();
     mockConsoleError = vi.fn();
-    debugLoggerErrorSpy = vi
-      .spyOn(debugLogger, 'error')
-      .mockImplementation(() => {});
+    debugLoggerErrorSpy = vi.spyOn(debugLogger, 'error').mockImplementation(() => {});
     vi.spyOn(console, 'error').mockImplementation(mockConsoleError);
     mockedLoadSettings.mockReturnValue({
       forScope: () => ({ settings: {} }),
@@ -72,44 +62,32 @@ describe('mcp add command', () => {
   });
 
   it('should add a stdio server to project settings', async () => {
-    await parser.parseAsync(
-      'add -e FOO=bar my-server /path/to/server arg1 arg2',
-    );
+    await parser.parseAsync('add -e FOO=bar my-server /path/to/server arg1 arg2');
 
-    expect(mockSetValue).toHaveBeenCalledWith(
-      SettingScope.Workspace,
-      'mcpServers',
-      {
-        'my-server': {
-          command: '/path/to/server',
-          args: ['arg1', 'arg2'],
-          env: { FOO: 'bar' },
-        },
+    expect(mockSetValue).toHaveBeenCalledWith(SettingScope.Workspace, 'mcpServers', {
+      'my-server': {
+        command: '/path/to/server',
+        args: ['arg1', 'arg2'],
+        env: { FOO: 'bar' },
       },
-    );
+    });
   });
 
   it('should handle multiple env vars before positional args', async () => {
-    await parser.parseAsync(
-      'add -e FOO=bar -e BAZ=qux my-server /path/to/server',
-    );
+    await parser.parseAsync('add -e FOO=bar -e BAZ=qux my-server /path/to/server');
 
-    expect(mockSetValue).toHaveBeenCalledWith(
-      SettingScope.Workspace,
-      'mcpServers',
-      {
-        'my-server': {
-          command: '/path/to/server',
-          args: [],
-          env: { FOO: 'bar', BAZ: 'qux' },
-        },
+    expect(mockSetValue).toHaveBeenCalledWith(SettingScope.Workspace, 'mcpServers', {
+      'my-server': {
+        command: '/path/to/server',
+        args: [],
+        env: { FOO: 'bar', BAZ: 'qux' },
       },
-    );
+    });
   });
 
   it('should add an sse server to user settings', async () => {
     await parser.parseAsync(
-      'add --transport sse --scope user -H "X-API-Key: your-key" sse-server https://example.com/sse-endpoint',
+      'add --transport sse --scope user -H "X-API-Key: your-key" sse-server https://example.com/sse-endpoint'
     );
 
     expect(mockSetValue).toHaveBeenCalledWith(SettingScope.User, 'mcpServers', {
@@ -123,26 +101,20 @@ describe('mcp add command', () => {
 
   it('should add an http server to project settings', async () => {
     await parser.parseAsync(
-      'add --transport http -H "Authorization: Bearer your-token" http-server https://example.com/mcp',
+      'add --transport http -H "Authorization: Bearer your-token" http-server https://example.com/mcp'
     );
 
-    expect(mockSetValue).toHaveBeenCalledWith(
-      SettingScope.Workspace,
-      'mcpServers',
-      {
-        'http-server': {
-          url: 'https://example.com/mcp',
-          type: 'http',
-          headers: { Authorization: 'Bearer your-token' },
-        },
+    expect(mockSetValue).toHaveBeenCalledWith(SettingScope.Workspace, 'mcpServers', {
+      'http-server': {
+        url: 'https://example.com/mcp',
+        type: 'http',
+        headers: { Authorization: 'Bearer your-token' },
       },
-    );
+    });
   });
 
   it('should add an sse server using --type alias', async () => {
-    await parser.parseAsync(
-      'add --type sse --scope user -H "X-API-Key: your-key" sse-server https://example.com/sse',
-    );
+    await parser.parseAsync('add --type sse --scope user -H "X-API-Key: your-key" sse-server https://example.com/sse');
 
     expect(mockSetValue).toHaveBeenCalledWith(SettingScope.User, 'mcpServers', {
       'sse-server': {
@@ -155,54 +127,38 @@ describe('mcp add command', () => {
 
   it('should add an http server using --type alias', async () => {
     await parser.parseAsync(
-      'add --type http -H "Authorization: Bearer your-token" http-server https://example.com/mcp',
+      'add --type http -H "Authorization: Bearer your-token" http-server https://example.com/mcp'
     );
 
-    expect(mockSetValue).toHaveBeenCalledWith(
-      SettingScope.Workspace,
-      'mcpServers',
-      {
-        'http-server': {
-          url: 'https://example.com/mcp',
-          type: 'http',
-          headers: { Authorization: 'Bearer your-token' },
-        },
+    expect(mockSetValue).toHaveBeenCalledWith(SettingScope.Workspace, 'mcpServers', {
+      'http-server': {
+        url: 'https://example.com/mcp',
+        type: 'http',
+        headers: { Authorization: 'Bearer your-token' },
       },
-    );
+    });
   });
 
   it('should handle MCP server args with -- separator', async () => {
-    await parser.parseAsync(
-      'add my-server npx -- -y http://example.com/some-package',
-    );
+    await parser.parseAsync('add my-server npx -- -y http://example.com/some-package');
 
-    expect(mockSetValue).toHaveBeenCalledWith(
-      SettingScope.Workspace,
-      'mcpServers',
-      {
-        'my-server': {
-          command: 'npx',
-          args: ['-y', 'http://example.com/some-package'],
-        },
+    expect(mockSetValue).toHaveBeenCalledWith(SettingScope.Workspace, 'mcpServers', {
+      'my-server': {
+        command: 'npx',
+        args: ['-y', 'http://example.com/some-package'],
       },
-    );
+    });
   });
 
   it('should handle unknown options as MCP server args', async () => {
-    await parser.parseAsync(
-      'add test-server npx -y http://example.com/some-package',
-    );
+    await parser.parseAsync('add test-server npx -y http://example.com/some-package');
 
-    expect(mockSetValue).toHaveBeenCalledWith(
-      SettingScope.Workspace,
-      'mcpServers',
-      {
-        'test-server': {
-          command: 'npx',
-          args: ['-y', 'http://example.com/some-package'],
-        },
+    expect(mockSetValue).toHaveBeenCalledWith(SettingScope.Workspace, 'mcpServers', {
+      'test-server': {
+        command: 'npx',
+        args: ['-y', 'http://example.com/some-package'],
       },
-    );
+    });
   });
 
   describe('when handling scope and directory', () => {
@@ -226,29 +182,17 @@ describe('mcp add command', () => {
 
       it('should use project scope by default', async () => {
         await parser.parseAsync(`add ${serverName} ${command}`);
-        expect(mockSetValue).toHaveBeenCalledWith(
-          SettingScope.Workspace,
-          'mcpServers',
-          expect.any(Object),
-        );
+        expect(mockSetValue).toHaveBeenCalledWith(SettingScope.Workspace, 'mcpServers', expect.any(Object));
       });
 
       it('should use project scope when --scope=project is used', async () => {
         await parser.parseAsync(`add --scope project ${serverName} ${command}`);
-        expect(mockSetValue).toHaveBeenCalledWith(
-          SettingScope.Workspace,
-          'mcpServers',
-          expect.any(Object),
-        );
+        expect(mockSetValue).toHaveBeenCalledWith(SettingScope.Workspace, 'mcpServers', expect.any(Object));
       });
 
       it('should use user scope when --scope=user is used', async () => {
         await parser.parseAsync(`add --scope user ${serverName} ${command}`);
-        expect(mockSetValue).toHaveBeenCalledWith(
-          SettingScope.User,
-          'mcpServers',
-          expect.any(Object),
-        );
+        expect(mockSetValue).toHaveBeenCalledWith(SettingScope.User, 'mcpServers', expect.any(Object));
       });
     });
 
@@ -259,11 +203,7 @@ describe('mcp add command', () => {
 
       it('should use project scope by default', async () => {
         await parser.parseAsync(`add ${serverName} ${command}`);
-        expect(mockSetValue).toHaveBeenCalledWith(
-          SettingScope.Workspace,
-          'mcpServers',
-          expect.any(Object),
-        );
+        expect(mockSetValue).toHaveBeenCalledWith(SettingScope.Workspace, 'mcpServers', expect.any(Object));
       });
     });
 
@@ -273,36 +213,30 @@ describe('mcp add command', () => {
       });
 
       it('should show an error by default', async () => {
-        const mockProcessExit = vi
-          .spyOn(process, 'exit')
-          .mockImplementation((() => {
-            throw new Error('process.exit called');
-          }) as (code?: number | string | null) => never);
+        const mockProcessExit = vi.spyOn(process, 'exit').mockImplementation((() => {
+          throw new Error('process.exit called');
+        }) as (code?: number | string | null) => never);
 
-        await expect(
-          parser.parseAsync(`add ${serverName} ${command}`),
-        ).rejects.toThrow('process.exit called');
+        await expect(parser.parseAsync(`add ${serverName} ${command}`)).rejects.toThrow('process.exit called');
 
         expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
-          'Error: Please use --scope user to edit settings in the home directory.',
+          'Error: Please use --scope user to edit settings in the home directory.'
         );
         expect(mockProcessExit).toHaveBeenCalledWith(1);
         expect(mockSetValue).not.toHaveBeenCalled();
       });
 
       it('should show an error when --scope=project is used explicitly', async () => {
-        const mockProcessExit = vi
-          .spyOn(process, 'exit')
-          .mockImplementation((() => {
-            throw new Error('process.exit called');
-          }) as (code?: number | string | null) => never);
+        const mockProcessExit = vi.spyOn(process, 'exit').mockImplementation((() => {
+          throw new Error('process.exit called');
+        }) as (code?: number | string | null) => never);
 
-        await expect(
-          parser.parseAsync(`add --scope project ${serverName} ${command}`),
-        ).rejects.toThrow('process.exit called');
+        await expect(parser.parseAsync(`add --scope project ${serverName} ${command}`)).rejects.toThrow(
+          'process.exit called'
+        );
 
         expect(debugLoggerErrorSpy).toHaveBeenCalledWith(
-          'Error: Please use --scope user to edit settings in the home directory.',
+          'Error: Please use --scope user to edit settings in the home directory.'
         );
         expect(mockProcessExit).toHaveBeenCalledWith(1);
         expect(mockSetValue).not.toHaveBeenCalled();
@@ -310,11 +244,7 @@ describe('mcp add command', () => {
 
       it('should use user scope when --scope=user is used', async () => {
         await parser.parseAsync(`add --scope user ${serverName} ${command}`);
-        expect(mockSetValue).toHaveBeenCalledWith(
-          SettingScope.User,
-          'mcpServers',
-          expect.any(Object),
-        );
+        expect(mockSetValue).toHaveBeenCalledWith(SettingScope.User, 'mcpServers', expect.any(Object));
         expect(debugLoggerErrorSpy).not.toHaveBeenCalled();
       });
     });
@@ -326,11 +256,7 @@ describe('mcp add command', () => {
 
       it('should use project scope by default', async () => {
         await parser.parseAsync(`add ${serverName} ${command}`);
-        expect(mockSetValue).toHaveBeenCalledWith(
-          SettingScope.Workspace,
-          'mcpServers',
-          expect.any(Object),
-        );
+        expect(mockSetValue).toHaveBeenCalledWith(SettingScope.Workspace, 'mcpServers', expect.any(Object));
       });
 
       it('should write to the WORKSPACE scope, not the USER scope', async () => {
@@ -354,11 +280,7 @@ describe('mcp add command', () => {
 
       it('should use project scope by default', async () => {
         await parser.parseAsync(`add ${serverName} ${command}`);
-        expect(mockSetValue).toHaveBeenCalledWith(
-          SettingScope.Workspace,
-          'mcpServers',
-          expect.any(Object),
-        );
+        expect(mockSetValue).toHaveBeenCalledWith(SettingScope.Workspace, 'mcpServers', expect.any(Object));
       });
     });
   });
@@ -387,9 +309,7 @@ describe('mcp add command', () => {
     });
 
     it('should update the existing server in the project scope', async () => {
-      await parser.parseAsync(
-        `add ${serverName} ${updatedCommand} ${updatedArgs.join(' ')}`,
-      );
+      await parser.parseAsync(`add ${serverName} ${updatedCommand} ${updatedArgs.join(' ')}`);
       expect(mockSetValue).toHaveBeenCalledWith(
         SettingScope.Workspace,
         'mcpServers',
@@ -398,14 +318,12 @@ describe('mcp add command', () => {
             command: updatedCommand,
             args: updatedArgs,
           }),
-        }),
+        })
       );
     });
 
     it('should update the existing server in the user scope', async () => {
-      await parser.parseAsync(
-        `add --scope user ${serverName} ${updatedCommand} ${updatedArgs.join(' ')}`,
-      );
+      await parser.parseAsync(`add --scope user ${serverName} ${updatedCommand} ${updatedArgs.join(' ')}`);
       expect(mockSetValue).toHaveBeenCalledWith(
         SettingScope.User,
         'mcpServers',
@@ -414,7 +332,7 @@ describe('mcp add command', () => {
             command: updatedCommand,
             args: updatedArgs,
           }),
-        }),
+        })
       );
     });
   });

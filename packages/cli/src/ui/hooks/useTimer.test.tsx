@@ -18,32 +18,20 @@ describe('useTimer', () => {
     vi.restoreAllMocks();
   });
 
-  const renderTimerHook = (
-    initialIsActive: boolean,
-    initialResetKey: number,
-  ) => {
+  const renderTimerHook = (initialIsActive: boolean, initialResetKey: number) => {
     let hookResult: ReturnType<typeof useTimer>;
-    function TestComponent({
-      isActive,
-      resetKey,
-    }: {
-      isActive: boolean;
-      resetKey: number;
-    }) {
+    function TestComponent({ isActive, resetKey }: { isActive: boolean; resetKey: number }) {
       hookResult = useTimer(isActive, resetKey);
       return null;
     }
-    const { rerender, unmount } = render(
-      <TestComponent isActive={initialIsActive} resetKey={initialResetKey} />,
-    );
+    const { rerender, unmount } = render(<TestComponent isActive={initialIsActive} resetKey={initialResetKey} />);
     return {
       result: {
         get current() {
           return hookResult;
         },
       },
-      rerender: (newProps: { isActive: boolean; resetKey: number }) =>
-        rerender(<TestComponent {...newProps} />),
+      rerender: (newProps: { isActive: boolean; resetKey: number }) => rerender(<TestComponent {...newProps} />),
       unmount,
     };
   };

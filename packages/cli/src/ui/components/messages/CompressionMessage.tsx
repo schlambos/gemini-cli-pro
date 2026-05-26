@@ -19,11 +19,8 @@ export interface CompressionDisplayProps {
  * Compression messages appear when the /compress command is run, and show a loading spinner
  * while compression is in progress, followed up by some compression stats.
  */
-export function CompressionMessage({
-  compression,
-}: CompressionDisplayProps): React.JSX.Element {
-  const { isPending, originalTokenCount, newTokenCount, compressionStatus } =
-    compression;
+export function CompressionMessage({ compression }: CompressionDisplayProps): React.JSX.Element {
+  const { isPending, originalTokenCount, newTokenCount, compressionStatus } = compression;
 
   const originalTokens = originalTokenCount ?? 0;
   const newTokens = newTokenCount ?? 0;
@@ -58,19 +55,11 @@ export function CompressionMessage({
   const text = getCompressionText();
 
   return (
-    <Box flexDirection="row">
-      <Box marginRight={1}>
-        {isPending ? (
-          <CliSpinner type="dots" />
-        ) : (
-          <Text color={theme.text.accent}>✦</Text>
-        )}
-      </Box>
+    <Box flexDirection='row'>
+      <Box marginRight={1}>{isPending ? <CliSpinner type='dots' /> : <Text color={theme.text.accent}>✦</Text>}</Box>
       <Box>
         <Text
-          color={
-            compression.isPending ? theme.text.accent : theme.status.success
-          }
+          color={compression.isPending ? theme.text.accent : theme.status.success}
           aria-label={SCREEN_READER_MODEL_PREFIX}
         >
           {text}

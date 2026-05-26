@@ -88,9 +88,7 @@ export class ToolOutputMaskingService {
 
     // Decide where to start scanning.
     // If PROTECT_LATEST_TURN is true, we skip the most recent message (index history.length - 1).
-    const scanStartIdx = maskingConfig.protectLatestTurn
-      ? history.length - 2
-      : history.length - 1;
+    const scanStartIdx = maskingConfig.protectLatestTurn ? history.length - 2 : history.length - 1;
 
     // Backward scan to identify prunable tool outputs
     for (let i = scanStartIdx; i >= 0; i--) {
@@ -153,16 +151,13 @@ export class ToolOutputMaskingService {
     }
 
     debugLogger.debug(
-      `[ToolOutputMasking] Triggering masking. Prunable tool tokens: ${totalPrunableTokens.toLocaleString()} (> ${maskingConfig.minPrunableTokensThreshold.toLocaleString()})`,
+      `[ToolOutputMasking] Triggering masking. Prunable tool tokens: ${totalPrunableTokens.toLocaleString()} (> ${maskingConfig.minPrunableTokensThreshold.toLocaleString()})`
     );
 
     // Perform masking and offloading
     const newHistory = [...history]; // Shallow copy of history
     let actualTokensSaved = 0;
-    let toolOutputsDir = path.join(
-      config.storage.getProjectTempDir(),
-      TOOL_OUTPUTS_DIR,
-    );
+    let toolOutputsDir = path.join(config.storage.getProjectTempDir(), TOOL_OUTPUTS_DIR);
     const sessionId = config.getSessionId();
     if (sessionId) {
       const safeSessionId = sanitizeFilenamePart(sessionId);
@@ -181,9 +176,7 @@ export class ToolOutputMaskingService {
       const callId = part.functionResponse.id || Date.now().toString();
       const safeToolName = sanitizeFilenamePart(toolName).toLowerCase();
       const safeCallId = sanitizeFilenamePart(callId).toLowerCase();
-      const fileName = `${safeToolName}_${safeCallId}_${Math.random()
-        .toString(36)
-        .substring(7)}.txt`;
+      const fileName = `${safeToolName}_${safeCallId}_${Math.random().toString(36).substring(7)}.txt`;
       const filePath = path.join(toolOutputsDir, fileName);
 
       await fsPromises.writeFile(filePath, content, 'utf-8');
@@ -193,11 +186,7 @@ export class ToolOutputMaskingService {
         (part.functionResponse.response as Record<string, unknown>) || {};
 
       const totalLines = content.split('\n').length;
-      const fileSizeMB = (
-        Buffer.byteLength(content, 'utf8') /
-        1024 /
-        1024
-      ).toFixed(2);
+      const fileSizeMB = (Buffer.byteLength(content, 'utf8') / 1024 / 1024).toFixed(2);
 
       let preview = '';
       if (toolName === SHELL_TOOL_NAME) {
@@ -241,7 +230,7 @@ export class ToolOutputMaskingService {
     }
 
     debugLogger.debug(
-      `[ToolOutputMasking] Masked ${maskedCount} tool outputs. Saved ~${actualTokensSaved.toLocaleString()} tokens.`,
+      `[ToolOutputMasking] Masked ${maskedCount} tool outputs. Saved ~${actualTokensSaved.toLocaleString()} tokens.`
     );
 
     const result = {
@@ -261,7 +250,7 @@ export class ToolOutputMaskingService {
         tokens_after: totalPrunableTokens - actualTokensSaved,
         masked_count: maskedCount,
         total_prunable_tokens: totalPrunableTokens,
-      }),
+      })
     );
 
     return result;
@@ -291,14 +280,11 @@ export class ToolOutputMaskingService {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
     const content = (response['output'] || response['stdout'] || '') as string;
     if (typeof content !== 'string') {
-      return typeof content === 'object'
-        ? JSON.stringify(content)
-        : String(content);
+      return typeof content === 'object' ? JSON.stringify(content) : String(content);
     }
 
     // The shell tool output is structured in shell.ts with specific section prefixes:
-    const sectionRegex =
-      /^(Output|Error|Exit Code|Signal|Background PIDs|Process Group PGID): /m;
+    const sectionRegex = /^(Output|Error|Exit Code|Signal|Background PIDs|Process Group PGID): /m;
     const parts = content.split(sectionRegex);
 
     if (parts.length < 3) {
@@ -316,9 +302,7 @@ export class ToolOutputMaskingService {
       const sectionContent = parts[i + 1]?.trim() || '';
 
       if (name === 'Output') {
-        previewParts.push(
-          `Output: ${this.formatSimplePreview(sectionContent)}`,
-        );
+        previewParts.push(`Output: ${this.formatSimplePreview(sectionContent)}`);
       } else {
         // Keep other sections (Error, Exit Code, etc.) in full as they are usually high-signal and small
         previewParts.push(`${name}: ${sectionContent}`);
@@ -330,12 +314,7 @@ export class ToolOutputMaskingService {
     // Also check root levels just in case some tool uses them or for future-proofing
     const exitCode = response['exitCode'] ?? response['exit_code'];
     const error = response['error'];
-    if (
-      exitCode !== undefined &&
-      exitCode !== 0 &&
-      exitCode !== null &&
-      !content.includes(`Exit Code: ${exitCode}`)
-    ) {
+    if (exitCode !== undefined && exitCode !== 0 && exitCode !== null && !content.includes(`Exit Code: ${exitCode}`)) {
       preview += `\n[Exit Code: ${exitCode}]`;
     }
     if (error && !content.includes(`Error: ${error}`)) {

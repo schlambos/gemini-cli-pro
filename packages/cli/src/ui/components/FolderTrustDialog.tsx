@@ -28,10 +28,7 @@ interface FolderTrustDialogProps {
   isRestarting?: boolean;
 }
 
-export const FolderTrustDialog: React.FC<FolderTrustDialogProps> = ({
-  onSelect,
-  isRestarting,
-}) => {
+export const FolderTrustDialog: React.FC<FolderTrustDialogProps> = ({ onSelect, isRestarting }) => {
   const [exiting, setExiting] = useState(false);
 
   useEffect(() => {
@@ -63,7 +60,7 @@ export const FolderTrustDialog: React.FC<FolderTrustDialogProps> = ({
       }
       return false;
     },
-    { isActive: !isRestarting },
+    { isActive: !isRestarting }
   );
 
   const dirName = path.basename(process.cwd());
@@ -88,44 +85,36 @@ export const FolderTrustDialog: React.FC<FolderTrustDialogProps> = ({
   ];
 
   return (
-    <Box flexDirection="column" width="100%">
+    <Box flexDirection='column' width='100%'>
       <Box
-        flexDirection="column"
-        borderStyle="round"
+        flexDirection='column'
+        borderStyle='round'
         borderColor={theme.status.warning}
         padding={1}
         marginLeft={1}
         marginRight={1}
       >
-        <Box flexDirection="column" marginBottom={1}>
+        <Box flexDirection='column' marginBottom={1}>
           <Text bold color={theme.text.primary}>
             Do you trust this folder?
           </Text>
           <Text color={theme.text.primary}>
-            Trusting a folder allows Gemini to execute commands it suggests.
-            This is a security feature to prevent accidental execution in
-            untrusted directories.
+            Trusting a folder allows Gemini to execute commands it suggests. This is a security feature to prevent
+            accidental execution in untrusted directories.
           </Text>
         </Box>
 
-        <RadioButtonSelect
-          items={options}
-          onSelect={onSelect}
-          isFocused={!isRestarting}
-        />
+        <RadioButtonSelect items={options} onSelect={onSelect} isFocused={!isRestarting} />
       </Box>
       {isRestarting && (
         <Box marginLeft={1} marginTop={1}>
-          <Text color={theme.status.warning}>
-            Gemini CLI is restarting to apply the trust changes...
-          </Text>
+          <Text color={theme.status.warning}>Gemini CLI is restarting to apply the trust changes...</Text>
         </Box>
       )}
       {exiting && (
         <Box marginLeft={1} marginTop={1}>
           <Text color={theme.status.warning}>
-            A folder trust level must be selected to continue. Exiting since
-            escape was pressed.
+            A folder trust level must be selected to continue. Exiting since escape was pressed.
           </Text>
         </Box>
       )}

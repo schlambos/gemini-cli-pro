@@ -9,10 +9,7 @@ import { ExtensionStorage } from './storage.js';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
-import {
-  EXTENSION_SETTINGS_FILENAME,
-  EXTENSIONS_CONFIG_FILENAME,
-} from './variables.js';
+import { EXTENSION_SETTINGS_FILENAME, EXTENSIONS_CONFIG_FILENAME } from './variables.js';
 import { Storage } from '@google/gemini-cli-core';
 
 vi.mock('node:os');
@@ -38,9 +35,8 @@ describe('ExtensionStorage', () => {
     vi.mocked(Storage).mockImplementation(
       () =>
         ({
-          getExtensionsDir: () =>
-            path.join(mockHomeDir, '.gemini', 'extensions'),
-        }) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+          getExtensionsDir: () => path.join(mockHomeDir, '.gemini', 'extensions'),
+        }) as any // eslint-disable-line @typescript-eslint/no-explicit-any
     );
     storage = new ExtensionStorage(extensionName);
   });
@@ -50,12 +46,7 @@ describe('ExtensionStorage', () => {
   });
 
   it('should return the correct extension directory', () => {
-    const expectedDir = path.join(
-      mockHomeDir,
-      '.gemini',
-      'extensions',
-      extensionName,
-    );
+    const expectedDir = path.join(mockHomeDir, '.gemini', 'extensions', extensionName);
     expect(storage.getExtensionDir()).toBe(expectedDir);
   });
 
@@ -65,7 +56,7 @@ describe('ExtensionStorage', () => {
       '.gemini',
       'extensions',
       extensionName,
-      EXTENSIONS_CONFIG_FILENAME, // EXTENSIONS_CONFIG_FILENAME
+      EXTENSIONS_CONFIG_FILENAME // EXTENSIONS_CONFIG_FILENAME
     );
     expect(storage.getConfigPath()).toBe(expectedPath);
   });
@@ -76,7 +67,7 @@ describe('ExtensionStorage', () => {
       '.gemini',
       'extensions',
       extensionName,
-      EXTENSION_SETTINGS_FILENAME, // EXTENSION_SETTINGS_FILENAME
+      EXTENSION_SETTINGS_FILENAME // EXTENSION_SETTINGS_FILENAME
     );
     expect(storage.getEnvFilePath()).toBe(expectedPath);
   });
@@ -93,9 +84,7 @@ describe('ExtensionStorage', () => {
 
     const result = await ExtensionStorage.createTmpDir();
 
-    expect(fs.promises.mkdtemp).toHaveBeenCalledWith(
-      path.join('/tmp', 'gemini-extension'),
-    );
+    expect(fs.promises.mkdtemp).toHaveBeenCalledWith(path.join('/tmp', 'gemini-extension'));
     expect(result).toBe(mockTmpDir);
   });
 });

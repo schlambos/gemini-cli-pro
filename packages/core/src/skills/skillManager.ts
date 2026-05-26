@@ -47,7 +47,7 @@ export class SkillManager {
   async discoverSkills(
     storage: Storage,
     extensions: GeminiCLIExtension[] = [],
-    isTrusted: boolean = false,
+    isTrusted: boolean = false
   ): Promise<void> {
     this.clearSkills();
 
@@ -66,28 +66,20 @@ export class SkillManager {
     this.addSkillsWithPrecedence(userSkills);
 
     // 3.1 User agent skills alias (.agents/skills)
-    const userAgentSkills = await loadSkillsFromDir(
-      Storage.getUserAgentSkillsDir(),
-    );
+    const userAgentSkills = await loadSkillsFromDir(Storage.getUserAgentSkillsDir());
     this.addSkillsWithPrecedence(userAgentSkills);
 
     // 4. Workspace skills (highest precedence)
     if (!isTrusted) {
-      debugLogger.debug(
-        'Workspace skills disabled because folder is not trusted.',
-      );
+      debugLogger.debug('Workspace skills disabled because folder is not trusted.');
       return;
     }
 
-    const projectSkills = await loadSkillsFromDir(
-      storage.getProjectSkillsDir(),
-    );
+    const projectSkills = await loadSkillsFromDir(storage.getProjectSkillsDir());
     this.addSkillsWithPrecedence(projectSkills);
 
     // 4.1 Workspace agent skills alias (.agents/skills)
-    const projectAgentSkills = await loadSkillsFromDir(
-      storage.getProjectAgentSkillsDir(),
-    );
+    const projectAgentSkills = await loadSkillsFromDir(storage.getProjectAgentSkillsDir());
     this.addSkillsWithPrecedence(projectAgentSkills);
   }
 
@@ -115,21 +107,17 @@ export class SkillManager {
   }
 
   private addSkillsWithPrecedence(newSkills: SkillDefinition[]): void {
-    const skillMap = new Map<string, SkillDefinition>(
-      this.skills.map((s) => [s.name, s]),
-    );
+    const skillMap = new Map<string, SkillDefinition>(this.skills.map((s) => [s.name, s]));
 
     for (const newSkill of newSkills) {
       const existingSkill = skillMap.get(newSkill.name);
       if (existingSkill && existingSkill.location !== newSkill.location) {
         if (existingSkill.isBuiltin) {
-          debugLogger.warn(
-            `Skill "${newSkill.name}" from "${newSkill.location}" is overriding the built-in skill.`,
-          );
+          debugLogger.warn(`Skill "${newSkill.name}" from "${newSkill.location}" is overriding the built-in skill.`);
         } else {
           coreEvents.emitFeedback(
             'warning',
-            `Skill conflict detected: "${newSkill.name}" from "${newSkill.location}" is overriding the same skill from "${existingSkill.location}".`,
+            `Skill conflict detected: "${newSkill.name}" from "${newSkill.location}" is overriding the same skill from "${existingSkill.location}".`
           );
         }
       }
@@ -174,9 +162,7 @@ export class SkillManager {
   setDisabledSkills(disabledNames: string[]): void {
     const lowercaseDisabledNames = disabledNames.map((n) => n.toLowerCase());
     for (const skill of this.skills) {
-      skill.disabled = lowercaseDisabledNames.includes(
-        skill.name.toLowerCase(),
-      );
+      skill.disabled = lowercaseDisabledNames.includes(skill.name.toLowerCase());
     }
   }
 
@@ -185,9 +171,7 @@ export class SkillManager {
    */
   getSkill(name: string): SkillDefinition | null {
     const lowercaseName = name.toLowerCase();
-    return (
-      this.skills.find((s) => s.name.toLowerCase() === lowercaseName) ?? null
-    );
+    return this.skills.find((s) => s.name.toLowerCase() === lowercaseName) ?? null;
   }
 
   /**

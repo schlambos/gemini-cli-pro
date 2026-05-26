@@ -12,8 +12,7 @@ import { tildeifyPath, ToolCallDecision } from '@google/gemini-cli-core';
 import type { SessionStatsState } from '../contexts/SessionContext.js';
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const original =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const original = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...original,
     shortenPath: (p: string, len: number) => {
@@ -27,8 +26,7 @@ vi.mock('@google/gemini-cli-core', async (importOriginal) => {
 
 const defaultProps = {
   model: 'gemini-pro',
-  targetDir:
-    '/Users/test/project/foo/bar/and/some/more/directories/to/make/it/long',
+  targetDir: '/Users/test/project/foo/bar/and/some/more/directories/to/make/it/long',
   branchName: 'main',
 };
 
@@ -79,8 +77,7 @@ describe('<Footer />', () => {
       });
       const tildePath = tildeifyPath(defaultProps.targetDir);
       const pathLength = Math.max(20, Math.floor(79 * 0.25));
-      const expectedPath =
-        '...' + tildePath.slice(tildePath.length - pathLength + 3);
+      const expectedPath = '...' + tildePath.slice(tildePath.length - pathLength + 3);
       expect(lastFrame()).toContain(expectedPath);
     });
 
@@ -90,8 +87,7 @@ describe('<Footer />', () => {
         uiState: { sessionStats: mockSessionStats },
       });
       const tildePath = tildeifyPath(defaultProps.targetDir);
-      const expectedPath =
-        '...' + tildePath.slice(tildePath.length - 80 * 0.25 + 3);
+      const expectedPath = '...' + tildePath.slice(tildePath.length - 80 * 0.25 + 3);
       expect(lastFrame()).toContain(expectedPath);
     });
   });

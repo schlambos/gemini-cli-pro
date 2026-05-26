@@ -12,11 +12,7 @@ import { waitFor } from '../../test-utils/async.js';
 import { useVim } from './vim.js';
 import type { VimMode } from './vim.js';
 import type { Key } from './useKeypress.js';
-import type {
-  TextBuffer,
-  TextBufferState,
-  TextBufferAction,
-} from '../components/shared/text-buffer.js';
+import type { TextBuffer, TextBufferState, TextBufferAction } from '../components/shared/text-buffer.js';
 import { textBufferReducer } from '../components/shared/text-buffer.js';
 
 // Mock the VimModeContext
@@ -44,9 +40,7 @@ const createKey = (partial: Partial<Key>): Key => ({
   ...partial,
 });
 
-const createMockTextBufferState = (
-  partial: Partial<TextBufferState>,
-): TextBufferState => {
+const createMockTextBufferState = (partial: Partial<TextBufferState>): TextBufferState => {
   const lines = partial.lines || [''];
   return {
     lines,
@@ -99,10 +93,7 @@ describe('useVim hook', () => {
   let mockBuffer: Partial<TextBuffer>;
   let mockHandleFinalSubmit: Mock;
 
-  const createMockBuffer = (
-    text = 'hello world',
-    cursor: [number, number] = [0, 5],
-  ) => {
+  const createMockBuffer = (text = 'hello world', cursor: [number, number] = [0, 5]) => {
     const cursorState = { pos: cursor };
     const lines = text.split('\n');
 
@@ -199,9 +190,7 @@ describe('useVim hook', () => {
   };
 
   const renderVimHook = (buffer?: Partial<TextBuffer>) =>
-    renderHook(() =>
-      useVim((buffer || mockBuffer) as TextBuffer, mockHandleFinalSubmit),
-    );
+    renderHook(() => useVim((buffer || mockBuffer) as TextBuffer, mockHandleFinalSubmit));
 
   const exitInsertMode = (result: {
     current: {
@@ -441,16 +430,12 @@ describe('useVim hook', () => {
       exitInsertMode(result);
 
       act(() => {
-        const handled = result.current.handleInput(
-          createKey({ sequence: '3' }),
-        );
+        const handled = result.current.handleInput(createKey({ sequence: '3' }));
         expect(handled).toBe(true);
       });
 
       act(() => {
-        const handled = result.current.handleInput(
-          createKey({ sequence: 'h' }),
-        );
+        const handled = result.current.handleInput(createKey({ sequence: 'h' }));
         expect(handled).toBe(true);
       });
 
@@ -481,10 +466,7 @@ describe('useVim hook', () => {
     });
 
     it('should support vim mode and basic operations across multiple lines', () => {
-      const testBuffer = createMockBuffer(
-        'first line word\nsecond line word',
-        [0, 11],
-      );
+      const testBuffer = createMockBuffer('first line word\nsecond line word', [0, 11]);
       const { result } = renderVimHook(testBuffer);
 
       expect(result.current.vimModeEnabled).toBe(true);
@@ -1232,10 +1214,7 @@ describe('useVim hook', () => {
       });
 
       it('should change multiple lines with count', () => {
-        const testBuffer = createMockBuffer(
-          'line1\nline2\nline3\nline4',
-          [1, 0],
-        );
+        const testBuffer = createMockBuffer('line1\nline2\nline3\nline4', [1, 0]);
         const { result } = renderVimHook(testBuffer);
         exitInsertMode(result);
 
@@ -1441,9 +1420,7 @@ describe('useVim hook', () => {
         mockVimContext.vimMode = 'NORMAL';
         const { result } = renderVimHook();
 
-        const handled = result.current.handleInput(
-          createKey({ name: 'escape' }),
-        );
+        const handled = result.current.handleInput(createKey({ name: 'escape' }));
 
         expect(handled).toBe(false);
       });
@@ -1475,9 +1452,7 @@ describe('useVim hook', () => {
         expect(result.current.mode).toBe('INSERT');
       });
 
-      const handled = result.current.handleInput(
-        createKey({ name: 'r', ctrl: true }),
-      );
+      const handled = result.current.handleInput(createKey({ name: 'r', ctrl: true }));
 
       expect(handled).toBe(false);
     });
@@ -1511,9 +1486,7 @@ describe('useVim hook', () => {
         result.current.handleInput(key);
       });
 
-      expect(nonEmptyBuffer.handleInput).toHaveBeenCalledWith(
-        expect.objectContaining(key),
-      );
+      expect(nonEmptyBuffer.handleInput).toHaveBeenCalledWith(expect.objectContaining(key));
     });
   });
 
@@ -1774,18 +1747,14 @@ describe('useVim hook', () => {
           selectionAnchor: null,
         });
 
-        const action = (
-          count
-            ? { type: actionType, payload: { count } }
-            : { type: actionType }
-        ) as TextBufferAction;
+        const action = (count ? { type: actionType, payload: { count } } : { type: actionType }) as TextBufferAction;
 
         const result = textBufferReducer(initialState, action);
 
         expect(result.lines).toEqual(expectedLines);
         expect(result.cursorRow).toBe(expectedCursorRow);
         expect(result.cursorCol).toBe(expectedCursorCol);
-      },
+      }
     );
   });
 
@@ -1803,9 +1772,7 @@ describe('useVim hook', () => {
     });
 
     it('should clear buffer on double-escape in NORMAL mode', async () => {
-      const { result } = renderHook(() =>
-        useVim(mockBuffer as TextBuffer, mockHandleFinalSubmit),
-      );
+      const { result } = renderHook(() => useVim(mockBuffer as TextBuffer, mockHandleFinalSubmit));
       exitInsertMode(result);
       // Wait to clear escape history
       await act(async () => {
@@ -1828,9 +1795,7 @@ describe('useVim hook', () => {
     });
 
     it('should clear buffer on double-escape in INSERT mode', async () => {
-      const { result } = renderHook(() =>
-        useVim(mockBuffer as TextBuffer, mockHandleFinalSubmit),
-      );
+      const { result } = renderHook(() => useVim(mockBuffer as TextBuffer, mockHandleFinalSubmit));
 
       // First escape - switches to NORMAL mode
       let handled: boolean;
@@ -1849,9 +1814,7 @@ describe('useVim hook', () => {
     });
 
     it('should NOT clear buffer if escapes are too slow', async () => {
-      const { result } = renderHook(() =>
-        useVim(mockBuffer as TextBuffer, mockHandleFinalSubmit),
-      );
+      const { result } = renderHook(() => useVim(mockBuffer as TextBuffer, mockHandleFinalSubmit));
       exitInsertMode(result);
       // Wait to clear escape history
       await act(async () => {
@@ -1879,9 +1842,7 @@ describe('useVim hook', () => {
     });
 
     it('should clear escape history when clearing pending operator', async () => {
-      const { result } = renderHook(() =>
-        useVim(mockBuffer as TextBuffer, mockHandleFinalSubmit),
-      );
+      const { result } = renderHook(() => useVim(mockBuffer as TextBuffer, mockHandleFinalSubmit));
       exitInsertMode(result);
       // Wait to clear escape history
       await act(async () => {
@@ -1913,9 +1874,7 @@ describe('useVim hook', () => {
     });
 
     it('should pass Ctrl+C through to InputPrompt in NORMAL mode', async () => {
-      const { result } = renderHook(() =>
-        useVim(mockBuffer as TextBuffer, mockHandleFinalSubmit),
-      );
+      const { result } = renderHook(() => useVim(mockBuffer as TextBuffer, mockHandleFinalSubmit));
       exitInsertMode(result);
 
       let handled: boolean;
@@ -1927,9 +1886,7 @@ describe('useVim hook', () => {
     });
 
     it('should pass Ctrl+C through to InputPrompt in INSERT mode', async () => {
-      const { result } = renderHook(() =>
-        useVim(mockBuffer as TextBuffer, mockHandleFinalSubmit),
-      );
+      const { result } = renderHook(() => useVim(mockBuffer as TextBuffer, mockHandleFinalSubmit));
 
       let handled: boolean;
       await act(async () => {

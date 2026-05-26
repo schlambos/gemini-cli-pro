@@ -19,10 +19,7 @@ describe('Flicker Detector', () => {
 
   it('should not detect a flicker under the max height budget', async () => {
     rig.setup('flicker-detector-test', {
-      fakeResponsesPath: join(
-        import.meta.dirname,
-        'flicker-detector.max-height.responses',
-      ),
+      fakeResponsesPath: join(import.meta.dirname, 'flicker-detector.max-height.responses'),
     });
     const run = await rig.runInteractive();
     const prompt = 'Tell me a fun fact.';

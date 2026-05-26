@@ -10,10 +10,7 @@ import { act } from 'react';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
-import {
-  renderHook,
-  renderHookWithProviders,
-} from '../../../test-utils/render.js';
+import { renderHook, renderHookWithProviders } from '../../../test-utils/render.js';
 
 import type {
   Viewport,
@@ -71,15 +68,11 @@ const initialState: TextBufferState = {
 /**
  * Helper to create a TextBufferState with properly calculated transformations.
  */
-function createStateWithTransformations(
-  partial: Partial<TextBufferState>,
-): TextBufferState {
+function createStateWithTransformations(partial: Partial<TextBufferState>): TextBufferState {
   const state = { ...initialState, ...partial };
   return {
     ...state,
-    transformationsByLine: state.lines.map((l) =>
-      calculateTransformationsForLine(l),
-    ),
+    transformationsByLine: state.lines.map((l) => calculateTransformationsForLine(l)),
   };
 }
 
@@ -379,10 +372,7 @@ describe('textBufferReducer', () => {
 
         // Delete the placeholder
         const deleteAction: TextBufferAction = { type: 'backspace' };
-        const stateAfterDelete = textBufferReducer(
-          stateWithPlaceholder,
-          deleteAction,
-        );
+        const stateAfterDelete = textBufferReducer(stateWithPlaceholder, deleteAction);
         expect(stateAfterDelete.lines).toEqual(['']);
         expect(stateAfterDelete.pastedContent[placeholder]).toBeUndefined();
 
@@ -449,10 +439,7 @@ describe('textBufferReducer', () => {
   });
 
   describe('delete_word_left action', () => {
-    const createSingleLineState = (
-      text: string,
-      col: number,
-    ): TextBufferState => ({
+    const createSingleLineState = (text: string, col: number): TextBufferState => ({
       ...initialState,
       lines: [text],
       cursorRow: 0,
@@ -481,17 +468,11 @@ describe('textBufferReducer', () => {
         expectedCol: 9,
         desc: 'variable_name parts',
       },
-    ])(
-      'should delete $desc',
-      ({ input, cursorCol, expectedLines, expectedCol }) => {
-        const state = textBufferReducer(
-          createSingleLineState(input, cursorCol),
-          { type: 'delete_word_left' },
-        );
-        expect(state.lines).toEqual(expectedLines);
-        expect(state.cursorCol).toBe(expectedCol);
-      },
-    );
+    ])('should delete $desc', ({ input, cursorCol, expectedLines, expectedCol }) => {
+      const state = textBufferReducer(createSingleLineState(input, cursorCol), { type: 'delete_word_left' });
+      expect(state.lines).toEqual(expectedLines);
+      expect(state.cursorCol).toBe(expectedCol);
+    });
 
     it('should act like backspace at the beginning of a line', () => {
       const stateWithText: TextBufferState = {
@@ -510,10 +491,7 @@ describe('textBufferReducer', () => {
   });
 
   describe('delete_word_right action', () => {
-    const createSingleLineState = (
-      text: string,
-      col: number,
-    ): TextBufferState => ({
+    const createSingleLineState = (text: string, col: number): TextBufferState => ({
       ...initialState,
       lines: [text],
       cursorRow: 0,
@@ -535,17 +513,11 @@ describe('textBufferReducer', () => {
         expectedCol: 0,
         desc: 'variable_name parts',
       },
-    ])(
-      'should delete $desc',
-      ({ input, cursorCol, expectedLines, expectedCol }) => {
-        const state = textBufferReducer(
-          createSingleLineState(input, cursorCol),
-          { type: 'delete_word_right' },
-        );
-        expect(state.lines).toEqual(expectedLines);
-        expect(state.cursorCol).toBe(expectedCol);
-      },
-    );
+    ])('should delete $desc', ({ input, cursorCol, expectedLines, expectedCol }) => {
+      const state = textBufferReducer(createSingleLineState(input, cursorCol), { type: 'delete_word_right' });
+      expect(state.lines).toEqual(expectedLines);
+      expect(state.cursorCol).toBe(expectedCol);
+    });
 
     it('should delete path segments progressively', () => {
       const stateWithText: TextBufferState = {
@@ -597,14 +569,7 @@ describe('textBufferReducer', () => {
 
       const state = textBufferReducer(stateWithPlaceholder, action);
 
-      expect(state.lines).toEqual([
-        'prefix line1',
-        'line2',
-        'line3',
-        'line4',
-        'line5',
-        'line6 suffix',
-      ]);
+      expect(state.lines).toEqual(['prefix line1', 'line2', 'line3', 'line4', 'line5', 'line6 suffix']);
       expect(state.expandedPaste?.id).toBe(placeholder);
       const info = state.expandedPaste;
       expect(info).toEqual({
@@ -621,14 +586,7 @@ describe('textBufferReducer', () => {
 
     it('should collapse an expanded placeholder correctly', () => {
       const expandedState = createStateWithTransformations({
-        lines: [
-          'prefix line1',
-          'line2',
-          'line3',
-          'line4',
-          'line5',
-          'line6 suffix',
-        ],
+        lines: ['prefix line1', 'line2', 'line3', 'line4', 'line5', 'line6 suffix'],
         cursorRow: 5,
         cursorCol: 5,
         pastedContent: { [placeholder]: content },
@@ -759,7 +717,7 @@ describe('useTextBuffer', () => {
         useTextBuffer({
           initialText: 'hello',
           viewport,
-        }),
+        })
       );
       const state = getBufferState(result);
       expect(state.text).toBe('hello');
@@ -776,7 +734,7 @@ describe('useTextBuffer', () => {
           initialText: 'hello\nworld',
           initialCursorOffset: 7, // Should be at 'o' in 'world'
           viewport,
-        }),
+        })
       );
       const state = getBufferState(result);
       expect(state.text).toBe('hello\nworld');
@@ -794,15 +752,10 @@ describe('useTextBuffer', () => {
           initialText: 'The quick brown fox jumps over the lazy dog.',
           initialCursorOffset: 2, // After '好'
           viewport: { width: 15, height: 4 },
-        }),
+        })
       );
       const state = getBufferState(result);
-      expect(state.allVisualLines).toEqual([
-        'The quick',
-        'brown fox',
-        'jumps over the',
-        'lazy dog.',
-      ]);
+      expect(state.allVisualLines).toEqual(['The quick', 'brown fox', 'jumps over the', 'lazy dog.']);
     });
 
     it('should wrap visual lines with multiple spaces', () => {
@@ -810,18 +763,13 @@ describe('useTextBuffer', () => {
         useTextBuffer({
           initialText: 'The  quick  brown fox    jumps over the lazy dog.',
           viewport: { width: 15, height: 4 },
-        }),
+        })
       );
       const state = getBufferState(result);
       // Including multiple spaces at the end of the lines like this is
       // consistent with Google docs behavior and makes it intuitive to edit
       // the spaces as needed.
-      expect(state.allVisualLines).toEqual([
-        'The  quick ',
-        'brown fox   ',
-        'jumps over the',
-        'lazy dog.',
-      ]);
+      expect(state.allVisualLines).toEqual(['The  quick ', 'brown fox   ', 'jumps over the', 'lazy dog.']);
     });
 
     it('should wrap visual lines even without spaces', () => {
@@ -829,7 +777,7 @@ describe('useTextBuffer', () => {
         useTextBuffer({
           initialText: '123456789012345ABCDEFG', // 4 chars, 12 bytes
           viewport: { width: 15, height: 2 },
-        }),
+        })
       );
       const state = getBufferState(result);
       // Including multiple spaces at the end of the lines like this is
@@ -844,7 +792,7 @@ describe('useTextBuffer', () => {
           initialText: '你好世界', // 4 chars, 12 bytes
           initialCursorOffset: 2, // After '好'
           viewport: { width: 5, height: 2 },
-        }),
+        })
       );
       const state = getBufferState(result);
       expect(state.text).toBe('你好世界');
@@ -877,7 +825,7 @@ describe('useTextBuffer', () => {
         useTextBuffer({
           initialText: 'abc',
           viewport,
-        }),
+        })
       );
       act(() => result.current.move('right'));
       act(() => result.current.insert('-NEW-'));
@@ -892,9 +840,7 @@ describe('useTextBuffer', () => {
       act(() => result.current.insert(largeText, { paste: true }));
       const state = getBufferState(result);
       expect(state.text).toBe('[Pasted Text: 6 lines]');
-      expect(result.current.pastedContent['[Pasted Text: 6 lines]']).toBe(
-        largeText,
-      );
+      expect(result.current.pastedContent['[Pasted Text: 6 lines]']).toBe(largeText);
     });
 
     it('insert: should NOT use placeholder for large text if NOT a paste', () => {
@@ -909,9 +855,7 @@ describe('useTextBuffer', () => {
       const { result } = renderHook(() => useTextBuffer({ viewport }));
       const largeText = '1\n2\n3\n4\n5\n6';
       act(() => result.current.insert(largeText, { paste: true }));
-      expect(result.current.pastedContent['[Pasted Text: 6 lines]']).toBe(
-        largeText,
-      );
+      expect(result.current.pastedContent['[Pasted Text: 6 lines]']).toBe(largeText);
 
       // Delete the placeholder using setText
       act(() => result.current.setText(''));
@@ -922,9 +866,7 @@ describe('useTextBuffer', () => {
       const { result } = renderHook(() => useTextBuffer({ viewport }));
       const largeText = '1\n2\n3\n4\n5\n6';
       act(() => result.current.insert(largeText, { paste: true }));
-      expect(result.current.pastedContent['[Pasted Text: 6 lines]']).toBe(
-        largeText,
-      );
+      expect(result.current.pastedContent['[Pasted Text: 6 lines]']).toBe(largeText);
 
       // Single backspace at end of placeholder removes entire placeholder
       act(() => {
@@ -941,7 +883,7 @@ describe('useTextBuffer', () => {
         useTextBuffer({
           initialText: 'ab',
           viewport,
-        }),
+        })
       );
       act(() => result.current.move('end')); // cursor at [0,2]
       act(() => result.current.newline());
@@ -959,7 +901,7 @@ describe('useTextBuffer', () => {
         useTextBuffer({
           initialText: 'a\nb',
           viewport,
-        }),
+        })
       );
       act(() => {
         result.current.move('down');
@@ -986,7 +928,7 @@ describe('useTextBuffer', () => {
         useTextBuffer({
           initialText: 'a\nb',
           viewport,
-        }),
+        })
       );
       // cursor at [0,0]
       act(() => result.current.del()); // delete 'a'
@@ -1019,9 +961,7 @@ describe('useTextBuffer', () => {
       const filePath = path.join(tempDir, 'file.txt');
       fs.writeFileSync(filePath, '');
 
-      const { result } = renderHook(() =>
-        useTextBuffer({ viewport, escapePastedPaths: true }),
-      );
+      const { result } = renderHook(() => useTextBuffer({ viewport, escapePastedPaths: true }));
       act(() => result.current.insert(filePath, { paste: true }));
       expect(getBufferState(result).text).toBe(`@${escapePath(filePath)} `);
     });
@@ -1037,18 +977,14 @@ describe('useTextBuffer', () => {
       const filePath = path.join(tempDir, 'file.txt');
       fs.writeFileSync(filePath, '');
 
-      const { result } = renderHook(() =>
-        useTextBuffer({ viewport, escapePastedPaths: true }),
-      );
+      const { result } = renderHook(() => useTextBuffer({ viewport, escapePastedPaths: true }));
       const quotedPath = `'${filePath}'`;
       act(() => result.current.insert(quotedPath, { paste: true }));
       expect(getBufferState(result).text).toBe(`@${escapePath(filePath)} `);
     });
 
     it('should not prepend @ to short text that is not a path', () => {
-      const { result } = renderHook(() =>
-        useTextBuffer({ viewport, escapePastedPaths: true }),
-      );
+      const { result } = renderHook(() => useTextBuffer({ viewport, escapePastedPaths: true }));
       const shortText = 'ab';
       act(() => result.current.insert(shortText, { paste: true }));
       expect(getBufferState(result).text).toBe(shortText);
@@ -1060,14 +996,10 @@ describe('useTextBuffer', () => {
       fs.writeFileSync(file1, '');
       fs.writeFileSync(file2, '');
 
-      const { result } = renderHook(() =>
-        useTextBuffer({ viewport, escapePastedPaths: true }),
-      );
+      const { result } = renderHook(() => useTextBuffer({ viewport, escapePastedPaths: true }));
       const filePaths = `${escapePath(file1)} ${escapePath(file2)}`;
       act(() => result.current.insert(filePaths, { paste: true }));
-      expect(getBufferState(result).text).toBe(
-        `@${escapePath(file1)} @${escapePath(file2)} `,
-      );
+      expect(getBufferState(result).text).toBe(`@${escapePath(file1)} @${escapePath(file2)} `);
     });
 
     it('should handle multiple paths with escaped spaces', () => {
@@ -1076,16 +1008,12 @@ describe('useTextBuffer', () => {
       fs.writeFileSync(file1, '');
       fs.writeFileSync(file2, '');
 
-      const { result } = renderHook(() =>
-        useTextBuffer({ viewport, escapePastedPaths: true }),
-      );
+      const { result } = renderHook(() => useTextBuffer({ viewport, escapePastedPaths: true }));
 
       const filePaths = `${escapePath(file1)} ${escapePath(file2)}`;
 
       act(() => result.current.insert(filePaths, { paste: true }));
-      expect(getBufferState(result).text).toBe(
-        `@${escapePath(file1)} @${escapePath(file2)} `,
-      );
+      expect(getBufferState(result).text).toBe(`@${escapePath(file1)} @${escapePath(file2)} `);
     });
 
     it('should not prepend @ unless all paths are valid', () => {
@@ -1098,7 +1026,7 @@ describe('useTextBuffer', () => {
         useTextBuffer({
           viewport,
           escapePastedPaths: true,
-        }),
+        })
       );
       const filePaths = `${validFile} ${invalidFile}`;
       act(() => result.current.insert(filePaths, { paste: true }));
@@ -1113,7 +1041,7 @@ describe('useTextBuffer', () => {
           viewport,
           escapePastedPaths: true,
           shellModeActive: true,
-        }),
+        })
       );
       const filePath = '/path/to/a/valid/file.txt';
       act(() => result.current.insert(filePath, { paste: true }));
@@ -1126,7 +1054,7 @@ describe('useTextBuffer', () => {
           viewport,
           escapePastedPaths: true,
           shellModeActive: true,
-        }),
+        })
       );
       const quotedFilePath = "'/path/to/a/valid/file.txt'";
       act(() => result.current.insert(quotedFilePath, { paste: true }));
@@ -1139,7 +1067,7 @@ describe('useTextBuffer', () => {
           viewport,
 
           shellModeActive: true,
-        }),
+        })
       );
       const notAPath = 'this is just some text';
       act(() => result.current.insert(notAPath, { paste: true }));
@@ -1152,7 +1080,7 @@ describe('useTextBuffer', () => {
           viewport,
           escapePastedPaths: true,
           shellModeActive: true,
-        }),
+        })
       );
       const shortText = 'ls';
       act(() => result.current.insert(shortText, { paste: true }));
@@ -1172,7 +1100,7 @@ describe('useTextBuffer', () => {
         useTextBuffer({
           initialText: 'long line1next line2', // Corrected: was 'long line1next line2'
           viewport: { width: 5, height: 4 },
-        }),
+        })
       );
       // Initial cursor [0,0] logical, visual [0,0] ("l" of "long ")
 
@@ -1198,7 +1126,7 @@ describe('useTextBuffer', () => {
         useTextBuffer({
           initialText: text,
           viewport,
-        }),
+        })
       );
       expect(result.current.allVisualLines).toEqual(['abcde', 'xy', '12345']);
       // Place cursor at the end of "abcde" -> logical [0,5]
@@ -1239,15 +1167,9 @@ describe('useTextBuffer', () => {
         useTextBuffer({
           initialText,
           viewport: { width: 5, height: 5 },
-        }),
+        })
       );
-      expect(result.current.allVisualLines).toEqual([
-        'line',
-        'one',
-        'secon',
-        'd',
-        'line',
-      ]);
+      expect(result.current.allVisualLines).toEqual(['line', 'one', 'secon', 'd', 'line']);
       // Initial cursor [0,0] (start of "line")
       act(() => result.current.move('down')); // visual cursor from [0,0] to [1,0] ("o" of "one")
       act(() => result.current.move('right')); // visual cursor to [1,1] ("n" of "one")
@@ -1267,7 +1189,7 @@ describe('useTextBuffer', () => {
         useTextBuffer({
           initialText: 'This is a very long line of text.', // 33 chars
           viewport: { width: 10, height: 5 },
-        }),
+        })
       );
       const state = getBufferState(result);
       // Expected visual lines with word wrapping (viewport width 10):
@@ -1287,22 +1209,12 @@ describe('useTextBuffer', () => {
         useTextBuffer({
           initialText: 'l1\nl2\nl3\nl4\nl5',
           viewport: { width: 5, height: 3 }, // Can show 3 visual lines
-        }),
+        })
       );
       // Initial: l1, l2, l3 visible. visualScrollRow = 0. visualCursor = [0,0]
       expect(getBufferState(result).visualScrollRow).toBe(0);
-      expect(getBufferState(result).allVisualLines).toEqual([
-        'l1',
-        'l2',
-        'l3',
-        'l4',
-        'l5',
-      ]);
-      expect(getBufferState(result).viewportVisualLines).toEqual([
-        'l1',
-        'l2',
-        'l3',
-      ]);
+      expect(getBufferState(result).allVisualLines).toEqual(['l1', 'l2', 'l3', 'l4', 'l5']);
+      expect(getBufferState(result).viewportVisualLines).toEqual(['l1', 'l2', 'l3']);
 
       act(() => result.current.move('down')); // vc=[1,0]
       act(() => result.current.move('down')); // vc=[2,0] (l3)
@@ -1350,7 +1262,7 @@ describe('useTextBuffer', () => {
         useTextBuffer({
           initialText: 'test',
           viewport,
-        }),
+        })
       );
       act(() => result.current.move('end'));
       act(() => result.current.newline());
@@ -1381,7 +1293,7 @@ describe('useTextBuffer', () => {
         useTextBuffer({
           initialText: '你好',
           viewport,
-        }),
+        })
       );
       act(() => result.current.move('end')); // cursor at [0,2]
       act(() => result.current.backspace()); // delete '好'
@@ -1400,7 +1312,7 @@ describe('useTextBuffer', () => {
         useTextBuffer({
           initialText: '🐶🐱',
           viewport: { width: 5, height: 1 },
-        }),
+        })
       );
       // Initial: visualCursor [0,0]
       act(() => result.current.move('right')); // visualCursor [0,1] (after 🐶)
@@ -1427,7 +1339,7 @@ describe('useTextBuffer', () => {
       const { result } = renderHook(() =>
         useTextBuffer({
           viewport: { width: 10, height: 5 },
-        }),
+        })
       );
 
       act(() => {
@@ -1478,7 +1390,7 @@ describe('useTextBuffer', () => {
         useTextBuffer({
           initialText: '你好', // 2 chars, width 4
           viewport: { width: 10, height: 1 },
-        }),
+        })
       );
 
       // '你' (width 2): visual 0-1. '好' (width 2): visual 2-3.
@@ -1524,7 +1436,7 @@ describe('useTextBuffer', () => {
           cmd: false,
           insertable: true,
           sequence: 'i',
-        }),
+        })
       );
       expect(getBufferState(result).text).toBe('hi');
     });
@@ -1598,7 +1510,7 @@ describe('useTextBuffer', () => {
         useTextBuffer({
           initialText: 'hello',
           viewport,
-        }),
+        })
       );
       expect(getBufferState(result).text).toBe('hello');
       let handled = false;
@@ -1639,7 +1551,7 @@ describe('useTextBuffer', () => {
         useTextBuffer({
           initialText: 'a',
           viewport,
-        }),
+        })
       );
       act(() => result.current.move('end'));
       act(() => {
@@ -1661,7 +1573,7 @@ describe('useTextBuffer', () => {
         useTextBuffer({
           initialText: 'abcde',
           viewport,
-        }),
+        })
       );
       act(() => result.current.move('end')); // cursor at the end
       expect(getBufferState(result).cursor).toEqual([0, 5]);
@@ -1704,7 +1616,7 @@ describe('useTextBuffer', () => {
         useTextBuffer({
           initialText: 'abcde',
           viewport,
-        }),
+        })
       );
       act(() => result.current.move('end')); // cursor at the end
       expect(getBufferState(result).cursor).toEqual([0, 5]);
@@ -1721,7 +1633,7 @@ describe('useTextBuffer', () => {
         useTextBuffer({
           initialText: 'abcde',
           viewport,
-        }),
+        })
       );
       act(() => result.current.move('end')); // cursor at the end
       expect(getBufferState(result).cursor).toEqual([0, 5]);
@@ -1738,7 +1650,7 @@ describe('useTextBuffer', () => {
         useTextBuffer({
           initialText: 'ab',
           viewport,
-        }),
+        })
       );
       act(() => result.current.move('end')); // cursor [0,2]
       act(() => {
@@ -1822,22 +1734,11 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
       const state = getBufferState(result);
       // Check that the text is the result of three concatenations of unique placeholders.
       // Now that ID generation is in the reducer, they are correctly unique even when batched.
-      expect(state.lines).toStrictEqual([
-        '[Pasted Text: 8 lines][Pasted Text: 8 lines #2][Pasted Text: 8 lines #3]',
-      ]);
-      expect(result.current.pastedContent['[Pasted Text: 8 lines]']).toBe(
-        longText,
-      );
-      expect(result.current.pastedContent['[Pasted Text: 8 lines #2]']).toBe(
-        longText,
-      );
-      expect(result.current.pastedContent['[Pasted Text: 8 lines #3]']).toBe(
-        longText,
-      );
-      const expectedCursorPos = offsetToLogicalPos(
-        state.text,
-        state.text.length,
-      );
+      expect(state.lines).toStrictEqual(['[Pasted Text: 8 lines][Pasted Text: 8 lines #2][Pasted Text: 8 lines #3]']);
+      expect(result.current.pastedContent['[Pasted Text: 8 lines]']).toBe(longText);
+      expect(result.current.pastedContent['[Pasted Text: 8 lines #2]']).toBe(longText);
+      expect(result.current.pastedContent['[Pasted Text: 8 lines #3]']).toBe(longText);
+      const expectedCursorPos = offsetToLogicalPos(state.text, state.text.length);
       expect(state.cursor).toEqual(expectedCursorPos);
     });
   });
@@ -1856,7 +1757,7 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
         useTextBuffer({
           initialText: '@pac',
           viewport,
-        }),
+        })
       );
       act(() => result.current.replaceRange(0, 1, 0, 4, 'packages'));
       const state = getBufferState(result);
@@ -1869,7 +1770,7 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
         useTextBuffer({
           initialText: 'hello\nworld\nagain',
           viewport,
-        }),
+        })
       );
       act(() => result.current.replaceRange(0, 2, 1, 3, ' new ')); // replace 'llo\nwor' with ' new '
       const state = getBufferState(result);
@@ -1882,7 +1783,7 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
         useTextBuffer({
           initialText: 'hello world',
           viewport,
-        }),
+        })
       );
       act(() => result.current.replaceRange(0, 5, 0, 11, '')); // delete ' world'
       const state = getBufferState(result);
@@ -1895,7 +1796,7 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
         useTextBuffer({
           initialText: 'world',
           viewport,
-        }),
+        })
       );
       act(() => result.current.replaceRange(0, 0, 0, 0, 'hello '));
       const state = getBufferState(result);
@@ -1908,7 +1809,7 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
         useTextBuffer({
           initialText: 'hello',
           viewport,
-        }),
+        })
       );
       act(() => result.current.replaceRange(0, 5, 0, 5, ' world'));
       const state = getBufferState(result);
@@ -1921,7 +1822,7 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
         useTextBuffer({
           initialText: 'old text',
           viewport,
-        }),
+        })
       );
       act(() => result.current.replaceRange(0, 0, 0, 8, 'new text'));
       const state = getBufferState(result);
@@ -1934,7 +1835,7 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
         useTextBuffer({
           initialText: 'hello *** world',
           viewport,
-        }),
+        })
       );
       act(() => result.current.replaceRange(0, 6, 0, 9, '你好'));
       const state = getBufferState(result);
@@ -1947,7 +1848,7 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
         useTextBuffer({
           initialText: 'test',
           viewport,
-        }),
+        })
       );
       act(() => {
         result.current.replaceRange(0, 5, 0, 3, 'fail'); // startCol > endCol in same line
@@ -1966,7 +1867,7 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
         useTextBuffer({
           initialText: 'first\nsecond\nthird',
           viewport,
-        }),
+        })
       );
       act(() => result.current.replaceRange(0, 2, 2, 3, 'X')); // Replace 'rst\nsecond\nthi'
       const state = getBufferState(result);
@@ -1979,7 +1880,7 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
         useTextBuffer({
           initialText: 'one two three',
           viewport,
-        }),
+        })
       );
       // Replace "two" with "new\nline"
       act(() => result.current.replaceRange(0, 4, 0, 7, 'new\nline'));
@@ -2041,8 +1942,7 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
     it('should sanitize large text (>5000 chars) and strip unsafe characters', () => {
       const { result } = renderHook(() => useTextBuffer({ viewport }));
       const unsafeChars = '\x07\x08\x0B\x0C';
-      const largeTextWithUnsafe =
-        'safe text'.repeat(600) + unsafeChars + 'more safe text';
+      const largeTextWithUnsafe = 'safe text'.repeat(600) + unsafeChars + 'more safe text';
 
       expect(largeTextWithUnsafe.length).toBeGreaterThan(5000);
 
@@ -2070,12 +1970,7 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
     it('should sanitize large ANSI text (>5000 chars) and strip escape codes', () => {
       const { result } = renderHook(() => useTextBuffer({ viewport }));
       const largeTextWithAnsi =
-        '\x1B[31m' +
-        'red text'.repeat(800) +
-        '\x1B[0m' +
-        '\x1B[32m' +
-        'green text'.repeat(200) +
-        '\x1B[0m';
+        '\x1B[31m' + 'red text'.repeat(800) + '\x1B[0m' + '\x1B[32m' + 'green text'.repeat(200) + '\x1B[0m';
 
       expect(largeTextWithAnsi.length).toBeGreaterThan(5000);
 
@@ -2124,7 +2019,7 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
           viewport,
 
           inputFilter: (text) => text.replace(/[^0-9]/g, ''),
-        }),
+        })
       );
 
       act(() => result.current.insert('a1b2c3'));
@@ -2137,7 +2032,7 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
           viewport,
 
           inputFilter: (text) => text.replace(/[^0-9]/g, ''),
-        }),
+        })
       );
 
       act(() => result.current.insert('abc'));
@@ -2150,7 +2045,7 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
           viewport,
 
           inputFilter: (text) => text.toUpperCase(),
-        }),
+        })
       );
 
       act(() => result.current.insert('hello', { paste: true }));
@@ -2163,7 +2058,7 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
           viewport,
 
           inputFilter: (text) => text, // Allow everything including newlines
-        }),
+        })
       );
 
       act(() => result.current.insert('a\nb'));
@@ -2178,7 +2073,7 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
           viewport,
 
           inputFilter: (text) => text.replace(/\n/g, ''), // Filter out newlines
-        }),
+        })
       );
 
       act(() => result.current.insert('a\nb'));
@@ -2209,9 +2104,7 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
 
   describe('Memoization', () => {
     it('should keep action references stable across re-renders', () => {
-      const { result, rerender } = renderHook(() =>
-        useTextBuffer({ viewport }),
-      );
+      const { result, rerender } = renderHook(() => useTextBuffer({ viewport }));
 
       const initialInsert = result.current.insert;
       const initialBackspace = result.current.backspace;
@@ -2255,7 +2148,7 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
           viewport,
 
           singleLine: true,
-        }),
+        })
       );
       act(() => result.current.insert('\n'));
       const state = getBufferState(result);
@@ -2270,7 +2163,7 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
           viewport,
 
           singleLine: true,
-        }),
+        })
       );
       act(() => result.current.move('end')); // cursor at [0,2]
       act(() => result.current.newline());
@@ -2286,7 +2179,7 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
           viewport,
 
           singleLine: true,
-        }),
+        })
       );
       act(() => {
         result.current.handleInput({
@@ -2308,7 +2201,7 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
           viewport,
 
           singleLine: true,
-        }),
+        })
       );
       act(() => {
         result.current.handleInput({
@@ -2330,7 +2223,7 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
           viewport,
 
           singleLine: true,
-        }),
+        })
       );
       act(() => result.current.insert('hello\nworld', { paste: true }));
       const state = getBufferState(result);
@@ -2490,12 +2383,9 @@ describe('offsetToLogicalPos', () => {
       { offset: 13, expected: [2, 1], desc: 'middle of third line' },
       { offset: 15, expected: [2, 3], desc: 'end of third line' },
       { offset: 20, expected: [2, 3], desc: 'beyond end' },
-    ])(
-      'should return $expected for $desc (offset $offset)',
-      ({ offset, expected }) => {
-        expect(offsetToLogicalPos(text, offset)).toEqual(expected);
-      },
-    );
+    ])('should return $expected for $desc (offset $offset)', ({ offset, expected }) => {
+      expect(offsetToLogicalPos(text, offset)).toEqual(expected);
+    });
   });
 });
 
@@ -2563,7 +2453,7 @@ const createTestState = (
   lines: string[],
   cursorRow: number,
   cursorCol: number,
-  viewportWidth = 80,
+  viewportWidth = 80
 ): TextBufferState => {
   const text = lines.join('\n');
   let state = textBufferReducer(initialState, {
@@ -2784,7 +2674,7 @@ describe('Unicode helper functions', () => {
           initialText: '你好世界',
           initialCursorOffset: 4, // End of string
           viewport,
-        }),
+        })
       );
 
       // Initial state: cursor at end (index 2 in code points if 4 is length? wait. length is 2 code points? No. '你好世界' length is 4.)
@@ -2842,7 +2732,7 @@ describe('Unicode helper functions', () => {
           initialText: 'Hello你好World',
           initialCursorOffset: 10, // End
           viewport,
-        }),
+        })
       );
 
       // Hello (5) + 你好 (2) + World (5) = 12 chars.
@@ -2880,7 +2770,7 @@ const mockPlatform = (platform: string) => {
       platform: {
         get: () => platform,
       },
-    }),
+    })
   );
 };
 
@@ -2898,15 +2788,11 @@ describe('Transformation Utilities', () => {
     });
 
     it('should handle paths with directories', () => {
-      expect(getTransformedImagePath('@path/to/image.jpg')).toBe(
-        '[Image image.jpg]',
-      );
+      expect(getTransformedImagePath('@path/to/image.jpg')).toBe('[Image image.jpg]');
     });
 
     it('should truncate long filenames', () => {
-      expect(getTransformedImagePath('@verylongfilename1234567890.png')).toBe(
-        '[Image ...1234567890.png]',
-      );
+      expect(getTransformedImagePath('@verylongfilename1234567890.png')).toBe('[Image ...1234567890.png]');
     });
 
     it('should handle different image extensions', () => {
@@ -3026,9 +2912,7 @@ describe('Transformation Utilities', () => {
       // Position strictly at end should be null
       expect(getTransformUnderCursor(0, endPos, [transformations])).toBeNull();
       // Position inside should be found
-      expect(getTransformUnderCursor(0, endPos - 1, [transformations])).toEqual(
-        pasteTransform,
-      );
+      expect(getTransformUnderCursor(0, endPos - 1, [transformations])).toEqual(pasteTransform);
     });
   });
 
@@ -3050,12 +2934,7 @@ describe('Transformation Utilities', () => {
       const line = 'Check out @test.png';
       const transformations = calculateTransformationsForLine(line);
       // Cursor at '@' (position 10 in the line)
-      const result = calculateTransformedLine(
-        line,
-        0,
-        [0, 10],
-        transformations,
-      );
+      const result = calculateTransformedLine(line, 0, [0, 10], transformations);
 
       // Should show full path when cursor is on it
       expect(result.transformedLine).toBe('Check out @test.png');
@@ -3086,50 +2965,44 @@ describe('Transformation Utilities', () => {
     it.each([
       {
         desc: 'via setText',
-        actFn: (result: { current: TextBuffer }) =>
-          result.current.setText('changed line'),
+        actFn: (result: { current: TextBuffer }) => result.current.setText('changed line'),
         expected: 'changed line',
       },
       {
         desc: 'via replaceRange',
-        actFn: (result: { current: TextBuffer }) =>
-          result.current.replaceRange(0, 0, 0, 13, 'changed line'),
+        actFn: (result: { current: TextBuffer }) => result.current.replaceRange(0, 0, 0, 13, 'changed line'),
         expected: 'changed line',
       },
-    ])(
-      'should invalidate cache when line content changes $desc',
-      ({ actFn, expected }) => {
-        const viewport = { width: 80, height: 24 };
-        const { result } = renderHookWithProviders(() =>
-          useTextBuffer({
-            initialText: 'original line',
-            viewport,
-            escapePastedPaths: true,
-          }),
-        );
+    ])('should invalidate cache when line content changes $desc', ({ actFn, expected }) => {
+      const viewport = { width: 80, height: 24 };
+      const { result } = renderHookWithProviders(() =>
+        useTextBuffer({
+          initialText: 'original line',
+          viewport,
+          escapePastedPaths: true,
+        })
+      );
 
-        const originalLayout = result.current.visualLayout;
+      const originalLayout = result.current.visualLayout;
 
-        act(() => {
-          actFn(result);
-        });
+      act(() => {
+        actFn(result);
+      });
 
-        expect(result.current.visualLayout).not.toBe(originalLayout);
-        expect(result.current.allVisualLines[0]).toBe(expected);
-      },
-    );
+      expect(result.current.visualLayout).not.toBe(originalLayout);
+      expect(result.current.allVisualLines[0]).toBe(expected);
+    });
 
     it('should invalidate cache when viewport width changes', () => {
       const viewport = { width: 80, height: 24 };
       const { result, rerender } = renderHookWithProviders(
         ({ vp }) =>
           useTextBuffer({
-            initialText:
-              'a very long line that will wrap when the viewport is small',
+            initialText: 'a very long line that will wrap when the viewport is small',
             viewport: vp,
             escapePastedPaths: true,
           }),
-        { initialProps: { vp: viewport } },
+        { initialProps: { vp: viewport } }
       );
 
       const originalLayout = result.current.visualLayout;
@@ -3149,7 +3022,7 @@ describe('Transformation Utilities', () => {
           initialText: text,
           viewport,
           escapePastedPaths: true,
-        }),
+        })
       );
 
       // Cursor at start (collapsed)
@@ -3163,9 +3036,7 @@ describe('Transformation Utilities', () => {
         result.current.moveToOffset(7); // onto @
       });
       expect(result.current.allVisualLines[0]).toContain('@image.png');
-      expect(result.current.allVisualLines[0]).not.toContain(
-        '[Image image.png]',
-      );
+      expect(result.current.allVisualLines[0]).not.toContain('[Image image.png]');
 
       // Move cursor away (collapsed again)
       act(() => {
@@ -3182,7 +3053,7 @@ describe('Transformation Utilities', () => {
           initialText,
           viewport,
           escapePastedPaths: true,
-        }),
+        })
       );
 
       const layout1 = result.current.visualLayout;
@@ -3207,15 +3078,14 @@ describe('Transformation Utilities', () => {
     const scrollViewport: Viewport = { width: 80, height: 5 };
 
     it('should not show empty viewport when collapsing a large paste that was scrolled', () => {
-      const largeContent =
-        'line1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\nline10';
+      const largeContent = 'line1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\nline10';
       const placeholder = '[Pasted Text: 10 lines]';
 
       const { result } = renderHook(() =>
         useTextBuffer({
           initialText: placeholder,
           viewport: scrollViewport,
-        }),
+        })
       );
 
       // Setup: paste large content

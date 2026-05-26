@@ -38,34 +38,23 @@ import type { ModelConfigKey } from '../services/modelConfigService.js';
 export function resolvePolicyChain(
   config: Config,
   preferredModel?: string,
-  wrapsAround: boolean = false,
+  wrapsAround: boolean = false
 ): ModelPolicyChain {
-  const modelFromConfig =
-    preferredModel ?? config.getActiveModel?.() ?? config.getModel();
+  const modelFromConfig = preferredModel ?? config.getActiveModel?.() ?? config.getModel();
   const configuredModel = config.getModel();
 
   let chain;
   const useGemini31 = config.getGemini31LaunchedSync?.() ?? false;
-  const useCustomToolModel =
-    useGemini31 &&
-    config.getContentGeneratorConfig?.()?.authType === AuthType.USE_GEMINI;
+  const useCustomToolModel = useGemini31 && config.getContentGeneratorConfig?.()?.authType === AuthType.USE_GEMINI;
 
-  const resolvedModel = resolveModel(
-    modelFromConfig,
-    useGemini31,
-    useCustomToolModel,
-  );
+  const resolvedModel = resolveModel(modelFromConfig, useGemini31, useCustomToolModel);
   const isAutoPreferred = preferredModel ? isAutoModel(preferredModel) : false;
   const isAutoConfigured = isAutoModel(configuredModel);
   const hasAccessToPreview = config.getHasAccessToPreviewModel?.() ?? true;
 
   if (resolvedModel === DEFAULT_GEMINI_FLASH_LITE_MODEL) {
     chain = getFlashLitePolicyChain();
-  } else if (
-    isGemini3Model(resolvedModel) ||
-    isAutoPreferred ||
-    isAutoConfigured
-  ) {
+  } else if (isGemini3Model(resolvedModel) || isAutoPreferred || isAutoConfigured) {
     if (hasAccessToPreview) {
       const previewEnabled =
         isGemini3Model(resolvedModel) ||
@@ -91,13 +80,9 @@ export function resolvePolicyChain(
     chain = createSingleModelChain(modelFromConfig);
   }
 
-  const activeIndex = chain.findIndex(
-    (policy) => policy.model === resolvedModel,
-  );
+  const activeIndex = chain.findIndex((policy) => policy.model === resolvedModel);
   if (activeIndex !== -1) {
-    return wrapsAround
-      ? [...chain.slice(activeIndex), ...chain.slice(0, activeIndex)]
-      : [...chain.slice(activeIndex)];
+    return wrapsAround ? [...chain.slice(activeIndex), ...chain.slice(0, activeIndex)] : [...chain.slice(activeIndex)];
   }
 
   // If the user specified a model not in the default chain, we assume they want
@@ -115,7 +100,7 @@ export function resolvePolicyChain(
 export function buildFallbackPolicyContext(
   chain: ModelPolicyChain,
   failedModel: string,
-  wrapsAround: boolean = false,
+  wrapsAround: boolean = false
 ): {
   failedPolicy?: ModelPolicy;
   candidates: ModelPolicy[];
@@ -126,19 +111,14 @@ export function buildFallbackPolicyContext(
   }
   // Return [candidates_after, candidates_before] to prioritize downgrades
   // (continuing the chain) before wrapping around to upgrades.
-  const candidates = wrapsAround
-    ? [...chain.slice(index + 1), ...chain.slice(0, index)]
-    : [...chain.slice(index + 1)];
+  const candidates = wrapsAround ? [...chain.slice(index + 1), ...chain.slice(0, index)] : [...chain.slice(index + 1)];
   return {
     failedPolicy: chain[index],
     candidates,
   };
 }
 
-export function resolvePolicyAction(
-  failureKind: FailureKind,
-  policy: ModelPolicy,
-): FallbackAction {
+export function resolvePolicyAction(failureKind: FailureKind, policy: ModelPolicy): FallbackAction {
   return policy.actions?.[failureKind] ?? 'prompt';
 }
 
@@ -151,7 +131,7 @@ export function resolvePolicyAction(
  */
 export function createAvailabilityContextProvider(
   config: Config,
-  modelGetter: () => string,
+  modelGetter: () => string
 ): () => RetryAvailabilityContext | undefined {
   return () => {
     const service = config.getModelAvailabilityService();
@@ -169,19 +149,13 @@ export function createAvailabilityContextProvider(
  * Selects the model to use for an attempt via the availability service and
  * returns the selection context.
  */
-export function selectModelForAvailability(
-  config: Config,
-  requestedModel: string,
-): ModelSelectionResult {
+export function selectModelForAvailability(config: Config, requestedModel: string): ModelSelectionResult {
   const chain = resolvePolicyChain(config, requestedModel);
-  const selection = config
-    .getModelAvailabilityService()
-    .selectFirstAvailable(chain.map((p) => p.model));
+  const selection = config.getModelAvailabilityService().selectFirstAvailable(chain.map((p) => p.model));
 
   if (selection.selectedModel) return selection;
 
-  const backupModel =
-    chain.find((p) => p.isLastResort)?.model ?? DEFAULT_GEMINI_MODEL;
+  const backupModel = chain.find((p) => p.isLastResort)?.model ?? DEFAULT_GEMINI_MODEL;
 
   return { selectedModel: backupModel, skipped: [] };
 }
@@ -193,7 +167,7 @@ export function selectModelForAvailability(
 export function applyModelSelection(
   config: Config,
   modelConfigKey: ModelConfigKey,
-  options: { consumeAttempt?: boolean } = {},
+  options: { consumeAttempt?: boolean } = {}
 ): { model: string; config: GenerateContentConfig; maxAttempts?: number } {
   const resolved = config.modelConfigService.getResolvedConfig(modelConfigKey);
   const model = resolved.model;
@@ -229,7 +203,7 @@ export function applyModelSelection(
 
 export function applyAvailabilityTransition(
   getContext: (() => RetryAvailabilityContext | undefined) | undefined,
-  failureKind: FailureKind,
+  failureKind: FailureKind
 ): void {
   const context = getContext?.();
   if (!context) return;
@@ -238,10 +212,7 @@ export function applyAvailabilityTransition(
   if (!transition) return;
 
   if (transition === 'terminal') {
-    context.service.markTerminal(
-      context.policy.model,
-      failureKind === 'terminal' ? 'quota' : 'capacity',
-    );
+    context.service.markTerminal(context.policy.model, failureKind === 'terminal' ? 'quota' : 'capacity');
   } else if (transition === 'sticky_retry') {
     context.service.markRetryOncePerTurn(context.policy.model);
   }

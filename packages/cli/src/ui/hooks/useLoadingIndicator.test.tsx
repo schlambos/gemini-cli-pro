@@ -9,10 +9,7 @@ import { act } from 'react';
 import { render } from '../../test-utils/render.js';
 import { useLoadingIndicator } from './useLoadingIndicator.js';
 import { StreamingState } from '../types.js';
-import {
-  PHRASE_CHANGE_INTERVAL_MS,
-  INTERACTIVE_SHELL_WAITING_PHRASE,
-} from './usePhraseCycler.js';
+import { PHRASE_CHANGE_INTERVAL_MS, INTERACTIVE_SHELL_WAITING_PHRASE } from './usePhraseCycler.js';
 import { WITTY_LOADING_PHRASES } from '../constants/wittyPhrases.js';
 import { INFORMATIVE_TIPS } from '../constants/tips.js';
 import type { RetryAttemptPayload } from '@google/gemini-cli-core';
@@ -32,7 +29,7 @@ describe('useLoadingIndicator', () => {
   const renderLoadingIndicatorHook = (
     initialStreamingState: StreamingState,
     initialShouldShowFocusHint: boolean = false,
-    initialRetryStatus: RetryAttemptPayload | null = null,
+    initialRetryStatus: RetryAttemptPayload | null = null
   ) => {
     let hookResult: ReturnType<typeof useLoadingIndicator>;
     function TestComponent({
@@ -56,7 +53,7 @@ describe('useLoadingIndicator', () => {
         streamingState={initialStreamingState}
         shouldShowFocusHint={initialShouldShowFocusHint}
         retryStatus={initialRetryStatus}
-      />,
+      />
     );
     return {
       result: {
@@ -81,15 +78,10 @@ describe('useLoadingIndicator', () => {
 
   it('should show interactive shell waiting phrase when shouldShowFocusHint is true', async () => {
     vi.spyOn(Math, 'random').mockImplementation(() => 0.5); // Always witty
-    const { result, rerender } = renderLoadingIndicatorHook(
-      StreamingState.Responding,
-      false,
-    );
+    const { result, rerender } = renderLoadingIndicatorHook(StreamingState.Responding, false);
 
     // Initially should be witty phrase or tip
-    expect([...WITTY_LOADING_PHRASES, ...INFORMATIVE_TIPS]).toContain(
-      result.current.currentLoadingPhrase,
-    );
+    expect([...WITTY_LOADING_PHRASES, ...INFORMATIVE_TIPS]).toContain(result.current.currentLoadingPhrase);
 
     await act(async () => {
       rerender({
@@ -98,9 +90,7 @@ describe('useLoadingIndicator', () => {
       });
     });
 
-    expect(result.current.currentLoadingPhrase).toBe(
-      INTERACTIVE_SHELL_WAITING_PHRASE,
-    );
+    expect(result.current.currentLoadingPhrase).toBe(INTERACTIVE_SHELL_WAITING_PHRASE);
   });
 
   it('should reflect values when Responding', async () => {
@@ -116,15 +106,11 @@ describe('useLoadingIndicator', () => {
     });
 
     // Phrase should cycle if PHRASE_CHANGE_INTERVAL_MS has passed, now it should be witty since first activation already happened
-    expect(WITTY_LOADING_PHRASES).toContain(
-      result.current.currentLoadingPhrase,
-    );
+    expect(WITTY_LOADING_PHRASES).toContain(result.current.currentLoadingPhrase);
   });
 
   it('should show waiting phrase and retain elapsedTime when WaitingForConfirmation', async () => {
-    const { result, rerender } = renderLoadingIndicatorHook(
-      StreamingState.Responding,
-    );
+    const { result, rerender } = renderLoadingIndicatorHook(StreamingState.Responding);
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(60000);
@@ -135,9 +121,7 @@ describe('useLoadingIndicator', () => {
       rerender({ streamingState: StreamingState.WaitingForConfirmation });
     });
 
-    expect(result.current.currentLoadingPhrase).toBe(
-      'Waiting for user confirmation...',
-    );
+    expect(result.current.currentLoadingPhrase).toBe('Waiting for user confirmation...');
     expect(result.current.elapsedTime).toBe(60); // Elapsed time should be retained
 
     // Timer should not advance further
@@ -149,9 +133,7 @@ describe('useLoadingIndicator', () => {
 
   it('should reset elapsedTime and use a witty phrase when transitioning from WaitingForConfirmation to Responding', async () => {
     vi.spyOn(Math, 'random').mockImplementation(() => 0.5); // Always witty
-    const { result, rerender } = renderLoadingIndicatorHook(
-      StreamingState.Responding,
-    );
+    const { result, rerender } = renderLoadingIndicatorHook(StreamingState.Responding);
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(5000); // 5s
@@ -162,17 +144,13 @@ describe('useLoadingIndicator', () => {
       rerender({ streamingState: StreamingState.WaitingForConfirmation });
     });
     expect(result.current.elapsedTime).toBe(5);
-    expect(result.current.currentLoadingPhrase).toBe(
-      'Waiting for user confirmation...',
-    );
+    expect(result.current.currentLoadingPhrase).toBe('Waiting for user confirmation...');
 
     act(() => {
       rerender({ streamingState: StreamingState.Responding });
     });
     expect(result.current.elapsedTime).toBe(0); // Should reset
-    expect(WITTY_LOADING_PHRASES).toContain(
-      result.current.currentLoadingPhrase,
-    );
+    expect(WITTY_LOADING_PHRASES).toContain(result.current.currentLoadingPhrase);
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(1000);
@@ -182,9 +160,7 @@ describe('useLoadingIndicator', () => {
 
   it('should reset timer and phrase when streamingState changes from Responding to Idle', async () => {
     vi.spyOn(Math, 'random').mockImplementation(() => 0.5); // Always witty
-    const { result, rerender } = renderLoadingIndicatorHook(
-      StreamingState.Responding,
-    );
+    const { result, rerender } = renderLoadingIndicatorHook(StreamingState.Responding);
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(10000); // 10s
@@ -212,11 +188,7 @@ describe('useLoadingIndicator', () => {
       maxAttempts: 3,
       delayMs: 1000,
     };
-    const { result } = renderLoadingIndicatorHook(
-      StreamingState.Responding,
-      false,
-      retryStatus,
-    );
+    const { result } = renderLoadingIndicatorHook(StreamingState.Responding, false, retryStatus);
 
     expect(result.current.currentLoadingPhrase).toContain('Trying to reach');
     expect(result.current.currentLoadingPhrase).toContain('Attempt 3/3');

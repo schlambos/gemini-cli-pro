@@ -46,9 +46,7 @@ describe('displayUtils', () => {
       });
 
       it('should return defaultColor for values < red threshold when provided', () => {
-        expect(
-          getStatusColor(19, thresholds, { defaultColor: Colors.Foreground }),
-        ).toBe(Colors.Foreground);
+        expect(getStatusColor(19, thresholds, { defaultColor: Colors.Foreground })).toBe(Colors.Foreground);
       });
     });
 
@@ -63,9 +61,7 @@ describe('displayUtils', () => {
       });
 
       it('should return defaultColor for values < yellow threshold when provided', () => {
-        expect(
-          getStatusColor(49, thresholds, { defaultColor: Colors.Foreground }),
-        ).toBe(Colors.Foreground);
+        expect(getStatusColor(49, thresholds, { defaultColor: Colors.Foreground })).toBe(Colors.Foreground);
       });
     });
   });

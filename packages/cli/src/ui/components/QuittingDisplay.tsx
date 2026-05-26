@@ -20,13 +20,11 @@ export const QuittingDisplay = () => {
   }
 
   return (
-    <Box flexDirection="column" marginBottom={1}>
+    <Box flexDirection='column' marginBottom={1}>
       {uiState.quittingMessages.map((item) => (
         <HistoryItemDisplay
           key={item.id}
-          availableTerminalHeight={
-            uiState.constrainHeight ? availableTerminalHeight : undefined
-          }
+          availableTerminalHeight={uiState.constrainHeight ? availableTerminalHeight : undefined}
           terminalWidth={terminalWidth}
           item={item}
           isPending={false}

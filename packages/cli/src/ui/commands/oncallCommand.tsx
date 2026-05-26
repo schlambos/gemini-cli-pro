@@ -4,11 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  CommandKind,
-  type SlashCommand,
-  type OpenCustomDialogActionReturn,
-} from './types.js';
+import { CommandKind, type SlashCommand, type OpenCustomDialogActionReturn } from './types.js';
 import { TriageDuplicates } from '../components/triage/TriageDuplicates.js';
 import { TriageIssues } from '../components/triage/TriageIssues.js';
 
@@ -41,11 +37,7 @@ export const oncallCommand: SlashCommand = {
         return {
           type: 'custom_dialog',
           component: (
-            <TriageDuplicates
-              config={config}
-              initialLimit={limit}
-              onExit={() => context.ui.removeComponent()}
-            />
+            <TriageDuplicates config={config} initialLimit={limit} onExit={() => context.ui.removeComponent()} />
           ),
         };
       },
@@ -74,9 +66,7 @@ export const oncallCommand: SlashCommand = {
               }
               const val = argArray[i + 1];
               if (!/^\d{4}-\d{2}-\d{2}$/.test(val)) {
-                throw new Error(
-                  `Invalid date format for --until: "${val}". Expected YYYY-MM-DD.`,
-                );
+                throw new Error(`Invalid date format for --until: "${val}". Expected YYYY-MM-DD.`);
               }
               until = val;
               i++;
@@ -87,9 +77,7 @@ export const oncallCommand: SlashCommand = {
               if (!isNaN(parsedLimit) && parsedLimit > 0) {
                 limit = parsedLimit;
               } else {
-                throw new Error(
-                  `Invalid argument: "${arg}". Expected a positive number or --until flag.`,
-                );
+                throw new Error(`Invalid argument: "${arg}". Expected a positive number or --until flag.`);
               }
             }
           }

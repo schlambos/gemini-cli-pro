@@ -28,7 +28,7 @@ export async function reportError(
   baseMessage: string,
   context?: Content[] | Record<string, unknown> | unknown[],
   type = 'general',
-  reportingDir = os.tmpdir(), // for testing
+  reportingDir = os.tmpdir() // for testing
 ): Promise<void> {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const reportFileName = `gemini-client-error-${type}-${timestamp}.json`;
@@ -37,11 +37,7 @@ export async function reportError(
   let errorToReport: { message: string; stack?: string };
   if (error instanceof Error) {
     errorToReport = { message: error.message, stack: error.stack };
-  } else if (
-    typeof error === 'object' &&
-    error !== null &&
-    'message' in error
-  ) {
+  } else if (typeof error === 'object' && error !== null && 'message' in error) {
     errorToReport = {
       message: String((error as { message: unknown }).message),
     };
@@ -60,18 +56,10 @@ export async function reportError(
     stringifiedReportContent = JSON.stringify(reportContent, null, 2);
   } catch (stringifyError) {
     // This can happen if context contains something like BigInt
-    debugLogger.error(
-      `${baseMessage} Could not stringify report content (likely due to context):`,
-      stringifyError,
-    );
-    debugLogger.error(
-      'Original error that triggered report generation:',
-      error,
-    );
+    debugLogger.error(`${baseMessage} Could not stringify report content (likely due to context):`, stringifyError);
+    debugLogger.error('Original error that triggered report generation:', error);
     if (context) {
-      debugLogger.error(
-        'Original context could not be stringified or included in report.',
-      );
+      debugLogger.error('Original context could not be stringified or included in report.');
     }
     // Fallback: try to report only the error if context was the issue
     try {
@@ -79,35 +67,20 @@ export async function reportError(
       stringifiedReportContent = JSON.stringify(minimalReportContent, null, 2);
       // Still try to write the minimal report
       await fs.writeFile(reportPath, stringifiedReportContent);
-      debugLogger.error(
-        `${baseMessage} Partial report (excluding context) available at: ${reportPath}`,
-        error,
-      );
+      debugLogger.error(`${baseMessage} Partial report (excluding context) available at: ${reportPath}`, error);
     } catch (minimalWriteError) {
-      debugLogger.error(
-        `${baseMessage} Failed to write even a minimal error report:`,
-        minimalWriteError,
-      );
+      debugLogger.error(`${baseMessage} Failed to write even a minimal error report:`, minimalWriteError);
     }
     return;
   }
 
   try {
     await fs.writeFile(reportPath, stringifiedReportContent);
-    debugLogger.error(
-      `${baseMessage} Full report available at: ${reportPath}`,
-      error,
-    );
+    debugLogger.error(`${baseMessage} Full report available at: ${reportPath}`, error);
   } catch (writeError) {
-    debugLogger.error(
-      `${baseMessage} Additionally, failed to write detailed error report:`,
-      writeError,
-    );
+    debugLogger.error(`${baseMessage} Additionally, failed to write detailed error report:`, writeError);
     // Log the original error as a fallback if report writing fails
-    debugLogger.error(
-      'Original error that triggered report generation:',
-      error,
-    );
+    debugLogger.error('Original error that triggered report generation:', error);
 
     if (context) {
       // Context was stringifiable, but writing the file failed.
@@ -117,14 +90,9 @@ export async function reportError(
         debugLogger.error('Original context:', context);
       } catch {
         try {
-          debugLogger.error(
-            'Original context (stringified, truncated):',
-            JSON.stringify(context).substring(0, 1000),
-          );
+          debugLogger.error('Original context (stringified, truncated):', JSON.stringify(context).substring(0, 1000));
         } catch {
-          debugLogger.error(
-            'Original context could not be logged or stringified.',
-          );
+          debugLogger.error('Original context could not be logged or stringified.');
         }
       }
     }

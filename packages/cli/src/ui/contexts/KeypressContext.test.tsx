@@ -12,12 +12,7 @@ import { waitFor } from '../../test-utils/async.js';
 import type { Mock } from 'vitest';
 import { vi, afterAll, beforeAll } from 'vitest';
 import type { Key } from './KeypressContext.js';
-import {
-  KeypressProvider,
-  useKeypressContext,
-  ESC_TIMEOUT,
-  FAST_RETURN_TIMEOUT,
-} from './KeypressContext.js';
+import { KeypressProvider, useKeypressContext, ESC_TIMEOUT, FAST_RETURN_TIMEOUT } from './KeypressContext.js';
 import { terminalCapabilityManager } from '../utils/terminalCapabilityManager.js';
 import { useStdin } from 'ink';
 import { EventEmitter } from 'node:events';
@@ -53,9 +48,7 @@ class MockStdin extends EventEmitter {
 // Helper function to setup keypress test with standard configuration
 const setupKeypressTest = () => {
   const keyHandler = vi.fn();
-  const wrapper = ({ children }: { children: React.ReactNode }) => (
-    <KeypressProvider>{children}</KeypressProvider>
-  );
+  const wrapper = ({ children }: { children: React.ReactNode }) => <KeypressProvider>{children}</KeypressProvider>;
 
   const { result } = renderHook(() => useKeypressContext(), { wrapper });
   act(() => result.current.subscribe(keyHandler));
@@ -67,9 +60,7 @@ describe('KeypressContext', () => {
   let stdin: MockStdin;
   const mockSetRawMode = vi.fn();
 
-  const wrapper = ({ children }: { children: React.ReactNode }) => (
-    <KeypressProvider>{children}</KeypressProvider>
-  );
+  const wrapper = ({ children }: { children: React.ReactNode }) => <KeypressProvider>{children}</KeypressProvider>;
 
   beforeAll(() => vi.useFakeTimers());
   afterAll(() => vi.useRealTimers());
@@ -104,7 +95,7 @@ describe('KeypressContext', () => {
           shift: false,
           ctrl: false,
           cmd: false,
-        }),
+        })
       );
     });
 
@@ -119,7 +110,7 @@ describe('KeypressContext', () => {
           shift: true,
           ctrl: false,
           cmd: false,
-        }),
+        })
       );
     });
 
@@ -139,21 +130,18 @@ describe('KeypressContext', () => {
         sequence: '\x1b[57414;3u',
         expected: { shift: false, alt: true, ctrl: false, cmd: false },
       },
-    ])(
-      'should handle numpad enter with $modifier modifier',
-      async ({ sequence, expected }) => {
-        const { keyHandler } = setupKeypressTest();
+    ])('should handle numpad enter with $modifier modifier', async ({ sequence, expected }) => {
+      const { keyHandler } = setupKeypressTest();
 
-        act(() => stdin.write(sequence));
+      act(() => stdin.write(sequence));
 
-        expect(keyHandler).toHaveBeenCalledWith(
-          expect.objectContaining({
-            name: 'return',
-            ...expected,
-          }),
-        );
-      },
-    );
+      expect(keyHandler).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'return',
+          ...expected,
+        })
+      );
+    });
 
     it('should recognize \n (LF) as ctrl+j', async () => {
       const { keyHandler } = setupKeypressTest();
@@ -166,7 +154,7 @@ describe('KeypressContext', () => {
           shift: false,
           ctrl: true,
           cmd: false,
-        }),
+        })
       );
     });
 
@@ -182,7 +170,7 @@ describe('KeypressContext', () => {
           alt: true,
           ctrl: false,
           cmd: false,
-        }),
+        })
       );
     });
   });
@@ -191,9 +179,7 @@ describe('KeypressContext', () => {
     let kittySpy: ReturnType<typeof vi.spyOn>;
 
     beforeEach(() => {
-      kittySpy = vi
-        .spyOn(terminalCapabilityManager, 'isKittyProtocolEnabled')
-        .mockReturnValue(false);
+      kittySpy = vi.spyOn(terminalCapabilityManager, 'isKittyProtocolEnabled').mockReturnValue(false);
     });
 
     afterEach(() => kittySpy.mockRestore());
@@ -209,7 +195,7 @@ describe('KeypressContext', () => {
           alt: false,
           ctrl: false,
           cmd: false,
-        }),
+        })
       );
 
       act(() => stdin.write('\r'));
@@ -223,7 +209,7 @@ describe('KeypressContext', () => {
           alt: false,
           ctrl: false,
           cmd: false,
-        }),
+        })
       );
     });
 
@@ -243,7 +229,7 @@ describe('KeypressContext', () => {
           alt: false,
           ctrl: false,
           cmd: false,
-        }),
+        })
       );
     });
   });
@@ -264,15 +250,13 @@ describe('KeypressContext', () => {
           alt: false,
           ctrl: false,
           cmd: false,
-        }),
+        })
       );
     });
 
     it('should handle double Escape', async () => {
       const keyHandler = vi.fn();
-      const wrapper = ({ children }: { children: React.ReactNode }) => (
-        <KeypressProvider>{children}</KeypressProvider>
-      );
+      const wrapper = ({ children }: { children: React.ReactNode }) => <KeypressProvider>{children}</KeypressProvider>;
       const { result } = renderHook(() => useKeypressContext(), { wrapper });
       act(() => result.current.subscribe(keyHandler));
 
@@ -290,7 +274,7 @@ describe('KeypressContext', () => {
             shift: false,
             alt: true,
             cmd: false,
-          }),
+          })
         );
         expect(keyHandler).toHaveBeenNthCalledWith(
           2,
@@ -299,7 +283,7 @@ describe('KeypressContext', () => {
             shift: false,
             alt: true,
             cmd: false,
-          }),
+          })
         );
       });
     });
@@ -307,9 +291,7 @@ describe('KeypressContext', () => {
     it('should handle lone Escape key (keycode 27) with timeout when kitty protocol is enabled', async () => {
       // Use real timers for this test to avoid issues with stream/buffer timing
       const keyHandler = vi.fn();
-      const wrapper = ({ children }: { children: React.ReactNode }) => (
-        <KeypressProvider>{children}</KeypressProvider>
-      );
+      const wrapper = ({ children }: { children: React.ReactNode }) => <KeypressProvider>{children}</KeypressProvider>;
       const { result } = renderHook(() => useKeypressContext(), { wrapper });
       act(() => result.current.subscribe(keyHandler));
 
@@ -328,7 +310,7 @@ describe('KeypressContext', () => {
             shift: false,
             alt: true,
             cmd: false,
-          }),
+          })
         );
       });
     });
@@ -381,22 +363,19 @@ describe('KeypressContext', () => {
           sequence: '\x1b[32;5u',
         },
       },
-    ])(
-      'should recognize $name in kitty protocol',
-      async ({ inputSequence, expected }) => {
-        const { keyHandler } = setupKeypressTest();
+    ])('should recognize $name in kitty protocol', async ({ inputSequence, expected }) => {
+      const { keyHandler } = setupKeypressTest();
 
-        act(() => {
-          stdin.write(inputSequence);
-        });
+      act(() => {
+        stdin.write(inputSequence);
+      });
 
-        expect(keyHandler).toHaveBeenCalledWith(
-          expect.objectContaining({
-            ...expected,
-          }),
-        );
-      },
-    );
+      expect(keyHandler).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ...expected,
+        })
+      );
+    });
   });
 
   describe('paste mode', () => {
@@ -447,7 +426,7 @@ describe('KeypressContext', () => {
         expect.objectContaining({
           name: 'paste',
           sequence: pastedText,
-        }),
+        })
       );
     });
 
@@ -467,7 +446,7 @@ describe('KeypressContext', () => {
           expect.objectContaining({
             name: 'paste',
             sequence: 'Hello OSC 52',
-          }),
+          })
         );
       });
     });
@@ -493,7 +472,7 @@ describe('KeypressContext', () => {
           expect.objectContaining({
             name: 'paste',
             sequence: 'Split Paste',
-          }),
+          })
         );
       });
     });
@@ -514,7 +493,7 @@ describe('KeypressContext', () => {
           expect.objectContaining({
             name: 'paste',
             sequence: 'Terminated by ST',
-          }),
+          })
         );
       });
     });
@@ -558,9 +537,7 @@ describe('KeypressContext', () => {
     let debugLoggerSpy: ReturnType<typeof vi.spyOn>;
 
     beforeEach(() => {
-      debugLoggerSpy = vi
-        .spyOn(debugLogger, 'log')
-        .mockImplementation(() => {});
+      debugLoggerSpy = vi.spyOn(debugLogger, 'log').mockImplementation(() => {});
     });
 
     afterEach(() => {
@@ -571,9 +548,7 @@ describe('KeypressContext', () => {
       const keyHandler = vi.fn();
 
       const wrapper = ({ children }: { children: React.ReactNode }) => (
-        <KeypressProvider debugKeystrokeLogging={false}>
-          {children}
-        </KeypressProvider>
+        <KeypressProvider debugKeystrokeLogging={false}>{children}</KeypressProvider>
       );
 
       const { result } = renderHook(() => useKeypressContext(), { wrapper });
@@ -586,18 +561,14 @@ describe('KeypressContext', () => {
       });
 
       expect(keyHandler).toHaveBeenCalled();
-      expect(debugLoggerSpy).not.toHaveBeenCalledWith(
-        expect.stringContaining('[DEBUG] Kitty'),
-      );
+      expect(debugLoggerSpy).not.toHaveBeenCalledWith(expect.stringContaining('[DEBUG] Kitty'));
     });
 
     it('should log kitty buffer accumulation when debugKeystrokeLogging is true', async () => {
       const keyHandler = vi.fn();
 
       const wrapper = ({ children }: { children: React.ReactNode }) => (
-        <KeypressProvider debugKeystrokeLogging={true}>
-          {children}
-        </KeypressProvider>
+        <KeypressProvider debugKeystrokeLogging={true}>{children}</KeypressProvider>
       );
 
       const { result } = renderHook(() => useKeypressContext(), { wrapper });
@@ -607,18 +578,14 @@ describe('KeypressContext', () => {
       // Send a complete kitty sequence for escape
       act(() => stdin.write('\x1b[27u'));
 
-      expect(debugLoggerSpy).toHaveBeenCalledWith(
-        `[DEBUG] Raw StdIn: ${JSON.stringify('\x1b[27u')}`,
-      );
+      expect(debugLoggerSpy).toHaveBeenCalledWith(`[DEBUG] Raw StdIn: ${JSON.stringify('\x1b[27u')}`);
     });
 
     it('should show char codes when debugKeystrokeLogging is true even without debug mode', async () => {
       const keyHandler = vi.fn();
 
       const wrapper = ({ children }: { children: React.ReactNode }) => (
-        <KeypressProvider debugKeystrokeLogging={true}>
-          {children}
-        </KeypressProvider>
+        <KeypressProvider debugKeystrokeLogging={true}>{children}</KeypressProvider>
       );
 
       const { result } = renderHook(() => useKeypressContext(), { wrapper });
@@ -629,9 +596,7 @@ describe('KeypressContext', () => {
       act(() => stdin.write(INCOMPLETE_KITTY_SEQUENCE));
 
       // Verify debug logging for accumulation
-      expect(debugLoggerSpy).toHaveBeenCalledWith(
-        `[DEBUG] Raw StdIn: ${JSON.stringify(INCOMPLETE_KITTY_SEQUENCE)}`,
-      );
+      expect(debugLoggerSpy).toHaveBeenCalledWith(`[DEBUG] Raw StdIn: ${JSON.stringify(INCOMPLETE_KITTY_SEQUENCE)}`);
     });
   });
 
@@ -742,20 +707,15 @@ describe('KeypressContext', () => {
           cmd: false,
         },
       },
-    ])(
-      'should recognize sequence "$sequence" as $expected.name',
-      ({ sequence, expected }) => {
-        const keyHandler = vi.fn();
-        const { result } = renderHook(() => useKeypressContext(), { wrapper });
-        act(() => result.current.subscribe(keyHandler));
+    ])('should recognize sequence "$sequence" as $expected.name', ({ sequence, expected }) => {
+      const keyHandler = vi.fn();
+      const { result } = renderHook(() => useKeypressContext(), { wrapper });
+      act(() => result.current.subscribe(keyHandler));
 
-        act(() => stdin.write(sequence));
+      act(() => stdin.write(sequence));
 
-        expect(keyHandler).toHaveBeenCalledWith(
-          expect.objectContaining(expected),
-        );
-      },
-    );
+      expect(keyHandler).toHaveBeenCalledWith(expect.objectContaining(expected));
+    });
   });
 
   describe('Double-tap and batching', () => {
@@ -773,7 +733,7 @@ describe('KeypressContext', () => {
           alt: false,
           ctrl: false,
           cmd: false,
-        }),
+        })
       );
       expect(keyHandler).toHaveBeenNthCalledWith(
         2,
@@ -783,7 +743,7 @@ describe('KeypressContext', () => {
           alt: false,
           ctrl: false,
           cmd: false,
-        }),
+        })
       );
     });
 
@@ -792,12 +752,8 @@ describe('KeypressContext', () => {
 
       act(() => stdin.write(`\x1b[3~\x1b[5~`));
 
-      expect(keyHandler).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'delete' }),
-      );
-      expect(keyHandler).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'pageup' }),
-      );
+      expect(keyHandler).toHaveBeenCalledWith(expect.objectContaining({ name: 'delete' }));
+      expect(keyHandler).toHaveBeenCalledWith(expect.objectContaining({ name: 'pageup' }));
     });
   });
 
@@ -833,81 +789,72 @@ describe('KeypressContext', () => {
 
     it.each(
       terminals.flatMap((terminal) =>
-        Object.entries(keys).map(
-          ([key, [keycode, accentedChar, shiftValue]]) => {
-            if (terminal === 'Ghostty') {
-              // Ghostty uses kitty protocol sequences
-              // Modifier 3 is Alt, 4 is Shift+Alt
-              const modifier = shiftValue ? 4 : 3;
-              return {
-                terminal,
-                key,
-                chunk: `\x1b[${keycode};${modifier}u`,
-                expected: {
-                  name: key.toLowerCase(),
-                  shift: shiftValue,
-                  alt: true,
-                  ctrl: false,
-                  cmd: false,
-                },
-              };
-            } else if (terminal === 'MacTerminal') {
-              // Mac Terminal sends ESC + letter
-              const chunk = shiftValue
-                ? `\x1b${key.toUpperCase()}`
-                : `\x1b${key.toLowerCase()}`;
-              return {
-                terminal,
-                key,
-                kitty: false,
-                chunk,
-                expected: {
-                  sequence: chunk,
-                  name: key.toLowerCase(),
-                  shift: shiftValue,
-                  alt: true,
-                  ctrl: false,
-                  cmd: false,
-                },
-              };
-            } else {
-              // iTerm2 and VSCode send accented characters (å, ø, µ, Ω, ¸)
-              return {
-                terminal,
-                key,
-                chunk: accentedChar,
-                expected: {
-                  name: key.toLowerCase(),
-                  shift: shiftValue,
-                  alt: true, // Always expect alt:true after conversion
-                  ctrl: false,
-                  cmd: false,
-                  sequence: accentedChar,
-                },
-              };
-            }
-          },
-        ),
-      ),
-    )(
-      'should handle Alt+$key in $terminal',
-      ({ chunk, expected }: { chunk: string; expected: Partial<Key> }) => {
-        const keyHandler = vi.fn();
-        const testWrapper = ({ children }: { children: React.ReactNode }) => (
-          <KeypressProvider>{children}</KeypressProvider>
-        );
-        const { result } = renderHook(() => useKeypressContext(), {
-          wrapper: testWrapper,
-        });
-        act(() => result.current.subscribe(keyHandler));
+        Object.entries(keys).map(([key, [keycode, accentedChar, shiftValue]]) => {
+          if (terminal === 'Ghostty') {
+            // Ghostty uses kitty protocol sequences
+            // Modifier 3 is Alt, 4 is Shift+Alt
+            const modifier = shiftValue ? 4 : 3;
+            return {
+              terminal,
+              key,
+              chunk: `\x1b[${keycode};${modifier}u`,
+              expected: {
+                name: key.toLowerCase(),
+                shift: shiftValue,
+                alt: true,
+                ctrl: false,
+                cmd: false,
+              },
+            };
+          } else if (terminal === 'MacTerminal') {
+            // Mac Terminal sends ESC + letter
+            const chunk = shiftValue ? `\x1b${key.toUpperCase()}` : `\x1b${key.toLowerCase()}`;
+            return {
+              terminal,
+              key,
+              kitty: false,
+              chunk,
+              expected: {
+                sequence: chunk,
+                name: key.toLowerCase(),
+                shift: shiftValue,
+                alt: true,
+                ctrl: false,
+                cmd: false,
+              },
+            };
+          } else {
+            // iTerm2 and VSCode send accented characters (å, ø, µ, Ω, ¸)
+            return {
+              terminal,
+              key,
+              chunk: accentedChar,
+              expected: {
+                name: key.toLowerCase(),
+                shift: shiftValue,
+                alt: true, // Always expect alt:true after conversion
+                ctrl: false,
+                cmd: false,
+                sequence: accentedChar,
+              },
+            };
+          }
+        })
+      )
+    )('should handle Alt+$key in $terminal', ({ chunk, expected }: { chunk: string; expected: Partial<Key> }) => {
+      const keyHandler = vi.fn();
+      const testWrapper = ({ children }: { children: React.ReactNode }) => (
+        <KeypressProvider>{children}</KeypressProvider>
+      );
+      const { result } = renderHook(() => useKeypressContext(), {
+        wrapper: testWrapper,
+      });
+      act(() => result.current.subscribe(keyHandler));
 
-        act(() => stdin.write(chunk));
+      act(() => stdin.write(chunk));
 
-        expect(keyHandler).toHaveBeenCalledWith(
-          expect.objectContaining(expected),
-        );
-      },
-    );
+      expect(keyHandler).toHaveBeenCalledWith(expect.objectContaining(expected));
+    });
   });
 
   describe('Backslash key handling', () => {
@@ -928,7 +875,7 @@ describe('KeypressContext', () => {
           alt: false,
           ctrl: false,
           cmd: false,
-        }),
+        })
       );
     });
   });
@@ -964,7 +911,7 @@ describe('KeypressContext', () => {
         alt: false,
         ctrl: false,
         cmd: false,
-      }),
+      })
     );
   });
 
@@ -986,7 +933,7 @@ describe('KeypressContext', () => {
         alt: false,
         ctrl: false,
         cmd: false,
-      }),
+      })
     );
   });
 
@@ -1004,7 +951,7 @@ describe('KeypressContext', () => {
       expect.objectContaining({
         name: 'a',
         ctrl: true,
-      }),
+      })
     );
   });
 
@@ -1024,14 +971,14 @@ describe('KeypressContext', () => {
       expect.objectContaining({
         name: 'a',
         ctrl: true,
-      }),
+      })
     );
     expect(keyHandler).toHaveBeenNthCalledWith(
       2,
       expect.objectContaining({
         name: 'b',
         ctrl: true,
-      }),
+      })
     );
   });
 
@@ -1051,13 +998,13 @@ describe('KeypressContext', () => {
       1,
       expect.objectContaining({
         name: 'return',
-      }),
+      })
     );
     expect(keyHandler).toHaveBeenNthCalledWith(
       2,
       expect.objectContaining({
         sequence: '\x1b[!',
-      }),
+      })
     );
   });
 
@@ -1081,10 +1028,10 @@ describe('KeypressContext', () => {
         expect(keyHandler).toHaveBeenCalledWith(
           expect.objectContaining({
             name: 'escape',
-          }),
+          })
         );
       });
-    },
+    }
   );
 
   it('should reset timeout when new input arrives', async () => {
@@ -1117,7 +1064,7 @@ describe('KeypressContext', () => {
     expect(keyHandler).toHaveBeenCalledWith(
       expect.objectContaining({
         name: 'a',
-      }),
+      })
     );
   });
 
@@ -1162,7 +1109,7 @@ describe('KeypressContext', () => {
           alt: false,
           ctrl: false,
           cmd: false,
-        }),
+        })
       );
     });
 
@@ -1215,14 +1162,8 @@ describe('KeypressContext', () => {
       });
 
       expect(keyHandler).toHaveBeenCalledTimes(2);
-      expect(keyHandler).toHaveBeenNthCalledWith(
-        1,
-        expect.objectContaining({ name: 'h', sequence: 'H', shift: true }),
-      );
-      expect(keyHandler).toHaveBeenNthCalledWith(
-        2,
-        expect.objectContaining({ name: 'i', sequence: 'I', shift: true }),
-      );
+      expect(keyHandler).toHaveBeenNthCalledWith(1, expect.objectContaining({ name: 'h', sequence: 'H', shift: true }));
+      expect(keyHandler).toHaveBeenNthCalledWith(2, expect.objectContaining({ name: 'i', sequence: 'I', shift: true }));
     });
   });
 
@@ -1235,9 +1176,7 @@ describe('KeypressContext', () => {
       { name: 'another mouse', sequence: '\u001b[<0;29;19m' },
     ])('should ignore $name sequence', async ({ sequence }) => {
       const keyHandler = vi.fn();
-      const wrapper = ({ children }: { children: React.ReactNode }) => (
-        <KeypressProvider>{children}</KeypressProvider>
-      );
+      const wrapper = ({ children }: { children: React.ReactNode }) => <KeypressProvider>{children}</KeypressProvider>;
       const { result } = renderHook(() => useKeypressContext(), {
         wrapper,
       });
@@ -1253,21 +1192,13 @@ describe('KeypressContext', () => {
       act(() => stdin.write('HI'));
 
       expect(keyHandler).toHaveBeenCalledTimes(2);
-      expect(keyHandler).toHaveBeenNthCalledWith(
-        1,
-        expect.objectContaining({ name: 'h', sequence: 'H', shift: true }),
-      );
-      expect(keyHandler).toHaveBeenNthCalledWith(
-        2,
-        expect.objectContaining({ name: 'i', sequence: 'I', shift: true }),
-      );
+      expect(keyHandler).toHaveBeenNthCalledWith(1, expect.objectContaining({ name: 'h', sequence: 'H', shift: true }));
+      expect(keyHandler).toHaveBeenNthCalledWith(2, expect.objectContaining({ name: 'i', sequence: 'I', shift: true }));
     });
 
     it('should handle F12', async () => {
       const keyHandler = vi.fn();
-      const wrapper = ({ children }: { children: React.ReactNode }) => (
-        <KeypressProvider>{children}</KeypressProvider>
-      );
+      const wrapper = ({ children }: { children: React.ReactNode }) => <KeypressProvider>{children}</KeypressProvider>;
       const { result } = renderHook(() => useKeypressContext(), { wrapper });
       act(() => result.current.subscribe(keyHandler));
 
@@ -1283,7 +1214,7 @@ describe('KeypressContext', () => {
           alt: false,
           ctrl: false,
           cmd: false,
-        }),
+        })
       );
     });
   });
@@ -1304,9 +1235,7 @@ describe('KeypressContext', () => {
 
       expect(keyHandler).toHaveBeenCalledTimes(inputString.length);
       for (const char of inputString) {
-        expect(keyHandler).toHaveBeenCalledWith(
-          expect.objectContaining({ sequence: char }),
-        );
+        expect(keyHandler).toHaveBeenCalledWith(expect.objectContaining({ sequence: char }));
       }
     });
   });
@@ -1344,23 +1273,20 @@ describe('KeypressContext', () => {
         expected: { name: 'z', alt: true, shift: true },
         desc: 'Cedilla (\u00B8) in Greek locale (should be Option+Shift+z)',
       },
-    ])(
-      'should handle $char correctly in $desc',
-      async ({ lang, lcAll, char = '\u03A9', expected }) => {
-        if (lang) vi.stubEnv('LANG', lang);
-        if (lcAll) vi.stubEnv('LC_ALL', lcAll);
+    ])('should handle $char correctly in $desc', async ({ lang, lcAll, char = '\u03A9', expected }) => {
+      if (lang) vi.stubEnv('LANG', lang);
+      if (lcAll) vi.stubEnv('LC_ALL', lcAll);
 
-        const { keyHandler } = setupKeypressTest();
+      const { keyHandler } = setupKeypressTest();
 
-        act(() => stdin.write(char));
+      act(() => stdin.write(char));
 
-        expect(keyHandler).toHaveBeenCalledWith(
-          expect.objectContaining({
-            ...expected,
-            sequence: char,
-          }),
-        );
-      },
-    );
+      expect(keyHandler).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ...expected,
+          sequence: char,
+        })
+      );
+    });
   });
 });

@@ -23,16 +23,14 @@ export class SubagentTool extends BaseDeclarativeTool<AgentInputs, ToolResult> {
   constructor(
     private readonly definition: AgentDefinition,
     private readonly config: Config,
-    messageBus: MessageBus,
+    messageBus: MessageBus
   ) {
     const inputSchema = definition.inputConfig.inputSchema;
 
     // Validate schema on construction
     const schemaError = SchemaValidator.validateSchema(inputSchema);
     if (schemaError) {
-      throw new Error(
-        `Invalid schema for agent ${definition.name}: ${schemaError}`,
-      );
+      throw new Error(`Invalid schema for agent ${definition.name}: ${schemaError}`);
     }
 
     super(
@@ -43,7 +41,7 @@ export class SubagentTool extends BaseDeclarativeTool<AgentInputs, ToolResult> {
       inputSchema,
       messageBus,
       /* isOutputMarkdown */ true,
-      /* canUpdateOutput */ true,
+      /* canUpdateOutput */ true
     );
   }
 
@@ -51,16 +49,9 @@ export class SubagentTool extends BaseDeclarativeTool<AgentInputs, ToolResult> {
     params: AgentInputs,
     messageBus: MessageBus,
     _toolName?: string,
-    _toolDisplayName?: string,
+    _toolDisplayName?: string
   ): ToolInvocation<AgentInputs, ToolResult> {
-    return new SubAgentInvocation(
-      params,
-      this.definition,
-      this.config,
-      messageBus,
-      _toolName,
-      _toolDisplayName,
-    );
+    return new SubAgentInvocation(params, this.definition, this.config, messageBus, _toolName, _toolDisplayName);
   }
 }
 
@@ -71,13 +62,13 @@ class SubAgentInvocation extends BaseToolInvocation<AgentInputs, ToolResult> {
     private readonly config: Config,
     messageBus: MessageBus,
     _toolName?: string,
-    _toolDisplayName?: string,
+    _toolDisplayName?: string
   ) {
     super(
       params,
       messageBus,
       _toolName ?? definition.name,
-      _toolDisplayName ?? definition.displayName ?? definition.name,
+      _toolDisplayName ?? definition.displayName ?? definition.name
     );
   }
 
@@ -85,25 +76,17 @@ class SubAgentInvocation extends BaseToolInvocation<AgentInputs, ToolResult> {
     return `Delegating to agent '${this.definition.name}'`;
   }
 
-  override async shouldConfirmExecute(
-    abortSignal: AbortSignal,
-  ): Promise<ToolCallConfirmationDetails | false> {
+  override async shouldConfirmExecute(abortSignal: AbortSignal): Promise<ToolCallConfirmationDetails | false> {
     const invocation = this.buildSubInvocation(this.definition, this.params);
     return invocation.shouldConfirmExecute(abortSignal);
   }
 
-  async execute(
-    signal: AbortSignal,
-    updateOutput?: (output: string | AnsiOutput) => void,
-  ): Promise<ToolResult> {
-    const validationError = SchemaValidator.validate(
-      this.definition.inputConfig.inputSchema,
-      this.params,
-    );
+  async execute(signal: AbortSignal, updateOutput?: (output: string | AnsiOutput) => void): Promise<ToolResult> {
+    const validationError = SchemaValidator.validate(this.definition.inputConfig.inputSchema, this.params);
 
     if (validationError) {
       throw new Error(
-        `Invalid arguments for agent '${this.definition.name}': ${validationError}. Input schema: ${JSON.stringify(this.definition.inputConfig.inputSchema)}.`,
+        `Invalid arguments for agent '${this.definition.name}': ${validationError}. Input schema: ${JSON.stringify(this.definition.inputConfig.inputSchema)}.`
       );
     }
 
@@ -114,13 +97,9 @@ class SubAgentInvocation extends BaseToolInvocation<AgentInputs, ToolResult> {
 
   private buildSubInvocation(
     definition: AgentDefinition,
-    agentArgs: AgentInputs,
+    agentArgs: AgentInputs
   ): ToolInvocation<AgentInputs, ToolResult> {
-    const wrapper = new SubagentToolWrapper(
-      definition,
-      this.config,
-      this.messageBus,
-    );
+    const wrapper = new SubagentToolWrapper(definition, this.config, this.messageBus);
 
     return wrapper.build(agentArgs);
   }

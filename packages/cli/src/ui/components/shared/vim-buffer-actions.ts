@@ -73,10 +73,7 @@ export type VimAction = Extract<
   | { type: 'vim_escape_insert_mode' }
 >;
 
-export function handleVimAction(
-  state: TextBufferState,
-  action: VimAction,
-): TextBufferState {
+export function handleVimAction(state: TextBufferState, action: VimAction): TextBufferState {
   const { lines, cursorRow, cursorCol } = state;
 
   switch (action.type) {
@@ -107,14 +104,7 @@ export function handleVimAction(
 
       if (endRow !== cursorRow || endCol !== cursorCol) {
         const nextState = detachExpandedPaste(pushUndo(state));
-        return replaceRangeInternal(
-          nextState,
-          cursorRow,
-          cursorCol,
-          endRow,
-          endCol,
-          '',
-        );
+        return replaceRangeInternal(nextState, cursorRow, cursorCol, endRow, endCol, '');
       }
       return state;
     }
@@ -126,12 +116,7 @@ export function handleVimAction(
       let endCol = cursorCol;
 
       for (let i = 0; i < count; i++) {
-        const nextWord = findNextBigWordAcrossLines(
-          lines,
-          endRow,
-          endCol,
-          true,
-        );
+        const nextWord = findNextBigWordAcrossLines(lines, endRow, endCol, true);
         if (nextWord) {
           endRow = nextWord.row;
           endCol = nextWord.col;
@@ -149,14 +134,7 @@ export function handleVimAction(
 
       if (endRow !== cursorRow || endCol !== cursorCol) {
         const nextState = pushUndo(state);
-        return replaceRangeInternal(
-          nextState,
-          cursorRow,
-          cursorCol,
-          endRow,
-          endCol,
-          '',
-        );
+        return replaceRangeInternal(nextState, cursorRow, cursorCol, endRow, endCol, '');
       }
       return state;
     }
@@ -179,14 +157,7 @@ export function handleVimAction(
 
       if (startRow !== cursorRow || startCol !== cursorCol) {
         const nextState = detachExpandedPaste(pushUndo(state));
-        return replaceRangeInternal(
-          nextState,
-          startRow,
-          startCol,
-          cursorRow,
-          cursorCol,
-          '',
-        );
+        return replaceRangeInternal(nextState, startRow, startCol, cursorRow, cursorCol, '');
       }
       return state;
     }
@@ -209,14 +180,7 @@ export function handleVimAction(
 
       if (startRow !== cursorRow || startCol !== cursorCol) {
         const nextState = pushUndo(state);
-        return replaceRangeInternal(
-          nextState,
-          startRow,
-          startCol,
-          cursorRow,
-          cursorCol,
-          '',
-        );
+        return replaceRangeInternal(nextState, startRow, startCol, cursorRow, cursorCol, '');
       }
       return state;
     }
@@ -236,12 +200,7 @@ export function handleVimAction(
           endCol = wordEnd.col + 1; // Include the character at word end
           // For next iteration, move to start of next word
           if (i < count - 1) {
-            const nextWord = findNextWordAcrossLines(
-              lines,
-              wordEnd.row,
-              wordEnd.col + 1,
-              true,
-            );
+            const nextWord = findNextWordAcrossLines(lines, wordEnd.row, wordEnd.col + 1, true);
             if (nextWord) {
               row = nextWord.row;
               col = nextWord.col;
@@ -262,14 +221,7 @@ export function handleVimAction(
 
       if (endRow !== cursorRow || endCol !== cursorCol) {
         const nextState = detachExpandedPaste(pushUndo(state));
-        return replaceRangeInternal(
-          nextState,
-          cursorRow,
-          cursorCol,
-          endRow,
-          endCol,
-          '',
-        );
+        return replaceRangeInternal(nextState, cursorRow, cursorCol, endRow, endCol, '');
       }
       return state;
     }
@@ -289,12 +241,7 @@ export function handleVimAction(
           endCol = wordEnd.col + 1; // Include the character at word end
           // For next iteration, move to start of next word
           if (i < count - 1) {
-            const nextWord = findNextBigWordAcrossLines(
-              lines,
-              wordEnd.row,
-              wordEnd.col + 1,
-              true,
-            );
+            const nextWord = findNextBigWordAcrossLines(lines, wordEnd.row, wordEnd.col + 1, true);
             if (nextWord) {
               row = nextWord.row;
               col = nextWord.col;
@@ -315,14 +262,7 @@ export function handleVimAction(
 
       if (endRow !== cursorRow || endCol !== cursorCol) {
         const nextState = pushUndo(state);
-        return replaceRangeInternal(
-          nextState,
-          cursorRow,
-          cursorCol,
-          endRow,
-          endCol,
-          '',
-        );
+        return replaceRangeInternal(nextState, cursorRow, cursorCol, endRow, endCol, '');
       }
       return state;
     }
@@ -371,24 +311,9 @@ export function handleVimAction(
       const linesToChange = Math.min(count, lines.length - cursorRow);
       const nextState = detachExpandedPaste(pushUndo(state));
 
-      const { startOffset, endOffset } = getLineRangeOffsets(
-        cursorRow,
-        linesToChange,
-        nextState.lines,
-      );
-      const { startRow, startCol, endRow, endCol } = getPositionFromOffsets(
-        startOffset,
-        endOffset,
-        nextState.lines,
-      );
-      return replaceRangeInternal(
-        nextState,
-        startRow,
-        startCol,
-        endRow,
-        endCol,
-        '',
-      );
+      const { startOffset, endOffset } = getLineRangeOffsets(cursorRow, linesToChange, nextState.lines);
+      const { startRow, startCol, endRow, endCol } = getPositionFromOffsets(startOffset, endOffset, nextState.lines);
+      return replaceRangeInternal(nextState, startRow, startCol, endRow, endCol, '');
     }
 
     case 'vim_delete_to_end_of_line':
@@ -401,14 +326,7 @@ export function handleVimAction(
         // Single line: delete from cursor to end of current line
         if (cursorCol < cpLen(currentLine)) {
           const nextState = detachExpandedPaste(pushUndo(state));
-          return replaceRangeInternal(
-            nextState,
-            cursorRow,
-            cursorCol,
-            cursorRow,
-            cpLen(currentLine),
-            '',
-          );
+          return replaceRangeInternal(nextState, cursorRow, cursorCol, cursorRow, cpLen(currentLine), '');
         }
         return state;
       } else {
@@ -421,14 +339,7 @@ export function handleVimAction(
           // No additional lines to delete, just delete to EOL
           if (cursorCol < cpLen(currentLine)) {
             const nextState = detachExpandedPaste(pushUndo(state));
-            return replaceRangeInternal(
-              nextState,
-              cursorRow,
-              cursorCol,
-              cursorRow,
-              cpLen(currentLine),
-              '',
-            );
+            return replaceRangeInternal(nextState, cursorRow, cursorCol, cursorRow, cpLen(currentLine), '');
           }
           return state;
         }
@@ -436,28 +347,14 @@ export function handleVimAction(
         // Delete from cursor position to end of endRow (including newlines)
         const nextState = detachExpandedPaste(pushUndo(state));
         const endLine = lines[endRow] || '';
-        return replaceRangeInternal(
-          nextState,
-          cursorRow,
-          cursorCol,
-          endRow,
-          cpLen(endLine),
-          '',
-        );
+        return replaceRangeInternal(nextState, cursorRow, cursorCol, endRow, cpLen(endLine), '');
       }
     }
 
     case 'vim_delete_to_start_of_line': {
       if (cursorCol > 0) {
         const nextState = detachExpandedPaste(pushUndo(state));
-        return replaceRangeInternal(
-          nextState,
-          cursorRow,
-          0,
-          cursorRow,
-          cursorCol,
-          '',
-        );
+        return replaceRangeInternal(nextState, cursorRow, 0, cursorRow, cursorCol, '');
       }
       return state;
     }
@@ -467,10 +364,7 @@ export function handleVimAction(
       const currentLine = lines[cursorRow] || '';
       const lineCodePoints = toCodePoints(currentLine);
       let firstNonWs = 0;
-      while (
-        firstNonWs < lineCodePoints.length &&
-        /\s/.test(lineCodePoints[firstNonWs])
-      ) {
+      while (firstNonWs < lineCodePoints.length && /\s/.test(lineCodePoints[firstNonWs])) {
         firstNonWs++;
       }
       // If line is all whitespace, firstNonWs would be lineCodePoints.length
@@ -483,14 +377,7 @@ export function handleVimAction(
         const startCol = Math.min(cursorCol, firstNonWs);
         const endCol = Math.max(cursorCol, firstNonWs);
         const nextState = detachExpandedPaste(pushUndo(state));
-        return replaceRangeInternal(
-          nextState,
-          cursorRow,
-          startCol,
-          cursorRow,
-          endCol,
-          '',
-        );
+        return replaceRangeInternal(nextState, cursorRow, startCol, cursorRow, endCol, '');
       }
       return state;
     }
@@ -499,14 +386,7 @@ export function handleVimAction(
       // Change from cursor to start of line (vim 'c0')
       if (cursorCol > 0) {
         const nextState = detachExpandedPaste(pushUndo(state));
-        return replaceRangeInternal(
-          nextState,
-          cursorRow,
-          0,
-          cursorRow,
-          cursorCol,
-          '',
-        );
+        return replaceRangeInternal(nextState, cursorRow, 0, cursorRow, cursorCol, '');
       }
       return state;
     }
@@ -516,10 +396,7 @@ export function handleVimAction(
       const currentLine = lines[cursorRow] || '';
       const lineCodePoints = toCodePoints(currentLine);
       let firstNonWs = 0;
-      while (
-        firstNonWs < lineCodePoints.length &&
-        /\s/.test(lineCodePoints[firstNonWs])
-      ) {
+      while (firstNonWs < lineCodePoints.length && /\s/.test(lineCodePoints[firstNonWs])) {
         firstNonWs++;
       }
       // If line is all whitespace, firstNonWs would be lineCodePoints.length
@@ -532,14 +409,7 @@ export function handleVimAction(
         const startCol = Math.min(cursorCol, firstNonWs);
         const endCol = Math.max(cursorCol, firstNonWs);
         const nextState = detachExpandedPaste(pushUndo(state));
-        return replaceRangeInternal(
-          nextState,
-          cursorRow,
-          startCol,
-          cursorRow,
-          endCol,
-          '',
-        );
+        return replaceRangeInternal(nextState, cursorRow, startCol, cursorRow, endCol, '');
       }
       return state;
     }
@@ -655,7 +525,7 @@ export function handleVimAction(
             startCol,
             cursorRow,
             cursorCol,
-            '',
+            ''
           );
         }
 
@@ -732,7 +602,7 @@ export function handleVimAction(
             cursorCol,
             cursorRow,
             Math.min(cpLen(lines[cursorRow] || ''), cursorCol + count),
-            '',
+            ''
           );
         }
 
@@ -818,10 +688,7 @@ export function handleVimAction(
       const newRow = Math.max(0, cursorRow - count);
       const targetLine = lines[newRow] || '';
       const targetLineLength = cpLen(targetLine);
-      const newCol = Math.min(
-        cursorCol,
-        targetLineLength > 0 ? targetLineLength - 1 : 0,
-      );
+      const newCol = Math.min(cursorCol, targetLineLength > 0 ? targetLineLength - 1 : 0);
 
       return {
         ...state,
@@ -837,10 +704,7 @@ export function handleVimAction(
       const newRow = Math.min(lines.length - 1, cursorRow + count);
       const targetLine = lines[newRow] || '';
       const targetLineLength = cpLen(targetLine);
-      const newCol = Math.min(
-        cursorCol,
-        targetLineLength > 0 ? targetLineLength - 1 : 0,
-      );
+      const newCol = Math.min(cursorCol, targetLineLength > 0 ? targetLineLength - 1 : 0);
 
       return {
         ...state,
@@ -999,14 +863,7 @@ export function handleVimAction(
       if (cursorCol < lineLength) {
         const deleteCount = Math.min(count, lineLength - cursorCol);
         const nextState = detachExpandedPaste(pushUndo(state));
-        return replaceRangeInternal(
-          nextState,
-          cursorRow,
-          cursorCol,
-          cursorRow,
-          cursorCol + deleteCount,
-          '',
-        );
+        return replaceRangeInternal(nextState, cursorRow, cursorCol, cursorRow, cursorCol + deleteCount, '');
       }
       return state;
     }
@@ -1034,14 +891,7 @@ export function handleVimAction(
 
       // Insert newline at end of current line
       const endOfLine = cpLen(lines[cursorRow] || '');
-      return replaceRangeInternal(
-        nextState,
-        cursorRow,
-        endOfLine,
-        cursorRow,
-        endOfLine,
-        '\n',
-      );
+      return replaceRangeInternal(nextState, cursorRow, endOfLine, cursorRow, endOfLine, '\n');
     }
 
     case 'vim_open_line_above': {
@@ -1049,14 +899,7 @@ export function handleVimAction(
       const nextState = detachExpandedPaste(pushUndo(state));
 
       // Insert newline at beginning of current line
-      const resultState = replaceRangeInternal(
-        nextState,
-        cursorRow,
-        0,
-        cursorRow,
-        0,
-        '\n',
-      );
+      const resultState = replaceRangeInternal(nextState, cursorRow, 0, cursorRow, 0, '\n');
 
       // Move cursor to the new line above
       return {

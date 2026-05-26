@@ -28,8 +28,7 @@ const RESPONSE_SCHEMA: Record<string, unknown> = {
     next_speaker: {
       type: 'string',
       enum: ['user', 'model'],
-      description:
-        'Who should speak next based *only* on the preceding turn and the decision rules',
+      description: 'Who should speak next based *only* on the preceding turn and the decision rules',
     },
   },
   required: ['reasoning', 'next_speaker'],
@@ -44,7 +43,7 @@ export async function checkNextSpeaker(
   chat: GeminiChat,
   baseLlmClient: BaseLlmClient,
   abortSignal: AbortSignal,
-  promptId: string,
+  promptId: string
 ): Promise<NextSpeakerResponse | null> {
   // We need to capture the curated history because there are many moments when the model will return invalid turns
   // that when passed back up to the endpoint will break subsequent calls. An example of this is when the model decides
@@ -65,18 +64,13 @@ export async function checkNextSpeaker(
   if (comprehensiveHistory.length === 0) {
     return null;
   }
-  const lastComprehensiveMessage =
-    comprehensiveHistory[comprehensiveHistory.length - 1];
+  const lastComprehensiveMessage = comprehensiveHistory[comprehensiveHistory.length - 1];
 
   // If the last message is a user message containing only function_responses,
   // then the model should speak next.
-  if (
-    lastComprehensiveMessage &&
-    isFunctionResponse(lastComprehensiveMessage)
-  ) {
+  if (lastComprehensiveMessage && isFunctionResponse(lastComprehensiveMessage)) {
     return {
-      reasoning:
-        'The last message was a function response, so the model should speak next.',
+      reasoning: 'The last message was a function response, so the model should speak next.',
       next_speaker: 'model',
     };
   }
@@ -104,10 +98,7 @@ export async function checkNextSpeaker(
     return null;
   }
 
-  const contents: Content[] = [
-    ...curatedHistory,
-    { role: 'user', parts: [{ text: CHECK_PROMPT }] },
-  ];
+  const contents: Content[] = [...curatedHistory, { role: 'user', parts: [{ text: CHECK_PROMPT }] }];
 
   try {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
@@ -120,19 +111,12 @@ export async function checkNextSpeaker(
       role: LlmRole.UTILITY_NEXT_SPEAKER,
     })) as unknown as NextSpeakerResponse;
 
-    if (
-      parsedResponse &&
-      parsedResponse.next_speaker &&
-      ['user', 'model'].includes(parsedResponse.next_speaker)
-    ) {
+    if (parsedResponse && parsedResponse.next_speaker && ['user', 'model'].includes(parsedResponse.next_speaker)) {
       return parsedResponse;
     }
     return null;
   } catch (error) {
-    debugLogger.warn(
-      'Failed to talk to Gemini endpoint when seeing if conversation should continue.',
-      error,
-    );
+    debugLogger.warn('Failed to talk to Gemini endpoint when seeing if conversation should continue.', error);
     return null;
   }
 }

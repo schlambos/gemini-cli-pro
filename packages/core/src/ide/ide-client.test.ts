@@ -4,15 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  afterEach,
-  type Mocked,
-} from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mocked } from 'vitest';
 import { IdeClient, IDEConnectionStatus } from './ide-client.js';
 import type * as fs from 'node:fs';
 import { getIdeProcessInfo } from './process-utils.js';
@@ -58,8 +50,7 @@ describe('IdeClient', () => {
 
   beforeEach(async () => {
     // Reset singleton instance for test isolation
-    (IdeClient as unknown as { instance: IdeClient | undefined }).instance =
-      undefined;
+    (IdeClient as unknown as { instance: IdeClient | undefined }).instance = undefined;
 
     // Mock environment variables
     process.env['GEMINI_CLI_IDE_WORKSPACE_PATH'] = '/test/workspace';
@@ -116,12 +107,10 @@ describe('IdeClient', () => {
       expect(getConnectionConfigFromFile).toHaveBeenCalledWith(12345);
       expect(StreamableHTTPClientTransport).toHaveBeenCalledWith(
         new URL('http://127.0.0.1:8080/mcp'),
-        expect.any(Object),
+        expect.any(Object)
       );
       expect(mockClient.connect).toHaveBeenCalledWith(mockHttpTransport);
-      expect(ideClient.getConnectionStatus().status).toBe(
-        IDEConnectionStatus.Connected,
-      );
+      expect(ideClient.getConnectionStatus().status).toBe(IDEConnectionStatus.Connected);
     });
 
     it('should connect using stdio when stdio config is provided in file', async () => {
@@ -138,9 +127,7 @@ describe('IdeClient', () => {
         args: ['--foo'],
       });
       expect(mockClient.connect).toHaveBeenCalledWith(mockStdioTransport);
-      expect(ideClient.getConnectionStatus().status).toBe(
-        IDEConnectionStatus.Connected,
-      );
+      expect(ideClient.getConnectionStatus().status).toBe(IDEConnectionStatus.Connected);
     });
 
     it('should prioritize port over stdio when both are in config file', async () => {
@@ -156,9 +143,7 @@ describe('IdeClient', () => {
 
       expect(StreamableHTTPClientTransport).toHaveBeenCalled();
       expect(StdioClientTransport).not.toHaveBeenCalled();
-      expect(ideClient.getConnectionStatus().status).toBe(
-        IDEConnectionStatus.Connected,
-      );
+      expect(ideClient.getConnectionStatus().status).toBe(IDEConnectionStatus.Connected);
     });
 
     it('should connect using HTTP when port is provided in environment variables', async () => {
@@ -171,12 +156,10 @@ describe('IdeClient', () => {
 
       expect(StreamableHTTPClientTransport).toHaveBeenCalledWith(
         new URL('http://127.0.0.1:9090/mcp'),
-        expect.any(Object),
+        expect.any(Object)
       );
       expect(mockClient.connect).toHaveBeenCalledWith(mockHttpTransport);
-      expect(ideClient.getConnectionStatus().status).toBe(
-        IDEConnectionStatus.Connected,
-      );
+      expect(ideClient.getConnectionStatus().status).toBe(IDEConnectionStatus.Connected);
     });
 
     it('should connect using stdio when stdio config is in environment variables', async () => {
@@ -195,9 +178,7 @@ describe('IdeClient', () => {
         args: ['--bar'],
       });
       expect(mockClient.connect).toHaveBeenCalledWith(mockStdioTransport);
-      expect(ideClient.getConnectionStatus().status).toBe(
-        IDEConnectionStatus.Connected,
-      );
+      expect(ideClient.getConnectionStatus().status).toBe(IDEConnectionStatus.Connected);
     });
 
     it('should prioritize file config over environment variables', async () => {
@@ -211,11 +192,9 @@ describe('IdeClient', () => {
 
       expect(StreamableHTTPClientTransport).toHaveBeenCalledWith(
         new URL('http://127.0.0.1:8080/mcp'),
-        expect.any(Object),
+        expect.any(Object)
       );
-      expect(ideClient.getConnectionStatus().status).toBe(
-        IDEConnectionStatus.Connected,
-      );
+      expect(ideClient.getConnectionStatus().status).toBe(IDEConnectionStatus.Connected);
     });
 
     it('should be disconnected if no config is found', async () => {
@@ -227,12 +206,8 @@ describe('IdeClient', () => {
 
       expect(StreamableHTTPClientTransport).not.toHaveBeenCalled();
       expect(StdioClientTransport).not.toHaveBeenCalled();
-      expect(ideClient.getConnectionStatus().status).toBe(
-        IDEConnectionStatus.Disconnected,
-      );
-      expect(ideClient.getConnectionStatus().details).toContain(
-        'Failed to connect',
-      );
+      expect(ideClient.getConnectionStatus().status).toBe(IDEConnectionStatus.Disconnected);
+      expect(ideClient.getConnectionStatus().details).toContain('Failed to connect');
     });
   });
 
@@ -251,9 +226,7 @@ describe('IdeClient', () => {
       const ideClient = await IdeClient.getInstance();
       await ideClient.connect();
 
-      expect(ideClient.getConnectionStatus().status).toBe(
-        IDEConnectionStatus.Connected,
-      );
+      expect(ideClient.getConnectionStatus().status).toBe(IDEConnectionStatus.Connected);
       expect(ideClient.isDiffingEnabled()).toBe(false);
     });
 
@@ -268,9 +241,7 @@ describe('IdeClient', () => {
       const ideClient = await IdeClient.getInstance();
       await ideClient.connect();
 
-      expect(ideClient.getConnectionStatus().status).toBe(
-        IDEConnectionStatus.Connected,
-      );
+      expect(ideClient.getConnectionStatus().status).toBe(IDEConnectionStatus.Connected);
       expect(ideClient.isDiffingEnabled()).toBe(false);
     });
 
@@ -285,9 +256,7 @@ describe('IdeClient', () => {
       const ideClient = await IdeClient.getInstance();
       await ideClient.connect();
 
-      expect(ideClient.getConnectionStatus().status).toBe(
-        IDEConnectionStatus.Connected,
-      );
+      expect(ideClient.getConnectionStatus().status).toBe(IDEConnectionStatus.Connected);
       expect(ideClient.isDiffingEnabled()).toBe(false);
     });
 
@@ -302,9 +271,7 @@ describe('IdeClient', () => {
       const ideClient = await IdeClient.getInstance();
       await ideClient.connect();
 
-      expect(ideClient.getConnectionStatus().status).toBe(
-        IDEConnectionStatus.Connected,
-      );
+      expect(ideClient.getConnectionStatus().status).toBe(IDEConnectionStatus.Connected);
       expect(ideClient.isDiffingEnabled()).toBe(true);
     });
   });
@@ -328,7 +295,7 @@ describe('IdeClient', () => {
           ideClient as unknown as {
             closeDiff: () => Promise<string | undefined>;
           },
-          'closeDiff',
+          'closeDiff'
         )
         .mockResolvedValue('final content from ide');
 
@@ -348,11 +315,9 @@ describe('IdeClient', () => {
       expect(closeDiffSpy).toHaveBeenCalledWith('/test.txt', {
         suppressNotification: true,
       });
-      expect(
-        (
-          ideClient as unknown as { diffResponses: Map<string, unknown> }
-        ).diffResponses.has('/test.txt'),
-      ).toBe(false);
+      expect((ideClient as unknown as { diffResponses: Map<string, unknown> }).diffResponses.has('/test.txt')).toBe(
+        false
+      );
     });
 
     it("should resolve an open diff as 'rejected'", async () => {
@@ -362,7 +327,7 @@ describe('IdeClient', () => {
           ideClient as unknown as {
             closeDiff: () => Promise<string | undefined>;
           },
-          'closeDiff',
+          'closeDiff'
         )
         .mockResolvedValue(undefined);
 
@@ -382,11 +347,9 @@ describe('IdeClient', () => {
       expect(closeDiffSpy).toHaveBeenCalledWith('/test.txt', {
         suppressNotification: true,
       });
-      expect(
-        (
-          ideClient as unknown as { diffResponses: Map<string, unknown> }
-        ).diffResponses.has('/test.txt'),
-      ).toBe(false);
+      expect((ideClient as unknown as { diffResponses: Map<string, unknown> }).diffResponses.has('/test.txt')).toBe(
+        false
+      );
     });
 
     it('should do nothing if no diff is open for the given file path', async () => {
@@ -396,7 +359,7 @@ describe('IdeClient', () => {
           ideClient as unknown as {
             closeDiff: () => Promise<string | undefined>;
           },
-          'closeDiff',
+          'closeDiff'
         )
         .mockResolvedValue(undefined);
 
@@ -408,9 +371,7 @@ describe('IdeClient', () => {
       });
       // No crash should occur, and nothing should be in the map.
       expect(
-        (
-          ideClient as unknown as { diffResponses: Map<string, unknown> }
-        ).diffResponses.has('/non-existent.txt'),
+        (ideClient as unknown as { diffResponses: Map<string, unknown> }).diffResponses.has('/non-existent.txt')
       ).toBe(false);
     });
   });
@@ -423,12 +384,9 @@ describe('IdeClient', () => {
 
     it('should return undefined if client is not connected', async () => {
       const ideClient = await IdeClient.getInstance();
-      (ideClient as unknown as { client: Client | undefined }).client =
-        undefined;
+      (ideClient as unknown as { client: Client | undefined }).client = undefined;
 
-      const result = await (
-        ideClient as unknown as { closeDiff: (f: string) => Promise<void> }
-      ).closeDiff('/test.txt');
+      const result = await (ideClient as unknown as { closeDiff: (f: string) => Promise<void> }).closeDiff('/test.txt');
       expect(result).toBeUndefined();
     });
 
@@ -439,10 +397,7 @@ describe('IdeClient', () => {
 
       await (
         ideClient as unknown as {
-          closeDiff: (
-            f: string,
-            o?: { suppressNotification?: boolean },
-          ) => Promise<void>;
+          closeDiff: (f: string, o?: { suppressNotification?: boolean }) => Promise<void>;
         }
       ).closeDiff('/test.txt', { suppressNotification: true });
 
@@ -457,7 +412,7 @@ describe('IdeClient', () => {
           },
         }),
         expect.any(Object), // Schema
-        expect.any(Object), // Options
+        expect.any(Object) // Options
       );
     });
 
@@ -465,15 +420,13 @@ describe('IdeClient', () => {
       const ideClient = await IdeClient.getInstance();
       const response = {
         isError: false,
-        content: [
-          { type: 'text', text: JSON.stringify({ content: 'file content' }) },
-        ],
+        content: [{ type: 'text', text: JSON.stringify({ content: 'file content' }) }],
       };
       mockClient.request.mockResolvedValue(response);
 
-      const result = await (
-        ideClient as unknown as { closeDiff: (f: string) => Promise<string> }
-      ).closeDiff('/test.txt');
+      const result = await (ideClient as unknown as { closeDiff: (f: string) => Promise<string> }).closeDiff(
+        '/test.txt'
+      );
       expect(result).toBe('file content');
     });
 
@@ -485,9 +438,7 @@ describe('IdeClient', () => {
       };
       mockClient.request.mockResolvedValue(response);
 
-      const result = await (
-        ideClient as unknown as { closeDiff: (f: string) => Promise<void> }
-      ).closeDiff('/test.txt');
+      const result = await (ideClient as unknown as { closeDiff: (f: string) => Promise<void> }).closeDiff('/test.txt');
       expect(result).toBeUndefined();
     });
 
@@ -499,9 +450,7 @@ describe('IdeClient', () => {
       };
       mockClient.request.mockResolvedValue(response);
 
-      const result = await (
-        ideClient as unknown as { closeDiff: (f: string) => Promise<void> }
-      ).closeDiff('/test.txt');
+      const result = await (ideClient as unknown as { closeDiff: (f: string) => Promise<void> }).closeDiff('/test.txt');
       expect(result).toBeUndefined();
     });
 
@@ -513,9 +462,7 @@ describe('IdeClient', () => {
       };
       mockClient.request.mockResolvedValue(response);
 
-      const result = await (
-        ideClient as unknown as { closeDiff: (f: string) => Promise<void> }
-      ).closeDiff('/test.txt');
+      const result = await (ideClient as unknown as { closeDiff: (f: string) => Promise<void> }).closeDiff('/test.txt');
       expect(result).toBeUndefined();
     });
 
@@ -523,9 +470,7 @@ describe('IdeClient', () => {
       const ideClient = await IdeClient.getInstance();
       mockClient.request.mockRejectedValue(new Error('Request failed'));
 
-      const result = await (
-        ideClient as unknown as { closeDiff: (f: string) => Promise<void> }
-      ).closeDiff('/test.txt');
+      const result = await (ideClient as unknown as { closeDiff: (f: string) => Promise<void> }).closeDiff('/test.txt');
       expect(result).toBeUndefined();
     });
 
@@ -537,9 +482,7 @@ describe('IdeClient', () => {
       };
       mockClient.request.mockResolvedValue(response);
 
-      const result = await (
-        ideClient as unknown as { closeDiff: (f: string) => Promise<void> }
-      ).closeDiff('/test.txt');
+      const result = await (ideClient as unknown as { closeDiff: (f: string) => Promise<void> }).closeDiff('/test.txt');
       expect(result).toBeUndefined();
     });
 
@@ -550,9 +493,7 @@ describe('IdeClient', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mockClient.request.mockResolvedValue(null as any);
 
-      const result = await (
-        ideClient as unknown as { closeDiff: (f: string) => Promise<void> }
-      ).closeDiff('/test.txt');
+      const result = await (ideClient as unknown as { closeDiff: (f: string) => Promise<void> }).closeDiff('/test.txt');
       expect(result).toBeUndefined();
     });
   });
@@ -575,11 +516,9 @@ describe('IdeClient', () => {
               Authorization: `Bearer ${authToken}`,
             },
           },
-        }),
+        })
       );
-      expect(ideClient.getConnectionStatus().status).toBe(
-        IDEConnectionStatus.Connected,
-      );
+      expect(ideClient.getConnectionStatus().status).toBe(IDEConnectionStatus.Connected);
     });
 
     it('should connect with an auth token from environment variable if config file is missing', async () => {
@@ -599,11 +538,9 @@ describe('IdeClient', () => {
               Authorization: 'Bearer env-auth-token',
             },
           },
-        }),
+        })
       );
-      expect(ideClient.getConnectionStatus().status).toBe(
-        IDEConnectionStatus.Connected,
-      );
+      expect(ideClient.getConnectionStatus().status).toBe(IDEConnectionStatus.Connected);
     });
   });
 });

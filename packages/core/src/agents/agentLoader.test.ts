@@ -80,12 +80,8 @@ System prompt content.`);
 
     it('should throw AgentLoadError if frontmatter is missing', async () => {
       const filePath = await writeAgentMarkdown(`Just some markdown content.`);
-      await expect(parseAgentMarkdown(filePath)).rejects.toThrow(
-        AgentLoadError,
-      );
-      await expect(parseAgentMarkdown(filePath)).rejects.toThrow(
-        'Missing mandatory YAML frontmatter',
-      );
+      await expect(parseAgentMarkdown(filePath)).rejects.toThrow(AgentLoadError);
+      await expect(parseAgentMarkdown(filePath)).rejects.toThrow('Missing mandatory YAML frontmatter');
     });
 
     it('should throw AgentLoadError if frontmatter is invalid YAML', async () => {
@@ -93,12 +89,8 @@ System prompt content.`);
 name: [invalid yaml
 ---
 Body`);
-      await expect(parseAgentMarkdown(filePath)).rejects.toThrow(
-        AgentLoadError,
-      );
-      await expect(parseAgentMarkdown(filePath)).rejects.toThrow(
-        'YAML frontmatter parsing failed',
-      );
+      await expect(parseAgentMarkdown(filePath)).rejects.toThrow(AgentLoadError);
+      await expect(parseAgentMarkdown(filePath)).rejects.toThrow('YAML frontmatter parsing failed');
     });
 
     it('should throw AgentLoadError if validation fails (missing required field)', async () => {
@@ -107,9 +99,7 @@ name: test-agent
 # missing description
 ---
 Body`);
-      await expect(parseAgentMarkdown(filePath)).rejects.toThrow(
-        /Validation failed/,
-      );
+      await expect(parseAgentMarkdown(filePath)).rejects.toThrow(/Validation failed/);
     });
 
     it('should parse a valid remote agent markdown file', async () => {
@@ -208,9 +198,7 @@ name: Invalid Name With Spaces
 description: Test
 ---
 Body`);
-      await expect(parseAgentMarkdown(filePath)).rejects.toThrow(
-        /Name must be a valid slug/,
-      );
+      await expect(parseAgentMarkdown(filePath)).rejects.toThrow(/Name must be a valid slug/);
     });
   });
 
@@ -265,9 +253,7 @@ Body`);
         system_prompt: 'You are a test agent.',
       };
 
-      const result = markdownToAgentDefinition(
-        markdown,
-      ) as LocalAgentDefinition;
+      const result = markdownToAgentDefinition(markdown) as LocalAgentDefinition;
       expect(result.modelConfig.model).toBe(GEMINI_MODEL_ALIAS_PRO);
     });
 
@@ -280,9 +266,7 @@ Body`);
         system_prompt: 'You are a test agent.',
       };
 
-      const result = markdownToAgentDefinition(
-        markdown,
-      ) as LocalAgentDefinition;
+      const result = markdownToAgentDefinition(markdown) as LocalAgentDefinition;
       expect(result.modelConfig.model).toBe('auto');
     });
 
@@ -325,7 +309,7 @@ name: agent-1
 description: Agent 1
 ---
 Prompt 1`,
-        'valid.md',
+        'valid.md'
       );
 
       // Create a non-supported file
@@ -338,7 +322,7 @@ name: hidden
 description: Hidden
 ---
 Hidden`,
-        '_hidden.md',
+        '_hidden.md'
       );
 
       const result = await loadAgentsFromDirectory(tempDir);
@@ -451,9 +435,7 @@ auth:
   scheme: Bearer
 ---
 `);
-      await expect(parseAgentMarkdown(filePath)).rejects.toThrow(
-        /Bearer scheme requires "token"/,
-      );
+      await expect(parseAgentMarkdown(filePath)).rejects.toThrow(/Bearer scheme requires "token"/);
     });
 
     it('should throw error for Basic auth without credentials', async () => {
@@ -467,9 +449,7 @@ auth:
   username: user
 ---
 `);
-      await expect(parseAgentMarkdown(filePath)).rejects.toThrow(
-        /Basic scheme requires "username" and "password"/,
-      );
+      await expect(parseAgentMarkdown(filePath)).rejects.toThrow(/Basic scheme requires "username" and "password"/);
     });
 
     it('should throw error for apiKey auth without key', async () => {
@@ -481,9 +461,7 @@ auth:
   type: apiKey
 ---
 `);
-      await expect(parseAgentMarkdown(filePath)).rejects.toThrow(
-        /auth\.key.*Required/,
-      );
+      await expect(parseAgentMarkdown(filePath)).rejects.toThrow(/auth\.key.*Required/);
     });
 
     it('should convert auth config in markdownToAgentDefinition', () => {

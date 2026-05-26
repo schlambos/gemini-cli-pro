@@ -9,11 +9,7 @@ import { useMemo } from 'react';
 import { Box, Text, useIsScreenReaderEnabled } from 'ink';
 import { useUIState } from '../../contexts/UIStateContext.js';
 import { theme } from '../../semantic-colors.js';
-import {
-  interpolateColor,
-  resolveColor,
-  getSafeLowColorBackground,
-} from '../../themes/color-utils.js';
+import { interpolateColor, resolveColor, getSafeLowColorBackground } from '../../themes/color-utils.js';
 import { isLowColorDepth, isITerm2 } from '../../utils/terminalUtils.js';
 
 export interface HalfLinePaddedBoxProps {
@@ -64,15 +60,10 @@ const HalfLinePaddedBoxInternal: React.FC<HalfLinePaddedBoxProps> = ({
       return getSafeLowColorBackground(terminalBg);
     }
 
-    const resolvedBase =
-      resolveColor(backgroundBaseColor) || backgroundBaseColor;
+    const resolvedBase = resolveColor(backgroundBaseColor) || backgroundBaseColor;
     const resolvedTerminalBg = resolveColor(terminalBg) || terminalBg;
 
-    return interpolateColor(
-      resolvedTerminalBg,
-      resolvedBase,
-      backgroundOpacity,
-    );
+    return interpolateColor(resolvedTerminalBg, resolvedBase, backgroundOpacity);
   }, [backgroundBaseColor, backgroundOpacity, terminalBg, isLowColor]);
 
   if (!backgroundColor) {
@@ -83,25 +74,14 @@ const HalfLinePaddedBoxInternal: React.FC<HalfLinePaddedBoxProps> = ({
 
   if (isITerm) {
     return (
-      <Box
-        width={terminalWidth}
-        flexDirection="column"
-        alignItems="stretch"
-        minHeight={1}
-        flexShrink={0}
-      >
-        <Box width={terminalWidth} flexDirection="row">
+      <Box width={terminalWidth} flexDirection='column' alignItems='stretch' minHeight={1} flexShrink={0}>
+        <Box width={terminalWidth} flexDirection='row'>
           <Text color={backgroundColor}>{'▄'.repeat(terminalWidth)}</Text>
         </Box>
-        <Box
-          width={terminalWidth}
-          flexDirection="column"
-          alignItems="stretch"
-          backgroundColor={backgroundColor}
-        >
+        <Box width={terminalWidth} flexDirection='column' alignItems='stretch' backgroundColor={backgroundColor}>
           {children}
         </Box>
-        <Box width={terminalWidth} flexDirection="row">
+        <Box width={terminalWidth} flexDirection='row'>
           <Text color={backgroundColor}>{'▀'.repeat(terminalWidth)}</Text>
         </Box>
       </Box>
@@ -111,19 +91,19 @@ const HalfLinePaddedBoxInternal: React.FC<HalfLinePaddedBoxProps> = ({
   return (
     <Box
       width={terminalWidth}
-      flexDirection="column"
-      alignItems="stretch"
+      flexDirection='column'
+      alignItems='stretch'
       minHeight={1}
       flexShrink={0}
       backgroundColor={backgroundColor}
     >
-      <Box width={terminalWidth} flexDirection="row">
+      <Box width={terminalWidth} flexDirection='row'>
         <Text backgroundColor={backgroundColor} color={terminalBg}>
           {'▀'.repeat(terminalWidth)}
         </Text>
       </Box>
       {children}
-      <Box width={terminalWidth} flexDirection="row">
+      <Box width={terminalWidth} flexDirection='row'>
         <Text color={terminalBg} backgroundColor={backgroundColor}>
           {'▄'.repeat(terminalWidth)}
         </Text>

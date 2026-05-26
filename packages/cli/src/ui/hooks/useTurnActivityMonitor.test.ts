@@ -23,9 +23,7 @@ describe('useTurnActivityMonitor', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime(1000);
-    vi.mocked(hasRedirection).mockImplementation(
-      (query: string) => query.includes('>') || query.includes('>>'),
-    );
+    vi.mocked(hasRedirection).mockImplementation((query: string) => query.includes('>') || query.includes('>>'));
   });
 
   afterEach(() => {
@@ -34,12 +32,9 @@ describe('useTurnActivityMonitor', () => {
   });
 
   it('should set operationStartTime when entering Responding state', () => {
-    const { result, rerender } = renderHook(
-      ({ state }) => useTurnActivityMonitor(state, null, []),
-      {
-        initialProps: { state: StreamingState.Idle },
-      },
-    );
+    const { result, rerender } = renderHook(({ state }) => useTurnActivityMonitor(state, null, []), {
+      initialProps: { state: StreamingState.Idle },
+    });
 
     expect(result.current.operationStartTime).toBe(0);
 
@@ -48,15 +43,12 @@ describe('useTurnActivityMonitor', () => {
   });
 
   it('should reset operationStartTime when PTY ID changes while responding', () => {
-    const { result, rerender } = renderHook(
-      ({ state, ptyId }) => useTurnActivityMonitor(state, ptyId, []),
-      {
-        initialProps: {
-          state: StreamingState.Responding,
-          ptyId: 'pty-1' as string | null,
-        },
+    const { result, rerender } = renderHook(({ state, ptyId }) => useTurnActivityMonitor(state, ptyId, []), {
+      initialProps: {
+        state: StreamingState.Responding,
+        ptyId: 'pty-1' as string | null,
       },
-    );
+    });
 
     expect(result.current.operationStartTime).toBe(1000);
 
@@ -67,19 +59,16 @@ describe('useTurnActivityMonitor', () => {
 
   it('should detect redirection from tool calls', () => {
     // Force mock implementation to ensure it's active
-    vi.mocked(hasRedirection).mockImplementation((q: string) =>
-      q.includes('>'),
-    );
+    vi.mocked(hasRedirection).mockImplementation((q: string) => q.includes('>'));
 
     const { result, rerender } = renderHook(
-      ({ state, pendingToolCalls }) =>
-        useTurnActivityMonitor(state, null, pendingToolCalls),
+      ({ state, pendingToolCalls }) => useTurnActivityMonitor(state, null, pendingToolCalls),
       {
         initialProps: {
           state: StreamingState.Responding,
           pendingToolCalls: [] as TrackedToolCall[],
         },
-      },
+      }
     );
 
     expect(result.current.isRedirectionActive).toBe(false);
@@ -116,12 +105,9 @@ describe('useTurnActivityMonitor', () => {
   });
 
   it('should reset everything when idle', () => {
-    const { result, rerender } = renderHook(
-      ({ state }) => useTurnActivityMonitor(state, 'pty-1', []),
-      {
-        initialProps: { state: StreamingState.Responding },
-      },
-    );
+    const { result, rerender } = renderHook(({ state }) => useTurnActivityMonitor(state, 'pty-1', []), {
+      initialProps: { state: StreamingState.Responding },
+    });
 
     expect(result.current.operationStartTime).toBe(1000);
 

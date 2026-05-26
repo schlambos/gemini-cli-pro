@@ -18,11 +18,7 @@ vi.mock('../GeminiRespondingSpinner.js', () => ({
 }));
 
 vi.mock('../TerminalOutput.js', () => ({
-  TerminalOutput: function MockTerminalOutput({
-    cursor,
-  }: {
-    cursor: { x: number; y: number } | null;
-  }) {
+  TerminalOutput: function MockTerminalOutput({ cursor }: { cursor: { x: number; y: number } | null }) {
     return (
       <Text>
         MockCursor:({cursor?.x},{cursor?.y})
@@ -52,10 +48,7 @@ describe('<ToolMessage />', () => {
   };
 
   // Helper to render with context
-  const renderWithContext = (
-    ui: React.ReactElement,
-    streamingState: StreamingState,
-  ) =>
+  const renderWithContext = (ui: React.ReactElement, streamingState: StreamingState) =>
     renderWithProviders(ui, {
       uiActions,
       uiState: { streamingState },
@@ -66,10 +59,7 @@ describe('<ToolMessage />', () => {
   });
 
   it('renders basic tool information', () => {
-    const { lastFrame } = renderWithContext(
-      <ToolMessage {...baseProps} />,
-      StreamingState.Idle,
-    );
+    const { lastFrame } = renderWithContext(<ToolMessage {...baseProps} />, StreamingState.Idle);
     const output = lastFrame();
     expect(output).toMatchSnapshot();
   });
@@ -78,12 +68,8 @@ describe('<ToolMessage />', () => {
     it('pretty prints valid JSON', () => {
       const testJSONstring = '{"a": 1, "b": [2, 3]}';
       const { lastFrame } = renderWithContext(
-        <ToolMessage
-          {...baseProps}
-          resultDisplay={testJSONstring}
-          renderOutputAsMarkdown={false}
-        />,
-        StreamingState.Idle,
+        <ToolMessage {...baseProps} resultDisplay={testJSONstring} renderOutputAsMarkdown={false} />,
+        StreamingState.Idle
       );
 
       const output = lastFrame();
@@ -99,7 +85,7 @@ describe('<ToolMessage />', () => {
     it('renders pretty JSON in ink frame', () => {
       const { lastFrame } = renderWithContext(
         <ToolMessage {...baseProps} resultDisplay='{"a":1,"b":2}' />,
-        StreamingState.Idle,
+        StreamingState.Idle
       );
 
       const frame = lastFrame();
@@ -110,12 +96,8 @@ describe('<ToolMessage />', () => {
     it('uses JSON renderer even when renderOutputAsMarkdown=true is true', () => {
       const testJSONstring = '{"a": 1, "b": [2, 3]}';
       const { lastFrame } = renderWithContext(
-        <ToolMessage
-          {...baseProps}
-          resultDisplay={testJSONstring}
-          renderOutputAsMarkdown={true}
-        />,
-        StreamingState.Idle,
+        <ToolMessage {...baseProps} resultDisplay={testJSONstring} renderOutputAsMarkdown={true} />,
+        StreamingState.Idle
       );
 
       const output = lastFrame();
@@ -130,12 +112,8 @@ describe('<ToolMessage />', () => {
     it('falls back to plain text for malformed JSON', () => {
       const testJSONstring = 'a": 1, "b": [2, 3]}';
       const { lastFrame } = renderWithContext(
-        <ToolMessage
-          {...baseProps}
-          resultDisplay={testJSONstring}
-          renderOutputAsMarkdown={false}
-        />,
-        StreamingState.Idle,
+        <ToolMessage {...baseProps} resultDisplay={testJSONstring} renderOutputAsMarkdown={false} />,
+        StreamingState.Idle
       );
 
       const output = lastFrame();
@@ -147,12 +125,8 @@ describe('<ToolMessage />', () => {
     it('rejects mixed text + JSON renders as plain text', () => {
       const testJSONstring = `{"result":  "count": 42,"items": ["apple", "banana"]},"meta": {"timestamp": "2025-09-28T12:34:56Z"}}End.`;
       const { lastFrame } = renderWithContext(
-        <ToolMessage
-          {...baseProps}
-          resultDisplay={testJSONstring}
-          renderOutputAsMarkdown={false}
-        />,
-        StreamingState.Idle,
+        <ToolMessage {...baseProps} resultDisplay={testJSONstring} renderOutputAsMarkdown={false} />,
+        StreamingState.Idle
       );
 
       const output = lastFrame();
@@ -162,15 +136,10 @@ describe('<ToolMessage />', () => {
     });
 
     it('rejects ANSI-tained JSON renders as plain text', () => {
-      const testJSONstring =
-        '\u001b[32mOK\u001b[0m {"status": "success", "data": {"id": 123, "values": [10, 20, 30]}}';
+      const testJSONstring = '\u001b[32mOK\u001b[0m {"status": "success", "data": {"id": 123, "values": [10, 20, 30]}}';
       const { lastFrame } = renderWithContext(
-        <ToolMessage
-          {...baseProps}
-          resultDisplay={testJSONstring}
-          renderOutputAsMarkdown={false}
-        />,
-        StreamingState.Idle,
+        <ToolMessage {...baseProps} resultDisplay={testJSONstring} renderOutputAsMarkdown={false} />,
+        StreamingState.Idle
       );
 
       const output = lastFrame();
@@ -182,12 +151,8 @@ describe('<ToolMessage />', () => {
     it('pretty printing 10kb JSON completes in <50ms', () => {
       const large = '{"key": "' + 'x'.repeat(10000) + '"}';
       const { lastFrame } = renderWithContext(
-        <ToolMessage
-          {...baseProps}
-          resultDisplay={large}
-          renderOutputAsMarkdown={false}
-        />,
-        StreamingState.Idle,
+        <ToolMessage {...baseProps} resultDisplay={large} renderOutputAsMarkdown={false} />,
+        StreamingState.Idle
       );
 
       const start = performance.now();
@@ -200,7 +165,7 @@ describe('<ToolMessage />', () => {
     it('shows ✓ for Success status', () => {
       const { lastFrame } = renderWithContext(
         <ToolMessage {...baseProps} status={CoreToolCallStatus.Success} />,
-        StreamingState.Idle,
+        StreamingState.Idle
       );
       expect(lastFrame()).toMatchSnapshot();
     });
@@ -208,18 +173,15 @@ describe('<ToolMessage />', () => {
     it('shows o for Pending status', () => {
       const { lastFrame } = renderWithContext(
         <ToolMessage {...baseProps} status={CoreToolCallStatus.Scheduled} />,
-        StreamingState.Idle,
+        StreamingState.Idle
       );
       expect(lastFrame()).toMatchSnapshot();
     });
 
     it('shows ? for Confirming status', () => {
       const { lastFrame } = renderWithContext(
-        <ToolMessage
-          {...baseProps}
-          status={CoreToolCallStatus.AwaitingApproval}
-        />,
-        StreamingState.Idle,
+        <ToolMessage {...baseProps} status={CoreToolCallStatus.AwaitingApproval} />,
+        StreamingState.Idle
       );
       expect(lastFrame()).toMatchSnapshot();
     });
@@ -227,7 +189,7 @@ describe('<ToolMessage />', () => {
     it('shows - for Canceled status', () => {
       const { lastFrame } = renderWithContext(
         <ToolMessage {...baseProps} status={CoreToolCallStatus.Cancelled} />,
-        StreamingState.Idle,
+        StreamingState.Idle
       );
       expect(lastFrame()).toMatchSnapshot();
     });
@@ -235,7 +197,7 @@ describe('<ToolMessage />', () => {
     it('shows x for Error status', () => {
       const { lastFrame } = renderWithContext(
         <ToolMessage {...baseProps} status={CoreToolCallStatus.Error} />,
-        StreamingState.Idle,
+        StreamingState.Idle
       );
       expect(lastFrame()).toMatchSnapshot();
     });
@@ -243,7 +205,7 @@ describe('<ToolMessage />', () => {
     it('shows paused spinner for Executing status when streamingState is Idle', () => {
       const { lastFrame } = renderWithContext(
         <ToolMessage {...baseProps} status={CoreToolCallStatus.Executing} />,
-        StreamingState.Idle,
+        StreamingState.Idle
       );
       expect(lastFrame()).toMatchSnapshot();
     });
@@ -251,7 +213,7 @@ describe('<ToolMessage />', () => {
     it('shows paused spinner for Executing status when streamingState is WaitingForConfirmation', () => {
       const { lastFrame } = renderWithContext(
         <ToolMessage {...baseProps} status={CoreToolCallStatus.Executing} />,
-        StreamingState.WaitingForConfirmation,
+        StreamingState.WaitingForConfirmation
       );
       expect(lastFrame()).toMatchSnapshot();
     });
@@ -259,7 +221,7 @@ describe('<ToolMessage />', () => {
     it('shows MockRespondingSpinner for Executing status when streamingState is Responding', () => {
       const { lastFrame } = renderWithContext(
         <ToolMessage {...baseProps} status={CoreToolCallStatus.Executing} />,
-        StreamingState.Responding, // Simulate app still responding
+        StreamingState.Responding // Simulate app still responding
       );
       expect(lastFrame()).toMatchSnapshot();
     });
@@ -275,7 +237,7 @@ describe('<ToolMessage />', () => {
     };
     const { lastFrame } = renderWithContext(
       <ToolMessage {...baseProps} resultDisplay={diffResult} />,
-      StreamingState.Idle,
+      StreamingState.Idle
     );
     // Check that the output contains the MockDiff content as part of the whole message
     expect(lastFrame()).toMatchSnapshot();
@@ -283,15 +245,15 @@ describe('<ToolMessage />', () => {
 
   it('renders emphasis correctly', () => {
     const { lastFrame: highEmphasisFrame } = renderWithContext(
-      <ToolMessage {...baseProps} emphasis="high" />,
-      StreamingState.Idle,
+      <ToolMessage {...baseProps} emphasis='high' />,
+      StreamingState.Idle
     );
     // Check for trailing indicator or specific color if applicable (Colors are not easily testable here)
     expect(highEmphasisFrame()).toMatchSnapshot();
 
     const { lastFrame: lowEmphasisFrame } = renderWithContext(
-      <ToolMessage {...baseProps} emphasis="low" />,
-      StreamingState.Idle,
+      <ToolMessage {...baseProps} emphasis='low' />,
+      StreamingState.Idle
     );
     // For low emphasis, the name and description might be dimmed (check for dimColor if possible)
     // This is harder to assert directly in text output without color checks.
@@ -316,7 +278,7 @@ describe('<ToolMessage />', () => {
     ];
     const { lastFrame } = renderWithContext(
       <ToolMessage {...baseProps} resultDisplay={ansiResult} />,
-      StreamingState.Idle,
+      StreamingState.Idle
     );
     expect(lastFrame()).toMatchSnapshot();
   });

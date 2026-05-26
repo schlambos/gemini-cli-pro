@@ -22,10 +22,7 @@ describe('JSON output', () => {
 
   it('should return a valid JSON with response and stats', async () => {
     await rig.setup('json-output-france', {
-      fakeResponsesPath: join(
-        import.meta.dirname,
-        'json-output.france.responses',
-      ),
+      fakeResponsesPath: join(import.meta.dirname, 'json-output.france.responses'),
     });
     const result = await rig.run({
       args: ['What is the capital of France?', '--output-format', 'json'],
@@ -42,10 +39,7 @@ describe('JSON output', () => {
 
   it('should return a valid JSON with a session ID', async () => {
     await rig.setup('json-output-session-id', {
-      fakeResponsesPath: join(
-        import.meta.dirname,
-        'json-output.session-id.responses',
-      ),
+      fakeResponsesPath: join(import.meta.dirname, 'json-output.session-id.responses'),
     });
     const result = await rig.run({
       args: ['Hello', '--output-format', 'json'],
@@ -84,10 +78,7 @@ describe('JSON output', () => {
     const jsonMatch = message.match(/{[\s\S]*}/);
 
     // Fail if no JSON-like text was found
-    expect(
-      jsonMatch,
-      'Expected to find a JSON object in the error output',
-    ).toBeTruthy();
+    expect(jsonMatch, 'Expected to find a JSON object in the error output').toBeTruthy();
 
     let payload;
     try {
@@ -95,17 +86,13 @@ describe('JSON output', () => {
       payload = JSON.parse(jsonMatch![0]);
     } catch (parseError) {
       console.error('Failed to parse the following JSON:', jsonMatch![0]);
-      throw new Error(
-        `Test failed: Could not parse JSON from error message. Details: ${parseError}`,
-      );
+      throw new Error(`Test failed: Could not parse JSON from error message. Details: ${parseError}`);
     }
 
     expect(payload.error).toBeDefined();
     expect(payload.error.type).toBe('Error');
     expect(payload.error.code).toBe(ExitCodes.FATAL_AUTHENTICATION_ERROR);
-    expect(payload.error.message).toContain(
-      "enforced authentication type is 'gemini-api-key'",
-    );
+    expect(payload.error.message).toContain("enforced authentication type is 'gemini-api-key'");
     expect(payload.error.message).toContain("current type is 'oauth-personal'");
     expect(payload).toHaveProperty('session_id');
     expect(typeof payload.session_id).toBe('string');
@@ -114,10 +101,7 @@ describe('JSON output', () => {
 
   it('should not exit on tool errors and allow model to self-correct in JSON mode', async () => {
     await rig.setup('json-output-error', {
-      fakeResponsesPath: join(
-        import.meta.dirname,
-        'json-output.error.responses',
-      ),
+      fakeResponsesPath: join(import.meta.dirname, 'json-output.error.responses'),
     });
     const result = await rig.run({
       args: [
@@ -140,7 +124,7 @@ describe('JSON output', () => {
     // some other forms. If you get flakes for this test please file an issue to
     // come up with a more robust solution.
     expect(parsed.response.toLowerCase()).toMatch(
-      /cannot|does not exist|doesn't exist|not found|unable to|error|couldn't/,
+      /cannot|does not exist|doesn't exist|not found|unable to|error|couldn't/
     );
 
     // Stats should be present, indicating the session completed normally.

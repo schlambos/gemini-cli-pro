@@ -81,7 +81,7 @@ describe('SessionSummaryService', () => {
             }),
           ]),
           promptId: 'session-summary-generation',
-        }),
+        })
       );
     });
 
@@ -343,7 +343,7 @@ describe('SessionSummaryService', () => {
                 resolve({
                   candidates: [{ content: { parts: [{ text: 'Summary' }] } }],
                 }),
-              10000,
+              10000
             );
 
             abortSignal?.addEventListener(
@@ -354,9 +354,9 @@ describe('SessionSummaryService', () => {
                 abortError.name = 'AbortError';
                 reject(abortError);
               },
-              { once: true },
+              { once: true }
             );
-          }),
+          })
       );
 
       const messages: MessageRecord[] = [
@@ -742,7 +742,7 @@ describe('SessionSummaryService', () => {
     it('should handle very long individual messages (>500 chars)', async () => {
       const longMessage =
         `This is a very long message that contains a lot of text and definitely exceeds the 500 character limit. `.repeat(
-          10,
+          10
         );
       const messages: MessageRecord[] = [
         {

@@ -17,11 +17,7 @@ const defaultVisualLayout: VisualLayout = {
 };
 
 // Helper to create test state
-const createTestState = (
-  lines: string[] = ['hello world'],
-  cursorRow = 0,
-  cursorCol = 0,
-): TextBufferState => ({
+const createTestState = (lines: string[] = ['hello world'], cursorRow = 0, cursorCol = 0): TextBufferState => ({
   lines,
   cursorRow,
   cursorCol,
@@ -767,11 +763,7 @@ describe('vim-buffer-actions', () => {
       });
 
       it('should delete to end of line plus additional lines with count > 1', () => {
-        const state = createTestState(
-          ['line one', 'line two', 'line three'],
-          0,
-          5,
-        );
+        const state = createTestState(['line one', 'line two', 'line three'], 0, 5);
         const action = {
           type: 'vim_delete_to_end_of_line' as const,
           payload: { count: 2 },
@@ -844,11 +836,7 @@ describe('vim-buffer-actions', () => {
 
     describe('vim_delete_to_first_line', () => {
       it('should delete from current line to first line (dgg)', () => {
-        const state = createTestState(
-          ['line1', 'line2', 'line3', 'line4'],
-          2,
-          0,
-        );
+        const state = createTestState(['line1', 'line2', 'line3', 'line4'], 2, 0);
         const action = {
           type: 'vim_delete_to_first_line' as const,
           payload: { count: 0 },
@@ -862,11 +850,7 @@ describe('vim-buffer-actions', () => {
       });
 
       it('should delete from current line to specified line (d5gg)', () => {
-        const state = createTestState(
-          ['line1', 'line2', 'line3', 'line4', 'line5'],
-          4,
-          0,
-        );
+        const state = createTestState(['line1', 'line2', 'line3', 'line4', 'line5'], 4, 0);
         const action = {
           type: 'vim_delete_to_first_line' as const,
           payload: { count: 2 }, // Delete to line 2 (1-based)
@@ -894,11 +878,7 @@ describe('vim-buffer-actions', () => {
 
     describe('vim_delete_to_last_line', () => {
       it('should delete from current line to last line (dG)', () => {
-        const state = createTestState(
-          ['line1', 'line2', 'line3', 'line4'],
-          1,
-          0,
-        );
+        const state = createTestState(['line1', 'line2', 'line3', 'line4'], 1, 0);
         const action = {
           type: 'vim_delete_to_last_line' as const,
           payload: { count: 0 },
@@ -912,11 +892,7 @@ describe('vim-buffer-actions', () => {
       });
 
       it('should delete from current line to specified line (d3G)', () => {
-        const state = createTestState(
-          ['line1', 'line2', 'line3', 'line4', 'line5'],
-          0,
-          0,
-        );
+        const state = createTestState(['line1', 'line2', 'line3', 'line4', 'line5'], 0, 0);
         const action = {
           type: 'vim_delete_to_last_line' as const,
           payload: { count: 3 }, // Delete to line 3 (1-based)
@@ -1066,11 +1042,7 @@ describe('vim-buffer-actions', () => {
       });
 
       it('should delete from line 1 to target line (c3gg)', () => {
-        const state = createTestState(
-          ['line1', 'line2', 'line3', 'line4', 'line5'],
-          0,
-          0,
-        );
+        const state = createTestState(['line1', 'line2', 'line3', 'line4', 'line5'], 0, 0);
         const action = {
           type: 'vim_delete_to_first_line' as const,
           payload: { count: 3 },
@@ -1085,11 +1057,7 @@ describe('vim-buffer-actions', () => {
       it('should handle cursor below target line', () => {
         // Cursor on line 4 (index 3), target line 2 (index 1)
         // Should delete lines 2-4 (indices 1-3), leaving line1 and line5
-        const state = createTestState(
-          ['line1', 'line2', 'line3', 'line4', 'line5'],
-          3,
-          0,
-        );
+        const state = createTestState(['line1', 'line2', 'line3', 'line4', 'line5'], 3, 0);
         const action = {
           type: 'vim_delete_to_first_line' as const,
           payload: { count: 2 },
@@ -1117,11 +1085,7 @@ describe('vim-buffer-actions', () => {
       });
 
       it('should delete from cursor to target line (c2G)', () => {
-        const state = createTestState(
-          ['line1', 'line2', 'line3', 'line4'],
-          0,
-          0,
-        );
+        const state = createTestState(['line1', 'line2', 'line3', 'line4'], 0, 0);
         const action = {
           type: 'vim_delete_to_last_line' as const,
           payload: { count: 2 },
@@ -1136,11 +1100,7 @@ describe('vim-buffer-actions', () => {
       it('should handle cursor above target', () => {
         // Cursor on line 2 (index 1), target line 3 (index 2)
         // Should delete lines 2-3 (indices 1-2), leaving line1 and line4
-        const state = createTestState(
-          ['line1', 'line2', 'line3', 'line4'],
-          1,
-          0,
-        );
+        const state = createTestState(['line1', 'line2', 'line3', 'line4'], 1, 0);
         const action = {
           type: 'vim_delete_to_last_line' as const,
           payload: { count: 3 },
@@ -1340,11 +1300,7 @@ describe('vim-buffer-actions', () => {
       });
 
       it('should handle Unicode characters in cj (down)', () => {
-        const state = createTestState(
-          ['hello 🎉 world', 'line2 émoji', 'line3'],
-          0,
-          0,
-        );
+        const state = createTestState(['hello 🎉 world', 'line2 émoji', 'line3'], 0, 0);
         const action = {
           type: 'vim_change_movement' as const,
           payload: { movement: 'j' as const, count: 1 },
@@ -1358,11 +1314,7 @@ describe('vim-buffer-actions', () => {
       });
 
       it('should handle Unicode characters in ck (up)', () => {
-        const state = createTestState(
-          ['line1', 'hello 🎉 world', 'line3 émoji'],
-          2,
-          0,
-        );
+        const state = createTestState(['line1', 'hello 🎉 world', 'line3 émoji'], 2, 0);
         const action = {
           type: 'vim_change_movement' as const,
           payload: { movement: 'k' as const, count: 1 },
@@ -1418,11 +1370,7 @@ describe('vim-buffer-actions', () => {
       });
 
       it('should handle 2cj from middle line', () => {
-        const state = createTestState(
-          ['line1', 'line2', 'line3', 'line4', 'line5'],
-          1,
-          0,
-        );
+        const state = createTestState(['line1', 'line2', 'line3', 'line4', 'line5'], 1, 0);
         const action = {
           type: 'vim_change_movement' as const,
           payload: { movement: 'j' as const, count: 2 },
@@ -1437,11 +1385,7 @@ describe('vim-buffer-actions', () => {
       });
 
       it('should handle 2ck from middle line', () => {
-        const state = createTestState(
-          ['line1', 'line2', 'line3', 'line4', 'line5'],
-          3,
-          0,
-        );
+        const state = createTestState(['line1', 'line2', 'line3', 'line4', 'line5'], 3, 0);
         const action = {
           type: 'vim_change_movement' as const,
           payload: { movement: 'k' as const, count: 2 },

@@ -5,20 +5,9 @@
  */
 
 import type React from 'react';
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useState,
-  useMemo,
-  useEffect,
-} from 'react';
+import { createContext, useCallback, useContext, useState, useMemo, useEffect } from 'react';
 
-import type {
-  SessionMetrics,
-  ModelMetrics,
-  ToolCallStats,
-} from '@google/gemini-cli-core';
+import type { SessionMetrics, ModelMetrics, ToolCallStats } from '@google/gemini-cli-core';
 import { uiTelemetryService, sessionId } from '@google/gemini-cli-core';
 
 export enum ToolCallDecision {
@@ -51,23 +40,14 @@ function areModelMetricsEqual(a: ModelMetrics, b: ModelMetrics): boolean {
 }
 
 function areToolCallStatsEqual(a: ToolCallStats, b: ToolCallStats): boolean {
-  if (
-    a.count !== b.count ||
-    a.success !== b.success ||
-    a.fail !== b.fail ||
-    a.durationMs !== b.durationMs
-  ) {
+  if (a.count !== b.count || a.success !== b.success || a.fail !== b.fail || a.durationMs !== b.durationMs) {
     return false;
   }
   if (
-    a.decisions[ToolCallDecision.ACCEPT] !==
-      b.decisions[ToolCallDecision.ACCEPT] ||
-    a.decisions[ToolCallDecision.REJECT] !==
-      b.decisions[ToolCallDecision.REJECT] ||
-    a.decisions[ToolCallDecision.MODIFY] !==
-      b.decisions[ToolCallDecision.MODIFY] ||
-    a.decisions[ToolCallDecision.AUTO_ACCEPT] !==
-      b.decisions[ToolCallDecision.AUTO_ACCEPT]
+    a.decisions[ToolCallDecision.ACCEPT] !== b.decisions[ToolCallDecision.ACCEPT] ||
+    a.decisions[ToolCallDecision.REJECT] !== b.decisions[ToolCallDecision.REJECT] ||
+    a.decisions[ToolCallDecision.MODIFY] !== b.decisions[ToolCallDecision.MODIFY] ||
+    a.decisions[ToolCallDecision.AUTO_ACCEPT] !== b.decisions[ToolCallDecision.AUTO_ACCEPT]
   ) {
     return false;
   }
@@ -79,10 +59,7 @@ function areMetricsEqual(a: SessionMetrics, b: SessionMetrics): boolean {
   if (!a || !b) return false;
 
   // Compare files
-  if (
-    a.files.totalLinesAdded !== b.files.totalLinesAdded ||
-    a.files.totalLinesRemoved !== b.files.totalLinesRemoved
-  ) {
+  if (a.files.totalLinesAdded !== b.files.totalLinesAdded || a.files.totalLinesRemoved !== b.files.totalLinesRemoved) {
     return false;
   }
 
@@ -100,14 +77,10 @@ function areMetricsEqual(a: SessionMetrics, b: SessionMetrics): boolean {
 
   // Compare tool decisions
   if (
-    toolsA.totalDecisions[ToolCallDecision.ACCEPT] !==
-      toolsB.totalDecisions[ToolCallDecision.ACCEPT] ||
-    toolsA.totalDecisions[ToolCallDecision.REJECT] !==
-      toolsB.totalDecisions[ToolCallDecision.REJECT] ||
-    toolsA.totalDecisions[ToolCallDecision.MODIFY] !==
-      toolsB.totalDecisions[ToolCallDecision.MODIFY] ||
-    toolsA.totalDecisions[ToolCallDecision.AUTO_ACCEPT] !==
-      toolsB.totalDecisions[ToolCallDecision.AUTO_ACCEPT]
+    toolsA.totalDecisions[ToolCallDecision.ACCEPT] !== toolsB.totalDecisions[ToolCallDecision.ACCEPT] ||
+    toolsA.totalDecisions[ToolCallDecision.REJECT] !== toolsB.totalDecisions[ToolCallDecision.REJECT] ||
+    toolsA.totalDecisions[ToolCallDecision.MODIFY] !== toolsB.totalDecisions[ToolCallDecision.MODIFY] ||
+    toolsA.totalDecisions[ToolCallDecision.AUTO_ACCEPT] !== toolsB.totalDecisions[ToolCallDecision.AUTO_ACCEPT]
   ) {
     return false;
   }
@@ -176,15 +149,11 @@ interface SessionStatsContextValue {
 
 // --- Context Definition ---
 
-const SessionStatsContext = createContext<SessionStatsContextValue | undefined>(
-  undefined,
-);
+const SessionStatsContext = createContext<SessionStatsContextValue | undefined>(undefined);
 
 // --- Provider Component ---
 
-export const SessionStatsProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const SessionStatsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [stats, setStats] = useState<SessionStatsState>({
     sessionId,
     sessionStartTime: new Date(),
@@ -202,10 +171,7 @@ export const SessionStatsProvider: React.FC<{ children: React.ReactNode }> = ({
       lastPromptTokenCount: number;
     }) => {
       setStats((prevState) => {
-        if (
-          prevState.lastPromptTokenCount === lastPromptTokenCount &&
-          areMetricsEqual(prevState.metrics, metrics)
-        ) {
+        if (prevState.lastPromptTokenCount === lastPromptTokenCount && areMetricsEqual(prevState.metrics, metrics)) {
           return prevState;
         }
         return {
@@ -235,10 +201,7 @@ export const SessionStatsProvider: React.FC<{ children: React.ReactNode }> = ({
     }));
   }, []);
 
-  const getPromptCount = useCallback(
-    () => stats.promptCount,
-    [stats.promptCount],
-  );
+  const getPromptCount = useCallback(() => stats.promptCount, [stats.promptCount]);
 
   const value = useMemo(
     () => ({
@@ -246,14 +209,10 @@ export const SessionStatsProvider: React.FC<{ children: React.ReactNode }> = ({
       startNewPrompt,
       getPromptCount,
     }),
-    [stats, startNewPrompt, getPromptCount],
+    [stats, startNewPrompt, getPromptCount]
   );
 
-  return (
-    <SessionStatsContext.Provider value={value}>
-      {children}
-    </SessionStatsContext.Provider>
-  );
+  return <SessionStatsContext.Provider value={value}>{children}</SessionStatsContext.Provider>;
 };
 
 // --- Consumer Hook ---
@@ -261,9 +220,7 @@ export const SessionStatsProvider: React.FC<{ children: React.ReactNode }> = ({
 export const useSessionStats = () => {
   const context = useContext(SessionStatsContext);
   if (context === undefined) {
-    throw new Error(
-      'useSessionStats must be used within a SessionStatsProvider',
-    );
+    throw new Error('useSessionStats must be used within a SessionStatsProvider');
   }
   return context;
 };

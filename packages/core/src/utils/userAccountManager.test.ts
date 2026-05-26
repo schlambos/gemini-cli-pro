@@ -27,12 +27,9 @@ describe('UserAccountManager', () => {
   let accountsFile: () => string;
 
   beforeEach(() => {
-    tempHomeDir = fs.mkdtempSync(
-      path.join(os.tmpdir(), 'gemini-cli-test-home-'),
-    );
+    tempHomeDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gemini-cli-test-home-'));
     (pathsHomedir as Mock).mockReturnValue(tempHomeDir);
-    accountsFile = () =>
-      path.join(tempHomeDir, GEMINI_DIR, 'google_accounts.json');
+    accountsFile = () => path.join(tempHomeDir, GEMINI_DIR, 'google_accounts.json');
     userAccountManager = new UserAccountManager();
   });
 
@@ -48,7 +45,7 @@ describe('UserAccountManager', () => {
       // Verify Google Account ID was cached
       expect(fs.existsSync(accountsFile())).toBe(true);
       expect(fs.readFileSync(accountsFile(), 'utf-8')).toBe(
-        JSON.stringify({ active: 'test1@google.com', old: [] }, null, 2),
+        JSON.stringify({ active: 'test1@google.com', old: [] }, null, 2)
       );
     });
 
@@ -56,11 +53,7 @@ describe('UserAccountManager', () => {
       fs.mkdirSync(path.dirname(accountsFile()), { recursive: true });
       fs.writeFileSync(
         accountsFile(),
-        JSON.stringify(
-          { active: 'test2@google.com', old: ['test1@google.com'] },
-          null,
-          2,
-        ),
+        JSON.stringify({ active: 'test2@google.com', old: ['test1@google.com'] }, null, 2)
       );
 
       await userAccountManager.cacheGoogleAccount('test3@google.com');
@@ -72,8 +65,8 @@ describe('UserAccountManager', () => {
             old: ['test1@google.com', 'test2@google.com'],
           },
           null,
-          2,
-        ),
+          2
+        )
       );
     });
 
@@ -81,30 +74,20 @@ describe('UserAccountManager', () => {
       fs.mkdirSync(path.dirname(accountsFile()), { recursive: true });
       fs.writeFileSync(
         accountsFile(),
-        JSON.stringify(
-          { active: 'test1@google.com', old: ['test2@google.com'] },
-          null,
-          2,
-        ),
+        JSON.stringify({ active: 'test1@google.com', old: ['test2@google.com'] }, null, 2)
       );
       await userAccountManager.cacheGoogleAccount('test2@google.com');
       await userAccountManager.cacheGoogleAccount('test1@google.com');
 
       expect(fs.readFileSync(accountsFile(), 'utf-8')).toBe(
-        JSON.stringify(
-          { active: 'test1@google.com', old: ['test2@google.com'] },
-          null,
-          2,
-        ),
+        JSON.stringify({ active: 'test1@google.com', old: ['test2@google.com'] }, null, 2)
       );
     });
 
     it('should handle corrupted JSON by starting fresh', async () => {
       fs.mkdirSync(path.dirname(accountsFile()), { recursive: true });
       fs.writeFileSync(accountsFile(), 'not valid json');
-      const consoleLogSpy = vi
-        .spyOn(debugLogger, 'log')
-        .mockImplementation(() => {});
+      const consoleLogSpy = vi.spyOn(debugLogger, 'log').mockImplementation(() => {});
 
       await userAccountManager.cacheGoogleAccount('test1@google.com');
 
@@ -117,13 +100,8 @@ describe('UserAccountManager', () => {
 
     it('should handle valid JSON with incorrect schema by starting fresh', async () => {
       fs.mkdirSync(path.dirname(accountsFile()), { recursive: true });
-      fs.writeFileSync(
-        accountsFile(),
-        JSON.stringify({ active: 'test1@google.com', old: 'not-an-array' }),
-      );
-      const consoleLogSpy = vi
-        .spyOn(debugLogger, 'log')
-        .mockImplementation(() => {});
+      fs.writeFileSync(accountsFile(), JSON.stringify({ active: 'test1@google.com', old: 'not-an-array' }));
+      const consoleLogSpy = vi.spyOn(debugLogger, 'log').mockImplementation(() => {});
 
       await userAccountManager.cacheGoogleAccount('test2@google.com');
 
@@ -138,10 +116,7 @@ describe('UserAccountManager', () => {
   describe('getCachedGoogleAccount', () => {
     it('should return the active account if file exists and is valid', () => {
       fs.mkdirSync(path.dirname(accountsFile()), { recursive: true });
-      fs.writeFileSync(
-        accountsFile(),
-        JSON.stringify({ active: 'active@google.com', old: [] }, null, 2),
-      );
+      fs.writeFileSync(accountsFile(), JSON.stringify({ active: 'active@google.com', old: [] }, null, 2));
       const account = userAccountManager.getCachedGoogleAccount();
       expect(account).toBe('active@google.com');
     });
@@ -161,9 +136,7 @@ describe('UserAccountManager', () => {
     it('should return null and log if file is corrupted', () => {
       fs.mkdirSync(path.dirname(accountsFile()), { recursive: true });
       fs.writeFileSync(accountsFile(), '{ "active": "test@google.com"'); // Invalid JSON
-      const consoleLogSpy = vi
-        .spyOn(debugLogger, 'log')
-        .mockImplementation(() => {});
+      const consoleLogSpy = vi.spyOn(debugLogger, 'log').mockImplementation(() => {});
 
       const account = userAccountManager.getCachedGoogleAccount();
 
@@ -184,11 +157,7 @@ describe('UserAccountManager', () => {
       fs.mkdirSync(path.dirname(accountsFile()), { recursive: true });
       fs.writeFileSync(
         accountsFile(),
-        JSON.stringify(
-          { active: 'active@google.com', old: ['old1@google.com'] },
-          null,
-          2,
-        ),
+        JSON.stringify({ active: 'active@google.com', old: ['old1@google.com'] }, null, 2)
       );
 
       await userAccountManager.clearCachedGoogleAccount();
@@ -210,9 +179,7 @@ describe('UserAccountManager', () => {
     it('should handle corrupted JSON by creating a fresh file', async () => {
       fs.mkdirSync(path.dirname(accountsFile()), { recursive: true });
       fs.writeFileSync(accountsFile(), 'not valid json');
-      const consoleLogSpy = vi
-        .spyOn(debugLogger, 'log')
-        .mockImplementation(() => {});
+      const consoleLogSpy = vi.spyOn(debugLogger, 'log').mockImplementation(() => {});
 
       await userAccountManager.clearCachedGoogleAccount();
 
@@ -224,10 +191,7 @@ describe('UserAccountManager', () => {
 
     it('should be idempotent if active account is already null', async () => {
       fs.mkdirSync(path.dirname(accountsFile()), { recursive: true });
-      fs.writeFileSync(
-        accountsFile(),
-        JSON.stringify({ active: null, old: ['old1@google.com'] }, null, 2),
-      );
+      fs.writeFileSync(accountsFile(), JSON.stringify({ active: null, old: ['old1@google.com'] }, null, 2));
 
       await userAccountManager.clearCachedGoogleAccount();
 
@@ -246,8 +210,8 @@ describe('UserAccountManager', () => {
             old: ['active@google.com'],
           },
           null,
-          2,
-        ),
+          2
+        )
       );
 
       await userAccountManager.clearCachedGoogleAccount();
@@ -272,9 +236,7 @@ describe('UserAccountManager', () => {
     it('should return 0 if the file is corrupted', () => {
       fs.mkdirSync(path.dirname(accountsFile()), { recursive: true });
       fs.writeFileSync(accountsFile(), 'invalid json');
-      const consoleDebugSpy = vi
-        .spyOn(debugLogger, 'log')
-        .mockImplementation(() => {});
+      const consoleDebugSpy = vi.spyOn(debugLogger, 'log').mockImplementation(() => {});
 
       expect(userAccountManager.getLifetimeGoogleAccounts()).toBe(0);
       expect(consoleDebugSpy).toHaveBeenCalled();
@@ -282,10 +244,7 @@ describe('UserAccountManager', () => {
 
     it('should return 1 if there is only an active account', () => {
       fs.mkdirSync(path.dirname(accountsFile()), { recursive: true });
-      fs.writeFileSync(
-        accountsFile(),
-        JSON.stringify({ active: 'test1@google.com', old: [] }),
-      );
+      fs.writeFileSync(accountsFile(), JSON.stringify({ active: 'test1@google.com', old: [] }));
       expect(userAccountManager.getLifetimeGoogleAccounts()).toBe(1);
     });
 
@@ -296,7 +255,7 @@ describe('UserAccountManager', () => {
         JSON.stringify({
           active: null,
           old: ['test1@google.com', 'test2@google.com'],
-        }),
+        })
       );
       expect(userAccountManager.getLifetimeGoogleAccounts()).toBe(2);
     });
@@ -308,20 +267,15 @@ describe('UserAccountManager', () => {
         JSON.stringify({
           active: 'test3@google.com',
           old: ['test1@google.com', 'test2@google.com'],
-        }),
+        })
       );
       expect(userAccountManager.getLifetimeGoogleAccounts()).toBe(3);
     });
 
     it('should handle valid JSON with incorrect schema by returning 0', () => {
       fs.mkdirSync(path.dirname(accountsFile()), { recursive: true });
-      fs.writeFileSync(
-        accountsFile(),
-        JSON.stringify({ active: null, old: 1 }),
-      );
-      const consoleLogSpy = vi
-        .spyOn(debugLogger, 'log')
-        .mockImplementation(() => {});
+      fs.writeFileSync(accountsFile(), JSON.stringify({ active: null, old: 1 }));
+      const consoleLogSpy = vi.spyOn(debugLogger, 'log').mockImplementation(() => {});
 
       expect(userAccountManager.getLifetimeGoogleAccounts()).toBe(0);
       expect(consoleLogSpy).toHaveBeenCalled();
@@ -334,7 +288,7 @@ describe('UserAccountManager', () => {
         JSON.stringify({
           active: 'test1@google.com',
           old: ['test1@google.com', 'test2@google.com'],
-        }),
+        })
       );
       expect(userAccountManager.getLifetimeGoogleAccounts()).toBe(2);
     });

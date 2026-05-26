@@ -27,13 +27,8 @@ export interface RetryOptions {
   maxDelayMs: number;
   shouldRetryOnError: (error: Error, retryFetchErrors?: boolean) => boolean;
   shouldRetryOnContent?: (content: GenerateContentResponse) => boolean;
-  onPersistent429?: (
-    authType?: string,
-    error?: unknown,
-  ) => Promise<string | boolean | null>;
-  onValidationRequired?: (
-    error: ValidationRequiredError,
-  ) => Promise<'verify' | 'change_auth' | 'cancel'>;
+  onPersistent429?: (authType?: string, error?: unknown) => Promise<string | boolean | null>;
+  onValidationRequired?: (error: ValidationRequiredError) => Promise<'verify' | 'change_auth' | 'cancel'>;
   authType?: string;
   retryFetchErrors?: boolean;
   signal?: AbortSignal;
@@ -84,11 +79,7 @@ function getNetworkErrorCode(error: unknown): string | undefined {
   let current: unknown = error;
   const maxDepth = 5; // Prevent infinite loops in case of circular references
   for (let depth = 0; depth < maxDepth; depth++) {
-    if (
-      typeof current !== 'object' ||
-      current === null ||
-      !('cause' in current)
-    ) {
+    if (typeof current !== 'object' || current === null || !('cause' in current)) {
       break;
     }
     current = (current as { cause: unknown }).cause;
@@ -123,8 +114,7 @@ function isBedrockRetryableError(error: unknown): boolean {
   }
 
   // AWS SDK errors have a 'name' property
-  const errorName =
-    'name' in error && typeof error.name === 'string' ? error.name : '';
+  const errorName = 'name' in error && typeof error.name === 'string' ? error.name : '';
 
   return RETRYABLE_BEDROCK_ERRORS.includes(errorName);
 }
@@ -136,10 +126,7 @@ function isBedrockRetryableError(error: unknown): boolean {
  * @param retryFetchErrors Whether to retry on specific fetch errors.
  * @returns True if the error is a transient error, false otherwise.
  */
-export function isRetryableError(
-  error: Error | unknown,
-  retryFetchErrors?: boolean,
-): boolean {
+export function isRetryableError(error: Error | unknown, retryFetchErrors?: boolean): boolean {
   // Check for AWS Bedrock errors first
   if (isBedrockRetryableError(error)) {
     return true;
@@ -181,10 +168,7 @@ export function isRetryableError(
  * @returns A promise that resolves with the result of the function if successful.
  * @throws The last error encountered if all attempts fail.
  */
-export async function retryWithBackoff<T>(
-  fn: () => Promise<T>,
-  options?: Partial<RetryOptions>,
-): Promise<T> {
+export async function retryWithBackoff<T>(fn: () => Promise<T>, options?: Partial<RetryOptions>): Promise<T> {
   if (options?.signal?.aborted) {
     throw createAbortError();
   }
@@ -193,9 +177,7 @@ export async function retryWithBackoff<T>(
     throw new Error('maxAttempts must be a positive number.');
   }
 
-  const cleanOptions = options
-    ? Object.fromEntries(Object.entries(options).filter(([_, v]) => v != null))
-    : {};
+  const cleanOptions = options ? Object.fromEntries(Object.entries(options).filter(([_, v]) => v != null)) : {};
 
   const {
     maxAttempts,
@@ -259,11 +241,7 @@ export async function retryWithBackoff<T>(
 
       // [PATCH:API_KEY_ROTATION] - Support API key rotation for quota errors
       if (errorCode === 429 || errorCode === 503) {
-        const rotation = await handleApiKeyRotation(
-          authType,
-          error,
-          onPersistent429,
-        );
+        const rotation = await handleApiKeyRotation(authType, error, onPersistent429);
         if (rotation.shouldContinue) {
           attempt = 0;
           currentDelay = initialDelayMs;
@@ -272,16 +250,10 @@ export async function retryWithBackoff<T>(
       }
       // [/PATCH:API_KEY_ROTATION]
 
-      if (
-        classifiedError instanceof TerminalQuotaError ||
-        classifiedError instanceof ModelNotFoundError
-      ) {
+      if (classifiedError instanceof TerminalQuotaError || classifiedError instanceof ModelNotFoundError) {
         if (onPersistent429) {
           try {
-            const fallbackModel = await onPersistent429(
-              authType,
-              classifiedError,
-            );
+            const fallbackModel = await onPersistent429(authType, classifiedError);
             if (fallbackModel) {
               attempt = 0; // Reset attempts and retry with the new model.
               currentDelay = initialDelayMs;
@@ -315,22 +287,15 @@ export async function retryWithBackoff<T>(
         throw classifiedError;
       }
 
-      const is500 =
-        errorCode !== undefined && errorCode >= 500 && errorCode < 600;
+      const is500 = errorCode !== undefined && errorCode >= 500 && errorCode < 600;
 
       if (classifiedError instanceof RetryableQuotaError || is500) {
         if (attempt >= maxAttempts) {
-          const errorMessage =
-            classifiedError instanceof Error ? classifiedError.message : '';
-          debugLogger.warn(
-            `Attempt ${attempt} failed${errorMessage ? `: ${errorMessage}` : ''}. Max attempts reached`,
-          );
+          const errorMessage = classifiedError instanceof Error ? classifiedError.message : '';
+          debugLogger.warn(`Attempt ${attempt} failed${errorMessage ? `: ${errorMessage}` : ''}. Max attempts reached`);
           if (onPersistent429) {
             try {
-              const fallbackModel = await onPersistent429(
-                authType,
-                classifiedError,
-              );
+              const fallbackModel = await onPersistent429(authType, classifiedError);
               if (fallbackModel) {
                 attempt = 0; // Reset attempts and retry with the new model.
                 currentDelay = initialDelayMs;
@@ -340,17 +305,12 @@ export async function retryWithBackoff<T>(
               debugLogger.warn('Model fallback failed:', fallbackError);
             }
           }
-          throw classifiedError instanceof RetryableQuotaError
-            ? classifiedError
-            : error;
+          throw classifiedError instanceof RetryableQuotaError ? classifiedError : error;
         }
 
-        if (
-          classifiedError instanceof RetryableQuotaError &&
-          classifiedError.retryDelayMs !== undefined
-        ) {
+        if (classifiedError instanceof RetryableQuotaError && classifiedError.retryDelayMs !== undefined) {
           debugLogger.warn(
-            `Attempt ${attempt} failed: ${classifiedError.message}. Retrying after ${classifiedError.retryDelayMs}ms...`,
+            `Attempt ${attempt} failed: ${classifiedError.message}. Retrying after ${classifiedError.retryDelayMs}ms...`
           );
           if (onRetry) {
             onRetry(attempt, error, classifiedError.retryDelayMs);
@@ -405,11 +365,7 @@ export async function retryWithBackoff<T>(
  * @param error The error that caused the retry.
  * @param errorStatus The HTTP status code of the error, if available.
  */
-function logRetryAttempt(
-  attempt: number,
-  error: unknown,
-  errorStatus?: number,
-): void {
+function logRetryAttempt(attempt: number, error: unknown, errorStatus?: number): void {
   let message = `Attempt ${attempt} failed. Retrying with backoff...`;
   if (errorStatus) {
     message = `Attempt ${attempt} failed with status ${errorStatus}. Retrying with backoff...`;
@@ -424,13 +380,10 @@ function logRetryAttempt(
     if (error.message.includes('429')) {
       debugLogger.warn(
         `Attempt ${attempt} failed with 429 error (no Retry-After header). Retrying with backoff...`,
-        error,
+        error
       );
     } else if (error.message.match(/5\d{2}/)) {
-      debugLogger.warn(
-        `Attempt ${attempt} failed with 5xx error. Retrying with backoff...`,
-        error,
-      );
+      debugLogger.warn(`Attempt ${attempt} failed with 5xx error. Retrying with backoff...`, error);
     } else {
       debugLogger.warn(message, error); // Default to warn for other errors
     }
@@ -448,14 +401,10 @@ function logRetryAttempt(
 async function handleApiKeyRotation(
   authType: string | undefined,
   error: unknown,
-  onPersistent429?: (
-    authType?: string,
-    error?: unknown,
-  ) => Promise<string | boolean | null>,
+  onPersistent429?: (authType?: string, error?: unknown) => Promise<string | boolean | null>
 ): Promise<{ shouldContinue: boolean; reason?: string }> {
   // Support GEMINI and OPENAI API key modes (not VERTEX_AI)
-  const isApiKeyMode =
-    authType === AuthType.USE_GEMINI || authType === AuthType.USE_OPENAI;
+  const isApiKeyMode = authType === AuthType.USE_GEMINI || authType === AuthType.USE_OPENAI;
 
   if (!isApiKeyMode || !onPersistent429) {
     const reason = !isApiKeyMode

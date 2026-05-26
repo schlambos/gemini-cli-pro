@@ -24,10 +24,7 @@ export interface AskUserParams {
   questions: Question[];
 }
 
-export class AskUserTool extends BaseDeclarativeTool<
-  AskUserParams,
-  ToolResult
-> {
+export class AskUserTool extends BaseDeclarativeTool<AskUserParams, ToolResult> {
   constructor(messageBus: MessageBus) {
     super(
       ASK_USER_TOOL_NAME,
@@ -35,13 +32,11 @@ export class AskUserTool extends BaseDeclarativeTool<
       ASK_USER_DEFINITION.base.description!,
       Kind.Communicate,
       ASK_USER_DEFINITION.base.parametersJsonSchema,
-      messageBus,
+      messageBus
     );
   }
 
-  protected override validateToolParamValues(
-    params: AskUserParams,
-  ): string | null {
+  protected override validateToolParamValues(params: AskUserParams): string | null {
     if (!params.questions || params.questions.length === 0) {
       return 'At least one question is required.';
     }
@@ -64,17 +59,10 @@ export class AskUserTool extends BaseDeclarativeTool<
       if (q.options) {
         for (let j = 0; j < q.options.length; j++) {
           const opt = q.options[j];
-          if (
-            !opt.label ||
-            typeof opt.label !== 'string' ||
-            !opt.label.trim()
-          ) {
+          if (!opt.label || typeof opt.label !== 'string' || !opt.label.trim()) {
             return `Question ${i + 1}, option ${j + 1}: 'label' is required and must be a non-empty string.`;
           }
-          if (
-            opt.description === undefined ||
-            typeof opt.description !== 'string'
-          ) {
+          if (opt.description === undefined || typeof opt.description !== 'string') {
             return `Question ${i + 1}, option ${j + 1}: 'description' is required and must be a string.`;
           }
         }
@@ -88,20 +76,14 @@ export class AskUserTool extends BaseDeclarativeTool<
     params: AskUserParams,
     messageBus: MessageBus,
     toolName: string,
-    toolDisplayName: string,
+    toolDisplayName: string
   ): AskUserInvocation {
     return new AskUserInvocation(params, messageBus, toolName, toolDisplayName);
   }
 
-  override async validateBuildAndExecute(
-    params: AskUserParams,
-    abortSignal: AbortSignal,
-  ): Promise<ToolResult> {
+  override async validateBuildAndExecute(params: AskUserParams, abortSignal: AbortSignal): Promise<ToolResult> {
     const result = await super.validateBuildAndExecute(params, abortSignal);
-    if (
-      result.error &&
-      result.error.type === ToolErrorType.INVALID_TOOL_PARAMS
-    ) {
+    if (result.error && result.error.type === ToolErrorType.INVALID_TOOL_PARAMS) {
       return {
         ...result,
         returnDisplay: '',
@@ -115,16 +97,11 @@ export class AskUserTool extends BaseDeclarativeTool<
   }
 }
 
-export class AskUserInvocation extends BaseToolInvocation<
-  AskUserParams,
-  ToolResult
-> {
+export class AskUserInvocation extends BaseToolInvocation<AskUserParams, ToolResult> {
   private confirmationOutcome: ToolConfirmationOutcome | null = null;
   private userAnswers: { [questionIndex: string]: string } = {};
 
-  override async shouldConfirmExecute(
-    _abortSignal: AbortSignal,
-  ): Promise<ToolAskUserConfirmationDetails | false> {
+  override async shouldConfirmExecute(_abortSignal: AbortSignal): Promise<ToolAskUserConfirmationDetails | false> {
     const normalizedQuestions = this.params.questions.map((q) => ({
       ...q,
       type: q.type,
@@ -134,10 +111,7 @@ export class AskUserInvocation extends BaseToolInvocation<
       type: 'ask_user',
       title: 'Ask User',
       questions: normalizedQuestions,
-      onConfirm: async (
-        outcome: ToolConfirmationOutcome,
-        payload?: ToolConfirmationPayload,
-      ) => {
+      onConfirm: async (outcome: ToolConfirmationOutcome, payload?: ToolConfirmationPayload) => {
         this.confirmationOutcome = outcome;
         if (payload && 'answers' in payload) {
           this.userAnswers = payload.answers;
@@ -204,8 +178,5 @@ export class AskUserInvocation extends BaseToolInvocation<
  * Returns true if the tool name and status correspond to a completed 'Ask User' tool call.
  */
 export function isCompletedAskUserTool(name: string, status: string): boolean {
-  return (
-    name === ASK_USER_DISPLAY_NAME &&
-    ['Success', 'Error', 'Canceled'].includes(status)
-  );
+  return name === ASK_USER_DISPLAY_NAME && ['Success', 'Error', 'Canceled'].includes(status);
 }

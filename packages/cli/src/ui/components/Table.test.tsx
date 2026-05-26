@@ -37,9 +37,7 @@ describe('Table', () => {
         key: 'value',
         header: 'Value',
         flexGrow: 1,
-        renderCell: (item: { value: number }) => (
-          <Text color="green">{item.value * 2}</Text>
-        ),
+        renderCell: (item: { value: number }) => <Text color='green'>{item.value * 2}</Text>,
       },
     ];
     const data = [{ value: 10 }];

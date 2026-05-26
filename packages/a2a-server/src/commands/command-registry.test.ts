@@ -134,9 +134,7 @@ describe('CommandRegistry', () => {
     commandRegistry.register(mockCommand);
 
     expect(commandRegistry.get('cyclic-command')).toBe(mockCommand);
-    expect(warnSpy).toHaveBeenCalledWith(
-      'Command cyclic-command already registered. Skipping.',
-    );
+    expect(warnSpy).toHaveBeenCalledWith('Command cyclic-command already registered. Skipping.');
     warnSpy.mockRestore();
   });
 });

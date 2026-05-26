@@ -33,7 +33,7 @@ describe('Automated tool use', () => {
           },
         },
         null,
-        2,
+        2
       ),
       'eslint.config.js': `
         import globals from "globals";
@@ -64,14 +64,11 @@ describe('Automated tool use', () => {
         }
       `,
     },
-    prompt:
-      'Fix the linter errors in this project. Make sure to avoid interactive commands.',
+    prompt: 'Fix the linter errors in this project. Make sure to avoid interactive commands.',
     assert: async (rig) => {
       // Check if run_shell_command was used with --fix
       const toolCalls = rig.readToolLogs();
-      const shellCommands = toolCalls.filter(
-        (call) => call.toolRequest.name === 'run_shell_command',
-      );
+      const shellCommands = toolCalls.filter((call) => call.toolRequest.name === 'run_shell_command');
 
       const hasFixCommand = shellCommands.some((call) => {
         let args = call.toolRequest.args;
@@ -83,17 +80,10 @@ describe('Automated tool use', () => {
           }
         }
         const cmd = (args as any)['command'];
-        return (
-          cmd &&
-          (cmd.includes('eslint') || cmd.includes('npm run lint')) &&
-          cmd.includes('--fix')
-        );
+        return cmd && (cmd.includes('eslint') || cmd.includes('npm run lint')) && cmd.includes('--fix');
       });
 
-      expect(
-        hasFixCommand,
-        'Expected agent to use eslint --fix via run_shell_command',
-      ).toBe(true);
+      expect(hasFixCommand, 'Expected agent to use eslint --fix via run_shell_command').toBe(true);
     },
   });
 
@@ -116,7 +106,7 @@ describe('Automated tool use', () => {
           },
         },
         null,
-        2,
+        2
       ),
       '.prettierrc': JSON.stringify(
         {
@@ -124,7 +114,7 @@ describe('Automated tool use', () => {
           singleQuote: true,
         },
         null,
-        2,
+        2
       ),
       'src/app.ts': `
 export function main() {
@@ -135,14 +125,11 @@ console.log(data)
 }
 `,
     },
-    prompt:
-      'Fix the formatting errors in this project. Make sure to avoid interactive commands.',
+    prompt: 'Fix the formatting errors in this project. Make sure to avoid interactive commands.',
     assert: async (rig) => {
       // Check if run_shell_command was used with --write
       const toolCalls = rig.readToolLogs();
-      const shellCommands = toolCalls.filter(
-        (call) => call.toolRequest.name === 'run_shell_command',
-      );
+      const shellCommands = toolCalls.filter((call) => call.toolRequest.name === 'run_shell_command');
 
       const hasFixCommand = shellCommands.some((call) => {
         let args = call.toolRequest.args;
@@ -154,17 +141,10 @@ console.log(data)
           }
         }
         const cmd = (args as any)['command'];
-        return (
-          cmd &&
-          cmd.includes('prettier') &&
-          (cmd.includes('--write') || cmd.includes('-w'))
-        );
+        return cmd && cmd.includes('prettier') && (cmd.includes('--write') || cmd.includes('-w'));
       });
 
-      expect(
-        hasFixCommand,
-        'Expected agent to use prettier --write via run_shell_command',
-      ).toBe(true);
+      expect(hasFixCommand, 'Expected agent to use prettier --write via run_shell_command').toBe(true);
     },
   });
 });

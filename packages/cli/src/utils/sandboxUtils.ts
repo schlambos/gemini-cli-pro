@@ -55,17 +55,13 @@ export async function shouldUseCurrentUserInSandbox(): Promise<boolean> {
         osReleaseContent.match(/^ID_LIKE=.*debian.*/m) || // Covers derivatives
         osReleaseContent.match(/^ID_LIKE=.*ubuntu.*/m) // Covers derivatives
       ) {
-        debugLogger.log(
-          'Defaulting to use current user UID/GID for Debian/Ubuntu-based Linux.',
-        );
+        debugLogger.log('Defaulting to use current user UID/GID for Debian/Ubuntu-based Linux.');
         return true;
       }
     } catch (_err) {
       // Silently ignore if /etc/os-release is not found or unreadable.
       // The default (false) will be applied in this case.
-      debugLogger.warn(
-        'Warning: Could not read /etc/os-release to auto-detect Debian/Ubuntu for UID/GID default.',
-      );
+      debugLogger.warn('Warning: Could not read /etc/os-release to auto-detect Debian/Ubuntu for UID/GID default.');
     }
   }
   return false; // Default to false if no other condition is met
@@ -95,9 +91,7 @@ export function entrypoint(workdir: string, cliArgs: string[]): string[] {
     const paths = process.env['PATH'].split(pathSeparator);
     for (const p of paths) {
       const containerPath = getContainerPath(p);
-      if (
-        containerPath.toLowerCase().startsWith(containerWorkdir.toLowerCase())
-      ) {
+      if (containerPath.toLowerCase().startsWith(containerWorkdir.toLowerCase())) {
         pathSuffix += `:${containerPath}`;
       }
     }
@@ -111,9 +105,7 @@ export function entrypoint(workdir: string, cliArgs: string[]): string[] {
     const paths = process.env['PYTHONPATH'].split(pathSeparator);
     for (const p of paths) {
       const containerPath = getContainerPath(p);
-      if (
-        containerPath.toLowerCase().startsWith(containerWorkdir.toLowerCase())
-      ) {
+      if (containerPath.toLowerCase().startsWith(containerWorkdir.toLowerCase())) {
         pythonPathSuffix += `:${containerPath}`;
       }
     }
@@ -128,14 +120,11 @@ export function entrypoint(workdir: string, cliArgs: string[]): string[] {
   }
 
   ports().forEach((p) =>
-    shellCmds.push(
-      `socat TCP4-LISTEN:${p},bind=$(hostname -i),fork,reuseaddr TCP4:127.0.0.1:${p} 2> /dev/null &`,
-    ),
+    shellCmds.push(`socat TCP4-LISTEN:${p},bind=$(hostname -i),fork,reuseaddr TCP4:127.0.0.1:${p} 2> /dev/null &`)
   );
 
   const quotedCliArgs = cliArgs.slice(2).map((arg) => quote([arg]));
-  const isDebugMode =
-    process.env['DEBUG'] === 'true' || process.env['DEBUG'] === '1';
+  const isDebugMode = process.env['DEBUG'] === 'true' || process.env['DEBUG'] === '1';
   const cliCmd =
     process.env['NODE_ENV'] === 'development'
       ? isDebugMode

@@ -38,8 +38,7 @@ type CommandResponse = {
 
 const coderAgentCard: AgentCard = {
   name: 'Gemini SDLC Agent',
-  description:
-    'An agent that generates code based on natural language instructions and streams file outputs.',
+  description: 'An agent that generates code based on natural language instructions and streams file outputs.',
   url: 'http://localhost:41242/',
   provider: {
     organization: 'Google',
@@ -60,8 +59,7 @@ const coderAgentCard: AgentCard = {
     {
       id: 'code_generation',
       name: 'Code Generation',
-      description:
-        'Generates code snippets or complete files based on user requests, streaming the results.',
+      description: 'Generates code snippets or complete files based on user requests, streaming the results.',
       tags: ['code', 'development', 'programming'],
       examples: [
         'Write a python function to calculate fibonacci numbers.',
@@ -85,7 +83,7 @@ async function handleExecuteCommand(
     config: Awaited<ReturnType<typeof loadConfig>>;
     git: GitService | undefined;
     agentExecutor: CoderAgentExecutor;
-  },
+  }
 ) {
   logger.info('[CoreAgent] Received /executeCommand request: ', req.body);
   const { command, args } = req.body;
@@ -137,14 +135,8 @@ async function handleExecuteCommand(
       return res.status(200).json(result);
     }
   } catch (e) {
-    logger.error(
-      `Error executing /executeCommand: ${command} with args: ${JSON.stringify(
-        args,
-      )}`,
-      e,
-    );
-    const errorMessage =
-      e instanceof Error ? e.message : 'Unknown error executing command';
+    logger.error(`Error executing /executeCommand: ${command} with args: ${JSON.stringify(args)}`, e);
+    const errorMessage = e instanceof Error ? e.message : 'Unknown error executing command';
     return res.status(500).json({ error: errorMessage });
   }
 }
@@ -156,11 +148,7 @@ export async function createApp() {
     loadEnvironment();
     const settings = loadSettings(workspaceRoot);
     const extensions = loadExtensions(workspaceRoot);
-    const config = await loadConfig(
-      settings,
-      new SimpleExtensionLoader(extensions),
-      'a2a-server',
-    );
+    const config = await loadConfig(settings, new SimpleExtensionLoader(extensions), 'a2a-server');
 
     let git: GitService | undefined;
     if (config.getCheckpointingEnabled()) {
@@ -189,11 +177,7 @@ export async function createApp() {
 
     const context = { config, git, agentExecutor };
 
-    const requestHandler = new DefaultRequestHandler(
-      coderAgentCard,
-      taskStoreForHandler,
-      agentExecutor,
-    );
+    const requestHandler = new DefaultRequestHandler(coderAgentCard, taskStoreForHandler, agentExecutor);
 
     let expressApp = express();
     expressApp.use((req, res, next) => {
@@ -208,23 +192,14 @@ export async function createApp() {
       try {
         const taskId = uuidv4();
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-        const agentSettings = req.body.agentSettings as
-          | AgentSettings
-          | undefined;
+        const agentSettings = req.body.agentSettings as AgentSettings | undefined;
         const contextId = req.body.contextId || uuidv4();
-        const wrapper = await agentExecutor.createTask(
-          taskId,
-          contextId,
-          agentSettings,
-        );
+        const wrapper = await agentExecutor.createTask(taskId, contextId, agentSettings);
         await taskStoreForExecutor.save(wrapper.toSDKTask());
         res.status(201).json(wrapper.id);
       } catch (error) {
         logger.error('[CoreAgent] Error creating task:', error);
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : 'Unknown error creating task';
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error creating task';
         res.status(500).send({ error: errorMessage });
       }
     });
@@ -235,15 +210,10 @@ export async function createApp() {
 
     expressApp.get('/listCommands', (req, res) => {
       try {
-        const transformCommand = (
-          command: Command,
-          visited: string[],
-        ): CommandResponse | undefined => {
+        const transformCommand = (command: Command, visited: string[]): CommandResponse | undefined => {
           const commandName = command.name;
           if (visited.includes(commandName)) {
-            debugLogger.warn(
-              `Command ${commandName} already inserted in the response, skipping`,
-            );
+            debugLogger.warn(`Command ${commandName} already inserted in the response, skipping`);
             return undefined;
           }
 
@@ -252,12 +222,8 @@ export async function createApp() {
             description: command.description,
             arguments: command.arguments ?? [],
             subCommands: (command.subCommands ?? [])
-              .map((subCommand) =>
-                transformCommand(subCommand, visited.concat(commandName)),
-              )
-              .filter(
-                (subCommand): subCommand is CommandResponse => !!subCommand,
-              ),
+              .map((subCommand) => transformCommand(subCommand, visited.concat(commandName)))
+              .filter((subCommand): subCommand is CommandResponse => !!subCommand),
           };
         };
 
@@ -269,8 +235,7 @@ export async function createApp() {
         return res.status(200).json({ commands });
       } catch (e) {
         logger.error('Error executing /listCommands:', e);
-        const errorMessage =
-          e instanceof Error ? e.message : 'Unknown error listing commands';
+        const errorMessage = e instanceof Error ? e.message : 'Unknown error listing commands';
         return res.status(500).json({ error: errorMessage });
       }
     });
@@ -279,26 +244,20 @@ export async function createApp() {
       // This endpoint is only meaningful if the task store is in-memory.
       if (!(taskStoreForExecutor instanceof InMemoryTaskStore)) {
         res.status(501).send({
-          error:
-            'Listing all task metadata is only supported when using InMemoryTaskStore.',
+          error: 'Listing all task metadata is only supported when using InMemoryTaskStore.',
         });
       }
       try {
         const wrappers = agentExecutor.getAllTasks();
         if (wrappers && wrappers.length > 0) {
-          const tasksMetadata = await Promise.all(
-            wrappers.map((wrapper) => wrapper.task.getMetadata()),
-          );
+          const tasksMetadata = await Promise.all(wrappers.map((wrapper) => wrapper.task.getMetadata()));
           res.status(200).json(tasksMetadata);
         } else {
           res.status(204).send();
         }
       } catch (error) {
         logger.error('[CoreAgent] Error getting all task metadata:', error);
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : 'Unknown error getting task metadata';
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error getting task metadata';
         res.status(500).send({ error: errorMessage });
       }
     });
@@ -341,12 +300,8 @@ export async function main() {
         throw new Error('[Core Agent] Could not find port number.');
       }
       updateCoderAgentCardUrl(Number(actualPort));
-      logger.info(
-        `[CoreAgent] Agent Server started on http://localhost:${actualPort}`,
-      );
-      logger.info(
-        `[CoreAgent] Agent Card: http://localhost:${actualPort}/.well-known/agent-card.json`,
-      );
+      logger.info(`[CoreAgent] Agent Server started on http://localhost:${actualPort}`);
+      logger.info(`[CoreAgent] Agent Card: http://localhost:${actualPort}/.well-known/agent-card.json`);
       logger.info('[CoreAgent] Press Ctrl+C to stop the server');
     });
   } catch (error) {

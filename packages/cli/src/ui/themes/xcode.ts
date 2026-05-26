@@ -150,5 +150,5 @@ export const XCode: Theme = new Theme(
       fontStyle: 'italic',
     },
   },
-  xcodeColors,
+  xcodeColors
 );

@@ -4,15 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  vi,
-  describe,
-  it,
-  expect,
-  beforeEach,
-  afterEach,
-  type Mock,
-} from 'vitest';
+import { vi, describe, it, expect, beforeEach, afterEach, type Mock } from 'vitest';
 import { act } from 'react';
 import { renderHook } from '../../test-utils/render.js';
 import {
@@ -88,7 +80,7 @@ describe('useQuotaAndFallback', () => {
         userTier: UserTierId.FREE,
         setModelSwitchedFromQuotaError: mockSetModelSwitchedFromQuotaError,
         onShowAuthSelection: mockOnShowAuthSelection,
-      }),
+      })
     );
 
     expect(setFallbackHandlerSpy).toHaveBeenCalledTimes(1);
@@ -105,7 +97,7 @@ describe('useQuotaAndFallback', () => {
           userTier: UserTierId.FREE,
           setModelSwitchedFromQuotaError: mockSetModelSwitchedFromQuotaError,
           onShowAuthSelection: mockOnShowAuthSelection,
-        }),
+        })
       );
       return setFallbackHandlerSpy.mock.calls[0][0] as FallbackModelHandler;
     };
@@ -132,18 +124,13 @@ describe('useQuotaAndFallback', () => {
             userTier: UserTierId.FREE,
             setModelSwitchedFromQuotaError: mockSetModelSwitchedFromQuotaError,
             onShowAuthSelection: mockOnShowAuthSelection,
-          }),
+          })
         );
 
-        const handler = setFallbackHandlerSpy.mock
-          .calls[0][0] as FallbackModelHandler;
+        const handler = setFallbackHandlerSpy.mock.calls[0][0] as FallbackModelHandler;
 
         let promise: Promise<FallbackIntent | null>;
-        const error = new TerminalQuotaError(
-          'pro quota',
-          mockGoogleApiError,
-          1000 * 60 * 5,
-        ); // 5 minutes
+        const error = new TerminalQuotaError('pro quota', mockGoogleApiError, 1000 * 60 * 5); // 5 minutes
         act(() => {
           promise = handler('gemini-pro', 'gemini-flash', error);
         });
@@ -185,18 +172,13 @@ describe('useQuotaAndFallback', () => {
             userTier: UserTierId.FREE,
             setModelSwitchedFromQuotaError: mockSetModelSwitchedFromQuotaError,
             onShowAuthSelection: mockOnShowAuthSelection,
-          }),
+          })
         );
 
-        const handler = setFallbackHandlerSpy.mock
-          .calls[0][0] as FallbackModelHandler;
+        const handler = setFallbackHandlerSpy.mock.calls[0][0] as FallbackModelHandler;
 
         let promise: Promise<FallbackIntent | null>;
-        const error = new TerminalQuotaError(
-          'flash quota',
-          mockGoogleApiError,
-          1000 * 60 * 5,
-        );
+        const error = new TerminalQuotaError('flash quota', mockGoogleApiError, 1000 * 60 * 5);
         act(() => {
           promise = handler('gemini-flash', 'gemini-pro', error);
         });
@@ -224,11 +206,10 @@ describe('useQuotaAndFallback', () => {
             userTier: UserTierId.FREE,
             setModelSwitchedFromQuotaError: mockSetModelSwitchedFromQuotaError,
             onShowAuthSelection: mockOnShowAuthSelection,
-          }),
+          })
         );
 
-        const handler = setFallbackHandlerSpy.mock
-          .calls[0][0] as FallbackModelHandler;
+        const handler = setFallbackHandlerSpy.mock.calls[0][0] as FallbackModelHandler;
 
         let promise: Promise<FallbackIntent | null>;
         const error = new TerminalQuotaError('no delay', mockGoogleApiError);
@@ -256,19 +237,14 @@ describe('useQuotaAndFallback', () => {
             userTier: UserTierId.FREE,
             setModelSwitchedFromQuotaError: mockSetModelSwitchedFromQuotaError,
             onShowAuthSelection: mockOnShowAuthSelection,
-          }),
+          })
         );
 
-        const handler = setFallbackHandlerSpy.mock
-          .calls[0][0] as FallbackModelHandler;
+        const handler = setFallbackHandlerSpy.mock.calls[0][0] as FallbackModelHandler;
 
         let promise1: Promise<FallbackIntent | null>;
         act(() => {
-          promise1 = handler(
-            'gemini-pro',
-            'gemini-flash',
-            new TerminalQuotaError('pro quota 1', mockGoogleApiError),
-          );
+          promise1 = handler('gemini-pro', 'gemini-flash', new TerminalQuotaError('pro quota 1', mockGoogleApiError));
         });
 
         const firstRequest = result.current.proQuotaRequest;
@@ -279,7 +255,7 @@ describe('useQuotaAndFallback', () => {
           result2 = await handler(
             'gemini-pro',
             'gemini-flash',
-            new TerminalQuotaError('pro quota 2', mockGoogleApiError),
+            new TerminalQuotaError('pro quota 2', mockGoogleApiError)
           );
         });
 
@@ -304,11 +280,7 @@ describe('useQuotaAndFallback', () => {
         },
         {
           description: 'retryable quota error',
-          error: new RetryableQuotaError(
-            'retryable quota',
-            mockGoogleApiError,
-            5,
-          ),
+          error: new RetryableQuotaError('retryable quota', mockGoogleApiError, 5),
         },
       ];
 
@@ -319,14 +291,12 @@ describe('useQuotaAndFallback', () => {
               config: mockConfig,
               historyManager: mockHistoryManager,
               userTier: UserTierId.FREE,
-              setModelSwitchedFromQuotaError:
-                mockSetModelSwitchedFromQuotaError,
+              setModelSwitchedFromQuotaError: mockSetModelSwitchedFromQuotaError,
               onShowAuthSelection: mockOnShowAuthSelection,
-            }),
+            })
           );
 
-          const handler = setFallbackHandlerSpy.mock
-            .calls[0][0] as FallbackModelHandler;
+          const handler = setFallbackHandlerSpy.mock.calls[0][0] as FallbackModelHandler;
 
           let promise: Promise<FallbackIntent | null>;
           act(() => {
@@ -342,9 +312,7 @@ describe('useQuotaAndFallback', () => {
           // Check that the correct initial message was generated
           expect(mockHistoryManager.addItem).not.toHaveBeenCalled();
           const message = request!.message;
-          expect(message).toContain(
-            'We are currently experiencing high demand.',
-          );
+          expect(message).toContain('We are currently experiencing high demand.');
 
           // Simulate the user choosing to continue with the fallback model
           act(() => {
@@ -362,8 +330,7 @@ describe('useQuotaAndFallback', () => {
 
           // Check for the "Switched to fallback model" message
           expect(mockHistoryManager.addItem).toHaveBeenCalledTimes(1);
-          const lastCall = (mockHistoryManager.addItem as Mock).mock
-            .calls[0][0];
+          const lastCall = (mockHistoryManager.addItem as Mock).mock.calls[0][0];
           expect(lastCall.type).toBe(MessageType.INFO);
           expect(lastCall.text).toContain('Switched to fallback model model-B');
         });
@@ -377,11 +344,10 @@ describe('useQuotaAndFallback', () => {
             userTier: UserTierId.FREE,
             setModelSwitchedFromQuotaError: mockSetModelSwitchedFromQuotaError,
             onShowAuthSelection: mockOnShowAuthSelection,
-          }),
+          })
         );
 
-        const handler = setFallbackHandlerSpy.mock
-          .calls[0][0] as FallbackModelHandler;
+        const handler = setFallbackHandlerSpy.mock.calls[0][0] as FallbackModelHandler;
 
         let promise: Promise<FallbackIntent | null>;
         const error = new ModelNotFoundError('model not found', 404);
@@ -400,7 +366,7 @@ describe('useQuotaAndFallback', () => {
         const message = request!.message;
         expect(message).toBe(
           `It seems like you don't have access to gemini-3-pro-preview.
-Your admin might have disabled the access. Contact them to enable the Preview Release Channel.`,
+Your admin might have disabled the access. Contact them to enable the Preview Release Channel.`
         );
 
         // Simulate the user choosing to switch
@@ -422,11 +388,10 @@ Your admin might have disabled the access. Contact them to enable the Preview Re
             userTier: UserTierId.FREE,
             setModelSwitchedFromQuotaError: mockSetModelSwitchedFromQuotaError,
             onShowAuthSelection: mockOnShowAuthSelection,
-          }),
+          })
         );
 
-        const handler = setFallbackHandlerSpy.mock
-          .calls[0][0] as FallbackModelHandler;
+        const handler = setFallbackHandlerSpy.mock.calls[0][0] as FallbackModelHandler;
 
         let promise: Promise<FallbackIntent | null>;
         const error = new ModelNotFoundError('model not found', 404);
@@ -443,7 +408,7 @@ Your admin might have disabled the access. Contact them to enable the Preview Re
         const message = request!.message;
         expect(message).toBe(
           `Model "invalid-model" was not found or is invalid.
-/model to switch models.`,
+/model to switch models.`
         );
 
         act(() => {
@@ -465,7 +430,7 @@ Your admin might have disabled the access. Contact them to enable the Preview Re
           userTier: UserTierId.FREE,
           setModelSwitchedFromQuotaError: mockSetModelSwitchedFromQuotaError,
           onShowAuthSelection: mockOnShowAuthSelection,
-        }),
+        })
       );
 
       act(() => {
@@ -483,18 +448,13 @@ Your admin might have disabled the access. Contact them to enable the Preview Re
           userTier: UserTierId.FREE,
           setModelSwitchedFromQuotaError: mockSetModelSwitchedFromQuotaError,
           onShowAuthSelection: mockOnShowAuthSelection,
-        }),
+        })
       );
 
-      const handler = setFallbackHandlerSpy.mock
-        .calls[0][0] as FallbackModelHandler;
+      const handler = setFallbackHandlerSpy.mock.calls[0][0] as FallbackModelHandler;
       let promise: Promise<FallbackIntent | null>;
       act(() => {
-        promise = handler(
-          'gemini-pro',
-          'gemini-flash',
-          new TerminalQuotaError('pro quota', mockGoogleApiError),
-        );
+        promise = handler('gemini-pro', 'gemini-flash', new TerminalQuotaError('pro quota', mockGoogleApiError));
       });
 
       act(() => {
@@ -514,19 +474,14 @@ Your admin might have disabled the access. Contact them to enable the Preview Re
           userTier: UserTierId.FREE,
           setModelSwitchedFromQuotaError: mockSetModelSwitchedFromQuotaError,
           onShowAuthSelection: mockOnShowAuthSelection,
-        }),
+        })
       );
 
-      const handler = setFallbackHandlerSpy.mock
-        .calls[0][0] as FallbackModelHandler;
+      const handler = setFallbackHandlerSpy.mock.calls[0][0] as FallbackModelHandler;
 
       let promise: Promise<FallbackIntent | null>;
       act(() => {
-        promise = handler(
-          'gemini-pro',
-          'gemini-flash',
-          new TerminalQuotaError('pro quota', mockGoogleApiError),
-        );
+        promise = handler('gemini-pro', 'gemini-flash', new TerminalQuotaError('pro quota', mockGoogleApiError));
       });
 
       act(() => {
@@ -545,9 +500,7 @@ Your admin might have disabled the access. Contact them to enable the Preview Re
       expect(mockHistoryManager.addItem).toHaveBeenCalledTimes(1);
       const lastCall = (mockHistoryManager.addItem as Mock).mock.calls[0][0];
       expect(lastCall.type).toBe(MessageType.INFO);
-      expect(lastCall.text).toContain(
-        'Switched to fallback model gemini-flash',
-      );
+      expect(lastCall.text).toContain('Switched to fallback model gemini-flash');
     });
 
     it('should show a special message when falling back from the preview model', async () => {
@@ -558,18 +511,13 @@ Your admin might have disabled the access. Contact them to enable the Preview Re
           userTier: UserTierId.FREE,
           setModelSwitchedFromQuotaError: mockSetModelSwitchedFromQuotaError,
           onShowAuthSelection: mockOnShowAuthSelection,
-        }),
+        })
       );
 
-      const handler = setFallbackHandlerSpy.mock
-        .calls[0][0] as FallbackModelHandler;
+      const handler = setFallbackHandlerSpy.mock.calls[0][0] as FallbackModelHandler;
       let promise: Promise<FallbackIntent | null>;
       act(() => {
-        promise = handler(
-          PREVIEW_GEMINI_MODEL,
-          DEFAULT_GEMINI_MODEL,
-          new Error('preview model failed'),
-        );
+        promise = handler(PREVIEW_GEMINI_MODEL, DEFAULT_GEMINI_MODEL, new Error('preview model failed'));
       });
 
       act(() => {
@@ -581,9 +529,7 @@ Your admin might have disabled the access. Contact them to enable the Preview Re
       expect(mockHistoryManager.addItem).toHaveBeenCalledTimes(1);
       const lastCall = (mockHistoryManager.addItem as Mock).mock.calls[0][0];
       expect(lastCall.type).toBe(MessageType.INFO);
-      expect(lastCall.text).toContain(
-        `Switched to fallback model gemini-2.5-pro`,
-      );
+      expect(lastCall.text).toContain(`Switched to fallback model gemini-2.5-pro`);
     });
 
     it('should show a special message when falling back from the preview model, but do not show periodical check message for flash model fallback', async () => {
@@ -594,18 +540,13 @@ Your admin might have disabled the access. Contact them to enable the Preview Re
           userTier: UserTierId.FREE,
           setModelSwitchedFromQuotaError: mockSetModelSwitchedFromQuotaError,
           onShowAuthSelection: mockOnShowAuthSelection,
-        }),
+        })
       );
 
-      const handler = setFallbackHandlerSpy.mock
-        .calls[0][0] as FallbackModelHandler;
+      const handler = setFallbackHandlerSpy.mock.calls[0][0] as FallbackModelHandler;
       let promise: Promise<FallbackIntent | null>;
       act(() => {
-        promise = handler(
-          PREVIEW_GEMINI_MODEL,
-          DEFAULT_GEMINI_FLASH_MODEL,
-          new Error('preview model failed'),
-        );
+        promise = handler(PREVIEW_GEMINI_MODEL, DEFAULT_GEMINI_FLASH_MODEL, new Error('preview model failed'));
       });
 
       act(() => {
@@ -617,9 +558,7 @@ Your admin might have disabled the access. Contact them to enable the Preview Re
       expect(mockHistoryManager.addItem).toHaveBeenCalledTimes(1);
       const lastCall = (mockHistoryManager.addItem as Mock).mock.calls[0][0];
       expect(lastCall.type).toBe(MessageType.INFO);
-      expect(lastCall.text).toContain(
-        `Switched to fallback model gemini-2.5-flash`,
-      );
+      expect(lastCall.text).toContain(`Switched to fallback model gemini-2.5-flash`);
     });
   });
 
@@ -638,7 +577,7 @@ Your admin might have disabled the access. Contact them to enable the Preview Re
           userTier: UserTierId.FREE,
           setModelSwitchedFromQuotaError: mockSetModelSwitchedFromQuotaError,
           onShowAuthSelection: mockOnShowAuthSelection,
-        }),
+        })
       );
 
       expect(setValidationHandlerSpy).toHaveBeenCalledTimes(1);
@@ -653,22 +592,18 @@ Your admin might have disabled the access. Contact them to enable the Preview Re
           userTier: UserTierId.FREE,
           setModelSwitchedFromQuotaError: mockSetModelSwitchedFromQuotaError,
           onShowAuthSelection: mockOnShowAuthSelection,
-        }),
+        })
       );
 
       const handler = setValidationHandlerSpy.mock.calls[0][0] as (
         validationLink?: string,
         validationDescription?: string,
-        learnMoreUrl?: string,
+        learnMoreUrl?: string
       ) => Promise<'verify' | 'change_auth' | 'cancel'>;
 
       let promise: Promise<'verify' | 'change_auth' | 'cancel'>;
       act(() => {
-        promise = handler(
-          'https://example.com/verify',
-          'Please verify',
-          'https://example.com/help',
-        );
+        promise = handler('https://example.com/verify', 'Please verify', 'https://example.com/help');
       });
 
       const request = result.current.validationRequest;
@@ -695,11 +630,11 @@ Your admin might have disabled the access. Contact them to enable the Preview Re
           userTier: UserTierId.FREE,
           setModelSwitchedFromQuotaError: mockSetModelSwitchedFromQuotaError,
           onShowAuthSelection: mockOnShowAuthSelection,
-        }),
+        })
       );
 
       const handler = setValidationHandlerSpy.mock.calls[0][0] as (
-        validationLink?: string,
+        validationLink?: string
       ) => Promise<'verify' | 'change_auth' | 'cancel'>;
 
       let promise1: Promise<'verify' | 'change_auth' | 'cancel'>;
@@ -737,11 +672,11 @@ Your admin might have disabled the access. Contact them to enable the Preview Re
           userTier: UserTierId.FREE,
           setModelSwitchedFromQuotaError: mockSetModelSwitchedFromQuotaError,
           onShowAuthSelection: mockOnShowAuthSelection,
-        }),
+        })
       );
 
       const handler = setValidationHandlerSpy.mock.calls[0][0] as (
-        validationLink?: string,
+        validationLink?: string
       ) => Promise<'verify' | 'change_auth' | 'cancel'>;
 
       let promise: Promise<'verify' | 'change_auth' | 'cancel'>;
@@ -767,11 +702,11 @@ Your admin might have disabled the access. Contact them to enable the Preview Re
           userTier: UserTierId.FREE,
           setModelSwitchedFromQuotaError: mockSetModelSwitchedFromQuotaError,
           onShowAuthSelection: mockOnShowAuthSelection,
-        }),
+        })
       );
 
       const handler = setValidationHandlerSpy.mock.calls[0][0] as (
-        validationLink?: string,
+        validationLink?: string
       ) => Promise<'verify' | 'change_auth' | 'cancel'>;
 
       let promise: Promise<'verify' | 'change_auth' | 'cancel'>;
@@ -797,7 +732,7 @@ Your admin might have disabled the access. Contact them to enable the Preview Re
           userTier: UserTierId.FREE,
           setModelSwitchedFromQuotaError: mockSetModelSwitchedFromQuotaError,
           onShowAuthSelection: mockOnShowAuthSelection,
-        }),
+        })
       );
 
       act(() => {

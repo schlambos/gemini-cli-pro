@@ -49,13 +49,10 @@ export interface ExitPlanModeParams {
   plan_path: string;
 }
 
-export class ExitPlanModeTool extends BaseDeclarativeTool<
-  ExitPlanModeParams,
-  ToolResult
-> {
+export class ExitPlanModeTool extends BaseDeclarativeTool<ExitPlanModeParams, ToolResult> {
   constructor(
     private config: Config,
-    messageBus: MessageBus,
+    messageBus: MessageBus
   ) {
     const plansDir = config.storage.getProjectTempPlansDir();
     const definition = getExitPlanModeDefinition(plansDir);
@@ -65,26 +62,19 @@ export class ExitPlanModeTool extends BaseDeclarativeTool<
       definition.base.description!,
       Kind.Plan,
       definition.base.parametersJsonSchema,
-      messageBus,
+      messageBus
     );
   }
 
-  protected override validateToolParamValues(
-    params: ExitPlanModeParams,
-  ): string | null {
+  protected override validateToolParamValues(params: ExitPlanModeParams): string | null {
     if (!params.plan_path || params.plan_path.trim() === '') {
       return 'plan_path is required.';
     }
 
     // Since validateToolParamValues is synchronous, we use a basic synchronous check
     // for path traversal safety. High-level async validation is deferred to shouldConfirmExecute.
-    const plansDir = resolveToRealPath(
-      this.config.storage.getProjectTempPlansDir(),
-    );
-    const resolvedPath = path.resolve(
-      this.config.getTargetDir(),
-      params.plan_path,
-    );
+    const plansDir = resolveToRealPath(this.config.storage.getProjectTempPlansDir());
+    const resolvedPath = path.resolve(this.config.getTargetDir(), params.plan_path);
 
     const realPath = resolveToRealPath(resolvedPath);
 
@@ -99,15 +89,9 @@ export class ExitPlanModeTool extends BaseDeclarativeTool<
     params: ExitPlanModeParams,
     messageBus: MessageBus,
     toolName: string,
-    toolDisplayName: string,
+    toolDisplayName: string
   ): ExitPlanModeInvocation {
-    return new ExitPlanModeInvocation(
-      params,
-      messageBus,
-      toolName,
-      toolDisplayName,
-      this.config,
-    );
+    return new ExitPlanModeInvocation(params, messageBus, toolName, toolDisplayName, this.config);
   }
 
   override getSchema(modelId?: string) {
@@ -116,10 +100,7 @@ export class ExitPlanModeTool extends BaseDeclarativeTool<
   }
 }
 
-export class ExitPlanModeInvocation extends BaseToolInvocation<
-  ExitPlanModeParams,
-  ToolResult
-> {
+export class ExitPlanModeInvocation extends BaseToolInvocation<ExitPlanModeParams, ToolResult> {
   private confirmationOutcome: ToolConfirmationOutcome | null = null;
   private approvalPayload: ToolExitPlanModeConfirmationPayload | null = null;
   private planValidationError: string | null = null;
@@ -129,20 +110,18 @@ export class ExitPlanModeInvocation extends BaseToolInvocation<
     messageBus: MessageBus,
     toolName: string,
     toolDisplayName: string,
-    private config: Config,
+    private config: Config
   ) {
     super(params, messageBus, toolName, toolDisplayName);
   }
 
-  override async shouldConfirmExecute(
-    abortSignal: AbortSignal,
-  ): Promise<ToolExitPlanModeConfirmationDetails | false> {
+  override async shouldConfirmExecute(abortSignal: AbortSignal): Promise<ToolExitPlanModeConfirmationDetails | false> {
     const resolvedPlanPath = this.getResolvedPlanPath();
 
     const pathError = await validatePlanPath(
       this.params.plan_path,
       this.config.storage.getProjectTempPlansDir(),
-      this.config.getTargetDir(),
+      this.config.getTargetDir()
     );
     if (pathError) {
       this.planValidationError = pathError;
@@ -157,11 +136,7 @@ export class ExitPlanModeInvocation extends BaseToolInvocation<
 
     const decision = await this.getMessageBusDecision(abortSignal);
     if (decision === 'DENY') {
-      throw new Error(
-        `Tool execution for "${
-          this._toolDisplayName || this._toolName
-        }" denied by policy.`,
-      );
+      throw new Error(`Tool execution for "${this._toolDisplayName || this._toolName}" denied by policy.`);
     }
 
     if (decision === 'ALLOW') {
@@ -179,10 +154,7 @@ export class ExitPlanModeInvocation extends BaseToolInvocation<
       type: 'exit_plan_mode',
       title: 'Plan Approval',
       planPath: resolvedPlanPath,
-      onConfirm: async (
-        outcome: ToolConfirmationOutcome,
-        payload?: ToolConfirmationPayload,
-      ) => {
+      onConfirm: async (outcome: ToolConfirmationOutcome, payload?: ToolConfirmationPayload) => {
         this.confirmationOutcome = outcome;
         if (payload && 'approved' in payload) {
           this.approvalPayload = payload;

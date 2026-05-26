@@ -14,10 +14,7 @@ import { Storage } from '../config/storage.js';
 import toml from '@iarna/toml';
 import { ShellToolInvocation } from '../tools/shell.js';
 import { type Config } from '../config/config.js';
-import {
-  ToolConfirmationOutcome,
-  type PolicyUpdateOptions,
-} from '../tools/tools.js';
+import { ToolConfirmationOutcome, type PolicyUpdateOptions } from '../tools/tools.js';
 import * as shellUtils from '../utils/shell-utils.js';
 
 vi.mock('node:fs/promises');
@@ -33,9 +30,7 @@ interface ParsedPolicy {
 }
 
 interface TestableShellToolInvocation {
-  getPolicyUpdateOptions(
-    outcome: ToolConfirmationOutcome,
-  ): PolicyUpdateOptions | undefined;
+  getPolicyUpdateOptions(outcome: ToolConfirmationOutcome): PolicyUpdateOptions | undefined;
 }
 
 describe('createPolicyUpdater', () => {
@@ -48,9 +43,7 @@ describe('createPolicyUpdater', () => {
     vi.spyOn(policyEngine, 'addRule');
 
     messageBus = new MessageBus(policyEngine);
-    vi.spyOn(Storage, 'getUserPoliciesDir').mockReturnValue(
-      '/mock/user/policies',
-    );
+    vi.spyOn(Storage, 'getUserPoliciesDir').mockReturnValue('/mock/user/policies');
   });
 
   afterEach(() => {
@@ -73,14 +66,14 @@ describe('createPolicyUpdater', () => {
       expect.objectContaining({
         toolName: 'run_shell_command',
         argsPattern: new RegExp('"command":"echo(?:[\\s"]|\\\\")'),
-      }),
+      })
     );
     expect(policyEngine.addRule).toHaveBeenNthCalledWith(
       2,
       expect.objectContaining({
         toolName: 'run_shell_command',
         argsPattern: new RegExp('"command":"ls(?:[\\s"]|\\\\")'),
-      }),
+      })
     );
   });
 
@@ -99,7 +92,7 @@ describe('createPolicyUpdater', () => {
       expect.objectContaining({
         toolName: 'run_shell_command',
         argsPattern: new RegExp('"command":"git(?:[\\s"]|\\\\")'),
-      }),
+      })
     );
   });
 
@@ -112,9 +105,7 @@ describe('createPolicyUpdater', () => {
       writeFile: vi.fn().mockResolvedValue(undefined),
       close: vi.fn().mockResolvedValue(undefined),
     };
-    vi.mocked(fs.open).mockResolvedValue(
-      mockFileHandle as unknown as fs.FileHandle,
-    );
+    vi.mocked(fs.open).mockResolvedValue(mockFileHandle as unknown as fs.FileHandle);
     vi.mocked(fs.rename).mockResolvedValue(undefined);
 
     await messageBus.publish({
@@ -128,10 +119,7 @@ describe('createPolicyUpdater', () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(fs.open).toHaveBeenCalled();
-    const [content] = mockFileHandle.writeFile.mock.calls[0] as [
-      string,
-      string,
-    ];
+    const [content] = mockFileHandle.writeFile.mock.calls[0] as [string, string];
     const parsed = toml.parse(content) as unknown as ParsedPolicy;
 
     expect(parsed.rule).toHaveLength(1);
@@ -161,9 +149,7 @@ describe('ShellToolInvocation Policy Update', () => {
     mockConfig = {} as Config;
     mockMessageBus = {} as MessageBus;
 
-    vi.mocked(shellUtils.stripShellWrapper).mockImplementation(
-      (c: string) => c,
-    );
+    vi.mocked(shellUtils.stripShellWrapper).mockImplementation((c: string) => c);
   });
 
   it('should extract multiple root commands for chained commands', () => {
@@ -174,17 +160,15 @@ describe('ShellToolInvocation Policy Update', () => {
       { command: 'git status && npm test' },
       mockMessageBus,
       'run_shell_command',
-      'Shell',
+      'Shell'
     );
 
     // Accessing protected method for testing
-    const options = (
-      invocation as unknown as TestableShellToolInvocation
-    ).getPolicyUpdateOptions(ToolConfirmationOutcome.ProceedAlways);
-    expect(options!.commandPrefix).toEqual(['git', 'npm']);
-    expect(shellUtils.getCommandRoots).toHaveBeenCalledWith(
-      'git status && npm test',
+    const options = (invocation as unknown as TestableShellToolInvocation).getPolicyUpdateOptions(
+      ToolConfirmationOutcome.ProceedAlways
     );
+    expect(options!.commandPrefix).toEqual(['git', 'npm']);
+    expect(shellUtils.getCommandRoots).toHaveBeenCalledWith('git status && npm test');
   });
 
   it('should extract a single root command', () => {
@@ -195,13 +179,13 @@ describe('ShellToolInvocation Policy Update', () => {
       { command: 'ls -la /tmp' },
       mockMessageBus,
       'run_shell_command',
-      'Shell',
+      'Shell'
     );
 
     // Accessing protected method for testing
-    const options = (
-      invocation as unknown as TestableShellToolInvocation
-    ).getPolicyUpdateOptions(ToolConfirmationOutcome.ProceedAlways);
+    const options = (invocation as unknown as TestableShellToolInvocation).getPolicyUpdateOptions(
+      ToolConfirmationOutcome.ProceedAlways
+    );
     expect(options!.commandPrefix).toEqual(['ls']);
     expect(shellUtils.getCommandRoots).toHaveBeenCalledWith('ls -la /tmp');
   });

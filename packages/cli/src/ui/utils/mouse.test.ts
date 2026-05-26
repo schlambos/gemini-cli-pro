@@ -5,12 +5,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import {
-  parseSGRMouseEvent,
-  parseX11MouseEvent,
-  isIncompleteMouseSequence,
-  parseMouseEvent,
-} from './mouse.js';
+import { parseSGRMouseEvent, parseX11MouseEvent, isIncompleteMouseSequence, parseMouseEvent } from './mouse.js';
 import { ESC } from './input.js';
 
 describe('mouse utils', () => {
@@ -74,12 +69,8 @@ describe('mouse utils', () => {
     });
 
     it('parses SGR scroll events', () => {
-      expect(parseSGRMouseEvent(`${ESC}[<64;1;1M`)!.event.name).toBe(
-        'scroll-up',
-      );
-      expect(parseSGRMouseEvent(`${ESC}[<65;1;1M`)!.event.name).toBe(
-        'scroll-down',
-      );
+      expect(parseSGRMouseEvent(`${ESC}[<64;1;1M`)!.event.name).toBe('scroll-up');
+      expect(parseSGRMouseEvent(`${ESC}[<65;1;1M`)!.event.name).toBe('scroll-down');
     });
 
     it('returns null for invalid SGR', () => {

@@ -9,16 +9,9 @@ import { useCallback, useState } from 'react';
 import { Box, Text } from 'ink';
 import { theme } from '../semantic-colors.js';
 import { RadioButtonSelect } from '../components/shared/RadioButtonSelect.js';
-import type {
-  LoadableSettingScope,
-  LoadedSettings,
-} from '../../config/settings.js';
+import type { LoadableSettingScope, LoadedSettings } from '../../config/settings.js';
 import { SettingScope } from '../../config/settings.js';
-import {
-  AuthType,
-  clearCachedCredentialFile,
-  type Config,
-} from '@google/gemini-cli-core';
+import { AuthType, clearCachedCredentialFile, type Config } from '@google/gemini-cli-core';
 import { useKeypress } from '../hooks/useKeypress.js';
 import { AuthState } from '../types.js';
 import { runExitCleanup } from '../../utils/cleanup.js';
@@ -89,9 +82,7 @@ export function AuthDialog({
   ];
 
   if (settings.merged.security.auth.enforcedType) {
-    items = items.filter(
-      (item) => item.value === settings.merged.security.auth.enforcedType,
-    );
+    items = items.filter((item) => item.value === settings.merged.security.auth.enforcedType);
   }
 
   let defaultAuthType = null;
@@ -115,11 +106,7 @@ export function AuthDialog({
     }
 
     // Auto-detect AWS Bedrock credentials
-    if (
-      process.env['AWS_ACCESS_KEY_ID'] ||
-      process.env['AWS_PROFILE'] ||
-      process.env['AWS_REGION']
-    ) {
+    if (process.env['AWS_ACCESS_KEY_ID'] || process.env['AWS_PROFILE'] || process.env['AWS_REGION']) {
       return item.value === AuthType.USE_BEDROCK;
     }
 
@@ -152,10 +139,7 @@ export function AuthDialog({
         await clearCachedCredentialFile();
 
         settings.setValue(scope, 'security.auth.selectedType', authType);
-        if (
-          authType === AuthType.LOGIN_WITH_GOOGLE &&
-          config.isBrowserLaunchSuppressed()
-        ) {
+        if (authType === AuthType.LOGIN_WITH_GOOGLE && config.isBrowserLaunchSuppressed()) {
           setExiting(true);
           setTimeout(async () => {
             await runExitCleanup();
@@ -194,7 +178,7 @@ export function AuthDialog({
       }
       setAuthState(AuthState.Unauthenticated);
     },
-    [settings, config, setAuthState, exiting, setAuthContext],
+    [settings, config, setAuthState, exiting, setAuthContext]
   );
 
   const handleAuthSelect = (authMethod: AuthType) => {
@@ -217,9 +201,7 @@ export function AuthDialog({
         }
         if (settings.merged.security.auth.selectedType === undefined) {
           // Prevent exiting if no auth method is set
-          onAuthError(
-            'You must select an auth method to proceed. Press Ctrl+C twice to exit.',
-          );
+          onAuthError('You must select an auth method to proceed. Press Ctrl+C twice to exit.');
           return true;
         }
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -228,44 +210,40 @@ export function AuthDialog({
       }
       return false;
     },
-    { isActive: true },
+    { isActive: true }
   );
 
   if (exiting) {
     return (
       <Box
-        borderStyle="round"
+        borderStyle='round'
         borderColor={theme.border.focused}
-        flexDirection="row"
+        flexDirection='row'
         padding={1}
-        width="100%"
-        alignItems="flex-start"
+        width='100%'
+        alignItems='flex-start'
       >
-        <Text color={theme.text.primary}>
-          Logging in with Google... Restarting Gemini CLI to continue.
-        </Text>
+        <Text color={theme.text.primary}>Logging in with Google... Restarting Gemini CLI to continue.</Text>
       </Box>
     );
   }
 
   return (
     <Box
-      borderStyle="round"
+      borderStyle='round'
       borderColor={theme.border.focused}
-      flexDirection="row"
+      flexDirection='row'
       padding={1}
-      width="100%"
-      alignItems="flex-start"
+      width='100%'
+      alignItems='flex-start'
     >
       <Text color={theme.text.accent}>? </Text>
-      <Box flexDirection="column" flexGrow={1}>
+      <Box flexDirection='column' flexGrow={1}>
         <Text bold color={theme.text.primary}>
           Get started
         </Text>
         <Box marginTop={1}>
-          <Text color={theme.text.primary}>
-            How would you like to authenticate for this project?
-          </Text>
+          <Text color={theme.text.primary}>How would you like to authenticate for this project?</Text>
         </Box>
         <Box marginTop={1}>
           <RadioButtonSelect
@@ -286,15 +264,11 @@ export function AuthDialog({
           <Text color={theme.text.secondary}>(Use Enter to select)</Text>
         </Box>
         <Box marginTop={1}>
-          <Text color={theme.text.primary}>
-            Terms of Services and Privacy Notice for Gemini CLI
-          </Text>
+          <Text color={theme.text.primary}>Terms of Services and Privacy Notice for Gemini CLI</Text>
         </Box>
         <Box marginTop={1}>
           <Text color={theme.text.link}>
-            {
-              'https://github.com/google-gemini/gemini-cli/blob/main/docs/tos-privacy.md'
-            }
+            {'https://github.com/google-gemini/gemini-cli/blob/main/docs/tos-privacy.md'}
           </Text>
         </Box>
       </Box>

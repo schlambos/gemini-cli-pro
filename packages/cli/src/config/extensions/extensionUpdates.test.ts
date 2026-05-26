@@ -47,8 +47,7 @@ vi.mock('node:fs', async (importOriginal) => {
 });
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     KeychainTokenStorage: vi.fn(),
@@ -64,9 +63,7 @@ vi.mock('@google/gemini-cli-core', async (importOriginal) => {
       emitConsoleLog: vi.fn(),
     },
     loadSkillsFromDir: vi.fn().mockResolvedValue([]),
-    loadAgentsFromDirectory: vi
-      .fn()
-      .mockResolvedValue({ agents: [], errors: [] }),
+    loadAgentsFromDirectory: vi.fn().mockResolvedValue({ agents: [], errors: [] }),
     logExtensionInstallEvent: vi.fn().mockResolvedValue(undefined),
     logExtensionUpdateEvent: vi.fn().mockResolvedValue(undefined),
     logExtensionUninstall: vi.fn().mockResolvedValue(undefined),
@@ -83,8 +80,7 @@ vi.mock('./consent.js', () => ({
 }));
 
 vi.mock('./extensionSettings.js', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('./extensionSettings.js')>();
+  const actual = await importOriginal<typeof import('./extensionSettings.js')>();
   return {
     ...actual,
     getEnvContents: vi.fn().mockResolvedValue({}),
@@ -224,15 +220,11 @@ describe('extensionUpdates', () => {
 
       // 6. Assert
       expect(debugLogger.warn).toHaveBeenCalledWith(
-        expect.stringContaining(
-          'Extension "test-ext" has missing settings: s1',
-        ),
+        expect.stringContaining('Extension "test-ext" has missing settings: s1')
       );
       expect(coreEvents.emitFeedback).toHaveBeenCalledWith(
         'warning',
-        expect.stringContaining(
-          'Please run "gemini extensions config test-ext [setting-name]"',
-        ),
+        expect.stringContaining('Please run "gemini extensions config test-ext [setting-name]"')
       );
     });
   });

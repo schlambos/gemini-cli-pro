@@ -5,13 +5,7 @@
  */
 
 import { describe, it, beforeEach, afterEach } from 'vitest';
-import {
-  TestRig,
-  poll,
-  printDebugInfo,
-  assertModelHasOutput,
-  checkModelOutputContent,
-} from './test-helper.js';
+import { TestRig, poll, printDebugInfo, assertModelHasOutput, checkModelOutputContent } from './test-helper.js';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -41,7 +35,7 @@ describe('list_directory', () => {
         return existsSync(file1Path) && existsSync(subdirPath);
       },
       1000, // 1 second max wait
-      50, // check every 50ms
+      50 // check every 50ms
     );
 
     const prompt = `Can you list the files in the current directory.`;
@@ -61,9 +55,7 @@ describe('list_directory', () => {
 
         console.error(
           'List directory calls:',
-          allTools
-            .filter((t) => t.toolRequest.name === 'list_directory')
-            .map((t) => t.toolRequest.args),
+          allTools.filter((t) => t.toolRequest.name === 'list_directory').map((t) => t.toolRequest.args)
         );
       }
       throw e;

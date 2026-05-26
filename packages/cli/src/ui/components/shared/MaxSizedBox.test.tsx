@@ -21,7 +21,7 @@ describe('<MaxSizedBox />', () => {
             <Text>Hello, World!</Text>
           </Box>
         </MaxSizedBox>
-      </OverflowProvider>,
+      </OverflowProvider>
     );
     await waitFor(() => expect(lastFrame()).toContain('Hello, World!'));
     expect(lastFrame()).toMatchSnapshot();
@@ -32,17 +32,15 @@ describe('<MaxSizedBox />', () => {
     const { lastFrame, unmount } = render(
       <OverflowProvider>
         <MaxSizedBox maxWidth={80} maxHeight={2}>
-          <Box flexDirection="column">
+          <Box flexDirection='column'>
             <Text>Line 1</Text>
             <Text>Line 2</Text>
             <Text>Line 3</Text>
           </Box>
         </MaxSizedBox>
-      </OverflowProvider>,
+      </OverflowProvider>
     );
-    await waitFor(() =>
-      expect(lastFrame()).toContain('... first 2 lines hidden ...'),
-    );
+    await waitFor(() => expect(lastFrame()).toContain('... first 2 lines hidden ...'));
     expect(lastFrame()).toMatchSnapshot();
     unmount();
   });
@@ -50,18 +48,16 @@ describe('<MaxSizedBox />', () => {
   it('hides lines at the end when content exceeds maxHeight and overflowDirection is bottom', async () => {
     const { lastFrame, unmount } = render(
       <OverflowProvider>
-        <MaxSizedBox maxWidth={80} maxHeight={2} overflowDirection="bottom">
-          <Box flexDirection="column">
+        <MaxSizedBox maxWidth={80} maxHeight={2} overflowDirection='bottom'>
+          <Box flexDirection='column'>
             <Text>Line 1</Text>
             <Text>Line 2</Text>
             <Text>Line 3</Text>
           </Box>
         </MaxSizedBox>
-      </OverflowProvider>,
+      </OverflowProvider>
     );
-    await waitFor(() =>
-      expect(lastFrame()).toContain('... last 2 lines hidden ...'),
-    );
+    await waitFor(() => expect(lastFrame()).toContain('... last 2 lines hidden ...'));
     expect(lastFrame()).toMatchSnapshot();
     unmount();
   });
@@ -70,17 +66,15 @@ describe('<MaxSizedBox />', () => {
     const { lastFrame, unmount } = render(
       <OverflowProvider>
         <MaxSizedBox maxWidth={80} maxHeight={2}>
-          <Box flexDirection="column">
+          <Box flexDirection='column'>
             <Text>Line 1</Text>
             <Text>Line 2</Text>
             <Text>Line 3</Text>
           </Box>
         </MaxSizedBox>
-      </OverflowProvider>,
+      </OverflowProvider>
     );
-    await waitFor(() =>
-      expect(lastFrame()).toContain('... first 2 lines hidden ...'),
-    );
+    await waitFor(() => expect(lastFrame()).toContain('... first 2 lines hidden ...'));
     expect(lastFrame()).toMatchSnapshot();
     unmount();
   });
@@ -89,15 +83,13 @@ describe('<MaxSizedBox />', () => {
     const { lastFrame, unmount } = render(
       <OverflowProvider>
         <MaxSizedBox maxWidth={80} maxHeight={2} additionalHiddenLinesCount={1}>
-          <Box flexDirection="column">
+          <Box flexDirection='column'>
             <Text>Line 1</Text>
           </Box>
         </MaxSizedBox>
-      </OverflowProvider>,
+      </OverflowProvider>
     );
-    await waitFor(() =>
-      expect(lastFrame()).toContain('... first 1 line hidden ...'),
-    );
+    await waitFor(() => expect(lastFrame()).toContain('... first 1 line hidden ...'));
     expect(lastFrame()).toMatchSnapshot();
     unmount();
   });
@@ -106,17 +98,15 @@ describe('<MaxSizedBox />', () => {
     const { lastFrame, unmount } = render(
       <OverflowProvider>
         <MaxSizedBox maxWidth={80} maxHeight={2} additionalHiddenLinesCount={5}>
-          <Box flexDirection="column">
+          <Box flexDirection='column'>
             <Text>Line 1</Text>
             <Text>Line 2</Text>
             <Text>Line 3</Text>
           </Box>
         </MaxSizedBox>
-      </OverflowProvider>,
+      </OverflowProvider>
     );
-    await waitFor(() =>
-      expect(lastFrame()).toContain('... first 7 lines hidden ...'),
-    );
+    await waitFor(() => expect(lastFrame()).toContain('... first 7 lines hidden ...'));
     expect(lastFrame()).toMatchSnapshot();
     unmount();
   });
@@ -126,10 +116,10 @@ describe('<MaxSizedBox />', () => {
       <OverflowProvider>
         <MaxSizedBox maxWidth={10} maxHeight={5}>
           <Box>
-            <Text wrap="wrap">This is a long line of text</Text>
+            <Text wrap='wrap'>This is a long line of text</Text>
           </Box>
         </MaxSizedBox>
-      </OverflowProvider>,
+      </OverflowProvider>
     );
 
     await waitFor(() => expect(lastFrame()).toContain('This is a'));
@@ -141,12 +131,12 @@ describe('<MaxSizedBox />', () => {
     const { lastFrame, unmount } = render(
       <OverflowProvider>
         <MaxSizedBox maxWidth={80} maxHeight={undefined}>
-          <Box flexDirection="column">
+          <Box flexDirection='column'>
             <Text>Line 1</Text>
             <Text>Line 2</Text>
           </Box>
         </MaxSizedBox>
-      </OverflowProvider>,
+      </OverflowProvider>
     );
     await waitFor(() => expect(lastFrame()).toContain('Line 1'));
     expect(lastFrame()).toMatchSnapshot();
@@ -157,7 +147,7 @@ describe('<MaxSizedBox />', () => {
     const { lastFrame, unmount } = render(
       <OverflowProvider>
         <MaxSizedBox maxWidth={80} maxHeight={10}></MaxSizedBox>
-      </OverflowProvider>,
+      </OverflowProvider>
     );
     // Use waitFor to ensure ResizeObserver has a chance to run
     await waitFor(() => expect(lastFrame()).toBeDefined());
@@ -169,7 +159,7 @@ describe('<MaxSizedBox />', () => {
     const { lastFrame, unmount } = render(
       <OverflowProvider>
         <MaxSizedBox maxWidth={80} maxHeight={10}>
-          <Box flexDirection="column">
+          <Box flexDirection='column'>
             <>
               <Text>Line 1 from Fragment</Text>
               <Text>Line 2 from Fragment</Text>
@@ -177,7 +167,7 @@ describe('<MaxSizedBox />', () => {
             <Text>Line 3 direct child</Text>
           </Box>
         </MaxSizedBox>
-      </OverflowProvider>,
+      </OverflowProvider>
     );
     await waitFor(() => expect(lastFrame()).toContain('Line 1 from Fragment'));
     expect(lastFrame()).toMatchSnapshot();
@@ -185,63 +175,46 @@ describe('<MaxSizedBox />', () => {
   });
 
   it('clips a long single text child from the top', async () => {
-    const THIRTY_LINES = Array.from(
-      { length: 30 },
-      (_, i) => `Line ${i + 1}`,
-    ).join('\n');
+    const THIRTY_LINES = Array.from({ length: 30 }, (_, i) => `Line ${i + 1}`).join('\n');
     const { lastFrame, unmount } = render(
       <OverflowProvider>
-        <MaxSizedBox maxWidth={80} maxHeight={10} overflowDirection="top">
+        <MaxSizedBox maxWidth={80} maxHeight={10} overflowDirection='top'>
           <Box>
             <Text>{THIRTY_LINES}</Text>
           </Box>
         </MaxSizedBox>
-      </OverflowProvider>,
+      </OverflowProvider>
     );
 
-    await waitFor(() =>
-      expect(lastFrame()).toContain('... first 21 lines hidden ...'),
-    );
+    await waitFor(() => expect(lastFrame()).toContain('... first 21 lines hidden ...'));
     expect(lastFrame()).toMatchSnapshot();
     unmount();
   });
 
   it('clips a long single text child from the bottom', async () => {
-    const THIRTY_LINES = Array.from(
-      { length: 30 },
-      (_, i) => `Line ${i + 1}`,
-    ).join('\n');
+    const THIRTY_LINES = Array.from({ length: 30 }, (_, i) => `Line ${i + 1}`).join('\n');
     const { lastFrame, unmount } = render(
       <OverflowProvider>
-        <MaxSizedBox maxWidth={80} maxHeight={10} overflowDirection="bottom">
+        <MaxSizedBox maxWidth={80} maxHeight={10} overflowDirection='bottom'>
           <Box>
             <Text>{THIRTY_LINES}</Text>
           </Box>
         </MaxSizedBox>
-      </OverflowProvider>,
+      </OverflowProvider>
     );
 
-    await waitFor(() =>
-      expect(lastFrame()).toContain('... last 21 lines hidden ...'),
-    );
+    await waitFor(() => expect(lastFrame()).toContain('... last 21 lines hidden ...'));
     expect(lastFrame()).toMatchSnapshot();
     unmount();
   });
 
   it('does not leak content after hidden indicator with bottom overflow', async () => {
-    const markdownContent = Array.from(
-      { length: 20 },
-      (_, i) => `- Step ${i + 1}: Do something important`,
-    ).join('\n');
+    const markdownContent = Array.from({ length: 20 }, (_, i) => `- Step ${i + 1}: Do something important`).join('\n');
     const { lastFrame } = renderWithProviders(
-      <MaxSizedBox maxWidth={80} maxHeight={5} overflowDirection="bottom">
-        <MarkdownDisplay
-          text={`## Plan\n\n${markdownContent}`}
-          isPending={false}
-          terminalWidth={76}
-        />
+      <MaxSizedBox maxWidth={80} maxHeight={5} overflowDirection='bottom'>
+        <MarkdownDisplay text={`## Plan\n\n${markdownContent}`} isPending={false} terminalWidth={76} />
       </MaxSizedBox>,
-      { width: 80 },
+      { width: 80 }
     );
 
     await waitFor(() => expect(lastFrame()).toContain('... last'));

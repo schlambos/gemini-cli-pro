@@ -66,9 +66,7 @@ describe('Shell Command Processor - Encoding Functions', () => {
 
     it('should return null for unmapped code pages and warn', () => {
       expect(windowsCodePageToEncoding(99999)).toBe(null);
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        'Unable to determine encoding for windows code page 99999.',
-      );
+      expect(consoleWarnSpy).toHaveBeenCalledWith('Unable to determine encoding for windows code page 99999.');
     });
 
     it('should handle all Windows-specific code pages', () => {
@@ -110,10 +108,7 @@ describe('Shell Command Processor - Encoding Functions', () => {
 
       const result = detectEncodingFromBuffer(buffer);
       expect(result).toBe(null);
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        'Failed to detect encoding with chardet:',
-        expect.any(Error),
-      );
+      expect(consoleWarnSpy).toHaveBeenCalledWith('Failed to detect encoding with chardet:', expect.any(Error));
     });
 
     it('should return null when chardet returns null', () => {
@@ -126,10 +121,7 @@ describe('Shell Command Processor - Encoding Functions', () => {
 
     it('should return null when chardet returns non-string', () => {
       const buffer = Buffer.from('test content', 'utf8');
-      mockedChardetDetect.mockReturnValue([
-        'utf-8',
-        'iso-8859-1',
-      ] as unknown as string);
+      mockedChardetDetect.mockReturnValue(['utf-8', 'iso-8859-1'] as unknown as string);
 
       const result = detectEncodingFromBuffer(buffer);
       expect(result).toBe(null);
@@ -171,9 +163,7 @@ describe('Shell Command Processor - Encoding Functions', () => {
       const result = getSystemEncoding();
       expect(result).toBe(null);
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining(
-          "Failed to get Windows code page using 'chcp' command",
-        ),
+        expect.stringContaining("Failed to get Windows code page using 'chcp' command")
       );
     });
 
@@ -183,9 +173,7 @@ describe('Shell Command Processor - Encoding Functions', () => {
       const result = getSystemEncoding();
       expect(result).toBe(null);
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining(
-          "Failed to get Windows code page using 'chcp' command",
-        ),
+        expect.stringContaining("Failed to get Windows code page using 'chcp' command")
       );
     });
 
@@ -195,9 +183,7 @@ describe('Shell Command Processor - Encoding Functions', () => {
       const result = getSystemEncoding();
       expect(result).toBe(null);
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining(
-          "Failed to get Windows code page using 'chcp' command",
-        ),
+        expect.stringContaining("Failed to get Windows code page using 'chcp' command")
       );
     });
 
@@ -207,9 +193,7 @@ describe('Shell Command Processor - Encoding Functions', () => {
       const result = getSystemEncoding();
       expect(result).toBe(null);
       // Should warn about unknown code page from windowsCodePageToEncoding
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        'Unable to determine encoding for windows code page 99999.',
-      );
+      expect(consoleWarnSpy).toHaveBeenCalledWith('Unable to determine encoding for windows code page 99999.');
     });
   });
 
@@ -263,9 +247,7 @@ describe('Shell Command Processor - Encoding Functions', () => {
 
       const result = getSystemEncoding();
       expect(result).toBe(null);
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        'Failed to get locale charmap.',
-      );
+      expect(consoleWarnSpy).toHaveBeenCalledWith('Failed to get locale charmap.');
     });
 
     it('should handle locale without encoding (no dot)', () => {
@@ -370,9 +352,7 @@ describe('Shell Command Processor - Encoding Functions', () => {
       const buffer1 = Buffer.from('test1');
       const buffer2 = Buffer.from('test2');
 
-      mockedChardetDetect
-        .mockReturnValueOnce('ISO-8859-1')
-        .mockReturnValueOnce('UTF-16');
+      mockedChardetDetect.mockReturnValueOnce('ISO-8859-1').mockReturnValueOnce('UTF-16');
 
       const result1 = getCachedEncodingForBuffer(buffer1);
       const result2 = getCachedEncodingForBuffer(buffer2);
@@ -407,9 +387,7 @@ describe('Shell Command Processor - Encoding Functions', () => {
       const buffer1 = Buffer.from('test1');
       const buffer2 = Buffer.from('test2');
 
-      mockedChardetDetect
-        .mockReturnValueOnce('ISO-8859-1')
-        .mockReturnValueOnce('UTF-16');
+      mockedChardetDetect.mockReturnValueOnce('ISO-8859-1').mockReturnValueOnce('UTF-16');
 
       // Clear any previous calls from beforeEach setup or previous tests
       mockedExecSync.mockClear();

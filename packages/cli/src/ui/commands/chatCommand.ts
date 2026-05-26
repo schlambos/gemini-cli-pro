@@ -8,31 +8,16 @@ import * as fsPromises from 'node:fs/promises';
 import React from 'react';
 import { Text } from 'ink';
 import { theme } from '../semantic-colors.js';
-import type {
-  CommandContext,
-  SlashCommand,
-  SlashCommandActionReturn,
-} from './types.js';
+import type { CommandContext, SlashCommand, SlashCommandActionReturn } from './types.js';
 import { CommandKind } from './types.js';
-import {
-  decodeTagName,
-  type MessageActionReturn,
-  INITIAL_HISTORY_LENGTH,
-} from '@google/gemini-cli-core';
+import { decodeTagName, type MessageActionReturn, INITIAL_HISTORY_LENGTH } from '@google/gemini-cli-core';
 import path from 'node:path';
-import type {
-  HistoryItemWithoutId,
-  HistoryItemChatList,
-  ChatDetail,
-} from '../types.js';
+import type { HistoryItemWithoutId, HistoryItemChatList, ChatDetail } from '../types.js';
 import { MessageType } from '../types.js';
 import { exportHistoryToFile } from '../utils/historyExportUtils.js';
 import { convertToRestPayload } from '@google/gemini-cli-core';
 
-const getSavedChatTags = async (
-  context: CommandContext,
-  mtSortDesc: boolean,
-): Promise<ChatDetail[]> => {
+const getSavedChatTags = async (context: CommandContext, mtSortDesc: boolean): Promise<ChatDetail[]> => {
   const cfg = context.services.config;
   const geminiDir = cfg?.storage?.getProjectTempDir();
   if (!geminiDir) {
@@ -56,11 +41,7 @@ const getSavedChatTags = async (
       }
     }
 
-    chatDetails.sort((a, b) =>
-      mtSortDesc
-        ? b.mtime.localeCompare(a.mtime)
-        : a.mtime.localeCompare(b.mtime),
-    );
+    chatDetails.sort((a, b) => (mtSortDesc ? b.mtime.localeCompare(a.mtime) : a.mtime.localeCompare(b.mtime)));
 
     return chatDetails;
   } catch (_err) {
@@ -87,8 +68,7 @@ const listCommand: SlashCommand = {
 
 const saveCommand: SlashCommand = {
   name: 'save',
-  description:
-    'Save the current conversation as a checkpoint. Usage: /chat save <tag>',
+  description: 'Save the current conversation as a checkpoint. Usage: /chat save <tag>',
   kind: CommandKind.BUILT_IN,
   autoExecute: false,
   action: async (context, args): Promise<SlashCommandActionReturn | void> => {
@@ -114,7 +94,7 @@ const saveCommand: SlashCommand = {
             null,
             'A checkpoint with the tag ',
             React.createElement(Text, { color: theme.text.accent }, tag),
-            ' already exists. Do you want to overwrite it?',
+            ' already exists. Do you want to overwrite it?'
           ),
           originalInvocation: {
             raw: context.invocation?.raw || `/chat save ${tag}`,
@@ -139,9 +119,7 @@ const saveCommand: SlashCommand = {
       return {
         type: 'message',
         messageType: 'info',
-        content: `Conversation checkpoint saved with tag: ${decodeTagName(
-          tag,
-        )}.`,
+        content: `Conversation checkpoint saved with tag: ${decodeTagName(tag)}.`,
       };
     } else {
       return {
@@ -156,8 +134,7 @@ const saveCommand: SlashCommand = {
 const resumeCommand: SlashCommand = {
   name: 'resume',
   altNames: ['load'],
-  description:
-    'Resume a conversation from a checkpoint. Usage: /chat resume <tag>',
+  description: 'Resume a conversation from a checkpoint. Usage: /chat resume <tag>',
   kind: CommandKind.BUILT_IN,
   autoExecute: true,
   action: async (context, args) => {
@@ -184,11 +161,7 @@ const resumeCommand: SlashCommand = {
     }
 
     const currentAuthType = config?.getContentGeneratorConfig()?.authType;
-    if (
-      checkpoint.authType &&
-      currentAuthType &&
-      checkpoint.authType !== currentAuthType
-    ) {
+    if (checkpoint.authType && currentAuthType && checkpoint.authType !== currentAuthType) {
       return {
         type: 'message',
         messageType: 'error',
@@ -227,9 +200,7 @@ const resumeCommand: SlashCommand = {
   },
   completion: async (context, partialArg) => {
     const chatDetails = await getSavedChatTags(context, true);
-    return chatDetails
-      .map((chat) => chat.name)
-      .filter((name) => name.startsWith(partialArg));
+    return chatDetails.map((chat) => chat.name).filter((name) => name.startsWith(partialArg));
   },
 };
 
@@ -268,16 +239,13 @@ const deleteCommand: SlashCommand = {
   },
   completion: async (context, partialArg) => {
     const chatDetails = await getSavedChatTags(context, true);
-    return chatDetails
-      .map((chat) => chat.name)
-      .filter((name) => name.startsWith(partialArg));
+    return chatDetails.map((chat) => chat.name).filter((name) => name.startsWith(partialArg));
   },
 };
 
 const shareCommand: SlashCommand = {
   name: 'share',
-  description:
-    'Share the current conversation to a markdown or json file. Usage: /chat share <file>',
+  description: 'Share the current conversation to a markdown or json file. Usage: /chat share <file>',
   kind: CommandKind.BUILT_IN,
   autoExecute: false,
   action: async (context, args): Promise<MessageActionReturn> => {
@@ -356,10 +324,7 @@ export const debugCommand: SlashCommand = {
     const filePath = path.join(process.cwd(), filename);
 
     try {
-      await fsPromises.writeFile(
-        filePath,
-        JSON.stringify(restPayload, null, 2),
-      );
+      await fsPromises.writeFile(filePath, JSON.stringify(restPayload, null, 2));
       return {
         type: 'message',
         messageType: 'info',
@@ -381,11 +346,5 @@ export const chatCommand: SlashCommand = {
   description: 'Manage conversation history',
   kind: CommandKind.BUILT_IN,
   autoExecute: false,
-  subCommands: [
-    listCommand,
-    saveCommand,
-    resumeCommand,
-    deleteCommand,
-    shareCommand,
-  ],
+  subCommands: [listCommand, saveCommand, resumeCommand, deleteCommand, shareCommand],
 };

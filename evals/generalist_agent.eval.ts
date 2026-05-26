@@ -26,10 +26,7 @@ describe('generalist_agent', () => {
     assert: async (rig) => {
       // 1) Verify the generalist agent was invoked
       const foundToolCall = await rig.waitForToolCall('generalist');
-      expect(
-        foundToolCall,
-        'Expected to find a tool call for generalist agent',
-      ).toBeTruthy();
+      expect(foundToolCall, 'Expected to find a tool call for generalist agent').toBeTruthy();
 
       // 2) Verify the file was created as expected
       const filePath = path.join(rig.testDir!, 'generalist_test_file.txt');

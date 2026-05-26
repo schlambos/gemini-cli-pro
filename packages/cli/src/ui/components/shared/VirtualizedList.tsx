@@ -37,16 +37,8 @@ export type VirtualizedListRef<T> = {
   scrollBy: (delta: number) => void;
   scrollTo: (offset: number) => void;
   scrollToEnd: () => void;
-  scrollToIndex: (params: {
-    index: number;
-    viewOffset?: number;
-    viewPosition?: number;
-  }) => void;
-  scrollToItem: (params: {
-    item: T;
-    viewOffset?: number;
-    viewPosition?: number;
-  }) => void;
+  scrollToIndex: (params: { index: number; viewOffset?: number; viewPosition?: number }) => void;
+  scrollToItem: (params: { item: T; viewOffset?: number; viewPosition?: number }) => void;
   getScrollIndex: () => number;
   getScrollState: () => {
     scrollTop: number;
@@ -55,10 +47,7 @@ export type VirtualizedListRef<T> = {
   };
 };
 
-function findLastIndex<T>(
-  array: T[],
-  predicate: (value: T, index: number, obj: T[]) => unknown,
-): number {
+function findLastIndex<T>(array: T[], predicate: (value: T, index: number, obj: T[]) => unknown): number {
   for (let i = array.length - 1; i >= 0; i--) {
     if (predicate(array[i], i, array)) {
       return i;
@@ -67,18 +56,8 @@ function findLastIndex<T>(
   return -1;
 }
 
-function VirtualizedList<T>(
-  props: VirtualizedListProps<T>,
-  ref: React.Ref<VirtualizedListRef<T>>,
-) {
-  const {
-    data,
-    renderItem,
-    estimatedItemHeight,
-    keyExtractor,
-    initialScrollIndex,
-    initialScrollOffsetInIndex,
-  } = props;
+function VirtualizedList<T>(props: VirtualizedListProps<T>, ref: React.Ref<VirtualizedListRef<T>>) {
+  const { data, renderItem, estimatedItemHeight, keyExtractor, initialScrollIndex, initialScrollOffsetInIndex } = props;
   const { copyModeEnabled } = useUIState();
   const dataRef = useRef(data);
   useEffect(() => {
@@ -185,10 +164,7 @@ function VirtualizedList<T>(
     : containerHeight;
 
   const getAnchorForScrollTop = useCallback(
-    (
-      scrollTop: number,
-      offsets: number[],
-    ): { index: number; offset: number } => {
+    (scrollTop: number, offsets: number[]): { index: number; offset: number } => {
       const index = findLastIndex(offsets, (offset) => offset <= scrollTop);
       if (index === -1) {
         return { index: 0, offset: 0 };
@@ -196,7 +172,7 @@ function VirtualizedList<T>(
 
       return { index, offset: scrollTop - offsets[index] };
     },
-    [],
+    []
   );
 
   const scrollTop = useMemo(() => {
@@ -219,11 +195,9 @@ function VirtualizedList<T>(
   const prevContainerHeight = useRef(scrollableContainerHeight);
 
   useLayoutEffect(() => {
-    const contentPreviouslyFit =
-      prevTotalHeight.current <= prevContainerHeight.current;
+    const contentPreviouslyFit = prevTotalHeight.current <= prevContainerHeight.current;
     const wasScrolledToBottomPixels =
-      prevScrollTop.current >=
-      prevTotalHeight.current - prevContainerHeight.current - 1;
+      prevScrollTop.current >= prevTotalHeight.current - prevContainerHeight.current - 1;
     const wasAtBottom = contentPreviouslyFit || wasScrolledToBottomPixels;
 
     // If the user was at the bottom, they are now sticking. This handles
@@ -233,16 +207,12 @@ function VirtualizedList<T>(
     }
 
     const listGrew = data.length > prevDataLength.current;
-    const containerChanged =
-      prevContainerHeight.current !== scrollableContainerHeight;
+    const containerChanged = prevContainerHeight.current !== scrollableContainerHeight;
 
     // We scroll to the end if:
     // 1. The list grew AND we were already at the bottom (or sticking).
     // 2. We are sticking to the bottom AND the container size changed.
-    if (
-      (listGrew && (isStickingToBottom || wasAtBottom)) ||
-      (isStickingToBottom && containerChanged)
-    ) {
+    if ((listGrew && (isStickingToBottom || wasAtBottom)) || (isStickingToBottom && containerChanged)) {
       setScrollAnchor({
         index: data.length > 0 ? data.length - 1 : 0,
         offset: SCROLL_TO_ITEM_END,
@@ -255,8 +225,7 @@ function VirtualizedList<T>(
     // Scenario 2: The list has changed (shrunk) in a way that our
     // current scroll position or anchor is invalid. We should adjust to the bottom.
     else if (
-      (scrollAnchor.index >= data.length ||
-        scrollTop > totalHeight - scrollableContainerHeight) &&
+      (scrollAnchor.index >= data.length || scrollTop > totalHeight - scrollableContainerHeight) &&
       data.length > 0
     ) {
       const newScrollTop = Math.max(0, totalHeight - scrollableContainerHeight);
@@ -283,20 +252,14 @@ function VirtualizedList<T>(
   ]);
 
   useLayoutEffect(() => {
-    if (
-      isInitialScrollSet.current ||
-      offsets.length <= 1 ||
-      totalHeight <= 0 ||
-      containerHeight <= 0
-    ) {
+    if (isInitialScrollSet.current || offsets.length <= 1 || totalHeight <= 0 || containerHeight <= 0) {
       return;
     }
 
     if (typeof initialScrollIndex === 'number') {
       const scrollToEnd =
         initialScrollIndex === SCROLL_TO_ITEM_END ||
-        (initialScrollIndex >= data.length - 1 &&
-          initialScrollOffsetInIndex === SCROLL_TO_ITEM_END);
+        (initialScrollIndex >= data.length - 1 && initialScrollOffsetInIndex === SCROLL_TO_ITEM_END);
 
       if (scrollToEnd) {
         setScrollAnchor({
@@ -312,10 +275,7 @@ function VirtualizedList<T>(
       const offset = initialScrollOffsetInIndex ?? 0;
       const newScrollTop = (offsets[index] ?? 0) + offset;
 
-      const clampedScrollTop = Math.max(
-        0,
-        Math.min(totalHeight - scrollableContainerHeight, newScrollTop),
-      );
+      const clampedScrollTop = Math.max(0, Math.min(totalHeight - scrollableContainerHeight, newScrollTop));
 
       setScrollAnchor(getAnchorForScrollTop(clampedScrollTop, offsets));
       isInitialScrollSet.current = true;
@@ -332,21 +292,12 @@ function VirtualizedList<T>(
     scrollableContainerHeight,
   ]);
 
-  const startIndex = Math.max(
-    0,
-    findLastIndex(offsets, (offset) => offset <= scrollTop) - 1,
-  );
-  const endIndexOffset = offsets.findIndex(
-    (offset) => offset > scrollTop + scrollableContainerHeight,
-  );
-  const endIndex =
-    endIndexOffset === -1
-      ? data.length - 1
-      : Math.min(data.length - 1, endIndexOffset);
+  const startIndex = Math.max(0, findLastIndex(offsets, (offset) => offset <= scrollTop) - 1);
+  const endIndexOffset = offsets.findIndex((offset) => offset > scrollTop + scrollableContainerHeight);
+  const endIndex = endIndexOffset === -1 ? data.length - 1 : Math.min(data.length - 1, endIndexOffset);
 
   const topSpacerHeight = offsets[startIndex] ?? 0;
-  const bottomSpacerHeight =
-    totalHeight - (offsets[endIndex + 1] ?? totalHeight);
+  const bottomSpacerHeight = totalHeight - (offsets[endIndex + 1] ?? totalHeight);
 
   const renderedItems = [];
   for (let i = startIndex; i <= endIndex; i++) {
@@ -355,13 +306,13 @@ function VirtualizedList<T>(
       renderedItems.push(
         <Box
           key={keyExtractor(item, i)}
-          width="100%"
+          width='100%'
           ref={(el) => {
             itemRefs.current[i] = el;
           }}
         >
           {renderItem({ item, index: i })}
-        </Box>,
+        </Box>
       );
     }
   }
@@ -376,22 +327,13 @@ function VirtualizedList<T>(
           setIsStickingToBottom(false);
         }
         const currentScrollTop = getScrollTop();
-        const newScrollTop = Math.max(
-          0,
-          Math.min(
-            totalHeight - scrollableContainerHeight,
-            currentScrollTop + delta,
-          ),
-        );
+        const newScrollTop = Math.max(0, Math.min(totalHeight - scrollableContainerHeight, currentScrollTop + delta));
         setPendingScrollTop(newScrollTop);
         setScrollAnchor(getAnchorForScrollTop(newScrollTop, offsets));
       },
       scrollTo: (offset: number) => {
         setIsStickingToBottom(false);
-        const newScrollTop = Math.max(
-          0,
-          Math.min(totalHeight - scrollableContainerHeight, offset),
-        );
+        const newScrollTop = Math.max(0, Math.min(totalHeight - scrollableContainerHeight, offset));
         setPendingScrollTop(newScrollTop);
         setScrollAnchor(getAnchorForScrollTop(newScrollTop, offsets));
       },
@@ -420,8 +362,8 @@ function VirtualizedList<T>(
             0,
             Math.min(
               totalHeight - scrollableContainerHeight,
-              offset - viewPosition * scrollableContainerHeight + viewOffset,
-            ),
+              offset - viewPosition * scrollableContainerHeight + viewOffset
+            )
           );
           setPendingScrollTop(newScrollTop);
           setScrollAnchor(getAnchorForScrollTop(newScrollTop, offsets));
@@ -445,8 +387,8 @@ function VirtualizedList<T>(
               0,
               Math.min(
                 totalHeight - scrollableContainerHeight,
-                offset - viewPosition * scrollableContainerHeight + viewOffset,
-              ),
+                offset - viewPosition * scrollableContainerHeight + viewOffset
+              )
             );
             setPendingScrollTop(newScrollTop);
             setScrollAnchor(getAnchorForScrollTop(newScrollTop, offsets));
@@ -470,27 +412,22 @@ function VirtualizedList<T>(
       getScrollTop,
       setPendingScrollTop,
       containerHeight,
-    ],
+    ]
   );
 
   return (
     <Box
       ref={containerRef}
       overflowY={copyModeEnabled ? 'hidden' : 'scroll'}
-      overflowX="hidden"
+      overflowX='hidden'
       scrollTop={copyModeEnabled ? 0 : scrollTop}
       scrollbarThumbColor={props.scrollbarThumbColor ?? theme.text.secondary}
-      width="100%"
-      height="100%"
-      flexDirection="column"
+      width='100%'
+      height='100%'
+      flexDirection='column'
       paddingRight={copyModeEnabled ? 0 : 1}
     >
-      <Box
-        flexShrink={0}
-        width="100%"
-        flexDirection="column"
-        marginTop={copyModeEnabled ? -scrollTop : 0}
-      >
+      <Box flexShrink={0} width='100%' flexDirection='column' marginTop={copyModeEnabled ? -scrollTop : 0}>
         <Box height={topSpacerHeight} flexShrink={0} />
         {renderedItems}
         <Box height={bottomSpacerHeight} flexShrink={0} />
@@ -501,7 +438,7 @@ function VirtualizedList<T>(
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 const VirtualizedListWithForwardRef = forwardRef(VirtualizedList) as <T>(
-  props: VirtualizedListProps<T> & { ref?: React.Ref<VirtualizedListRef<T>> },
+  props: VirtualizedListProps<T> & { ref?: React.Ref<VirtualizedListRef<T>> }
 ) => React.ReactElement;
 
 export { VirtualizedListWithForwardRef as VirtualizedList };

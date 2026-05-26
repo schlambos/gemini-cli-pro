@@ -13,9 +13,7 @@ interface ConsoleSummaryDisplayProps {
   // logCount is not currently in the plan to be displayed in summary
 }
 
-export const ConsoleSummaryDisplay: React.FC<ConsoleSummaryDisplayProps> = ({
-  errorCount,
-}) => {
+export const ConsoleSummaryDisplay: React.FC<ConsoleSummaryDisplayProps> = ({ errorCount }) => {
   if (errorCount === 0) {
     return null;
   }

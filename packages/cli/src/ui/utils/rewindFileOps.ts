@@ -4,10 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type {
-  ConversationRecord,
-  MessageRecord,
-} from '@google/gemini-cli-core';
+import type { ConversationRecord, MessageRecord } from '@google/gemini-cli-core';
 import fs from 'node:fs/promises';
 import * as Diff from 'diff';
 import {
@@ -40,7 +37,7 @@ export interface FileChangeStats {
  */
 export function calculateTurnStats(
   conversation: ConversationRecord,
-  userMessage: MessageRecord,
+  userMessage: MessageRecord
 ): FileChangeStats | null {
   const msgIndex = conversation.messages.indexOf(userMessage);
   if (msgIndex === -1) return null;
@@ -90,7 +87,7 @@ export function calculateTurnStats(
  */
 export function calculateRewindImpact(
   conversation: ConversationRecord,
-  userMessage: MessageRecord,
+  userMessage: MessageRecord
 ): FileChangeStats | null {
   const msgIndex = conversation.messages.indexOf(userMessage);
   if (msgIndex === -1) return null;
@@ -146,13 +143,8 @@ export function calculateRewindImpact(
  * @param conversation The full conversation record.
  * @param targetMessageId The ID of the message to revert back to. Changes *after* this message will be undone.
  */
-export async function revertFileChanges(
-  conversation: ConversationRecord,
-  targetMessageId: string,
-): Promise<void> {
-  const messageIndex = conversation.messages.findIndex(
-    (m) => m.id === targetMessageId,
-  );
+export async function revertFileChanges(conversation: ConversationRecord, targetMessageId: string): Promise<void> {
+  const messageIndex = conversation.messages.findIndex((m) => m.id === targetMessageId);
 
   if (messageIndex === -1) {
     debugLogger.error('Requested message to rewind to was not found ');
@@ -167,8 +159,7 @@ export async function revertFileChanges(
         const toolCall = msg.toolCalls[j];
         const fileDiff = getFileDiffFromResultDisplay(toolCall.resultDisplay);
         if (fileDiff) {
-          const { filePath, fileName, newContent, originalContent, isNewFile } =
-            fileDiff;
+          const { filePath, fileName, newContent, originalContent, isNewFile } = fileDiff;
           try {
             let currentContent: string | null = null;
             try {
@@ -179,15 +170,11 @@ export async function revertFileChanges(
               if ('code' in error && error.code === 'ENOENT') {
                 // File does not exist, which is fine in some revert scenarios.
                 debugLogger.debug(
-                  `File ${fileName} not found during revert, proceeding as it may be a new file deletion.`,
+                  `File ${fileName} not found during revert, proceeding as it may be a new file deletion.`
                 );
               } else {
                 // Other read errors are unexpected.
-                coreEvents.emitFeedback(
-                  'error',
-                  `Error reading ${fileName} during revert: ${error.message}`,
-                  e,
-                );
+                coreEvents.emitFeedback('error', `Error reading ${fileName} during revert: ${error.message}`, e);
                 // Continue to next tool call
                 return;
               }
@@ -206,11 +193,7 @@ export async function revertFileChanges(
               const originalText = originalContent ?? '';
 
               // Create a patch that transforms Agent -> Original
-              const undoPatch = Diff.createPatch(
-                fileName,
-                newContent,
-                originalText,
-              );
+              const undoPatch = Diff.createPatch(fileName, newContent, originalText);
 
               // Apply that patch to the Current content
               const patchedContent = Diff.applyPatch(currentContent, undoPatch);
@@ -226,7 +209,7 @@ export async function revertFileChanges(
                 // Patch failed
                 coreEvents.emitFeedback(
                   'warning',
-                  `Smart revert for ${fileName} failed. The file may have been modified in a way that conflicts with the undo operation.`,
+                  `Smart revert for ${fileName} failed. The file may have been modified in a way that conflicts with the undo operation.`
                 );
               }
             } else {
@@ -234,15 +217,11 @@ export async function revertFileChanges(
               // This can happen if a file created by the agent is deleted before rewind.
               coreEvents.emitFeedback(
                 'warning',
-                `Cannot revert changes for ${fileName} because it was not found on disk. This is expected if a file created by the agent was deleted before rewind`,
+                `Cannot revert changes for ${fileName} because it was not found on disk. This is expected if a file created by the agent was deleted before rewind`
               );
             }
           } catch (e) {
-            coreEvents.emitFeedback(
-              'error',
-              `An unexpected error occurred while reverting ${fileName}.`,
-              e,
-            );
+            coreEvents.emitFeedback('error', `An unexpected error occurred while reverting ${fileName}.`, e);
           }
         }
       }

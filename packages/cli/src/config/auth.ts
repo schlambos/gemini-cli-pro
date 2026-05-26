@@ -9,10 +9,7 @@ import { loadEnvironment, loadSettings } from './settings.js';
 
 export function validateAuthMethod(authMethod: string): string | null {
   loadEnvironment(loadSettings().merged, process.cwd());
-  if (
-    authMethod === AuthType.LOGIN_WITH_GOOGLE ||
-    authMethod === AuthType.COMPUTE_ADC
-  ) {
+  if (authMethod === AuthType.LOGIN_WITH_GOOGLE || authMethod === AuthType.COMPUTE_ADC) {
     return null;
   }
 
@@ -28,8 +25,7 @@ export function validateAuthMethod(authMethod: string): string | null {
 
   if (authMethod === AuthType.USE_VERTEX_AI) {
     const hasVertexProjectLocationConfig =
-      !!process.env['GOOGLE_CLOUD_PROJECT'] &&
-      !!process.env['GOOGLE_CLOUD_LOCATION'];
+      !!process.env['GOOGLE_CLOUD_PROJECT'] && !!process.env['GOOGLE_CLOUD_LOCATION'];
     const hasGoogleApiKey = !!process.env['GOOGLE_API_KEY'];
     if (!hasVertexProjectLocationConfig && !hasGoogleApiKey) {
       return (
@@ -46,9 +42,7 @@ export function validateAuthMethod(authMethod: string): string | null {
     // AWS SDK will automatically detect credentials from multiple sources
     // Check if at least one credential source is available
     const hasAwsCredentials =
-      !!process.env['AWS_ACCESS_KEY_ID'] ||
-      !!process.env['AWS_PROFILE'] ||
-      !!process.env['AWS_REGION'];
+      !!process.env['AWS_ACCESS_KEY_ID'] || !!process.env['AWS_PROFILE'] || !!process.env['AWS_REGION'];
 
     if (!hasAwsCredentials) {
       return (

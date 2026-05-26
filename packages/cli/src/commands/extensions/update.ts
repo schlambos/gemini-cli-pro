@@ -42,15 +42,10 @@ export async function handleUpdate(args: UpdateArgs) {
   const extensions = await extensionManager.loadExtensions();
   if (args.name) {
     try {
-      const extension = extensions.find(
-        (extension) => extension.name === args.name,
-      );
+      const extension = extensions.find((extension) => extension.name === args.name);
       if (!extension) {
         if (extensions.length === 0) {
-          coreEvents.emitFeedback(
-            'error',
-            `Extension "${args.name}" not found.\n\nNo extensions installed.`,
-          );
+          coreEvents.emitFeedback('error', `Extension "${args.name}" not found.\n\nNo extensions installed.`);
           return;
         }
 
@@ -59,20 +54,15 @@ export async function handleUpdate(args: UpdateArgs) {
           .join('\n');
         coreEvents.emitFeedback(
           'error',
-          `Extension "${args.name}" not found.\n\nInstalled extensions:\n${installedExtensions}\n\nRun "gemini extensions list" for details.`,
+          `Extension "${args.name}" not found.\n\nInstalled extensions:\n${installedExtensions}\n\nRun "gemini extensions list" for details.`
         );
         return;
       }
       if (!extension.installMetadata) {
-        debugLogger.log(
-          `Unable to install extension "${args.name}" due to missing install metadata`,
-        );
+        debugLogger.log(`Unable to install extension "${args.name}" due to missing install metadata`);
         return;
       }
-      const updateState = await checkForExtensionUpdate(
-        extension,
-        extensionManager,
-      );
+      const updateState = await checkForExtensionUpdate(extension, extensionManager);
       if (updateState !== ExtensionUpdateState.UPDATE_AVAILABLE) {
         debugLogger.log(`Extension "${args.name}" is already up to date.`);
         return;
@@ -82,14 +72,11 @@ export async function handleUpdate(args: UpdateArgs) {
         extensionManager,
         updateState,
         () => {},
-        settings.experimental?.extensionReloading,
+        settings.experimental?.extensionReloading
       ))!;
-      if (
-        updatedExtensionInfo.originalVersion !==
-        updatedExtensionInfo.updatedVersion
-      ) {
+      if (updatedExtensionInfo.originalVersion !== updatedExtensionInfo.updatedVersion) {
         debugLogger.log(
-          `Extension "${args.name}" successfully updated: ${updatedExtensionInfo.originalVersion} → ${updatedExtensionInfo.updatedVersion}.`,
+          `Extension "${args.name}" successfully updated: ${updatedExtensionInfo.originalVersion} → ${updatedExtensionInfo.updatedVersion}.`
         );
       } else {
         debugLogger.log(`Extension "${args.name}" is already up to date.`);
@@ -101,26 +88,15 @@ export async function handleUpdate(args: UpdateArgs) {
   if (args.all) {
     try {
       const extensionState = new Map();
-      await checkForAllExtensionUpdates(
-        extensions,
-        extensionManager,
-        (action) => {
-          if (action.type === 'SET_STATE') {
-            extensionState.set(action.payload.name, {
-              status: action.payload.state,
-            });
-          }
-        },
-      );
-      let updateInfos = await updateAllUpdatableExtensions(
-        extensions,
-        extensionState,
-        extensionManager,
-        () => {},
-      );
-      updateInfos = updateInfos.filter(
-        (info) => info.originalVersion !== info.updatedVersion,
-      );
+      await checkForAllExtensionUpdates(extensions, extensionManager, (action) => {
+        if (action.type === 'SET_STATE') {
+          extensionState.set(action.payload.name, {
+            status: action.payload.state,
+          });
+        }
+      });
+      let updateInfos = await updateAllUpdatableExtensions(extensions, extensionState, extensionManager, () => {});
+      updateInfos = updateInfos.filter((info) => info.originalVersion !== info.updatedVersion);
       if (updateInfos.length === 0) {
         debugLogger.log('No extensions to update.');
         return;
@@ -134,8 +110,7 @@ export async function handleUpdate(args: UpdateArgs) {
 
 export const updateCommand: CommandModule = {
   command: 'update [<name>] [--all]',
-  describe:
-    'Updates all extensions or a named extension to the latest version.',
+  describe: 'Updates all extensions or a named extension to the latest version.',
   builder: (yargs) =>
     yargs
       .positional('name', {

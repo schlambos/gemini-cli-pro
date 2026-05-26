@@ -162,10 +162,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
    * @param request The original request
    * @returns true if error logging should be suppressed, false otherwise
    */
-  protected shouldSuppressErrorLogging(
-    _error: unknown,
-    _request: GenerateContentParameters,
-  ): boolean {
+  protected shouldSuppressErrorLogging(_error: unknown, _request: GenerateContentParameters): boolean {
     return false; // Default behavior: never suppress error logging
   }
 
@@ -181,9 +178,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
     } catch (_e) {
       return false;
     }
-    return (
-      hostname === 'api.openai.com' || hostname === 'dashscope.aliyuncs.com'
-    );
+    return hostname === 'api.openai.com' || hostname === 'dashscope.aliyuncs.com';
   }
 
   /**
@@ -191,9 +186,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
    * @param userPromptId The prompt ID for this request
    * @returns metadata object if should be included, undefined otherwise
    */
-  private buildMetadata(
-    userPromptId: string,
-  ): Record<string, string> | undefined {
+  private buildMetadata(userPromptId: string): Record<string, string> | undefined {
     if (!this.shouldIncludeMetadata()) {
       return undefined;
     }
@@ -210,10 +203,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
   private isTimeoutError(error: unknown): boolean {
     if (!error) return false;
 
-    const errorMessage =
-      error instanceof Error
-        ? error.message.toLowerCase()
-        : String(error).toLowerCase();
+    const errorMessage = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const errorCode = (error as any)?.code;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -240,7 +230,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
   async generateContent(
     request: GenerateContentParameters,
     userPromptId: string,
-    _role?: LlmRole,
+    _role?: LlmRole
   ): Promise<GenerateContentResponse> {
     const startTime = Date.now();
     const messages = this.convertToOpenAIFormat(request);
@@ -253,9 +243,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
       const samplingParams = this.buildSamplingParameters(request);
 
       const metadata = this.buildMetadata(userPromptId);
-      const createParams: Parameters<
-        typeof this.client.chat.completions.create
-      >[0] = {
+      const createParams: Parameters<typeof this.client.chat.completions.create>[0] = {
         model: this.model,
         messages,
         ...samplingParams,
@@ -264,37 +252,24 @@ export class OpenAIContentGenerator implements ContentGenerator {
 
       // Enable store for GPT-5 and GPT-4o models when using metadata
       const modelName = this.model.toLowerCase();
-      if (
-        modelName.includes('gpt-') ||
-        modelName.includes('gpt5') ||
-        modelName.includes('gpt4')
-      ) {
+      if (modelName.includes('gpt-') || modelName.includes('gpt5') || modelName.includes('gpt4')) {
         createParams.store = true;
       }
 
       // Handle JSON schema requests (for generateJson calls)
-      if (
-        request.config?.responseJsonSchema &&
-        request.config?.responseMimeType === 'application/json'
-      ) {
+      if (request.config?.responseJsonSchema && request.config?.responseMimeType === 'application/json') {
         // Convert JSON schema request to tool call (like qwen-code approach)
         const jsonSchemaFunction = {
           type: 'function' as const,
           function: {
             name: 'respond_in_schema',
-            description:
-              'Provide the response in the specified JSON schema format',
-            parameters: request.config.responseJsonSchema as Record<
-              string,
-              unknown
-            >,
+            description: 'Provide the response in the specified JSON schema format',
+            parameters: request.config.responseJsonSchema as Record<string, unknown>,
           },
         };
         createParams.tools = [jsonSchemaFunction];
       } else if (request.config?.tools) {
-        createParams.tools = await this.convertGeminiToolsToOpenAI(
-          request.config.tools,
-        );
+        createParams.tools = await this.convertGeminiToolsToOpenAI(request.config.tools);
       }
 
       // Enable reasoning for Gemini 3 models on OpenRouter
@@ -307,19 +282,13 @@ export class OpenAIContentGenerator implements ContentGenerator {
         };
       }
 
-      const completion = (await this.client.chat.completions.create(
-        createParams,
-      )) as OpenAI.Chat.ChatCompletion;
+      const completion = (await this.client.chat.completions.create(createParams)) as OpenAI.Chat.ChatCompletion;
 
       // Check if this was a JSON schema request
       const isJsonSchemaRequest = !!(
-        request.config?.responseJsonSchema &&
-        request.config?.responseMimeType === 'application/json'
+        request.config?.responseJsonSchema && request.config?.responseMimeType === 'application/json'
       );
-      const response = this.convertToGeminiFormat(
-        completion,
-        isJsonSchemaRequest,
-      );
+      const response = this.convertToGeminiFormat(completion, isJsonSchemaRequest);
       const durationMs = Date.now() - startTime;
 
       // Log API response event for UI telemetry
@@ -335,7 +304,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
           candidates: response.candidates,
         },
         this.config.getContentGeneratorConfig()?.authType,
-        response.usageMetadata,
+        response.usageMetadata
       );
 
       logApiResponse(this.config, responseEvent);
@@ -388,7 +357,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
         {},
         this.config.getContentGeneratorConfig()?.authType,
         estimatedUsage,
-        errorMessage,
+        errorMessage
       );
       logApiResponse(this.config, errorEvent);
 
@@ -406,7 +375,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
             `- Reduce input length or complexity\n` +
             `- Increase timeout in config: contentGenerator.timeout\n` +
             `- Check network connectivity\n` +
-            `- Consider using streaming mode for long responses`,
+            `- Consider using streaming mode for long responses`
         );
       }
 
@@ -417,7 +386,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
   async generateContentStream(
     request: GenerateContentParameters,
     userPromptId: string,
-    _role?: LlmRole,
+    _role?: LlmRole
   ): Promise<AsyncGenerator<GenerateContentResponse>> {
     const startTime = Date.now();
     const messages = this.convertToOpenAIFormat(request);
@@ -427,9 +396,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
       const samplingParams = this.buildSamplingParameters(request);
 
       const metadata = this.buildMetadata(userPromptId);
-      const createParams: Parameters<
-        typeof this.client.chat.completions.create
-      >[0] = {
+      const createParams: Parameters<typeof this.client.chat.completions.create>[0] = {
         model: this.model,
         messages,
         ...samplingParams,
@@ -440,37 +407,24 @@ export class OpenAIContentGenerator implements ContentGenerator {
 
       // Enable store for GPT-5 and GPT-4 models when using metadata
       const modelNameStream = this.model.toLowerCase();
-      if (
-        modelNameStream.includes('gpt-') ||
-        modelNameStream.includes('gpt5') ||
-        modelNameStream.includes('gpt4')
-      ) {
+      if (modelNameStream.includes('gpt-') || modelNameStream.includes('gpt5') || modelNameStream.includes('gpt4')) {
         createParams.store = true;
       }
 
       // Handle JSON schema requests (for generateJson calls) - same as non-streaming
-      if (
-        request.config?.responseJsonSchema &&
-        request.config?.responseMimeType === 'application/json'
-      ) {
+      if (request.config?.responseJsonSchema && request.config?.responseMimeType === 'application/json') {
         // Convert JSON schema request to tool call (like qwen-code approach)
         const jsonSchemaFunction = {
           type: 'function' as const,
           function: {
             name: 'respond_in_schema',
-            description:
-              'Provide the response in the specified JSON schema format',
-            parameters: request.config.responseJsonSchema as Record<
-              string,
-              unknown
-            >,
+            description: 'Provide the response in the specified JSON schema format',
+            parameters: request.config.responseJsonSchema as Record<string, unknown>,
           },
         };
         createParams.tools = [jsonSchemaFunction];
       } else if (request.config?.tools) {
-        createParams.tools = await this.convertGeminiToolsToOpenAI(
-          request.config.tools,
-        );
+        createParams.tools = await this.convertGeminiToolsToOpenAI(request.config.tools);
       }
 
       // Enable reasoning for Gemini 3 models on OpenRouter
@@ -484,13 +438,12 @@ export class OpenAIContentGenerator implements ContentGenerator {
       }
 
       const stream = (await this.client.chat.completions.create(
-        createParams,
+        createParams
       )) as AsyncIterable<OpenAI.Chat.ChatCompletionChunk>;
 
       // Check if this was a JSON schema request
       const isJsonSchemaRequest = !!(
-        request.config?.responseJsonSchema &&
-        request.config?.responseMimeType === 'application/json'
+        request.config?.responseJsonSchema && request.config?.responseMimeType === 'application/json'
       );
       const originalStream = this.streamGenerator(stream, isJsonSchemaRequest);
 
@@ -524,7 +477,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
             },
             {},
             this.config.getContentGeneratorConfig()?.authType,
-            finalUsageMetadata,
+            finalUsageMetadata
           );
 
           logApiResponse(this.config, responseEvent);
@@ -574,7 +527,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
             {},
             this.config.getContentGeneratorConfig()?.authType,
             estimatedUsage,
-            errorMessage,
+            errorMessage
           );
           logApiResponse(this.config, errorEvent);
 
@@ -585,7 +538,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
                 `- Reduce input length or complexity\n` +
                 `- Increase timeout in config: contentGenerator.timeout\n` +
                 `- Check network stability for streaming connections\n` +
-                `- Consider using non-streaming mode for very long inputs`,
+                `- Consider using non-streaming mode for very long inputs`
             );
           }
 
@@ -640,7 +593,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
         {},
         this.config.getContentGeneratorConfig()?.authType,
         estimatedUsage,
-        errorMessage,
+        errorMessage
       );
       logApiResponse(this.config, errorEvent);
 
@@ -656,7 +609,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
             `- Reduce input length or complexity\n` +
             `- Increase timeout in config: contentGenerator.timeout\n` +
             `- Check network connectivity and firewall settings\n` +
-            `- Consider using non-streaming mode for very long inputs`,
+            `- Consider using non-streaming mode for very long inputs`
         );
       }
 
@@ -666,7 +619,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
 
   private async *streamGenerator(
     stream: AsyncIterable<OpenAI.Chat.ChatCompletionChunk>,
-    isJsonSchemaRequest: boolean = false,
+    isJsonSchemaRequest: boolean = false
   ): AsyncGenerator<GenerateContentResponse> {
     // Reset the accumulators for each new stream
     this.streamingToolCalls.clear();
@@ -684,9 +637,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
   /**
    * Combine streaming responses for logging purposes
    */
-  private combineStreamResponsesForLogging(
-    responses: GenerateContentResponse[],
-  ): GenerateContentResponse {
+  private combineStreamResponsesForLogging(responses: GenerateContentResponse[]): GenerateContentResponse {
     if (responses.length === 0) {
       return new GenerateContentResponse();
     }
@@ -733,8 +684,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
           role: 'model' as const,
         },
         finishReason:
-          responses[responses.length - 1]?.candidates?.[0]?.finishReason ||
-          FinishReason.FINISH_REASON_UNSPECIFIED,
+          responses[responses.length - 1]?.candidates?.[0]?.finishReason || FinishReason.FINISH_REASON_UNSPECIFIED,
         index: 0,
         safetyRatings: [],
       },
@@ -748,9 +698,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
     return combinedResponse;
   }
 
-  async countTokens(
-    request: CountTokensParameters,
-  ): Promise<CountTokensResponse> {
+  async countTokens(request: CountTokensParameters): Promise<CountTokensResponse> {
     // Use tiktoken for accurate token counting
     const content = JSON.stringify(request.contents);
     let totalTokens = 0;
@@ -761,10 +709,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
       totalTokens = encoding.encode(content).length;
       encoding.free();
     } catch (error) {
-      console.warn(
-        'Failed to load tiktoken, falling back to character approximation:',
-        error,
-      );
+      console.warn('Failed to load tiktoken, falling back to character approximation:', error);
       // Fallback: rough approximation using character count
       totalTokens = Math.ceil(content.length / 4); // Rough estimate: 1 token ≈ 4 characters
     }
@@ -774,9 +719,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
     };
   }
 
-  async embedContent(
-    request: EmbedContentParameters,
-  ): Promise<EmbedContentResponse> {
+  async embedContent(request: EmbedContentParameters): Promise<EmbedContentResponse> {
     // Extract text from contents
     let text = '';
     if (Array.isArray(request.contents)) {
@@ -786,11 +729,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
           if ('parts' in content && content.parts) {
             return content.parts
               .map((part) =>
-                typeof part === 'string'
-                  ? part
-                  : 'text' in part
-                    ? (part as { text?: string }).text || ''
-                    : '',
+                typeof part === 'string' ? part : 'text' in part ? (part as { text?: string }).text || '' : ''
               )
               .join(' ');
           }
@@ -802,9 +741,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
         text = request.contents;
       } else if ('parts' in request.contents && request.contents.parts) {
         text = request.contents.parts
-          .map((part: Part) =>
-            typeof part === 'string' ? part : 'text' in part ? part.text : '',
-          )
+          .map((part: Part) => (typeof part === 'string' ? part : 'text' in part ? part.text : ''))
           .join(' ');
       }
     }
@@ -824,15 +761,11 @@ export class OpenAIContentGenerator implements ContentGenerator {
       };
     } catch (error) {
       console.error('OpenAI API Embedding Error:', error);
-      throw new Error(
-        `OpenAI API error: ${error instanceof Error ? error.message : String(error)}`,
-      );
+      throw new Error(`OpenAI API error: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
-  private convertGeminiParametersToOpenAI(
-    parameters: Record<string, unknown>,
-  ): Record<string, unknown> {
+  private convertGeminiParametersToOpenAI(parameters: Record<string, unknown>): Record<string, unknown> {
     // DeepSeek and some other OpenAI-compatible APIs require type: 'object'
     // They don't accept null or undefined parameters
     if (!parameters || typeof parameters !== 'object') {
@@ -862,12 +795,8 @@ export class OpenAIContentGenerator implements ContentGenerator {
             // Handle array types like ["object", "null"] - extract the primary type
             // OpenAI 不接受数组类型，只接受单一字符串类型
             // OpenAI doesn't accept array types, only single string types
-            const primaryType = value.find(
-              (t) => typeof t === 'string' && t.toLowerCase() !== 'null',
-            );
-            result[key] = primaryType
-              ? String(primaryType).toLowerCase()
-              : 'object';
+            const primaryType = value.find((t) => typeof t === 'string' && t.toLowerCase() !== 'null');
+            result[key] = primaryType ? String(primaryType).toLowerCase() : 'object';
           } else if (typeof value === 'string') {
             // 将 Gemini 类型转换为 OpenAI JSON Schema 类型
             // Convert Gemini types to OpenAI JSON Schema types
@@ -882,23 +811,14 @@ export class OpenAIContentGenerator implements ContentGenerator {
           } else {
             result[key] = value;
           }
-        } else if (
-          key === 'minimum' ||
-          key === 'maximum' ||
-          key === 'multipleOf'
-        ) {
+        } else if (key === 'minimum' || key === 'maximum' || key === 'multipleOf') {
           // Ensure numeric constraints are actual numbers, not strings
           if (typeof value === 'string' && !isNaN(Number(value))) {
             result[key] = Number(value);
           } else {
             result[key] = value;
           }
-        } else if (
-          key === 'minLength' ||
-          key === 'maxLength' ||
-          key === 'minItems' ||
-          key === 'maxItems'
-        ) {
+        } else if (key === 'minLength' || key === 'maxLength' || key === 'minItems' || key === 'maxItems') {
           // Ensure length constraints are integers, not strings
           if (typeof value === 'string' && !isNaN(Number(value))) {
             result[key] = parseInt(value, 10);
@@ -924,11 +844,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
 
     // Final safety check: ensure root level has type: 'object'
     // Some tools might have type as array like ["object", "null"] which OpenAI doesn't accept
-    if (
-      !result['type'] ||
-      result['type'] === null ||
-      Array.isArray(result['type'])
-    ) {
+    if (!result['type'] || result['type'] === null || Array.isArray(result['type'])) {
       result['type'] = 'object';
     }
     // Ensure type is lowercase string 'object' (not 'OBJECT' or other variations)
@@ -945,19 +861,14 @@ export class OpenAIContentGenerator implements ContentGenerator {
     return result;
   }
 
-  private async convertGeminiToolsToOpenAI(
-    geminiTools: ToolListUnion,
-  ): Promise<OpenAI.Chat.ChatCompletionTool[]> {
+  private async convertGeminiToolsToOpenAI(geminiTools: ToolListUnion): Promise<OpenAI.Chat.ChatCompletionTool[]> {
     const openAITools: OpenAI.Chat.ChatCompletionTool[] = [];
 
     for (const tool of geminiTools) {
       let actualTool: Tool;
 
       // Handle CallableTool vs Tool (callable tools expose an async tool() factory)
-      if (
-        'tool' in tool &&
-        typeof (tool as { tool?: unknown }).tool === 'function'
-      ) {
+      if ('tool' in tool && typeof (tool as { tool?: unknown }).tool === 'function') {
         actualTool = await (tool as { tool: () => Promise<Tool> }).tool();
       } else {
         actualTool = tool as Tool;
@@ -973,7 +884,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
                 description: func.description,
                 // Support both Gemini-native `parameters` and core `parametersJsonSchema` (from zodToJsonSchema)
                 parameters: this.convertGeminiParametersToOpenAI(
-                  (func.parameters || func.parametersJsonSchema || {}) as Record<string, unknown>,
+                  (func.parameters || func.parametersJsonSchema || {}) as Record<string, unknown>
                 ),
               },
             });
@@ -989,9 +900,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
     return openAITools;
   }
 
-  private convertToOpenAIFormat(
-    request: GenerateContentParameters,
-  ): OpenAI.Chat.ChatCompletionMessageParam[] {
+  private convertToOpenAIFormat(request: GenerateContentParameters): OpenAI.Chat.ChatCompletionMessageParam[] {
     const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [];
 
     // Handle system instruction from config
@@ -1007,9 +916,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
               const contentObj = content as Content;
               return (
                 contentObj.parts
-                  ?.map((p: Part) =>
-                    typeof p === 'string' ? p : 'text' in p ? p.text : '',
-                  )
+                  ?.map((p: Part) => (typeof p === 'string' ? p : 'text' in p ? p.text : ''))
                   .join('\n') || ''
               );
             }
@@ -1018,17 +925,11 @@ export class OpenAIContentGenerator implements ContentGenerator {
           .join('\n');
       } else if (typeof systemInstruction === 'string') {
         systemText = systemInstruction;
-      } else if (
-        typeof systemInstruction === 'object' &&
-        'parts' in systemInstruction
-      ) {
+      } else if (typeof systemInstruction === 'object' && 'parts' in systemInstruction) {
         const systemContent = systemInstruction;
         systemText =
-          systemContent.parts
-            ?.map((p: Part) =>
-              typeof p === 'string' ? p : 'text' in p ? p.text : '',
-            )
-            .join('\n') || '';
+          systemContent.parts?.map((p: Part) => (typeof p === 'string' ? p : 'text' in p ? p.text : '')).join('\n') ||
+          '';
       }
 
       if (systemText) {
@@ -1060,22 +961,15 @@ export class OpenAIContentGenerator implements ContentGenerator {
               }
             } else if ('text' in part && part.text) {
               // Check for special reasoning_details marker (OpenRouter reasoning models)
-              if (
-                part.thought &&
-                part.text.startsWith(REASONING_DETAILS_MARKER)
-              ) {
+              if (part.thought && part.text.startsWith(REASONING_DETAILS_MARKER)) {
                 try {
-                  reasoningDetails = JSON.parse(
-                    part.text.slice(REASONING_DETAILS_MARKER.length),
-                  );
+                  reasoningDetails = JSON.parse(part.text.slice(REASONING_DETAILS_MARKER.length));
                 } catch {
                   // Invalid JSON, ignore
                 }
               } else if (!part.thought) {
                 // Only include non-thought text parts, filter out any leaked markers
-                const cleanedText = this.filterReasoningDetailsMarker(
-                  part.text,
-                );
+                const cleanedText = this.filterReasoningDetailsMarker(part.text);
                 if (cleanedText) {
                   textParts.push(cleanedText);
                 }
@@ -1134,16 +1028,11 @@ export class OpenAIContentGenerator implements ContentGenerator {
             if (reasoningDetails && this.isOpenRouter) {
               assistantMessage.reasoning_details = reasoningDetails;
             }
-            messages.push(
-              assistantMessage as OpenAI.Chat.ChatCompletionMessageParam,
-            );
+            messages.push(assistantMessage as OpenAI.Chat.ChatCompletionMessageParam);
           }
           // Handle regular text messages
           else {
-            const role =
-              content.role === 'model'
-                ? ('assistant' as const)
-                : ('user' as const);
+            const role = content.role === 'model' ? ('assistant' as const) : ('user' as const);
             const text = textParts.join('\n');
             if (text) {
               const message: OpenAI.Chat.ChatCompletionMessageParam & {
@@ -1151,11 +1040,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
               } = { role, content: text };
               // Add reasoning_details only for OpenRouter reasoning models
               // Other providers (MiniMax, DeepSeek, etc.) don't accept this field and return 400
-              if (
-                role === 'assistant' &&
-                reasoningDetails &&
-                this.isOpenRouter
-              ) {
+              if (role === 'assistant' && reasoningDetails && this.isOpenRouter) {
                 message.reasoning_details = reasoningDetails;
               }
               messages.push(message as OpenAI.Chat.ChatCompletionMessageParam);
@@ -1165,22 +1050,15 @@ export class OpenAIContentGenerator implements ContentGenerator {
       }
     } else if (request.contents) {
       if (typeof request.contents === 'string') {
-        const cleanedContent = this.filterReasoningDetailsMarker(
-          request.contents,
-        );
+        const cleanedContent = this.filterReasoningDetailsMarker(request.contents);
         if (cleanedContent) {
           messages.push({ role: 'user' as const, content: cleanedContent });
         }
       } else if ('role' in request.contents && 'parts' in request.contents) {
         const content = request.contents;
-        const role =
-          content.role === 'model' ? ('assistant' as const) : ('user' as const);
+        const role = content.role === 'model' ? ('assistant' as const) : ('user' as const);
         const text =
-          content.parts
-            ?.map((p: Part) =>
-              typeof p === 'string' ? p : 'text' in p ? p.text : '',
-            )
-            .join('\n') || '';
+          content.parts?.map((p: Part) => (typeof p === 'string' ? p : 'text' in p ? p.text : '')).join('\n') || '';
         const cleanedText = this.filterReasoningDetailsMarker(text);
         if (cleanedText) {
           messages.push({ role, content: cleanedText });
@@ -1190,10 +1068,8 @@ export class OpenAIContentGenerator implements ContentGenerator {
 
     // Clean up orphaned tool calls, fix ordering, and merge consecutive assistant messages
     const cleanedMessages = this.cleanOrphanedToolCalls(messages);
-    const reorderedMessages =
-      this.ensureToolResponseOrdering(cleanedMessages);
-    const mergedMessages =
-      this.mergeConsecutiveAssistantMessages(reorderedMessages);
+    const reorderedMessages = this.ensureToolResponseOrdering(cleanedMessages);
+    const mergedMessages = this.mergeConsecutiveAssistantMessages(reorderedMessages);
 
     // Add reasoning_content to all assistant messages unconditionally.
     // Thinking-enabled models (DeepSeek Reasoner, Kimi K2.5, etc.) require this field;
@@ -1230,9 +1106,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
     }
 
     // thoughtSignature can be an array of signature objects or a single object
-    const signatures = Array.isArray(thoughtSignature)
-      ? thoughtSignature
-      : [thoughtSignature];
+    const signatures = Array.isArray(thoughtSignature) ? thoughtSignature : [thoughtSignature];
 
     for (const sig of signatures) {
       if (typeof sig !== 'object' || sig === null) {
@@ -1259,17 +1133,13 @@ export class OpenAIContentGenerator implements ContentGenerator {
       // Additional check: valid data should start with certain prefixes (Ci, Ev, etc.)
       // which are common in Google's encrypted reasoning data
       const validPrefixes = ['Ci', 'Ev', 'Ch', 'Co'];
-      const hasValidPrefix = validPrefixes.some((prefix) =>
-        data.startsWith(prefix),
-      );
+      const hasValidPrefix = validPrefixes.some((prefix) => data.startsWith(prefix));
 
       if (!hasValidPrefix) {
         // Check if it looks like a base64-encoded UUID (starts with ZT, ND, etc.)
         // These are typically invalid
         const uuidBase64Prefixes = ['ZT', 'ND', 'MW', 'Yz', 'OD'];
-        const looksLikeUuid = uuidBase64Prefixes.some((prefix) =>
-          data.startsWith(prefix),
-        );
+        const looksLikeUuid = uuidBase64Prefixes.some((prefix) => data.startsWith(prefix));
 
         if (looksLikeUuid && data.length < 100) {
           return false;
@@ -1287,13 +1157,12 @@ export class OpenAIContentGenerator implements ContentGenerator {
    * We use the stored history when available, falling back to empty string.
    */
   private addReasoningContentToAssistantMessages(
-    messages: OpenAI.Chat.ChatCompletionMessageParam[],
+    messages: OpenAI.Chat.ChatCompletionMessageParam[]
   ): OpenAI.Chat.ChatCompletionMessageParam[] {
     let assistantIndex = 0;
     return messages.map((message) => {
       if (message.role === 'assistant') {
-        const reasoningContent =
-          this.reasoningContentHistory[assistantIndex] ?? '';
+        const reasoningContent = this.reasoningContentHistory[assistantIndex] ?? '';
         assistantIndex++;
         return {
           ...message,
@@ -1318,9 +1187,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
     }
     // Remove lines containing the marker (typically: "Assistant: __OPENROUTER_REASONING_DETAILS__:[...]")
     const lines = text.split('\n');
-    const filteredLines = lines.filter(
-      (line) => !line.includes(REASONING_DETAILS_MARKER),
-    );
+    const filteredLines = lines.filter((line) => !line.includes(REASONING_DETAILS_MARKER));
     return filteredLines.join('\n').trim();
   }
 
@@ -1333,7 +1200,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
    * from providers that don't accept duplicate responses for the same tool call.
    */
   private cleanOrphanedToolCalls(
-    messages: OpenAI.Chat.ChatCompletionMessageParam[],
+    messages: OpenAI.Chat.ChatCompletionMessageParam[]
   ): OpenAI.Chat.ChatCompletionMessageParam[] {
     const cleaned: OpenAI.Chat.ChatCompletionMessageParam[] = [];
     const toolCallIds = new Set<string>();
@@ -1345,21 +1212,13 @@ export class OpenAIContentGenerator implements ContentGenerator {
     // 第一遍：收集所有工具调用 ID 和工具响应 ID
     // First pass: collect all tool call IDs and tool response IDs
     for (const message of messages) {
-      if (
-        message.role === 'assistant' &&
-        'tool_calls' in message &&
-        message.tool_calls
-      ) {
+      if (message.role === 'assistant' && 'tool_calls' in message && message.tool_calls) {
         for (const toolCall of message.tool_calls) {
           if (toolCall.id) {
             toolCallIds.add(toolCall.id);
           }
         }
-      } else if (
-        message.role === 'tool' &&
-        'tool_call_id' in message &&
-        message.tool_call_id
-      ) {
+      } else if (message.role === 'tool' && 'tool_call_id' in message && message.tool_call_id) {
         toolResponseIds.add(message.tool_call_id);
       }
     }
@@ -1367,16 +1226,10 @@ export class OpenAIContentGenerator implements ContentGenerator {
     // 第二遍：过滤孤立消息并对工具响应去重
     // Second pass: filter out orphaned messages and deduplicate tool responses
     for (const message of messages) {
-      if (
-        message.role === 'assistant' &&
-        'tool_calls' in message &&
-        message.tool_calls
-      ) {
+      if (message.role === 'assistant' && 'tool_calls' in message && message.tool_calls) {
         // 过滤掉没有对应响应的工具调用
         // Filter out tool calls that don't have corresponding responses
-        const validToolCalls = message.tool_calls.filter(
-          (toolCall) => toolCall.id && toolResponseIds.has(toolCall.id),
-        );
+        const validToolCalls = message.tool_calls.filter((toolCall) => toolCall.id && toolResponseIds.has(toolCall.id));
 
         if (validToolCalls.length > 0) {
           // 保留消息，但只包含有效的工具调用
@@ -1388,10 +1241,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
             }
           ).tool_calls = validToolCalls;
           cleaned.push(cleanedMessage);
-        } else if (
-          typeof message.content === 'string' &&
-          message.content.trim()
-        ) {
+        } else if (typeof message.content === 'string' && message.content.trim()) {
           // 如果消息有文本内容，保留消息但移除工具调用
           // Keep the message if it has text content, but remove tool calls
           const cleanedMessage = { ...message };
@@ -1404,18 +1254,11 @@ export class OpenAIContentGenerator implements ContentGenerator {
         }
         // 如果没有有效的工具调用且没有内容，则完全跳过该消息
         // If no valid tool calls and no content, skip the message entirely
-      } else if (
-        message.role === 'tool' &&
-        'tool_call_id' in message &&
-        message.tool_call_id
-      ) {
+      } else if (message.role === 'tool' && 'tool_call_id' in message && message.tool_call_id) {
         // 只保留有对应工具调用的工具响应，并跳过重复项（相同的 tool_call_id 已添加）
         // Only keep tool responses that have corresponding tool calls
         // AND skip duplicates (same tool_call_id already added)
-        if (
-          toolCallIds.has(message.tool_call_id) &&
-          !addedToolResponseIds.has(message.tool_call_id)
-        ) {
+        if (toolCallIds.has(message.tool_call_id) && !addedToolResponseIds.has(message.tool_call_id)) {
           cleaned.push(message);
           addedToolResponseIds.add(message.tool_call_id);
         }
@@ -1432,11 +1275,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
 
     // Collect all remaining tool call IDs
     for (const message of cleaned) {
-      if (
-        message.role === 'assistant' &&
-        'tool_calls' in message &&
-        message.tool_calls
-      ) {
+      if (message.role === 'assistant' && 'tool_calls' in message && message.tool_calls) {
         for (const toolCall of message.tool_calls) {
           if (toolCall.id) {
             finalToolCallIds.add(toolCall.id);
@@ -1448,24 +1287,16 @@ export class OpenAIContentGenerator implements ContentGenerator {
     // Verify all tool calls have responses
     const finalToolResponseIds = new Set<string>();
     for (const message of cleaned) {
-      if (
-        message.role === 'tool' &&
-        'tool_call_id' in message &&
-        message.tool_call_id
-      ) {
+      if (message.role === 'tool' && 'tool_call_id' in message && message.tool_call_id) {
         finalToolResponseIds.add(message.tool_call_id);
       }
     }
 
     // Remove any remaining orphaned tool calls
     for (const message of cleaned) {
-      if (
-        message.role === 'assistant' &&
-        'tool_calls' in message &&
-        message.tool_calls
-      ) {
+      if (message.role === 'assistant' && 'tool_calls' in message && message.tool_calls) {
         const finalValidToolCalls = message.tool_calls.filter(
-          (toolCall) => toolCall.id && finalToolResponseIds.has(toolCall.id),
+          (toolCall) => toolCall.id && finalToolResponseIds.has(toolCall.id)
         );
 
         if (finalValidToolCalls.length > 0) {
@@ -1476,10 +1307,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
             }
           ).tool_calls = finalValidToolCalls;
           finalCleaned.push(cleanedMessage);
-        } else if (
-          typeof message.content === 'string' &&
-          message.content.trim()
-        ) {
+        } else if (typeof message.content === 'string' && message.content.trim()) {
           const cleanedMessage = { ...message };
           delete (
             cleanedMessage as OpenAI.Chat.ChatCompletionMessageParam & {
@@ -1507,13 +1335,10 @@ export class OpenAIContentGenerator implements ContentGenerator {
    * tool_calls to be followed immediately by tool messages for each call id.
    */
   private ensureToolResponseOrdering(
-    messages: OpenAI.Chat.ChatCompletionMessageParam[],
+    messages: OpenAI.Chat.ChatCompletionMessageParam[]
   ): OpenAI.Chat.ChatCompletionMessageParam[] {
     // Build a map: tool_call_id → tool message (first occurrence wins)
-    const toolResponseByCallId = new Map<
-      string,
-      OpenAI.Chat.ChatCompletionMessageParam
-    >();
+    const toolResponseByCallId = new Map<string, OpenAI.Chat.ChatCompletionMessageParam>();
     for (const msg of messages) {
       if (msg.role === 'tool' && 'tool_call_id' in msg && msg.tool_call_id) {
         if (!toolResponseByCallId.has(msg.tool_call_id)) {
@@ -1565,7 +1390,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
    * Merge consecutive assistant messages to combine split text and tool calls
    */
   private mergeConsecutiveAssistantMessages(
-    messages: OpenAI.Chat.ChatCompletionMessageParam[],
+    messages: OpenAI.Chat.ChatCompletionMessageParam[]
   ): OpenAI.Chat.ChatCompletionMessageParam[] {
     const merged: OpenAI.Chat.ChatCompletionMessageParam[] = [];
 
@@ -1584,10 +1409,8 @@ export class OpenAIContentGenerator implements ContentGenerator {
             .join('');
 
           // Combine tool calls
-          const lastToolCalls =
-            'tool_calls' in lastMessage ? lastMessage.tool_calls || [] : [];
-          const currentToolCalls =
-            'tool_calls' in message ? message.tool_calls || [] : [];
+          const lastToolCalls = 'tool_calls' in lastMessage ? lastMessage.tool_calls || [] : [];
+          const currentToolCalls = 'tool_calls' in message ? message.tool_calls || [] : [];
           const combinedToolCalls = [...lastToolCalls, ...currentToolCalls];
 
           // Update the last message with combined data
@@ -1619,7 +1442,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
 
   private convertToGeminiFormat(
     openaiResponse: OpenAI.Chat.ChatCompletion,
-    isJsonSchemaRequest: boolean = false,
+    isJsonSchemaRequest: boolean = false
   ): GenerateContentResponse {
     const choice = openaiResponse.choices[0];
     const response = new GenerateContentResponse();
@@ -1634,11 +1457,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
     // Capture reasoning_content from non-streaming responses
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const messageReasoningContent = (choice.message as any)?.reasoning_content;
-    this.reasoningContentHistory.push(
-      typeof messageReasoningContent === 'string'
-        ? messageReasoningContent
-        : '',
-    );
+    this.reasoningContentHistory.push(typeof messageReasoningContent === 'string' ? messageReasoningContent : '');
 
     // Handle tool calls
     if (choice.message.tool_calls) {
@@ -1650,10 +1469,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
           }
 
           // Special handling for JSON schema requests (like qwen-code)
-          if (
-            isJsonSchemaRequest &&
-            toolCall.function.name === 'respond_in_schema'
-          ) {
+          if (isJsonSchemaRequest && toolCall.function.name === 'respond_in_schema') {
             // Convert the function call result to a text response (simulate Gemini's JSON response)
             parts.push({ text: JSON.stringify(args) });
           } else {
@@ -1673,9 +1489,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const toolCallAny = toolCall as any;
             const thoughtSig =
-              toolCallAny.thought_signature ||
-              toolCallAny.thoughtSignature ||
-              toolCallAny.function?.thought_signature;
+              toolCallAny.thought_signature || toolCallAny.thoughtSignature || toolCallAny.function?.thought_signature;
             if (thoughtSig && this.isValidThoughtSignature(thoughtSig)) {
               functionCallPart.thoughtSignature = thoughtSig;
             }
@@ -1691,15 +1505,10 @@ export class OpenAIContentGenerator implements ContentGenerator {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const messageReasoningDetails = (choice.message as any)?.reasoning_details;
     // Validate reasoning_details before attaching to prevent "Corrupted thought signature" errors
-    if (
-      messageReasoningDetails &&
-      this.isValidThoughtSignature(messageReasoningDetails)
-    ) {
+    if (messageReasoningDetails && this.isValidThoughtSignature(messageReasoningDetails)) {
       // Attach reasoning_details to the FIRST functionCall Part as thoughtSignature
       // This is required for Gemini API to process tool calls correctly
-      const firstFunctionCallPart = parts.find(
-        (p) => 'functionCall' in p,
-      ) as Part & { thoughtSignature?: unknown };
+      const firstFunctionCallPart = parts.find((p) => 'functionCall' in p) as Part & { thoughtSignature?: unknown };
       if (firstFunctionCallPart && !firstFunctionCallPart.thoughtSignature) {
         firstFunctionCallPart.thoughtSignature = messageReasoningDetails;
       }
@@ -1708,9 +1517,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
     }
 
     response.responseId = openaiResponse.id;
-    response.createTime = openaiResponse.created
-      ? openaiResponse.created.toString()
-      : new Date().getTime().toString();
+    response.createTime = openaiResponse.created ? openaiResponse.created.toString() : new Date().getTime().toString();
 
     response.candidates = [
       {
@@ -1760,7 +1567,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
 
   private convertStreamChunkToGeminiFormat(
     chunk: OpenAI.Chat.ChatCompletionChunk,
-    isJsonSchemaRequest: boolean = false,
+    isJsonSchemaRequest: boolean = false
   ): GenerateContentResponse {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const chunkAny = chunk as any;
@@ -1780,14 +1587,9 @@ export class OpenAIContentGenerator implements ContentGenerator {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const choiceAny = choice as any;
       const deltaReasoningDetails =
-        choiceAny.delta?.reasoning_details ||
-        choiceAny.reasoning_details ||
-        chunkAny.reasoning_details;
+        choiceAny.delta?.reasoning_details || choiceAny.reasoning_details || chunkAny.reasoning_details;
       // Validate reasoning_details before storing to prevent corrupted data propagation
-      if (
-        deltaReasoningDetails &&
-        this.isValidThoughtSignature(deltaReasoningDetails)
-      ) {
+      if (deltaReasoningDetails && this.isValidThoughtSignature(deltaReasoningDetails)) {
         this.streamingReasoningDetails = deltaReasoningDetails;
       }
 
@@ -1825,8 +1627,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
           if (toolCallAny.thought_signature) {
             accumulatedCall.thought_signature = toolCallAny.thought_signature;
           } else if (toolCallAny.function?.thought_signature) {
-            accumulatedCall.thought_signature =
-              toolCallAny.function.thought_signature;
+            accumulatedCall.thought_signature = toolCallAny.function.thought_signature;
           }
         }
       }
@@ -1843,10 +1644,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
             }
 
             // Special handling for JSON schema requests (like qwen-code)
-            if (
-              isJsonSchemaRequest &&
-              accumulatedCall.name === 'respond_in_schema'
-            ) {
+            if (isJsonSchemaRequest && accumulatedCall.name === 'respond_in_schema') {
               // Convert the function call result to a text response (simulate Gemini's JSON response)
               parts.push({ text: JSON.stringify(args) });
             } else {
@@ -1868,16 +1666,11 @@ export class OpenAIContentGenerator implements ContentGenerator {
                 accumulatedCall.thought_signature &&
                 this.isValidThoughtSignature(accumulatedCall.thought_signature)
               ) {
-                functionCallPart.thoughtSignature =
-                  accumulatedCall.thought_signature;
-              } else if (
-                this.streamingReasoningDetails &&
-                parts.filter((p) => 'functionCall' in p).length === 0
-              ) {
+                functionCallPart.thoughtSignature = accumulatedCall.thought_signature;
+              } else if (this.streamingReasoningDetails && parts.filter((p) => 'functionCall' in p).length === 0) {
                 // Only attach to the first functionCall (for parallel calls)
                 // Note: streamingReasoningDetails is already validated when stored
-                functionCallPart.thoughtSignature =
-                  this.streamingReasoningDetails;
+                functionCallPart.thoughtSignature = this.streamingReasoningDetails;
               }
               parts.push(functionCallPart);
             }
@@ -1910,9 +1703,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
     }
 
     response.responseId = chunk.id;
-    response.createTime = chunk.created
-      ? chunk.created.toString()
-      : new Date().getTime().toString();
+    response.createTime = chunk.created ? chunk.created.toString() : new Date().getTime().toString();
 
     response.modelVersion = this.model;
     response.promptFeedback = { safetyRatings: [] };
@@ -1954,11 +1745,8 @@ export class OpenAIContentGenerator implements ContentGenerator {
    * 2. Request-level parameters (medium priority)
    * 3. Default values (lowest priority)
    */
-  private buildSamplingParameters(
-    request: GenerateContentParameters,
-  ): Record<string, unknown> {
-    const configSamplingParams =
-      this.config.getContentGeneratorConfig()?.samplingParams;
+  private buildSamplingParameters(request: GenerateContentParameters): Record<string, unknown> {
+    const configSamplingParams = this.config.getContentGeneratorConfig()?.samplingParams;
 
     const params = {
       // Temperature: config > request > default
@@ -1985,9 +1773,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
             : 1.0,
 
       // Top-k: config only (not available in request)
-      ...(configSamplingParams?.top_k !== undefined
-        ? { top_k: configSamplingParams.top_k }
-        : {}),
+      ...(configSamplingParams?.top_k !== undefined ? { top_k: configSamplingParams.top_k } : {}),
 
       // Repetition penalty: config only
       ...(configSamplingParams?.repetition_penalty !== undefined
@@ -2009,9 +1795,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
     // Some OpenAI-compatible gateways reject any temperature value other than 1 with
     // `400 invalid temperature: only 1 is allowed for this model`.
     const modelName = this.model.toLowerCase();
-    const isKimiModel =
-      modelName.includes('kimi-k2.5') ||
-      (modelName.includes('kimi') && modelName.includes('k2.5'));
+    const isKimiModel = modelName.includes('kimi-k2.5') || (modelName.includes('kimi') && modelName.includes('k2.5'));
     const isRestrictedModel =
       modelName.includes('gpt-5') ||
       modelName.includes('gpt5') ||
@@ -2046,9 +1830,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
   /**
    * Convert Gemini request format to OpenAI chat completion format for logging
    */
-  private async convertGeminiRequestToOpenAI(
-    request: GenerateContentParameters,
-  ): Promise<OpenAIRequestFormat> {
+  private async convertGeminiRequestToOpenAI(request: GenerateContentParameters): Promise<OpenAIRequestFormat> {
     const messages: OpenAIMessage[] = [];
 
     // Handle system instruction
@@ -2064,9 +1846,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
               const contentObj = content as Content;
               return (
                 contentObj.parts
-                  ?.map((p: Part) =>
-                    typeof p === 'string' ? p : 'text' in p ? p.text : '',
-                  )
+                  ?.map((p: Part) => (typeof p === 'string' ? p : 'text' in p ? p.text : ''))
                   .join('\n') || ''
               );
             }
@@ -2075,17 +1855,11 @@ export class OpenAIContentGenerator implements ContentGenerator {
           .join('\n');
       } else if (typeof systemInstruction === 'string') {
         systemText = systemInstruction;
-      } else if (
-        typeof systemInstruction === 'object' &&
-        'parts' in systemInstruction
-      ) {
+      } else if (typeof systemInstruction === 'object' && 'parts' in systemInstruction) {
         const systemContent = systemInstruction;
         systemText =
-          systemContent.parts
-            ?.map((p: Part) =>
-              typeof p === 'string' ? p : 'text' in p ? p.text : '',
-            )
-            .join('\n') || '';
+          systemContent.parts?.map((p: Part) => (typeof p === 'string' ? p : 'text' in p ? p.text : '')).join('\n') ||
+          '';
       }
 
       if (systemText) {
@@ -2165,21 +1939,15 @@ export class OpenAIContentGenerator implements ContentGenerator {
         const content = request.contents;
         const role = content.role === 'model' ? 'assistant' : 'user';
         const text =
-          content.parts
-            ?.map((p: Part) =>
-              typeof p === 'string' ? p : 'text' in p ? p.text : '',
-            )
-            .join('\n') || '';
+          content.parts?.map((p: Part) => (typeof p === 'string' ? p : 'text' in p ? p.text : '')).join('\n') || '';
         messages.push({ role, content: text });
       }
     }
 
     // Clean up orphaned tool calls, fix ordering, and merge consecutive assistant messages
     const cleanedMessages = this.cleanOrphanedToolCallsForLogging(messages);
-    const reorderedMessages =
-      this.ensureToolResponseOrderingForLogging(cleanedMessages);
-    const mergedMessages =
-      this.mergeConsecutiveAssistantMessagesForLogging(reorderedMessages);
+    const reorderedMessages = this.ensureToolResponseOrderingForLogging(cleanedMessages);
+    const mergedMessages = this.mergeConsecutiveAssistantMessagesForLogging(reorderedMessages);
 
     const openaiRequest: OpenAIRequestFormat = {
       model: this.model,
@@ -2192,9 +1960,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
 
     // Convert tools if present
     if (request.config?.tools) {
-      openaiRequest.tools = await this.convertGeminiToolsToOpenAI(
-        request.config.tools,
-      );
+      openaiRequest.tools = await this.convertGeminiToolsToOpenAI(request.config.tools);
     }
 
     return openaiRequest;
@@ -2203,9 +1969,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
   /**
    * Clean up orphaned tool calls for logging purposes
    */
-  private cleanOrphanedToolCallsForLogging(
-    messages: OpenAIMessage[],
-  ): OpenAIMessage[] {
+  private cleanOrphanedToolCallsForLogging(messages: OpenAIMessage[]): OpenAIMessage[] {
     const cleaned: OpenAIMessage[] = [];
     const toolCallIds = new Set<string>();
     const toolResponseIds = new Set<string>();
@@ -2227,19 +1991,14 @@ export class OpenAIContentGenerator implements ContentGenerator {
     for (const message of messages) {
       if (message.role === 'assistant' && message.tool_calls) {
         // Filter out tool calls that don't have corresponding responses
-        const validToolCalls = message.tool_calls.filter(
-          (toolCall) => toolCall.id && toolResponseIds.has(toolCall.id),
-        );
+        const validToolCalls = message.tool_calls.filter((toolCall) => toolCall.id && toolResponseIds.has(toolCall.id));
 
         if (validToolCalls.length > 0) {
           // Keep the message but only with valid tool calls
           const cleanedMessage = { ...message };
           cleanedMessage.tool_calls = validToolCalls;
           cleaned.push(cleanedMessage);
-        } else if (
-          typeof message.content === 'string' &&
-          message.content.trim()
-        ) {
+        } else if (typeof message.content === 'string' && message.content.trim()) {
           // Keep the message if it has text content, but remove tool calls
           const cleanedMessage = { ...message };
           delete cleanedMessage.tool_calls;
@@ -2284,17 +2043,14 @@ export class OpenAIContentGenerator implements ContentGenerator {
     for (const message of cleaned) {
       if (message.role === 'assistant' && message.tool_calls) {
         const finalValidToolCalls = message.tool_calls.filter(
-          (toolCall) => toolCall.id && finalToolResponseIds.has(toolCall.id),
+          (toolCall) => toolCall.id && finalToolResponseIds.has(toolCall.id)
         );
 
         if (finalValidToolCalls.length > 0) {
           const cleanedMessage = { ...message };
           cleanedMessage.tool_calls = finalValidToolCalls;
           finalCleaned.push(cleanedMessage);
-        } else if (
-          typeof message.content === 'string' &&
-          message.content.trim()
-        ) {
+        } else if (typeof message.content === 'string' && message.content.trim()) {
           const cleanedMessage = { ...message };
           delete cleanedMessage.tool_calls;
           finalCleaned.push(cleanedMessage);
@@ -2310,9 +2066,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
   /**
    * Logging variant of ensureToolResponseOrdering for the OpenAIMessage type.
    */
-  private ensureToolResponseOrderingForLogging(
-    messages: OpenAIMessage[],
-  ): OpenAIMessage[] {
+  private ensureToolResponseOrderingForLogging(messages: OpenAIMessage[]): OpenAIMessage[] {
     const toolResponseByCallId = new Map<string, OpenAIMessage>();
     for (const msg of messages) {
       if (msg.role === 'tool' && msg.tool_call_id) {
@@ -2357,9 +2111,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
   /**
    * Merge consecutive assistant messages to combine split text and tool calls for logging
    */
-  private mergeConsecutiveAssistantMessagesForLogging(
-    messages: OpenAIMessage[],
-  ): OpenAIMessage[] {
+  private mergeConsecutiveAssistantMessagesForLogging(messages: OpenAIMessage[]): OpenAIMessage[] {
     const merged: OpenAIMessage[] = [];
 
     for (const message of messages) {
@@ -2369,18 +2121,10 @@ export class OpenAIContentGenerator implements ContentGenerator {
         // If the last message is also an assistant message, merge them
         if (lastMessage.role === 'assistant') {
           // Combine content
-          const combinedContent = [
-            lastMessage.content || '',
-            message.content || '',
-          ]
-            .filter(Boolean)
-            .join('');
+          const combinedContent = [lastMessage.content || '', message.content || ''].filter(Boolean).join('');
 
           // Combine tool calls
-          const combinedToolCalls = [
-            ...(lastMessage.tool_calls || []),
-            ...(message.tool_calls || []),
-          ];
+          const combinedToolCalls = [...(lastMessage.tool_calls || []), ...(message.tool_calls || [])];
 
           // Update the last message with combined data
           lastMessage.content = combinedContent || null;
@@ -2402,9 +2146,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
   /**
    * Convert Gemini response format to OpenAI chat completion format for logging
    */
-  private convertGeminiResponseToOpenAI(
-    response: GenerateContentResponse,
-  ): OpenAIResponseFormat {
+  private convertGeminiResponseToOpenAI(response: GenerateContentResponse): OpenAIResponseFormat {
     const candidate = response.candidates?.[0];
     const content = candidate?.content;
 
@@ -2438,9 +2180,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
         role: 'assistant',
         content: messageContent,
       },
-      finish_reason: this.mapGeminiFinishReasonToOpenAI(
-        candidate?.finishReason,
-      ),
+      finish_reason: this.mapGeminiFinishReasonToOpenAI(candidate?.finishReason),
     };
 
     if (toolCalls.length > 0) {
@@ -2450,9 +2190,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
     const openaiResponse: OpenAIResponseFormat = {
       id: response.responseId || `chatcmpl-${Date.now()}`,
       object: 'chat.completion',
-      created: response.createTime
-        ? Number(response.createTime)
-        : Math.floor(Date.now() / 1000),
+      created: response.createTime ? Number(response.createTime) : Math.floor(Date.now() / 1000),
       model: this.model,
       choices: [choice],
     };

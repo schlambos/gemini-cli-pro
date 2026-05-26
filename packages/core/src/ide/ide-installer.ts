@@ -21,17 +21,11 @@ export interface InstallResult {
   message: string;
 }
 
-async function findCommand(
-  command: string,
-  platform: NodeJS.Platform = process.platform,
-): Promise<string | null> {
+async function findCommand(command: string, platform: NodeJS.Platform = process.platform): Promise<string | null> {
   // 1. Check PATH first.
   try {
     if (platform === 'win32') {
-      const result = child_process
-        .execSync(`where.exe ${command}`)
-        .toString()
-        .trim();
+      const result = child_process.execSync(`where.exe ${command}`).toString().trim();
       // `where.exe` can return multiple paths. Return the first one.
       const firstPath = result.split(/\r?\n/)[0];
       if (firstPath) {
@@ -91,10 +85,7 @@ async function findCommand(
       if (macConfig) {
         locations.push(
           `/Applications/${macConfig.appName}.app/Contents/Resources/app/bin/${appname}`,
-          path.join(
-            homeDir,
-            `Library/Application Support/${macConfig.supportDirName}/bin/${appname}`,
-          ),
+          path.join(homeDir, `Library/Application Support/${macConfig.supportDirName}/bin/${appname}`)
         );
       }
     } else if (platform === 'linux') {
@@ -104,10 +95,7 @@ async function findCommand(
         locations.push(
           `/usr/share/${linuxConfig.appBinary}/bin/${linuxConfig.appBinary}`,
           `/snap/bin/${linuxConfig.appBinary}`,
-          path.join(
-            homeDir,
-            `.local/share/${linuxConfig.appBinary}/bin/${linuxConfig.appBinary}`,
-          ),
+          path.join(homeDir, `.local/share/${linuxConfig.appBinary}/bin/${linuxConfig.appBinary}`)
         );
       }
     } else if (platform === 'win32') {
@@ -116,21 +104,8 @@ async function findCommand(
       if (winConfig) {
         const winAppName = winConfig.appName;
         locations.push(
-          path.join(
-            process.env['ProgramFiles'] || 'C:\\Program Files',
-            winAppName,
-            'bin',
-            winConfig.appBinary,
-          ),
-          path.join(
-            homeDir,
-            'AppData',
-            'Local',
-            'Programs',
-            winAppName,
-            'bin',
-            winConfig.appBinary,
-          ),
+          path.join(process.env['ProgramFiles'] || 'C:\\Program Files', winAppName, 'bin', winConfig.appBinary),
+          path.join(homeDir, 'AppData', 'Local', 'Programs', winAppName, 'bin', winConfig.appBinary)
         );
       }
     }
@@ -150,7 +125,7 @@ class VsCodeInstaller implements IdeInstaller {
 
   constructor(
     readonly ideInfo: IdeInfo,
-    readonly platform = process.platform,
+    readonly platform = process.platform
   ) {
     const command = platform === 'win32' ? 'code.cmd' : 'code';
     this.vsCodeCommand = findCommand(command, platform);
@@ -168,18 +143,12 @@ class VsCodeInstaller implements IdeInstaller {
     try {
       const result = child_process.spawnSync(
         commandPath,
-        [
-          '--install-extension',
-          'google.gemini-cli-vscode-ide-companion',
-          '--force',
-        ],
-        { stdio: 'pipe', shell: this.platform === 'win32' },
+        ['--install-extension', 'google.gemini-cli-vscode-ide-companion', '--force'],
+        { stdio: 'pipe', shell: this.platform === 'win32' }
       );
 
       if (result.status !== 0) {
-        throw new Error(
-          `Failed to install extension: ${result.stderr?.toString()}`,
-        );
+        throw new Error(`Failed to install extension: ${result.stderr?.toString()}`);
       }
 
       return {
@@ -200,7 +169,7 @@ class PositronInstaller implements IdeInstaller {
 
   constructor(
     readonly ideInfo: IdeInfo,
-    readonly platform = process.platform,
+    readonly platform = process.platform
   ) {
     const command = platform === 'win32' ? 'positron.cmd' : 'positron';
     this.vsCodeCommand = findCommand(command, platform);
@@ -218,18 +187,12 @@ class PositronInstaller implements IdeInstaller {
     try {
       const result = child_process.spawnSync(
         commandPath,
-        [
-          '--install-extension',
-          'google.gemini-cli-vscode-ide-companion',
-          '--force',
-        ],
-        { stdio: 'pipe', shell: this.platform === 'win32' },
+        ['--install-extension', 'google.gemini-cli-vscode-ide-companion', '--force'],
+        { stdio: 'pipe', shell: this.platform === 'win32' }
       );
 
       if (result.status !== 0) {
-        throw new Error(
-          `Failed to install extension: ${result.stderr?.toString()}`,
-        );
+        throw new Error(`Failed to install extension: ${result.stderr?.toString()}`);
       }
 
       return {
@@ -248,7 +211,7 @@ class PositronInstaller implements IdeInstaller {
 class AntigravityInstaller implements IdeInstaller {
   constructor(
     readonly ideInfo: IdeInfo,
-    readonly platform = process.platform,
+    readonly platform = process.platform
   ) {}
 
   async install(): Promise<InstallResult> {
@@ -271,18 +234,12 @@ class AntigravityInstaller implements IdeInstaller {
     try {
       const result = child_process.spawnSync(
         commandPath,
-        [
-          '--install-extension',
-          'google.gemini-cli-vscode-ide-companion',
-          '--force',
-        ],
-        { stdio: 'pipe', shell: this.platform === 'win32' },
+        ['--install-extension', 'google.gemini-cli-vscode-ide-companion', '--force'],
+        { stdio: 'pipe', shell: this.platform === 'win32' }
       );
 
       if (result.status !== 0) {
-        throw new Error(
-          `Failed to install extension: ${result.stderr?.toString()}`,
-        );
+        throw new Error(`Failed to install extension: ${result.stderr?.toString()}`);
       }
 
       return {
@@ -298,10 +255,7 @@ class AntigravityInstaller implements IdeInstaller {
   }
 }
 
-export function getIdeInstaller(
-  ide: IdeInfo,
-  platform = process.platform,
-): IdeInstaller | null {
+export function getIdeInstaller(ide: IdeInfo, platform = process.platform): IdeInstaller | null {
   switch (ide.name) {
     case IDE_DEFINITIONS.vscode.name:
     case IDE_DEFINITIONS.firebasestudio.name:

@@ -27,10 +27,7 @@ enum TerminalKeys {
   ESCAPE = '\u001B',
 }
 
-const createMockSettings = (
-  userSettings = {},
-  workspaceSettings = {},
-): LoadedSettings => {
+const createMockSettings = (userSettings = {}, workspaceSettings = {}): LoadedSettings => {
   const settings = new LoadedSettings(
     {
       settings: { ui: { customThemes: {} }, mcpServers: {}, agents: {} },
@@ -77,7 +74,7 @@ const createMockSettings = (
       path: '/workspace/settings.json',
     },
     true,
-    [],
+    []
   );
 
   // Mock setValue
@@ -86,9 +83,7 @@ const createMockSettings = (
   return settings;
 };
 
-const createMockAgentDefinition = (
-  overrides: Partial<AgentDefinition> = {},
-): AgentDefinition =>
+const createMockAgentDefinition = (overrides: Partial<AgentDefinition> = {}): AgentDefinition =>
   ({
     name: 'test-agent',
     displayName: 'Test Agent',
@@ -118,21 +113,18 @@ describe('AgentConfigDialog', () => {
     mockOnSave = vi.fn();
   });
 
-  const renderDialog = (
-    settings: LoadedSettings,
-    definition: AgentDefinition = createMockAgentDefinition(),
-  ) =>
+  const renderDialog = (settings: LoadedSettings, definition: AgentDefinition = createMockAgentDefinition()) =>
     render(
       <KeypressProvider>
         <AgentConfigDialog
-          agentName="test-agent"
-          displayName="Test Agent"
+          agentName='test-agent'
+          displayName='Test Agent'
           definition={definition}
           settings={settings}
           onClose={mockOnClose}
           onSave={mockOnSave}
         />
-      </KeypressProvider>,
+      </KeypressProvider>
     );
 
   describe('rendering', () => {
@@ -241,7 +233,7 @@ describe('AgentConfigDialog', () => {
         expect(settings.setValue).toHaveBeenCalledWith(
           SettingScope.User,
           'agents.overrides.test-agent.enabled',
-          false, // Toggles from true (default) to false
+          false // Toggles from true (default) to false
         );
         expect(mockOnSave).toHaveBeenCalled();
       });

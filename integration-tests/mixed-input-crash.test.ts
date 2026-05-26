@@ -33,9 +33,7 @@ describe('mixed input crash prevention', () => {
       const err = error as Error;
 
       expect(err.message).toContain('Process exited with code 42');
-      expect(err.message).toContain(
-        '--prompt-interactive flag cannot be used when input is piped',
-      );
+      expect(err.message).toContain('--prompt-interactive flag cannot be used when input is piped');
       expect(err.message).not.toContain('setRawMode is not a function');
       expect(err.message).not.toContain('unexpected critical error');
     }
@@ -57,9 +55,7 @@ describe('mixed input crash prevention', () => {
       expect(error).toBeInstanceOf(Error);
       const err = error as Error;
 
-      expect(err.message).toContain(
-        '--prompt-interactive flag cannot be used when input is piped',
-      );
+      expect(err.message).toContain('--prompt-interactive flag cannot be used when input is piped');
     }
   });
 });

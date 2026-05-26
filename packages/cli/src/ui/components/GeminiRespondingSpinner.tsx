@@ -11,10 +11,7 @@ import { CliSpinner } from './CliSpinner.js';
 import type { SpinnerName } from 'cli-spinners';
 import { useStreamingContext } from '../contexts/StreamingContext.js';
 import { StreamingState } from '../types.js';
-import {
-  SCREEN_READER_LOADING,
-  SCREEN_READER_RESPONDING,
-} from '../textConstants.js';
+import { SCREEN_READER_LOADING, SCREEN_READER_RESPONDING } from '../textConstants.js';
 import { theme } from '../semantic-colors.js';
 import { Colors } from '../colors.js';
 import tinygradient from 'tinygradient';
@@ -30,18 +27,14 @@ interface GeminiRespondingSpinnerProps {
   spinnerType?: SpinnerName;
 }
 
-export const GeminiRespondingSpinner: React.FC<
-  GeminiRespondingSpinnerProps
-> = ({ nonRespondingDisplay, spinnerType = 'dots' }) => {
+export const GeminiRespondingSpinner: React.FC<GeminiRespondingSpinnerProps> = ({
+  nonRespondingDisplay,
+  spinnerType = 'dots',
+}) => {
   const streamingState = useStreamingContext();
   const isScreenReaderEnabled = useIsScreenReaderEnabled();
   if (streamingState === StreamingState.Responding) {
-    return (
-      <GeminiSpinner
-        spinnerType={spinnerType}
-        altText={SCREEN_READER_RESPONDING}
-      />
-    );
+    return <GeminiSpinner spinnerType={spinnerType} altText={SCREEN_READER_RESPONDING} />;
   }
 
   if (nonRespondingDisplay) {
@@ -60,10 +53,7 @@ interface GeminiSpinnerProps {
   altText?: string;
 }
 
-export const GeminiSpinner: React.FC<GeminiSpinnerProps> = ({
-  spinnerType = 'dots',
-  altText,
-}) => {
+export const GeminiSpinner: React.FC<GeminiSpinnerProps> = ({ spinnerType = 'dots', altText }) => {
   const isScreenReaderEnabled = useIsScreenReaderEnabled();
   const [time, setTime] = useState(0);
 

@@ -142,5 +142,5 @@ export const GoogleCode: Theme = new Theme(
       fontStyle: 'italic',
     },
   },
-  googleCodeColors,
+  googleCodeColors
 );

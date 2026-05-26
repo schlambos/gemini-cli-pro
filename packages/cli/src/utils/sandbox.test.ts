@@ -56,8 +56,7 @@ vi.mock('node:util', async (importOriginal) => {
 });
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     debugLogger: {
@@ -129,9 +128,7 @@ describe('sandbox', () => {
       const mockSpawnProcess = new EventEmitter() as MockProcess;
       mockSpawnProcess.stdout = new EventEmitter();
       mockSpawnProcess.stderr = new EventEmitter();
-      vi.mocked(spawn).mockReturnValue(
-        mockSpawnProcess as unknown as ReturnType<typeof spawn>,
-      );
+      vi.mocked(spawn).mockReturnValue(mockSpawnProcess as unknown as ReturnType<typeof spawn>);
 
       const promise = start_sandbox(config, [], undefined, ['arg1']);
 
@@ -142,11 +139,8 @@ describe('sandbox', () => {
       await expect(promise).resolves.toBe(0);
       expect(spawn).toHaveBeenCalledWith(
         'sandbox-exec',
-        expect.arrayContaining([
-          '-f',
-          expect.stringContaining('sandbox-macos-permissive-open.sb'),
-        ]),
-        expect.objectContaining({ stdio: 'inherit' }),
+        expect.arrayContaining(['-f', expect.stringContaining('sandbox-macos-permissive-open.sb')]),
+        expect.objectContaining({ stdio: 'inherit' })
       );
     });
 
@@ -184,9 +178,7 @@ describe('sandbox', () => {
         return new EventEmitter() as unknown as ReturnType<typeof spawn>; // fallback
       });
 
-      const mockSpawnProcess = new EventEmitter() as unknown as ReturnType<
-        typeof spawn
-      >;
+      const mockSpawnProcess = new EventEmitter() as unknown as ReturnType<typeof spawn>;
       mockSpawnProcess.on = vi.fn().mockImplementation((event, cb) => {
         if (event === 'close') {
           setTimeout(() => cb(0), 10);
@@ -206,7 +198,7 @@ describe('sandbox', () => {
       expect(spawn).toHaveBeenCalledWith(
         'docker',
         expect.arrayContaining(['run', '-i', '--rm', '--init']),
-        expect.objectContaining({ stdio: 'inherit' }),
+        expect.objectContaining({ stdio: 'inherit' })
       );
     });
 
@@ -220,8 +212,7 @@ describe('sandbox', () => {
       interface MockProcessWithStdout extends EventEmitter {
         stdout: EventEmitter;
       }
-      const mockImageCheckProcess1 =
-        new EventEmitter() as MockProcessWithStdout;
+      const mockImageCheckProcess1 = new EventEmitter() as MockProcessWithStdout;
       mockImageCheckProcess1.stdout = new EventEmitter();
       vi.mocked(spawn).mockImplementationOnce(() => {
         setTimeout(() => {
@@ -246,8 +237,7 @@ describe('sandbox', () => {
       });
 
       // 3. Image check succeeds
-      const mockImageCheckProcess2 =
-        new EventEmitter() as MockProcessWithStdout;
+      const mockImageCheckProcess2 = new EventEmitter() as MockProcessWithStdout;
       mockImageCheckProcess2.stdout = new EventEmitter();
       vi.mocked(spawn).mockImplementationOnce(() => {
         setTimeout(() => {
@@ -258,9 +248,7 @@ describe('sandbox', () => {
       });
 
       // 4. Docker run
-      const mockSpawnProcess = new EventEmitter() as unknown as ReturnType<
-        typeof spawn
-      >;
+      const mockSpawnProcess = new EventEmitter() as unknown as ReturnType<typeof spawn>;
       mockSpawnProcess.on = vi.fn().mockImplementation((event, cb) => {
         if (event === 'close') {
           setTimeout(() => cb(0), 10);
@@ -275,7 +263,7 @@ describe('sandbox', () => {
       expect(spawn).toHaveBeenCalledWith(
         'docker',
         expect.arrayContaining(['pull', 'missing-image']),
-        expect.any(Object),
+        expect.any(Object)
       );
     });
 
@@ -289,8 +277,7 @@ describe('sandbox', () => {
       interface MockProcessWithStdout extends EventEmitter {
         stdout: EventEmitter;
       }
-      const mockImageCheckProcess1 =
-        new EventEmitter() as MockProcessWithStdout;
+      const mockImageCheckProcess1 = new EventEmitter() as MockProcessWithStdout;
       mockImageCheckProcess1.stdout = new EventEmitter();
       vi.mocked(spawn).mockImplementationOnce(() => {
         setTimeout(() => {
@@ -339,9 +326,7 @@ describe('sandbox', () => {
         return mockImageCheckProcess as unknown as ReturnType<typeof spawn>;
       });
 
-      const mockSpawnProcess = new EventEmitter() as unknown as ReturnType<
-        typeof spawn
-      >;
+      const mockSpawnProcess = new EventEmitter() as unknown as ReturnType<typeof spawn>;
       mockSpawnProcess.on = vi.fn().mockImplementation((event, cb) => {
         if (event === 'close') {
           setTimeout(() => cb(0), 10);
@@ -353,11 +338,7 @@ describe('sandbox', () => {
       await start_sandbox(config);
 
       // The first call is 'docker images -q ...'
-      expect(spawn).toHaveBeenNthCalledWith(
-        1,
-        'docker',
-        expect.arrayContaining(['images', '-q']),
-      );
+      expect(spawn).toHaveBeenNthCalledWith(1, 'docker', expect.arrayContaining(['images', '-q']));
 
       // The second call is 'docker run ...'
       expect(spawn).toHaveBeenNthCalledWith(
@@ -370,7 +351,7 @@ describe('sandbox', () => {
           '--volume',
           expect.stringMatching(/[\\/]home[\\/]user[\\/]\.gemini/),
         ]),
-        expect.any(Object),
+        expect.any(Object)
       );
     });
 
@@ -396,9 +377,7 @@ describe('sandbox', () => {
         return mockImageCheckProcess as unknown as ReturnType<typeof spawn>;
       });
 
-      const mockSpawnProcess = new EventEmitter() as unknown as ReturnType<
-        typeof spawn
-      >;
+      const mockSpawnProcess = new EventEmitter() as unknown as ReturnType<typeof spawn>;
       mockSpawnProcess.on = vi.fn().mockImplementation((event, cb) => {
         if (event === 'close') {
           setTimeout(() => cb(0), 10);
@@ -417,7 +396,7 @@ describe('sandbox', () => {
           '--env',
           'GOOGLE_VERTEX_BASE_URL=http://vertex.proxy',
         ]),
-        expect.any(Object),
+        expect.any(Object)
       );
     });
 
@@ -448,9 +427,7 @@ describe('sandbox', () => {
         return mockImageCheckProcess as unknown as ReturnType<typeof spawn>;
       });
 
-      const mockSpawnProcess = new EventEmitter() as unknown as ReturnType<
-        typeof spawn
-      >;
+      const mockSpawnProcess = new EventEmitter() as unknown as ReturnType<typeof spawn>;
       mockSpawnProcess.on = vi.fn().mockImplementation((event, cb) => {
         if (event === 'close') {
           setTimeout(() => cb(0), 10);
@@ -464,7 +441,7 @@ describe('sandbox', () => {
       expect(spawn).toHaveBeenCalledWith(
         'docker',
         expect.arrayContaining(['--user', 'root', '--env', 'HOME=/home/user']),
-        expect.any(Object),
+        expect.any(Object)
       );
       // Check that the entrypoint command includes useradd/groupadd
       const args = vi.mocked(spawn).mock.calls[1][1] as string[];

@@ -28,11 +28,7 @@ describe('ShortcutsHelp', () => {
     { name: 'linux', value: 'linux' },
   ] as const;
 
-  it.each(
-    platforms.flatMap((platform) =>
-      testCases.map((testCase) => ({ ...testCase, platform })),
-    ),
-  )(
+  it.each(platforms.flatMap((platform) => testCases.map((testCase) => ({ ...testCase, platform }))))(
     'renders correctly in $name mode on $platform.name',
     ({ width, platform }) => {
       Object.defineProperty(process, 'platform', {
@@ -44,7 +40,7 @@ describe('ShortcutsHelp', () => {
       });
       expect(lastFrame()).toContain('shell mode');
       expect(lastFrame()).toMatchSnapshot();
-    },
+    }
   );
 
   it('always shows Tab Tab focus UI shortcut', () => {

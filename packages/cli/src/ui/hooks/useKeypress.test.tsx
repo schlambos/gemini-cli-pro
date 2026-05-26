@@ -52,7 +52,7 @@ describe(`useKeypress`, () => {
     return render(
       <KeypressProvider>
         <TestComponent />
-      </KeypressProvider>,
+      </KeypressProvider>
     );
   };
 
@@ -120,7 +120,7 @@ describe(`useKeypress`, () => {
         alt: true,
         ctrl: false,
         cmd: false,
-      }),
+      })
     );
   });
 
@@ -160,21 +160,15 @@ describe(`useKeypress`, () => {
 
       const keyA = { name: 'a', sequence: 'a' };
       act(() => stdin.write('a'));
-      expect(onKeypress).toHaveBeenCalledWith(
-        expect.objectContaining({ ...keyA }),
-      );
+      expect(onKeypress).toHaveBeenCalledWith(expect.objectContaining({ ...keyA }));
 
       const pasteText = 'pasted';
       act(() => stdin.write(PASTE_START + pasteText + PASTE_END));
-      expect(onKeypress).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'paste', sequence: pasteText }),
-      );
+      expect(onKeypress).toHaveBeenCalledWith(expect.objectContaining({ name: 'paste', sequence: pasteText }));
 
       const keyB = { name: 'b', sequence: 'b' };
       act(() => stdin.write('b'));
-      expect(onKeypress).toHaveBeenCalledWith(
-        expect.objectContaining({ ...keyB }),
-      );
+      expect(onKeypress).toHaveBeenCalledWith(expect.objectContaining({ ...keyB }));
 
       expect(onKeypress).toHaveBeenCalledTimes(3);
     });
@@ -188,9 +182,7 @@ describe(`useKeypress`, () => {
         stdin.write(pasteText);
         stdin.write(PASTE_END);
       });
-      expect(onKeypress).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'paste', sequence: pasteText }),
-      );
+      expect(onKeypress).toHaveBeenCalledWith(expect.objectContaining({ name: 'paste', sequence: pasteText }));
     });
 
     it('should handle paste false alarm', async () => {
@@ -201,12 +193,8 @@ describe(`useKeypress`, () => {
         stdin.write('do');
       });
 
-      expect(onKeypress).toHaveBeenCalledWith(
-        expect.objectContaining({ sequence: '\x1B[200d' }),
-      );
-      expect(onKeypress).toHaveBeenCalledWith(
-        expect.objectContaining({ sequence: 'o' }),
-      );
+      expect(onKeypress).toHaveBeenCalledWith(expect.objectContaining({ sequence: '\x1B[200d' }));
+      expect(onKeypress).toHaveBeenCalledWith(expect.objectContaining({ sequence: 'o' }));
       expect(onKeypress).toHaveBeenCalledTimes(2);
     });
 
@@ -216,21 +204,10 @@ describe(`useKeypress`, () => {
       const pasteText1 = 'herp';
       const pasteText2 = 'derp';
       act(() => {
-        stdin.write(
-          PASTE_START +
-            pasteText1 +
-            PASTE_END +
-            PASTE_START +
-            pasteText2 +
-            PASTE_END,
-        );
+        stdin.write(PASTE_START + pasteText1 + PASTE_END + PASTE_START + pasteText2 + PASTE_END);
       });
-      expect(onKeypress).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'paste', sequence: pasteText1 }),
-      );
-      expect(onKeypress).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'paste', sequence: pasteText2 }),
-      );
+      expect(onKeypress).toHaveBeenCalledWith(expect.objectContaining({ name: 'paste', sequence: pasteText1 }));
+      expect(onKeypress).toHaveBeenCalledWith(expect.objectContaining({ name: 'paste', sequence: pasteText2 }));
 
       expect(onKeypress).toHaveBeenCalledTimes(2);
     });
@@ -240,9 +217,7 @@ describe(`useKeypress`, () => {
 
       const keyA = { name: 'a', sequence: 'a' };
       act(() => stdin.write('a'));
-      expect(onKeypress).toHaveBeenCalledWith(
-        expect.objectContaining({ ...keyA }),
-      );
+      expect(onKeypress).toHaveBeenCalledWith(expect.objectContaining({ ...keyA }));
 
       const pasteText = 'pasted';
       await act(async () => {
@@ -254,15 +229,11 @@ describe(`useKeypress`, () => {
         vi.advanceTimersByTime(40);
         stdin.write(PASTE_END.slice(3));
       });
-      expect(onKeypress).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'paste', sequence: pasteText }),
-      );
+      expect(onKeypress).toHaveBeenCalledWith(expect.objectContaining({ name: 'paste', sequence: pasteText }));
 
       const keyB = { name: 'b', sequence: 'b' };
       act(() => stdin.write('b'));
-      expect(onKeypress).toHaveBeenCalledWith(
-        expect.objectContaining({ ...keyB }),
-      );
+      expect(onKeypress).toHaveBeenCalledWith(expect.objectContaining({ ...keyB }));
 
       expect(onKeypress).toHaveBeenCalledTimes(3);
     });

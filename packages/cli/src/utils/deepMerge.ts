@@ -6,14 +6,7 @@
 
 import { MergeStrategy } from '../config/settingsSchema.js';
 
-export type Mergeable =
-  | string
-  | number
-  | boolean
-  | null
-  | undefined
-  | object
-  | Mergeable[];
+export type Mergeable = string | number | boolean | null | undefined | object | Mergeable[];
 
 export type MergeableObject = Record<string, Mergeable>;
 
@@ -25,7 +18,7 @@ function mergeRecursively(
   target: MergeableObject,
   source: MergeableObject,
   getMergeStrategyForPath: (path: string[]) => MergeStrategy | undefined,
-  path: string[] = [],
+  path: string[] = []
 ) {
   for (const key of Object.keys(source)) {
     // JSON.parse can create objects with __proto__ as an own property.
@@ -42,10 +35,8 @@ function mergeRecursively(
     const mergeStrategy = getMergeStrategyForPath(newPath);
 
     if (mergeStrategy === MergeStrategy.SHALLOW_MERGE && objValue && srcValue) {
-      const obj1 =
-        typeof objValue === 'object' && objValue !== null ? objValue : {};
-      const obj2 =
-        typeof srcValue === 'object' && srcValue !== null ? srcValue : {};
+      const obj1 = typeof objValue === 'object' && objValue !== null ? objValue : {};
+      const obj2 = typeof srcValue === 'object' && srcValue !== null ? srcValue : {};
       target[key] = { ...obj1, ...obj2 };
       continue;
     }
@@ -71,7 +62,7 @@ function mergeRecursively(
         target[key] as MergeableObject,
         srcValue,
         getMergeStrategyForPath,
-        newPath,
+        newPath
       );
     } else {
       target[key] = srcValue;

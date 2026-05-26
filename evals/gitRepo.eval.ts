@@ -36,11 +36,7 @@ describe('git repo eval', () => {
         if (log.toolRequest.name !== 'run_shell_command') return false;
         try {
           const args = JSON.parse(log.toolRequest.args);
-          return (
-            args.command &&
-            args.command.includes('git') &&
-            args.command.includes('commit')
-          );
+          return args.command && args.command.includes('git') && args.command.includes('commit');
         } catch {
           return false;
         }

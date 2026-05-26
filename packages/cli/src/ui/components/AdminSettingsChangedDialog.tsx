@@ -21,17 +21,15 @@ export const AdminSettingsChangedDialog = () => {
       }
       return false;
     },
-    { isActive: true },
+    { isActive: true }
   );
 
-  const message =
-    'Admin settings have changed. Please restart the session to apply new settings.';
+  const message = 'Admin settings have changed. Please restart the session to apply new settings.';
 
   return (
-    <Box borderStyle="round" borderColor={theme.status.warning} paddingX={1}>
+    <Box borderStyle='round' borderColor={theme.status.warning} paddingX={1}>
       <Text color={theme.status.warning}>
-        {message} Press &apos;r&apos; to restart, or &apos;Ctrl+C&apos; twice to
-        exit.
+        {message} Press &apos;r&apos; to restart, or &apos;Ctrl+C&apos; twice to exit.
       </Text>
     </Box>
   );

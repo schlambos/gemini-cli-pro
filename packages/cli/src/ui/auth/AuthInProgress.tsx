@@ -15,9 +15,7 @@ interface AuthInProgressProps {
   onTimeout: () => void;
 }
 
-export function AuthInProgress({
-  onTimeout,
-}: AuthInProgressProps): React.JSX.Element {
+export function AuthInProgress({ onTimeout }: AuthInProgressProps): React.JSX.Element {
   const [timedOut, setTimedOut] = useState(false);
 
   useKeypress(
@@ -26,7 +24,7 @@ export function AuthInProgress({
         onTimeout();
       }
     },
-    { isActive: true },
+    { isActive: true }
   );
 
   useEffect(() => {
@@ -39,22 +37,13 @@ export function AuthInProgress({
   }, [onTimeout]);
 
   return (
-    <Box
-      borderStyle="round"
-      borderColor={theme.border.default}
-      flexDirection="column"
-      padding={1}
-      width="100%"
-    >
+    <Box borderStyle='round' borderColor={theme.border.default} flexDirection='column' padding={1} width='100%'>
       {timedOut ? (
-        <Text color={theme.status.error}>
-          Authentication timed out. Please try again.
-        </Text>
+        <Text color={theme.status.error}>Authentication timed out. Please try again.</Text>
       ) : (
         <Box>
           <Text>
-            <CliSpinner type="dots" /> Waiting for auth... (Press ESC or CTRL+C
-            to cancel)
+            <CliSpinner type='dots' /> Waiting for auth... (Press ESC or CTRL+C to cancel)
           </Text>
         </Box>
       )}

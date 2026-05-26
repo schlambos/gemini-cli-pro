@@ -7,13 +7,7 @@
  */
 
 import { execSync } from 'node:child_process';
-import {
-  mkdirSync,
-  rmSync,
-  readFileSync,
-  existsSync,
-  lstatSync,
-} from 'node:fs';
+import { mkdirSync, rmSync, readFileSync, existsSync, lstatSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -21,8 +15,7 @@ const ACTIONLINT_VERSION = '1.7.7';
 const SHELLCHECK_VERSION = '0.11.0';
 const YAMLLINT_VERSION = '1.35.1';
 
-const TEMP_DIR =
-  process.env.GEMINI_LINT_TEMP_DIR || join(tmpdir(), 'gemini-cli-linters');
+const TEMP_DIR = process.env.GEMINI_LINT_TEMP_DIR || join(tmpdir(), 'gemini-cli-linters');
 
 function getPlatformArch() {
   const platform = process.platform;
@@ -55,7 +48,7 @@ const PYTHON_VENV_PATH = join(TEMP_DIR, 'python_venv');
 const pythonVenvPythonPath = join(
   PYTHON_VENV_PATH,
   process.platform === 'win32' ? 'Scripts' : 'bin',
-  process.platform === 'win32' ? 'python.exe' : 'python',
+  process.platform === 'win32' ? 'python.exe' : 'python'
 );
 
 const yamllintCheck =
@@ -145,9 +138,7 @@ export function setupLinters() {
     if (!runCommand(check, 'ignore')) {
       console.log(`Installing ${linter}...`);
       if (!runCommand(installer)) {
-        console.error(
-          `Failed to install ${linter}. Please install it manually.`,
-        );
+        console.error(`Failed to install ${linter}. Please install it manually.`);
         process.exit(1);
       }
     }
@@ -186,9 +177,7 @@ export function runYamllint() {
 export function runPrettier() {
   console.log('\nRunning Prettier...');
   if (!runCommand('prettier --check .')) {
-    console.log(
-      'Prettier check failed. Please run "npm run format" to fix formatting issues.',
-    );
+    console.log('Prettier check failed. Please run "npm run format" to fix formatting issues.');
     process.exit(1);
   }
 }
@@ -196,36 +185,19 @@ export function runPrettier() {
 export function runSensitiveKeywordLinter() {
   console.log('\nRunning sensitive keyword linter...');
   const SENSITIVE_PATTERN = /gemini-\d+(\.\d+)?/g;
-  const ALLOWED_KEYWORDS = new Set([
-    'gemini-3',
-    'gemini-3.0',
-    'gemini-2.5',
-    'gemini-2.0',
-    'gemini-1.5',
-    'gemini-1.0',
-  ]);
+  const ALLOWED_KEYWORDS = new Set(['gemini-3', 'gemini-3.0', 'gemini-2.5', 'gemini-2.0', 'gemini-1.5', 'gemini-1.0']);
 
   function getChangedFiles() {
     const baseRef = process.env.GITHUB_BASE_REF || 'main';
     try {
       execSync(`git fetch origin ${baseRef}`);
-      const mergeBase = execSync(`git merge-base HEAD origin/${baseRef}`)
-        .toString()
-        .trim();
-      return execSync(`git diff --name-only ${mergeBase}..HEAD`)
-        .toString()
-        .trim()
-        .split('\n')
-        .filter(Boolean);
+      const mergeBase = execSync(`git merge-base HEAD origin/${baseRef}`).toString().trim();
+      return execSync(`git diff --name-only ${mergeBase}..HEAD`).toString().trim().split('\n').filter(Boolean);
     } catch (_error) {
       console.error(`Could not get changed files against origin/${baseRef}.`);
       try {
         console.log('Falling back to diff against HEAD~1');
-        return execSync(`git diff --name-only HEAD~1..HEAD`)
-          .toString()
-          .trim()
-          .split('\n')
-          .filter(Boolean);
+        return execSync(`git diff --name-only HEAD~1..HEAD`).toString().trim().split('\n').filter(Boolean);
       } catch (_fallbackError) {
         console.error('Could not get changed files against HEAD~1 either.');
         process.exit(1);
@@ -256,7 +228,7 @@ export function runSensitiveKeywordLinter() {
             lineNum = i + 1;
             const colNum = matchIndex - charCount + 1;
             console.log(
-              `::warning file=${file},line=${lineNum},col=${colNum}::Found sensitive keyword "${keyword}". Please make sure this change is appropriate to submit.`,
+              `::warning file=${file},line=${lineNum},col=${colNum}::Found sensitive keyword "${keyword}". Please make sure this change is appropriate to submit.`
             );
             break;
           }
@@ -272,10 +244,7 @@ export function runSensitiveKeywordLinter() {
 }
 
 function stripJSONComments(json) {
-  return json.replace(
-    /\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g,
-    (m, g) => (g ? '' : m),
-  );
+  return json.replace(/\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g, (m, g) => (g ? '' : m));
 }
 
 export function runTSConfigLinter() {
@@ -284,11 +253,7 @@ export function runTSConfigLinter() {
   let files = [];
   try {
     // Find all tsconfig.json files under packages/ using a git pathspec
-    files = execSync("git ls-files 'packages/**/tsconfig.json'")
-      .toString()
-      .trim()
-      .split('\n')
-      .filter(Boolean);
+    files = execSync("git ls-files 'packages/**/tsconfig.json'").toString().trim().split('\n').filter(Boolean);
   } catch (e) {
     console.error('Error finding tsconfig.json files:', e.message);
     process.exit(1);
@@ -311,23 +276,17 @@ export function runTSConfigLinter() {
       // Check if exclude exists and matches exactly
       if (config.exclude) {
         if (!Array.isArray(config.exclude)) {
-          console.error(
-            `Error: ${file} "exclude" must be an array. Found: ${JSON.stringify(
-              config.exclude,
-            )}`,
-          );
+          console.error(`Error: ${file} "exclude" must be an array. Found: ${JSON.stringify(config.exclude)}`);
           hasError = true;
         } else {
           const allowedExclude = new Set(['node_modules', 'dist']);
-          const invalidExcludes = config.exclude.filter(
-            (item) => !allowedExclude.has(item),
-          );
+          const invalidExcludes = config.exclude.filter((item) => !allowedExclude.has(item));
 
           if (invalidExcludes.length > 0) {
             console.error(
               `Error: ${file} "exclude" contains invalid items: ${JSON.stringify(
-                invalidExcludes,
-              )}. Only "node_modules" and "dist" are allowed.`,
+                invalidExcludes
+              )}. Only "node_modules" and "dist" are allowed.`
             );
             hasError = true;
           }

@@ -26,9 +26,7 @@ describe('<ToolGroupMessage />', () => {
     vi.restoreAllMocks();
   });
 
-  const createToolCall = (
-    overrides: Partial<IndividualToolCallDisplay> = {},
-  ): IndividualToolCallDisplay => ({
+  const createToolCall = (overrides: Partial<IndividualToolCallDisplay> = {}): IndividualToolCallDisplay => ({
     callId: 'tool-123',
     name: 'test-tool',
     description: 'A tool for testing',
@@ -56,15 +54,12 @@ describe('<ToolGroupMessage />', () => {
   describe('Golden Snapshots', () => {
     it('renders single successful tool call', () => {
       const toolCalls = [createToolCall()];
-      const { lastFrame, unmount } = renderWithProviders(
-        <ToolGroupMessage {...baseProps} toolCalls={toolCalls} />,
-        {
-          config: baseMockConfig,
-          uiState: {
-            pendingHistoryItems: [{ type: 'tool_group', tools: toolCalls }],
-          },
+      const { lastFrame, unmount } = renderWithProviders(<ToolGroupMessage {...baseProps} toolCalls={toolCalls} />, {
+        config: baseMockConfig,
+        uiState: {
+          pendingHistoryItems: [{ type: 'tool_group', tools: toolCalls }],
         },
-      );
+      });
       expect(lastFrame()).toMatchSnapshot();
       unmount();
     });
@@ -82,10 +77,9 @@ describe('<ToolGroupMessage />', () => {
         }),
       ];
 
-      const { lastFrame, unmount } = renderWithProviders(
-        <ToolGroupMessage {...baseProps} toolCalls={toolCalls} />,
-        { config: baseMockConfig },
-      );
+      const { lastFrame, unmount } = renderWithProviders(<ToolGroupMessage {...baseProps} toolCalls={toolCalls} />, {
+        config: baseMockConfig,
+      });
 
       // Should render nothing because all tools in the group are confirming
       expect(lastFrame()).toBe('');
@@ -114,15 +108,12 @@ describe('<ToolGroupMessage />', () => {
         }),
       ];
 
-      const { lastFrame, unmount } = renderWithProviders(
-        <ToolGroupMessage {...baseProps} toolCalls={toolCalls} />,
-        {
-          config: baseMockConfig,
-          uiState: {
-            pendingHistoryItems: [{ type: 'tool_group', tools: toolCalls }],
-          },
+      const { lastFrame, unmount } = renderWithProviders(<ToolGroupMessage {...baseProps} toolCalls={toolCalls} />, {
+        config: baseMockConfig,
+        uiState: {
+          pendingHistoryItems: [{ type: 'tool_group', tools: toolCalls }],
         },
-      );
+      });
       // pending-tool should be hidden
       const output = lastFrame();
       expect(output).toContain('successful-tool');
@@ -154,15 +145,12 @@ describe('<ToolGroupMessage />', () => {
         }),
       ];
 
-      const { lastFrame, unmount } = renderWithProviders(
-        <ToolGroupMessage {...baseProps} toolCalls={toolCalls} />,
-        {
-          config: baseMockConfig,
-          uiState: {
-            pendingHistoryItems: [{ type: 'tool_group', tools: toolCalls }],
-          },
+      const { lastFrame, unmount } = renderWithProviders(<ToolGroupMessage {...baseProps} toolCalls={toolCalls} />, {
+        config: baseMockConfig,
+        uiState: {
+          pendingHistoryItems: [{ type: 'tool_group', tools: toolCalls }],
         },
-      );
+      });
       // write_file (Pending) should be hidden
       const output = lastFrame();
       expect(output).toContain('read_file');
@@ -178,8 +166,7 @@ describe('<ToolGroupMessage />', () => {
           callId: 'tool-1',
           name: 'tool-with-result',
           description: 'Tool with output',
-          resultDisplay:
-            'This is a long result that might need height constraints',
+          resultDisplay: 'This is a long result that might need height constraints',
         }),
         createToolCall({
           callId: 'tool-2',
@@ -189,17 +176,13 @@ describe('<ToolGroupMessage />', () => {
         }),
       ];
       const { lastFrame, unmount } = renderWithProviders(
-        <ToolGroupMessage
-          {...baseProps}
-          toolCalls={toolCalls}
-          availableTerminalHeight={10}
-        />,
+        <ToolGroupMessage {...baseProps} toolCalls={toolCalls} availableTerminalHeight={10} />,
         {
           config: baseMockConfig,
           uiState: {
             pendingHistoryItems: [{ type: 'tool_group', tools: toolCalls }],
           },
-        },
+        }
       );
       expect(lastFrame()).toMatchSnapshot();
       unmount();
@@ -209,37 +192,29 @@ describe('<ToolGroupMessage />', () => {
       const toolCalls = [
         createToolCall({
           name: 'very-long-tool-name-that-might-wrap',
-          description:
-            'This is a very long description that might cause wrapping issues',
+          description: 'This is a very long description that might cause wrapping issues',
         }),
       ];
       const { lastFrame, unmount } = renderWithProviders(
-        <ToolGroupMessage
-          {...baseProps}
-          toolCalls={toolCalls}
-          terminalWidth={40}
-        />,
+        <ToolGroupMessage {...baseProps} toolCalls={toolCalls} terminalWidth={40} />,
         {
           config: baseMockConfig,
           uiState: {
             pendingHistoryItems: [{ type: 'tool_group', tools: toolCalls }],
           },
-        },
+        }
       );
       expect(lastFrame()).toMatchSnapshot();
       unmount();
     });
 
     it('renders empty tool calls array', () => {
-      const { lastFrame, unmount } = renderWithProviders(
-        <ToolGroupMessage {...baseProps} toolCalls={[]} />,
-        {
-          config: baseMockConfig,
-          uiState: {
-            pendingHistoryItems: [{ type: 'tool_group', tools: [] }],
-          },
+      const { lastFrame, unmount } = renderWithProviders(<ToolGroupMessage {...baseProps} toolCalls={[]} />, {
+        config: baseMockConfig,
+        uiState: {
+          pendingHistoryItems: [{ type: 'tool_group', tools: [] }],
         },
-      );
+      });
       expect(lastFrame()).toMatchSnapshot();
       unmount();
     });
@@ -269,7 +244,7 @@ describe('<ToolGroupMessage />', () => {
           uiState: {
             pendingHistoryItems: [{ type: 'tool_group', tools: toolCalls }],
           },
-        },
+        }
       );
       expect(lastFrame()).toMatchSnapshot();
       unmount();
@@ -285,15 +260,12 @@ describe('<ToolGroupMessage />', () => {
           outputFile: '/path/to/output.txt',
         }),
       ];
-      const { lastFrame, unmount } = renderWithProviders(
-        <ToolGroupMessage {...baseProps} toolCalls={toolCalls} />,
-        {
-          config: baseMockConfig,
-          uiState: {
-            pendingHistoryItems: [{ type: 'tool_group', tools: toolCalls }],
-          },
+      const { lastFrame, unmount } = renderWithProviders(<ToolGroupMessage {...baseProps} toolCalls={toolCalls} />, {
+        config: baseMockConfig,
+        uiState: {
+          pendingHistoryItems: [{ type: 'tool_group', tools: toolCalls }],
         },
-      );
+      });
       expect(lastFrame()).toMatchSnapshot();
       unmount();
     });
@@ -329,7 +301,7 @@ describe('<ToolGroupMessage />', () => {
               { type: 'tool_group', tools: toolCalls2 },
             ],
           },
-        },
+        }
       );
       expect(lastFrame()).toMatchSnapshot();
       unmount();
@@ -344,15 +316,12 @@ describe('<ToolGroupMessage />', () => {
           status: CoreToolCallStatus.Success,
         }),
       ];
-      const { lastFrame, unmount } = renderWithProviders(
-        <ToolGroupMessage {...baseProps} toolCalls={toolCalls} />,
-        {
-          config: baseMockConfig,
-          uiState: {
-            pendingHistoryItems: [{ type: 'tool_group', tools: toolCalls }],
-          },
+      const { lastFrame, unmount } = renderWithProviders(<ToolGroupMessage {...baseProps} toolCalls={toolCalls} />, {
+        config: baseMockConfig,
+        uiState: {
+          pendingHistoryItems: [{ type: 'tool_group', tools: toolCalls }],
         },
-      );
+      });
       expect(lastFrame()).toMatchSnapshot();
       unmount();
     });
@@ -366,15 +335,12 @@ describe('<ToolGroupMessage />', () => {
           status: CoreToolCallStatus.Success,
         }),
       ];
-      const { lastFrame, unmount } = renderWithProviders(
-        <ToolGroupMessage {...baseProps} toolCalls={toolCalls} />,
-        {
-          config: baseMockConfig,
-          uiState: {
-            pendingHistoryItems: [{ type: 'tool_group', tools: toolCalls }],
-          },
+      const { lastFrame, unmount } = renderWithProviders(<ToolGroupMessage {...baseProps} toolCalls={toolCalls} />, {
+        config: baseMockConfig,
+        uiState: {
+          pendingHistoryItems: [{ type: 'tool_group', tools: toolCalls }],
         },
-      );
+      });
       expect(lastFrame()).toMatchSnapshot();
       unmount();
     });
@@ -397,17 +363,13 @@ describe('<ToolGroupMessage />', () => {
         }),
       ];
       const { lastFrame, unmount } = renderWithProviders(
-        <ToolGroupMessage
-          {...baseProps}
-          toolCalls={toolCalls}
-          availableTerminalHeight={20}
-        />,
+        <ToolGroupMessage {...baseProps} toolCalls={toolCalls} availableTerminalHeight={20} />,
         {
           config: baseMockConfig,
           uiState: {
             pendingHistoryItems: [{ type: 'tool_group', tools: toolCalls }],
           },
-        },
+        }
       );
       expect(lastFrame()).toMatchSnapshot();
       unmount();
@@ -442,31 +404,27 @@ describe('<ToolGroupMessage />', () => {
         resultDisplay: 'error message',
         shouldHide: false,
       },
-    ])(
-      'filtering logic for status=$status and hasResult=$resultDisplay',
-      ({ status, resultDisplay, shouldHide }) => {
-        const toolCalls = [
-          createToolCall({
-            callId: `ask-user-${status}`,
-            name: ASK_USER_DISPLAY_NAME,
-            status,
-            resultDisplay,
-          }),
-        ];
+    ])('filtering logic for status=$status and hasResult=$resultDisplay', ({ status, resultDisplay, shouldHide }) => {
+      const toolCalls = [
+        createToolCall({
+          callId: `ask-user-${status}`,
+          name: ASK_USER_DISPLAY_NAME,
+          status,
+          resultDisplay,
+        }),
+      ];
 
-        const { lastFrame, unmount } = renderWithProviders(
-          <ToolGroupMessage {...baseProps} toolCalls={toolCalls} />,
-          { config: baseMockConfig },
-        );
+      const { lastFrame, unmount } = renderWithProviders(<ToolGroupMessage {...baseProps} toolCalls={toolCalls} />, {
+        config: baseMockConfig,
+      });
 
-        if (shouldHide) {
-          expect(lastFrame()).toBe('');
-        } else {
-          expect(lastFrame()).toMatchSnapshot();
-        }
-        unmount();
-      },
-    );
+      if (shouldHide) {
+        expect(lastFrame()).toBe('');
+      } else {
+        expect(lastFrame()).toMatchSnapshot();
+      }
+      unmount();
+    });
 
     it('shows other tools when ask_user is filtered out', () => {
       const toolCalls = [
@@ -482,10 +440,9 @@ describe('<ToolGroupMessage />', () => {
         }),
       ];
 
-      const { lastFrame, unmount } = renderWithProviders(
-        <ToolGroupMessage {...baseProps} toolCalls={toolCalls} />,
-        { config: baseMockConfig },
-      );
+      const { lastFrame, unmount } = renderWithProviders(<ToolGroupMessage {...baseProps} toolCalls={toolCalls} />, {
+        config: baseMockConfig,
+      });
 
       expect(lastFrame()).toMatchSnapshot();
       unmount();
@@ -504,12 +461,8 @@ describe('<ToolGroupMessage />', () => {
       ];
 
       const { lastFrame, unmount } = renderWithProviders(
-        <ToolGroupMessage
-          {...baseProps}
-          toolCalls={toolCalls}
-          borderBottom={false}
-        />,
-        { config: baseMockConfig },
+        <ToolGroupMessage {...baseProps} toolCalls={toolCalls} borderBottom={false} />,
+        { config: baseMockConfig }
       );
       // AskUser tools in progress are rendered by AskUserDialog, so we expect nothing.
       expect(lastFrame()).toBe('');
@@ -541,10 +494,9 @@ describe('<ToolGroupMessage />', () => {
         }),
       ];
 
-      const { lastFrame, unmount } = renderWithProviders(
-        <ToolGroupMessage {...baseProps} toolCalls={toolCalls} />,
-        { config: baseMockConfig },
-      );
+      const { lastFrame, unmount } = renderWithProviders(<ToolGroupMessage {...baseProps} toolCalls={toolCalls} />, {
+        config: baseMockConfig,
+      });
 
       if (visible) {
         expect(lastFrame()).toContain(name);

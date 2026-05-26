@@ -4,11 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import type { ArgumentsCamelCase, CommandModule } from 'yargs';
-import {
-  coreEvents,
-  ExitCodes,
-  getAdminErrorMessage,
-} from '@google/gemini-cli-core';
+import { coreEvents, ExitCodes, getAdminErrorMessage } from '@google/gemini-cli-core';
 import { runExitCleanup } from './utils/cleanup.js';
 import type { MergedSettings } from './config/settings.js';
 import process from 'node:process';
@@ -34,31 +30,19 @@ export async function runDeferredCommand(settings: MergedSettings) {
   const commandName = deferredCommand.commandName;
 
   if (commandName === 'mcp' && adminSettings?.mcp?.enabled === false) {
-    coreEvents.emitFeedback(
-      'error',
-      getAdminErrorMessage('MCP', undefined /* config */),
-    );
+    coreEvents.emitFeedback('error', getAdminErrorMessage('MCP', undefined /* config */));
     await runExitCleanup();
     process.exit(ExitCodes.FATAL_CONFIG_ERROR);
   }
 
-  if (
-    commandName === 'extensions' &&
-    adminSettings?.extensions?.enabled === false
-  ) {
-    coreEvents.emitFeedback(
-      'error',
-      getAdminErrorMessage('Extensions', undefined /* config */),
-    );
+  if (commandName === 'extensions' && adminSettings?.extensions?.enabled === false) {
+    coreEvents.emitFeedback('error', getAdminErrorMessage('Extensions', undefined /* config */));
     await runExitCleanup();
     process.exit(ExitCodes.FATAL_CONFIG_ERROR);
   }
 
   if (commandName === 'skills' && adminSettings?.skills?.enabled === false) {
-    coreEvents.emitFeedback(
-      'error',
-      getAdminErrorMessage('Agent skills', undefined /* config */),
-    );
+    coreEvents.emitFeedback('error', getAdminErrorMessage('Agent skills', undefined /* config */));
     await runExitCleanup();
     process.exit(ExitCodes.FATAL_CONFIG_ERROR);
   }
@@ -80,16 +64,14 @@ export async function runDeferredCommand(settings: MergedSettings) {
  */
 export function defer<T = object, U = object>(
   commandModule: CommandModule<T, U>,
-  parentCommandName?: string,
+  parentCommandName?: string
 ): CommandModule<T, U> {
   return {
     ...commandModule,
     handler: (argv: ArgumentsCamelCase<U>) => {
       setDeferredCommand({
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-        handler: commandModule.handler as (
-          argv: ArgumentsCamelCase,
-        ) => void | Promise<void>,
+        handler: commandModule.handler as (argv: ArgumentsCamelCase) => void | Promise<void>,
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
         argv: argv as unknown as ArgumentsCamelCase,
         commandName: parentCommandName || 'unknown',

@@ -46,10 +46,7 @@ export const initialState: ShellState = {
   isBackgroundShellVisible: false,
 };
 
-export function shellReducer(
-  state: ShellState,
-  action: ShellAction,
-): ShellState {
+export function shellReducer(state: ShellState, action: ShellAction): ShellState {
   switch (action.type) {
     case 'SET_ACTIVE_PTY':
       return { ...state, activeShellPtyId: action.pid };
@@ -95,10 +92,7 @@ export function shellReducer(
       // This is an intentional performance optimization for the CLI.
       let newOutput = shell.output;
       if (typeof action.chunk === 'string') {
-        newOutput =
-          typeof shell.output === 'string'
-            ? shell.output + action.chunk
-            : action.chunk;
+        newOutput = typeof shell.output === 'string' ? shell.output + action.chunk : action.chunk;
       } else {
         newOutput = action.chunk;
       }
@@ -123,8 +117,7 @@ export function shellReducer(
       return {
         ...state,
         backgroundShells: nextShells,
-        isBackgroundShellVisible:
-          nextShells.size === 0 ? false : state.isBackgroundShellVisible,
+        isBackgroundShellVisible: nextShells.size === 0 ? false : state.isBackgroundShellVisible,
       };
     }
     default:

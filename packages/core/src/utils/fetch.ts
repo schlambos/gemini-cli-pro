@@ -22,7 +22,7 @@ export class FetchError extends Error {
   constructor(
     message: string,
     public code?: string,
-    options?: ErrorOptions,
+    options?: ErrorOptions
   ) {
     super(message, options);
     this.name = 'FetchError';
@@ -38,10 +38,7 @@ export function isPrivateIp(url: string): boolean {
   }
 }
 
-export async function fetchWithTimeout(
-  url: string,
-  timeout: number,
-): Promise<Response> {
+export async function fetchWithTimeout(url: string, timeout: number): Promise<Response> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 

@@ -6,43 +6,21 @@
 
 import { type ReactElement } from 'react';
 
-import type {
-  ExtensionLoader,
-  GeminiCLIExtension,
-} from '@google/gemini-cli-core';
+import type { ExtensionLoader, GeminiCLIExtension } from '@google/gemini-cli-core';
 import { createMockCommandContext } from '../../test-utils/mockCommandContext.js';
 import { MessageType } from '../types.js';
-import {
-  completeExtensions,
-  completeExtensionsAndScopes,
-  extensionsCommand,
-} from './extensionsCommand.js';
-import {
-  ConfigExtensionDialog,
-  type ConfigExtensionDialogProps,
-} from '../components/ConfigExtensionDialog.js';
+import { completeExtensions, completeExtensionsAndScopes, extensionsCommand } from './extensionsCommand.js';
+import { ConfigExtensionDialog, type ConfigExtensionDialogProps } from '../components/ConfigExtensionDialog.js';
 import { type CommandContext, type SlashCommand } from './types.js';
 
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  afterEach,
-  type MockedFunction,
-} from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type MockedFunction } from 'vitest';
 import { type ExtensionUpdateAction } from '../state/extensions.js';
-import {
-  ExtensionManager,
-  inferInstallMetadata,
-} from '../../config/extension-manager.js';
+import { ExtensionManager, inferInstallMetadata } from '../../config/extension-manager.js';
 import { SettingScope } from '../../config/settings.js';
 import { stat } from 'node:fs/promises';
 
 vi.mock('../../config/extension-manager.js', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('../../config/extension-manager.js')>();
+  const actual = await importOriginal<typeof import('../../config/extension-manager.js')>();
   return {
     ...actual,
     inferInstallMetadata: vi.fn(),
@@ -214,8 +192,7 @@ describe('extensionsCommand', () => {
         expected: ['--all'],
       },
       {
-        description:
-          'should return both extension names and --all when both match',
+        description: 'should return both extension names and --all when both match',
         partialArg: 'all',
         expected: ['--all', 'all-ext'],
       },
@@ -225,15 +202,13 @@ describe('extensionsCommand', () => {
         expected: [],
       },
       {
-        description:
-          'should suggest only disabled extension names for the enable command',
+        description: 'should suggest only disabled extension names for the enable command',
         partialArg: 'ext',
         expected: ['ext-one'],
         command: 'enable',
       },
       {
-        description:
-          'should suggest only enabled extension names for the disable command',
+        description: 'should suggest only enabled extension names for the disable command',
         partialArg: 'ext',
         expected: ['ext-two'],
         command: 'disable',
@@ -262,9 +237,7 @@ describe('extensionsCommand', () => {
   });
 
   describe('update', () => {
-    const updateAction = extensionsCommand().subCommands?.find(
-      (cmd) => cmd.name === 'update',
-    )?.action;
+    const updateAction = extensionsCommand().subCommands?.find((cmd) => cmd.name === 'update')?.action;
 
     if (!updateAction) {
       throw new Error('Update action not found');
@@ -289,13 +262,11 @@ describe('extensionsCommand', () => {
     });
 
     it('should inform user if there are no extensions to update with --all', async () => {
-      mockDispatchExtensionState.mockImplementationOnce(
-        (action: ExtensionUpdateAction) => {
-          if (action.type === 'SCHEDULE_UPDATE') {
-            action.payload.onComplete([]);
-          }
-        },
-      );
+      mockDispatchExtensionState.mockImplementationOnce((action: ExtensionUpdateAction) => {
+        if (action.type === 'SCHEDULE_UPDATE') {
+          action.payload.onComplete([]);
+        }
+      });
 
       await updateAction(mockContext, '--all');
       expect(mockContext.ui.addItem).toHaveBeenCalledWith({
@@ -305,24 +276,22 @@ describe('extensionsCommand', () => {
     });
 
     it('should call setPendingItem and addItem in a finally block on success', async () => {
-      mockDispatchExtensionState.mockImplementationOnce(
-        (action: ExtensionUpdateAction) => {
-          if (action.type === 'SCHEDULE_UPDATE') {
-            action.payload.onComplete([
-              {
-                name: 'ext-one',
-                originalVersion: '1.0.0',
-                updatedVersion: '1.0.1',
-              },
-              {
-                name: 'ext-two',
-                originalVersion: '2.0.0',
-                updatedVersion: '2.0.1',
-              },
-            ]);
-          }
-        },
-      );
+      mockDispatchExtensionState.mockImplementationOnce((action: ExtensionUpdateAction) => {
+        if (action.type === 'SCHEDULE_UPDATE') {
+          action.payload.onComplete([
+            {
+              name: 'ext-one',
+              originalVersion: '1.0.0',
+              updatedVersion: '1.0.1',
+            },
+            {
+              name: 'ext-two',
+              originalVersion: '2.0.0',
+              updatedVersion: '2.0.1',
+            },
+          ]);
+        }
+      });
       await updateAction(mockContext, '--all');
       expect(mockContext.ui.setPendingItem).toHaveBeenCalledWith({
         type: MessageType.EXTENSIONS_LIST,
@@ -356,19 +325,17 @@ describe('extensionsCommand', () => {
     });
 
     it('should update a single extension by name', async () => {
-      mockDispatchExtensionState.mockImplementationOnce(
-        (action: ExtensionUpdateAction) => {
-          if (action.type === 'SCHEDULE_UPDATE') {
-            action.payload.onComplete([
-              {
-                name: 'ext-one',
-                originalVersion: '1.0.0',
-                updatedVersion: '1.0.1',
-              },
-            ]);
-          }
-        },
-      );
+      mockDispatchExtensionState.mockImplementationOnce((action: ExtensionUpdateAction) => {
+        if (action.type === 'SCHEDULE_UPDATE') {
+          action.payload.onComplete([
+            {
+              name: 'ext-one',
+              originalVersion: '1.0.0',
+              updatedVersion: '1.0.1',
+            },
+          ]);
+        }
+      });
       await updateAction(mockContext, 'ext-one');
       expect(mockDispatchExtensionState).toHaveBeenCalledWith({
         type: 'SCHEDULE_UPDATE',
@@ -381,24 +348,22 @@ describe('extensionsCommand', () => {
     });
 
     it('should update multiple extensions by name', async () => {
-      mockDispatchExtensionState.mockImplementationOnce(
-        (action: ExtensionUpdateAction) => {
-          if (action.type === 'SCHEDULE_UPDATE') {
-            action.payload.onComplete([
-              {
-                name: 'ext-one',
-                originalVersion: '1.0.0',
-                updatedVersion: '1.0.1',
-              },
-              {
-                name: 'ext-two',
-                originalVersion: '1.0.0',
-                updatedVersion: '1.0.1',
-              },
-            ]);
-          }
-        },
-      );
+      mockDispatchExtensionState.mockImplementationOnce((action: ExtensionUpdateAction) => {
+        if (action.type === 'SCHEDULE_UPDATE') {
+          action.payload.onComplete([
+            {
+              name: 'ext-one',
+              originalVersion: '1.0.0',
+              updatedVersion: '1.0.1',
+            },
+            {
+              name: 'ext-two',
+              originalVersion: '1.0.0',
+              updatedVersion: '1.0.1',
+            },
+          ]);
+        }
+      });
       await updateAction(mockContext, 'ext-one ext-two');
       expect(mockDispatchExtensionState).toHaveBeenCalledWith({
         type: 'SCHEDULE_UPDATE',
@@ -421,9 +386,7 @@ describe('extensionsCommand', () => {
   });
 
   describe('explore', () => {
-    const exploreAction = extensionsCommand().subCommands?.find(
-      (cmd) => cmd.name === 'explore',
-    )?.action;
+    const exploreAction = extensionsCommand().subCommands?.find((cmd) => cmd.name === 'explore')?.action;
 
     if (!exploreAction) {
       throw new Error('Explore action not found');
@@ -533,9 +496,7 @@ describe('extensionsCommand', () => {
     let installAction: SlashCommand['action'];
 
     beforeEach(() => {
-      installAction = extensionsCommand(true).subCommands?.find(
-        (cmd) => cmd.name === 'install',
-      )?.action;
+      installAction = extensionsCommand(true).subCommands?.find((cmd) => cmd.name === 'install')?.action;
 
       expect(installAction).not.toBeNull();
 
@@ -610,9 +571,7 @@ describe('extensionsCommand', () => {
     let linkAction: SlashCommand['action'];
 
     beforeEach(() => {
-      linkAction = extensionsCommand(true).subCommands?.find(
-        (cmd) => cmd.name === 'link',
-      )?.action;
+      linkAction = extensionsCommand(true).subCommands?.find((cmd) => cmd.name === 'link')?.action;
 
       expect(linkAction).not.toBeNull();
       mockContext.invocation!.name = 'link';
@@ -680,9 +639,7 @@ describe('extensionsCommand', () => {
     let uninstallAction: SlashCommand['action'];
 
     beforeEach(() => {
-      uninstallAction = extensionsCommand(true).subCommands?.find(
-        (cmd) => cmd.name === 'uninstall',
-      )?.action;
+      uninstallAction = extensionsCommand(true).subCommands?.find((cmd) => cmd.name === 'uninstall')?.action;
 
       expect(uninstallAction).not.toBeNull();
 
@@ -730,9 +687,7 @@ describe('extensionsCommand', () => {
     let enableAction: SlashCommand['action'];
 
     beforeEach(() => {
-      enableAction = extensionsCommand(true).subCommands?.find(
-        (cmd) => cmd.name === 'enable',
-      )?.action;
+      enableAction = extensionsCommand(true).subCommands?.find((cmd) => cmd.name === 'enable')?.action;
 
       expect(enableAction).not.toBeNull();
 
@@ -749,32 +704,17 @@ describe('extensionsCommand', () => {
 
     it('should call enableExtension with the provided scope', async () => {
       await enableAction!(mockContext, `${inactiveExt.name} --scope=user`);
-      expect(mockEnableExtension).toHaveBeenCalledWith(
-        inactiveExt.name,
-        SettingScope.User,
-      );
+      expect(mockEnableExtension).toHaveBeenCalledWith(inactiveExt.name, SettingScope.User);
 
       await enableAction!(mockContext, `${inactiveExt.name} --scope workspace`);
-      expect(mockEnableExtension).toHaveBeenCalledWith(
-        inactiveExt.name,
-        SettingScope.Workspace,
-      );
+      expect(mockEnableExtension).toHaveBeenCalledWith(inactiveExt.name, SettingScope.Workspace);
     });
 
     it('should support --all', async () => {
-      mockGetExtensions.mockReturnValue([
-        inactiveExt,
-        { ...inactiveExt, name: 'another-inactive-ext' },
-      ]);
+      mockGetExtensions.mockReturnValue([inactiveExt, { ...inactiveExt, name: 'another-inactive-ext' }]);
       await enableAction!(mockContext, '--all --scope session');
-      expect(mockEnableExtension).toHaveBeenCalledWith(
-        inactiveExt.name,
-        SettingScope.Session,
-      );
-      expect(mockEnableExtension).toHaveBeenCalledWith(
-        'another-inactive-ext',
-        SettingScope.Session,
-      );
+      expect(mockEnableExtension).toHaveBeenCalledWith(inactiveExt.name, SettingScope.Session);
+      expect(mockEnableExtension).toHaveBeenCalledWith('another-inactive-ext', SettingScope.Session);
     });
   });
 
@@ -782,9 +722,7 @@ describe('extensionsCommand', () => {
     let disableAction: SlashCommand['action'];
 
     beforeEach(() => {
-      disableAction = extensionsCommand(true).subCommands?.find(
-        (cmd) => cmd.name === 'disable',
-      )?.action;
+      disableAction = extensionsCommand(true).subCommands?.find((cmd) => cmd.name === 'disable')?.action;
 
       expect(disableAction).not.toBeNull();
 
@@ -801,64 +739,41 @@ describe('extensionsCommand', () => {
 
     it('should call disableExtension with the provided scope', async () => {
       await disableAction!(mockContext, `${activeExt.name} --scope=user`);
-      expect(mockDisableExtension).toHaveBeenCalledWith(
-        activeExt.name,
-        SettingScope.User,
-      );
+      expect(mockDisableExtension).toHaveBeenCalledWith(activeExt.name, SettingScope.User);
 
       await disableAction!(mockContext, `${activeExt.name} --scope workspace`);
-      expect(mockDisableExtension).toHaveBeenCalledWith(
-        activeExt.name,
-        SettingScope.Workspace,
-      );
+      expect(mockDisableExtension).toHaveBeenCalledWith(activeExt.name, SettingScope.Workspace);
     });
 
     it('should support --all', async () => {
-      mockGetExtensions.mockReturnValue([
-        activeExt,
-        { ...activeExt, name: 'another-active-ext' },
-      ]);
+      mockGetExtensions.mockReturnValue([activeExt, { ...activeExt, name: 'another-active-ext' }]);
       await disableAction!(mockContext, '--all --scope session');
-      expect(mockDisableExtension).toHaveBeenCalledWith(
-        activeExt.name,
-        SettingScope.Session,
-      );
-      expect(mockDisableExtension).toHaveBeenCalledWith(
-        'another-active-ext',
-        SettingScope.Session,
-      );
+      expect(mockDisableExtension).toHaveBeenCalledWith(activeExt.name, SettingScope.Session);
+      expect(mockDisableExtension).toHaveBeenCalledWith('another-active-ext', SettingScope.Session);
     });
   });
 
   describe('restart', () => {
     let restartAction: SlashCommand['action'];
-    let mockRestartExtension: MockedFunction<
-      typeof ExtensionLoader.prototype.restartExtension
-    >;
+    let mockRestartExtension: MockedFunction<typeof ExtensionLoader.prototype.restartExtension>;
 
     beforeEach(() => {
-      restartAction = extensionsCommand().subCommands?.find(
-        (c) => c.name === 'restart',
-      )?.action;
+      restartAction = extensionsCommand().subCommands?.find((c) => c.name === 'restart')?.action;
       expect(restartAction).not.toBeNull();
 
       mockRestartExtension = vi.fn();
-      mockContext.services.config!.getExtensionLoader = vi
-        .fn()
-        .mockImplementation(() => ({
-          getExtensions: mockGetExtensions,
-          restartExtension: mockRestartExtension,
-        }));
+      mockContext.services.config!.getExtensionLoader = vi.fn().mockImplementation(() => ({
+        getExtensions: mockGetExtensions,
+        restartExtension: mockRestartExtension,
+      }));
       mockContext.invocation!.name = 'restart';
     });
 
     it('should show a message if no extensions are installed', async () => {
-      mockContext.services.config!.getExtensionLoader = vi
-        .fn()
-        .mockImplementation(() => ({
-          getExtensions: () => [],
-          restartExtension: mockRestartExtension,
-        }));
+      mockContext.services.config!.getExtensionLoader = vi.fn().mockImplementation(() => ({
+        getExtensions: () => [],
+        restartExtension: mockRestartExtension,
+      }));
 
       await restartAction!(mockContext, '--all');
 
@@ -885,13 +800,13 @@ describe('extensionsCommand', () => {
         expect.objectContaining({
           type: MessageType.INFO,
           text: 'Restarting 2 extensions...',
-        }),
+        })
       );
       expect(mockContext.ui.addItem).toHaveBeenCalledWith(
         expect.objectContaining({
           type: MessageType.INFO,
           text: '2 extensions restarted successfully.',
-        }),
+        })
       );
       expect(mockContext.ui.dispatchExtensionStateUpdate).toHaveBeenCalledWith({
         type: 'RESTARTED',
@@ -906,9 +821,7 @@ describe('extensionsCommand', () => {
     });
 
     it('handles errors during skill or agent reload', async () => {
-      const mockExtensions = [
-        { name: 'ext1', isActive: true },
-      ] as GeminiCLIExtension[];
+      const mockExtensions = [{ name: 'ext1', isActive: true }] as GeminiCLIExtension[];
       mockGetExtensions.mockReturnValue(mockExtensions);
       mockReloadSkills.mockRejectedValue(new Error('Failed to reload skills'));
 
@@ -920,7 +833,7 @@ describe('extensionsCommand', () => {
         expect.objectContaining({
           type: MessageType.ERROR,
           text: 'Failed to reload skills or agents: Failed to reload skills',
-        }),
+        })
       );
     });
 
@@ -951,7 +864,7 @@ describe('extensionsCommand', () => {
         expect.objectContaining({
           type: MessageType.ERROR,
           text: "Extensions are not yet loaded, can't restart yet",
-        }),
+        })
       );
       expect(mockRestartExtension).not.toHaveBeenCalled();
     });
@@ -963,15 +876,13 @@ describe('extensionsCommand', () => {
         expect.objectContaining({
           type: MessageType.ERROR,
           text: 'Usage: /extensions restart <extension-names>|--all',
-        }),
+        })
       );
       expect(mockRestartExtension).not.toHaveBeenCalled();
     });
 
     it('handles errors during extension restart', async () => {
-      const mockExtensions = [
-        { name: 'ext1', isActive: true },
-      ] as GeminiCLIExtension[];
+      const mockExtensions = [{ name: 'ext1', isActive: true }] as GeminiCLIExtension[];
       mockGetExtensions.mockReturnValue(mockExtensions);
       mockRestartExtension.mockRejectedValue(new Error('Failed to restart'));
 
@@ -982,14 +893,12 @@ describe('extensionsCommand', () => {
         expect.objectContaining({
           type: MessageType.ERROR,
           text: 'Failed to restart some extensions:\n  ext1: Failed to restart',
-        }),
+        })
       );
     });
 
     it('shows a warning if an extension is not found', async () => {
-      const mockExtensions = [
-        { name: 'ext1', isActive: true },
-      ] as GeminiCLIExtension[];
+      const mockExtensions = [{ name: 'ext1', isActive: true }] as GeminiCLIExtension[];
       mockGetExtensions.mockReturnValue(mockExtensions);
 
       await restartAction!(mockContext, 'ext1 ext2');
@@ -1000,14 +909,12 @@ describe('extensionsCommand', () => {
         expect.objectContaining({
           type: MessageType.WARNING,
           text: 'Extension(s) not found or not active: ext2',
-        }),
+        })
       );
     });
 
     it('does not restart any extensions if none are found', async () => {
-      const mockExtensions = [
-        { name: 'ext1', isActive: true },
-      ] as GeminiCLIExtension[];
+      const mockExtensions = [{ name: 'ext1', isActive: true }] as GeminiCLIExtension[];
       mockGetExtensions.mockReturnValue(mockExtensions);
 
       await restartAction!(mockContext, 'ext2 ext3');
@@ -1017,7 +924,7 @@ describe('extensionsCommand', () => {
         expect.objectContaining({
           type: MessageType.WARNING,
           text: 'Extension(s) not found or not active: ext2, ext3',
-        }),
+        })
       );
     });
 
@@ -1038,9 +945,7 @@ describe('extensionsCommand', () => {
     let configAction: SlashCommand['action'];
 
     beforeEach(async () => {
-      configAction = extensionsCommand(true).subCommands?.find(
-        (cmd) => cmd.name === 'config',
-      )?.action;
+      configAction = extensionsCommand(true).subCommands?.find((cmd) => cmd.name === 'config')?.action;
 
       expect(configAction).not.toBeNull();
       mockContext.invocation!.name = 'config';
@@ -1048,9 +953,7 @@ describe('extensionsCommand', () => {
       const prompts = (await import('prompts')).default;
       vi.mocked(prompts).mockResolvedValue({ overwrite: true });
 
-      const { getScopedEnvContents } = await import(
-        '../../config/extensions/extensionSettings.js'
-      );
+      const { getScopedEnvContents } = await import('../../config/extensions/extensionSettings.js');
       vi.mocked(getScopedEnvContents).mockResolvedValue({});
     });
 
@@ -1060,8 +963,7 @@ describe('extensionsCommand', () => {
         throw new Error('Expected custom_dialog');
       }
       const dialogResult = result;
-      const component =
-        dialogResult.component as ReactElement<ConfigExtensionDialogProps>;
+      const component = dialogResult.component as ReactElement<ConfigExtensionDialogProps>;
       expect(component.type).toBe(ConfigExtensionDialog);
       expect(component.props.configureAll).toBe(true);
       expect(component.props.extensionManager).toBeDefined();
@@ -1073,8 +975,7 @@ describe('extensionsCommand', () => {
         throw new Error('Expected custom_dialog');
       }
       const dialogResult = result;
-      const component =
-        dialogResult.component as ReactElement<ConfigExtensionDialogProps>;
+      const component = dialogResult.component as ReactElement<ConfigExtensionDialogProps>;
       expect(component.type).toBe(ConfigExtensionDialog);
       expect(component.props.extensionName).toBe('ext-one');
       expect(component.props.settingKey).toBeUndefined();
@@ -1087,8 +988,7 @@ describe('extensionsCommand', () => {
         throw new Error('Expected custom_dialog');
       }
       const dialogResult = result;
-      const component =
-        dialogResult.component as ReactElement<ConfigExtensionDialogProps>;
+      const component = dialogResult.component as ReactElement<ConfigExtensionDialogProps>;
       expect(component.type).toBe(ConfigExtensionDialog);
       expect(component.props.extensionName).toBe('ext-one');
       expect(component.props.settingKey).toBe('SETTING1');
@@ -1096,16 +996,12 @@ describe('extensionsCommand', () => {
     });
 
     it('should respect scope argument passed to dialog', async () => {
-      const result = await configAction!(
-        mockContext,
-        'ext-one SETTING1 --scope=workspace',
-      );
+      const result = await configAction!(mockContext, 'ext-one SETTING1 --scope=workspace');
       if (result?.type !== 'custom_dialog') {
         throw new Error('Expected custom_dialog');
       }
       const dialogResult = result;
-      const component =
-        dialogResult.component as ReactElement<ConfigExtensionDialogProps>;
+      const component = dialogResult.component as ReactElement<ConfigExtensionDialogProps>;
       expect(component.props.scope).toBe('workspace');
     });
 
@@ -1126,8 +1022,7 @@ describe('extensionsCommand', () => {
         throw new Error('Expected custom_dialog');
       }
       const dialogResult = result;
-      const component =
-        dialogResult.component as ReactElement<ConfigExtensionDialogProps>;
+      const component = dialogResult.component as ReactElement<ConfigExtensionDialogProps>;
       expect(component.type).toBe(ConfigExtensionDialog);
     });
   });

@@ -6,10 +6,7 @@
 
 import { jsonrepair } from 'jsonrepair';
 
-export function safeJsonParse<T = Record<string, unknown>>(
-  jsonString: string,
-  fallbackValue: T = {} as T,
-): T {
+export function safeJsonParse<T = Record<string, unknown>>(jsonString: string, fallbackValue: T = {} as T): T {
   if (!jsonString || typeof jsonString !== 'string') {
     return fallbackValue;
   }

@@ -10,22 +10,14 @@ import zlib from 'node:zlib';
 import fs from 'node:fs';
 import path from 'node:path';
 import { EventEmitter } from 'node:events';
-import {
-  CoreEvent,
-  coreEvents,
-  debugLogger,
-  type ConsoleLogPayload,
-  type Config,
-} from '@google/gemini-cli-core';
+import { CoreEvent, coreEvents, debugLogger, type ConsoleLogPayload, type Config } from '@google/gemini-cli-core';
 import WebSocket from 'ws';
 
 const ACTIVITY_ID_HEADER = 'x-activity-request-id';
 const MAX_BUFFER_SIZE = 100;
 
 /** Type guard: Array.isArray doesn't narrow readonly arrays in TS 5.8 */
-function isHeaderRecord(
-  h: http.OutgoingHttpHeaders | readonly string[],
-): h is http.OutgoingHttpHeaders {
+function isHeaderRecord(h: http.OutgoingHttpHeaders | readonly string[]): h is http.OutgoingHttpHeaders {
   return !Array.isArray(h);
 }
 
@@ -64,10 +56,7 @@ export class ActivityLogger extends EventEmitter {
   private requestStartTimes = new Map<string, number>();
   private networkLoggingEnabled = false;
 
-  private networkBufferMap = new Map<
-    string,
-    Array<NetworkLog | PartialNetworkLog>
-  >();
+  private networkBufferMap = new Map<string, Array<NetworkLog | PartialNetworkLog>>();
   private networkBufferIds: string[] = [];
   private consoleBuffer: Array<ConsoleLogPayload & { timestamp: number }> = [];
   private readonly bufferLimit = 10;
@@ -143,17 +132,13 @@ export class ActivityLogger extends EventEmitter {
       });
     } else if (typeof headers === 'object' && headers !== null) {
       for (const [key, val] of Object.entries(headers)) {
-        result[key.toLowerCase()] = Array.isArray(val)
-          ? val.join(', ')
-          : String(val);
+        result[key.toLowerCase()] = Array.isArray(val) ? val.join(', ') : String(val);
       }
     }
     return result;
   }
 
-  private sanitizeNetworkLog(
-    log: NetworkLog | PartialNetworkLog,
-  ): NetworkLog | PartialNetworkLog {
+  private sanitizeNetworkLog(log: NetworkLog | PartialNetworkLog): NetworkLog | PartialNetworkLog {
     if (!log || typeof log !== 'object') return log;
 
     const sanitized = { ...log };
@@ -162,11 +147,7 @@ export class ActivityLogger extends EventEmitter {
     if ('headers' in sanitized && sanitized.headers) {
       const headers = { ...sanitized.headers };
       for (const key of Object.keys(headers)) {
-        if (
-          ['authorization', 'cookie', 'x-goog-api-key'].includes(
-            key.toLowerCase(),
-          )
-        ) {
+        if (['authorization', 'cookie', 'x-goog-api-key'].includes(key.toLowerCase())) {
           headers[key] = '[REDACTED]';
         }
       }
@@ -223,14 +204,8 @@ export class ActivityLogger extends EventEmitter {
     const originalFetch = global.fetch;
 
     global.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
-      const url =
-        typeof input === 'string'
-          ? input
-          : input instanceof URL
-            ? input.toString()
-            : input.url;
-      if (url.includes('127.0.0.1') || url.includes('localhost'))
-        return originalFetch(input, init);
+      const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
+      if (url.includes('127.0.0.1') || url.includes('localhost')) return originalFetch(input, init);
 
       const id = Math.random().toString(36).substring(7);
       const method = (init?.method || 'GET').toUpperCase();
@@ -243,8 +218,7 @@ export class ActivityLogger extends EventEmitter {
       let reqBody = '';
       if (init?.body) {
         if (typeof init.body === 'string') reqBody = init.body;
-        else if (init.body instanceof URLSearchParams)
-          reqBody = init.body.toString();
+        else if (init.body instanceof URLSearchParams) reqBody = init.body.toString();
       }
 
       this.requestStartTimes.set(id, Date.now());
@@ -362,11 +336,7 @@ export class ActivityLogger extends EventEmitter {
     const originalRequest = http.request;
     const originalHttpsRequest = https.request;
 
-    const wrapRequest = (
-      originalFn: typeof http.request,
-      args: unknown[],
-      protocol: string,
-    ) => {
+    const wrapRequest = (originalFn: typeof http.request, args: unknown[], protocol: string) => {
       const firstArg = args[0];
       let options: http.RequestOptions | string | URL;
       if (typeof firstArg === 'string') {
@@ -384,13 +354,8 @@ export class ActivityLogger extends EventEmitter {
         url = options.href;
       } else {
         // Some callers pass URL-like objects that include href
-        const href =
-          'href' in options && typeof options.href === 'string'
-            ? options.href
-            : '';
-        url =
-          href ||
-          `${protocol}//${options.hostname || options.host || 'localhost'}${options.path || '/'}`;
+        const href = 'href' in options && typeof options.href === 'string' ? options.href : '';
+        url = href || `${protocol}//${options.hostname || options.host || 'localhost'}${options.path || '/'}`;
       }
 
       if (url.includes('127.0.0.1') || url.includes('localhost'))
@@ -398,11 +363,7 @@ export class ActivityLogger extends EventEmitter {
         return originalFn.apply(http, args as any);
 
       const rawHeaders =
-        typeof options === 'object' &&
-        options !== null &&
-        !(options instanceof URL)
-          ? options.headers
-          : undefined;
+        typeof options === 'object' && options !== null && !(options instanceof URL) ? options.headers : undefined;
       let headers: http.OutgoingHttpHeaders = {};
       if (rawHeaders && isHeaderRecord(rawHeaders)) {
         headers = rawHeaders;
@@ -433,20 +394,14 @@ export class ActivityLogger extends EventEmitter {
               ? chunk
               : typeof chunk === 'string'
                 ? Buffer.from(chunk, encoding)
-                : Buffer.from(
-                    chunk instanceof Uint8Array ? chunk : String(chunk),
-                  ),
+                : Buffer.from(chunk instanceof Uint8Array ? chunk : String(chunk))
           );
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-type-assertion
         return oldWrite.apply(this, [chunk, ...etc] as any);
       };
 
-      req.end = function (
-        this: http.ClientRequest,
-        chunk: unknown,
-        ...etc: unknown[]
-      ) {
+      req.end = function (this: http.ClientRequest, chunk: unknown, ...etc: unknown[]) {
         if (chunk && typeof chunk !== 'function') {
           const encoding =
             // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
@@ -456,9 +411,7 @@ export class ActivityLogger extends EventEmitter {
               ? chunk
               : typeof chunk === 'string'
                 ? Buffer.from(chunk, encoding)
-                : Buffer.from(
-                    chunk instanceof Uint8Array ? chunk : String(chunk),
-                  ),
+                : Buffer.from(chunk instanceof Uint8Array ? chunk : String(chunk))
           );
         }
         const body = Buffer.concat(requestChunks).toString('utf8');
@@ -546,8 +499,7 @@ export class ActivityLogger extends EventEmitter {
     };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-type-assertion
-    (http as any).request = (...args: unknown[]) =>
-      wrapRequest(originalRequest, args, 'http:');
+    (http as any).request = (...args: unknown[]) => wrapRequest(originalRequest, args, 'http:');
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-type-assertion
     (https as any).request = (...args: unknown[]) =>
       wrapRequest(originalHttpsRequest as typeof http.request, args, 'https:');
@@ -566,18 +518,11 @@ export class ActivityLogger extends EventEmitter {
 /**
  * Setup file-based logging to JSONL
  */
-function setupFileLogging(
-  capture: ActivityLogger,
-  config: Config,
-  customPath?: string,
-) {
+function setupFileLogging(capture: ActivityLogger, config: Config, customPath?: string) {
   const logFile =
     customPath ||
     (config.storage
-      ? path.join(
-          config.storage.getProjectTempLogsDir(),
-          `session-${config.getSessionId()}.jsonl`,
-        )
+      ? path.join(config.storage.getProjectTempLogsDir(), `session-${config.getSessionId()}.jsonl`)
       : null);
 
   if (!logFile) return;
@@ -617,7 +562,7 @@ function setupNetworkLogging(
   host: string,
   port: number,
   config: Config,
-  onReconnectFailed?: () => void,
+  onReconnectFailed?: () => void
 ) {
   const transportBuffer: object[] = [];
   let ws: WebSocket | null = null;
@@ -645,18 +590,10 @@ function setupNetworkLogging(
       ws.on('message', (data: Buffer) => {
         try {
           const parsed: unknown = JSON.parse(data.toString());
-          if (
-            typeof parsed === 'object' &&
-            parsed !== null &&
-            'type' in parsed &&
-            typeof parsed.type === 'string'
-          ) {
+          if (typeof parsed === 'object' && parsed !== null && 'type' in parsed && typeof parsed.type === 'string') {
             handleServerMessage({
               type: parsed.type,
-              sessionId:
-                'sessionId' in parsed && typeof parsed.sessionId === 'string'
-                  ? parsed.sessionId
-                  : undefined,
+              sessionId: 'sessionId' in parsed && typeof parsed.sessionId === 'string' ? parsed.sessionId : undefined,
             });
           }
         } catch (err) {
@@ -679,10 +616,7 @@ function setupNetworkLogging(
     }
   };
 
-  const handleServerMessage = (message: {
-    type: string;
-    sessionId?: string;
-  }) => {
+  const handleServerMessage = (message: { type: string; sessionId?: string }) => {
     switch (message.type) {
       case 'registered':
         sessionId = message.sessionId || null;
@@ -723,11 +657,7 @@ function setupNetworkLogging(
     };
 
     // If not connected or network logging not enabled, buffer
-    if (
-      !ws ||
-      ws.readyState !== WebSocket.OPEN ||
-      !capture.isNetworkLoggingEnabled()
-    ) {
+    if (!ws || ws.readyState !== WebSocket.OPEN || !capture.isNetworkLoggingEnabled()) {
       transportBuffer.push(message);
       if (transportBuffer.length > MAX_BUFFER_SIZE) transportBuffer.shift();
       return;
@@ -737,11 +667,7 @@ function setupNetworkLogging(
   };
 
   const flushBuffer = () => {
-    if (
-      !ws ||
-      ws.readyState !== WebSocket.OPEN ||
-      !capture.isNetworkLoggingEnabled()
-    ) {
+    if (!ws || ws.readyState !== WebSocket.OPEN || !capture.isNetworkLoggingEnabled()) {
       return;
     }
 
@@ -764,7 +690,7 @@ function setupNetworkLogging(
     ].sort((a, b) => a.timestamp - b.timestamp);
 
     debugLogger.debug(
-      `Flushing ${allInitialLogs.length} initial buffered logs and ${transportBuffer.length} transport buffered logs...`,
+      `Flushing ${allInitialLogs.length} initial buffered logs and ${transportBuffer.length} transport buffered logs...`
     );
 
     for (const log of allInitialLogs) {
@@ -795,9 +721,7 @@ function setupNetworkLogging(
 
     reconnectAttempts++;
     if (reconnectAttempts > MAX_RECONNECT_ATTEMPTS && onReconnectFailed) {
-      debugLogger.debug(
-        `WebSocket reconnect failed after ${MAX_RECONNECT_ATTEMPTS} attempts, promoting to server...`,
-      );
+      debugLogger.debug(`WebSocket reconnect failed after ${MAX_RECONNECT_ATTEMPTS} attempts, promoting to server...`);
       onReconnectFailed();
       return;
     }
@@ -857,19 +781,13 @@ export function initActivityLogger(
         onReconnectFailed?: () => void;
       }
     | { mode: 'file'; filePath?: string }
-    | { mode: 'buffer' },
+    | { mode: 'buffer' }
 ): void {
   const capture = ActivityLogger.getInstance();
   capture.enable();
 
   if (options.mode === 'network') {
-    setupNetworkLogging(
-      capture,
-      options.host,
-      options.port,
-      config,
-      options.onReconnectFailed,
-    );
+    setupNetworkLogging(capture, options.host, options.port, config, options.onReconnectFailed);
     capture.enableNetworkLogging();
   } else if (options.mode === 'file') {
     setupFileLogging(capture, config, options.filePath);
@@ -883,12 +801,7 @@ export function initActivityLogger(
  * Add a network (WebSocket) transport to the existing ActivityLogger singleton.
  * Used for promotion re-entry without re-bridging coreEvents.
  */
-export function addNetworkTransport(
-  config: Config,
-  host: string,
-  port: number,
-  onReconnectFailed?: () => void,
-): void {
+export function addNetworkTransport(config: Config, host: string, port: number, onReconnectFailed?: () => void): void {
   const capture = ActivityLogger.getInstance();
   setupNetworkLogging(capture, host, port, config, onReconnectFailed);
 }

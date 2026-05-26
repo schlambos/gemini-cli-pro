@@ -10,7 +10,7 @@ import { describe, it, expect } from 'vitest';
 
 describe('ErrorMessage', () => {
   it('renders with the correct prefix and text', () => {
-    const { lastFrame } = render(<ErrorMessage text="Something went wrong" />);
+    const { lastFrame } = render(<ErrorMessage text='Something went wrong' />);
     const output = lastFrame();
 
     expect(output).toMatchSnapshot();

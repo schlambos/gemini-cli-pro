@@ -7,10 +7,7 @@
 import { renderWithProviders } from '../../test-utils/render.js';
 import { act } from 'react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import {
-  LogoutConfirmationDialog,
-  LogoutChoice,
-} from './LogoutConfirmationDialog.js';
+import { LogoutConfirmationDialog, LogoutChoice } from './LogoutConfirmationDialog.js';
 import { RadioButtonSelect } from './shared/RadioButtonSelect.js';
 
 vi.mock('./shared/RadioButtonSelect.js', () => ({
@@ -23,14 +20,10 @@ describe('LogoutConfirmationDialog', () => {
   });
 
   it('should render the dialog with title, description, and hint', () => {
-    const { lastFrame } = renderWithProviders(
-      <LogoutConfirmationDialog onSelect={vi.fn()} />,
-    );
+    const { lastFrame } = renderWithProviders(<LogoutConfirmationDialog onSelect={vi.fn()} />);
 
     expect(lastFrame()).toContain('You are now logged out.');
-    expect(lastFrame()).toContain(
-      'Login again to continue using Gemini CLI, or exit the application.',
-    );
+    expect(lastFrame()).toContain('Login again to continue using Gemini CLI, or exit the application.');
     expect(lastFrame()).toContain('(Use Enter to select, Esc to close)');
   });
 
@@ -72,9 +65,7 @@ describe('LogoutConfirmationDialog', () => {
 
   it('should call onSelect with EXIT when escape key is pressed', () => {
     const onSelect = vi.fn();
-    const { stdin } = renderWithProviders(
-      <LogoutConfirmationDialog onSelect={onSelect} />,
-    );
+    const { stdin } = renderWithProviders(<LogoutConfirmationDialog onSelect={onSelect} />);
 
     act(() => {
       // Send kitty escape key sequence

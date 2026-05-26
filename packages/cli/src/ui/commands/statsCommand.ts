@@ -4,23 +4,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type {
-  HistoryItemStats,
-  HistoryItemModelStats,
-  HistoryItemToolStats,
-} from '../types.js';
+import type { HistoryItemStats, HistoryItemModelStats, HistoryItemToolStats } from '../types.js';
 import { MessageType } from '../types.js';
 import { formatDuration } from '../utils/formatters.js';
 import { UserAccountManager } from '@google/gemini-cli-core';
-import {
-  type CommandContext,
-  type SlashCommand,
-  CommandKind,
-} from './types.js';
+import { type CommandContext, type SlashCommand, CommandKind } from './types.js';
 
 function getUserIdentity(context: CommandContext) {
-  const selectedAuthType =
-    context.services.settings.merged.security.auth.selectedType || '';
+  const selectedAuthType = context.services.settings.merged.security.auth.selectedType || '';
 
   const userAccountManager = new UserAccountManager();
   const cachedAccount = userAccountManager.getCachedGoogleAccount();

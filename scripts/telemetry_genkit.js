@@ -21,13 +21,13 @@ async function main() {
     '', // Endpoint will be set dynamically
     'local',
     undefined,
-    'http',
+    'http'
   );
 
   registerCleanup(
     () => [genkitProcess],
     () => [],
-    originalSandboxSetting,
+    originalSandboxSetting
   );
 
   console.log('🚀 Starting Genkit telemetry server...');

@@ -18,11 +18,7 @@ describe('TableRenderer', () => {
     const terminalWidth = 80;
 
     const { lastFrame } = renderWithProviders(
-      <TableRenderer
-        headers={headers}
-        rows={rows}
-        terminalWidth={terminalWidth}
-      />,
+      <TableRenderer headers={headers} rows={rows} terminalWidth={terminalWidth} />
     );
 
     const output = lastFrame();
@@ -47,11 +43,7 @@ describe('TableRenderer', () => {
     const terminalWidth = 80;
 
     const { lastFrame } = renderWithProviders(
-      <TableRenderer
-        headers={headers}
-        rows={rows}
-        terminalWidth={terminalWidth}
-      />,
+      <TableRenderer headers={headers} rows={rows} terminalWidth={terminalWidth} />
     );
 
     const output = lastFrame();
@@ -64,21 +56,11 @@ describe('TableRenderer', () => {
 
   it('wraps long cell content correctly', () => {
     const headers = ['Col 1', 'Col 2', 'Col 3'];
-    const rows = [
-      [
-        'Short',
-        'This is a very long cell content that should wrap to multiple lines',
-        'Short',
-      ],
-    ];
+    const rows = [['Short', 'This is a very long cell content that should wrap to multiple lines', 'Short']];
     const terminalWidth = 50;
 
     const { lastFrame } = renderWithProviders(
-      <TableRenderer
-        headers={headers}
-        rows={rows}
-        terminalWidth={terminalWidth}
-      />,
+      <TableRenderer headers={headers} rows={rows} terminalWidth={terminalWidth} />
     );
 
     const output = lastFrame();
@@ -99,11 +81,7 @@ describe('TableRenderer', () => {
     const terminalWidth = 60;
 
     const { lastFrame } = renderWithProviders(
-      <TableRenderer
-        headers={headers}
-        rows={rows}
-        terminalWidth={terminalWidth}
-      />,
+      <TableRenderer headers={headers} rows={rows} terminalWidth={terminalWidth} />
     );
 
     const output = lastFrame();
@@ -113,21 +91,11 @@ describe('TableRenderer', () => {
 
   it('wraps mixed long and short columns correctly', () => {
     const headers = ['Short', 'Long', 'Medium'];
-    const rows = [
-      [
-        'Tiny',
-        'This is a very long text that definitely needs to wrap to the next line',
-        'Not so long',
-      ],
-    ];
+    const rows = [['Tiny', 'This is a very long text that definitely needs to wrap to the next line', 'Not so long']];
     const terminalWidth = 50;
 
     const { lastFrame } = renderWithProviders(
-      <TableRenderer
-        headers={headers}
-        rows={rows}
-        terminalWidth={terminalWidth}
-      />,
+      <TableRenderer headers={headers} rows={rows} terminalWidth={terminalWidth} />
     );
 
     const output = lastFrame();
@@ -149,11 +117,7 @@ describe('TableRenderer', () => {
     const terminalWidth = 60;
 
     const { lastFrame } = renderWithProviders(
-      <TableRenderer
-        headers={headers}
-        rows={rows}
-        terminalWidth={terminalWidth}
-      />,
+      <TableRenderer headers={headers} rows={rows} terminalWidth={terminalWidth} />
     );
 
     const output = lastFrame();
@@ -167,11 +131,7 @@ describe('TableRenderer', () => {
     const terminalWidth = 50;
 
     const { lastFrame } = renderWithProviders(
-      <TableRenderer
-        headers={headers}
-        rows={rows}
-        terminalWidth={terminalWidth}
-      />,
+      <TableRenderer headers={headers} rows={rows} terminalWidth={terminalWidth} />
     );
 
     const output = lastFrame();
@@ -182,20 +142,12 @@ describe('TableRenderer', () => {
   });
 
   it('handles wrapped bold headers without showing markers', () => {
-    const headers = [
-      '**Very Long Bold Header That Will Wrap**',
-      'Short',
-      '**Another Long Header**',
-    ];
+    const headers = ['**Very Long Bold Header That Will Wrap**', 'Short', '**Another Long Header**'];
     const rows = [['Data 1', 'Data 2', 'Data 3']];
     const terminalWidth = 40;
 
     const { lastFrame } = renderWithProviders(
-      <TableRenderer
-        headers={headers}
-        rows={rows}
-        terminalWidth={terminalWidth}
-      />,
+      <TableRenderer headers={headers} rows={rows} terminalWidth={terminalWidth} />
     );
 
     const output = lastFrame();
@@ -232,12 +184,8 @@ describe('TableRenderer', () => {
     const terminalWidth = 160;
 
     const { lastFrame } = renderWithProviders(
-      <TableRenderer
-        headers={headers}
-        rows={rows}
-        terminalWidth={terminalWidth}
-      />,
-      { width: terminalWidth },
+      <TableRenderer headers={headers} rows={rows} terminalWidth={terminalWidth} />,
+      { width: terminalWidth }
     );
 
     const output = lastFrame();
@@ -300,12 +248,8 @@ describe('TableRenderer', () => {
     },
   ])('$name', ({ headers, rows, terminalWidth, expected }) => {
     const { lastFrame } = renderWithProviders(
-      <TableRenderer
-        headers={headers}
-        rows={rows}
-        terminalWidth={terminalWidth}
-      />,
-      { width: terminalWidth },
+      <TableRenderer headers={headers} rows={rows} terminalWidth={terminalWidth} />,
+      { width: terminalWidth }
     );
 
     const output = lastFrame();
@@ -332,11 +276,7 @@ describe('TableRenderer', () => {
     const terminalWidth = 50;
 
     const { lastFrame } = renderWithProviders(
-      <TableRenderer
-        headers={headers}
-        rows={rows}
-        terminalWidth={terminalWidth}
-      />,
+      <TableRenderer headers={headers} rows={rows} terminalWidth={terminalWidth} />
     );
 
     const output = lastFrame();

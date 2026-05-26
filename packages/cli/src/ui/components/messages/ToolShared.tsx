@@ -8,12 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { Box, Text } from 'ink';
 import { ToolCallStatus, mapCoreStatusToDisplayStatus } from '../../types.js';
 import { GeminiRespondingSpinner } from '../GeminiRespondingSpinner.js';
-import {
-  SHELL_COMMAND_NAME,
-  SHELL_NAME,
-  TOOL_STATUS,
-  SHELL_FOCUS_HINT_DELAY_MS,
-} from '../../constants.js';
+import { SHELL_COMMAND_NAME, SHELL_NAME, TOOL_STATUS, SHELL_FOCUS_HINT_DELAY_MS } from '../../constants.js';
 import { theme } from '../../semantic-colors.js';
 import {
   type Config,
@@ -32,26 +27,14 @@ export const STATUS_INDICATOR_WIDTH = 3;
  * Returns true if the tool name corresponds to a shell tool.
  */
 export function isShellTool(name: string): boolean {
-  return (
-    name === SHELL_COMMAND_NAME ||
-    name === SHELL_NAME ||
-    name === SHELL_TOOL_NAME
-  );
+  return name === SHELL_COMMAND_NAME || name === SHELL_NAME || name === SHELL_TOOL_NAME;
 }
 
 /**
  * Returns true if the shell tool call is currently focusable.
  */
-export function isThisShellFocusable(
-  name: string,
-  status: CoreToolCallStatus,
-  config?: Config,
-): boolean {
-  return !!(
-    isShellTool(name) &&
-    status === CoreToolCallStatus.Executing &&
-    config?.getEnableInteractiveShell()
-  );
+export function isThisShellFocusable(name: string, status: CoreToolCallStatus, config?: Config): boolean {
+  return !!(isShellTool(name) && status === CoreToolCallStatus.Executing && config?.getEnableInteractiveShell());
 }
 
 /**
@@ -62,7 +45,7 @@ export function isThisShellFocused(
   status: CoreToolCallStatus,
   ptyId?: number,
   activeShellPtyId?: number | null,
-  embeddedShellFocused?: boolean,
+  embeddedShellFocused?: boolean
 ): boolean {
   return !!(
     isShellTool(name) &&
@@ -78,14 +61,14 @@ export function isThisShellFocused(
 export function useFocusHint(
   isThisShellFocusable: boolean,
   isThisShellFocused: boolean,
-  resultDisplay: ToolResultDisplay | undefined,
+  resultDisplay: ToolResultDisplay | undefined
 ) {
   const [lastUpdateTime, setLastUpdateTime] = useState<Date | null>(null);
   const [userHasFocused, setUserHasFocused] = useState(false);
   const showFocusHint = useInactivityTimer(
     isThisShellFocusable,
     lastUpdateTime ? lastUpdateTime.getTime() : 0,
-    SHELL_FOCUS_HINT_DELAY_MS,
+    SHELL_FOCUS_HINT_DELAY_MS
   );
 
   useEffect(() => {
@@ -100,8 +83,7 @@ export function useFocusHint(
     }
   }, [isThisShellFocused]);
 
-  const shouldShowFocusHint =
-    isThisShellFocusable && (showFocusHint || userHasFocused);
+  const shouldShowFocusHint = isThisShellFocusable && (showFocusHint || userHasFocused);
 
   return { shouldShowFocusHint };
 }
@@ -135,24 +117,16 @@ type ToolStatusIndicatorProps = {
   name: string;
 };
 
-export const ToolStatusIndicator: React.FC<ToolStatusIndicatorProps> = ({
-  status: coreStatus,
-  name,
-}) => {
+export const ToolStatusIndicator: React.FC<ToolStatusIndicatorProps> = ({ status: coreStatus, name }) => {
   const status = mapCoreStatusToDisplayStatus(coreStatus);
   const isShell = isShellTool(name);
   const statusColor = isShell ? theme.ui.symbol : theme.status.warning;
 
   return (
     <Box minWidth={STATUS_INDICATOR_WIDTH}>
-      {status === ToolCallStatus.Pending && (
-        <Text color={theme.status.success}>{TOOL_STATUS.PENDING}</Text>
-      )}
+      {status === ToolCallStatus.Pending && <Text color={theme.status.success}>{TOOL_STATUS.PENDING}</Text>}
       {status === ToolCallStatus.Executing && (
-        <GeminiRespondingSpinner
-          spinnerType="toggle"
-          nonRespondingDisplay={TOOL_STATUS.EXECUTING}
-        />
+        <GeminiRespondingSpinner spinnerType='toggle' nonRespondingDisplay={TOOL_STATUS.EXECUTING} />
       )}
       {status === ToolCallStatus.Success && (
         <Text color={theme.status.success} aria-label={'Success:'}>
@@ -185,12 +159,7 @@ type ToolInfoProps = {
   emphasis: TextEmphasis;
 };
 
-export const ToolInfo: React.FC<ToolInfoProps> = ({
-  name,
-  description,
-  status: coreStatus,
-  emphasis,
-}) => {
+export const ToolInfo: React.FC<ToolInfoProps> = ({ name, description, status: coreStatus, emphasis }) => {
   const status = mapCoreStatusToDisplayStatus(coreStatus);
   const nameColor = React.useMemo<string>(() => {
     switch (emphasis) {
@@ -211,8 +180,8 @@ export const ToolInfo: React.FC<ToolInfoProps> = ({
   const isCompletedAskUser = isCompletedAskUserTool(name, status);
 
   return (
-    <Box overflow="hidden" height={1} flexGrow={1} flexShrink={1}>
-      <Text strikethrough={status === ToolCallStatus.Canceled} wrap="truncate">
+    <Box overflow='hidden' height={1} flexGrow={1} flexShrink={1}>
+      <Text strikethrough={status === ToolCallStatus.Canceled} wrap='truncate'>
         <Text color={nameColor} bold>
           {name}
         </Text>
@@ -228,7 +197,7 @@ export const ToolInfo: React.FC<ToolInfoProps> = ({
 };
 
 export const TrailingIndicator: React.FC = () => (
-  <Text color={theme.text.primary} wrap="truncate">
+  <Text color={theme.text.primary} wrap='truncate'>
     {' '}
     ←
   </Text>

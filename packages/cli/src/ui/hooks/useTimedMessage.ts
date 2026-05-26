@@ -24,7 +24,7 @@ export function useTimedMessage<T>(durationMs: number) {
         setMessage(null);
       }, durationMs);
     },
-    [durationMs],
+    [durationMs]
   );
 
   useEffect(
@@ -33,7 +33,7 @@ export function useTimedMessage<T>(durationMs: number) {
         clearTimeout(timeoutRef.current);
       }
     },
-    [],
+    []
   );
 
   return [message, showMessage] as const;

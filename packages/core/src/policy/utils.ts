@@ -56,12 +56,10 @@ export function isSafeRegExp(pattern: string): boolean {
 export function buildArgsPatterns(
   argsPattern?: string,
   commandPrefix?: string | string[],
-  commandRegex?: string,
+  commandRegex?: string
 ): Array<string | undefined> {
   if (commandPrefix) {
-    const prefixes = Array.isArray(commandPrefix)
-      ? commandPrefix
-      : [commandPrefix];
+    const prefixes = Array.isArray(commandPrefix) ? commandPrefix : [commandPrefix];
 
     // Expand command prefixes to multiple patterns.
     // We append [\\s"] to ensure we match whole words only (e.g., "git" but not

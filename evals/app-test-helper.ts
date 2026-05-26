@@ -5,12 +5,7 @@
  */
 
 import { AppRig } from '../packages/cli/src/test-utils/AppRig.js';
-import {
-  type EvalPolicy,
-  runEval,
-  prepareLogDir,
-  symlinkNodeModules,
-} from './test-helper.js';
+import { type EvalPolicy, runEval, prepareLogDir, symlinkNodeModules } from './test-helper.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import { DEFAULT_GEMINI_MODEL } from '@google/gemini-cli-core';

@@ -6,11 +6,7 @@
 
 import { simpleGit } from 'simple-git';
 import { getErrorMessage } from '../../utils/errors.js';
-import {
-  debugLogger,
-  type ExtensionInstallMetadata,
-  type GeminiCLIExtension,
-} from '@google/gemini-cli-core';
+import { debugLogger, type ExtensionInstallMetadata, type GeminiCLIExtension } from '@google/gemini-cli-core';
 import { ExtensionUpdateState } from '../../ui/state/extensions.js';
 import * as os from 'node:os';
 import * as https from 'node:https';
@@ -28,10 +24,7 @@ import { EXTENSIONS_CONFIG_FILENAME } from './variables.js';
  * @param installMetadata The metadata for the extension to install.
  * @param destination The destination path to clone the repository to.
  */
-export async function cloneFromGit(
-  installMetadata: ExtensionInstallMetadata,
-  destination: string,
-): Promise<void> {
+export async function cloneFromGit(installMetadata: ExtensionInstallMetadata, destination: string): Promise<void> {
   try {
     const git = simpleGit(destination);
     let sourceUrl = installMetadata.source;
@@ -39,10 +32,7 @@ export async function cloneFromGit(
     if (token) {
       try {
         const parsedUrl = new URL(sourceUrl);
-        if (
-          parsedUrl.protocol === 'https:' &&
-          parsedUrl.hostname === 'github.com'
-        ) {
+        if (parsedUrl.protocol === 'https:' && parsedUrl.hostname === 'github.com') {
           if (!parsedUrl.username) {
             parsedUrl.username = token;
           }
@@ -57,9 +47,7 @@ export async function cloneFromGit(
 
     const remotes = await git.getRemotes(true);
     if (remotes.length === 0) {
-      throw new Error(
-        `Unable to find any remotes for repo ${installMetadata.source}`,
-      );
+      throw new Error(`Unable to find any remotes for repo ${installMetadata.source}`);
     }
 
     const refToFetch = installMetadata.ref || 'HEAD';
@@ -70,12 +58,9 @@ export async function cloneFromGit(
     // This results in a detached HEAD state, which is fine for this purpose.
     await git.checkout('FETCH_HEAD');
   } catch (error) {
-    throw new Error(
-      `Failed to clone Git repository from ${installMetadata.source} ${getErrorMessage(error)}`,
-      {
-        cause: error,
-      },
-    );
+    throw new Error(`Failed to clone Git repository from ${installMetadata.source} ${getErrorMessage(error)}`, {
+      cause: error,
+    });
   }
 }
 
@@ -119,9 +104,7 @@ export function tryParseGithubUrl(source: string): GithubRepoInfo | null {
     .filter((part) => part !== '');
 
   if (parts?.length !== 2) {
-    throw new Error(
-      `Invalid GitHub repository source: ${source}. Expected "owner/repo" or a github repo uri.`,
-    );
+    throw new Error(`Invalid GitHub repository source: ${source}. Expected "owner/repo" or a github repo uri.`);
   }
   const owner = parts[0];
   const repo = parts[1].replace('.git', '');
@@ -136,21 +119,17 @@ export async function fetchReleaseFromGithub(
   owner: string,
   repo: string,
   ref?: string,
-  allowPreRelease?: boolean,
+  allowPreRelease?: boolean
 ): Promise<GithubReleaseData | null> {
   if (ref) {
-    return fetchJson(
-      `https://api.github.com/repos/${owner}/${repo}/releases/tags/${ref}`,
-    );
+    return fetchJson(`https://api.github.com/repos/${owner}/${repo}/releases/tags/${ref}`);
   }
 
   if (!allowPreRelease) {
     // Grab the release that is tagged as the "latest", github does not allow
     // this to be a pre-release so we can blindly grab it.
     try {
-      return await fetchJson(
-        `https://api.github.com/repos/${owner}/${repo}/releases/latest`,
-      );
+      return await fetchJson(`https://api.github.com/repos/${owner}/${repo}/releases/latest`);
     } catch (_) {
       // This can fail if there is no release marked latest. In that case
       // we want to just try the pre-release logic below.
@@ -159,7 +138,7 @@ export async function fetchReleaseFromGithub(
 
   // If pre-releases are allowed, we just grab the most recent release.
   const releases = await fetchJson<GithubReleaseData[]>(
-    `https://api.github.com/repos/${owner}/${repo}/releases?per_page=1`,
+    `https://api.github.com/repos/${owner}/${repo}/releases?per_page=1`
   );
   if (releases.length === 0) {
     return null;
@@ -169,25 +148,23 @@ export async function fetchReleaseFromGithub(
 
 export async function checkForExtensionUpdate(
   extension: GeminiCLIExtension,
-  extensionManager: ExtensionManager,
+  extensionManager: ExtensionManager
 ): Promise<ExtensionUpdateState> {
   const installMetadata = extension.installMetadata;
   if (installMetadata?.type === 'local') {
     let latestConfig: ExtensionConfig | undefined;
     try {
-      latestConfig = await extensionManager.loadExtensionConfig(
-        installMetadata.source,
-      );
+      latestConfig = await extensionManager.loadExtensionConfig(installMetadata.source);
     } catch (e) {
       debugLogger.warn(
-        `Failed to check for update for local extension "${extension.name}". Could not load extension from source path: ${installMetadata.source}. Error: ${getErrorMessage(e)}`,
+        `Failed to check for update for local extension "${extension.name}". Could not load extension from source path: ${installMetadata.source}. Error: ${getErrorMessage(e)}`
       );
       return ExtensionUpdateState.NOT_UPDATABLE;
     }
 
     if (!latestConfig) {
       debugLogger.warn(
-        `Failed to check for update for local extension "${extension.name}". Could not load extension from source path: ${installMetadata.source}`,
+        `Failed to check for update for local extension "${extension.name}". Could not load extension from source path: ${installMetadata.source}`
       );
       return ExtensionUpdateState.NOT_UPDATABLE;
     }
@@ -196,11 +173,7 @@ export async function checkForExtensionUpdate(
     }
     return ExtensionUpdateState.UP_TO_DATE;
   }
-  if (
-    !installMetadata ||
-    (installMetadata.type !== 'git' &&
-      installMetadata.type !== 'github-release')
-  ) {
+  if (!installMetadata || (installMetadata.type !== 'git' && installMetadata.type !== 'github-release')) {
     return ExtensionUpdateState.NOT_UPDATABLE;
   }
   try {
@@ -213,9 +186,7 @@ export async function checkForExtensionUpdate(
       }
       const remoteUrl = remotes[0].refs.fetch;
       if (!remoteUrl) {
-        debugLogger.error(
-          `No fetch URL found for git remote ${remotes[0].name}.`,
-        );
+        debugLogger.error(`No fetch URL found for git remote ${remotes[0].name}.`);
         return ExtensionUpdateState.ERROR;
       }
 
@@ -233,9 +204,7 @@ export async function checkForExtensionUpdate(
       const localHash = await git.revparse(['HEAD']);
 
       if (!remoteHash) {
-        debugLogger.error(
-          `Unable to parse hash from git ls-remote output "${lsRemoteOutput}"`,
-        );
+        debugLogger.error(`Unable to parse hash from git ls-remote output "${lsRemoteOutput}"`);
         return ExtensionUpdateState.ERROR;
       }
       if (remoteHash === localHash) {
@@ -250,9 +219,7 @@ export async function checkForExtensionUpdate(
       }
       const repoInfo = tryParseGithubUrl(source);
       if (!repoInfo) {
-        debugLogger.error(
-          `Source is not a valid GitHub repository for release checks: ${source}`,
-        );
+        debugLogger.error(`Source is not a valid GitHub repository for release checks: ${source}`);
         return ExtensionUpdateState.ERROR;
       }
       const { owner, repo } = repoInfo;
@@ -261,7 +228,7 @@ export async function checkForExtensionUpdate(
         owner,
         repo,
         installMetadata.ref,
-        installMetadata.allowPreRelease,
+        installMetadata.allowPreRelease
       );
       if (!releaseData) {
         return ExtensionUpdateState.ERROR;
@@ -273,7 +240,7 @@ export async function checkForExtensionUpdate(
     }
   } catch (error) {
     debugLogger.error(
-      `Failed to check for updates for extension "${installMetadata.source}": ${getErrorMessage(error)}`,
+      `Failed to check for updates for extension "${installMetadata.source}": ${getErrorMessage(error)}`
     );
     return ExtensionUpdateState.ERROR;
   }
@@ -301,7 +268,7 @@ export type GitHubDownloadResult =
 export async function downloadFromGitHubRelease(
   installMetadata: ExtensionInstallMetadata,
   destination: string,
-  githubRepoInfo: GithubRepoInfo,
+  githubRepoInfo: GithubRepoInfo
 ): Promise<GitHubDownloadResult> {
   const { ref, allowPreRelease: preRelease } = installMetadata;
   const { owner, repo } = githubRepoInfo;
@@ -371,9 +338,7 @@ export async function downloadFromGitHubRelease(
       //    a 302 Redirect to the actual download location (codeload.github.com).
       //    Sending 'application/octet-stream' for tarballs results in a 415 Unsupported Media Type error.
       const headers = {
-        ...(asset
-          ? { Accept: 'application/octet-stream' }
-          : { Accept: 'application/vnd.github+json' }),
+        ...(asset ? { Accept: 'application/octet-stream' } : { Accept: 'application/vnd.github+json' }),
       };
       await downloadFile(archiveUrl, downloadedAssetPath, { headers });
     } catch (error) {
@@ -408,19 +373,11 @@ export async function downloadFromGitHubRelease(
     });
     if (entries.length === 2) {
       const lonelyDir = entries.find((entry) => entry.isDirectory());
-      if (
-        lonelyDir &&
-        fs.existsSync(
-          path.join(destination, lonelyDir.name, EXTENSIONS_CONFIG_FILENAME),
-        )
-      ) {
+      if (lonelyDir && fs.existsSync(path.join(destination, lonelyDir.name, EXTENSIONS_CONFIG_FILENAME))) {
         const dirPathToExtract = path.join(destination, lonelyDir.name);
         const extractedDirFiles = await fs.promises.readdir(dirPathToExtract);
         for (const file of extractedDirFiles) {
-          await fs.promises.rename(
-            path.join(dirPathToExtract, file),
-            path.join(destination, file),
-          );
+          await fs.promises.rename(path.join(dirPathToExtract, file), path.join(destination, file));
         }
         await fs.promises.rmdir(dirPathToExtract);
       }
@@ -463,17 +420,13 @@ export function findReleaseAsset(assets: Asset[]): Asset | undefined {
   const platformPrefix = `${platform}.`;
 
   // Check for platform + architecture specific asset
-  const platformArchAsset = assets.find((asset) =>
-    asset.name.toLowerCase().startsWith(platformArchPrefix),
-  );
+  const platformArchAsset = assets.find((asset) => asset.name.toLowerCase().startsWith(platformArchPrefix));
   if (platformArchAsset) {
     return platformArchAsset;
   }
 
   // Check for platform specific asset
-  const platformAsset = assets.find((asset) =>
-    asset.name.toLowerCase().startsWith(platformPrefix),
-  );
+  const platformAsset = assets.find((asset) => asset.name.toLowerCase().startsWith(platformPrefix));
   if (platformAsset) {
     return platformAsset;
   }
@@ -483,7 +436,7 @@ export function findReleaseAsset(assets: Asset[]): Asset | undefined {
     (asset) =>
       !asset.name.toLowerCase().includes('darwin') &&
       !asset.name.toLowerCase().includes('linux') &&
-      !asset.name.toLowerCase().includes('win32'),
+      !asset.name.toLowerCase().includes('win32')
   );
   if (assets.length === 1) {
     return genericAsset;
@@ -500,7 +453,7 @@ export async function downloadFile(
   url: string,
   dest: string,
   options?: DownloadOptions,
-  redirectCount: number = 0,
+  redirectCount: number = 0
 ): Promise<void> {
   const headers: Record<string, string> = {
     'User-agent': 'gemini-cli',
@@ -521,9 +474,7 @@ export async function downloadFile(
           }
 
           if (!res.headers.location) {
-            return reject(
-              new Error('Redirect response missing Location header'),
-            );
+            return reject(new Error('Redirect response missing Location header'));
           }
           downloadFile(res.headers.location, dest, options, redirectCount + 1)
             .then(resolve)
@@ -531,9 +482,7 @@ export async function downloadFile(
           return;
         }
         if (res.statusCode !== 200) {
-          return reject(
-            new Error(`Request failed with status code ${res.statusCode}`),
-          );
+          return reject(new Error(`Request failed with status code ${res.statusCode}`));
         }
         const file = fs.createWriteStream(dest);
         res.pipe(file);

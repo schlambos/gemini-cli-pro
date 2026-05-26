@@ -13,9 +13,7 @@ vi.mock('node:os');
 vi.mock('node:child_process');
 
 describe('process-utils', () => {
-  const mockProcessKill = vi
-    .spyOn(process, 'kill')
-    .mockImplementation(() => true);
+  const mockProcessKill = vi.spyOn(process, 'kill').mockImplementation(() => true);
   const mockSpawn = vi.mocked(cpSpawn);
 
   beforeEach(() => {
@@ -33,12 +31,7 @@ describe('process-utils', () => {
 
       await killProcessGroup({ pid: 1234 });
 
-      expect(mockSpawn).toHaveBeenCalledWith('taskkill', [
-        '/pid',
-        '1234',
-        '/f',
-        '/t',
-      ]);
+      expect(mockSpawn).toHaveBeenCalledWith('taskkill', ['/pid', '1234', '/f', '/t']);
       expect(mockProcessKill).not.toHaveBeenCalled();
     });
 

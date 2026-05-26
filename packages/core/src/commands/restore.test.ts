@@ -52,9 +52,7 @@ describe('performRestore', () => {
       toolCall: { name: 'test', args: {} },
       commitHash: 'test-commit-hash',
     };
-    const spy = vi
-      .spyOn(mockGitService, 'restoreProjectFromSnapshot')
-      .mockResolvedValue(undefined);
+    const spy = vi.spyOn(mockGitService, 'restoreProjectFromSnapshot').mockResolvedValue(undefined);
 
     const generator = performRestore(toolCallData, mockGitService);
     const result = await generator.next();
@@ -78,9 +76,7 @@ describe('performRestore', () => {
     };
     const spy = vi
       .spyOn(mockGitService, 'restoreProjectFromSnapshot')
-      .mockRejectedValue(
-        new Error('fatal: unable to read tree invalid-commit-hash'),
-      );
+      .mockRejectedValue(new Error('fatal: unable to read tree invalid-commit-hash'));
 
     const generator = performRestore(toolCallData, mockGitService);
     const result = await generator.next();
@@ -104,9 +100,7 @@ describe('performRestore', () => {
       commitHash: 'some-commit-hash',
     };
     const testError = new Error('something went wrong');
-    vi.spyOn(mockGitService, 'restoreProjectFromSnapshot').mockRejectedValue(
-      testError,
-    );
+    vi.spyOn(mockGitService, 'restoreProjectFromSnapshot').mockRejectedValue(testError);
 
     const generator = performRestore(toolCallData, mockGitService);
     await expect(generator.next()).rejects.toThrow(testError);
@@ -119,9 +113,7 @@ describe('performRestore', () => {
       clientHistory: [{ role: 'user', parts: [{ text: 'hello' }] }],
       commitHash: 'test-commit-hash',
     };
-    const spy = vi
-      .spyOn(mockGitService, 'restoreProjectFromSnapshot')
-      .mockResolvedValue(undefined);
+    const spy = vi.spyOn(mockGitService, 'restoreProjectFromSnapshot').mockResolvedValue(undefined);
 
     const generator = performRestore(toolCallData, mockGitService);
 
@@ -158,8 +150,7 @@ describe('performRestore', () => {
     expect(result.value).toEqual({
       type: 'message',
       messageType: 'error',
-      content:
-        'Git service is not available, cannot restore checkpoint. Please ensure you are in a git repository.',
+      content: 'Git service is not available, cannot restore checkpoint. Please ensure you are in a git repository.',
     });
     expect(result.done).toBe(false);
 

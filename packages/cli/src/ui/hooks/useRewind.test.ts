@@ -10,10 +10,7 @@ import { renderHook } from '../../test-utils/render.js';
 import { useRewind } from './useRewind.js';
 import * as rewindFileOps from '../utils/rewindFileOps.js';
 import type { FileChangeStats } from '../utils/rewindFileOps.js';
-import type {
-  ConversationRecord,
-  MessageRecord,
-} from '@google/gemini-cli-core';
+import type { ConversationRecord, MessageRecord } from '@google/gemini-cli-core';
 
 // Mock the dependency
 vi.mock('../utils/rewindFileOps.js', () => ({
@@ -71,10 +68,7 @@ describe('useRewindLogic', () => {
 
     expect(result.current.selectedMessageId).toBe('msg-1');
     expect(result.current.confirmationStats).toEqual(mockStats);
-    expect(rewindFileOps.calculateRewindImpact).toHaveBeenCalledWith(
-      mockConversation,
-      mockUserMessage,
-    );
+    expect(rewindFileOps.calculateRewindImpact).toHaveBeenCalledWith(mockConversation, mockUserMessage);
   });
 
   it('should not update state if selected message is not found', () => {
@@ -126,9 +120,6 @@ describe('useRewindLogic', () => {
     const stats = result.current.getStats(mockUserMessage);
 
     expect(stats).toEqual(mockStats);
-    expect(rewindFileOps.calculateTurnStats).toHaveBeenCalledWith(
-      mockConversation,
-      mockUserMessage,
-    );
+    expect(rewindFileOps.calculateTurnStats).toHaveBeenCalledWith(mockConversation, mockUserMessage);
   });
 });

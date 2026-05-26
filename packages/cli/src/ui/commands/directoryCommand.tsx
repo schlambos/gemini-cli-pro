@@ -4,32 +4,22 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  isFolderTrustEnabled,
-  loadTrustedFolders,
-} from '../../config/trustedFolders.js';
+import { isFolderTrustEnabled, loadTrustedFolders } from '../../config/trustedFolders.js';
 import { MultiFolderTrustDialog } from '../components/MultiFolderTrustDialog.js';
 import type { SlashCommand, CommandContext } from './types.js';
 import { CommandKind } from './types.js';
 import { MessageType, type HistoryItem } from '../types.js';
 import { refreshServerHierarchicalMemory } from '@google/gemini-cli-core';
-import {
-  expandHomeDir,
-  getDirectorySuggestions,
-  batchAddDirectories,
-} from '../utils/directoryUtils.js';
+import { expandHomeDir, getDirectorySuggestions, batchAddDirectories } from '../utils/directoryUtils.js';
 import type { Config } from '@google/gemini-cli-core';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 
 async function finishAddingDirectories(
   config: Config,
-  addItem: (
-    itemData: Omit<HistoryItem, 'id'>,
-    baseTimestamp?: number,
-  ) => number,
+  addItem: (itemData: Omit<HistoryItem, 'id'>, baseTimestamp?: number) => number,
   added: string[],
-  errors: string[],
+  errors: string[]
 ) {
   if (!config) {
     addItem({
@@ -62,9 +52,7 @@ async function finishAddingDirectories(
       // Persist directories to session file for resume support
       const chatRecordingService = gemini.getChatRecordingService();
       const workspaceContext = config.getWorkspaceContext();
-      chatRecordingService?.recordDirectories(
-        workspaceContext.getDirectories(),
-      );
+      chatRecordingService?.recordDirectories(workspaceContext.getDirectories());
     }
     addItem({
       type: MessageType.INFO,
@@ -85,8 +73,7 @@ export const directoryCommand: SlashCommand = {
   subCommands: [
     {
       name: 'add',
-      description:
-        'Add directories to the workspace. Use comma to separate multiple paths',
+      description: 'Add directories to the workspace. Use comma to separate multiple paths',
       kind: CommandKind.BUILT_IN,
       autoExecute: false,
       showCompletionLoading: false,
@@ -106,11 +93,8 @@ export const directoryCommand: SlashCommand = {
         // Filter out existing directories
         let filteredSuggestions = suggestions;
         if (context.services.config) {
-          const workspaceContext =
-            context.services.config.getWorkspaceContext();
-          const existingDirs = new Set(
-            workspaceContext.getDirectories().map((dir) => path.resolve(dir)),
-          );
+          const workspaceContext = context.services.config.getWorkspaceContext();
+          const existingDirs = new Set(workspaceContext.getDirectories().map((dir) => path.resolve(dir)));
 
           filteredSuggestions = suggestions.filter((s) => {
             const expanded = expandHomeDir(s);
@@ -119,10 +103,7 @@ export const directoryCommand: SlashCommand = {
             if (existingDirs.has(absolute)) {
               return false;
             }
-            if (
-              absolute.endsWith(path.sep) &&
-              existingDirs.has(absolute.slice(0, -1))
-            ) {
+            if (absolute.endsWith(path.sep) && existingDirs.has(absolute.slice(0, -1))) {
               return false;
             }
             return true;
@@ -184,10 +165,7 @@ export const directoryCommand: SlashCommand = {
           const trimmedPath = pathToAdd.trim();
           const expandedPath = expandHomeDir(trimmedPath);
           try {
-            const absolutePath = path.resolve(
-              workspaceContext.targetDir,
-              expandedPath,
-            );
+            const absolutePath = path.resolve(workspaceContext.targetDir, expandedPath);
             const resolvedPath = fs.realpathSync(absolutePath);
             if (currentWorkspaceDirs.includes(resolvedPath)) {
               alreadyAdded.push(trimmedPath);
@@ -203,9 +181,7 @@ export const directoryCommand: SlashCommand = {
         if (alreadyAdded.length > 0) {
           addItem({
             type: MessageType.INFO,
-            text: `The following directories are already in the workspace:\n- ${alreadyAdded.join(
-              '\n- ',
-            )}`,
+            text: `The following directories are already in the workspace:\n- ${alreadyAdded.join('\n- ')}`,
           });
         }
 

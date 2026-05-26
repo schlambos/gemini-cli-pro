@@ -19,14 +19,9 @@ describe('stdout-stderr-output', () => {
     await rig.cleanup();
   });
 
-  it('should send model response to stdout and app messages to stderr', async ({
-    signal,
-  }) => {
+  it('should send model response to stdout and app messages to stderr', async ({ signal }) => {
     await rig.setup('prompt-output-test', {
-      fakeResponsesPath: join(
-        import.meta.dirname,
-        'stdout-stderr-output.responses',
-      ),
+      fakeResponsesPath: join(import.meta.dirname, 'stdout-stderr-output.responses'),
     });
 
     const { stdout, exitCode } = await rig.runWithStreams(['-p', 'Say hello'], {
@@ -39,24 +34,17 @@ describe('stdout-stderr-output', () => {
     expect(stdout).not.toMatch(/^\[INFO\]/m);
   });
 
-  it('should handle missing file with message to stdout and error to stderr', async ({
-    signal,
-  }) => {
+  it('should handle missing file with message to stdout and error to stderr', async ({ signal }) => {
     await rig.setup('error-output-test', {
-      fakeResponsesPath: join(
-        import.meta.dirname,
-        'stdout-stderr-output-error.responses',
-      ),
+      fakeResponsesPath: join(import.meta.dirname, 'stdout-stderr-output-error.responses'),
     });
 
     const { stdout, exitCode } = await rig.runWithStreams(
       ['-p', '@nonexistent-file-that-does-not-exist.txt explain this'],
-      { signal },
+      { signal }
     );
 
     expect(exitCode).toBe(0);
-    expect(stdout.toLowerCase()).toMatch(
-      /could not find|not exist|does not exist/,
-    );
+    expect(stdout.toLowerCase()).toMatch(/could not find|not exist|does not exist/);
   });
 });

@@ -46,8 +46,7 @@ describe('StartupProfiler', () => {
 
     // Get the mocked function
     const metricsModule = await import('./metrics.js');
-    recordStartupPerformance =
-      metricsModule.recordStartupPerformance as ReturnType<typeof vi.fn>;
+    recordStartupPerformance = metricsModule.recordStartupPerformance as ReturnType<typeof vi.fn>;
 
     const loggersModule = await import('./loggers.js');
     logStartupStats = loggersModule.logStartupStats as ReturnType<typeof vi.fn>;
@@ -88,9 +87,7 @@ describe('StartupProfiler', () => {
 
       // Verify performance mark was created
       const marks = performance.getEntriesByType('mark');
-      const startMark = marks.find(
-        (m) => m.name === 'startup:test_phase:start',
-      );
+      const startMark = marks.find((m) => m.name === 'startup:test_phase:start');
       expect(startMark).toBeDefined();
     });
 
@@ -180,7 +177,7 @@ describe('StartupProfiler', () => {
             cpu_usage_user: expect.any(Number),
             cpu_usage_system: expect.any(Number),
           }),
-        }),
+        })
       );
     });
 
@@ -199,7 +196,7 @@ describe('StartupProfiler', () => {
             custom: 'value',
             os_platform: 'darwin',
           }),
-        }),
+        })
       );
     });
 
@@ -228,7 +225,7 @@ describe('StartupProfiler', () => {
           details: expect.objectContaining({
             is_docker: true,
           }),
-        }),
+        })
       );
     });
 
@@ -253,7 +250,7 @@ describe('StartupProfiler', () => {
             cpu_usage_user: 100,
             cpu_usage_system: 50,
           }),
-        }),
+        })
       );
     });
 
@@ -293,7 +290,7 @@ describe('StartupProfiler', () => {
       expect(recordStartupPerformance).toHaveBeenCalledWith(
         mockConfig,
         expect.any(Number),
-        expect.objectContaining({ phase: 'total_startup' }),
+        expect.objectContaining({ phase: 'total_startup' })
       );
     });
 
@@ -362,7 +359,7 @@ describe('StartupProfiler', () => {
       expect(recordStartupPerformance).toHaveBeenCalledWith(
         mockConfig,
         expect.any(Number),
-        expect.objectContaining({ phase: 'complete_phase' }),
+        expect.objectContaining({ phase: 'complete_phase' })
       );
     });
     it('should log startup stats event', () => {
@@ -385,7 +382,7 @@ describe('StartupProfiler', () => {
           os_platform: 'darwin',
           os_release: '22.6.0',
           is_docker: false,
-        }),
+        })
       );
     });
   });

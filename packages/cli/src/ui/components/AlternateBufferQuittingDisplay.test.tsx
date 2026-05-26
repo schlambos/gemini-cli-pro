@@ -4,10 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  renderWithProviders,
-  persistentStateMock,
-} from '../../test-utils/render.js';
+import { renderWithProviders, persistentStateMock } from '../../test-utils/render.js';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AlternateBufferQuittingDisplay } from './AlternateBufferQuittingDisplay.js';
 import type { HistoryItem, HistoryItemWithoutId } from '../types.js';
@@ -19,8 +16,7 @@ vi.mock('../utils/terminalSetup.js', () => ({
 }));
 
 vi.mock('../contexts/AppContext.js', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('../contexts/AppContext.js')>();
+  const actual = await importOriginal<typeof import('../contexts/AppContext.js')>();
   return {
     ...actual,
     useAppContext: () => ({
@@ -30,8 +26,7 @@ vi.mock('../contexts/AppContext.js', async (importOriginal) => {
 });
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     getMCPServerStatus: vi.fn(),
@@ -108,61 +103,49 @@ describe('AlternateBufferQuittingDisplay', () => {
 
   it('renders with active and pending tool messages', () => {
     persistentStateMock.setData({ tipsShown: 0 });
-    const { lastFrame } = renderWithProviders(
-      <AlternateBufferQuittingDisplay />,
-      {
-        uiState: {
-          ...baseUIState,
-          history: mockHistory,
-          pendingHistoryItems: mockPendingHistoryItems,
-        },
+    const { lastFrame } = renderWithProviders(<AlternateBufferQuittingDisplay />, {
+      uiState: {
+        ...baseUIState,
+        history: mockHistory,
+        pendingHistoryItems: mockPendingHistoryItems,
       },
-    );
+    });
     expect(lastFrame()).toMatchSnapshot('with_history_and_pending');
   });
 
   it('renders with empty history and no pending items', () => {
     persistentStateMock.setData({ tipsShown: 0 });
-    const { lastFrame } = renderWithProviders(
-      <AlternateBufferQuittingDisplay />,
-      {
-        uiState: {
-          ...baseUIState,
-          history: [],
-          pendingHistoryItems: [],
-        },
+    const { lastFrame } = renderWithProviders(<AlternateBufferQuittingDisplay />, {
+      uiState: {
+        ...baseUIState,
+        history: [],
+        pendingHistoryItems: [],
       },
-    );
+    });
     expect(lastFrame()).toMatchSnapshot('empty');
   });
 
   it('renders with history but no pending items', () => {
     persistentStateMock.setData({ tipsShown: 0 });
-    const { lastFrame } = renderWithProviders(
-      <AlternateBufferQuittingDisplay />,
-      {
-        uiState: {
-          ...baseUIState,
-          history: mockHistory,
-          pendingHistoryItems: [],
-        },
+    const { lastFrame } = renderWithProviders(<AlternateBufferQuittingDisplay />, {
+      uiState: {
+        ...baseUIState,
+        history: mockHistory,
+        pendingHistoryItems: [],
       },
-    );
+    });
     expect(lastFrame()).toMatchSnapshot('with_history_no_pending');
   });
 
   it('renders with pending items but no history', () => {
     persistentStateMock.setData({ tipsShown: 0 });
-    const { lastFrame } = renderWithProviders(
-      <AlternateBufferQuittingDisplay />,
-      {
-        uiState: {
-          ...baseUIState,
-          history: [],
-          pendingHistoryItems: mockPendingHistoryItems,
-        },
+    const { lastFrame } = renderWithProviders(<AlternateBufferQuittingDisplay />, {
+      uiState: {
+        ...baseUIState,
+        history: [],
+        pendingHistoryItems: mockPendingHistoryItems,
       },
-    );
+    });
     expect(lastFrame()).toMatchSnapshot('with_pending_no_history');
   });
 
@@ -187,16 +170,13 @@ describe('AlternateBufferQuittingDisplay', () => {
         ],
       },
     ];
-    const { lastFrame } = renderWithProviders(
-      <AlternateBufferQuittingDisplay />,
-      {
-        uiState: {
-          ...baseUIState,
-          history: [],
-          pendingHistoryItems,
-        },
+    const { lastFrame } = renderWithProviders(<AlternateBufferQuittingDisplay />, {
+      uiState: {
+        ...baseUIState,
+        history: [],
+        pendingHistoryItems,
       },
-    );
+    });
     const output = lastFrame();
     expect(output).toContain('Action Required (was prompted):');
     expect(output).toContain('confirming_tool');
@@ -210,16 +190,13 @@ describe('AlternateBufferQuittingDisplay', () => {
       { id: 1, type: 'user', text: 'Hello Gemini' },
       { id: 2, type: 'gemini', text: 'Hello User!' },
     ];
-    const { lastFrame } = renderWithProviders(
-      <AlternateBufferQuittingDisplay />,
-      {
-        uiState: {
-          ...baseUIState,
-          history,
-          pendingHistoryItems: [],
-        },
+    const { lastFrame } = renderWithProviders(<AlternateBufferQuittingDisplay />, {
+      uiState: {
+        ...baseUIState,
+        history,
+        pendingHistoryItems: [],
       },
-    );
+    });
     expect(lastFrame()).toMatchSnapshot('with_user_gemini_messages');
   });
 });

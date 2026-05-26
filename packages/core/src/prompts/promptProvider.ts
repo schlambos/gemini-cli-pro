@@ -13,12 +13,7 @@ import { GEMINI_DIR } from '../utils/paths.js';
 import { ApprovalMode } from '../policy/types.js';
 import * as snippets from './snippets.js';
 import * as legacySnippets from './snippets.legacy.js';
-import {
-  resolvePathFromEnv,
-  applySubstitutions,
-  isSectionEnabled,
-  type ResolvedPath,
-} from './utils.js';
+import { resolvePathFromEnv, applySubstitutions, isSectionEnabled, type ResolvedPath } from './utils.js';
 import { CodebaseInvestigatorAgent } from '../agents/codebase-investigator.js';
 import { isGitRepository } from '../utils/gitUtils.js';
 import {
@@ -40,14 +35,8 @@ export class PromptProvider {
   /**
    * Generates the core system prompt.
    */
-  getCoreSystemPrompt(
-    config: Config,
-    userMemory?: string | HierarchicalMemory,
-    interactiveOverride?: boolean,
-  ): string {
-    const systemMdResolution = resolvePathFromEnv(
-      process.env['GEMINI_SYSTEM_MD'],
-    );
+  getCoreSystemPrompt(config: Config, userMemory?: string | HierarchicalMemory, interactiveOverride?: boolean): string {
+    const systemMdResolution = resolvePathFromEnv(process.env['GEMINI_SYSTEM_MD']);
 
     const interactiveMode = interactiveOverride ?? config.isInteractive();
     const approvalMode = config.getApprovalMode?.() ?? ApprovalMode.DEFAULT;
@@ -58,18 +47,13 @@ export class PromptProvider {
     const enabledToolNames = new Set(toolNames);
     const approvedPlanPath = config.getApprovedPlanPath();
 
-    const desiredModel = resolveModel(
-      config.getActiveModel(),
-      config.getGemini31LaunchedSync?.() ?? false,
-    );
+    const desiredModel = resolveModel(config.getActiveModel(), config.getGemini31LaunchedSync?.() ?? false);
     const isModernModel = supportsModernFeatures(desiredModel);
     const activeSnippets = isModernModel ? snippets : legacySnippets;
     const contextFilenames = getAllGeminiMdFilenames();
 
     // --- Context Gathering ---
-    let planModeToolsList = PLAN_MODE_TOOLS.filter((t) =>
-      enabledToolNames.has(t),
-    )
+    let planModeToolsList = PLAN_MODE_TOOLS.filter((t) => enabledToolNames.has(t))
       .map((t) => `  <tool>\`${t}\`</tool>`)
       .join('\n');
 
@@ -77,13 +61,10 @@ export class PromptProvider {
     if (isPlanMode) {
       const allTools = config.getToolRegistry().getAllTools();
       const readOnlyMcpTools = allTools.filter(
-        (t): t is DiscoveredMCPTool =>
-          t instanceof DiscoveredMCPTool && !!t.isReadOnly,
+        (t): t is DiscoveredMCPTool => t instanceof DiscoveredMCPTool && !!t.isReadOnly
       );
       if (readOnlyMcpTools.length > 0) {
-        const mcpToolsList = readOnlyMcpTools
-          .map((t) => `  <tool>\`${t.name}\` (${t.serverName})</tool>`)
-          .join('\n');
+        const mcpToolsList = readOnlyMcpTools.map((t) => `  <tool>\`${t.name}\` (${t.serverName})</tool>`).join('\n');
         planModeToolsList += `\n${mcpToolsList}`;
       }
     }
@@ -105,22 +86,15 @@ export class PromptProvider {
           name: s.name,
           description: s.description,
           location: s.location,
-        })),
+        }))
       );
-      basePrompt = applySubstitutions(
-        basePrompt,
-        config,
-        skillsPrompt,
-        isModernModel,
-      );
+      basePrompt = applySubstitutions(basePrompt, config, skillsPrompt, isModernModel);
     } else {
       // --- Standard Composition ---
       const hasHierarchicalMemory =
         typeof userMemory === 'object' &&
         userMemory !== null &&
-        (!!userMemory.global?.trim() ||
-          !!userMemory.extension?.trim() ||
-          !!userMemory.project?.trim());
+        (!!userMemory.global?.trim() || !!userMemory.extension?.trim() || !!userMemory.project?.trim());
 
       const options: snippets.SystemPromptOptions = {
         preamble: this.withSection('preamble', () => ({
@@ -139,7 +113,7 @@ export class PromptProvider {
             .map((d) => ({
               name: d.name,
               description: d.description,
-            })),
+            }))
         ),
         agentSkills: this.withSection(
           'agentSkills',
@@ -149,27 +123,21 @@ export class PromptProvider {
               description: s.description,
               location: s.location,
             })),
-          skills.length > 0,
+          skills.length > 0
         ),
         hookContext: isSectionEnabled('hookContext') || undefined,
         primaryWorkflows: this.withSection(
           'primaryWorkflows',
           () => ({
             interactive: interactiveMode,
-            enableCodebaseInvestigator: enabledToolNames.has(
-              CodebaseInvestigatorAgent.name,
-            ),
+            enableCodebaseInvestigator: enabledToolNames.has(CodebaseInvestigatorAgent.name),
             enableWriteTodosTool: enabledToolNames.has(WRITE_TODOS_TOOL_NAME),
-            enableEnterPlanModeTool: enabledToolNames.has(
-              ENTER_PLAN_MODE_TOOL_NAME,
-            ),
+            enableEnterPlanModeTool: enabledToolNames.has(ENTER_PLAN_MODE_TOOL_NAME),
             enableGrep: enabledToolNames.has(GREP_TOOL_NAME),
             enableGlob: enabledToolNames.has(GLOB_TOOL_NAME),
-            approvedPlan: approvedPlanPath
-              ? { path: approvedPlanPath }
-              : undefined,
+            approvedPlan: approvedPlanPath ? { path: approvedPlanPath } : undefined,
           }),
-          !isPlanMode,
+          !isPlanMode
         ),
         planningWorkflow: this.withSection(
           'planningWorkflow',
@@ -178,26 +146,19 @@ export class PromptProvider {
             plansDir: config.storage.getProjectTempPlansDir(),
             approvedPlanPath: config.getApprovedPlanPath(),
           }),
-          isPlanMode,
+          isPlanMode
         ),
-        operationalGuidelines: this.withSection(
-          'operationalGuidelines',
-          () => ({
-            interactive: interactiveMode,
-            enableShellEfficiency: config.getEnableShellOutputEfficiency(),
-            interactiveShellEnabled: config.isInteractiveShellEnabled(),
-          }),
-        ),
+        operationalGuidelines: this.withSection('operationalGuidelines', () => ({
+          interactive: interactiveMode,
+          enableShellEfficiency: config.getEnableShellOutputEfficiency(),
+          interactiveShellEnabled: config.isInteractiveShellEnabled(),
+        })),
         sandbox: this.withSection('sandbox', () => getSandboxMode()),
-        interactiveYoloMode: this.withSection(
-          'interactiveYoloMode',
-          () => true,
-          isYoloMode && interactiveMode,
-        ),
+        interactiveYoloMode: this.withSection('interactiveYoloMode', () => true, isYoloMode && interactiveMode),
         gitRepo: this.withSection(
           'git',
           () => ({ interactive: interactiveMode }),
-          isGitRepository(process.cwd()) ? true : false,
+          isGitRepository(process.cwd()) ? true : false
         ),
         finalReminder: isModernModel
           ? undefined
@@ -208,61 +169,38 @@ export class PromptProvider {
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
       const getCoreSystemPrompt = activeSnippets.getCoreSystemPrompt as (
-        options: snippets.SystemPromptOptions,
+        options: snippets.SystemPromptOptions
       ) => string;
       basePrompt = getCoreSystemPrompt(options);
     }
 
     // --- Finalization (Shell) ---
-    const finalPrompt = activeSnippets.renderFinalShell(
-      basePrompt,
-      userMemory,
-      contextFilenames,
-    );
+    const finalPrompt = activeSnippets.renderFinalShell(basePrompt, userMemory, contextFilenames);
 
     // Sanitize erratic newlines from composition
     const sanitizedPrompt = finalPrompt.replace(/\n{3,}/g, '\n\n');
 
     // Write back to file if requested
-    this.maybeWriteSystemMd(
-      sanitizedPrompt,
-      systemMdResolution,
-      path.resolve(path.join(GEMINI_DIR, 'system.md')),
-    );
+    this.maybeWriteSystemMd(sanitizedPrompt, systemMdResolution, path.resolve(path.join(GEMINI_DIR, 'system.md')));
 
     return sanitizedPrompt;
   }
 
   getCompressionPrompt(config: Config): string {
-    const desiredModel = resolveModel(
-      config.getActiveModel(),
-      config.getGemini31LaunchedSync?.() ?? false,
-    );
+    const desiredModel = resolveModel(config.getActiveModel(), config.getGemini31LaunchedSync?.() ?? false);
     const isModernModel = supportsModernFeatures(desiredModel);
     const activeSnippets = isModernModel ? snippets : legacySnippets;
     return activeSnippets.getCompressionPrompt();
   }
 
-  private withSection<T>(
-    key: string,
-    factory: () => T,
-    guard: boolean = true,
-  ): T | undefined {
+  private withSection<T>(key: string, factory: () => T, guard: boolean = true): T | undefined {
     return guard && isSectionEnabled(key) ? factory() : undefined;
   }
 
-  private maybeWriteSystemMd(
-    basePrompt: string,
-    resolution: ResolvedPath,
-    defaultPath: string,
-  ): void {
-    const writeSystemMdResolution = resolvePathFromEnv(
-      process.env['GEMINI_WRITE_SYSTEM_MD'],
-    );
+  private maybeWriteSystemMd(basePrompt: string, resolution: ResolvedPath, defaultPath: string): void {
+    const writeSystemMdResolution = resolvePathFromEnv(process.env['GEMINI_WRITE_SYSTEM_MD']);
     if (writeSystemMdResolution.value && !writeSystemMdResolution.isDisabled) {
-      const writePath = writeSystemMdResolution.isSwitch
-        ? defaultPath
-        : writeSystemMdResolution.value;
+      const writePath = writeSystemMdResolution.isSwitch ? defaultPath : writeSystemMdResolution.value;
       fs.mkdirSync(path.dirname(writePath), { recursive: true });
       fs.writeFileSync(writePath, basePrompt);
     }

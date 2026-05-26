@@ -6,12 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { Config } from '../config/config.js';
-import {
-  addMemory,
-  listMemoryFiles,
-  refreshMemory,
-  showMemory,
-} from './memory.js';
+import { addMemory, listMemoryFiles, refreshMemory, showMemory } from './memory.js';
 import * as memoryDiscovery from '../utils/memoryDiscovery.js';
 
 vi.mock('../utils/memoryDiscovery.js', () => ({
@@ -29,9 +24,7 @@ describe('memory commands', () => {
       getGeminiMdFileCount: vi.fn(),
       getGeminiMdFilePaths: vi.fn(),
       isJitContextEnabled: vi.fn(),
-      updateSystemInstructionIfInitialized: vi
-        .fn()
-        .mockResolvedValue(undefined),
+      updateSystemInstructionIfInitialized: vi.fn().mockResolvedValue(undefined),
     } as unknown as Config;
   });
 
@@ -41,9 +34,7 @@ describe('memory commands', () => {
 
   describe('showMemory', () => {
     it('should show memory content if it exists', () => {
-      vi.mocked(mockConfig.getUserMemory).mockReturnValue(
-        'some memory content',
-      );
+      vi.mocked(mockConfig.getUserMemory).mockReturnValue('some memory content');
       vi.mocked(mockConfig.getGeminiMdFileCount).mockReturnValue(1);
 
       const result = showMemory(mockConfig);
@@ -51,9 +42,7 @@ describe('memory commands', () => {
       expect(result.type).toBe('message');
       if (result.type === 'message') {
         expect(result.messageType).toBe('info');
-        expect(result.content).toContain(
-          'Current memory content from 1 file(s)',
-        );
+        expect(result.content).toContain('Current memory content from 1 file(s)');
         expect(result.content).toContain('some memory content');
       }
     });
@@ -129,15 +118,11 @@ describe('memory commands', () => {
       const result = await refreshMemory(mockConfig);
 
       expect(mockRefresh).toHaveBeenCalledWith(mockConfig);
-      expect(
-        mockConfig.updateSystemInstructionIfInitialized,
-      ).toHaveBeenCalled();
+      expect(mockConfig.updateSystemInstructionIfInitialized).toHaveBeenCalled();
       expect(result.type).toBe('message');
       if (result.type === 'message') {
         expect(result.messageType).toBe('info');
-        expect(result.content).toBe(
-          'Memory refreshed successfully. Loaded 33 characters from 2 file(s).',
-        );
+        expect(result.content).toBe('Memory refreshed successfully. Loaded 33 characters from 2 file(s).');
       }
     });
 
@@ -152,9 +137,7 @@ describe('memory commands', () => {
       expect(result.type).toBe('message');
       if (result.type === 'message') {
         expect(result.messageType).toBe('info');
-        expect(result.content).toBe(
-          'Memory refreshed successfully. No memory content found.',
-        );
+        expect(result.content).toBe('Memory refreshed successfully. No memory content found.');
       }
     });
   });
@@ -169,9 +152,7 @@ describe('memory commands', () => {
       expect(result.type).toBe('message');
       if (result.type === 'message') {
         expect(result.messageType).toBe('info');
-        expect(result.content).toContain(
-          'There are 2 GEMINI.md file(s) in use:',
-        );
+        expect(result.content).toContain('There are 2 GEMINI.md file(s) in use:');
         expect(result.content).toContain(filePaths.join('\n'));
       }
     });
@@ -189,9 +170,7 @@ describe('memory commands', () => {
     });
 
     it('should show a message if file paths are undefined', () => {
-      vi.mocked(mockConfig.getGeminiMdFilePaths).mockReturnValue(
-        undefined as unknown as string[],
-      );
+      vi.mocked(mockConfig.getGeminiMdFilePaths).mockReturnValue(undefined as unknown as string[]);
 
       const result = listMemoryFiles(mockConfig);
 

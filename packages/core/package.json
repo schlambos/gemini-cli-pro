@@ -7,11 +7,14 @@
     "type": "git",
     "url": "git+https://github.com/office-sec/aioncli.git"
   },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "dist/index.js",
   "publishConfig": {
     "access": "public"
   },
-  "type": "module",
-  "main": "dist/index.js",
   "scripts": {
     "build": "node ../../scripts/build_package.js",
     "lint": "eslint . --ext .ts,.tsx",
@@ -20,9 +23,6 @@
     "test:ci": "vitest run",
     "typecheck": "tsc --noEmit"
   },
-  "files": [
-    "dist"
-  ],
   "dependencies": {
     "@a2a-js/sdk": "^0.3.8",
     "@anthropic-ai/sdk": "^0.52.0",
@@ -89,16 +89,6 @@
     "zod": "^3.25.76",
     "zod-to-json-schema": "^3.25.1"
   },
-  "optionalDependencies": {
-    "@lydell/node-pty": "1.1.0",
-    "@lydell/node-pty-darwin-arm64": "1.1.0",
-    "@lydell/node-pty-darwin-x64": "1.1.0",
-    "@lydell/node-pty-linux-x64": "1.1.0",
-    "@lydell/node-pty-win32-arm64": "1.1.0",
-    "@lydell/node-pty-win32-x64": "1.1.0",
-    "keytar": "^7.9.0",
-    "node-pty": "^1.0.0"
-  },
   "devDependencies": {
     "@google/gemini-cli-test-utils": "file:../test-utils",
     "@types/fast-levenshtein": "^0.0.4",
@@ -109,6 +99,16 @@
     "msw": "^2.3.4",
     "typescript": "^5.3.3",
     "vitest": "^3.1.1"
+  },
+  "optionalDependencies": {
+    "@lydell/node-pty": "1.1.0",
+    "@lydell/node-pty-darwin-arm64": "1.1.0",
+    "@lydell/node-pty-darwin-x64": "1.1.0",
+    "@lydell/node-pty-linux-x64": "1.1.0",
+    "@lydell/node-pty-win32-arm64": "1.1.0",
+    "@lydell/node-pty-win32-x64": "1.1.0",
+    "keytar": "^7.9.0",
+    "node-pty": "^1.0.0"
   },
   "engines": {
     "node": ">=20"

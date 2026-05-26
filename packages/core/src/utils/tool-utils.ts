@@ -10,11 +10,7 @@ import { SHELL_TOOL_NAMES } from './shell-utils.js';
 import levenshtein from 'fast-levenshtein';
 import { ApprovalMode } from '../policy/types.js';
 import { CoreToolCallStatus } from '../scheduler/types.js';
-import {
-  ASK_USER_DISPLAY_NAME,
-  WRITE_FILE_DISPLAY_NAME,
-  EDIT_DISPLAY_NAME,
-} from '../tools/tool-names.js';
+import { ASK_USER_DISPLAY_NAME, WRITE_FILE_DISPLAY_NAME, EDIT_DISPLAY_NAME } from '../tools/tool-names.js';
 
 /**
  * Options for determining if a tool call should be hidden in the CLI history.
@@ -72,11 +68,7 @@ export function shouldHideToolCall(params: ShouldHideToolCallParams): boolean {
  * @param topN The number of suggestions to return. Defaults to 3.
  * @returns A suggestion string like " Did you mean 'tool'?" or " Did you mean one of: 'tool1', 'tool2'?", or an empty string if no suggestions are found.
  */
-export function getToolSuggestion(
-  unknownToolName: string,
-  allToolNames: string[],
-  topN = 3,
-): string {
+export function getToolSuggestion(unknownToolName: string, allToolNames: string[], topN = 3): string {
   const matches = allToolNames.map((toolName) => ({
     name: toolName,
     distance: levenshtein.get(unknownToolName, toolName),
@@ -90,9 +82,7 @@ export function getToolSuggestion(
     return '';
   }
 
-  const suggestedNames = topNResults
-    .map((match) => `"${match.name}"`)
-    .join(', ');
+  const suggestedNames = topNResults.map((match) => `"${match.name}"`).join(', ');
 
   if (topNResults.length > 1) {
     return ` Did you mean one of: ${suggestedNames}?`;
@@ -116,7 +106,7 @@ export function getToolSuggestion(
 export function doesToolInvocationMatch(
   toolOrToolName: AnyDeclarativeTool | string,
   invocation: AnyToolInvocation | string,
-  patterns: string[],
+  patterns: string[]
 ): boolean {
   let toolNames: string[];
   if (isTool(toolOrToolName)) {

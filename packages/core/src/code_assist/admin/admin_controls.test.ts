@@ -5,15 +5,7 @@
  */
 
 import { isDeepStrictEqual } from 'node:util';
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  afterEach,
-  type Mock,
-} from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 import {
   fetchAdminControls,
   fetchAdminControlsOnce,
@@ -25,10 +17,7 @@ import {
 import type { CodeAssistServer } from '../server.js';
 import type { Config } from '../../config/config.js';
 import { getCodeAssistServer } from '../codeAssist.js';
-import type {
-  FetchAdminControlsResponse,
-  AdminControlsSettings,
-} from '../types.js';
+import type { FetchAdminControlsResponse, AdminControlsSettings } from '../types.js';
 
 vi.mock('../codeAssist.js', () => ({
   getCodeAssistServer: vi.fn(),
@@ -78,9 +67,7 @@ describe('Admin Controls', () => {
         },
       };
 
-      const result = sanitizeAdminSettings(
-        input as unknown as FetchAdminControlsResponse,
-      );
+      const result = sanitizeAdminSettings(input as unknown as FetchAdminControlsResponse);
 
       expect(result).toEqual({
         strictModeDisabled: false,
@@ -164,9 +151,7 @@ describe('Admin Controls', () => {
         },
       };
       const result = sanitizeAdminSettings(input as FetchAdminControlsResponse);
-      expect(
-        result.cliFeatureSetting?.extensionsSetting?.extensionsEnabled,
-      ).toBe(false);
+      expect(result.cliFeatureSetting?.extensionsSetting?.extensionsEnabled).toBe(false);
     });
 
     it('should default unmanagedCapabilitiesEnabled to false if cliFeatureSetting is present but unmanagedCapabilitiesEnabled is undefined', () => {
@@ -174,9 +159,7 @@ describe('Admin Controls', () => {
         cliFeatureSetting: {},
       };
       const result = sanitizeAdminSettings(input as FetchAdminControlsResponse);
-      expect(result.cliFeatureSetting?.unmanagedCapabilitiesEnabled).toBe(
-        false,
-      );
+      expect(result.cliFeatureSetting?.unmanagedCapabilitiesEnabled).toBe(false);
     });
 
     it('should reflect explicit values', () => {
@@ -298,12 +281,7 @@ describe('Admin Controls', () => {
 
   describe('fetchAdminControls', () => {
     it('should return empty object and not poll if server is missing', async () => {
-      const result = await fetchAdminControls(
-        undefined,
-        undefined,
-        true,
-        mockOnSettingsChanged,
-      );
+      const result = await fetchAdminControls(undefined, undefined, true, mockOnSettingsChanged);
       expect(result).toEqual({});
       expect(mockServer.fetchAdminControls).not.toHaveBeenCalled();
     });
@@ -313,12 +291,7 @@ describe('Admin Controls', () => {
         fetchAdminControls: vi.fn(),
       } as unknown as CodeAssistServer;
 
-      const result = await fetchAdminControls(
-        mockServer,
-        undefined,
-        true,
-        mockOnSettingsChanged,
-      );
+      const result = await fetchAdminControls(mockServer, undefined, true, mockOnSettingsChanged);
       expect(result).toEqual({});
       expect(mockServer.fetchAdminControls).not.toHaveBeenCalled();
     });
@@ -332,12 +305,7 @@ describe('Admin Controls', () => {
           unmanagedCapabilitiesEnabled: false,
         },
       };
-      const result = await fetchAdminControls(
-        mockServer,
-        cachedSettings,
-        true,
-        mockOnSettingsChanged,
-      );
+      const result = await fetchAdminControls(mockServer, cachedSettings, true, mockOnSettingsChanged);
 
       expect(result).toEqual(cachedSettings);
       expect(mockServer.fetchAdminControls).not.toHaveBeenCalled();
@@ -353,12 +321,7 @@ describe('Admin Controls', () => {
     });
 
     it('should return empty object if admin controls are disabled', async () => {
-      const result = await fetchAdminControls(
-        mockServer,
-        undefined,
-        false,
-        mockOnSettingsChanged,
-      );
+      const result = await fetchAdminControls(mockServer, undefined, false, mockOnSettingsChanged);
       expect(result).toEqual({});
       expect(mockServer.fetchAdminControls).not.toHaveBeenCalled();
     });
@@ -370,12 +333,7 @@ describe('Admin Controls', () => {
       };
       (mockServer.fetchAdminControls as Mock).mockResolvedValue(serverResponse);
 
-      const result = await fetchAdminControls(
-        mockServer,
-        undefined,
-        true,
-        mockOnSettingsChanged,
-      );
+      const result = await fetchAdminControls(mockServer, undefined, true, mockOnSettingsChanged);
       expect(result).toEqual({
         strictModeDisabled: false,
         cliFeatureSetting: {
@@ -394,9 +352,7 @@ describe('Admin Controls', () => {
       const error = new Error('Network error');
       (mockServer.fetchAdminControls as Mock).mockRejectedValue(error);
 
-      await expect(
-        fetchAdminControls(mockServer, undefined, true, mockOnSettingsChanged),
-      ).rejects.toThrow(error);
+      await expect(fetchAdminControls(mockServer, undefined, true, mockOnSettingsChanged)).rejects.toThrow(error);
 
       // Polling should NOT have been started
       // Advance timers just to be absolutely sure
@@ -409,12 +365,7 @@ describe('Admin Controls', () => {
         adminControlsApplicable: false,
       });
 
-      const result = await fetchAdminControls(
-        mockServer,
-        undefined,
-        true,
-        mockOnSettingsChanged,
-      );
+      const result = await fetchAdminControls(mockServer, undefined, true, mockOnSettingsChanged);
 
       expect(result).toEqual({});
 
@@ -430,12 +381,7 @@ describe('Admin Controls', () => {
         adminControlsApplicable: true,
       });
 
-      const result = await fetchAdminControls(
-        mockServer,
-        undefined,
-        true,
-        mockOnSettingsChanged,
-      );
+      const result = await fetchAdminControls(mockServer, undefined, true, mockOnSettingsChanged);
       expect(result).toEqual({
         strictModeDisabled: false,
         cliFeatureSetting: {
@@ -447,9 +393,7 @@ describe('Admin Controls', () => {
           mcpConfig: {},
         },
       });
-      expect(
-        (result as Record<string, unknown>)['unknownField'],
-      ).toBeUndefined();
+      expect((result as Record<string, unknown>)['unknownField']).toBeUndefined();
     });
 
     it('should reset polling interval if called again', async () => {
@@ -458,24 +402,14 @@ describe('Admin Controls', () => {
       });
 
       // First call
-      await fetchAdminControls(
-        mockServer,
-        undefined,
-        true,
-        mockOnSettingsChanged,
-      );
+      await fetchAdminControls(mockServer, undefined, true, mockOnSettingsChanged);
       expect(mockServer.fetchAdminControls).toHaveBeenCalledTimes(1);
 
       // Advance time, but not enough to trigger the poll
       await vi.advanceTimersByTimeAsync(2 * 60 * 1000);
 
       // Second call, should reset the timer
-      await fetchAdminControls(
-        mockServer,
-        undefined,
-        true,
-        mockOnSettingsChanged,
-      );
+      await fetchAdminControls(mockServer, undefined, true, mockOnSettingsChanged);
       expect(mockServer.fetchAdminControls).toHaveBeenCalledTimes(2);
 
       // Advance time by 3 mins. If timer wasn't reset, it would have fired (2+3=5)
@@ -546,9 +480,7 @@ describe('Admin Controls', () => {
     it('should throw error on any other fetch error', async () => {
       const error = new Error('Network error');
       (mockServer.fetchAdminControls as Mock).mockRejectedValue(error);
-      await expect(fetchAdminControlsOnce(mockServer, true)).rejects.toThrow(
-        error,
-      );
+      await expect(fetchAdminControlsOnce(mockServer, true)).rejects.toThrow(error);
       expect(mockServer.fetchAdminControls).toHaveBeenCalledTimes(1);
     });
 
@@ -573,12 +505,7 @@ describe('Admin Controls', () => {
         strictModeDisabled: true,
         adminControlsApplicable: true,
       });
-      await fetchAdminControls(
-        mockServer,
-        undefined,
-        true,
-        mockOnSettingsChanged,
-      );
+      await fetchAdminControls(mockServer, undefined, true, mockOnSettingsChanged);
 
       // Update for next poll
       (mockServer.fetchAdminControls as Mock).mockResolvedValue({
@@ -609,12 +536,7 @@ describe('Admin Controls', () => {
       };
       (mockServer.fetchAdminControls as Mock).mockResolvedValue(settings);
 
-      await fetchAdminControls(
-        mockServer,
-        undefined,
-        true,
-        mockOnSettingsChanged,
-      );
+      await fetchAdminControls(mockServer, undefined, true, mockOnSettingsChanged);
       expect(mockServer.fetchAdminControls).toHaveBeenCalledTimes(1);
       mockOnSettingsChanged.mockClear();
 
@@ -634,18 +556,11 @@ describe('Admin Controls', () => {
         strictModeDisabled: true,
         adminControlsApplicable: true,
       });
-      await fetchAdminControls(
-        mockServer,
-        undefined,
-        true,
-        mockOnSettingsChanged,
-      );
+      await fetchAdminControls(mockServer, undefined, true, mockOnSettingsChanged);
       expect(mockServer.fetchAdminControls).toHaveBeenCalledTimes(1);
 
       // Next poll fails
-      (mockServer.fetchAdminControls as Mock).mockRejectedValue(
-        new Error('Poll failed'),
-      );
+      (mockServer.fetchAdminControls as Mock).mockRejectedValue(new Error('Poll failed'));
       await vi.advanceTimersByTimeAsync(5 * 60 * 1000);
       expect(mockServer.fetchAdminControls).toHaveBeenCalledTimes(2);
       expect(mockOnSettingsChanged).not.toHaveBeenCalled(); // No changes on error
@@ -676,12 +591,7 @@ describe('Admin Controls', () => {
         strictModeDisabled: true,
         adminControlsApplicable: true,
       });
-      await fetchAdminControls(
-        mockServer,
-        undefined,
-        true,
-        mockOnSettingsChanged,
-      );
+      await fetchAdminControls(mockServer, undefined, true, mockOnSettingsChanged);
       expect(mockServer.fetchAdminControls).toHaveBeenCalledTimes(1);
 
       // Next poll returns adminControlsApplicable: false
@@ -705,12 +615,7 @@ describe('Admin Controls', () => {
       });
 
       // Start polling
-      await fetchAdminControls(
-        mockServer,
-        undefined,
-        true,
-        mockOnSettingsChanged,
-      );
+      await fetchAdminControls(mockServer, undefined, true, mockOnSettingsChanged);
       expect(mockServer.fetchAdminControls).toHaveBeenCalledTimes(1);
 
       // Stop polling
@@ -740,7 +645,7 @@ describe('Admin Controls', () => {
       const message = getAdminErrorMessage('Code Completion', mockConfig);
 
       expect(message).toBe(
-        'Code Completion is disabled by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli?project=test-project-123',
+        'Code Completion is disabled by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli?project=test-project-123'
       );
     });
 
@@ -752,7 +657,7 @@ describe('Admin Controls', () => {
       const message = getAdminErrorMessage('Chat', mockConfig);
 
       expect(message).toBe(
-        'Chat is disabled by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli',
+        'Chat is disabled by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli'
       );
     });
 
@@ -762,7 +667,7 @@ describe('Admin Controls', () => {
       const message = getAdminErrorMessage('Chat', mockConfig);
 
       expect(message).toBe(
-        'Chat is disabled by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli',
+        'Chat is disabled by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli'
       );
     });
 
@@ -770,7 +675,7 @@ describe('Admin Controls', () => {
       const message = getAdminErrorMessage('Chat', undefined);
 
       expect(message).toBe(
-        'Chat is disabled by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli',
+        'Chat is disabled by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli'
       );
     });
   });
@@ -787,13 +692,10 @@ describe('Admin Controls', () => {
         projectId: 'test-project-123',
       } as CodeAssistServer);
 
-      const message = getAdminBlockedMcpServersMessage(
-        ['server-1'],
-        mockConfig,
-      );
+      const message = getAdminBlockedMcpServersMessage(['server-1'], mockConfig);
 
       expect(message).toBe(
-        '1 MCP server is not allowlisted by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli?project=test-project-123',
+        '1 MCP server is not allowlisted by your administrator. To enable it, please request an update to the settings at: https://goo.gle/manage-gemini-cli?project=test-project-123'
       );
     });
 
@@ -802,26 +704,20 @@ describe('Admin Controls', () => {
         projectId: 'test-project-123',
       } as CodeAssistServer);
 
-      const message = getAdminBlockedMcpServersMessage(
-        ['server-1', 'server-2', 'server-3'],
-        mockConfig,
-      );
+      const message = getAdminBlockedMcpServersMessage(['server-1', 'server-2', 'server-3'], mockConfig);
 
       expect(message).toBe(
-        '3 MCP servers are not allowlisted by your administrator. To enable them, please request an update to the settings at: https://goo.gle/manage-gemini-cli?project=test-project-123',
+        '3 MCP servers are not allowlisted by your administrator. To enable them, please request an update to the settings at: https://goo.gle/manage-gemini-cli?project=test-project-123'
       );
     });
 
     it('should format message correctly with no project ID', () => {
       vi.mocked(getCodeAssistServer).mockReturnValue(undefined);
 
-      const message = getAdminBlockedMcpServersMessage(
-        ['server-1', 'server-2'],
-        mockConfig,
-      );
+      const message = getAdminBlockedMcpServersMessage(['server-1', 'server-2'], mockConfig);
 
       expect(message).toBe(
-        '2 MCP servers are not allowlisted by your administrator. To enable them, please request an update to the settings at: https://goo.gle/manage-gemini-cli',
+        '2 MCP servers are not allowlisted by your administrator. To enable them, please request an update to the settings at: https://goo.gle/manage-gemini-cli'
       );
     });
   });

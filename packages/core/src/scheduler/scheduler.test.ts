@@ -4,16 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  afterEach,
-  type Mock,
-  type Mocked,
-} from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock, type Mocked } from 'vitest';
 import { randomUUID } from 'node:crypto';
 
 vi.mock('node:crypto', () => ({
@@ -21,9 +12,7 @@ vi.mock('node:crypto', () => ({
 }));
 
 vi.mock('../telemetry/trace.js', () => ({
-  runInDevTraceSpan: vi.fn(async (_opts, fn) =>
-    fn({ metadata: { input: {}, output: {} } }),
-  ),
+  runInDevTraceSpan: vi.fn(async (_opts, fn) => fn({ metadata: { input: {}, output: {} } })),
 }));
 
 import { logToolCall } from '../telemetry/loggers.js';
@@ -35,10 +24,7 @@ vi.mock('../telemetry/types.js', () => ({
   ToolCallEvent: vi.fn().mockImplementation((call) => ({ ...call })),
 }));
 
-import {
-  SchedulerStateManager,
-  type TerminalCallHandler,
-} from './state-manager.js';
+import { SchedulerStateManager, type TerminalCallHandler } from './state-manager.js';
 import { resolveConfirmation } from './confirmation.js';
 import { checkPolicy, updatePolicy } from './policy.js';
 import { ToolExecutor } from './tool-executor.js';
@@ -63,11 +49,7 @@ import type { MessageBus } from '../confirmation-bus/message-bus.js';
 import type { PolicyEngine } from '../policy/policy-engine.js';
 import type { ToolRegistry } from '../tools/tool-registry.js';
 import { PolicyDecision, ApprovalMode } from '../policy/types.js';
-import {
-  ToolConfirmationOutcome,
-  type AnyDeclarativeTool,
-  type AnyToolInvocation,
-} from '../tools/tools.js';
+import { ToolConfirmationOutcome, type AnyDeclarativeTool, type AnyToolInvocation } from '../tools/tools.js';
 import type {
   ToolCallRequestInfo,
   ValidatingToolCall,
@@ -81,10 +63,7 @@ import { CoreToolCallStatus, ROOT_SCHEDULER_ID } from './types.js';
 import { ToolErrorType } from '../tools/tool-error.js';
 import * as ToolUtils from '../utils/tool-utils.js';
 import type { EditorType } from '../utils/editor.js';
-import {
-  getToolCallContext,
-  type ToolCallContext,
-} from '../utils/toolCallContext.js';
+import { getToolCallContext, type ToolCallContext } from '../utils/toolCallContext.js';
 
 describe('Scheduler (Orchestrator)', () => {
   let scheduler: Scheduler;
@@ -134,9 +113,7 @@ describe('Scheduler (Orchestrator)', () => {
   };
 
   beforeEach(() => {
-    vi.mocked(randomUUID).mockReturnValue(
-      '123e4567-e89b-12d3-a456-426614174000',
-    );
+    vi.mocked(randomUUID).mockReturnValue('123e4567-e89b-12d3-a456-426614174000');
     abortController = new AbortController();
     signal = abortController.signal;
 
@@ -218,12 +195,10 @@ describe('Scheduler (Orchestrator)', () => {
     } as unknown as Mocked<ToolModificationHandler>;
 
     let capturedTerminalHandler: TerminalCallHandler | undefined;
-    vi.mocked(SchedulerStateManager).mockImplementation(
-      (_messageBus, _schedulerId, onTerminalCall) => {
-        capturedTerminalHandler = onTerminalCall;
-        return mockStateManager as unknown as SchedulerStateManager;
-      },
-    );
+    vi.mocked(SchedulerStateManager).mockImplementation((_messageBus, _schedulerId, onTerminalCall) => {
+      capturedTerminalHandler = onTerminalCall;
+      return mockStateManager as unknown as SchedulerStateManager;
+    });
 
     mockStateManager.finalizeCall.mockImplementation((callId: string) => {
       const call = mockStateManager.getToolCall(callId);
@@ -238,12 +213,8 @@ describe('Scheduler (Orchestrator)', () => {
       // but most tests here check if finalizing is called.
     });
 
-    vi.mocked(ToolExecutor).mockReturnValue(
-      mockExecutor as unknown as Mocked<ToolExecutor>,
-    );
-    vi.mocked(ToolModificationHandler).mockReturnValue(
-      mockModifier as unknown as Mocked<ToolModificationHandler>,
-    );
+    vi.mocked(ToolExecutor).mockReturnValue(mockExecutor as unknown as Mocked<ToolExecutor>);
+    vi.mocked(ToolModificationHandler).mockReturnValue(mockModifier as unknown as Mocked<ToolModificationHandler>);
 
     // Initialize Scheduler
     scheduler = new Scheduler({
@@ -254,9 +225,7 @@ describe('Scheduler (Orchestrator)', () => {
     });
 
     // Reset Tool build behavior
-    vi.mocked(mockTool.build).mockReturnValue(
-      mockInvocation as unknown as AnyToolInvocation,
-    );
+    vi.mocked(mockTool.build).mockReturnValue(mockInvocation as unknown as AnyToolInvocation);
   });
 
   afterEach(() => {
@@ -266,9 +235,7 @@ describe('Scheduler (Orchestrator)', () => {
   describe('Phase 1: Ingestion & Resolution', () => {
     it('should create an ErroredToolCall if tool is not found', async () => {
       vi.mocked(mockToolRegistry.getTool).mockReturnValue(undefined);
-      vi.spyOn(ToolUtils, 'getToolSuggestion').mockReturnValue(
-        ' (Did you mean "test-tool"?)',
-      );
+      vi.spyOn(ToolUtils, 'getToolSuggestion').mockReturnValue(' (Did you mean "test-tool"?)');
 
       await scheduler.schedule(req1, signal);
 
@@ -281,7 +248,7 @@ describe('Scheduler (Orchestrator)', () => {
               errorType: ToolErrorType.TOOL_NOT_REGISTERED,
             }),
           }),
-        ]),
+        ])
       );
     });
 
@@ -300,7 +267,7 @@ describe('Scheduler (Orchestrator)', () => {
               errorType: ToolErrorType.INVALID_TOOL_PARAMS,
             }),
           }),
-        ]),
+        ])
       );
     });
 
@@ -317,7 +284,7 @@ describe('Scheduler (Orchestrator)', () => {
             schedulerId: ROOT_SCHEDULER_ID,
             startTime: expect.any(Number),
           }),
-        ]),
+        ])
       );
     });
 
@@ -331,7 +298,7 @@ describe('Scheduler (Orchestrator)', () => {
             status: CoreToolCallStatus.Validating,
             approvalMode: ApprovalMode.PLAN,
           }),
-        ]),
+        ])
       );
     });
   });
@@ -347,11 +314,7 @@ describe('Scheduler (Orchestrator)', () => {
 
       // Setup queue simulation: two items
       Object.defineProperty(mockStateManager, 'queueLength', {
-        get: vi
-          .fn()
-          .mockReturnValueOnce(2)
-          .mockReturnValueOnce(1)
-          .mockReturnValue(0),
+        get: vi.fn().mockReturnValueOnce(2).mockReturnValueOnce(1).mockReturnValue(0),
         configurable: true,
       });
 
@@ -382,11 +345,7 @@ describe('Scheduler (Orchestrator)', () => {
     it('should execute tool calls sequentially (first completes before second starts)', async () => {
       // Setup queue simulation: two items
       Object.defineProperty(mockStateManager, 'queueLength', {
-        get: vi
-          .fn()
-          .mockReturnValueOnce(2)
-          .mockReturnValueOnce(1)
-          .mockReturnValue(0),
+        get: vi.fn().mockReturnValueOnce(2).mockReturnValueOnce(1).mockReturnValue(0),
         configurable: true,
       });
 
@@ -442,12 +401,7 @@ describe('Scheduler (Orchestrator)', () => {
       await scheduler.schedule([req1, req2], signal);
 
       // Assert: The second tool only started AFTER the first one ended
-      expect(executionLog).toEqual([
-        'start-call-1',
-        'end-call-1',
-        'start-call-2',
-        'end-call-2',
-      ]);
+      expect(executionLog).toEqual(['start-call-1', 'end-call-1', 'start-call-2', 'end-call-2']);
     });
 
     it('should queue and process multiple schedule() calls made synchronously', async () => {
@@ -475,18 +429,11 @@ describe('Scheduler (Orchestrator)', () => {
       // Batch 1: length 1 -> 0
       // Batch 2: length 1 -> 0
       Object.defineProperty(mockStateManager, 'queueLength', {
-        get: vi
-          .fn()
-          .mockReturnValueOnce(1)
-          .mockReturnValueOnce(0)
-          .mockReturnValueOnce(1)
-          .mockReturnValue(0),
+        get: vi.fn().mockReturnValueOnce(1).mockReturnValueOnce(0).mockReturnValueOnce(1).mockReturnValue(0),
         configurable: true,
       });
 
-      vi.mocked(mockStateManager.dequeue)
-        .mockReturnValueOnce(validatingCall1)
-        .mockReturnValueOnce(validatingCall2);
+      vi.mocked(mockStateManager.dequeue).mockReturnValueOnce(validatingCall1).mockReturnValueOnce(validatingCall2);
       Object.defineProperty(mockStateManager, 'firstActiveCall', {
         get: vi
           .fn()
@@ -545,9 +492,7 @@ describe('Scheduler (Orchestrator)', () => {
         configurable: true,
       });
 
-      vi.mocked(mockStateManager.dequeue)
-        .mockReturnValueOnce(validatingCall1)
-        .mockReturnValueOnce(validatingCall2);
+      vi.mocked(mockStateManager.dequeue).mockReturnValueOnce(validatingCall1).mockReturnValueOnce(validatingCall2);
 
       Object.defineProperty(mockStateManager, 'firstActiveCall', {
         get: vi
@@ -603,12 +548,7 @@ describe('Scheduler (Orchestrator)', () => {
 
       // 4. ASSERTIONS
       // Verify complete sequential ordering of the two overlapping batches
-      expect(executionLog).toEqual([
-        'start-batch-1',
-        'end-batch-1',
-        'start-batch-2',
-        'end-batch-2',
-      ]);
+      expect(executionLog).toEqual(['start-batch-1', 'end-batch-1', 'start-batch-2', 'end-batch-2']);
     });
 
     it('should cancel all queues if AbortSignal is triggered during loop', async () => {
@@ -620,9 +560,7 @@ describe('Scheduler (Orchestrator)', () => {
 
       await scheduler.schedule(req1, signal);
 
-      expect(mockStateManager.cancelAllQueued).toHaveBeenCalledWith(
-        'Operation cancelled',
-      );
+      expect(mockStateManager.cancelAllQueued).toHaveBeenCalledWith('Operation cancelled');
       expect(mockStateManager.dequeue).not.toHaveBeenCalled(); // Loop broke
     });
 
@@ -644,13 +582,11 @@ describe('Scheduler (Orchestrator)', () => {
       expect(mockStateManager.updateStatus).toHaveBeenCalledWith(
         'call-1',
         CoreToolCallStatus.Cancelled,
-        'Operation cancelled by user',
+        'Operation cancelled by user'
       );
       // finalizeCall is handled by the processing loop, not synchronously by cancelAll
       // expect(mockStateManager.finalizeCall).toHaveBeenCalledWith('call-1');
-      expect(mockStateManager.cancelAllQueued).toHaveBeenCalledWith(
-        'Operation cancelled by user',
-      );
+      expect(mockStateManager.cancelAllQueued).toHaveBeenCalledWith('Operation cancelled by user');
     });
 
     it('cancelAll() should clear the requestQueue and reject pending promises', async () => {
@@ -707,7 +643,7 @@ describe('Scheduler (Orchestrator)', () => {
         CoreToolCallStatus.Error,
         expect.objectContaining({
           errorType: ToolErrorType.POLICY_VIOLATION,
-        }),
+        })
       );
       // Deny shouldn't throw, execution is just skipped, state is updated
       expect(mockExecutor.execute).not.toHaveBeenCalled();
@@ -733,13 +669,12 @@ describe('Scheduler (Orchestrator)', () => {
             expect.objectContaining({
               functionResponse: expect.objectContaining({
                 response: {
-                  error:
-                    'Tool execution denied by policy. Custom denial reason',
+                  error: 'Tool execution denied by policy. Custom denial reason',
                 },
               }),
             }),
           ]),
-        }),
+        })
       );
     });
 
@@ -761,7 +696,7 @@ describe('Scheduler (Orchestrator)', () => {
               }),
             }),
           ]),
-        }),
+        })
       );
     });
 
@@ -789,7 +724,7 @@ describe('Scheduler (Orchestrator)', () => {
               }),
             }),
           ]),
-        }),
+        })
       );
     });
 
@@ -818,7 +753,7 @@ describe('Scheduler (Orchestrator)', () => {
               }),
             }),
           ]),
-        }),
+        })
       );
     });
 
@@ -839,16 +774,10 @@ describe('Scheduler (Orchestrator)', () => {
       expect(resolveConfirmation).not.toHaveBeenCalled();
 
       // State recorded as ProceedOnce
-      expect(mockStateManager.setOutcome).toHaveBeenCalledWith(
-        'call-1',
-        ToolConfirmationOutcome.ProceedOnce,
-      );
+      expect(mockStateManager.setOutcome).toHaveBeenCalledWith('call-1', ToolConfirmationOutcome.ProceedOnce);
 
       // Triggered execution
-      expect(mockStateManager.updateStatus).toHaveBeenCalledWith(
-        'call-1',
-        CoreToolCallStatus.Executing,
-      );
+      expect(mockStateManager.updateStatus).toHaveBeenCalledWith('call-1', CoreToolCallStatus.Executing);
       expect(mockExecutor.execute).toHaveBeenCalled();
     });
 
@@ -872,10 +801,7 @@ describe('Scheduler (Orchestrator)', () => {
         .mockReturnValueOnce(validatingCall2)
         .mockReturnValue(undefined);
 
-      vi.spyOn(mockStateManager, 'queueLength', 'get')
-        .mockReturnValueOnce(2)
-        .mockReturnValueOnce(1)
-        .mockReturnValue(0);
+      vi.spyOn(mockStateManager, 'queueLength', 'get').mockReturnValueOnce(2).mockReturnValueOnce(1).mockReturnValue(0);
 
       // First call requires confirmation, second is auto-approved (simulating policy update)
       vi.mocked(checkPolicy)
@@ -937,7 +863,7 @@ describe('Scheduler (Orchestrator)', () => {
           messageBus: mockMessageBus,
           state: mockStateManager,
           schedulerId: ROOT_SCHEDULER_ID,
-        }),
+        })
       );
 
       expect(updatePolicy).toHaveBeenCalledWith(
@@ -947,7 +873,7 @@ describe('Scheduler (Orchestrator)', () => {
         expect.objectContaining({
           config: mockConfig,
           messageBus: mockMessageBus,
-        }),
+        })
       );
 
       expect(mockExecutor.execute).toHaveBeenCalled();
@@ -970,11 +896,9 @@ describe('Scheduler (Orchestrator)', () => {
       expect(mockStateManager.updateStatus).toHaveBeenCalledWith(
         'call-1',
         CoreToolCallStatus.Cancelled,
-        'User denied execution.',
+        'User denied execution.'
       );
-      expect(mockStateManager.cancelAllQueued).toHaveBeenCalledWith(
-        'User cancelled operation',
-      );
+      expect(mockStateManager.cancelAllQueued).toHaveBeenCalledWith('User cancelled operation');
       expect(mockExecutor.execute).not.toHaveBeenCalled();
     });
 
@@ -1000,7 +924,7 @@ describe('Scheduler (Orchestrator)', () => {
       expect(mockStateManager.updateStatus).toHaveBeenCalledWith(
         'call-1',
         CoreToolCallStatus.Cancelled,
-        'Operation cancelled',
+        'Operation cancelled'
       );
     });
 
@@ -1031,7 +955,7 @@ describe('Scheduler (Orchestrator)', () => {
       expect(mockStateManager.updateStatus).toHaveBeenCalledWith(
         'call-1',
         CoreToolCallStatus.Cancelled,
-        'User denied execution.',
+        'User denied execution.'
       );
       // We assume the state manager stores these details.
       // Since we mock state manager, we just verify the flow passed the details.
@@ -1048,13 +972,9 @@ describe('Scheduler (Orchestrator)', () => {
     };
 
     beforeEach(() => {
-      vi.spyOn(mockStateManager, 'queueLength', 'get')
-        .mockReturnValueOnce(1)
-        .mockReturnValue(0);
+      vi.spyOn(mockStateManager, 'queueLength', 'get').mockReturnValueOnce(1).mockReturnValue(0);
       mockStateManager.dequeue.mockReturnValue(validatingCall);
-      vi.spyOn(mockStateManager, 'firstActiveCall', 'get').mockReturnValue(
-        validatingCall,
-      );
+      vi.spyOn(mockStateManager, 'firstActiveCall', 'get').mockReturnValue(validatingCall);
       mockPolicyEngine.check.mockResolvedValue({
         decision: PolicyDecision.ALLOW,
       }); // Bypass confirmation
@@ -1073,11 +993,7 @@ describe('Scheduler (Orchestrator)', () => {
 
       await scheduler.schedule(req1, signal);
 
-      expect(mockStateManager.updateStatus).toHaveBeenCalledWith(
-        'call-1',
-        CoreToolCallStatus.Success,
-        mockResponse,
-      );
+      expect(mockStateManager.updateStatus).toHaveBeenCalledWith('call-1', CoreToolCallStatus.Success, mockResponse);
     });
 
     it('should update state to cancelled when executor returns cancelled status', async () => {
@@ -1091,7 +1007,7 @@ describe('Scheduler (Orchestrator)', () => {
       expect(mockStateManager.updateStatus).toHaveBeenCalledWith(
         'call-1',
         CoreToolCallStatus.Cancelled,
-        'Operation cancelled',
+        'Operation cancelled'
       );
     });
 
@@ -1108,11 +1024,7 @@ describe('Scheduler (Orchestrator)', () => {
 
       await scheduler.schedule(req1, signal);
 
-      expect(mockStateManager.updateStatus).toHaveBeenCalledWith(
-        'call-1',
-        CoreToolCallStatus.Error,
-        mockResponse,
-      );
+      expect(mockStateManager.updateStatus).toHaveBeenCalledWith('call-1', CoreToolCallStatus.Error, mockResponse);
     });
 
     it('should log telemetry for terminal states in the queue processor', async () => {
@@ -1147,10 +1059,7 @@ describe('Scheduler (Orchestrator)', () => {
       // Verify the finalizer and logger were called
       expect(mockStateManager.finalizeCall).toHaveBeenCalledWith('call-1');
       expect(ToolCallEvent).toHaveBeenCalledWith(successfulCall);
-      expect(logToolCall).toHaveBeenCalledWith(
-        mockConfig,
-        expect.objectContaining(successfulCall),
-      );
+      expect(logToolCall).toHaveBeenCalledWith(mockConfig, expect.objectContaining(successfulCall));
     });
 
     it('should not double-report completed tools when concurrent completions occur', async () => {

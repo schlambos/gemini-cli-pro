@@ -54,9 +54,7 @@ describe('useSessionRetentionCheck', () => {
     mockGetAllSessionFiles.mockResolvedValue(['session1.json']);
     mockIdentifySessionsToDelete.mockResolvedValue(['session1.json']);
 
-    const { result } = renderHook(() =>
-      useSessionRetentionCheck(mockConfig, settings),
-    );
+    const { result } = renderHook(() => useSessionRetentionCheck(mockConfig, settings));
 
     await waitFor(() => {
       expect(result.current.checkComplete).toBe(true);
@@ -75,9 +73,7 @@ describe('useSessionRetentionCheck', () => {
       },
     } as unknown as Settings;
 
-    const { result } = renderHook(() =>
-      useSessionRetentionCheck(mockConfig, settings),
-    );
+    const { result } = renderHook(() => useSessionRetentionCheck(mockConfig, settings));
 
     await waitFor(() => {
       expect(result.current.checkComplete).toBe(true);
@@ -97,9 +93,7 @@ describe('useSessionRetentionCheck', () => {
       },
     } as unknown as Settings;
 
-    const { result } = renderHook(() =>
-      useSessionRetentionCheck(mockConfig, settings),
-    );
+    const { result } = renderHook(() => useSessionRetentionCheck(mockConfig, settings));
 
     await waitFor(() => {
       expect(result.current.checkComplete).toBe(true);
@@ -119,15 +113,10 @@ describe('useSessionRetentionCheck', () => {
       },
     } as unknown as Settings;
 
-    mockGetAllSessionFiles.mockResolvedValue([
-      'session1.json',
-      'session2.json',
-    ]);
+    mockGetAllSessionFiles.mockResolvedValue(['session1.json', 'session2.json']);
     mockIdentifySessionsToDelete.mockResolvedValue(['session1.json']); // 1 session to delete
 
-    const { result } = renderHook(() =>
-      useSessionRetentionCheck(mockConfig, settings),
-    );
+    const { result } = renderHook(() => useSessionRetentionCheck(mockConfig, settings));
 
     await waitFor(() => {
       expect(result.current.checkComplete).toBe(true);
@@ -153,9 +142,7 @@ describe('useSessionRetentionCheck', () => {
 
     const onAutoEnable = vi.fn();
 
-    const { result } = renderHook(() =>
-      useSessionRetentionCheck(mockConfig, settings, onAutoEnable),
-    );
+    const { result } = renderHook(() => useSessionRetentionCheck(mockConfig, settings, onAutoEnable));
 
     await waitFor(() => {
       expect(result.current.checkComplete).toBe(true);
@@ -174,15 +161,10 @@ describe('useSessionRetentionCheck', () => {
       },
     } as unknown as Settings;
 
-    mockGetAllSessionFiles.mockResolvedValue([
-      'session1.json',
-      'session2.json',
-    ]);
+    mockGetAllSessionFiles.mockResolvedValue(['session1.json', 'session2.json']);
     mockIdentifySessionsToDelete.mockResolvedValue([]); // 0 sessions to delete
 
-    const { result } = renderHook(() =>
-      useSessionRetentionCheck(mockConfig, settings),
-    );
+    const { result } = renderHook(() => useSessionRetentionCheck(mockConfig, settings));
 
     await waitFor(() => {
       expect(result.current.checkComplete).toBe(true);
@@ -205,9 +187,7 @@ describe('useSessionRetentionCheck', () => {
 
     mockGetAllSessionFiles.mockRejectedValue(new Error('FS Error'));
 
-    const { result } = renderHook(() =>
-      useSessionRetentionCheck(mockConfig, settings),
-    );
+    const { result } = renderHook(() => useSessionRetentionCheck(mockConfig, settings));
 
     await waitFor(() => {
       expect(result.current.checkComplete).toBe(true);

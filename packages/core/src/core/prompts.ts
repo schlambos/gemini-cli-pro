@@ -23,13 +23,9 @@ export function resolvePathFromEnv(envVar?: string) {
 export function getCoreSystemPrompt(
   config: Config,
   userMemory?: string | HierarchicalMemory,
-  interactiveOverride?: boolean,
+  interactiveOverride?: boolean
 ): string {
-  return new PromptProvider().getCoreSystemPrompt(
-    config,
-    userMemory,
-    interactiveOverride,
-  );
+  return new PromptProvider().getCoreSystemPrompt(config, userMemory, interactiveOverride);
 }
 
 /**

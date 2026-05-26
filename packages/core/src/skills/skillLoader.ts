@@ -29,16 +29,13 @@ export interface SkillDefinition {
   isBuiltin?: boolean;
 }
 
-export const FRONTMATTER_REGEX =
-  /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n([\s\S]*))?/;
+export const FRONTMATTER_REGEX = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n([\s\S]*))?/;
 
 /**
  * Parses frontmatter content using YAML with a fallback to simple key-value parsing.
  * This handles cases where description contains colons that would break YAML parsing.
  */
-function parseFrontmatter(
-  content: string,
-): { name: string; description: string } | null {
+function parseFrontmatter(content: string): { name: string; description: string } | null {
   try {
     const parsed = yaml.load(content);
     if (parsed && typeof parsed === 'object') {
@@ -49,10 +46,7 @@ function parseFrontmatter(
       }
     }
   } catch (yamlError) {
-    debugLogger.debug(
-      'YAML frontmatter parsing failed, falling back to simple parser:',
-      yamlError,
-    );
+    debugLogger.debug('YAML frontmatter parsing failed, falling back to simple parser:', yamlError);
   }
 
   return parseSimpleFrontmatter(content);
@@ -62,9 +56,7 @@ function parseFrontmatter(
  * Simple frontmatter parser that extracts name and description fields.
  * Handles cases where values contain colons that would break YAML parsing.
  */
-function parseSimpleFrontmatter(
-  content: string,
-): { name: string; description: string } | null {
+function parseSimpleFrontmatter(content: string): { name: string; description: string } | null {
   const lines = content.split(/\r?\n/);
   let name: string | undefined;
   let description: string | undefined;
@@ -110,9 +102,7 @@ function parseSimpleFrontmatter(
 /**
  * Discovers and loads all skills in the provided directory.
  */
-export async function loadSkillsFromDir(
-  dir: string,
-): Promise<SkillDefinition[]> {
+export async function loadSkillsFromDir(dir: string): Promise<SkillDefinition[]> {
   const discoveredSkills: SkillDefinition[] = [];
 
   try {
@@ -141,16 +131,12 @@ export async function loadSkillsFromDir(
       const files = await fs.readdir(absoluteSearchPath);
       if (files.length > 0) {
         debugLogger.debug(
-          `Failed to load skills from ${absoluteSearchPath}. The directory is not empty but no valid skills were discovered. Please ensure SKILL.md files are present in subdirectories and have valid frontmatter.`,
+          `Failed to load skills from ${absoluteSearchPath}. The directory is not empty but no valid skills were discovered. Please ensure SKILL.md files are present in subdirectories and have valid frontmatter.`
         );
       }
     }
   } catch (error) {
-    coreEvents.emitFeedback(
-      'warning',
-      `Error discovering skills in ${dir}:`,
-      error,
-    );
+    coreEvents.emitFeedback('warning', `Error discovering skills in ${dir}:`, error);
   }
 
   return discoveredSkills;
@@ -159,9 +145,7 @@ export async function loadSkillsFromDir(
 /**
  * Loads a single skill from a SKILL.md file.
  */
-export async function loadSkillFromFile(
-  filePath: string,
-): Promise<SkillDefinition | null> {
+export async function loadSkillFromFile(filePath: string): Promise<SkillDefinition | null> {
   try {
     const content = await fs.readFile(filePath, 'utf-8');
     const match = content.match(FRONTMATTER_REGEX);

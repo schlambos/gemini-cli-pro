@@ -18,9 +18,7 @@ vi.mock('../hooks/useSnowfall.js', () => ({
   useSnowfall: vi.fn((art) => art),
 }));
 vi.mock('ink-gradient', () => {
-  const MockGradient = ({ children }: { children: React.ReactNode }) => (
-    <>{children}</>
-  );
+  const MockGradient = ({ children }: { children: React.ReactNode }) => <>{children}</>;
   return {
     default: vi.fn(MockGradient),
   };
@@ -44,30 +42,28 @@ describe('<Header />', () => {
       columns: 120,
       rows: 20,
     });
-    render(<Header version="1.0.0" nightly={false} />);
+    render(<Header version='1.0.0' nightly={false} />);
     expect(Text).toHaveBeenCalledWith(
       expect.objectContaining({
         children: longAsciiLogo,
       }),
-      undefined,
+      undefined
     );
   });
 
   it('renders custom ASCII art when provided', () => {
     const customArt = 'CUSTOM ART';
-    render(
-      <Header version="1.0.0" nightly={false} customAsciiArt={customArt} />,
-    );
+    render(<Header version='1.0.0' nightly={false} customAsciiArt={customArt} />);
     expect(Text).toHaveBeenCalledWith(
       expect.objectContaining({
         children: customArt,
       }),
-      undefined,
+      undefined
     );
   });
 
   it('displays the version number when nightly is true', () => {
-    render(<Header version="1.0.0" nightly={true} />);
+    render(<Header version='1.0.0' nightly={true} />);
     const textCalls = (Text as Mock).mock.calls;
     const versionText = Array.isArray(textCalls[1][0].children)
       ? textCalls[1][0].children.join('')
@@ -76,12 +72,12 @@ describe('<Header />', () => {
   });
 
   it('does not display the version number when nightly is false', () => {
-    render(<Header version="1.0.0" nightly={false} />);
+    render(<Header version='1.0.0' nightly={false} />);
     expect(Text).not.toHaveBeenCalledWith(
       expect.objectContaining({
         children: 'v1.0.0',
       }),
-      undefined,
+      undefined
     );
   });
 
@@ -115,7 +111,7 @@ describe('<Header />', () => {
       },
     });
     const Gradient = await import('ink-gradient');
-    render(<Header version="1.0.0" nightly={false} />);
+    render(<Header version='1.0.0' nightly={false} />);
     expect(Gradient.default).not.toHaveBeenCalled();
     const textCalls = (Text as Mock).mock.calls;
     expect(textCalls[0][0]).toHaveProperty('color', '#123456');
@@ -127,7 +123,7 @@ describe('<Header />', () => {
       ui: { gradient: [singleColor] },
     } as typeof semanticColors.theme);
     const Gradient = await import('ink-gradient');
-    render(<Header version="1.0.0" nightly={false} />);
+    render(<Header version='1.0.0' nightly={false} />);
     expect(Gradient.default).not.toHaveBeenCalled();
     const textCalls = (Text as Mock).mock.calls;
     expect(textCalls.length).toBe(1);
@@ -140,12 +136,12 @@ describe('<Header />', () => {
       ui: { gradient: gradientColors },
     } as typeof semanticColors.theme);
     const Gradient = await import('ink-gradient');
-    render(<Header version="1.0.0" nightly={false} />);
+    render(<Header version='1.0.0' nightly={false} />);
     expect(Gradient.default).toHaveBeenCalledWith(
       expect.objectContaining({
         colors: gradientColors,
       }),
-      undefined,
+      undefined
     );
   });
 });

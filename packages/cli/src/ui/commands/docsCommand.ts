@@ -6,11 +6,7 @@
 
 import open from 'open';
 import process from 'node:process';
-import {
-  type CommandContext,
-  type SlashCommand,
-  CommandKind,
-} from './types.js';
+import { type CommandContext, type SlashCommand, CommandKind } from './types.js';
 import { MessageType } from '../types.js';
 
 export const docsCommand: SlashCommand = {
@@ -27,7 +23,7 @@ export const docsCommand: SlashCommand = {
           type: MessageType.INFO,
           text: `Please open the following URL in your browser to view the documentation:\n${docsUrl}`,
         },
-        Date.now(),
+        Date.now()
       );
     } else {
       context.ui.addItem(
@@ -35,7 +31,7 @@ export const docsCommand: SlashCommand = {
           type: MessageType.INFO,
           text: `Opening documentation in your browser: ${docsUrl}`,
         },
-        Date.now(),
+        Date.now()
       );
       await open(docsUrl);
     }

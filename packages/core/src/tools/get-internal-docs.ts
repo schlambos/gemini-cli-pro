@@ -70,22 +70,12 @@ async function getDocsRoot(): Promise<string> {
   throw new Error('Could not find Gemini CLI documentation directory.');
 }
 
-class GetInternalDocsInvocation extends BaseToolInvocation<
-  GetInternalDocsParams,
-  ToolResult
-> {
-  constructor(
-    params: GetInternalDocsParams,
-    messageBus: MessageBus,
-    _toolName?: string,
-    _toolDisplayName?: string,
-  ) {
+class GetInternalDocsInvocation extends BaseToolInvocation<GetInternalDocsParams, ToolResult> {
+  constructor(params: GetInternalDocsParams, messageBus: MessageBus, _toolName?: string, _toolDisplayName?: string) {
     super(params, messageBus, _toolName, _toolDisplayName);
   }
 
-  override async shouldConfirmExecute(
-    _abortSignal: AbortSignal,
-  ): Promise<ToolCallConfirmationDetails | false> {
+  override async shouldConfirmExecute(_abortSignal: AbortSignal): Promise<ToolCallConfirmationDetails | false> {
     return false;
   }
 
@@ -118,9 +108,7 @@ class GetInternalDocsInvocation extends BaseToolInvocation<
       // Security: Prevent path traversal by resolving and verifying it stays within docsRoot
       const resolvedPath = path.resolve(docsRoot, this.params.path);
       if (!resolvedPath.startsWith(docsRoot)) {
-        throw new Error(
-          'Access denied: Requested path is outside the documentation directory.',
-        );
+        throw new Error('Access denied: Requested path is outside the documentation directory.');
       }
 
       const content = await fs.readFile(resolvedPath, 'utf8');
@@ -130,8 +118,7 @@ class GetInternalDocsInvocation extends BaseToolInvocation<
         returnDisplay: `Successfully read documentation: ${this.params.path}`,
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       return {
         llmContent: `Error accessing internal documentation: ${errorMessage}`,
         returnDisplay: `Failed to access documentation: ${errorMessage}`,
@@ -149,10 +136,7 @@ class GetInternalDocsInvocation extends BaseToolInvocation<
  * If no path is provided, it returns a list of all available documentation files.
  * If a path is provided, it returns the content of that specific file.
  */
-export class GetInternalDocsTool extends BaseDeclarativeTool<
-  GetInternalDocsParams,
-  ToolResult
-> {
+export class GetInternalDocsTool extends BaseDeclarativeTool<GetInternalDocsParams, ToolResult> {
   static readonly Name = GET_INTERNAL_DOCS_TOOL_NAME;
 
   constructor(messageBus: MessageBus) {
@@ -164,7 +148,7 @@ export class GetInternalDocsTool extends BaseDeclarativeTool<
       GET_INTERNAL_DOCS_DEFINITION.base.parametersJsonSchema,
       messageBus,
       /* isOutputMarkdown */ true,
-      /* canUpdateOutput */ false,
+      /* canUpdateOutput */ false
     );
   }
 
@@ -172,14 +156,9 @@ export class GetInternalDocsTool extends BaseDeclarativeTool<
     params: GetInternalDocsParams,
     messageBus: MessageBus,
     _toolName?: string,
-    _toolDisplayName?: string,
+    _toolDisplayName?: string
   ): ToolInvocation<GetInternalDocsParams, ToolResult> {
-    return new GetInternalDocsInvocation(
-      params,
-      messageBus,
-      _toolName ?? GetInternalDocsTool.Name,
-      _toolDisplayName,
-    );
+    return new GetInternalDocsInvocation(params, messageBus, _toolName ?? GetInternalDocsTool.Name, _toolDisplayName);
   }
 
   override getSchema(modelId?: string) {

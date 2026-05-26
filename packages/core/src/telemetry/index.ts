@@ -13,22 +13,9 @@ const DEFAULT_TELEMETRY_TARGET = TelemetryTarget.LOCAL;
 const DEFAULT_OTLP_ENDPOINT = 'http://localhost:4317';
 
 export { DEFAULT_TELEMETRY_TARGET, DEFAULT_OTLP_ENDPOINT };
-export {
-  initializeTelemetry,
-  shutdownTelemetry,
-  flushTelemetry,
-  isTelemetrySdkInitialized,
-} from './sdk.js';
-export {
-  resolveTelemetrySettings,
-  parseBooleanEnvFlag,
-  parseTelemetryTargetValue,
-} from './config.js';
-export {
-  GcpTraceExporter,
-  GcpMetricExporter,
-  GcpLogExporter,
-} from './gcp-exporters.js';
+export { initializeTelemetry, shutdownTelemetry, flushTelemetry, isTelemetrySdkInitialized } from './sdk.js';
+export { resolveTelemetrySettings, parseBooleanEnvFlag, parseTelemetryTargetValue } from './config.js';
+export { GcpTraceExporter, GcpMetricExporter, GcpLogExporter } from './gcp-exporters.js';
 export {
   logCliConfiguration,
   logUserPrompt,
@@ -83,12 +70,7 @@ export type { MemorySnapshot, ProcessMetrics } from './memory-monitor.js';
 export { HighWaterMarkTracker } from './high-water-mark-tracker.js';
 export { RateLimiter } from './rate-limiter.js';
 export { ActivityType } from './activity-types.js';
-export {
-  ActivityDetector,
-  getActivityDetector,
-  recordUserActivity,
-  isUserActive,
-} from './activity-detector.js';
+export { ActivityDetector, getActivityDetector, recordUserActivity, isUserActive } from './activity-detector.js';
 export {
   ActivityMonitor,
   initializeActivityMonitor,

@@ -6,11 +6,7 @@
 
 import type { CommandModule } from 'yargs';
 import { debugLogger } from '@google/gemini-cli-core';
-import {
-  McpServerEnablementManager,
-  canLoadServer,
-  normalizeServerId,
-} from '../../config/mcp/mcpServerEnablement.js';
+import { McpServerEnablementManager, canLoadServer, normalizeServerId } from '../../config/mcp/mcpServerEnablement.js';
 import { loadSettings } from '../../config/settings.js';
 import { exitCli } from '../utils.js';
 import { getMcpServersFromConfig } from './list.js';
@@ -36,9 +32,7 @@ async function handleEnable(args: Args): Promise<void> {
   const servers = await getMcpServersFromConfig();
   const normalizedServerNames = Object.keys(servers).map(normalizeServerId);
   if (!normalizedServerNames.includes(name)) {
-    debugLogger.log(
-      `${RED}Error:${RESET} Server '${args.name}' not found. Use 'gemini mcp' to see available servers.`,
-    );
+    debugLogger.log(`${RED}Error:${RESET} Server '${args.name}' not found. Use 'gemini mcp' to see available servers.`);
     return;
   }
 
@@ -48,10 +42,7 @@ async function handleEnable(args: Args): Promise<void> {
     excludedList: settings.merged.mcp?.excluded,
   });
 
-  if (
-    !result.allowed &&
-    (result.blockType === 'allowlist' || result.blockType === 'excludelist')
-  ) {
+  if (!result.allowed && (result.blockType === 'allowlist' || result.blockType === 'excludelist')) {
     debugLogger.log(`${RED}Error:${RESET} ${result.reason}`);
     return;
   }
@@ -65,9 +56,7 @@ async function handleEnable(args: Args): Promise<void> {
   }
 
   if (result.blockType === 'admin') {
-    debugLogger.log(
-      `${YELLOW}Warning:${RESET} MCP servers are disabled by administrator.`,
-    );
+    debugLogger.log(`${YELLOW}Warning:${RESET} MCP servers are disabled by administrator.`);
   }
 }
 
@@ -79,17 +68,13 @@ async function handleDisable(args: Args): Promise<void> {
   const servers = await getMcpServersFromConfig();
   const normalizedServerNames = Object.keys(servers).map(normalizeServerId);
   if (!normalizedServerNames.includes(name)) {
-    debugLogger.log(
-      `${RED}Error:${RESET} Server '${args.name}' not found. Use 'gemini mcp' to see available servers.`,
-    );
+    debugLogger.log(`${RED}Error:${RESET} Server '${args.name}' not found. Use 'gemini mcp' to see available servers.`);
     return;
   }
 
   if (args.session) {
     manager.disableForSession(name);
-    debugLogger.log(
-      `${GREEN}✓${RESET} MCP server '${name}' disabled for this session.`,
-    );
+    debugLogger.log(`${GREEN}✓${RESET} MCP server '${name}' disabled for this session.`);
   } else {
     await manager.disable(name);
     debugLogger.log(`${GREEN}✓${RESET} MCP server '${name}' disabled.`);

@@ -25,9 +25,9 @@ interface TableProps<T> {
 
 export function Table<T>({ data, columns }: TableProps<T>) {
   return (
-    <Box flexDirection="column">
+    <Box flexDirection='column'>
       {/* Header */}
-      <Box flexDirection="row">
+      <Box flexDirection='row'>
         {columns.map((col, index) => (
           <Box
             key={`header-${index}`}
@@ -50,7 +50,7 @@ export function Table<T>({ data, columns }: TableProps<T>) {
 
       {/* Divider */}
       <Box
-        borderStyle="single"
+        borderStyle='single'
         borderBottom={true}
         borderTop={false}
         borderLeft={false}
@@ -61,7 +61,7 @@ export function Table<T>({ data, columns }: TableProps<T>) {
 
       {/* Rows */}
       {data.map((item, rowIndex) => (
-        <Box key={`row-${rowIndex}`} flexDirection="row">
+        <Box key={`row-${rowIndex}`} flexDirection='row'>
           {columns.map((col, colIndex) => (
             <Box
               key={`cell-${rowIndex}-${colIndex}`}

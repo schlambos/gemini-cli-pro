@@ -9,12 +9,7 @@ import type { SessionMetrics } from '../telemetry/uiTelemetry.js';
 import type { JsonError, JsonOutput } from './types.js';
 
 export class JsonFormatter {
-  format(
-    sessionId?: string,
-    response?: string,
-    stats?: SessionMetrics,
-    error?: JsonError,
-  ): string {
+  format(sessionId?: string, response?: string, stats?: SessionMetrics, error?: JsonError): string {
     const output: JsonOutput = {};
 
     if (sessionId) {
@@ -36,11 +31,7 @@ export class JsonFormatter {
     return JSON.stringify(output, null, 2);
   }
 
-  formatError(
-    error: Error,
-    code?: string | number,
-    sessionId?: string,
-  ): string {
+  formatError(error: Error, code?: string | number, sessionId?: string): string {
     const jsonError: JsonError = {
       type: error.constructor.name,
       message: stripAnsi(error.message),

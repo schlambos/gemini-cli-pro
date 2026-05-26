@@ -32,13 +32,13 @@ export const GeminiMessage: React.FC<GeminiMessageProps> = ({
 
   const isAlternateBuffer = useAlternateBuffer();
   return (
-    <Box flexDirection="row">
+    <Box flexDirection='row'>
       <Box width={prefixWidth}>
         <Text color={theme.text.accent} aria-label={SCREEN_READER_MODEL_PREFIX}>
           {prefix}
         </Text>
       </Box>
-      <Box flexGrow={1} flexDirection="column">
+      <Box flexGrow={1} flexDirection='column'>
         <MarkdownDisplay
           text={text}
           isPending={isPending}
@@ -50,13 +50,8 @@ export const GeminiMessage: React.FC<GeminiMessageProps> = ({
           terminalWidth={Math.max(terminalWidth - prefixWidth, 0)}
           renderMarkdown={renderMarkdown}
         />
-        <Box
-          marginTop={isAlternateBuffer ? 0 : 1}
-          marginBottom={isAlternateBuffer ? 1 : 0}
-        >
-          <ShowMoreLines
-            constrainHeight={availableTerminalHeight !== undefined}
-          />
+        <Box marginTop={isAlternateBuffer ? 0 : 1} marginBottom={isAlternateBuffer ? 1 : 0}>
+          <ShowMoreLines constrainHeight={availableTerminalHeight !== undefined} />
         </Box>
       </Box>
     </Box>

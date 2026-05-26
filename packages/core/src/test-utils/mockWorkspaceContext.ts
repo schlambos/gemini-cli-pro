@@ -13,21 +13,14 @@ import type { WorkspaceContext } from '../utils/workspaceContext.js';
  * @param additionalDirs Optional additional directories to include in the workspace
  * @returns A mock WorkspaceContext instance
  */
-export function createMockWorkspaceContext(
-  rootDir: string,
-  additionalDirs: string[] = [],
-): WorkspaceContext {
+export function createMockWorkspaceContext(rootDir: string, additionalDirs: string[] = []): WorkspaceContext {
   const allDirs = [rootDir, ...additionalDirs];
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
   const mockWorkspaceContext = {
     addDirectory: vi.fn(),
     getDirectories: vi.fn().mockReturnValue(allDirs),
-    isPathWithinWorkspace: vi
-      .fn()
-      .mockImplementation((path: string) =>
-        allDirs.some((dir) => path.startsWith(dir)),
-      ),
+    isPathWithinWorkspace: vi.fn().mockImplementation((path: string) => allDirs.some((dir) => path.startsWith(dir))),
   } as unknown as WorkspaceContext;
 
   return mockWorkspaceContext;

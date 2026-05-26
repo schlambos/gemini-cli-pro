@@ -7,15 +7,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as vscode from 'vscode';
 import { activate } from './extension.js';
-import {
-  IDE_DEFINITIONS,
-  detectIdeFromEnv,
-} from '@google/gemini-cli-core/src/ide/detect-ide.js';
+import { IDE_DEFINITIONS, detectIdeFromEnv } from '@google/gemini-cli-core/src/ide/detect-ide.js';
 
 vi.mock('@google/gemini-cli-core/src/ide/detect-ide.js', async () => {
-  const actual = await vi.importActual(
-    '@google/gemini-cli-core/src/ide/detect-ide.js',
-  );
+  const actual = await vi.importActual('@google/gemini-cli-core/src/ide/detect-ide.js');
   return {
     ...actual,
     detectIdeFromEnv: vi.fn(() => IDE_DEFINITIONS.vscode),
@@ -76,9 +71,7 @@ describe('activate', () => {
   let context: vscode.ExtensionContext;
 
   beforeEach(() => {
-    vi.mocked(vscode.window.showInformationMessage).mockResolvedValue(
-      undefined,
-    );
+    vi.mocked(vscode.window.showInformationMessage).mockResolvedValue(undefined);
     context = {
       subscriptions: [],
       environmentVariableCollection: {
@@ -112,9 +105,7 @@ describe('activate', () => {
       packageJSON: { version: '1.1.0' },
     } as vscode.Extension<unknown>);
     await activate(context);
-    expect(showInformationMessageMock).toHaveBeenCalledWith(
-      'Gemini CLI Companion extension successfully installed.',
-    );
+    expect(showInformationMessageMock).toHaveBeenCalledWith('Gemini CLI Companion extension successfully installed.');
   });
 
   it('should not show the info message on subsequent activations', async () => {
@@ -140,9 +131,7 @@ describe('activate', () => {
       packageJSON: { version: '1.1.0' },
     } as vscode.Extension<unknown>);
     await activate(context);
-    expect(showInformationMessageMock).toHaveBeenCalledWith(
-      'Gemini CLI Companion extension successfully installed.',
-    );
+    expect(showInformationMessageMock).toHaveBeenCalledWith('Gemini CLI Companion extension successfully installed.');
   });
 
   describe('update notification', () => {
@@ -167,15 +156,13 @@ describe('activate', () => {
         }),
       } as Response);
 
-      const showInformationMessageMock = vi.mocked(
-        vscode.window.showInformationMessage,
-      );
+      const showInformationMessageMock = vi.mocked(vscode.window.showInformationMessage);
 
       await activate(context);
 
       expect(showInformationMessageMock).toHaveBeenCalledWith(
         'A new version (1.2.0) of the Gemini CLI Companion extension is available.',
-        'Update to latest version',
+        'Update to latest version'
       );
     });
 
@@ -195,9 +182,7 @@ describe('activate', () => {
         }),
       } as Response);
 
-      const showInformationMessageMock = vi.mocked(
-        vscode.window.showInformationMessage,
-      );
+      const showInformationMessageMock = vi.mocked(vscode.window.showInformationMessage);
 
       await activate(context);
 
@@ -209,34 +194,29 @@ describe('activate', () => {
         ide: IDE_DEFINITIONS.cloudshell,
       },
       { ide: IDE_DEFINITIONS.firebasestudio },
-    ])(
-      'does not show install or update messages for $ide.name',
-      async ({ ide }) => {
-        vi.mocked(detectIdeFromEnv).mockReturnValue(ide);
-        vi.mocked(context.globalState.get).mockReturnValue(undefined);
-        vi.spyOn(global, 'fetch').mockResolvedValue({
-          ok: true,
-          json: async () => ({
-            results: [
-              {
-                extensions: [
-                  {
-                    versions: [{ version: '1.2.0' }],
-                  },
-                ],
-              },
-            ],
-          }),
-        } as Response);
-        const showInformationMessageMock = vi.mocked(
-          vscode.window.showInformationMessage,
-        );
+    ])('does not show install or update messages for $ide.name', async ({ ide }) => {
+      vi.mocked(detectIdeFromEnv).mockReturnValue(ide);
+      vi.mocked(context.globalState.get).mockReturnValue(undefined);
+      vi.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          results: [
+            {
+              extensions: [
+                {
+                  versions: [{ version: '1.2.0' }],
+                },
+              ],
+            },
+          ],
+        }),
+      } as Response);
+      const showInformationMessageMock = vi.mocked(vscode.window.showInformationMessage);
 
-        await activate(context);
+      await activate(context);
 
-        expect(showInformationMessageMock).not.toHaveBeenCalled();
-      },
-    );
+      expect(showInformationMessageMock).not.toHaveBeenCalled();
+    });
 
     it('should not show an update notification if the version is older', async () => {
       vi.spyOn(global, 'fetch').mockResolvedValue({
@@ -254,9 +234,7 @@ describe('activate', () => {
         }),
       } as Response);
 
-      const showInformationMessageMock = vi.mocked(
-        vscode.window.showInformationMessage,
-      );
+      const showInformationMessageMock = vi.mocked(vscode.window.showInformationMessage);
 
       await activate(context);
 
@@ -278,9 +256,7 @@ describe('activate', () => {
           ],
         }),
       } as Response);
-      vi.mocked(vscode.window.showInformationMessage).mockResolvedValue(
-        'Update to latest version' as never,
-      );
+      vi.mocked(vscode.window.showInformationMessage).mockResolvedValue('Update to latest version' as never);
       const executeCommandMock = vi.mocked(vscode.commands.executeCommand);
 
       await activate(context);
@@ -290,7 +266,7 @@ describe('activate', () => {
 
       expect(executeCommandMock).toHaveBeenCalledWith(
         'workbench.extensions.installExtension',
-        'Google.gemini-cli-vscode-ide-companion',
+        'Google.gemini-cli-vscode-ide-companion'
       );
     });
 
@@ -300,9 +276,7 @@ describe('activate', () => {
         statusText: 'Internal Server Error',
       } as Response);
 
-      const showInformationMessageMock = vi.mocked(
-        vscode.window.showInformationMessage,
-      );
+      const showInformationMessageMock = vi.mocked(vscode.window.showInformationMessage);
 
       await activate(context);
 

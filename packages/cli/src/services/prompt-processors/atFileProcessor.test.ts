@@ -41,9 +41,7 @@ describe('AtFileProcessor', () => {
 
     // Default mock success behavior: return content wrapped in a text part.
     mockReadPathFromWorkspace.mockImplementation(
-      async (path: string): Promise<PartUnion[]> => [
-        { text: `content of ${path}` },
-      ],
+      async (path: string): Promise<PartUnion[]> => [{ text: `content of ${path}` }]
     );
   });
 
@@ -71,35 +69,19 @@ describe('AtFileProcessor', () => {
   describe('Parsing Logic', () => {
     it('should replace a single valid @{path/to/file.txt} placeholder', async () => {
       const processor = new AtFileProcessor();
-      const prompt: PartUnion[] = [
-        { text: 'Analyze this file: @{path/to/file.txt}' },
-      ];
+      const prompt: PartUnion[] = [{ text: 'Analyze this file: @{path/to/file.txt}' }];
       const result = await processor.process(prompt, context);
-      expect(mockReadPathFromWorkspace).toHaveBeenCalledWith(
-        'path/to/file.txt',
-        mockConfig,
-      );
-      expect(result).toEqual([
-        { text: 'Analyze this file: ' },
-        { text: 'content of path/to/file.txt' },
-      ]);
+      expect(mockReadPathFromWorkspace).toHaveBeenCalledWith('path/to/file.txt', mockConfig);
+      expect(result).toEqual([{ text: 'Analyze this file: ' }, { text: 'content of path/to/file.txt' }]);
     });
 
     it('should replace multiple different @{...} placeholders', async () => {
       const processor = new AtFileProcessor();
-      const prompt: PartUnion[] = [
-        { text: 'Compare @{file1.js} with @{file2.js}' },
-      ];
+      const prompt: PartUnion[] = [{ text: 'Compare @{file1.js} with @{file2.js}' }];
       const result = await processor.process(prompt, context);
       expect(mockReadPathFromWorkspace).toHaveBeenCalledTimes(2);
-      expect(mockReadPathFromWorkspace).toHaveBeenCalledWith(
-        'file1.js',
-        mockConfig,
-      );
-      expect(mockReadPathFromWorkspace).toHaveBeenCalledWith(
-        'file2.js',
-        mockConfig,
-      );
+      expect(mockReadPathFromWorkspace).toHaveBeenCalledWith('file1.js', mockConfig);
+      expect(mockReadPathFromWorkspace).toHaveBeenCalledWith('file2.js', mockConfig);
       expect(result).toEqual([
         { text: 'Compare ' },
         { text: 'content of file1.js' },
@@ -110,9 +92,7 @@ describe('AtFileProcessor', () => {
 
     it('should handle placeholders at the beginning, middle, and end', async () => {
       const processor = new AtFileProcessor();
-      const prompt: PartUnion[] = [
-        { text: '@{start.txt} in the @{middle.txt} and @{end.txt}' },
-      ];
+      const prompt: PartUnion[] = [{ text: '@{start.txt} in the @{middle.txt} and @{end.txt}' }];
       const result = await processor.process(prompt, context);
       expect(result).toEqual([
         { text: 'content of start.txt' },
@@ -125,36 +105,24 @@ describe('AtFileProcessor', () => {
 
     it('should correctly parse paths that contain balanced braces', async () => {
       const processor = new AtFileProcessor();
-      const prompt: PartUnion[] = [
-        { text: 'Analyze @{path/with/{braces}/file.txt}' },
-      ];
+      const prompt: PartUnion[] = [{ text: 'Analyze @{path/with/{braces}/file.txt}' }];
       const result = await processor.process(prompt, context);
-      expect(mockReadPathFromWorkspace).toHaveBeenCalledWith(
-        'path/with/{braces}/file.txt',
-        mockConfig,
-      );
-      expect(result).toEqual([
-        { text: 'Analyze ' },
-        { text: 'content of path/with/{braces}/file.txt' },
-      ]);
+      expect(mockReadPathFromWorkspace).toHaveBeenCalledWith('path/with/{braces}/file.txt', mockConfig);
+      expect(result).toEqual([{ text: 'Analyze ' }, { text: 'content of path/with/{braces}/file.txt' }]);
     });
 
     it('should throw an error if the prompt contains an unclosed trigger', async () => {
       const processor = new AtFileProcessor();
       const prompt: PartUnion[] = [{ text: 'Hello @{world' }];
       // The new parser throws an error for unclosed injections.
-      await expect(processor.process(prompt, context)).rejects.toThrow(
-        /Unclosed injection/,
-      );
+      await expect(processor.process(prompt, context)).rejects.toThrow(/Unclosed injection/);
     });
   });
 
   describe('Integration and Error Handling', () => {
     it('should leave the placeholder unmodified if readPathFromWorkspace throws', async () => {
       const processor = new AtFileProcessor();
-      const prompt: PartUnion[] = [
-        { text: 'Analyze @{not-found.txt} and @{good-file.txt}' },
-      ];
+      const prompt: PartUnion[] = [{ text: 'Analyze @{not-found.txt} and @{good-file.txt}' }];
       mockReadPathFromWorkspace.mockImplementation(async (path: string) => {
         if (path === 'not-found.txt') {
           throw new Error('File not found');
@@ -186,7 +154,7 @@ describe('AtFileProcessor', () => {
           type: MessageType.ERROR,
           text: "Failed to inject content for '@{bad-file.txt}': Access denied",
         },
-        expect.any(Number),
+        expect.any(Number)
       );
     });
 
@@ -207,7 +175,7 @@ describe('AtFileProcessor', () => {
           type: MessageType.INFO,
           text: "File '@{ignored.txt}' was ignored by .gitignore or .geminiignore and was not included in the prompt.",
         },
-        expect.any(Number),
+        expect.any(Number)
       );
     });
 

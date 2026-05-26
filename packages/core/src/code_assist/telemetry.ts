@@ -28,31 +28,21 @@ export async function recordConversationOffered(
   traceId: string | undefined,
   response: GenerateContentResponse,
   streamingLatency: StreamingLatency,
-  abortSignal: AbortSignal | undefined,
+  abortSignal: AbortSignal | undefined
 ): Promise<void> {
   try {
     if (traceId) {
-      const offered = createConversationOffered(
-        response,
-        traceId,
-        abortSignal,
-        streamingLatency,
-      );
+      const offered = createConversationOffered(response, traceId, abortSignal, streamingLatency);
       if (offered) {
         await server.recordConversationOffered(offered);
       }
     }
   } catch (error: unknown) {
-    debugLogger.warn(
-      `Error recording tool call interactions: ${getErrorMessage(error)}`,
-    );
+    debugLogger.warn(`Error recording tool call interactions: ${getErrorMessage(error)}`);
   }
 }
 
-export async function recordToolCallInteractions(
-  config: Config,
-  toolCalls: CompletedToolCall[],
-): Promise<void> {
+export async function recordToolCallInteractions(config: Config, toolCalls: CompletedToolCall[]): Promise<void> {
   // Only send interaction events for responses that contain function calls.
   if (toolCalls.length === 0) {
     return;
@@ -69,9 +59,7 @@ export async function recordToolCallInteractions(
       await server.recordConversationInteraction(interaction);
     }
   } catch (error: unknown) {
-    debugLogger.warn(
-      `Error recording tool call interactions: ${getErrorMessage(error)}`,
-    );
+    debugLogger.warn(`Error recording tool call interactions: ${getErrorMessage(error)}`);
   }
 }
 
@@ -79,7 +67,7 @@ export function createConversationOffered(
   response: GenerateContentResponse,
   traceId: string,
   signal: AbortSignal | undefined,
-  streamingLatency: StreamingLatency,
+  streamingLatency: StreamingLatency
 ): ConversationOffered | undefined {
   // Only send conversation offered events for responses that contain function
   // calls. Non-function call events don't represent user actionable
@@ -101,9 +89,7 @@ export function createConversationOffered(
   };
 }
 
-function summarizeToolCalls(
-  toolCalls: CompletedToolCall[],
-): ConversationInteraction | undefined {
+function summarizeToolCalls(toolCalls: CompletedToolCall[]): ConversationInteraction | undefined {
   let acceptedToolCalls = 0;
   let actionStatus = undefined;
   let traceId = undefined;
@@ -146,9 +132,7 @@ function summarizeToolCalls(
     ? createConversationInteraction(
         traceId,
         actionStatus || ActionStatus.ACTION_STATUS_NO_ERROR,
-        isEdit
-          ? ConversationInteractionInteraction.ACCEPT_FILE
-          : ConversationInteractionInteraction.UNKNOWN,
+        isEdit ? ConversationInteractionInteraction.ACCEPT_FILE : ConversationInteractionInteraction.UNKNOWN
       )
     : undefined;
 }
@@ -156,7 +140,7 @@ function summarizeToolCalls(
 function createConversationInteraction(
   traceId: string,
   status: ActionStatus,
-  interaction: ConversationInteractionInteraction,
+  interaction: ConversationInteractionInteraction
 ): ConversationInteraction {
   return {
     traceId,
@@ -183,10 +167,7 @@ function includesCode(resp: GenerateContentResponse): boolean {
   return false;
 }
 
-function getStatusFromResponse(
-  response: GenerateContentResponse,
-  signal: AbortSignal | undefined,
-): ActionStatus {
+function getStatusFromResponse(response: GenerateContentResponse, signal: AbortSignal | undefined): ActionStatus {
   if (signal?.aborted) {
     return ActionStatus.ACTION_STATUS_CANCELLED;
   }
@@ -208,10 +189,7 @@ export function formatProtoJsonDuration(milliseconds: number): string {
 
 function hasError(response: GenerateContentResponse): boolean {
   // Non-OK SDK results should be considered an error.
-  if (
-    response.sdkHttpResponse &&
-    !response.sdkHttpResponse?.responseInternal?.ok
-  ) {
+  if (response.sdkHttpResponse && !response.sdkHttpResponse?.responseInternal?.ok) {
     return true;
   }
 

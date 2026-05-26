@@ -40,8 +40,7 @@ async function validateExtension(args: ValidateArgs) {
     settings: loadSettings(workspaceDir).merged,
   });
   const absoluteInputPath = path.resolve(args.path);
-  const extensionConfig: ExtensionConfig =
-    await extensionManager.loadExtensionConfig(absoluteInputPath);
+  const extensionConfig: ExtensionConfig = await extensionManager.loadExtensionConfig(absoluteInputPath);
   const warnings: string[] = [];
   const errors: string[] = [];
 
@@ -52,25 +51,20 @@ async function validateExtension(args: ValidateArgs) {
 
     const missingContextFiles: string[] = [];
     for (const contextFilePath of contextFileNames) {
-      const contextFileAbsolutePath = path.resolve(
-        absoluteInputPath,
-        contextFilePath,
-      );
+      const contextFileAbsolutePath = path.resolve(absoluteInputPath, contextFilePath);
       if (!fs.existsSync(contextFileAbsolutePath)) {
         missingContextFiles.push(contextFilePath);
       }
     }
     if (missingContextFiles.length > 0) {
       errors.push(
-        `The following context files referenced in gemini-extension.json are missing: ${missingContextFiles}`,
+        `The following context files referenced in gemini-extension.json are missing: ${missingContextFiles}`
       );
     }
   }
 
   if (!semver.valid(extensionConfig.version)) {
-    warnings.push(
-      `Warning: Version '${extensionConfig.version}' does not appear to be standard semver (e.g., 1.0.0).`,
-    );
+    warnings.push(`Warning: Version '${extensionConfig.version}' does not appear to be standard semver (e.g., 1.0.0).`);
   }
 
   if (warnings.length > 0) {

@@ -10,10 +10,7 @@ import { useUIState } from '../contexts/UIStateContext.js';
 import { useAppContext } from '../contexts/AppContext.js';
 import { AppHeader } from './AppHeader.js';
 import { useAlternateBuffer } from '../hooks/useAlternateBuffer.js';
-import {
-  SCROLL_TO_ITEM_END,
-  type VirtualizedListRef,
-} from './shared/VirtualizedList.js';
+import { SCROLL_TO_ITEM_END, type VirtualizedListRef } from './shared/VirtualizedList.js';
 import { ScrollableList } from './shared/ScrollableList.js';
 import { useMemo, memo, useCallback, useEffect, useRef } from 'react';
 import { MAX_GEMINI_MESSAGE_LINES } from '../constants.js';
@@ -65,25 +62,17 @@ export const MainContent = () => {
           commands={uiState.slashCommands}
         />
       )),
-    [
-      uiState.history,
-      mainAreaWidth,
-      staticAreaMaxItemHeight,
-      uiState.slashCommands,
-    ],
+    [uiState.history, mainAreaWidth, staticAreaMaxItemHeight, uiState.slashCommands]
   );
 
   const pendingItems = useMemo(
     () => (
-      <Box flexDirection="column">
+      <Box flexDirection='column'>
         {pendingHistoryItems.map((item, i) => (
           <HistoryItemDisplay
             key={i}
             availableTerminalHeight={
-              (uiState.constrainHeight && !isAlternateBuffer) ||
-              isAlternateBuffer
-                ? availableTerminalHeight
-                : undefined
+              (uiState.constrainHeight && !isAlternateBuffer) || isAlternateBuffer ? availableTerminalHeight : undefined
             }
             terminalWidth={mainAreaWidth}
             item={{ ...item, id: 0 }}
@@ -92,9 +81,7 @@ export const MainContent = () => {
             embeddedShellFocused={uiState.embeddedShellFocused}
           />
         ))}
-        {showConfirmationQueue && confirmingTool && (
-          <ToolConfirmationQueue confirmingTool={confirmingTool} />
-        )}
+        {showConfirmationQueue && confirmingTool && <ToolConfirmationQueue confirmingTool={confirmingTool} />}
       </Box>
     ),
     [
@@ -107,7 +94,7 @@ export const MainContent = () => {
       uiState.embeddedShellFocused,
       showConfirmationQueue,
       confirmingTool,
-    ],
+    ]
   );
 
   const virtualizedData = useMemo(
@@ -116,19 +103,13 @@ export const MainContent = () => {
       ...uiState.history.map((item) => ({ type: 'history' as const, item })),
       { type: 'pending' as const },
     ],
-    [uiState.history],
+    [uiState.history]
   );
 
   const renderItem = useCallback(
     ({ item }: { item: (typeof virtualizedData)[number] }) => {
       if (item.type === 'header') {
-        return (
-          <MemoizedAppHeader
-            key="app-header"
-            version={version}
-            showDetails={showHeaderDetails}
-          />
-        );
+        return <MemoizedAppHeader key='app-header' version={version} showDetails={showHeaderDetails} />;
       } else if (item.type === 'history') {
         return (
           <MemoizedHistoryItemDisplay
@@ -145,13 +126,7 @@ export const MainContent = () => {
         return pendingItems;
       }
     },
-    [
-      showHeaderDetails,
-      version,
-      mainAreaWidth,
-      uiState.slashCommands,
-      pendingItems,
-    ],
+    [showHeaderDetails, version, mainAreaWidth, uiState.slashCommands, pendingItems]
   );
 
   if (isAlternateBuffer) {
@@ -178,10 +153,7 @@ export const MainContent = () => {
     <>
       <Static
         key={uiState.historyRemountKey}
-        items={[
-          <AppHeader key="app-header" version={version} />,
-          ...historyItems,
-        ]}
+        items={[<AppHeader key='app-header' version={version} />, ...historyItems]}
       >
         {(item) => item}
       </Static>

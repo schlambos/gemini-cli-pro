@@ -87,10 +87,7 @@ export class ProjectRegistry {
       await fs.promises.writeFile(tmpPath, content, 'utf8');
       await fs.promises.rename(tmpPath, this.registryPath);
     } catch (error) {
-      debugLogger.error(
-        `Failed to save project registry to ${this.registryPath}:`,
-        error,
-      );
+      debugLogger.error(`Failed to save project registry to ${this.registryPath}:`, error);
     }
   }
 
@@ -158,10 +155,7 @@ export class ProjectRegistry {
     }
   }
 
-  private async verifySlugOwnership(
-    slug: string,
-    projectPath: string,
-  ): Promise<boolean> {
+  private async verifySlugOwnership(slug: string, projectPath: string): Promise<boolean> {
     if (this.baseDirs.length === 0) {
       return true; // Nothing to verify against
     }
@@ -175,10 +169,7 @@ export class ProjectRegistry {
             return false;
           }
         } catch (e) {
-          debugLogger.debug(
-            `Failed to read ownership marker ${markerPath}:`,
-            e,
-          );
+          debugLogger.debug(`Failed to read ownership marker ${markerPath}:`, e);
           // If we can't read it, assume it's not ours or corrupted.
           return false;
         }
@@ -187,9 +178,7 @@ export class ProjectRegistry {
     return true;
   }
 
-  private async findExistingSlugForPath(
-    projectPath: string,
-  ): Promise<string | undefined> {
+  private async findExistingSlugForPath(projectPath: string): Promise<string | undefined> {
     if (this.baseDirs.length === 0) {
       return undefined;
     }
@@ -207,9 +196,7 @@ export class ProjectRegistry {
         for (const candidate of candidates) {
           const markerPath = path.join(baseDir, candidate, PROJECT_ROOT_FILE);
           if (fs.existsSync(markerPath)) {
-            const owner = (
-              await fs.promises.readFile(markerPath, 'utf8')
-            ).trim();
+            const owner = (await fs.promises.readFile(markerPath, 'utf8')).trim();
             if (this.normalizePath(owner) === normalizedTarget) {
               // Found it! Ensure all base dirs have the marker
               await this.ensureOwnershipMarkers(candidate, normalizedTarget);
@@ -225,10 +212,7 @@ export class ProjectRegistry {
     return undefined;
   }
 
-  private async claimNewSlug(
-    projectPath: string,
-    existingMappings: Record<string, string>,
-  ): Promise<string> {
+  private async claimNewSlug(projectPath: string, existingMappings: Record<string, string>): Promise<string> {
     const baseName = path.basename(projectPath) || 'project';
     const slug = this.slugify(baseName);
 
@@ -250,9 +234,7 @@ export class ProjectRegistry {
         const markerPath = path.join(baseDir, candidate, PROJECT_ROOT_FILE);
         if (fs.existsSync(markerPath)) {
           try {
-            const owner = (
-              await fs.promises.readFile(markerPath, 'utf8')
-            ).trim();
+            const owner = (await fs.promises.readFile(markerPath, 'utf8')).trim();
             if (this.normalizePath(owner) !== this.normalizePath(projectPath)) {
               diskCollision = true;
               break;
@@ -281,10 +263,7 @@ export class ProjectRegistry {
     }
   }
 
-  private async ensureOwnershipMarkers(
-    slug: string,
-    projectPath: string,
-  ): Promise<void> {
+  private async ensureOwnershipMarkers(slug: string, projectPath: string): Promise<void> {
     const normalizedProject = this.normalizePath(projectPath);
     for (const baseDir of this.baseDirs) {
       const slugDir = path.join(baseDir, slug);

@@ -24,10 +24,7 @@ export const APPROVAL_MODE_TEXT = {
   HINT_SWITCH_TO_YOLO_MODE: 'ctrl+y',
 };
 
-export const ApprovalModeIndicator: React.FC<ApprovalModeIndicatorProps> = ({
-  approvalMode,
-  allowPlanMode,
-}) => {
+export const ApprovalModeIndicator: React.FC<ApprovalModeIndicatorProps> = ({ approvalMode, allowPlanMode }) => {
   let textColor = '';
   let textContent = '';
   let subText = '';

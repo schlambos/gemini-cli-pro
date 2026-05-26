@@ -24,10 +24,7 @@ import {
 import { ToolErrorType } from '../tools/tool-error.js';
 import type { ApprovalMode } from '../policy/types.js';
 import { PolicyDecision } from '../policy/types.js';
-import {
-  ToolConfirmationOutcome,
-  type AnyDeclarativeTool,
-} from '../tools/tools.js';
+import { ToolConfirmationOutcome, type AnyDeclarativeTool } from '../tools/tools.js';
 import { getToolSuggestion } from '../utils/tool-utils.js';
 import { runInDevTraceSpan } from '../telemetry/trace.js';
 import { logToolCall } from '../telemetry/loggers.js';
@@ -59,7 +56,7 @@ export interface SchedulerOptions {
 const createErrorResponse = (
   request: ToolCallRequestInfo,
   error: Error,
-  errorType: ToolErrorType | undefined,
+  errorType: ToolErrorType | undefined
 ): ToolCallResponseInfo => ({
   callId: request.callId,
   error,
@@ -106,10 +103,8 @@ export class Scheduler {
     this.schedulerId = options.schedulerId;
     this.parentCallId = options.parentCallId;
     this.onWaitingForConfirmation = options.onWaitingForConfirmation;
-    this.state = new SchedulerStateManager(
-      this.messageBus,
-      this.schedulerId,
-      (call) => logToolCall(this.config, new ToolCallEvent(call)),
+    this.state = new SchedulerStateManager(this.messageBus, this.schedulerId, (call) =>
+      logToolCall(this.config, new ToolCallEvent(call))
     );
     this.executor = new ToolExecutor(this.config);
     this.modifier = new ToolModificationHandler();
@@ -124,17 +119,14 @@ export class Scheduler {
 
     // TODO: Optimize policy checks. Currently, tools check policy via
     // MessageBus even though the Scheduler already checked it.
-    messageBus.subscribe(
-      MessageBusType.TOOL_CONFIRMATION_REQUEST,
-      async (request: ToolConfirmationRequest) => {
-        await messageBus.publish({
-          type: MessageBusType.TOOL_CONFIRMATION_RESPONSE,
-          correlationId: request.correlationId,
-          confirmed: false,
-          requiresUserConfirmation: true,
-        });
-      },
-    );
+    messageBus.subscribe(MessageBusType.TOOL_CONFIRMATION_REQUEST, async (request: ToolConfirmationRequest) => {
+      await messageBus.publish({
+        type: MessageBusType.TOOL_CONFIRMATION_RESPONSE,
+        correlationId: request.correlationId,
+        confirmed: false,
+        requiresUserConfirmation: true,
+      });
+    });
 
     Scheduler.subscribedMessageBuses.add(messageBus);
   }
@@ -145,32 +137,24 @@ export class Scheduler {
    */
   async schedule(
     request: ToolCallRequestInfo | ToolCallRequestInfo[],
-    signal: AbortSignal,
+    signal: AbortSignal
   ): Promise<CompletedToolCall[]> {
-    return runInDevTraceSpan(
-      { name: 'schedule' },
-      async ({ metadata: spanMetadata }) => {
-        const requests = Array.isArray(request) ? request : [request];
-        spanMetadata.input = requests;
+    return runInDevTraceSpan({ name: 'schedule' }, async ({ metadata: spanMetadata }) => {
+      const requests = Array.isArray(request) ? request : [request];
+      spanMetadata.input = requests;
 
-        if (this.isProcessing || this.state.isActive) {
-          return this._enqueueRequest(requests, signal);
-        }
+      if (this.isProcessing || this.state.isActive) {
+        return this._enqueueRequest(requests, signal);
+      }
 
-        return this._startBatch(requests, signal);
-      },
-    );
+      return this._startBatch(requests, signal);
+    });
   }
 
-  private _enqueueRequest(
-    requests: ToolCallRequestInfo[],
-    signal: AbortSignal,
-  ): Promise<CompletedToolCall[]> {
+  private _enqueueRequest(requests: ToolCallRequestInfo[], signal: AbortSignal): Promise<CompletedToolCall[]> {
     return new Promise<CompletedToolCall[]>((resolve, reject) => {
       const abortHandler = () => {
-        const index = this.requestQueue.findIndex(
-          (item) => item.requests === requests,
-        );
+        const index = this.requestQueue.findIndex((item) => item.requests === requests);
         if (index > -1) {
           this.requestQueue.splice(index, 1);
           reject(new Error('Tool call cancelled while in queue.'));
@@ -212,11 +196,7 @@ export class Scheduler {
     // Cancel active call
     const activeCall = this.state.firstActiveCall;
     if (activeCall && !this.isTerminal(activeCall.status)) {
-      this.state.updateStatus(
-        activeCall.request.callId,
-        CoreToolCallStatus.Cancelled,
-        'Operation cancelled by user',
-      );
+      this.state.updateStatus(activeCall.request.callId, CoreToolCallStatus.Cancelled, 'Operation cancelled by user');
     }
 
     // Clear queue
@@ -237,10 +217,7 @@ export class Scheduler {
 
   // --- Phase 1: Ingestion & Resolution ---
 
-  private async _startBatch(
-    requests: ToolCallRequestInfo[],
-    signal: AbortSignal,
-  ): Promise<CompletedToolCall[]> {
+  private async _startBatch(requests: ToolCallRequestInfo[], signal: AbortSignal): Promise<CompletedToolCall[]> {
     this.isProcessing = true;
     this.isCancelling = false;
     this.state.clearBatch();
@@ -258,19 +235,12 @@ export class Scheduler {
 
         if (!tool) {
           return {
-            ...this._createToolNotFoundErroredToolCall(
-              enrichedRequest,
-              toolRegistry.getAllToolNames(),
-            ),
+            ...this._createToolNotFoundErroredToolCall(enrichedRequest, toolRegistry.getAllToolNames()),
             approvalMode: currentApprovalMode,
           };
         }
 
-        return this._validateAndCreateToolCall(
-          enrichedRequest,
-          tool,
-          currentApprovalMode,
-        );
+        return this._validateAndCreateToolCall(enrichedRequest, tool, currentApprovalMode);
       });
 
       this.state.enqueue(newCalls);
@@ -283,10 +253,7 @@ export class Scheduler {
     }
   }
 
-  private _createToolNotFoundErroredToolCall(
-    request: ToolCallRequestInfo,
-    toolNames: string[],
-  ): ErroredToolCall {
+  private _createToolNotFoundErroredToolCall(request: ToolCallRequestInfo, toolNames: string[]): ErroredToolCall {
     const suggestion = getToolSuggestion(request.name, toolNames);
     return {
       status: CoreToolCallStatus.Error,
@@ -294,7 +261,7 @@ export class Scheduler {
       response: createErrorResponse(
         request,
         new Error(`Tool "${request.name}" not found.${suggestion}`),
-        ToolErrorType.TOOL_NOT_REGISTERED,
+        ToolErrorType.TOOL_NOT_REGISTERED
       ),
       durationMs: 0,
       schedulerId: this.schedulerId,
@@ -304,7 +271,7 @@ export class Scheduler {
   private _validateAndCreateToolCall(
     request: ToolCallRequestInfo,
     tool: AnyDeclarativeTool,
-    approvalMode: ApprovalMode,
+    approvalMode: ApprovalMode
   ): ValidatingToolCall | ErroredToolCall {
     return runWithToolCallContext(
       {
@@ -332,14 +299,14 @@ export class Scheduler {
             response: createErrorResponse(
               request,
               e instanceof Error ? e : new Error(String(e)),
-              ToolErrorType.INVALID_TOOL_PARAMS,
+              ToolErrorType.INVALID_TOOL_PARAMS
             ),
             durationMs: 0,
             schedulerId: this.schedulerId,
             approvalMode,
           };
         }
-      },
+      }
     );
   }
 
@@ -367,11 +334,7 @@ export class Scheduler {
       if (!next) return false;
 
       if (next.status === CoreToolCallStatus.Error) {
-        this.state.updateStatus(
-          next.request.callId,
-          CoreToolCallStatus.Error,
-          next.response,
-        );
+        this.state.updateStatus(next.request.callId, CoreToolCallStatus.Error, next.response);
         this.state.finalizeCall(next.request.callId);
         return true;
       }
@@ -387,10 +350,7 @@ export class Scheduler {
     return true;
   }
 
-  private async _processValidatingCall(
-    active: ValidatingToolCall,
-    signal: AbortSignal,
-  ): Promise<void> {
+  private async _processValidatingCall(active: ValidatingToolCall, signal: AbortSignal): Promise<void> {
     try {
       await this._processToolCall(active, signal);
     } catch (error) {
@@ -398,20 +358,12 @@ export class Scheduler {
       // If the signal aborted while we were waiting on something, treat as
       // cancelled. Otherwise, it's a genuine unhandled system exception.
       if (signal.aborted || err.name === 'AbortError') {
-        this.state.updateStatus(
-          active.request.callId,
-          CoreToolCallStatus.Cancelled,
-          'Operation cancelled',
-        );
+        this.state.updateStatus(active.request.callId, CoreToolCallStatus.Cancelled, 'Operation cancelled');
       } else {
         this.state.updateStatus(
           active.request.callId,
           CoreToolCallStatus.Error,
-          createErrorResponse(
-            active.request,
-            err,
-            ToolErrorType.UNHANDLED_EXCEPTION,
-          ),
+          createErrorResponse(active.request, err, ToolErrorType.UNHANDLED_EXCEPTION)
         );
       }
     }
@@ -421,29 +373,19 @@ export class Scheduler {
 
   // --- Phase 3: Single Call Orchestration ---
 
-  private async _processToolCall(
-    toolCall: ValidatingToolCall,
-    signal: AbortSignal,
-  ): Promise<void> {
+  private async _processToolCall(toolCall: ValidatingToolCall, signal: AbortSignal): Promise<void> {
     const callId = toolCall.request.callId;
 
     // Policy & Security
     const { decision, rule } = await checkPolicy(toolCall, this.config);
 
     if (decision === PolicyDecision.DENY) {
-      const { errorMessage, errorType } = getPolicyDenialError(
-        this.config,
-        rule,
-      );
+      const { errorMessage, errorType } = getPolicyDenialError(this.config, rule);
 
       this.state.updateStatus(
         callId,
         CoreToolCallStatus.Error,
-        createErrorResponse(
-          toolCall.request,
-          new Error(errorMessage),
-          errorType,
-        ),
+        createErrorResponse(toolCall.request, new Error(errorMessage), errorType)
       );
       this.state.finalizeCall(callId);
       return;
@@ -477,11 +419,7 @@ export class Scheduler {
 
     // Handle cancellation (cascades to entire batch)
     if (outcome === ToolConfirmationOutcome.Cancel) {
-      this.state.updateStatus(
-        callId,
-        CoreToolCallStatus.Cancelled,
-        'User denied execution.',
-      );
+      this.state.updateStatus(callId, CoreToolCallStatus.Cancelled, 'User denied execution.');
       this.state.finalizeCall(callId);
       this.state.cancelAllQueued('User cancelled operation');
       return; // Skip execution
@@ -519,45 +457,28 @@ export class Scheduler {
               liveOutput: out,
             }),
           onUpdateToolCall: (updated) => {
-            if (
-              updated.status === CoreToolCallStatus.Executing &&
-              updated.pid
-            ) {
+            if (updated.status === CoreToolCallStatus.Executing && updated.pid) {
               this.state.updateStatus(callId, CoreToolCallStatus.Executing, {
                 pid: updated.pid,
               });
             }
           },
-        }),
+        })
     );
 
     if (result.status === CoreToolCallStatus.Success) {
-      this.state.updateStatus(
-        callId,
-        CoreToolCallStatus.Success,
-        result.response,
-      );
+      this.state.updateStatus(callId, CoreToolCallStatus.Success, result.response);
     } else if (result.status === CoreToolCallStatus.Cancelled) {
-      this.state.updateStatus(
-        callId,
-        CoreToolCallStatus.Cancelled,
-        'Operation cancelled',
-      );
+      this.state.updateStatus(callId, CoreToolCallStatus.Cancelled, 'Operation cancelled');
     } else {
-      this.state.updateStatus(
-        callId,
-        CoreToolCallStatus.Error,
-        result.response,
-      );
+      this.state.updateStatus(callId, CoreToolCallStatus.Error, result.response);
     }
   }
 
   private _processNextInRequestQueue() {
     if (this.requestQueue.length > 0) {
       const next = this.requestQueue.shift()!;
-      this.schedule(next.requests, next.signal)
-        .then(next.resolve)
-        .catch(next.reject);
+      this.schedule(next.requests, next.signal).then(next.resolve).catch(next.reject);
     }
   }
 }

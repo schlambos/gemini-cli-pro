@@ -72,7 +72,7 @@ interface SectionProps {
 }
 
 const Section: React.FC<SectionProps> = ({ title, children }) => (
-  <Box flexDirection="column" marginBottom={1}>
+  <Box flexDirection='column' marginBottom={1}>
     <Text bold color={theme.text.primary}>
       {title}
     </Text>
@@ -85,12 +85,10 @@ const buildModelRows = (
   models: Record<string, ModelMetrics>,
   quotas?: RetrieveUserQuotaResponse,
   useGemini3_1 = false,
-  useCustomToolModel = false,
+  useCustomToolModel = false
 ) => {
   const getBaseModelName = (name: string) => name.replace('-001', '');
-  const usedModelNames = new Set(
-    Object.keys(models).map(getBaseModelName).map(getDisplayString),
-  );
+  const usedModelNames = new Set(Object.keys(models).map(getBaseModelName).map(getDisplayString));
 
   // 1. Models with active usage
   const activeRows = Object.entries(models).map(([name, metrics]) => {
@@ -116,7 +114,7 @@ const buildModelRows = (
         (b) =>
           b.modelId &&
           isActiveModel(b.modelId, useGemini3_1, useCustomToolModel) &&
-          !usedModelNames.has(getDisplayString(b.modelId)),
+          !usedModelNames.has(getDisplayString(b.modelId))
       )
       .map((bucket) => ({
         key: bucket.modelId!,
@@ -176,57 +174,36 @@ const ModelUsageTable: React.FC<{
   });
 
   const totalWidth =
-    nameWidth +
-    requestsWidth +
-    (showQuotaColumn
-      ? usageLimitWidth
-      : uncachedWidth + cachedWidth + outputTokensWidth);
+    nameWidth + requestsWidth + (showQuotaColumn ? usageLimitWidth : uncachedWidth + cachedWidth + outputTokensWidth);
 
   const isAuto = currentModel && isAutoModel(currentModel);
-  const modelUsageTitle = isAuto
-    ? `${getDisplayString(currentModel)} Usage`
-    : `Model Usage`;
+  const modelUsageTitle = isAuto ? `${getDisplayString(currentModel)} Usage` : `Model Usage`;
 
   return (
-    <Box flexDirection="column" marginTop={1}>
+    <Box flexDirection='column' marginTop={1}>
       {/* Header */}
-      <Box alignItems="flex-end">
+      <Box alignItems='flex-end'>
         <Box width={nameWidth}>
-          <Text bold color={theme.text.primary} wrap="truncate-end">
+          <Text bold color={theme.text.primary} wrap='truncate-end'>
             {modelUsageTitle}
           </Text>
         </Box>
       </Box>
 
-      {isAuto &&
-        showQuotaColumn &&
-        pooledRemaining !== undefined &&
-        pooledLimit !== undefined &&
-        pooledLimit > 0 && (
-          <Box flexDirection="column" marginTop={0} marginBottom={1}>
-            <QuotaStatsInfo
-              remaining={pooledRemaining}
-              limit={pooledLimit}
-              resetTime={pooledResetTime}
-            />
-            <Text color={theme.text.primary}>
-              For a full token breakdown, run `/stats model`.
-            </Text>
-          </Box>
-        )}
+      {isAuto && showQuotaColumn && pooledRemaining !== undefined && pooledLimit !== undefined && pooledLimit > 0 && (
+        <Box flexDirection='column' marginTop={0} marginBottom={1}>
+          <QuotaStatsInfo remaining={pooledRemaining} limit={pooledLimit} resetTime={pooledResetTime} />
+          <Text color={theme.text.primary}>For a full token breakdown, run `/stats model`.</Text>
+        </Box>
+      )}
 
-      <Box alignItems="flex-end">
+      <Box alignItems='flex-end'>
         <Box width={nameWidth}>
           <Text bold color={theme.text.primary}>
             Model
           </Text>
         </Box>
-        <Box
-          width={requestsWidth}
-          flexDirection="column"
-          alignItems="flex-end"
-          flexShrink={0}
-        >
+        <Box width={requestsWidth} flexDirection='column' alignItems='flex-end' flexShrink={0}>
           <Text bold color={theme.text.primary}>
             Reqs
           </Text>
@@ -234,32 +211,17 @@ const ModelUsageTable: React.FC<{
 
         {!showQuotaColumn && (
           <>
-            <Box
-              width={uncachedWidth}
-              flexDirection="column"
-              alignItems="flex-end"
-              flexShrink={0}
-            >
+            <Box width={uncachedWidth} flexDirection='column' alignItems='flex-end' flexShrink={0}>
               <Text bold color={theme.text.primary}>
                 Input Tokens
               </Text>
             </Box>
-            <Box
-              width={cachedWidth}
-              flexDirection="column"
-              alignItems="flex-end"
-              flexShrink={0}
-            >
+            <Box width={cachedWidth} flexDirection='column' alignItems='flex-end' flexShrink={0}>
               <Text bold color={theme.text.primary}>
                 Cache Reads
               </Text>
             </Box>
-            <Box
-              width={outputTokensWidth}
-              flexDirection="column"
-              alignItems="flex-end"
-              flexShrink={0}
-            >
+            <Box width={outputTokensWidth} flexDirection='column' alignItems='flex-end' flexShrink={0}>
               <Text bold color={theme.text.primary}>
                 Output Tokens
               </Text>
@@ -267,11 +229,7 @@ const ModelUsageTable: React.FC<{
           </>
         )}
         {showQuotaColumn && (
-          <Box
-            width={usageLimitWidth}
-            flexDirection="column"
-            alignItems="flex-end"
-          >
+          <Box width={usageLimitWidth} flexDirection='column' alignItems='flex-end'>
             <Text bold color={theme.text.primary}>
               Usage remaining
             </Text>
@@ -281,7 +239,7 @@ const ModelUsageTable: React.FC<{
 
       {/* Divider */}
       <Box
-        borderStyle="round"
+        borderStyle='round'
         borderBottom={true}
         borderTop={false}
         borderLeft={false}
@@ -293,91 +251,42 @@ const ModelUsageTable: React.FC<{
       {rows.map((row) => (
         <Box key={row.key}>
           <Box width={nameWidth}>
-            <Text
-              color={row.isActive ? theme.text.primary : theme.text.secondary}
-              wrap="truncate-end"
-            >
+            <Text color={row.isActive ? theme.text.primary : theme.text.secondary} wrap='truncate-end'>
               {row.modelName}
             </Text>
           </Box>
-          <Box
-            width={requestsWidth}
-            flexDirection="column"
-            alignItems="flex-end"
-            flexShrink={0}
-          >
-            <Text
-              color={row.isActive ? theme.text.primary : theme.text.secondary}
-            >
-              {row.requests}
-            </Text>
+          <Box width={requestsWidth} flexDirection='column' alignItems='flex-end' flexShrink={0}>
+            <Text color={row.isActive ? theme.text.primary : theme.text.secondary}>{row.requests}</Text>
           </Box>
           {!showQuotaColumn && (
             <>
-              <Box
-                width={uncachedWidth}
-                flexDirection="column"
-                alignItems="flex-end"
-                flexShrink={0}
-              >
-                <Text
-                  color={
-                    row.isActive ? theme.text.primary : theme.text.secondary
-                  }
-                >
-                  {row.inputTokens}
-                </Text>
+              <Box width={uncachedWidth} flexDirection='column' alignItems='flex-end' flexShrink={0}>
+                <Text color={row.isActive ? theme.text.primary : theme.text.secondary}>{row.inputTokens}</Text>
               </Box>
-              <Box
-                width={cachedWidth}
-                flexDirection="column"
-                alignItems="flex-end"
-                flexShrink={0}
-              >
+              <Box width={cachedWidth} flexDirection='column' alignItems='flex-end' flexShrink={0}>
                 <Text color={theme.text.secondary}>{row.cachedTokens}</Text>
               </Box>
-              <Box
-                width={outputTokensWidth}
-                flexDirection="column"
-                alignItems="flex-end"
-                flexShrink={0}
-              >
-                <Text
-                  color={
-                    row.isActive ? theme.text.primary : theme.text.secondary
-                  }
-                >
-                  {row.outputTokens}
-                </Text>
+              <Box width={outputTokensWidth} flexDirection='column' alignItems='flex-end' flexShrink={0}>
+                <Text color={row.isActive ? theme.text.primary : theme.text.secondary}>{row.outputTokens}</Text>
               </Box>
             </>
           )}
-          <Box
-            width={usageLimitWidth}
-            flexDirection="column"
-            alignItems="flex-end"
-          >
-            {row.bucket &&
-              row.bucket.remainingFraction != null &&
-              row.bucket.resetTime && (
-                <Text color={theme.text.secondary} wrap="truncate-end">
-                  {(row.bucket.remainingFraction * 100).toFixed(1)}%{' '}
-                  {formatResetTime(row.bucket.resetTime)}
-                </Text>
-              )}
+          <Box width={usageLimitWidth} flexDirection='column' alignItems='flex-end'>
+            {row.bucket && row.bucket.remainingFraction != null && row.bucket.resetTime && (
+              <Text color={theme.text.secondary} wrap='truncate-end'>
+                {(row.bucket.remainingFraction * 100).toFixed(1)}% {formatResetTime(row.bucket.resetTime)}
+              </Text>
+            )}
           </Box>
         </Box>
       ))}
 
       {cacheEfficiency > 0 && !showQuotaColumn && (
-        <Box flexDirection="column" marginTop={1}>
+        <Box flexDirection='column' marginTop={1}>
           <Text color={theme.text.primary}>
-            <Text color={theme.status.success}>Savings Highlight:</Text>{' '}
-            {totalCachedTokens.toLocaleString()} (
-            <Text color={cacheEfficiencyColor}>
-              {cacheEfficiency.toFixed(1)}%
-            </Text>
-            ) of input tokens were served from the cache, reducing costs.
+            <Text color={theme.status.success}>Savings Highlight:</Text> {totalCachedTokens.toLocaleString()} (
+            <Text color={cacheEfficiencyColor}>{cacheEfficiency.toFixed(1)}%</Text>) of input tokens were served from
+            the cache, reducing costs.
           </Text>
         </Box>
       )}
@@ -413,9 +322,7 @@ export const StatsDisplay: React.FC<StatsDisplayProps> = ({
   const settings = useSettings();
   const config = useConfig();
   const useGemini3_1 = config.getGemini31LaunchedSync?.() ?? false;
-  const useCustomToolModel =
-    useGemini3_1 &&
-    config.getContentGeneratorConfig().authType === AuthType.USE_GEMINI;
+  const useCustomToolModel = useGemini3_1 && config.getContentGeneratorConfig().authType === AuthType.USE_GEMINI;
   const pooledRemaining = quotaStats?.remaining;
   const pooledLimit = quotaStats?.limit;
   const pooledResetTime = quotaStats?.resetTime;
@@ -431,10 +338,7 @@ export const StatsDisplay: React.FC<StatsDisplayProps> = ({
     yellow: USER_AGREEMENT_RATE_MEDIUM,
   };
   const successColor = getStatusColor(computed.successRate, successThresholds);
-  const agreementColor = getStatusColor(
-    computed.agreementRate,
-    agreementThresholds,
-  );
+  const agreementColor = getStatusColor(computed.agreementRate, agreementThresholds);
 
   const renderTitle = () => {
     if (title) {
@@ -449,22 +353,22 @@ export const StatsDisplay: React.FC<StatsDisplayProps> = ({
 
   return (
     <Box
-      borderStyle="round"
+      borderStyle='round'
       borderColor={theme.border.default}
-      flexDirection="column"
+      flexDirection='column'
       paddingTop={1}
       paddingX={2}
-      overflow="hidden"
+      overflow='hidden'
     >
       {renderTitle()}
       <Box height={1} />
 
-      <Section title="Interaction Summary">
-        <StatRow title="Session ID:">
+      <Section title='Interaction Summary'>
+        <StatRow title='Session ID:'>
           <Text color={theme.text.primary}>{stats.sessionId}</Text>
         </StatRow>
         {showUserIdentity && selectedAuthType && (
-          <StatRow title="Auth Method:">
+          <StatRow title='Auth Method:'>
             <Text color={theme.text.primary}>
               {selectedAuthType.startsWith('oauth')
                 ? userEmail
@@ -475,68 +379,54 @@ export const StatsDisplay: React.FC<StatsDisplayProps> = ({
           </StatRow>
         )}
         {showUserIdentity && tier && (
-          <StatRow title="Tier:">
+          <StatRow title='Tier:'>
             <Text color={theme.text.primary}>{tier}</Text>
           </StatRow>
         )}
-        <StatRow title="Tool Calls:">
+        <StatRow title='Tool Calls:'>
           <Text color={theme.text.primary}>
-            {tools.totalCalls} ({' '}
-            <Text color={theme.status.success}>✓ {tools.totalSuccess}</Text>{' '}
+            {tools.totalCalls} ( <Text color={theme.status.success}>✓ {tools.totalSuccess}</Text>{' '}
             <Text color={theme.status.error}>x {tools.totalFail}</Text> )
           </Text>
         </StatRow>
-        <StatRow title="Success Rate:">
+        <StatRow title='Success Rate:'>
           <Text color={successColor}>{computed.successRate.toFixed(1)}%</Text>
         </StatRow>
         {computed.totalDecisions > 0 && (
-          <StatRow title="User Agreement:">
+          <StatRow title='User Agreement:'>
             <Text color={agreementColor}>
               {computed.agreementRate.toFixed(1)}%{' '}
-              <Text color={theme.text.secondary}>
-                ({computed.totalDecisions} reviewed)
-              </Text>
+              <Text color={theme.text.secondary}>({computed.totalDecisions} reviewed)</Text>
             </Text>
           </StatRow>
         )}
-        {files &&
-          (files.totalLinesAdded > 0 || files.totalLinesRemoved > 0) && (
-            <StatRow title="Code Changes:">
-              <Text color={theme.text.primary}>
-                <Text color={theme.status.success}>
-                  +{files.totalLinesAdded}
-                </Text>{' '}
-                <Text color={theme.status.error}>
-                  -{files.totalLinesRemoved}
-                </Text>
-              </Text>
-            </StatRow>
-          )}
+        {files && (files.totalLinesAdded > 0 || files.totalLinesRemoved > 0) && (
+          <StatRow title='Code Changes:'>
+            <Text color={theme.text.primary}>
+              <Text color={theme.status.success}>+{files.totalLinesAdded}</Text>{' '}
+              <Text color={theme.status.error}>-{files.totalLinesRemoved}</Text>
+            </Text>
+          </StatRow>
+        )}
       </Section>
 
-      <Section title="Performance">
-        <StatRow title="Wall Time:">
+      <Section title='Performance'>
+        <StatRow title='Wall Time:'>
           <Text color={theme.text.primary}>{duration}</Text>
         </StatRow>
-        <StatRow title="Agent Active:">
-          <Text color={theme.text.primary}>
-            {formatDuration(computed.agentActiveTime)}
-          </Text>
+        <StatRow title='Agent Active:'>
+          <Text color={theme.text.primary}>{formatDuration(computed.agentActiveTime)}</Text>
         </StatRow>
-        <SubStatRow title="API Time:">
+        <SubStatRow title='API Time:'>
           <Text color={theme.text.primary}>
             {formatDuration(computed.totalApiTime)}{' '}
-            <Text color={theme.text.secondary}>
-              ({computed.apiTimePercent.toFixed(1)}%)
-            </Text>
+            <Text color={theme.text.secondary}>({computed.apiTimePercent.toFixed(1)}%)</Text>
           </Text>
         </SubStatRow>
-        <SubStatRow title="Tool Time:">
+        <SubStatRow title='Tool Time:'>
           <Text color={theme.text.primary}>
             {formatDuration(computed.totalToolTime)}{' '}
-            <Text color={theme.text.secondary}>
-              ({computed.toolTimePercent.toFixed(1)}%)
-            </Text>
+            <Text color={theme.text.secondary}>({computed.toolTimePercent.toFixed(1)}%)</Text>
           </Text>
         </SubStatRow>
       </Section>

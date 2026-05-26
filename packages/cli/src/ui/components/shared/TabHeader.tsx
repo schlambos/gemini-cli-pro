@@ -40,11 +40,7 @@ export interface TabHeaderProps {
    * Custom status icon renderer. Return undefined to use default icons.
    * Default icons: '✓' for completed, '□' for incomplete, '≡' for special tabs
    */
-  renderStatusIcon?: (
-    tab: Tab,
-    index: number,
-    isCompleted: boolean,
-  ) => string | undefined;
+  renderStatusIcon?: (tab: Tab, index: number, isCompleted: boolean) => string | undefined;
 }
 
 /**
@@ -86,18 +82,14 @@ export function TabHeader({
   };
 
   return (
-    <Box flexDirection="row" marginBottom={1} aria-role="tablist">
+    <Box flexDirection='row' marginBottom={1} aria-role='tablist'>
       {showArrows && <Text color={theme.text.secondary}>{'← '}</Text>}
       {tabs.map((tab, i) => (
         <React.Fragment key={tab.key}>
           {i > 0 && <Text color={theme.text.secondary}>{' │ '}</Text>}
-          {showStatusIcons && (
-            <Text color={theme.text.secondary}>{getStatusIcon(tab, i)} </Text>
-          )}
+          {showStatusIcons && <Text color={theme.text.secondary}>{getStatusIcon(tab, i)} </Text>}
           <Text
-            color={
-              i === currentIndex ? theme.status.success : theme.text.secondary
-            }
+            color={i === currentIndex ? theme.status.success : theme.text.secondary}
             bold={i === currentIndex}
             underline={i === currentIndex}
             aria-current={i === currentIndex ? 'step' : undefined}

@@ -18,8 +18,7 @@ const __dirname = dirname(__filename);
 // Set this to true locally when you need to update snapshots
 const RECORD_MODE = process.env['RECORD_NEW_RESPONSES'] === 'true';
 
-const getGoldenPath = (name: string) =>
-  path.resolve(__dirname, '../test-data', `${name}.json`);
+const getGoldenPath = (name: string) => path.resolve(__dirname, '../test-data', `${name}.json`);
 
 describe('GeminiCliAgent Tool Integration', () => {
   it('handles tool execution success', async () => {
@@ -39,7 +38,7 @@ describe('GeminiCliAgent Tool Integration', () => {
             description: 'Adds two numbers',
             inputSchema: z.object({ a: z.number(), b: z.number() }),
           },
-          async ({ a, b }) => a + b,
+          async ({ a, b }) => a + b
         ),
       ],
     });
@@ -52,9 +51,7 @@ describe('GeminiCliAgent Tool Integration', () => {
     }
 
     const textEvents = events.filter((e) => e.type === 'content');
-    const responseText = textEvents
-      .map((e) => (typeof e.value === 'string' ? e.value : ''))
-      .join('');
+    const responseText = textEvents.map((e) => (typeof e.value === 'string' ? e.value : '')).join('');
 
     expect(responseText).toContain('8');
   });
@@ -79,7 +76,7 @@ describe('GeminiCliAgent Tool Integration', () => {
               throw new ModelVisibleError('Tool failed visibly');
             }
             return 'Success';
-          },
+          }
         ),
       ],
     });
@@ -87,18 +84,14 @@ describe('GeminiCliAgent Tool Integration', () => {
     const events = [];
     // Force the model to trigger the error first, then hopefully recover or at least acknowledge it.
     // The prompt is crafted to make the model try 'fail' first.
-    const stream = agent.sendStream(
-      'Call the tool with "fail". If it fails, tell me the error message.',
-    );
+    const stream = agent.sendStream('Call the tool with "fail". If it fails, tell me the error message.');
 
     for await (const event of stream) {
       events.push(event);
     }
 
     const textEvents = events.filter((e) => e.type === 'content');
-    const responseText = textEvents
-      .map((e) => (typeof e.value === 'string' ? e.value : ''))
-      .join('');
+    const responseText = textEvents.map((e) => (typeof e.value === 'string' ? e.value : '')).join('');
 
     // The model should see the error "Tool failed visibly" and report it back.
     expect(responseText).toContain('Tool failed visibly');
@@ -122,24 +115,20 @@ describe('GeminiCliAgent Tool Integration', () => {
           },
           async () => {
             throw new Error('Standard error caught');
-          },
+          }
         ),
       ],
     });
 
     const events = [];
-    const stream = agent.sendStream(
-      'Check the system status and report any errors.',
-    );
+    const stream = agent.sendStream('Check the system status and report any errors.');
 
     for await (const event of stream) {
       events.push(event);
     }
 
     const textEvents = events.filter((e) => e.type === 'content');
-    const responseText = textEvents
-      .map((e) => (typeof e.value === 'string' ? e.value : ''))
-      .join('');
+    const responseText = textEvents.map((e) => (typeof e.value === 'string' ? e.value : '')).join('');
 
     // The model should report the caught standard error.
     expect(responseText.toLowerCase()).toContain('error');

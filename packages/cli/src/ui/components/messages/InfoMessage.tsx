@@ -15,23 +15,19 @@ interface InfoMessageProps {
   color?: string;
 }
 
-export const InfoMessage: React.FC<InfoMessageProps> = ({
-  text,
-  icon,
-  color,
-}) => {
+export const InfoMessage: React.FC<InfoMessageProps> = ({ text, icon, color }) => {
   color ??= theme.status.warning;
   const prefix = icon ?? 'ℹ ';
   const prefixWidth = prefix.length;
 
   return (
-    <Box flexDirection="row" marginTop={1}>
+    <Box flexDirection='row' marginTop={1}>
       <Box width={prefixWidth}>
         <Text color={color}>{prefix}</Text>
       </Box>
-      <Box flexGrow={1} flexDirection="column">
+      <Box flexGrow={1} flexDirection='column'>
         {text.split('\n').map((line, index) => (
-          <Text wrap="wrap" key={index}>
+          <Text wrap='wrap' key={index}>
             <RenderInline text={line} defaultColor={color} />
           </Text>
         ))}

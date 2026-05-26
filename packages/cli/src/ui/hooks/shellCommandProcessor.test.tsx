@@ -7,37 +7,21 @@
 import { act } from 'react';
 import { render } from '../../test-utils/render.js';
 import { waitFor } from '../../test-utils/async.js';
-import {
-  vi,
-  describe,
-  it,
-  expect,
-  beforeEach,
-  afterEach,
-  type Mock,
-} from 'vitest';
+import { vi, describe, it, expect, beforeEach, afterEach, type Mock } from 'vitest';
 
 const mockIsBinary = vi.hoisted(() => vi.fn());
 const mockShellExecutionService = vi.hoisted(() => vi.fn());
 const mockShellKill = vi.hoisted(() => vi.fn());
 const mockShellBackground = vi.hoisted(() => vi.fn());
 const mockShellSubscribe = vi.hoisted(() =>
-  vi.fn<
-    (pid: number, listener: (event: ShellOutputEvent) => void) => () => void
-  >(() => vi.fn()),
+  vi.fn<(pid: number, listener: (event: ShellOutputEvent) => void) => () => void>(() => vi.fn())
 ); // Returns unsubscribe
 const mockShellOnExit = vi.hoisted(() =>
-  vi.fn<
-    (
-      pid: number,
-      callback: (exitCode: number, signal?: number) => void,
-    ) => () => void
-  >(() => vi.fn()),
+  vi.fn<(pid: number, callback: (exitCode: number, signal?: number) => void) => () => void>(() => vi.fn())
 );
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const actual = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...actual,
     ShellExecutionService: {
@@ -66,10 +50,7 @@ vi.mock('node:os', async (importOriginal) => {
 });
 vi.mock('node:crypto');
 
-import {
-  useShellCommandProcessor,
-  OUTPUT_UPDATE_INTERVAL_MS,
-} from './shellCommandProcessor.js';
+import { useShellCommandProcessor, OUTPUT_UPDATE_INTERVAL_MS } from './shellCommandProcessor.js';
 import {
   type Config,
   type GeminiClient,
@@ -115,9 +96,7 @@ describe('useShellCommandProcessor', () => {
 
     vi.mocked(os.platform).mockReturnValue('linux');
     vi.mocked(os.tmpdir).mockReturnValue('/tmp');
-    (vi.mocked(crypto.randomBytes) as Mock).mockReturnValue(
-      Buffer.from('abcdef', 'hex'),
-    );
+    (vi.mocked(crypto.randomBytes) as Mock).mockReturnValue(Buffer.from('abcdef', 'hex'));
     mockIsBinary.mockReturnValue(false);
     vi.mocked(fs.existsSync).mockReturnValue(false);
 
@@ -135,11 +114,7 @@ describe('useShellCommandProcessor', () => {
   const renderProcessorHook = () => {
     let hookResult: ReturnType<typeof useShellCommandProcessor>;
     let renderCount = 0;
-    function TestComponent({
-      isWaitingForConfirmation,
-    }: {
-      isWaitingForConfirmation?: boolean;
-    }) {
+    function TestComponent({ isWaitingForConfirmation }: { isWaitingForConfirmation?: boolean }) {
       renderCount++;
       hookResult = useShellCommandProcessor(
         addItemToHistoryMock,
@@ -152,7 +127,7 @@ describe('useShellCommandProcessor', () => {
         undefined,
         undefined,
         undefined,
-        isWaitingForConfirmation,
+        isWaitingForConfirmation
       );
       return null;
     }
@@ -165,15 +140,11 @@ describe('useShellCommandProcessor', () => {
       },
       getRenderCount: () => renderCount,
       rerender: (isWaitingForConfirmation?: boolean) =>
-        rerender(
-          <TestComponent isWaitingForConfirmation={isWaitingForConfirmation} />,
-        ),
+        rerender(<TestComponent isWaitingForConfirmation={isWaitingForConfirmation} />),
     };
   };
 
-  const createMockServiceResult = (
-    overrides: Partial<ShellExecutionResult> = {},
-  ): ShellExecutionResult => ({
+  const createMockServiceResult = (overrides: Partial<ShellExecutionResult> = {}): ShellExecutionResult => ({
     rawOutput: Buffer.from(overrides.output || ''),
     output: 'Success',
     exitCode: 0,
@@ -192,10 +163,7 @@ describe('useShellCommandProcessor', () => {
       result.current.handleShellCommand('ls -l', new AbortController().signal);
     });
 
-    expect(addItemToHistoryMock).toHaveBeenCalledWith(
-      { type: 'user_shell', text: 'ls -l' },
-      expect.any(Number),
-    );
+    expect(addItemToHistoryMock).toHaveBeenCalledWith({ type: 'user_shell', text: 'ls -l' }, expect.any(Number));
     expect(setPendingHistoryItemMock).toHaveBeenCalledWith({
       type: 'tool_group',
       tools: [
@@ -213,7 +181,7 @@ describe('useShellCommandProcessor', () => {
       expect.any(Function),
       expect.any(Object),
       false,
-      expect.any(Object),
+      expect.any(Object)
     );
     expect(onExecMock).toHaveBeenCalledWith(expect.any(Promise));
   });
@@ -222,10 +190,7 @@ describe('useShellCommandProcessor', () => {
     const { result } = renderProcessorHook();
 
     act(() => {
-      result.current.handleShellCommand(
-        'echo "ok"',
-        new AbortController().signal,
-      );
+      result.current.handleShellCommand('echo "ok"', new AbortController().signal);
     });
     const execPromise = onExecMock.mock.calls[0][0];
 
@@ -244,7 +209,7 @@ describe('useShellCommandProcessor', () => {
             resultDisplay: 'ok',
           }),
         ],
-      }),
+      })
     );
     expect(mockGeminiClient.addHistory).toHaveBeenCalled();
     expect(setShellInputFocusedMock).toHaveBeenCalledWith(false);
@@ -254,25 +219,18 @@ describe('useShellCommandProcessor', () => {
     const { result } = renderProcessorHook();
 
     act(() => {
-      result.current.handleShellCommand(
-        'bad-cmd',
-        new AbortController().signal,
-      );
+      result.current.handleShellCommand('bad-cmd', new AbortController().signal);
     });
     const execPromise = onExecMock.mock.calls[0][0];
 
     act(() => {
-      resolveExecutionPromise(
-        createMockServiceResult({ exitCode: 127, output: 'not found' }),
-      );
+      resolveExecutionPromise(createMockServiceResult({ exitCode: 127, output: 'not found' }));
     });
     await act(async () => await execPromise);
 
     const finalHistoryItem = addItemToHistoryMock.mock.calls[1][0];
     expect(finalHistoryItem.tools[0].status).toBe(CoreToolCallStatus.Error);
-    expect(finalHistoryItem.tools[0].resultDisplay).toContain(
-      'Command exited with code 127',
-    );
+    expect(finalHistoryItem.tools[0].resultDisplay).toContain('Command exited with code 127');
     expect(finalHistoryItem.tools[0].resultDisplay).toContain('not found');
     expect(setShellInputFocusedMock).toHaveBeenCalledWith(false);
   });
@@ -288,16 +246,13 @@ describe('useShellCommandProcessor', () => {
     it('should update UI for text streams (non-interactive)', async () => {
       const { result } = renderProcessorHook();
       await act(async () => {
-        result.current.handleShellCommand(
-          'stream',
-          new AbortController().signal,
-        );
+        result.current.handleShellCommand('stream', new AbortController().signal);
       });
 
       // Verify it's using the non-pty shell
       const wrappedCommand = `{ stream; }; __code=$?; pwd > "${path.join(
         os.tmpdir(),
-        'shell_pwd_abcdef.tmp',
+        'shell_pwd_abcdef.tmp'
       )}"; exit $__code`;
       expect(mockShellExecutionService).toHaveBeenCalledWith(
         wrappedCommand,
@@ -305,7 +260,7 @@ describe('useShellCommandProcessor', () => {
         expect.any(Function),
         expect.any(Object),
         false, // enableInteractiveShell
-        expect.any(Object),
+        expect.any(Object)
       );
 
       // Wait for the async PID update to happen.
@@ -351,10 +306,7 @@ describe('useShellCommandProcessor', () => {
     it('should show binary progress messages correctly', async () => {
       const { result } = renderProcessorHook();
       act(() => {
-        result.current.handleShellCommand(
-          'cat img',
-          new AbortController().signal,
-        );
+        result.current.handleShellCommand('cat img', new AbortController().signal);
       });
 
       // Should immediately show the detection message
@@ -384,7 +336,7 @@ describe('useShellCommandProcessor', () => {
               resultDisplay: '[Binary output detected. Halting stream...]',
             }),
           ],
-        }),
+        })
       );
 
       // Now test progress updates
@@ -410,7 +362,7 @@ describe('useShellCommandProcessor', () => {
               resultDisplay: '[Receiving binary output... 2.0 KB received]',
             }),
           ],
-        }),
+        })
       );
     });
   });
@@ -429,7 +381,7 @@ describe('useShellCommandProcessor', () => {
       expect.any(Function),
       expect.any(Object),
       false,
-      expect.any(Object),
+      expect.any(Object)
     );
 
     await act(async () => {
@@ -449,9 +401,7 @@ describe('useShellCommandProcessor', () => {
 
     act(() => {
       abortController.abort();
-      resolveExecutionPromise(
-        createMockServiceResult({ aborted: true, output: 'Canceled' }),
-      );
+      resolveExecutionPromise(createMockServiceResult({ aborted: true, output: 'Canceled' }));
     });
     await act(async () => await execPromise);
 
@@ -468,25 +418,18 @@ describe('useShellCommandProcessor', () => {
     mockIsBinary.mockReturnValue(true);
 
     act(() => {
-      result.current.handleShellCommand(
-        'cat image.png',
-        new AbortController().signal,
-      );
+      result.current.handleShellCommand('cat image.png', new AbortController().signal);
     });
     const execPromise = onExecMock.mock.calls[0][0];
 
     act(() => {
-      resolveExecutionPromise(
-        createMockServiceResult({ rawOutput: binaryBuffer }),
-      );
+      resolveExecutionPromise(createMockServiceResult({ rawOutput: binaryBuffer }));
     });
     await act(async () => await execPromise);
 
     const finalHistoryItem = addItemToHistoryMock.mock.calls[1][0];
     expect(finalHistoryItem.tools[0].status).toBe(CoreToolCallStatus.Success);
-    expect(finalHistoryItem.tools[0].resultDisplay).toBe(
-      '[Command produced binary output, which is not shown.]',
-    );
+    expect(finalHistoryItem.tools[0].resultDisplay).toBe('[Command produced binary output, which is not shown.]');
   });
 
   it('should handle promise rejection and show an error', async () => {
@@ -498,10 +441,7 @@ describe('useShellCommandProcessor', () => {
     }));
 
     act(() => {
-      result.current.handleShellCommand(
-        'a-command',
-        new AbortController().signal,
-      );
+      result.current.handleShellCommand('a-command', new AbortController().signal);
     });
     const execPromise = onExecMock.mock.calls[0][0];
 
@@ -527,10 +467,7 @@ describe('useShellCommandProcessor', () => {
     const { result } = renderProcessorHook();
 
     act(() => {
-      result.current.handleShellCommand(
-        'a-command',
-        new AbortController().signal,
-      );
+      result.current.handleShellCommand('a-command', new AbortController().signal);
     });
     const execPromise = onExecMock.mock.calls[0][0];
 
@@ -556,10 +493,7 @@ describe('useShellCommandProcessor', () => {
 
       const { result } = renderProcessorHook();
       act(() => {
-        result.current.handleShellCommand(
-          'cd new',
-          new AbortController().signal,
-        );
+        result.current.handleShellCommand('cd new', new AbortController().signal);
       });
       const execPromise = onExecMock.mock.calls[0][0];
 
@@ -570,7 +504,7 @@ describe('useShellCommandProcessor', () => {
 
       const finalHistoryItem = addItemToHistoryMock.mock.calls[1][0];
       expect(finalHistoryItem.tools[0].resultDisplay).toContain(
-        "WARNING: shell mode is stateless; the directory change to '/test/dir/new' will not persist.",
+        "WARNING: shell mode is stateless; the directory change to '/test/dir/new' will not persist."
       );
       expect(vi.mocked(fs.unlinkSync)).toHaveBeenCalledWith(tmpFile);
     });
@@ -669,10 +603,7 @@ describe('useShellCommandProcessor', () => {
       const { result } = renderProcessorHook();
 
       await act(async () => {
-        result.current.handleShellCommand(
-          'bad-cmd',
-          new AbortController().signal,
-        );
+        result.current.handleShellCommand('bad-cmd', new AbortController().signal);
       });
       const execPromise = onExecMock.mock.calls[0][0];
 
@@ -694,7 +625,7 @@ describe('useShellCommandProcessor', () => {
           result: new Promise((_, reject) => {
             rejectResultPromise = reject;
           }),
-        }),
+        })
       );
       const { result } = renderProcessorHook();
 
@@ -775,13 +706,10 @@ describe('useShellCommandProcessor', () => {
           pid: 1001,
           command: 'bg-cmd',
           output: 'initial',
-        }),
+        })
       );
       expect(mockShellOnExit).toHaveBeenCalledWith(1001, expect.any(Function));
-      expect(mockShellSubscribe).toHaveBeenCalledWith(
-        1001,
-        expect.any(Function),
-      );
+      expect(mockShellSubscribe).toHaveBeenCalledWith(1001, expect.any(Function));
     });
 
     it('should toggle background shell visibility', async () => {
@@ -818,7 +746,7 @@ describe('useShellCommandProcessor', () => {
           type: 'info',
           text: 'No background shells are currently active.',
         }),
-        expect.any(Number),
+        expect.any(Number)
       );
       expect(result.current.isBackgroundShellVisible).toBe(false);
     });
@@ -874,7 +802,7 @@ describe('useShellCommandProcessor', () => {
             backgrounded: true,
             pid: 555,
             output: 'running...',
-          }),
+          })
         );
       });
       // Wait for promise resolution
@@ -892,9 +820,7 @@ describe('useShellCommandProcessor', () => {
       });
 
       // Find the exit callback registered
-      const exitCallback = mockShellOnExit.mock.calls.find(
-        (call) => call[0] === 888,
-      )?.[1];
+      const exitCallback = mockShellOnExit.mock.calls.find((call) => call[0] === 888)?.[1];
       expect(exitCallback).toBeDefined();
 
       if (exitCallback) {
@@ -918,9 +844,7 @@ describe('useShellCommandProcessor', () => {
         result.current.registerBackgroundShell(999, 'fail-exit', '');
       });
 
-      const exitCallback = mockShellOnExit.mock.calls.find(
-        (call) => call[0] === 999,
-      )?.[1];
+      const exitCallback = mockShellOnExit.mock.calls.find((call) => call[0] === 999)?.[1];
       expect(exitCallback).toBeDefined();
 
       if (exitCallback) {
@@ -956,9 +880,7 @@ describe('useShellCommandProcessor', () => {
 
       const initialRenderCount = getRenderCount();
 
-      const subscribeCallback = mockShellSubscribe.mock.calls.find(
-        (call) => call[0] === 1001,
-      )?.[1];
+      const subscribeCallback = mockShellSubscribe.mock.calls.find((call) => call[0] === 1001)?.[1];
       expect(subscribeCallback).toBeDefined();
 
       if (subscribeCallback) {
@@ -982,9 +904,7 @@ describe('useShellCommandProcessor', () => {
       // Ensure background shells are hidden (default)
       const initialRenderCount = getRenderCount();
 
-      const subscribeCallback = mockShellSubscribe.mock.calls.find(
-        (call) => call[0] === 1001,
-      )?.[1];
+      const subscribeCallback = mockShellSubscribe.mock.calls.find((call) => call[0] === 1001)?.[1];
       expect(subscribeCallback).toBeDefined();
 
       if (subscribeCallback) {
@@ -1012,9 +932,7 @@ describe('useShellCommandProcessor', () => {
 
       const initialRenderCount = getRenderCount();
 
-      const subscribeCallback = mockShellSubscribe.mock.calls.find(
-        (call) => call[0] === 1001,
-      )?.[1];
+      const subscribeCallback = mockShellSubscribe.mock.calls.find((call) => call[0] === 1001)?.[1];
       expect(subscribeCallback).toBeDefined();
 
       if (subscribeCallback) {
@@ -1079,9 +997,7 @@ describe('useShellCommandProcessor', () => {
       expect(result.current.isBackgroundShellVisible).toBe(false);
 
       // 4. Wait for restore delay
-      await waitFor(() =>
-        expect(result.current.isBackgroundShellVisible).toBe(true),
-      );
+      await waitFor(() => expect(result.current.isBackgroundShellVisible).toBe(true));
     });
 
     it('should auto-hide background shell when foreground shell starts and restore when it ends', async () => {
@@ -1115,9 +1031,7 @@ describe('useShellCommandProcessor', () => {
       await waitFor(() => expect(result.current.activeShellPtyId).toBe(null));
 
       // Should be restored automatically (after delay)
-      await waitFor(() =>
-        expect(result.current.isBackgroundShellVisible).toBe(true),
-      );
+      await waitFor(() => expect(result.current.isBackgroundShellVisible).toBe(true));
     });
 
     it('should NOT restore background shell if it was manually hidden during foreground execution', async () => {
@@ -1153,9 +1067,7 @@ describe('useShellCommandProcessor', () => {
 
       // It should NOT change visibility because manual toggle cleared the auto-restore flag
       // After delay it should stay true (as it was manually toggled to true)
-      await waitFor(() =>
-        expect(result.current.isBackgroundShellVisible).toBe(true),
-      );
+      await waitFor(() => expect(result.current.isBackgroundShellVisible).toBe(true));
     });
   });
 });

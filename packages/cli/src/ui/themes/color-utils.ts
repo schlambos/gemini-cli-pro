@@ -34,7 +34,7 @@ export const INK_SUPPORTED_NAMES = new Set([
 export const CSS_NAME_TO_HEX_MAP = Object.fromEntries(
   Object.entries(tinycolor.names)
     .filter(([name]) => !INK_SUPPORTED_NAMES.has(name))
-    .map(([name, hex]) => [name, `#${hex}`]),
+    .map(([name, hex]) => [name, `#${hex}`])
 );
 
 /**
@@ -99,9 +99,7 @@ export function resolveColor(colorValue: string): string | undefined {
   }
 
   // 4. Could not resolve
-  debugLogger.warn(
-    `[ColorUtils] Could not resolve color "${colorValue}" to an Ink-compatible format.`,
-  );
+  debugLogger.warn(`[ColorUtils] Could not resolve color "${colorValue}" to an Ink-compatible format.`);
   return undefined;
 }
 
@@ -111,32 +109,18 @@ export function resolveColor(colorValue: string): string | undefined {
  * Returns undefined if no safe background color is available for the given
  * terminal background.
  */
-export function getSafeLowColorBackground(
-  terminalBg: string,
-): string | undefined {
+export function getSafeLowColorBackground(terminalBg: string): string | undefined {
   const resolvedTerminalBg = resolveColor(terminalBg) || terminalBg;
-  if (
-    resolvedTerminalBg === 'black' ||
-    resolvedTerminalBg === '#000000' ||
-    resolvedTerminalBg === '#000'
-  ) {
+  if (resolvedTerminalBg === 'black' || resolvedTerminalBg === '#000000' || resolvedTerminalBg === '#000') {
     return '#1c1c1c';
   }
-  if (
-    resolvedTerminalBg === 'white' ||
-    resolvedTerminalBg === '#ffffff' ||
-    resolvedTerminalBg === '#fff'
-  ) {
+  if (resolvedTerminalBg === 'white' || resolvedTerminalBg === '#ffffff' || resolvedTerminalBg === '#fff') {
     return '#eeeeee';
   }
   return undefined;
 }
 
-export function interpolateColor(
-  color1: string,
-  color2: string,
-  factor: number,
-) {
+export function interpolateColor(color1: string, color2: string, factor: number) {
   if (factor <= 0 && color1) {
     return color1;
   }
@@ -151,9 +135,7 @@ export function interpolateColor(
   return color.toHexString();
 }
 
-export function getThemeTypeFromBackgroundColor(
-  backgroundColor: string | undefined,
-): 'light' | 'dark' | undefined {
+export function getThemeTypeFromBackgroundColor(backgroundColor: string | undefined): 'light' | 'dark' | undefined {
   if (!backgroundColor) {
     return undefined;
   }
@@ -218,18 +200,14 @@ export function shouldSwitchTheme(
   currentThemeName: string | undefined,
   luminance: number,
   defaultThemeName: string,
-  defaultLightThemeName: string,
+  defaultLightThemeName: string
 ): string | undefined {
-  const isDefaultTheme =
-    currentThemeName === defaultThemeName || currentThemeName === undefined;
+  const isDefaultTheme = currentThemeName === defaultThemeName || currentThemeName === undefined;
   const isDefaultLightTheme = currentThemeName === defaultLightThemeName;
 
   if (luminance > LIGHT_THEME_LUMINANCE_THRESHOLD && isDefaultTheme) {
     return defaultLightThemeName;
-  } else if (
-    luminance < DARK_THEME_LUMINANCE_THRESHOLD &&
-    isDefaultLightTheme
-  ) {
+  } else if (luminance < DARK_THEME_LUMINANCE_THRESHOLD && isDefaultLightTheme) {
     return defaultThemeName;
   }
 

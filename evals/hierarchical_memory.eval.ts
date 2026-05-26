@@ -6,16 +6,12 @@
 
 import { describe, expect } from 'vitest';
 import { evalTest } from './test-helper.js';
-import {
-  assertModelHasOutput,
-  checkModelOutputContent,
-} from '../integration-tests/test-helper.js';
+import { assertModelHasOutput, checkModelOutputContent } from '../integration-tests/test-helper.js';
 
 describe('Hierarchical Memory', () => {
   const TEST_PREFIX = 'Hierarchical memory test: ';
 
-  const conflictResolutionTest =
-    'Agent follows hierarchy for contradictory instructions';
+  const conflictResolutionTest = 'Agent follows hierarchy for contradictory instructions';
   evalTest('ALWAYS_PASSES', {
     name: conflictResolutionTest,
     params: {

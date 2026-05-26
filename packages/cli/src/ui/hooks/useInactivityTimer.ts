@@ -14,11 +14,7 @@ import { useState, useEffect } from 'react';
  * @param trigger Any value that, when changed, resets the inactivity timer.
  * @param delayMs The delay in milliseconds before considering the state inactive.
  */
-export const useInactivityTimer = (
-  isActive: boolean,
-  trigger: unknown,
-  delayMs: number = 5000,
-): boolean => {
+export const useInactivityTimer = (isActive: boolean, trigger: unknown, delayMs: number = 5000): boolean => {
   const [isInactive, setIsInactive] = useState(false);
 
   useEffect(() => {

@@ -9,10 +9,7 @@ import path from 'node:path';
 import process from 'node:process';
 import { homedir } from '@google/gemini-cli-core';
 import type { Settings } from '../config/settingsSchema.js';
-import {
-  isFolderTrustEnabled,
-  isWorkspaceTrusted,
-} from '../config/trustedFolders.js';
+import { isFolderTrustEnabled, isWorkspaceTrusted } from '../config/trustedFolders.js';
 
 type WarningCheck = {
   id: string;
@@ -28,17 +25,11 @@ const homeDirectoryCheck: WarningCheck = {
     }
 
     try {
-      const [workspaceRealPath, homeRealPath] = await Promise.all([
-        fs.realpath(workspaceRoot),
-        fs.realpath(homedir()),
-      ]);
+      const [workspaceRealPath, homeRealPath] = await Promise.all([fs.realpath(workspaceRoot), fs.realpath(homedir())]);
 
       if (workspaceRealPath === homeRealPath) {
         // If folder trust is enabled and the user trusts the home directory, don't show the warning.
-        if (
-          isFolderTrustEnabled(settings) &&
-          isWorkspaceTrusted(settings).isTrusted
-        ) {
+        if (isFolderTrustEnabled(settings) && isWorkspaceTrusted(settings).isTrusted) {
           return null;
         }
 
@@ -72,17 +63,12 @@ const rootDirectoryCheck: WarningCheck = {
 };
 
 // All warning checks
-const WARNING_CHECKS: readonly WarningCheck[] = [
-  homeDirectoryCheck,
-  rootDirectoryCheck,
-];
+const WARNING_CHECKS: readonly WarningCheck[] = [homeDirectoryCheck, rootDirectoryCheck];
 
 export async function getUserStartupWarnings(
   settings: Settings,
-  workspaceRoot: string = process.cwd(),
+  workspaceRoot: string = process.cwd()
 ): Promise<string[]> {
-  const results = await Promise.all(
-    WARNING_CHECKS.map((check) => check.check(workspaceRoot, settings)),
-  );
+  const results = await Promise.all(WARNING_CHECKS.map((check) => check.check(workspaceRoot, settings)));
   return results.filter((msg) => msg !== null);
 }

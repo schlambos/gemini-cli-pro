@@ -14,10 +14,7 @@ import type { ToolDefinition } from './types.js';
  * @param modelId Optional model identifier to apply specific overrides.
  * @returns The FunctionDeclaration to be sent to the API.
  */
-export function resolveToolDeclaration(
-  definition: ToolDefinition,
-  modelId?: string,
-): FunctionDeclaration {
+export function resolveToolDeclaration(definition: ToolDefinition, modelId?: string): FunctionDeclaration {
   if (!modelId || !definition.overrides) {
     return definition.base;
   }

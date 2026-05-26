@@ -15,12 +15,7 @@ import {
   performRestore,
   type ToolCallData,
 } from '@google/gemini-cli-core';
-import {
-  type CommandContext,
-  type SlashCommand,
-  type SlashCommandActionReturn,
-  CommandKind,
-} from './types.js';
+import { type CommandContext, type SlashCommand, type SlashCommandActionReturn, CommandKind } from './types.js';
 import type { HistoryItem } from '../types.js';
 
 const HistoryItemSchema = z
@@ -32,10 +27,7 @@ const HistoryItemSchema = z
 
 const ToolCallDataSchema = getToolCallDataSchema(HistoryItemSchema);
 
-async function restoreAction(
-  context: CommandContext,
-  args: string,
-): Promise<void | SlashCommandActionReturn> {
+async function restoreAction(context: CommandContext, args: string): Promise<void | SlashCommandActionReturn> {
   const { services, ui } = context;
   const { config, git: gitService } = services;
   const { addItem, loadHistory } = ui;
@@ -97,10 +89,7 @@ async function restoreAction(
     // We safely cast here because:
     // 1. ToolCallDataSchema strictly validates the existence of 'history' as an array and 'id'/'type' on each item.
     // 2. We trust that files valid according to this schema (written by useGeminiStream) contain the full HistoryItem structure.
-    const toolCallData = parseResult.data as ToolCallData<
-      HistoryItem[],
-      Record<string, unknown>
-    >;
+    const toolCallData = parseResult.data as ToolCallData<HistoryItem[], Record<string, unknown>>;
 
     const actionStream = performRestore(toolCallData, gitService);
 
@@ -111,7 +100,7 @@ async function restoreAction(
             type: action.messageType,
             text: action.content,
           },
-          Date.now(),
+          Date.now()
         );
       } else if (action.type === 'load_history' && loadHistory) {
         loadHistory(action.history);
@@ -135,10 +124,7 @@ async function restoreAction(
   }
 }
 
-async function completion(
-  context: CommandContext,
-  _partialArg: string,
-): Promise<string[]> {
+async function completion(context: CommandContext, _partialArg: string): Promise<string[]> {
   const { services } = context;
   const { config } = services;
   const checkpointDir = config?.storage.getProjectTempCheckpointsDir();

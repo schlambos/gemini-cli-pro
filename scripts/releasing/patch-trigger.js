@@ -32,10 +32,7 @@ function getBranchInfo({ branchName, context }) {
     channel = parts[3];
     const prMatch = parts[5].match(/pr-(\d+)/);
     prNum = prMatch[1];
-  } else if (
-    parts.length >= 4 &&
-    (parts[2] === 'stable' || parts[2] === 'preview')
-  ) {
+  } else if (parts.length >= 4 && (parts[2] === 'stable' || parts[2] === 'preview')) {
     // New format with explicit channel
     channel = parts[2];
   } else if (context.eventName === 'workflow_dispatch') {
@@ -45,9 +42,7 @@ function getBranchInfo({ branchName, context }) {
 
   // Validate channel
   if (channel !== 'stable' && channel !== 'preview') {
-    throw new Error(
-      `Invalid channel: ${channel}. Must be 'stable' or 'preview'.`,
-    );
+    throw new Error(`Invalid channel: ${channel}. Must be 'stable' or 'preview'.`);
   }
 
   return { channel, prNum, version };
@@ -56,8 +51,7 @@ function getBranchInfo({ branchName, context }) {
 async function main() {
   const argv = await yargs(hideBin(process.argv))
     .option('head-ref', {
-      description:
-        'The hotfix branch name (e.g., hotfix/v0.5.3/preview/cherry-pick-abc1234)',
+      description: 'The hotfix branch name (e.g., hotfix/v0.5.3/preview/cherry-pick-abc1234)',
       type: 'string',
       demandOption: !process.env.GITHUB_ACTIONS,
     })
@@ -86,13 +80,10 @@ async function main() {
       type: 'string',
       default: process.env.ENVIRONMENT || 'prod',
     })
-    .example(
-      '$0 --head-ref "hotfix/v0.5.3/preview/cherry-pick-abc1234" --test',
-      'Test channel detection logic',
-    )
+    .example('$0 --head-ref "hotfix/v0.5.3/preview/cherry-pick-abc1234" --test', 'Test channel detection logic')
     .example(
       '$0 --head-ref "hotfix/v0.5.3/stable/cherry-pick-abc1234" --dry-run',
-      'Test with GitHub API in dry-run mode',
+      'Test with GitHub API in dry-run mode'
     )
     .help()
     .alias('help', 'h').argv;
@@ -113,13 +104,10 @@ async function main() {
   const environment = argv.environment;
   const body = argv.prBody || process.env.PR_BODY || '';
   const isDryRun = argv.dryRun || body.includes('[DRY RUN]');
-  const forceSkipTests =
-    argv.forceSkipTests || process.env.FORCE_SKIP_TESTS === 'true';
+  const forceSkipTests = argv.forceSkipTests || process.env.FORCE_SKIP_TESTS === 'true';
 
   if (!headRef) {
-    throw new Error(
-      'head-ref is required. Use --head-ref or set HEAD_REF environment variable.',
-    );
+    throw new Error('head-ref is required. Use --head-ref or set HEAD_REF environment variable.');
   }
 
   console.log(`Processing patch trigger for branch: ${headRef}`);
@@ -139,28 +127,16 @@ async function main() {
       const { execFileSync } = await import('node:child_process');
 
       // Split search string into searchArgs to prevent triple escaping on the quoted filters
-      const searchArgs =
-        `repo:${context.repo.owner}/${context.repo.repo} is:pr in:comments "${headRef}"`.split(
-          ' ',
-        );
+      const searchArgs = `repo:${context.repo.owner}/${context.repo.repo} is:pr in:comments "${headRef}"`.split(' ');
       console.log('Search args:', searchArgs);
       // Use gh CLI to search for PRs with comments referencing the hotfix branch
       const result = execFileSync(
         'gh',
-        [
-          'search',
-          'prs',
-          '--json',
-          'number,title',
-          '--limit',
-          '1',
-          ...searchArgs,
-          'Patch PR Created',
-        ],
+        ['search', 'prs', '--json', 'number,title', '--limit', '1', ...searchArgs, 'Patch PR Created'],
         {
           encoding: 'utf8',
           env: { ...process.env, GH_TOKEN: process.env.GITHUB_TOKEN },
-        },
+        }
       );
 
       const searchResults = JSON.parse(result);
@@ -180,9 +156,7 @@ async function main() {
   }
 
   if (!originalPr) {
-    throw new Error(
-      'Could not find the original PR for this patch. Cannot proceed with release.',
-    );
+    throw new Error('Could not find the original PR for this patch. Cannot proceed with release.');
   }
 
   const releaseRef = `release/${version}-pr-${originalPr}`;
@@ -200,9 +174,7 @@ async function main() {
     console.log('\n🧪 TEST MODE - No API calls will be made');
     console.log('\n📋 Parsed Results:');
     console.log(`  - Branch: ${headRef}`);
-    console.log(
-      `  - Channel: ${channel} → npm tag: ${channel === 'stable' ? 'latest' : 'preview'}`,
-    );
+    console.log(`  - Channel: ${channel} → npm tag: ${channel === 'stable' ? 'latest' : 'preview'}`);
     console.log(`  - Version: ${version}`);
     console.log(`  - Release ref: ${releaseRef}`);
     console.log(`  - Workflow: ${workflowId}`);
@@ -291,14 +263,10 @@ async function main() {
         const tempFile = join(tempDir, 'comment.md');
         writeFileSync(tempFile, commentBody);
 
-        execFileSync(
-          'gh',
-          ['pr', 'comment', originalPr.toString(), '--body-file', tempFile],
-          {
-            stdio: 'inherit',
-            env: { ...process.env, GH_TOKEN: process.env.GITHUB_TOKEN },
-          },
-        );
+        execFileSync('gh', ['pr', 'comment', originalPr.toString(), '--body-file', tempFile], {
+          stdio: 'inherit',
+          env: { ...process.env, GH_TOKEN: process.env.GITHUB_TOKEN },
+        });
 
         console.log('✅ Comment posted successfully');
       } catch (e) {
@@ -311,10 +279,7 @@ async function main() {
             const { rmSync } = await import('node:fs');
             rmSync(tempDir, { recursive: true, force: true });
           } catch (cleanupError) {
-            console.warn(
-              '⚠️ Failed to clean up temp directory:',
-              cleanupError.message,
-            );
+            console.warn('⚠️ Failed to clean up temp directory:', cleanupError.message);
           }
         }
       }

@@ -8,11 +8,7 @@ import type React from 'react';
 import { useMemo, useState } from 'react';
 import { Box, Text } from 'ink';
 import { useUIState } from '../contexts/UIStateContext.js';
-import {
-  type ConversationRecord,
-  type MessageRecord,
-  partToString,
-} from '@google/gemini-cli-core';
+import { type ConversationRecord, type MessageRecord, partToString } from '@google/gemini-cli-core';
 import { BaseSelectionList } from './shared/BaseSelectionList.js';
 import { theme } from '../semantic-colors.js';
 import { useKeypress } from '../hooks/useKeypress.js';
@@ -26,11 +22,7 @@ import { ExpandableText } from './shared/ExpandableText.js';
 interface RewindViewerProps {
   conversation: ConversationRecord;
   onExit: () => void;
-  onRewind: (
-    messageId: string,
-    newText: string,
-    outcome: RewindOutcome,
-  ) => Promise<void>;
+  onRewind: (messageId: string, newText: string, outcome: RewindOutcome) => Promise<void>;
 }
 
 const MAX_LINES_PER_BOX = 2;
@@ -38,36 +30,20 @@ const MAX_LINES_PER_BOX = 2;
 const getCleanedRewindText = (userPrompt: MessageRecord): string => {
   const contentToUse = userPrompt.displayContent || userPrompt.content;
   const originalUserText = contentToUse ? partToString(contentToUse) : '';
-  return userPrompt.displayContent
-    ? originalUserText
-    : stripReferenceContent(originalUserText);
+  return userPrompt.displayContent ? originalUserText : stripReferenceContent(originalUserText);
 };
 
-export const RewindViewer: React.FC<RewindViewerProps> = ({
-  conversation,
-  onExit,
-  onRewind,
-}) => {
+export const RewindViewer: React.FC<RewindViewerProps> = ({ conversation, onExit, onRewind }) => {
   const [isRewinding, setIsRewinding] = useState(false);
   const { terminalWidth, terminalHeight } = useUIState();
-  const {
-    selectedMessageId,
-    getStats,
-    confirmationStats,
-    selectMessage,
-    clearSelection,
-  } = useRewind(conversation);
+  const { selectedMessageId, getStats, confirmationStats, selectMessage, clearSelection } = useRewind(conversation);
 
-  const [highlightedMessageId, setHighlightedMessageId] = useState<
-    string | null
-  >(null);
-  const [expandedMessageId, setExpandedMessageId] = useState<string | null>(
-    null,
-  );
+  const [highlightedMessageId, setHighlightedMessageId] = useState<string | null>(null);
+  const [expandedMessageId, setExpandedMessageId] = useState<string | null>(null);
 
   const interactions = useMemo(
     () => conversation.messages.filter((msg) => msg.type === 'user'),
-    [conversation.messages],
+    [conversation.messages]
   );
 
   const items = useMemo(() => {
@@ -101,10 +77,7 @@ export const RewindViewer: React.FC<RewindViewerProps> = ({
           return true;
         }
         if (keyMatchers[Command.EXPAND_SUGGESTION](key)) {
-          if (
-            highlightedMessageId &&
-            highlightedMessageId !== 'current-position'
-          ) {
+          if (highlightedMessageId && highlightedMessageId !== 'current-position') {
             setExpandedMessageId(highlightedMessageId);
             return true;
           }
@@ -116,7 +89,7 @@ export const RewindViewer: React.FC<RewindViewerProps> = ({
       }
       return false;
     },
-    { isActive: true },
+    { isActive: true }
   );
 
   // Height constraint calculations
@@ -124,10 +97,7 @@ export const RewindViewer: React.FC<RewindViewerProps> = ({
   const HEADER_HEIGHT = 2; // Title + margin
   const CONTROLS_HEIGHT = 2; // Controls text + margin
 
-  const listHeight = Math.max(
-    5,
-    terminalHeight - DIALOG_PADDING - HEADER_HEIGHT - CONTROLS_HEIGHT - 2,
-  );
+  const listHeight = Math.max(5, terminalHeight - DIALOG_PADDING - HEADER_HEIGHT - CONTROLS_HEIGHT - 2);
 
   const maxItemsToShow = Math.max(1, Math.floor(listHeight / 4));
 
@@ -135,11 +105,11 @@ export const RewindViewer: React.FC<RewindViewerProps> = ({
     if (isRewinding) {
       return (
         <Box
-          borderStyle="round"
+          borderStyle='round'
           borderColor={theme.border.default}
           padding={1}
           width={terminalWidth}
-          flexDirection="row"
+          flexDirection='row'
         >
           <Box>
             <CliSpinner />
@@ -154,9 +124,7 @@ export const RewindViewer: React.FC<RewindViewerProps> = ({
       return null;
     }
 
-    const selectedMessage = interactions.find(
-      (m) => m.id === selectedMessageId,
-    );
+    const selectedMessage = interactions.find((m) => m.id === selectedMessageId);
     return (
       <RewindConfirmation
         stats={confirmationStats}
@@ -166,9 +134,7 @@ export const RewindViewer: React.FC<RewindViewerProps> = ({
           if (outcome === RewindOutcome.Cancel) {
             clearSelection();
           } else {
-            const userPrompt = interactions.find(
-              (m) => m.id === selectedMessageId,
-            );
+            const userPrompt = interactions.find((m) => m.id === selectedMessageId);
             if (userPrompt) {
               const cleanedText = getCleanedRewindText(userPrompt);
               setIsRewinding(true);
@@ -182,9 +148,9 @@ export const RewindViewer: React.FC<RewindViewerProps> = ({
 
   return (
     <Box
-      borderStyle="round"
+      borderStyle='round'
       borderColor={theme.border.default}
-      flexDirection="column"
+      flexDirection='column'
       width={terminalWidth}
       paddingX={1}
       paddingY={1}
@@ -193,7 +159,7 @@ export const RewindViewer: React.FC<RewindViewerProps> = ({
         <Text bold>{'> '}Rewind</Text>
       </Box>
 
-      <Box flexDirection="column" flexGrow={1}>
+      <Box flexDirection='column' flexGrow={1}>
         <BaseSelectionList
           items={items}
           initialIndex={items.length - 1}
@@ -223,19 +189,11 @@ export const RewindViewer: React.FC<RewindViewerProps> = ({
 
             if (userPrompt.id === 'current-position') {
               return (
-                <Box flexDirection="column" marginBottom={1}>
-                  <Text
-                    color={
-                      isSelected ? theme.status.success : theme.text.primary
-                    }
-                  >
-                    {partToString(
-                      userPrompt.displayContent || userPrompt.content,
-                    )}
+                <Box flexDirection='column' marginBottom={1}>
+                  <Text color={isSelected ? theme.status.success : theme.text.primary}>
+                    {partToString(userPrompt.displayContent || userPrompt.content)}
                   </Text>
-                  <Text color={theme.text.secondary}>
-                    Cancel rewind and stay here
-                  </Text>
+                  <Text color={theme.text.secondary}>Cancel rewind and stay here</Text>
                 </Box>
               );
             }
@@ -245,20 +203,18 @@ export const RewindViewer: React.FC<RewindViewerProps> = ({
             const cleanedText = getCleanedRewindText(userPrompt);
 
             return (
-              <Box flexDirection="column" marginBottom={1}>
+              <Box flexDirection='column' marginBottom={1}>
                 <Box>
                   <ExpandableText
                     label={cleanedText}
                     isExpanded={expandedMessageId === userPrompt.id}
-                    textColor={
-                      isSelected ? theme.status.success : theme.text.primary
-                    }
+                    textColor={isSelected ? theme.status.success : theme.text.primary}
                     maxWidth={(terminalWidth - 4) * MAX_LINES_PER_BOX}
                     maxLines={MAX_LINES_PER_BOX}
                   />
                 </Box>
                 {stats ? (
-                  <Box flexDirection="row">
+                  <Box flexDirection='row'>
                     <Text color={theme.text.secondary}>
                       {stats.fileCount === 1
                         ? firstFileName
@@ -266,17 +222,11 @@ export const RewindViewer: React.FC<RewindViewerProps> = ({
                           : '1 file changed'
                         : `${stats.fileCount} files changed`}{' '}
                     </Text>
-                    {stats.addedLines > 0 && (
-                      <Text color="green">+{stats.addedLines} </Text>
-                    )}
-                    {stats.removedLines > 0 && (
-                      <Text color="red">-{stats.removedLines}</Text>
-                    )}
+                    {stats.addedLines > 0 && <Text color='green'>+{stats.addedLines} </Text>}
+                    {stats.removedLines > 0 && <Text color='red'>-{stats.removedLines}</Text>}
                   </Box>
                 ) : (
-                  <Text color={theme.text.secondary}>
-                    No files have been changed
-                  </Text>
+                  <Text color={theme.text.secondary}>No files have been changed</Text>
                 )}
               </Box>
             );
@@ -286,8 +236,7 @@ export const RewindViewer: React.FC<RewindViewerProps> = ({
 
       <Box marginTop={1}>
         <Text color={theme.text.secondary}>
-          (Use Enter to select a message, Esc to close, Right/Left to
-          expand/collapse)
+          (Use Enter to select a message, Esc to close, Right/Left to expand/collapse)
         </Text>
       </Box>
     </Box>

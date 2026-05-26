@@ -44,12 +44,7 @@ import {
   type HookEventName,
   type OutputFormat,
 } from '@google/gemini-cli-core';
-import {
-  type Settings,
-  type MergedSettings,
-  saveModelChange,
-  loadSettings,
-} from './settings.js';
+import { type Settings, type MergedSettings, saveModelChange, loadSettings } from './settings.js';
 
 import { loadSandboxConfig } from './sandboxConfig.js';
 import { resolvePath } from '../utils/resolvePath.js';
@@ -96,16 +91,14 @@ export interface CliArgs {
   isCommand: boolean | undefined;
 }
 
-export async function parseArguments(
-  settings: MergedSettings,
-): Promise<CliArgs> {
+export async function parseArguments(settings: MergedSettings): Promise<CliArgs> {
   const rawArgv = hideBin(process.argv);
   const startupMessages: string[] = [];
   const yargsInstance = yargs(rawArgv)
     .locale('en')
     .scriptName('gemini')
     .usage(
-      'Usage: gemini [options] [command]\n\nGemini CLI - Defaults to interactive mode. Use -p/--prompt for non-interactive (headless) mode.',
+      'Usage: gemini [options] [command]\n\nGemini CLI - Defaults to interactive mode. Use -p/--prompt for non-interactive (headless) mode.'
     )
     .option('debug', {
       alias: 'd',
@@ -116,8 +109,7 @@ export async function parseArguments(
     .command('$0 [query..]', 'Launch Gemini CLI', (yargsInstance) =>
       yargsInstance
         .positional('query', {
-          description:
-            'Initial prompt. Runs in interactive mode by default; use -p/--prompt for non-interactive.',
+          description: 'Initial prompt. Runs in interactive mode by default; use -p/--prompt for non-interactive.',
         })
         .option('model', {
           alias: 'm',
@@ -136,8 +128,7 @@ export async function parseArguments(
           alias: 'i',
           type: 'string',
           nargs: 1,
-          description:
-            'Execute the provided prompt and continue in interactive mode',
+          description: 'Execute the provided prompt and continue in interactive mode',
         })
         .option('sandbox', {
           alias: 's',
@@ -163,15 +154,14 @@ export async function parseArguments(
           type: 'array',
           string: true,
           nargs: 1,
-          description:
-            'Additional policy files or directories to load (comma-separated or multiple --policy)',
+          description: 'Additional policy files or directories to load (comma-separated or multiple --policy)',
           coerce: (policies: string[]) =>
             // Handle comma-separated values
             policies.flatMap((p) =>
               p
                 .split(',')
                 .map((s) => s.trim())
-                .filter(Boolean),
+                .filter(Boolean)
             ),
         })
         .option('experimental-acp', {
@@ -185,9 +175,7 @@ export async function parseArguments(
           description: 'Allowed MCP server names',
           coerce: (mcpServerNames: string[]) =>
             // Handle comma-separated values
-            mcpServerNames.flatMap((mcpServerName) =>
-              mcpServerName.split(',').map((m) => m.trim()),
-            ),
+            mcpServerNames.flatMap((mcpServerName) => mcpServerName.split(',').map((m) => m.trim())),
         })
         .option('allowed-tools', {
           type: 'array',
@@ -204,13 +192,10 @@ export async function parseArguments(
           type: 'array',
           string: true,
           nargs: 1,
-          description:
-            'A list of extensions to use. If not provided, all extensions are used.',
+          description: 'A list of extensions to use. If not provided, all extensions are used.',
           coerce: (extensions: string[]) =>
             // Handle comma-separated values
-            extensions.flatMap((extension) =>
-              extension.split(',').map((e) => e.trim()),
-            ),
+            extensions.flatMap((extension) => extension.split(',').map((e) => e.trim())),
         })
         .option('list-extensions', {
           alias: 'l',
@@ -223,8 +208,7 @@ export async function parseArguments(
           // `skipValidation` so that we can distinguish between it being passed with a value, without
           // one, and not being passed at all.
           skipValidation: true,
-          description:
-            'Resume a previous session. Use "latest" for most recent or index number (e.g. --resume 5)',
+          description: 'Resume a previous session. Use "latest" for most recent or index number (e.g. --resume 5)',
           coerce: (value: string): string => {
             // When --resume passed with a value (`gemini --resume 123`): value = "123" (string)
             // When --resume passed without a value (`gemini --resume`): value = "" (string)
@@ -238,13 +222,11 @@ export async function parseArguments(
         })
         .option('list-sessions', {
           type: 'boolean',
-          description:
-            'List available sessions for the current project and exit.',
+          description: 'List available sessions for the current project and exit.',
         })
         .option('delete-session', {
           type: 'string',
-          description:
-            'Delete a session by index number (use --list-sessions to see available sessions).',
+          description: 'Delete a session by index number (use --list-sessions to see available sessions).',
         })
         .option('include-directories', {
           type: 'array',
@@ -285,7 +267,7 @@ export async function parseArguments(
         .option('accept-raw-output-risk', {
           type: 'boolean',
           description: 'Suppress the security warning when using --raw-output.',
-        }),
+        })
     )
     // Register MCP subcommands
     .command(mcpCommand)
@@ -299,9 +281,7 @@ export async function parseArguments(
       // This guard safely checks if any positional argument was provided.
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
       const query = argv['query'] as string | string[] | undefined;
-      const hasPositionalQuery = Array.isArray(query)
-        ? query.length > 0
-        : !!query;
+      const hasPositionalQuery = Array.isArray(query) ? query.length > 0 : !!query;
 
       if (argv['prompt'] && hasPositionalQuery) {
         return 'Cannot use both a positional prompt and the --prompt (-p) flag together';
@@ -316,7 +296,7 @@ export async function parseArguments(
         argv['outputFormat'] &&
         !['text', 'json', 'stream-json'].includes(
           // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-          argv['outputFormat'] as string,
+          argv['outputFormat'] as string
         )
       ) {
         return `Invalid values:\n  Argument: output-format, Given: "${argv['outputFormat']}", Choices: "text", "json", "stream-json"`;
@@ -366,15 +346,13 @@ export async function parseArguments(
   // Normalize query args: handle both quoted "@path file" and unquoted @path file
   // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
   const queryArg = (result as { query?: string | string[] | undefined }).query;
-  const q: string | undefined = Array.isArray(queryArg)
-    ? queryArg.join(' ')
-    : queryArg;
+  const q: string | undefined = Array.isArray(queryArg) ? queryArg.join(' ') : queryArg;
 
   // -p/--prompt forces non-interactive mode; positional args default to interactive in TTY
   if (q && !result['prompt']) {
     if (!isHeadlessMode()) {
       startupMessages.push(
-        'Positional arguments now default to interactive mode. To run in non-interactive mode, use the --prompt (-p) flag.',
+        'Positional arguments now default to interactive mode. To run in non-interactive mode, use the --prompt (-p) flag.'
       );
       result['promptInteractive'] = q;
     } else {
@@ -407,28 +385,18 @@ export async function parseArguments(
  * @param allowedToolsSet A set of explicitly allowed tool names for quick lookups.
  * @returns A function that takes a tool name and returns `true` if it should be excluded.
  */
-function createToolExclusionFilter(
-  allowedTools: string[],
-  allowedToolsSet: Set<string>,
-) {
+function createToolExclusionFilter(allowedTools: string[], allowedToolsSet: Set<string>) {
   return (tool: string): boolean => {
     if (tool === SHELL_TOOL_NAME) {
       // If any of the allowed tools is ShellTool (even with subcommands), don't exclude it.
-      return !allowedTools.some((allowed) =>
-        SHELL_TOOL_NAMES.some((shellName) => allowed.startsWith(shellName)),
-      );
+      return !allowedTools.some((allowed) => SHELL_TOOL_NAMES.some((shellName) => allowed.startsWith(shellName)));
     }
     return !allowedToolsSet.has(tool);
   };
 }
 
 export function isDebugMode(argv: CliArgs): boolean {
-  return (
-    argv.debug ||
-    [process.env['DEBUG'], process.env['DEBUG_MODE']].some(
-      (v) => v === 'true' || v === '1',
-    )
-  );
+  return argv.debug || [process.env['DEBUG'], process.env['DEBUG_MODE']].some((v) => v === 'true' || v === '1');
 }
 
 export interface LoadCliConfigOptions {
@@ -442,7 +410,7 @@ export async function loadCliConfig(
   settings: MergedSettings,
   sessionId: string,
   argv: CliArgs,
-  options: LoadCliConfigOptions = {},
+  options: LoadCliConfigOptions = {}
 ): Promise<Config> {
   const { cwd = process.cwd(), projectHooks } = options;
   const debugMode = isDebugMode(argv);
@@ -459,8 +427,7 @@ export async function loadCliConfig(
   const ideMode = settings.ide?.enabled ?? false;
 
   const folderTrust =
-    process.env['GEMINI_CLI_INTEGRATION_TEST'] === 'true' ||
-    process.env['VITEST'] === 'true'
+    process.env['GEMINI_CLI_INTEGRATION_TEST'] === 'true' || process.env['VITEST'] === 'true'
       ? false
       : (settings.security?.folderTrust?.enabled ?? false);
   const trustedFolder =
@@ -518,16 +485,14 @@ export async function loadCliConfig(
     // Call the (now wrapper) loadHierarchicalGeminiMemory which calls the server's version
     const result = await loadServerHierarchicalMemory(
       cwd,
-      settings.context?.loadMemoryFromIncludeDirectories || false
-        ? includeDirectories
-        : [],
+      settings.context?.loadMemoryFromIncludeDirectories || false ? includeDirectories : [],
       debugMode,
       fileService,
       extensionManager,
       trustedFolder,
       memoryImportFormat,
       memoryFileFiltering,
-      settings.context?.discoveryMaxDirs,
+      settings.context?.discoveryMaxDirs
     );
     memoryContent = result.memoryContent;
     fileCount = result.fileCount;
@@ -541,9 +506,7 @@ export async function loadCliConfig(
   const rawApprovalMode =
     argv.approvalMode ||
     (argv.yolo ? 'yolo' : undefined) ||
-    ((settings.general?.defaultApprovalMode as string) !== 'yolo'
-      ? settings.general?.defaultApprovalMode
-      : undefined);
+    ((settings.general?.defaultApprovalMode as string) !== 'yolo' ? settings.general?.defaultApprovalMode : undefined);
 
   if (rawApprovalMode) {
     switch (rawApprovalMode) {
@@ -555,9 +518,7 @@ export async function loadCliConfig(
         break;
       case 'plan':
         if (!(settings.experimental?.plan ?? false)) {
-          throw new Error(
-            'Approval mode "plan" is only available when experimental.plan is enabled.',
-          );
+          throw new Error('Approval mode "plan" is only available when experimental.plan is enabled.');
         }
         approvalMode = ApprovalMode.PLAN;
         break;
@@ -565,9 +526,7 @@ export async function loadCliConfig(
         approvalMode = ApprovalMode.DEFAULT;
         break;
       default:
-        throw new Error(
-          `Invalid approval mode: ${rawApprovalMode}. Valid values are: yolo, auto_edit, plan, default`,
-        );
+        throw new Error(`Invalid approval mode: ${rawApprovalMode}. Valid values are: yolo, auto_edit, plan, default`);
     }
   } else {
     approvalMode = ApprovalMode.DEFAULT;
@@ -577,29 +536,19 @@ export async function loadCliConfig(
   if (settings.security?.disableYoloMode || settings.admin?.secureModeEnabled) {
     if (approvalMode === ApprovalMode.YOLO) {
       if (settings.admin?.secureModeEnabled) {
-        debugLogger.error(
-          'YOLO mode is disabled by "secureModeEnabled" setting.',
-        );
+        debugLogger.error('YOLO mode is disabled by "secureModeEnabled" setting.');
       } else {
-        debugLogger.error(
-          'YOLO mode is disabled by the "disableYolo" setting.',
-        );
+        debugLogger.error('YOLO mode is disabled by the "disableYolo" setting.');
       }
-      throw new FatalConfigError(
-        getAdminErrorMessage('YOLO mode', undefined /* config */),
-      );
+      throw new FatalConfigError(getAdminErrorMessage('YOLO mode', undefined /* config */));
     }
   } else if (approvalMode === ApprovalMode.YOLO) {
-    debugLogger.warn(
-      'YOLO mode is enabled. All tool calls will be automatically approved.',
-    );
+    debugLogger.warn('YOLO mode is enabled. All tool calls will be automatically approved.');
   }
 
   // Force approval mode to default if the folder is not trusted.
   if (!trustedFolder && approvalMode !== ApprovalMode.DEFAULT) {
-    debugLogger.warn(
-      `Approval mode overridden to "default" because the current folder is not trusted.`,
-    );
+    debugLogger.warn(`Approval mode overridden to "default" because the current folder is not trusted.`);
     approvalMode = ApprovalMode.DEFAULT;
   }
 
@@ -612,9 +561,7 @@ export async function loadCliConfig(
     });
   } catch (err) {
     if (err instanceof FatalConfigError) {
-      throw new FatalConfigError(
-        `Invalid telemetry configuration: ${err.message}.`,
-      );
+      throw new FatalConfigError(`Invalid telemetry configuration: ${err.message}.`);
     }
     throw err;
   }
@@ -624,8 +571,7 @@ export async function loadCliConfig(
   const interactive =
     !!argv.promptInteractive ||
     !!argv.experimentalAcp ||
-    (!isHeadlessMode({ prompt: argv.prompt, query: argv.query }) &&
-      !argv.isCommand);
+    (!isHeadlessMode({ prompt: argv.prompt, query: argv.query }) && !argv.isCommand);
 
   const allowedTools = argv.allowedTools || settings.tools?.allowed || [];
   const allowedToolsSet = new Set(allowedTools);
@@ -637,18 +583,10 @@ export async function loadCliConfig(
     // non-interactive modes, regardless of the approval mode.
     extraExcludes.push(ASK_USER_TOOL_NAME);
 
-    const defaultExcludes = [
-      SHELL_TOOL_NAME,
-      EDIT_TOOL_NAME,
-      WRITE_FILE_TOOL_NAME,
-      WEB_FETCH_TOOL_NAME,
-    ];
+    const defaultExcludes = [SHELL_TOOL_NAME, EDIT_TOOL_NAME, WRITE_FILE_TOOL_NAME, WEB_FETCH_TOOL_NAME];
     const autoEditExcludes = [SHELL_TOOL_NAME];
 
-    const toolExclusionFilter = createToolExclusionFilter(
-      allowedTools,
-      allowedToolsSet,
-    );
+    const toolExclusionFilter = createToolExclusionFilter(allowedTools, allowedToolsSet);
 
     switch (approvalMode) {
       case ApprovalMode.PLAN:
@@ -690,25 +628,16 @@ export async function loadCliConfig(
     policyPaths: argv.policy,
   };
 
-  const policyEngineConfig = await createPolicyEngineConfig(
-    effectiveSettings,
-    approvalMode,
-  );
+  const policyEngineConfig = await createPolicyEngineConfig(effectiveSettings, approvalMode);
   policyEngineConfig.nonInteractive = !interactive;
 
   const defaultModel = PREVIEW_GEMINI_MODEL_AUTO;
-  const specifiedModel =
-    argv.model || process.env['GEMINI_MODEL'] || settings.model?.name;
+  const specifiedModel = argv.model || process.env['GEMINI_MODEL'] || settings.model?.name;
 
-  const resolvedModel =
-    specifiedModel === GEMINI_MODEL_ALIAS_AUTO
-      ? defaultModel
-      : specifiedModel || defaultModel;
+  const resolvedModel = specifiedModel === GEMINI_MODEL_ALIAS_AUTO ? defaultModel : specifiedModel || defaultModel;
   const sandboxConfig = await loadSandboxConfig(settings, argv);
   const screenReader =
-    argv.screenReader !== undefined
-      ? argv.screenReader
-      : (settings.ui?.accessibility?.screenReader ?? false);
+    argv.screenReader !== undefined ? argv.screenReader : (settings.ui?.accessibility?.screenReader ?? false);
 
   const ptyInfo = await getPty();
 
@@ -718,9 +647,7 @@ export async function loadCliConfig(
 
   // Create MCP enablement manager and callbacks
   const mcpEnablementManager = McpServerEnablementManager.getInstance();
-  const mcpEnablementCallbacks = mcpEnabled
-    ? mcpEnablementManager.getEnablementCallbacks()
-    : undefined;
+  const mcpEnablementCallbacks = mcpEnabled ? mcpEnablementManager.getEnablementCallbacks() : undefined;
 
   const adminAllowlist = settings.admin?.mcp?.config;
   let mcpServerCommand = mcpEnabled ? settings.mcp?.serverCommand : undefined;
@@ -732,10 +659,7 @@ export async function loadCliConfig(
     mcpServerCommand = undefined;
 
     if (result.blockedServerNames && result.blockedServerNames.length > 0) {
-      const message = getAdminBlockedMcpServersMessage(
-        result.blockedServerNames,
-        undefined,
-      );
+      const message = getAdminBlockedMcpServersMessage(result.blockedServerNames, undefined);
       coreEvents.emitConsoleLog('warn', message);
     }
   }
@@ -748,8 +672,7 @@ export async function loadCliConfig(
     targetDir: cwd,
     includeDirectoryTree,
     includeDirectories,
-    loadMemoryFromIncludeDirectories:
-      settings.context?.loadMemoryFromIncludeDirectories || false,
+    loadMemoryFromIncludeDirectories: settings.context?.loadMemoryFromIncludeDirectories || false,
     debugMode,
     question,
 
@@ -766,24 +689,15 @@ export async function loadCliConfig(
     extensionsEnabled,
     agents: settings.agents,
     adminSkillsEnabled,
-    allowedMcpServers: mcpEnabled
-      ? (argv.allowedMcpServerNames ?? settings.mcp?.allowed)
-      : undefined,
-    blockedMcpServers: mcpEnabled
-      ? argv.allowedMcpServerNames
-        ? undefined
-        : settings.mcp?.excluded
-      : undefined,
-    blockedEnvironmentVariables:
-      settings.security?.environmentVariableRedaction?.blocked,
-    enableEnvironmentVariableRedaction:
-      settings.security?.environmentVariableRedaction?.enabled,
+    allowedMcpServers: mcpEnabled ? (argv.allowedMcpServerNames ?? settings.mcp?.allowed) : undefined,
+    blockedMcpServers: mcpEnabled ? (argv.allowedMcpServerNames ? undefined : settings.mcp?.excluded) : undefined,
+    blockedEnvironmentVariables: settings.security?.environmentVariableRedaction?.blocked,
+    enableEnvironmentVariableRedaction: settings.security?.environmentVariableRedaction?.enabled,
     userMemory: memoryContent,
     geminiMdFileCount: fileCount,
     geminiMdFilePaths: filePaths,
     approvalMode,
-    disableYoloMode:
-      settings.security?.disableYoloMode || settings.admin?.secureModeEnabled,
+    disableYoloMode: settings.security?.disableYoloMode || settings.admin?.secureModeEnabled,
     showMemoryUsage: settings.ui?.showMemoryUsage || false,
     accessibility: {
       ...settings.ui?.accessibility,
@@ -829,8 +743,7 @@ export async function loadCliConfig(
     useRipgrep: settings.tools?.useRipgrep,
     enableInteractiveShell: settings.tools?.shell?.enableInteractiveShell,
     shellToolInactivityTimeout: settings.tools?.shell?.inactivityTimeout,
-    enableShellOutputEfficiency:
-      settings.tools?.shell?.enableShellOutputEfficiency ?? true,
+    enableShellOutputEfficiency: settings.tools?.shell?.enableShellOutputEfficiency ?? true,
     skipNextSpeakerCheck: settings.model?.skipNextSpeakerCheck,
     enablePromptCompletion: settings.general?.enablePromptCompletion,
     truncateToolOutputThreshold: settings.tools?.truncateToolOutputThreshold,
@@ -865,13 +778,7 @@ export async function loadCliConfig(
   });
 }
 
-function mergeExcludeTools(
-  settings: MergedSettings,
-  extraExcludes: string[] = [],
-): string[] {
-  const allExcludeTools = new Set([
-    ...(settings.tools.exclude || []),
-    ...extraExcludes,
-  ]);
+function mergeExcludeTools(settings: MergedSettings, extraExcludes: string[] = []): string[] {
+  const allExcludeTools = new Set([...(settings.tools.exclude || []), ...extraExcludes]);
   return Array.from(allExcludeTools);
 }

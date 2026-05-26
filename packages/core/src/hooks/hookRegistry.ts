@@ -41,9 +41,7 @@ export class HookRegistry {
     this.entries = [];
     this.processHooksFromConfig();
 
-    debugLogger.debug(
-      `Hook registry initialized with ${this.entries.length} hook entries`,
-    );
+    debugLogger.debug(`Hook registry initialized with ${this.entries.length} hook entries`);
   }
 
   /**
@@ -52,10 +50,7 @@ export class HookRegistry {
   getHooksForEvent(eventName: HookEventName): HookRegistryEntry[] {
     return this.entries
       .filter((entry) => entry.eventName === eventName && entry.enabled)
-      .sort(
-        (a, b) =>
-          this.getSourcePriority(a.source) - this.getSourcePriority(b.source),
-      );
+      .sort((a, b) => this.getSourcePriority(a.source) - this.getSourcePriority(b.source));
   }
 
   /**
@@ -79,9 +74,7 @@ export class HookRegistry {
     });
 
     if (updated.length > 0) {
-      debugLogger.log(
-        `${enabled ? 'Enabled' : 'Disabled'} ${updated.length} hook(s) matching "${hookName}"`,
-      );
+      debugLogger.log(`${enabled ? 'Enabled' : 'Disabled'} ${updated.length} hook(s) matching "${hookName}"`);
     } else {
       debugLogger.warn(`No hooks found matching "${hookName}"`);
     }
@@ -90,9 +83,7 @@ export class HookRegistry {
   /**
    * Get hook name for identification and display purposes
    */
-  private getHookName(
-    entry: HookRegistryEntry | { config: HookConfig },
-  ): string {
+  private getHookName(entry: HookRegistryEntry | { config: HookConfig }): string {
     return entry.config.name || entry.config.command || 'unknown-command';
   }
 
@@ -105,10 +96,7 @@ export class HookRegistry {
 
     try {
       const trustedHooksManager = new TrustedHooksManager();
-      const untrusted = trustedHooksManager.getUntrustedHooks(
-        this.config.getProjectRoot(),
-        projectHooks,
-      );
+      const untrusted = trustedHooksManager.getUntrustedHooks(this.config.getProjectRoot(), projectHooks);
 
       if (untrusted.length > 0) {
         const message = `WARNING: The following project-level hooks have been detected in this workspace:
@@ -119,10 +107,7 @@ please review the project settings (.gemini/settings.json) and remove them.`;
         coreEvents.emitFeedback('warning', message);
 
         // Trust them so we don't warn again
-        trustedHooksManager.trustHooks(
-          this.config.getProjectRoot(),
-          projectHooks,
-        );
+        trustedHooksManager.trustHooks(this.config.getProjectRoot(), projectHooks);
       }
     } catch (error) {
       debugLogger.warn('Failed to check project hooks trust', error);
@@ -143,9 +128,7 @@ please review the project settings (.gemini/settings.json) and remove them.`;
       if (this.config.isTrustedFolder()) {
         this.processHooksConfiguration(configHooks, ConfigSource.Project);
       } else {
-        debugLogger.warn(
-          'Project hooks disabled because the folder is not trusted.',
-        );
+        debugLogger.warn('Project hooks disabled because the folder is not trusted.');
       }
     }
 
@@ -153,10 +136,7 @@ please review the project settings (.gemini/settings.json) and remove them.`;
     const extensions = this.config.getExtensions() || [];
     for (const extension of extensions) {
       if (extension.isActive && extension.hooks) {
-        this.processHooksConfiguration(
-          extension.hooks,
-          ConfigSource.Extensions,
-        );
+        this.processHooksConfiguration(extension.hooks, ConfigSource.Extensions);
       }
     }
   }
@@ -166,7 +146,7 @@ please review the project settings (.gemini/settings.json) and remove them.`;
    */
   private processHooksConfiguration(
     hooksConfig: { [K in HookEventName]?: HookDefinition[] },
-    source: ConfigSource,
+    source: ConfigSource
   ): void {
     for (const [eventName, definitions] of Object.entries(hooksConfig)) {
       if (HOOKS_CONFIG_FIELDS.includes(eventName)) {
@@ -174,10 +154,7 @@ please review the project settings (.gemini/settings.json) and remove them.`;
       }
 
       if (!this.isValidEventName(eventName)) {
-        coreEvents.emitFeedback(
-          'warning',
-          `Invalid hook event name: "${eventName}" from ${source} config. Skipping.`,
-        );
+        coreEvents.emitFeedback('warning', `Invalid hook event name: "${eventName}" from ${source} config. Skipping.`);
         continue;
       }
 
@@ -185,7 +162,7 @@ please review the project settings (.gemini/settings.json) and remove them.`;
 
       if (!Array.isArray(definitions)) {
         debugLogger.warn(
-          `Hook definitions for event "${eventName}" from source "${source}" is not an array. Skipping.`,
+          `Hook definitions for event "${eventName}" from source "${source}" is not an array. Skipping.`
         );
         continue;
       }
@@ -199,20 +176,9 @@ please review the project settings (.gemini/settings.json) and remove them.`;
   /**
    * Process a single hook definition
    */
-  private processHookDefinition(
-    definition: HookDefinition,
-    eventName: HookEventName,
-    source: ConfigSource,
-  ): void {
-    if (
-      !definition ||
-      typeof definition !== 'object' ||
-      !Array.isArray(definition.hooks)
-    ) {
-      debugLogger.warn(
-        `Discarding invalid hook definition for ${eventName} from ${source}:`,
-        definition,
-      );
+  private processHookDefinition(definition: HookDefinition, eventName: HookEventName, source: ConfigSource): void {
+    if (!definition || typeof definition !== 'object' || !Array.isArray(definition.hooks)) {
+      debugLogger.warn(`Discarding invalid hook definition for ${eventName} from ${source}:`, definition);
       return;
     }
 
@@ -220,11 +186,7 @@ please review the project settings (.gemini/settings.json) and remove them.`;
     const disabledHooks = this.config.getDisabledHooks() || [];
 
     for (const hookConfig of definition.hooks) {
-      if (
-        hookConfig &&
-        typeof hookConfig === 'object' &&
-        this.validateHookConfig(hookConfig, eventName, source)
-      ) {
+      if (hookConfig && typeof hookConfig === 'object' && this.validateHookConfig(hookConfig, eventName, source)) {
         // Check if this hook is in the disabled list
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
         const hookName = this.getHookName({
@@ -245,10 +207,7 @@ please review the project settings (.gemini/settings.json) and remove them.`;
         });
       } else {
         // Invalid hooks are logged and discarded here, they won't reach HookRunner
-        debugLogger.warn(
-          `Discarding invalid hook configuration for ${eventName} from ${source}:`,
-          hookConfig,
-        );
+        debugLogger.warn(`Discarding invalid hook configuration for ${eventName} from ${source}:`, hookConfig);
       }
     }
   }
@@ -256,22 +215,14 @@ please review the project settings (.gemini/settings.json) and remove them.`;
   /**
    * Validate a hook configuration
    */
-  private validateHookConfig(
-    config: HookConfig,
-    eventName: HookEventName,
-    source: ConfigSource,
-  ): boolean {
+  private validateHookConfig(config: HookConfig, eventName: HookEventName, source: ConfigSource): boolean {
     if (!config.type || !['command', 'plugin'].includes(config.type)) {
-      debugLogger.warn(
-        `Invalid hook ${eventName} from ${source} type: ${config.type}`,
-      );
+      debugLogger.warn(`Invalid hook ${eventName} from ${source} type: ${config.type}`);
       return false;
     }
 
     if (config.type === 'command' && !config.command) {
-      debugLogger.warn(
-        `Command hook ${eventName} from ${source} missing command field`,
-      );
+      debugLogger.warn(`Command hook ${eventName} from ${source} missing command field`);
       return false;
     }
 

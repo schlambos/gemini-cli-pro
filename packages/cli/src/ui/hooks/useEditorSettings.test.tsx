@@ -4,29 +4,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-  type MockedFunction,
-} from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi, type MockedFunction } from 'vitest';
 import { act } from 'react';
 import { render } from '../../test-utils/render.js';
 import { useEditorSettings } from './useEditorSettings.js';
-import type {
-  LoadableSettingScope,
-  LoadedSettings,
-} from '../../config/settings.js';
+import type { LoadableSettingScope, LoadedSettings } from '../../config/settings.js';
 import { SettingScope } from '../../config/settings.js';
 import { MessageType } from '../types.js';
-import {
-  type EditorType,
-  hasValidEditorCommand,
-  allowEditorTypeInSandbox,
-} from '@google/gemini-cli-core';
+import { type EditorType, hasValidEditorCommand, allowEditorTypeInSandbox } from '@google/gemini-cli-core';
 import type { UseHistoryManagerReturn } from './useHistoryManager.js';
 
 import { SettingPaths } from '../../config/settingPaths.js';
@@ -50,11 +35,7 @@ describe('useEditorSettings', () => {
   let result: ReturnType<typeof useEditorSettings>;
 
   function TestComponent() {
-    result = useEditorSettings(
-      mockLoadedSettings,
-      mockSetEditorError,
-      mockAddItem,
-    );
+    result = useEditorSettings(mockLoadedSettings, mockSetEditorError, mockAddItem);
     return null;
   }
 
@@ -113,18 +94,14 @@ describe('useEditorSettings', () => {
       result.handleEditorSelect(editorType, scope);
     });
 
-    expect(mockLoadedSettings.setValue).toHaveBeenCalledWith(
-      scope,
-      SettingPaths.General.PreferredEditor,
-      editorType,
-    );
+    expect(mockLoadedSettings.setValue).toHaveBeenCalledWith(scope, SettingPaths.General.PreferredEditor, editorType);
 
     expect(mockAddItem).toHaveBeenCalledWith(
       {
         type: MessageType.INFO,
         text: 'Editor preference set to "VS Code" in User settings.',
       },
-      expect.any(Number),
+      expect.any(Number)
     );
 
     expect(mockSetEditorError).toHaveBeenCalledWith(null);
@@ -141,18 +118,14 @@ describe('useEditorSettings', () => {
       result.handleEditorSelect(undefined, scope);
     });
 
-    expect(mockLoadedSettings.setValue).toHaveBeenCalledWith(
-      scope,
-      SettingPaths.General.PreferredEditor,
-      undefined,
-    );
+    expect(mockLoadedSettings.setValue).toHaveBeenCalledWith(scope, SettingPaths.General.PreferredEditor, undefined);
 
     expect(mockAddItem).toHaveBeenCalledWith(
       {
         type: MessageType.INFO,
         text: 'Editor preference cleared in Workspace settings.',
       },
-      expect.any(Number),
+      expect.any(Number)
     );
 
     expect(mockSetEditorError).toHaveBeenCalledWith(null);
@@ -175,18 +148,14 @@ describe('useEditorSettings', () => {
         result.handleEditorSelect(editorType, scope);
       });
 
-      expect(mockLoadedSettings.setValue).toHaveBeenCalledWith(
-        scope,
-        SettingPaths.General.PreferredEditor,
-        editorType,
-      );
+      expect(mockLoadedSettings.setValue).toHaveBeenCalledWith(scope, SettingPaths.General.PreferredEditor, editorType);
 
       expect(mockAddItem).toHaveBeenCalledWith(
         {
           type: MessageType.INFO,
           text: `Editor preference set to "${displayNames[editorType]}" in User settings.`,
         },
-        expect.any(Number),
+        expect.any(Number)
       );
     });
   });
@@ -195,28 +164,21 @@ describe('useEditorSettings', () => {
     render(<TestComponent />);
 
     const editorType: EditorType = 'vscode';
-    const scopes: LoadableSettingScope[] = [
-      SettingScope.User,
-      SettingScope.Workspace,
-    ];
+    const scopes: LoadableSettingScope[] = [SettingScope.User, SettingScope.Workspace];
 
     scopes.forEach((scope) => {
       act(() => {
         result.handleEditorSelect(editorType, scope);
       });
 
-      expect(mockLoadedSettings.setValue).toHaveBeenCalledWith(
-        scope,
-        SettingPaths.General.PreferredEditor,
-        editorType,
-      );
+      expect(mockLoadedSettings.setValue).toHaveBeenCalledWith(scope, SettingPaths.General.PreferredEditor, editorType);
 
       expect(mockAddItem).toHaveBeenCalledWith(
         {
           type: MessageType.INFO,
           text: `Editor preference set to "VS Code" in ${scope} settings.`,
         },
-        expect.any(Number),
+        expect.any(Number)
       );
     });
   });
@@ -261,11 +223,7 @@ describe('useEditorSettings', () => {
     render(<TestComponent />);
 
     const errorMessage = 'Failed to save settings';
-    (
-      mockLoadedSettings.setValue as MockedFunction<
-        typeof mockLoadedSettings.setValue
-      >
-    ).mockImplementation(() => {
+    (mockLoadedSettings.setValue as MockedFunction<typeof mockLoadedSettings.setValue>).mockImplementation(() => {
       throw new Error(errorMessage);
     });
 
@@ -277,9 +235,7 @@ describe('useEditorSettings', () => {
       result.handleEditorSelect(editorType, scope);
     });
 
-    expect(mockSetEditorError).toHaveBeenCalledWith(
-      `Failed to set editor preference: Error: ${errorMessage}`,
-    );
+    expect(mockSetEditorError).toHaveBeenCalledWith(`Failed to set editor preference: Error: ${errorMessage}`);
     expect(mockAddItem).not.toHaveBeenCalled();
     expect(result.isEditorDialogOpen).toBe(true);
   });

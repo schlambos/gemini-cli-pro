@@ -82,9 +82,7 @@ export interface AfterModelHookResult {
  * Converts ToolCallConfirmationDetails to a serializable format for hooks.
  * Excludes function properties (onConfirm, ideConfirmation) that can't be serialized.
  */
-function toSerializableDetails(
-  details: ToolCallConfirmationDetails,
-): Record<string, unknown> {
+function toSerializableDetails(details: ToolCallConfirmationDetails): Record<string, unknown> {
   const base: Record<string, unknown> = {
     type: details.type,
     title: details.title,
@@ -128,9 +126,7 @@ function toSerializableDetails(
 /**
  * Gets the message to display in the notification hook for tool confirmation.
  */
-function getNotificationMessage(
-  confirmationDetails: ToolCallConfirmationDetails,
-): string {
+function getNotificationMessage(confirmationDetails: ToolCallConfirmationDetails): string {
   switch (confirmationDetails.type) {
     case 'edit':
       return `Tool ${confirmationDetails.title} requires editing`;
@@ -158,12 +154,7 @@ export class HookSystem {
     this.hookRunner = new HookRunner(config);
     this.hookAggregator = new HookAggregator();
     this.hookPlanner = new HookPlanner(this.hookRegistry);
-    this.hookEventHandler = new HookEventHandler(
-      config,
-      this.hookPlanner,
-      this.hookRunner,
-      this.hookAggregator,
-    );
+    this.hookEventHandler = new HookEventHandler(config, this.hookPlanner, this.hookRunner, this.hookAggregator);
   }
 
   /**
@@ -205,28 +196,20 @@ export class HookSystem {
   /**
    * Fire hook events directly
    */
-  async fireSessionStartEvent(
-    source: SessionStartSource,
-  ): Promise<DefaultHookOutput | undefined> {
+  async fireSessionStartEvent(source: SessionStartSource): Promise<DefaultHookOutput | undefined> {
     const result = await this.hookEventHandler.fireSessionStartEvent(source);
     return result.finalOutput;
   }
 
-  async fireSessionEndEvent(
-    reason: SessionEndReason,
-  ): Promise<AggregatedHookResult | undefined> {
+  async fireSessionEndEvent(reason: SessionEndReason): Promise<AggregatedHookResult | undefined> {
     return this.hookEventHandler.fireSessionEndEvent(reason);
   }
 
-  async firePreCompressEvent(
-    trigger: PreCompressTrigger,
-  ): Promise<AggregatedHookResult | undefined> {
+  async firePreCompressEvent(trigger: PreCompressTrigger): Promise<AggregatedHookResult | undefined> {
     return this.hookEventHandler.firePreCompressEvent(trigger);
   }
 
-  async fireBeforeAgentEvent(
-    prompt: string,
-  ): Promise<DefaultHookOutput | undefined> {
+  async fireBeforeAgentEvent(prompt: string): Promise<DefaultHookOutput | undefined> {
     const result = await this.hookEventHandler.fireBeforeAgentEvent(prompt);
     return result.finalOutput;
   }
@@ -234,22 +217,15 @@ export class HookSystem {
   async fireAfterAgentEvent(
     prompt: string,
     response: string,
-    stopHookActive: boolean = false,
+    stopHookActive: boolean = false
   ): Promise<DefaultHookOutput | undefined> {
-    const result = await this.hookEventHandler.fireAfterAgentEvent(
-      prompt,
-      response,
-      stopHookActive,
-    );
+    const result = await this.hookEventHandler.fireAfterAgentEvent(prompt, response, stopHookActive);
     return result.finalOutput;
   }
 
-  async fireBeforeModelEvent(
-    llmRequest: GenerateContentParameters,
-  ): Promise<BeforeModelHookResult> {
+  async fireBeforeModelEvent(llmRequest: GenerateContentParameters): Promise<BeforeModelHookResult> {
     try {
-      const result =
-        await this.hookEventHandler.fireBeforeModelEvent(llmRequest);
+      const result = await this.hookEventHandler.fireBeforeModelEvent(llmRequest);
       const hookOutput = result.finalOutput;
 
       if (hookOutput?.shouldStopExecution()) {
@@ -267,8 +243,7 @@ export class HookSystem {
         const syntheticResponse = beforeModelOutput.getSyntheticResponse();
         return {
           blocked: true,
-          reason:
-            hookOutput?.getEffectiveReason() || 'Model call blocked by hook',
+          reason: hookOutput?.getEffectiveReason() || 'Model call blocked by hook',
           syntheticResponse,
         };
       }
@@ -276,8 +251,7 @@ export class HookSystem {
       if (hookOutput) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
         const beforeModelOutput = hookOutput as BeforeModelHookOutput;
-        const modifiedRequest =
-          beforeModelOutput.applyLLMRequestModifications(llmRequest);
+        const modifiedRequest = beforeModelOutput.applyLLMRequestModifications(llmRequest);
         return {
           blocked: false,
           modifiedConfig: modifiedRequest?.config,
@@ -294,13 +268,10 @@ export class HookSystem {
 
   async fireAfterModelEvent(
     originalRequest: GenerateContentParameters,
-    chunk: GenerateContentResponse,
+    chunk: GenerateContentResponse
   ): Promise<AfterModelHookResult> {
     try {
-      const result = await this.hookEventHandler.fireAfterModelEvent(
-        originalRequest,
-        chunk,
-      );
+      const result = await this.hookEventHandler.fireAfterModelEvent(originalRequest, chunk);
       const hookOutput = result.finalOutput;
 
       if (hookOutput?.shouldStopExecution()) {
@@ -336,22 +307,17 @@ export class HookSystem {
     }
   }
 
-  async fireBeforeToolSelectionEvent(
-    llmRequest: GenerateContentParameters,
-  ): Promise<BeforeToolSelectionHookResult> {
+  async fireBeforeToolSelectionEvent(llmRequest: GenerateContentParameters): Promise<BeforeToolSelectionHookResult> {
     try {
-      const result =
-        await this.hookEventHandler.fireBeforeToolSelectionEvent(llmRequest);
+      const result = await this.hookEventHandler.fireBeforeToolSelectionEvent(llmRequest);
       const hookOutput = result.finalOutput;
 
       if (hookOutput) {
         const toolSelectionOutput = hookOutput as BeforeToolSelectionHookOutput;
-        const modifiedConfig = toolSelectionOutput.applyToolConfigModifications(
-          {
-            toolConfig: llmRequest.config?.toolConfig,
-            tools: llmRequest.config?.tools,
-          },
-        );
+        const modifiedConfig = toolSelectionOutput.applyToolConfigModifications({
+          toolConfig: llmRequest.config?.toolConfig,
+          tools: llmRequest.config?.tools,
+        });
         return {
           toolConfig: modifiedConfig.toolConfig,
           tools: modifiedConfig.tools,
@@ -367,14 +333,10 @@ export class HookSystem {
   async fireBeforeToolEvent(
     toolName: string,
     toolInput: Record<string, unknown>,
-    mcpContext?: McpToolContext,
+    mcpContext?: McpToolContext
   ): Promise<DefaultHookOutput | undefined> {
     try {
-      const result = await this.hookEventHandler.fireBeforeToolEvent(
-        toolName,
-        toolInput,
-        mcpContext,
-      );
+      const result = await this.hookEventHandler.fireBeforeToolEvent(toolName, toolInput, mcpContext);
       return result.finalOutput;
     } catch (error) {
       debugLogger.debug(`BeforeToolEvent failed for ${toolName}:`, error);
@@ -390,14 +352,14 @@ export class HookSystem {
       returnDisplay: unknown;
       error: unknown;
     },
-    mcpContext?: McpToolContext,
+    mcpContext?: McpToolContext
   ): Promise<DefaultHookOutput | undefined> {
     try {
       const result = await this.hookEventHandler.fireAfterToolEvent(
         toolName,
         toolInput,
         toolResponse as Record<string, unknown>,
-        mcpContext,
+        mcpContext
       );
       return result.finalOutput;
     } catch (error) {
@@ -406,23 +368,14 @@ export class HookSystem {
     }
   }
 
-  async fireToolNotificationEvent(
-    confirmationDetails: ToolCallConfirmationDetails,
-  ): Promise<void> {
+  async fireToolNotificationEvent(confirmationDetails: ToolCallConfirmationDetails): Promise<void> {
     try {
       const message = getNotificationMessage(confirmationDetails);
       const serializedDetails = toSerializableDetails(confirmationDetails);
 
-      await this.hookEventHandler.fireNotificationEvent(
-        NotificationType.ToolPermission,
-        message,
-        serializedDetails,
-      );
+      await this.hookEventHandler.fireNotificationEvent(NotificationType.ToolPermission, message, serializedDetails);
     } catch (error) {
-      debugLogger.debug(
-        `NotificationEvent failed for ${confirmationDetails.title}:`,
-        error,
-      );
+      debugLogger.debug(`NotificationEvent failed for ${confirmationDetails.title}:`, error);
     }
   }
 }

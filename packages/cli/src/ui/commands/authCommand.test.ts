@@ -73,9 +73,7 @@ describe('authCommand', () => {
       const logoutCommand = authCommand.subCommands?.[1];
       expect(logoutCommand?.name).toBe('logout');
 
-      const { clearCachedCredentialFile } = await import(
-        '@google/gemini-cli-core'
-      );
+      const { clearCachedCredentialFile } = await import('@google/gemini-cli-core');
 
       await logoutCommand!.action!(mockContext, '');
 
@@ -90,7 +88,7 @@ describe('authCommand', () => {
       expect(mockContext.services.settings.setValue).toHaveBeenCalledWith(
         SettingScope.User,
         'security.auth.selectedType',
-        undefined,
+        undefined
       );
     });
 
@@ -99,9 +97,7 @@ describe('authCommand', () => {
       const mockStripThoughts = vi.fn();
       const mockClient = {
         stripThoughtsFromHistory: mockStripThoughts,
-      } as unknown as ReturnType<
-        NonNullable<typeof mockContext.services.config>['getGeminiClient']
-      >;
+      } as unknown as ReturnType<NonNullable<typeof mockContext.services.config>['getGeminiClient']>;
 
       if (mockContext.services.config) {
         mockContext.services.config.getGeminiClient = vi.fn(() => mockClient);

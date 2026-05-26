@@ -13,7 +13,7 @@ import type { Config } from '../config/config.js';
 export class ContextBuilder {
   constructor(
     private readonly config: Config,
-    private readonly conversationHistory: ConversationTurn[] = [],
+    private readonly conversationHistory: ConversationTurn[] = []
   ) {}
 
   /**
@@ -24,9 +24,7 @@ export class ContextBuilder {
       environment: {
         cwd: process.cwd(),
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-        workspaces: this.config
-          .getWorkspaceContext()
-          .getDirectories() as string[],
+        workspaces: this.config.getWorkspaceContext().getDirectories() as string[],
       },
       history: {
         turns: this.conversationHistory,
@@ -37,9 +35,7 @@ export class ContextBuilder {
   /**
    * Builds a minimal context with only the specified keys.
    */
-  buildMinimalContext(
-    requiredKeys: Array<keyof SafetyCheckInput['context']>,
-  ): SafetyCheckInput['context'] {
+  buildMinimalContext(requiredKeys: Array<keyof SafetyCheckInput['context']>): SafetyCheckInput['context'] {
     const fullContext = this.buildFullContext();
     const minimalContext: Partial<SafetyCheckInput['context']> = {};
 

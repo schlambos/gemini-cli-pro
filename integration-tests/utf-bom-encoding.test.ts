@@ -10,10 +10,8 @@ import { join, resolve } from 'node:path';
 import { TestRig } from './test-helper.js';
 
 // BOM encoders
-const utf8BOM = (s: string) =>
-  Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from(s, 'utf8')]);
-const utf16LE = (s: string) =>
-  Buffer.concat([Buffer.from([0xff, 0xfe]), Buffer.from(s, 'utf16le')]);
+const utf8BOM = (s: string) => Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from(s, 'utf8')]);
+const utf16LE = (s: string) => Buffer.concat([Buffer.from([0xff, 0xfe]), Buffer.from(s, 'utf16le')]);
 const utf16BE = (s: string) => {
   const bom = Buffer.from([0xfe, 0xff]);
   const le = Buffer.from(s, 'utf16le');
@@ -59,11 +57,7 @@ describe('BOM end-to-end integraion', () => {
 
   afterEach(async () => await rig.cleanup());
 
-  async function runAndAssert(
-    filename: string,
-    content: Buffer,
-    expectedText: string | null,
-  ) {
+  async function runAndAssert(filename: string, content: Buffer, expectedText: string | null) {
     writeFileSync(join(rig.testDir!, filename), content);
     const prompt = `read the file ${filename} and output its exact contents`;
     const output = await rig.run({ args: prompt });
@@ -71,9 +65,7 @@ describe('BOM end-to-end integraion', () => {
     const lower = output.toLowerCase();
     if (expectedText === null) {
       expect(
-        lower.includes('binary') ||
-          lower.includes('skipped binary file') ||
-          lower.includes('cannot display'),
+        lower.includes('binary') || lower.includes('skipped binary file') || lower.includes('cannot display')
       ).toBeTruthy();
     } else {
       expect(output.includes(expectedText)).toBeTruthy();
@@ -86,42 +78,23 @@ describe('BOM end-to-end integraion', () => {
   });
 
   it('UTF-16 LE BOM', async () => {
-    await runAndAssert(
-      'utf16le.txt',
-      utf16LE('BOM_OK UTF-16LE'),
-      'BOM_OK UTF-16LE',
-    );
+    await runAndAssert('utf16le.txt', utf16LE('BOM_OK UTF-16LE'), 'BOM_OK UTF-16LE');
   });
 
   it('UTF-16 BE BOM', async () => {
-    await runAndAssert(
-      'utf16be.txt',
-      utf16BE('BOM_OK UTF-16BE'),
-      'BOM_OK UTF-16BE',
-    );
+    await runAndAssert('utf16be.txt', utf16BE('BOM_OK UTF-16BE'), 'BOM_OK UTF-16BE');
   });
 
   it('UTF-32 LE BOM', async () => {
-    await runAndAssert(
-      'utf32le.txt',
-      utf32LE('BOM_OK UTF-32LE'),
-      'BOM_OK UTF-32LE',
-    );
+    await runAndAssert('utf32le.txt', utf32LE('BOM_OK UTF-32LE'), 'BOM_OK UTF-32LE');
   });
 
   it('UTF-32 BE BOM', async () => {
-    await runAndAssert(
-      'utf32be.txt',
-      utf32BE('BOM_OK UTF-32BE'),
-      'BOM_OK UTF-32BE',
-    );
+    await runAndAssert('utf32be.txt', utf32BE('BOM_OK UTF-32BE'), 'BOM_OK UTF-32BE');
   });
 
   it('Can describe a PNG file', async () => {
-    const imagePath = resolve(
-      process.cwd(),
-      'docs/assets/gemini-screenshot.png',
-    );
+    const imagePath = resolve(process.cwd(), 'docs/assets/gemini-screenshot.png');
     const imageContent = readFileSync(imagePath);
     const filename = 'gemini-screenshot.png';
     writeFileSync(join(rig.testDir!, filename), imageContent);

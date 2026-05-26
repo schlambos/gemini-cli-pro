@@ -31,10 +31,7 @@ export interface InstallationInfo {
   updateMessage?: string;
 }
 
-export function getInstallationInfo(
-  projectRoot: string,
-  isAutoUpdateEnabled: boolean,
-): InstallationInfo {
+export function getInstallationInfo(projectRoot: string, isAutoUpdateEnabled: boolean): InstallationInfo {
   const cliPath = process.argv[1];
   if (!cliPath) {
     return { packageManager: PackageManager.UNKNOWN, isGlobal: false };
@@ -56,8 +53,7 @@ export function getInstallationInfo(
       return {
         packageManager: PackageManager.UNKNOWN, // Not managed by a package manager in this sense
         isGlobal: false,
-        updateMessage:
-          'Running from a local git clone. Please update with "git pull".',
+        updateMessage: 'Running from a local git clone. Please update with "git pull".',
       };
     }
 
@@ -69,10 +65,7 @@ export function getInstallationInfo(
         updateMessage: 'Running via npx, update not applicable.',
       };
     }
-    if (
-      realPath.includes('/.pnpm/_pnpx') ||
-      realPath.includes('/.cache/pnpm/dlx')
-    ) {
+    if (realPath.includes('/.pnpm/_pnpx') || realPath.includes('/.cache/pnpm/dlx')) {
       return {
         packageManager: PackageManager.PNPX,
         isGlobal: false,
@@ -95,8 +88,7 @@ export function getInstallationInfo(
           return {
             packageManager: PackageManager.HOMEBREW,
             isGlobal: true,
-            updateMessage:
-              'Installed via Homebrew. Please update with "brew upgrade gemini-cli".',
+            updateMessage: 'Installed via Homebrew. Please update with "brew upgrade gemini-cli".',
           };
         }
       } catch (_error) {
@@ -106,10 +98,7 @@ export function getInstallationInfo(
     }
 
     // Check for pnpm
-    if (
-      realPath.includes('/.pnpm/global') ||
-      realPath.includes('/.local/share/pnpm')
-    ) {
+    if (realPath.includes('/.pnpm/global') || realPath.includes('/.local/share/pnpm')) {
       const updateCommand = 'pnpm add -g @google/gemini-cli@latest';
       return {
         packageManager: PackageManager.PNPM,
@@ -155,10 +144,7 @@ export function getInstallationInfo(
     }
 
     // Check for local install
-    if (
-      normalizedProjectRoot &&
-      realPath.startsWith(`${normalizedProjectRoot}/node_modules`)
-    ) {
+    if (normalizedProjectRoot && realPath.startsWith(`${normalizedProjectRoot}/node_modules`)) {
       let pm = PackageManager.NPM;
       if (fs.existsSync(path.join(projectRoot, 'yarn.lock'))) {
         pm = PackageManager.YARN;
@@ -170,8 +156,7 @@ export function getInstallationInfo(
       return {
         packageManager: pm,
         isGlobal: false,
-        updateMessage:
-          "Locally installed. Please update via your project's package.json.",
+        updateMessage: "Locally installed. Please update via your project's package.json.",
       };
     }
 

@@ -1,7 +1,6 @@
 ---
 name: pr-creator
-description:
-  Use this skill when asked to create a pull request (PR). It ensures all PRs
+description: Use this skill when asked to create a pull request (PR). It ensures all PRs
   follow the repository's established templates and standards.
 ---
 
@@ -55,14 +54,17 @@ Follow these steps to create a Pull Request:
 
 6.  **Preflight Check**: Before creating the PR, run the workspace preflight
     script to ensure all build, lint, and test checks pass.
+
     ```bash
     npm run preflight
     ```
+
     If any checks fail, address the issues before proceeding to create the PR.
 
 7.  **Push Branch**: Push the current branch to the remote repository.
     **CRITICAL SAFETY RAIL:** Double-check your branch name before pushing.
     NEVER push if the current branch is `main`.
+
     ```bash
     # Verify current branch is NOT main
     git branch --show-current
@@ -73,6 +75,7 @@ Follow these steps to create a Pull Request:
 8.  **Create PR**: Use the `gh` CLI to create the PR. To avoid shell escaping
     issues with multi-line Markdown, write the description to a temporary file
     first.
+
     ```bash
     # 1. Write the drafted description to a temporary file
     # 2. Create the PR using the --body-file flag
@@ -80,6 +83,7 @@ Follow these steps to create a Pull Request:
     # 3. Remove the temporary file
     rm <temp_file_path>
     ```
+
     - **Title**: Ensure the title follows the
       [Conventional Commits](https://www.conventionalcommits.org/) format if the
       repository uses it (e.g., `feat(ui): add new button`,

@@ -22,10 +22,7 @@ export async function handleEnable(args: EnableArgs) {
   const settings = loadSettings(workspaceDir);
 
   const result = enableSkill(settings, name);
-  const feedback = renderSkillActionFeedback(
-    result,
-    (label, path) => `${chalk.bold(label)} (${chalk.dim(path)})`,
-  );
+  const feedback = renderSkillActionFeedback(result, (label, path) => `${chalk.bold(label)} (${chalk.dim(path)})`);
   debugLogger.log(feedback);
 }
 

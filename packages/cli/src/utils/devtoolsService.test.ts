@@ -71,9 +71,7 @@ vi.mock('./activityLogger.js', () => ({
 }));
 
 const mockShouldLaunchBrowser = vi.hoisted(() => vi.fn(() => true));
-const mockOpenBrowserSecurely = vi.hoisted(() =>
-  vi.fn(() => Promise.resolve()),
-);
+const mockOpenBrowserSecurely = vi.hoisted(() => vi.fn(() => Promise.resolve()));
 
 vi.mock('@google/gemini-cli-core', () => ({
   debugLogger: {
@@ -151,15 +149,8 @@ describe('devtoolsService', () => {
       expect(mockInitActivityLogger).toHaveBeenCalledWith(config, {
         mode: 'buffer',
       });
-      expect(mockAddNetworkTransport).toHaveBeenCalledWith(
-        config,
-        '127.0.0.1',
-        25417,
-        expect.any(Function),
-      );
-      expect(
-        mockActivityLoggerInstance.enableNetworkLogging,
-      ).toHaveBeenCalled();
+      expect(mockAddNetworkTransport).toHaveBeenCalledWith(config, '127.0.0.1', 25417, expect.any(Function));
+      expect(mockActivityLoggerInstance.enableNetworkLogging).toHaveBeenCalled();
     });
 
     it('F12 short-circuits when startup already connected', async () => {
@@ -219,15 +210,8 @@ describe('devtoolsService', () => {
       const url = await promise;
 
       expect(url).toBe('http://localhost:25417');
-      expect(mockAddNetworkTransport).toHaveBeenCalledWith(
-        config,
-        '127.0.0.1',
-        25417,
-        expect.any(Function),
-      );
-      expect(
-        mockActivityLoggerInstance.enableNetworkLogging,
-      ).toHaveBeenCalled();
+      expect(mockAddNetworkTransport).toHaveBeenCalledWith(config, '127.0.0.1', 25417, expect.any(Function));
+      expect(mockActivityLoggerInstance.enableNetworkLogging).toHaveBeenCalled();
     });
 
     it('connects to existing server if one is found', async () => {
@@ -242,9 +226,7 @@ describe('devtoolsService', () => {
 
       expect(url).toBe('http://localhost:25417');
       expect(mockAddNetworkTransport).toHaveBeenCalled();
-      expect(
-        mockActivityLoggerInstance.enableNetworkLogging,
-      ).toHaveBeenCalled();
+      expect(mockActivityLoggerInstance.enableNetworkLogging).toHaveBeenCalled();
     });
 
     it('deduplicates concurrent calls (returns same promise)', async () => {
@@ -269,9 +251,7 @@ describe('devtoolsService', () => {
 
     it('throws when DevTools server fails to start', async () => {
       const config = createMockConfig();
-      mockDevToolsInstance.start.mockRejectedValue(
-        new Error('MODULE_NOT_FOUND'),
-      );
+      mockDevToolsInstance.start.mockRejectedValue(new Error('MODULE_NOT_FOUND'));
 
       const promise = startDevToolsServer(config);
 
@@ -285,9 +265,7 @@ describe('devtoolsService', () => {
 
     it('allows retry after server start failure', async () => {
       const config = createMockConfig();
-      mockDevToolsInstance.start.mockRejectedValueOnce(
-        new Error('MODULE_NOT_FOUND'),
-      );
+      mockDevToolsInstance.start.mockRejectedValueOnce(new Error('MODULE_NOT_FOUND'));
 
       const promise1 = startDevToolsServer(config);
 
@@ -360,12 +338,7 @@ describe('devtoolsService', () => {
 
       expect(mockDevToolsInstance.stop).toHaveBeenCalled();
       expect(url).toBe('http://localhost:25417');
-      expect(mockAddNetworkTransport).toHaveBeenCalledWith(
-        config,
-        '127.0.0.1',
-        25417,
-        expect.any(Function),
-      );
+      expect(mockAddNetworkTransport).toHaveBeenCalledWith(config, '127.0.0.1', 25417, expect.any(Function));
     });
 
     it('keeps own server when winner is not responding', async () => {
@@ -392,12 +365,7 @@ describe('devtoolsService', () => {
 
       expect(mockDevToolsInstance.stop).not.toHaveBeenCalled();
       expect(url).toBe('http://localhost:25418');
-      expect(mockAddNetworkTransport).toHaveBeenCalledWith(
-        config,
-        '127.0.0.1',
-        25418,
-        expect.any(Function),
-      );
+      expect(mockAddNetworkTransport).toHaveBeenCalledWith(config, '127.0.0.1', 25418, expect.any(Function));
     });
   });
 

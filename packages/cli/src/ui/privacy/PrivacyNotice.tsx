@@ -15,13 +15,7 @@ interface PrivacyNoticeProps {
   config: Config;
 }
 
-const PrivacyNoticeText = ({
-  config,
-  onExit,
-}: {
-  config: Config;
-  onExit: () => void;
-}) => {
+const PrivacyNoticeText = ({ config, onExit }: { config: Config; onExit: () => void }) => {
   const authType = config.getContentGeneratorConfig()?.authType;
 
   switch (authType) {
@@ -36,7 +30,7 @@ const PrivacyNoticeText = ({
 };
 
 export const PrivacyNotice = ({ onExit, config }: PrivacyNoticeProps) => (
-  <Box borderStyle="round" padding={1} flexDirection="column">
+  <Box borderStyle='round' padding={1} flexDirection='column'>
     <PrivacyNoticeText config={config} onExit={onExit} />
   </Box>
 );

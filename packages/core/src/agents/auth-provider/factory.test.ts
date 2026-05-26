@@ -13,10 +13,7 @@ describe('A2AAuthProviderFactory', () => {
   describe('validateAuthConfig', () => {
     describe('when no security schemes required', () => {
       it('should return valid when securitySchemes is undefined', () => {
-        const result = A2AAuthProviderFactory.validateAuthConfig(
-          undefined,
-          undefined,
-        );
+        const result = A2AAuthProviderFactory.validateAuthConfig(undefined, undefined);
         expect(result).toEqual({ valid: true });
       });
 
@@ -30,10 +27,7 @@ describe('A2AAuthProviderFactory', () => {
           type: 'apiKey',
           key: 'test-key',
         };
-        const result = A2AAuthProviderFactory.validateAuthConfig(
-          authConfig,
-          {},
-        );
+        const result = A2AAuthProviderFactory.validateAuthConfig(authConfig, {});
         expect(result).toEqual({ valid: true });
       });
     });
@@ -48,18 +42,13 @@ describe('A2AAuthProviderFactory', () => {
           },
         };
 
-        const result = A2AAuthProviderFactory.validateAuthConfig(
-          undefined,
-          securitySchemes,
-        );
+        const result = A2AAuthProviderFactory.validateAuthConfig(undefined, securitySchemes);
 
         expect(result.valid).toBe(false);
         expect(result.diff).toBeDefined();
         expect(result.diff?.requiredSchemes).toContain('apiKeyAuth');
         expect(result.diff?.configuredType).toBeUndefined();
-        expect(result.diff?.missingConfig).toContain(
-          'Authentication is required but not configured',
-        );
+        expect(result.diff?.missingConfig).toContain('Authentication is required but not configured');
       });
     });
 
@@ -77,10 +66,7 @@ describe('A2AAuthProviderFactory', () => {
           },
         };
 
-        const result = A2AAuthProviderFactory.validateAuthConfig(
-          authConfig,
-          securitySchemes,
-        );
+        const result = A2AAuthProviderFactory.validateAuthConfig(authConfig, securitySchemes);
 
         expect(result).toEqual({ valid: true });
       });
@@ -99,15 +85,10 @@ describe('A2AAuthProviderFactory', () => {
           },
         };
 
-        const result = A2AAuthProviderFactory.validateAuthConfig(
-          authConfig,
-          securitySchemes,
-        );
+        const result = A2AAuthProviderFactory.validateAuthConfig(authConfig, securitySchemes);
 
         expect(result.valid).toBe(false);
-        expect(result.diff?.missingConfig).toContain(
-          "Scheme 'apiKeyAuth' requires apiKey authentication",
-        );
+        expect(result.diff?.missingConfig).toContain("Scheme 'apiKeyAuth' requires apiKey authentication");
       });
     });
 
@@ -125,10 +106,7 @@ describe('A2AAuthProviderFactory', () => {
           },
         };
 
-        const result = A2AAuthProviderFactory.validateAuthConfig(
-          authConfig,
-          securitySchemes,
-        );
+        const result = A2AAuthProviderFactory.validateAuthConfig(authConfig, securitySchemes);
 
         expect(result).toEqual({ valid: true });
       });
@@ -147,10 +125,7 @@ describe('A2AAuthProviderFactory', () => {
           },
         };
 
-        const result = A2AAuthProviderFactory.validateAuthConfig(
-          authConfig,
-          securitySchemes,
-        );
+        const result = A2AAuthProviderFactory.validateAuthConfig(authConfig, securitySchemes);
 
         expect(result).toEqual({ valid: true });
       });
@@ -169,14 +144,11 @@ describe('A2AAuthProviderFactory', () => {
           },
         };
 
-        const result = A2AAuthProviderFactory.validateAuthConfig(
-          authConfig,
-          securitySchemes,
-        );
+        const result = A2AAuthProviderFactory.validateAuthConfig(authConfig, securitySchemes);
 
         expect(result.valid).toBe(false);
         expect(result.diff?.missingConfig).toContain(
-          "Scheme 'bearerAuth' requires HTTP Bearer authentication, but Basic was configured",
+          "Scheme 'bearerAuth' requires HTTP Bearer authentication, but Basic was configured"
         );
       });
 
@@ -191,10 +163,7 @@ describe('A2AAuthProviderFactory', () => {
           },
         };
 
-        const result = A2AAuthProviderFactory.validateAuthConfig(
-          authConfig,
-          securitySchemes,
-        );
+        const result = A2AAuthProviderFactory.validateAuthConfig(authConfig, securitySchemes);
 
         expect(result).toEqual({ valid: true });
       });
@@ -212,10 +181,7 @@ describe('A2AAuthProviderFactory', () => {
           },
         };
 
-        const result = A2AAuthProviderFactory.validateAuthConfig(
-          authConfig,
-          securitySchemes,
-        );
+        const result = A2AAuthProviderFactory.validateAuthConfig(authConfig, securitySchemes);
 
         expect(result).toEqual({ valid: true });
       });
@@ -232,15 +198,10 @@ describe('A2AAuthProviderFactory', () => {
           },
         };
 
-        const result = A2AAuthProviderFactory.validateAuthConfig(
-          authConfig,
-          securitySchemes,
-        );
+        const result = A2AAuthProviderFactory.validateAuthConfig(authConfig, securitySchemes);
 
         expect(result.valid).toBe(false);
-        expect(result.diff?.missingConfig).toContain(
-          "Scheme 'oauth2Auth' requires OAuth 2.0 authentication",
-        );
+        expect(result.diff?.missingConfig).toContain("Scheme 'oauth2Auth' requires OAuth 2.0 authentication");
       });
     });
 
@@ -254,15 +215,11 @@ describe('A2AAuthProviderFactory', () => {
         const securitySchemes: Record<string, SecurityScheme> = {
           oidcAuth: {
             type: 'openIdConnect',
-            openIdConnectUrl:
-              'https://auth.example.com/.well-known/openid-configuration',
+            openIdConnectUrl: 'https://auth.example.com/.well-known/openid-configuration',
           },
         };
 
-        const result = A2AAuthProviderFactory.validateAuthConfig(
-          authConfig,
-          securitySchemes,
-        );
+        const result = A2AAuthProviderFactory.validateAuthConfig(authConfig, securitySchemes);
 
         expect(result).toEqual({ valid: true });
       });
@@ -274,20 +231,14 @@ describe('A2AAuthProviderFactory', () => {
         const securitySchemes: Record<string, SecurityScheme> = {
           oidcAuth: {
             type: 'openIdConnect',
-            openIdConnectUrl:
-              'https://auth.example.com/.well-known/openid-configuration',
+            openIdConnectUrl: 'https://auth.example.com/.well-known/openid-configuration',
           },
         };
 
-        const result = A2AAuthProviderFactory.validateAuthConfig(
-          authConfig,
-          securitySchemes,
-        );
+        const result = A2AAuthProviderFactory.validateAuthConfig(authConfig, securitySchemes);
 
         expect(result.valid).toBe(false);
-        expect(result.diff?.missingConfig).toContain(
-          "Scheme 'oidcAuth' requires OpenID Connect authentication",
-        );
+        expect(result.diff?.missingConfig).toContain("Scheme 'oidcAuth' requires OpenID Connect authentication");
       });
     });
 
@@ -303,14 +254,11 @@ describe('A2AAuthProviderFactory', () => {
           },
         };
 
-        const result = A2AAuthProviderFactory.validateAuthConfig(
-          authConfig,
-          securitySchemes,
-        );
+        const result = A2AAuthProviderFactory.validateAuthConfig(authConfig, securitySchemes);
 
         expect(result.valid).toBe(false);
         expect(result.diff?.missingConfig).toContain(
-          "Scheme 'mtlsAuth' requires mTLS authentication (not yet supported)",
+          "Scheme 'mtlsAuth' requires mTLS authentication (not yet supported)"
         );
       });
     });
@@ -334,10 +282,7 @@ describe('A2AAuthProviderFactory', () => {
           },
         };
 
-        const result = A2AAuthProviderFactory.validateAuthConfig(
-          authConfig,
-          securitySchemes,
-        );
+        const result = A2AAuthProviderFactory.validateAuthConfig(authConfig, securitySchemes);
 
         expect(result).toEqual({ valid: true });
       });
@@ -354,8 +299,7 @@ describe('A2AAuthProviderFactory', () => {
         },
       };
 
-      const result =
-        A2AAuthProviderFactory.describeRequiredAuth(securitySchemes);
+      const result = A2AAuthProviderFactory.describeRequiredAuth(securitySchemes);
 
       expect(result).toBe('API Key (apiKeyAuth): Send X-API-Key in header');
     });
@@ -368,8 +312,7 @@ describe('A2AAuthProviderFactory', () => {
         },
       };
 
-      const result =
-        A2AAuthProviderFactory.describeRequiredAuth(securitySchemes);
+      const result = A2AAuthProviderFactory.describeRequiredAuth(securitySchemes);
 
       expect(result).toBe('HTTP Bearer (bearerAuth)');
     });
@@ -382,8 +325,7 @@ describe('A2AAuthProviderFactory', () => {
         },
       };
 
-      const result =
-        A2AAuthProviderFactory.describeRequiredAuth(securitySchemes);
+      const result = A2AAuthProviderFactory.describeRequiredAuth(securitySchemes);
 
       expect(result).toBe('HTTP Basic (basicAuth)');
     });
@@ -396,8 +338,7 @@ describe('A2AAuthProviderFactory', () => {
         },
       };
 
-      const result =
-        A2AAuthProviderFactory.describeRequiredAuth(securitySchemes);
+      const result = A2AAuthProviderFactory.describeRequiredAuth(securitySchemes);
 
       expect(result).toBe('OAuth 2.0 (oauth2Auth)');
     });
@@ -406,13 +347,11 @@ describe('A2AAuthProviderFactory', () => {
       const securitySchemes: Record<string, SecurityScheme> = {
         oidcAuth: {
           type: 'openIdConnect',
-          openIdConnectUrl:
-            'https://auth.example.com/.well-known/openid-configuration',
+          openIdConnectUrl: 'https://auth.example.com/.well-known/openid-configuration',
         },
       };
 
-      const result =
-        A2AAuthProviderFactory.describeRequiredAuth(securitySchemes);
+      const result = A2AAuthProviderFactory.describeRequiredAuth(securitySchemes);
 
       expect(result).toBe('OpenID Connect (oidcAuth)');
     });
@@ -424,8 +363,7 @@ describe('A2AAuthProviderFactory', () => {
         },
       };
 
-      const result =
-        A2AAuthProviderFactory.describeRequiredAuth(securitySchemes);
+      const result = A2AAuthProviderFactory.describeRequiredAuth(securitySchemes);
 
       expect(result).toBe('Mutual TLS (mtlsAuth)');
     });
@@ -443,12 +381,9 @@ describe('A2AAuthProviderFactory', () => {
         },
       };
 
-      const result =
-        A2AAuthProviderFactory.describeRequiredAuth(securitySchemes);
+      const result = A2AAuthProviderFactory.describeRequiredAuth(securitySchemes);
 
-      expect(result).toBe(
-        'API Key (apiKeyAuth): Send X-API-Key in header OR HTTP Bearer (bearerAuth)',
-      );
+      expect(result).toBe('API Key (apiKeyAuth): Send X-API-Key in header OR HTTP Bearer (bearerAuth)');
     });
   });
 

@@ -111,12 +111,7 @@ export class ModelConfigService {
     model: string | undefined;
     generateContentConfig: GenerateContentConfig;
   } {
-    const {
-      aliases = {},
-      customAliases = {},
-      overrides = [],
-      customOverrides = [],
-    } = this.config || {};
+    const { aliases = {}, customAliases = {}, overrides = [], customOverrides = [] } = this.config || {};
     const allAliases = {
       ...aliases,
       ...customAliases,
@@ -126,20 +121,12 @@ export class ModelConfigService {
     const { aliasChain, baseModel, resolvedConfig } = this.resolveAliasChain(
       context.model,
       allAliases,
-      context.isChatModel,
+      context.isChatModel
     );
 
     const modelToLevel = this.buildModelLevelMap(aliasChain, baseModel);
-    const allOverrides = [
-      ...overrides,
-      ...customOverrides,
-      ...this.runtimeOverrides,
-    ];
-    const matches = this.findMatchingOverrides(
-      allOverrides,
-      context,
-      modelToLevel,
-    );
+    const allOverrides = [...overrides, ...customOverrides, ...this.runtimeOverrides];
+    const matches = this.findMatchingOverrides(allOverrides, context, modelToLevel);
 
     this.sortOverrides(matches);
 
@@ -149,10 +136,7 @@ export class ModelConfigService {
     };
 
     for (const match of matches) {
-      currentConfig = ModelConfigService.merge(
-        currentConfig,
-        match.modelConfig,
-      );
+      currentConfig = ModelConfigService.merge(currentConfig, match.modelConfig);
     }
 
     return {
@@ -164,7 +148,7 @@ export class ModelConfigService {
   private resolveAliasChain(
     requestedModel: string,
     allAliases: Record<string, ModelConfigAlias>,
-    isChatModel?: boolean,
+    isChatModel?: boolean
   ): {
     aliasChain: string[];
     baseModel: string | undefined;
@@ -181,14 +165,10 @@ export class ModelConfigService {
           throw new Error(`Alias "${current}" not found.`);
         }
         if (visited.size >= MAX_ALIAS_CHAIN_DEPTH) {
-          throw new Error(
-            `Alias inheritance chain exceeded maximum depth of ${MAX_ALIAS_CHAIN_DEPTH}.`,
-          );
+          throw new Error(`Alias inheritance chain exceeded maximum depth of ${MAX_ALIAS_CHAIN_DEPTH}.`);
         }
         if (visited.has(current)) {
-          throw new Error(
-            `Circular alias dependency: ${[...visited, current].join(' -> ')}`,
-          );
+          throw new Error(`Circular alias dependency: ${[...visited, current].join(' -> ')}`);
         }
         visited.add(current);
         aliasChain.push(current);
@@ -200,10 +180,7 @@ export class ModelConfigService {
       let resolvedConfig: ModelConfig = {};
       for (const aliasName of reversedChain) {
         const alias = allAliases[aliasName];
-        resolvedConfig = ModelConfigService.merge(
-          resolvedConfig,
-          alias.modelConfig,
-        );
+        resolvedConfig = ModelConfigService.merge(resolvedConfig, alias.modelConfig);
       }
       return {
         aliasChain: reversedChain,
@@ -215,10 +192,7 @@ export class ModelConfigService {
     if (isChatModel) {
       const fallbackAlias = 'chat-base';
       if (allAliases[fallbackAlias]) {
-        const fallbackResolution = this.resolveAliasChain(
-          fallbackAlias,
-          allAliases,
-        );
+        const fallbackResolution = this.resolveAliasChain(fallbackAlias, allAliases);
         return {
           aliasChain: [...fallbackResolution.aliasChain, requestedModel],
           baseModel: requestedModel,
@@ -234,10 +208,7 @@ export class ModelConfigService {
     };
   }
 
-  private buildModelLevelMap(
-    aliasChain: string[],
-    baseModel: string | undefined,
-  ): Map<string, number> {
+  private buildModelLevelMap(aliasChain: string[], baseModel: string | undefined): Map<string, number> {
     const modelToLevel = new Map<string, number>();
     // Global and Model name are both level 0.
     if (baseModel) {
@@ -251,7 +222,7 @@ export class ModelConfigService {
   private findMatchingOverrides(
     overrides: ModelConfigOverride[],
     context: ModelConfigKey,
-    modelToLevel: Map<string, number>,
+    modelToLevel: Map<string, number>
   ): Array<{
     specificity: number;
     level: number;
@@ -291,9 +262,7 @@ export class ModelConfigService {
       .filter((m): m is NonNullable<typeof m> => m !== null);
   }
 
-  private sortOverrides(
-    matches: Array<{ specificity: number; level: number; index: number }>,
-  ): void {
+  private sortOverrides(matches: Array<{ specificity: number; level: number; index: number }>): void {
     matches.sort((a, b) => {
       if (a.level !== b.level) {
         return a.level - b.level;
@@ -310,7 +279,7 @@ export class ModelConfigService {
 
     if (!resolved.model) {
       throw new Error(
-        `Could not resolve a model name for alias "${context.model}". Please ensure the alias chain or a matching override specifies a model.`,
+        `Could not resolve a model name for alias "${context.model}". Please ensure the alias chain or a matching override specifies a model.`
       );
     }
 
@@ -333,28 +302,23 @@ export class ModelConfigService {
   static merge(base: ModelConfig, override: ModelConfig): ModelConfig {
     return {
       model: override.model ?? base.model,
-      generateContentConfig: ModelConfigService.deepMerge(
-        base.generateContentConfig,
-        override.generateContentConfig,
-      ),
+      generateContentConfig: ModelConfigService.deepMerge(base.generateContentConfig, override.generateContentConfig),
     };
   }
 
   static deepMerge(
     config1: GenerateContentConfig | undefined,
-    config2: GenerateContentConfig | undefined,
+    config2: GenerateContentConfig | undefined
   ): GenerateContentConfig {
     return ModelConfigService.genericDeepMerge(
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
       config1 as Record<string, unknown> | undefined,
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-      config2 as Record<string, unknown> | undefined,
+      config2 as Record<string, unknown> | undefined
     ) as GenerateContentConfig;
   }
 
-  private static genericDeepMerge(
-    ...objects: Array<Record<string, unknown> | undefined>
-  ): Record<string, unknown> {
+  private static genericDeepMerge(...objects: Array<Record<string, unknown> | undefined>): Record<string, unknown> {
     return objects.reduce((acc: Record<string, unknown>, obj) => {
       if (!obj) {
         return acc;
@@ -369,10 +333,7 @@ export class ModelConfigService {
         // override the base array.
         // TODO(joshualitt): Consider knobs here, i.e. opt-in to deep merging
         // arrays on a case-by-case basis.
-        if (
-          ModelConfigService.isObject(accValue) &&
-          ModelConfigService.isObject(objValue)
-        ) {
+        if (ModelConfigService.isObject(accValue) && ModelConfigService.isObject(objValue)) {
           acc[key] = ModelConfigService.genericDeepMerge(accValue, objValue);
         } else {
           acc[key] = objValue;

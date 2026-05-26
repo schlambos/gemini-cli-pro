@@ -60,11 +60,7 @@ describe('keyMatchers', () => {
     {
       command: Command.MOVE_LEFT,
       positive: [createKey('left')],
-      negative: [
-        createKey('left', { ctrl: true }),
-        createKey('b'),
-        createKey('b', { ctrl: true }),
-      ],
+      negative: [createKey('left', { ctrl: true }), createKey('b'), createKey('b', { ctrl: true })],
     },
     {
       command: Command.MOVE_RIGHT,
@@ -73,20 +69,12 @@ describe('keyMatchers', () => {
     },
     {
       command: Command.MOVE_WORD_LEFT,
-      positive: [
-        createKey('left', { ctrl: true }),
-        createKey('left', { alt: true }),
-        createKey('b', { alt: true }),
-      ],
+      positive: [createKey('left', { ctrl: true }), createKey('left', { alt: true }), createKey('b', { alt: true })],
       negative: [createKey('left'), createKey('b', { ctrl: true })],
     },
     {
       command: Command.MOVE_WORD_RIGHT,
-      positive: [
-        createKey('right', { ctrl: true }),
-        createKey('right', { alt: true }),
-        createKey('f', { alt: true }),
-      ],
+      positive: [createKey('right', { ctrl: true }), createKey('right', { alt: true }), createKey('f', { alt: true })],
       negative: [createKey('right'), createKey('f', { ctrl: true })],
     },
 
@@ -127,18 +115,12 @@ describe('keyMatchers', () => {
     },
     {
       command: Command.DELETE_WORD_FORWARD,
-      positive: [
-        createKey('delete', { ctrl: true }),
-        createKey('delete', { alt: true }),
-      ],
+      positive: [createKey('delete', { ctrl: true }), createKey('delete', { alt: true })],
       negative: [createKey('delete'), createKey('backspace', { ctrl: true })],
     },
     {
       command: Command.UNDO,
-      positive: [
-        createKey('z', { shift: false, cmd: true }),
-        createKey('z', { shift: false, alt: true }),
-      ],
+      positive: [createKey('z', { shift: false, cmd: true }), createKey('z', { shift: false, alt: true })],
       negative: [
         createKey('z'),
         createKey('z', { shift: true, cmd: true }),
@@ -175,18 +157,12 @@ describe('keyMatchers', () => {
     },
     {
       command: Command.SCROLL_HOME,
-      positive: [
-        createKey('home', { ctrl: true }),
-        createKey('home', { shift: true }),
-      ],
+      positive: [createKey('home', { ctrl: true }), createKey('home', { shift: true })],
       negative: [createKey('end'), createKey('home')],
     },
     {
       command: Command.SCROLL_END,
-      positive: [
-        createKey('end', { ctrl: true }),
-        createKey('end', { shift: true }),
-      ],
+      positive: [createKey('end', { ctrl: true }), createKey('end', { shift: true })],
       negative: [createKey('home'), createKey('end')],
     },
     {
@@ -226,20 +202,12 @@ describe('keyMatchers', () => {
     {
       command: Command.DIALOG_NAVIGATION_UP,
       positive: [createKey('up'), createKey('k')],
-      negative: [
-        createKey('up', { shift: true }),
-        createKey('k', { shift: true }),
-        createKey('p'),
-      ],
+      negative: [createKey('up', { shift: true }), createKey('k', { shift: true }), createKey('p')],
     },
     {
       command: Command.DIALOG_NAVIGATION_DOWN,
       positive: [createKey('down'), createKey('j')],
-      negative: [
-        createKey('down', { shift: true }),
-        createKey('j', { shift: true }),
-        createKey('n'),
-      ],
+      negative: [createKey('down', { shift: true }), createKey('j', { shift: true }), createKey('n')],
     },
 
     // Auto-completion
@@ -295,10 +263,7 @@ describe('keyMatchers', () => {
     {
       command: Command.SHOW_ERROR_DETAILS,
       positive: [createKey('f12')],
-      negative: [
-        createKey('o', { ctrl: true }),
-        createKey('b', { ctrl: true }),
-      ],
+      negative: [createKey('o', { ctrl: true }), createKey('b', { ctrl: true })],
     },
     {
       command: Command.SHOW_FULL_TODOS,
@@ -332,24 +297,13 @@ describe('keyMatchers', () => {
     },
     {
       command: Command.SUSPEND_APP,
-      positive: [
-        createKey('z', { ctrl: true }),
-        createKey('z', { ctrl: true, shift: true }),
-      ],
-      negative: [
-        createKey('z'),
-        createKey('y', { ctrl: true }),
-        createKey('z', { alt: true }),
-      ],
+      positive: [createKey('z', { ctrl: true }), createKey('z', { ctrl: true, shift: true })],
+      negative: [createKey('z'), createKey('y', { ctrl: true }), createKey('z', { alt: true })],
     },
     {
       command: Command.SHOW_MORE_LINES,
       positive: [createKey('o', { ctrl: true })],
-      negative: [
-        createKey('s', { ctrl: true }),
-        createKey('s'),
-        createKey('l', { ctrl: true }),
-      ],
+      negative: [createKey('s', { ctrl: true }), createKey('s'), createKey('l', { ctrl: true })],
     },
 
     // Shell commands
@@ -399,35 +353,19 @@ describe('keyMatchers', () => {
     testCases.forEach(({ command, positive, negative }) => {
       it(`should match ${command} correctly`, () => {
         positive.forEach((key) => {
-          expect(
-            keyMatchers[command](key),
-            `Expected ${command} to match ${JSON.stringify(key)}`,
-          ).toBe(true);
+          expect(keyMatchers[command](key), `Expected ${command} to match ${JSON.stringify(key)}`).toBe(true);
         });
 
         negative.forEach((key) => {
-          expect(
-            keyMatchers[command](key),
-            `Expected ${command} to NOT match ${JSON.stringify(key)}`,
-          ).toBe(false);
+          expect(keyMatchers[command](key), `Expected ${command} to NOT match ${JSON.stringify(key)}`).toBe(false);
         });
       });
     });
 
     it('should properly handle ACCEPT_SUGGESTION_REVERSE_SEARCH cases', () => {
-      expect(
-        keyMatchers[Command.ACCEPT_SUGGESTION_REVERSE_SEARCH](
-          createKey('return', { ctrl: true }),
-        ),
-      ).toBe(false); // ctrl must be false
-      expect(
-        keyMatchers[Command.ACCEPT_SUGGESTION_REVERSE_SEARCH](createKey('tab')),
-      ).toBe(true);
-      expect(
-        keyMatchers[Command.ACCEPT_SUGGESTION_REVERSE_SEARCH](
-          createKey('tab', { ctrl: true }),
-        ),
-      ).toBe(true); // modifiers ignored
+      expect(keyMatchers[Command.ACCEPT_SUGGESTION_REVERSE_SEARCH](createKey('return', { ctrl: true }))).toBe(false); // ctrl must be false
+      expect(keyMatchers[Command.ACCEPT_SUGGESTION_REVERSE_SEARCH](createKey('tab'))).toBe(true);
+      expect(keyMatchers[Command.ACCEPT_SUGGESTION_REVERSE_SEARCH](createKey('tab', { ctrl: true }))).toBe(true); // modifiers ignored
     });
   });
 
@@ -440,13 +378,9 @@ describe('keyMatchers', () => {
 
       const customMatchers = createKeyMatchers(customConfig);
 
-      expect(customMatchers[Command.HOME](createKey('h', { ctrl: true }))).toBe(
-        true,
-      );
+      expect(customMatchers[Command.HOME](createKey('h', { ctrl: true }))).toBe(true);
       expect(customMatchers[Command.HOME](createKey('0'))).toBe(true);
-      expect(customMatchers[Command.HOME](createKey('a', { ctrl: true }))).toBe(
-        false,
-      );
+      expect(customMatchers[Command.HOME](createKey('a', { ctrl: true }))).toBe(false);
     });
 
     it('should support multiple key bindings for same command', () => {
@@ -472,9 +406,7 @@ describe('keyMatchers', () => {
       };
 
       const matchers = createKeyMatchers(config);
-      expect(matchers[Command.HOME](createKey('a', { ctrl: true }))).toBe(
-        false,
-      );
+      expect(matchers[Command.HOME](createKey('a', { ctrl: true }))).toBe(false);
     });
   });
 });

@@ -9,21 +9,8 @@ import type { EventEmitter } from 'node:events';
 import { render } from '../../test-utils/render.js';
 import { waitFor } from '../../test-utils/async.js';
 import { ConfigInitDisplay } from './ConfigInitDisplay.js';
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  afterEach,
-  type MockInstance,
-} from 'vitest';
-import {
-  CoreEvent,
-  MCPServerStatus,
-  type McpClient,
-  coreEvents,
-} from '@google/gemini-cli-core';
+import { describe, it, expect, vi, beforeEach, afterEach, type MockInstance } from 'vitest';
+import { CoreEvent, MCPServerStatus, type McpClient, coreEvents } from '@google/gemini-cli-core';
 import { Text } from 'ink';
 
 // Mock GeminiSpinner

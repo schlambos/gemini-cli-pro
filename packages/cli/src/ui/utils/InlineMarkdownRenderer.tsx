@@ -22,10 +22,7 @@ interface RenderInlineProps {
   defaultColor?: string;
 }
 
-const RenderInlineInternal: React.FC<RenderInlineProps> = ({
-  text,
-  defaultColor,
-}) => {
+const RenderInlineInternal: React.FC<RenderInlineProps> = ({ text, defaultColor }) => {
   const baseColor = defaultColor ?? theme.text.primary;
   // Early return for plain text without markdown or URLs
   if (!/[*_~`<[https?:]/.test(text)) {
@@ -34,8 +31,7 @@ const RenderInlineInternal: React.FC<RenderInlineProps> = ({
 
   const nodes: React.ReactNode[] = [];
   let lastIndex = 0;
-  const inlineRegex =
-    /(\*\*.*?\*\*|\*.*?\*|_.*?_|~~.*?~~|\[.*?\]\(.*?\)|`+.+?`+|<u>.*?<\/u>|https?:\/\/\S+)/g;
+  const inlineRegex = /(\*\*.*?\*\*|\*.*?\*|_.*?_|~~.*?~~|\[.*?\]\(.*?\)|`+.+?`+|<u>.*?<\/u>|https?:\/\/\S+)/g;
   let match;
 
   while ((match = inlineRegex.exec(text)) !== null) {
@@ -43,7 +39,7 @@ const RenderInlineInternal: React.FC<RenderInlineProps> = ({
       nodes.push(
         <Text key={`t-${lastIndex}`} color={baseColor}>
           {text.slice(lastIndex, match.index)}
-        </Text>,
+        </Text>
       );
     }
 
@@ -52,11 +48,7 @@ const RenderInlineInternal: React.FC<RenderInlineProps> = ({
     const key = `m-${match.index}`;
 
     try {
-      if (
-        fullMatch.startsWith('**') &&
-        fullMatch.endsWith('**') &&
-        fullMatch.length > BOLD_MARKER_LENGTH * 2
-      ) {
+      if (fullMatch.startsWith('**') && fullMatch.endsWith('**') && fullMatch.length > BOLD_MARKER_LENGTH * 2) {
         renderedNode = (
           <Text key={key} bold color={baseColor}>
             {fullMatch.slice(BOLD_MARKER_LENGTH, -BOLD_MARKER_LENGTH)}
@@ -67,13 +59,9 @@ const RenderInlineInternal: React.FC<RenderInlineProps> = ({
         ((fullMatch.startsWith('*') && fullMatch.endsWith('*')) ||
           (fullMatch.startsWith('_') && fullMatch.endsWith('_'))) &&
         !/\w/.test(text.substring(match.index - 1, match.index)) &&
-        !/\w/.test(
-          text.substring(inlineRegex.lastIndex, inlineRegex.lastIndex + 1),
-        ) &&
+        !/\w/.test(text.substring(inlineRegex.lastIndex, inlineRegex.lastIndex + 1)) &&
         !/\S[./\\]/.test(text.substring(match.index - 2, match.index)) &&
-        !/[./\\]\S/.test(
-          text.substring(inlineRegex.lastIndex, inlineRegex.lastIndex + 2),
-        )
+        !/[./\\]\S/.test(text.substring(inlineRegex.lastIndex, inlineRegex.lastIndex + 2))
       ) {
         renderedNode = (
           <Text key={key} italic color={baseColor}>
@@ -87,17 +75,10 @@ const RenderInlineInternal: React.FC<RenderInlineProps> = ({
       ) {
         renderedNode = (
           <Text key={key} strikethrough color={baseColor}>
-            {fullMatch.slice(
-              STRIKETHROUGH_MARKER_LENGTH,
-              -STRIKETHROUGH_MARKER_LENGTH,
-            )}
+            {fullMatch.slice(STRIKETHROUGH_MARKER_LENGTH, -STRIKETHROUGH_MARKER_LENGTH)}
           </Text>
         );
-      } else if (
-        fullMatch.startsWith('`') &&
-        fullMatch.endsWith('`') &&
-        fullMatch.length > INLINE_CODE_MARKER_LENGTH
-      ) {
+      } else if (fullMatch.startsWith('`') && fullMatch.endsWith('`') && fullMatch.length > INLINE_CODE_MARKER_LENGTH) {
         const codeMatch = fullMatch.match(/^(`+)(.+?)\1$/s);
         if (codeMatch && codeMatch[2]) {
           renderedNode = (
@@ -106,11 +87,7 @@ const RenderInlineInternal: React.FC<RenderInlineProps> = ({
             </Text>
           );
         }
-      } else if (
-        fullMatch.startsWith('[') &&
-        fullMatch.includes('](') &&
-        fullMatch.endsWith(')')
-      ) {
+      } else if (fullMatch.startsWith('[') && fullMatch.includes('](') && fullMatch.endsWith(')')) {
         const linkMatch = fullMatch.match(/\[(.*?)\]\((.*?)\)/);
         if (linkMatch) {
           const linkText = linkMatch[1];
@@ -125,15 +102,11 @@ const RenderInlineInternal: React.FC<RenderInlineProps> = ({
       } else if (
         fullMatch.startsWith('<u>') &&
         fullMatch.endsWith('</u>') &&
-        fullMatch.length >
-          UNDERLINE_TAG_START_LENGTH + UNDERLINE_TAG_END_LENGTH - 1 // -1 because length is compared to combined length of start and end tags
+        fullMatch.length > UNDERLINE_TAG_START_LENGTH + UNDERLINE_TAG_END_LENGTH - 1 // -1 because length is compared to combined length of start and end tags
       ) {
         renderedNode = (
           <Text key={key} underline color={baseColor}>
-            {fullMatch.slice(
-              UNDERLINE_TAG_START_LENGTH,
-              -UNDERLINE_TAG_END_LENGTH,
-            )}
+            {fullMatch.slice(UNDERLINE_TAG_START_LENGTH, -UNDERLINE_TAG_END_LENGTH)}
           </Text>
         );
       } else if (fullMatch.match(/^https?:\/\//)) {
@@ -153,7 +126,7 @@ const RenderInlineInternal: React.FC<RenderInlineProps> = ({
         <Text key={key} color={baseColor}>
           {fullMatch}
         </Text>
-      ),
+      )
     );
     lastIndex = inlineRegex.lastIndex;
   }
@@ -162,7 +135,7 @@ const RenderInlineInternal: React.FC<RenderInlineProps> = ({
     nodes.push(
       <Text key={`t-${lastIndex}`} color={baseColor}>
         {text.slice(lastIndex)}
-      </Text>,
+      </Text>
     );
   }
 

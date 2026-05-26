@@ -4,11 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  SettingScope,
-  isLoadableSettingScope,
-  type LoadedSettings,
-} from '../config/settings.js';
+import { SettingScope, isLoadableSettingScope, type LoadedSettings } from '../config/settings.js';
 
 export interface ModifiedScope {
   scope: SettingScope;
@@ -35,10 +31,7 @@ export interface SkillActionResult {
 /**
  * Enables a skill by removing it from all writable disabled lists (User and Workspace).
  */
-export function enableSkill(
-  settings: LoadedSettings,
-  skillName: string,
-): SkillActionResult {
+export function enableSkill(settings: LoadedSettings, skillName: string): SkillActionResult {
   const writableScopes = [SettingScope.Workspace, SettingScope.User];
   const foundInDisabledScopes: ModifiedScope[] = [];
   const alreadyEnabledScopes: ModifiedScope[] = [];
@@ -68,11 +61,8 @@ export function enableSkill(
   const modifiedScopes: ModifiedScope[] = [];
   for (const { scope, path } of foundInDisabledScopes) {
     if (isLoadableSettingScope(scope)) {
-      const currentScopeDisabled =
-        settings.forScope(scope).settings.skills?.disabled ?? [];
-      const newDisabled = currentScopeDisabled.filter(
-        (name) => name !== skillName,
-      );
+      const currentScopeDisabled = settings.forScope(scope).settings.skills?.disabled ?? [];
+      const newDisabled = currentScopeDisabled.filter((name) => name !== skillName);
       settings.setValue(scope, 'skills.disabled', newDisabled);
       modifiedScopes.push({ scope, path });
     }
@@ -90,11 +80,7 @@ export function enableSkill(
 /**
  * Disables a skill by adding it to the disabled list in the specified scope.
  */
-export function disableSkill(
-  settings: LoadedSettings,
-  skillName: string,
-  scope: SettingScope,
-): SkillActionResult {
+export function disableSkill(settings: LoadedSettings, skillName: string, scope: SettingScope): SkillActionResult {
   if (!isLoadableSettingScope(scope)) {
     return {
       status: 'error',
@@ -107,8 +93,7 @@ export function disableSkill(
   }
 
   const scopePath = settings.forScope(scope).path;
-  const currentScopeDisabled =
-    settings.forScope(scope).settings.skills?.disabled ?? [];
+  const currentScopeDisabled = settings.forScope(scope).settings.skills?.disabled ?? [];
 
   if (currentScopeDisabled.includes(skillName)) {
     return {
@@ -121,15 +106,11 @@ export function disableSkill(
   }
 
   // Check if it's already disabled in the other writable scope
-  const otherScope =
-    scope === SettingScope.Workspace
-      ? SettingScope.User
-      : SettingScope.Workspace;
+  const otherScope = scope === SettingScope.Workspace ? SettingScope.User : SettingScope.Workspace;
   const alreadyDisabledInOther: ModifiedScope[] = [];
 
   if (isLoadableSettingScope(otherScope)) {
-    const otherScopeDisabled =
-      settings.forScope(otherScope).settings.skills?.disabled;
+    const otherScopeDisabled = settings.forScope(otherScope).settings.skills?.disabled;
     if (otherScopeDisabled?.includes(skillName)) {
       alreadyDisabledInOther.push({
         scope: otherScope,

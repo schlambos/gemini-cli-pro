@@ -11,8 +11,7 @@ export function performInit(doesGeminiMdExist: boolean): CommandActionReturn {
     return {
       type: 'message',
       messageType: 'info',
-      content:
-        'A GEMINI.md file already exists in this directory. No changes were made.',
+      content: 'A GEMINI.md file already exists in this directory. No changes were made.',
     };
   }
 

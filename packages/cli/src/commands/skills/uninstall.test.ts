@@ -28,9 +28,7 @@ describe('skill uninstall command', () => {
   describe('uninstallCommand', () => {
     it('should have correct command and describe', () => {
       expect(uninstallCommand.command).toBe('uninstall <name> [--scope]');
-      expect(uninstallCommand.describe).toBe(
-        'Uninstalls an agent skill by name.',
-      );
+      expect(uninstallCommand.describe).toBe('Uninstalls an agent skill by name.');
     });
   });
 
@@ -45,12 +43,8 @@ describe('skill uninstall command', () => {
     });
 
     expect(mockUninstallSkill).toHaveBeenCalledWith('test-skill', 'user');
-    expect(debugLogger.log).toHaveBeenCalledWith(
-      expect.stringContaining('Successfully uninstalled skill: test-skill'),
-    );
-    expect(debugLogger.log).toHaveBeenCalledWith(
-      expect.stringContaining('location: /mock/user/skills/test-skill'),
-    );
+    expect(debugLogger.log).toHaveBeenCalledWith(expect.stringContaining('Successfully uninstalled skill: test-skill'));
+    expect(debugLogger.log).toHaveBeenCalledWith(expect.stringContaining('location: /mock/user/skills/test-skill'));
   });
 
   it('should call uninstallSkill with correct arguments for workspace scope', async () => {
@@ -71,9 +65,7 @@ describe('skill uninstall command', () => {
 
     await handleUninstall({ name: 'test-skill' });
 
-    expect(debugLogger.error).toHaveBeenCalledWith(
-      'Skill "test-skill" is not installed in the user scope.',
-    );
+    expect(debugLogger.error).toHaveBeenCalledWith('Skill "test-skill" is not installed in the user scope.');
   });
 
   it('should handle errors gracefully', async () => {

@@ -27,10 +27,7 @@ beforeEach(() => {
   actWarnings = [];
   consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation((...args) => {
     const firstArg = args[0];
-    if (
-      typeof firstArg === 'string' &&
-      firstArg.includes('was not wrapped in act(...)')
-    ) {
+    if (typeof firstArg === 'string' && firstArg.includes('was not wrapped in act(...)')) {
       const stackLines = (new Error().stack || '').split('\n');
       let lastReactFrameIndex = -1;
 
@@ -62,9 +59,7 @@ afterEach(() => {
   vi.unstubAllEnvs();
 
   if (actWarnings.length > 0) {
-    const messages = actWarnings
-      .map(({ message, stack }) => `${message}\n${stack}`)
-      .join('\n\n');
+    const messages = actWarnings.map(({ message, stack }) => `${message}\n${stack}`).join('\n\n');
     throw new Error(`Failing test due to "act(...)" warnings:\n${messages}`);
   }
 });

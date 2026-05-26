@@ -54,8 +54,7 @@ describe('initCommand', () => {
     expect(result).toEqual({
       type: 'message',
       messageType: 'info',
-      content:
-        'A GEMINI.md file already exists in this directory. No changes were made.',
+      content: 'A GEMINI.md file already exists in this directory. No changes were made.',
     });
     // Assert: Ensure no file was written
     expect(fs.writeFileSync).not.toHaveBeenCalled();
@@ -66,10 +65,7 @@ describe('initCommand', () => {
     vi.mocked(fs.existsSync).mockReturnValue(false);
 
     // Act: Run the command's action
-    const result = (await initCommand.action!(
-      mockContext,
-      '',
-    )) as SubmitPromptActionReturn;
+    const result = (await initCommand.action!(mockContext, '')) as SubmitPromptActionReturn;
 
     // Assert: Check that writeFileSync was called correctly
     expect(fs.writeFileSync).toHaveBeenCalledWith(geminiMdPath, '', 'utf8');
@@ -80,14 +76,12 @@ describe('initCommand', () => {
         type: 'info',
         text: 'Empty GEMINI.md created. Now analyzing the project to populate it.',
       },
-      expect.any(Number),
+      expect.any(Number)
     );
 
     // Assert: Check that the correct prompt is submitted
     expect(result.type).toBe('submit_prompt');
-    expect(result.content).toContain(
-      'You are an AI agent that brings the power of Gemini',
-    );
+    expect(result.content).toContain('You are an AI agent that brings the power of Gemini');
   });
 
   it('should return an error if config is not available', async () => {

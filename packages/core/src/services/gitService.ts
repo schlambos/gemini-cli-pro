@@ -30,7 +30,7 @@ export class GitService {
     const gitAvailable = await GitService.verifyGitAvailability();
     if (!gitAvailable) {
       throw new Error(
-        'Checkpointing is enabled, but Git is not installed. Please install Git or disable checkpointing to continue.',
+        'Checkpointing is enabled, but Git is not installed. Please install Git or disable checkpointing to continue.'
       );
     }
     await this.storage.initialize();
@@ -38,7 +38,7 @@ export class GitService {
       await this.setupShadowGitRepository();
     } catch (error) {
       throw new Error(
-        `Failed to initialize checkpointing: ${error instanceof Error ? error.message : 'Unknown error'}. Please check that Git is working properly or disable checkpointing.`,
+        `Failed to initialize checkpointing: ${error instanceof Error ? error.message : 'Unknown error'}. Please check that Git is working properly or disable checkpointing.`
       );
     }
   }
@@ -88,7 +88,7 @@ export class GitService {
       // If checkIsRepo fails (e.g., on certain Git versions like macOS 2.39.5),
       // log the error and assume repo is not defined, then proceed with initialization
       debugLogger.debug(
-        `checkIsRepo failed, will initialize repository: ${error instanceof Error ? error.message : String(error)}`,
+        `checkIsRepo failed, will initialize repository: ${error instanceof Error ? error.message : String(error)}`
       );
     }
 
@@ -144,7 +144,7 @@ export class GitService {
       return commitResult.commit;
     } catch (error) {
       throw new Error(
-        `Failed to create checkpoint snapshot: ${error instanceof Error ? error.message : 'Unknown error'}. Checkpointing may not be working properly.`,
+        `Failed to create checkpoint snapshot: ${error instanceof Error ? error.message : 'Unknown error'}. Checkpointing may not be working properly.`
       );
     }
   }

@@ -84,12 +84,8 @@ describe('ActivateSkillTool', () => {
       isBuiltin: true,
       body: 'Built-in instructions',
     };
-    vi.mocked(mockConfig.getSkillManager().getSkill).mockReturnValue(
-      builtinSkill,
-    );
-    vi.mocked(mockConfig.getSkillManager().getSkills).mockReturnValue([
-      builtinSkill,
-    ]);
+    vi.mocked(mockConfig.getSkillManager().getSkill).mockReturnValue(builtinSkill);
+    vi.mocked(mockConfig.getSkillManager().getSkills).mockReturnValue([builtinSkill]);
 
     const params = { name: 'builtin-skill' };
     const toolWithBuiltin = new ActivateSkillTool(mockConfig, mockMessageBus);
@@ -109,12 +105,8 @@ describe('ActivateSkillTool', () => {
     const invocation = tool.build(params);
     const result = await invocation.execute(new AbortController().signal);
 
-    expect(mockConfig.getSkillManager().activateSkill).toHaveBeenCalledWith(
-      'test-skill',
-    );
-    expect(mockConfig.getWorkspaceContext().addDirectory).toHaveBeenCalledWith(
-      '/path/to/test-skill',
-    );
+    expect(mockConfig.getSkillManager().activateSkill).toHaveBeenCalledWith('test-skill');
+    expect(mockConfig.getWorkspaceContext().addDirectory).toHaveBeenCalledWith('/path/to/test-skill');
     expect(result.llmContent).toContain('<activated_skill name="test-skill">');
     expect(result.llmContent).toContain('<instructions>');
     expect(result.llmContent).toContain('Skill instructions content.');
@@ -143,8 +135,6 @@ describe('ActivateSkillTool', () => {
   });
 
   it('should validate that name is provided', () => {
-    expect(() =>
-      tool.build({ name: '' } as unknown as { name: string }),
-    ).toThrow();
+    expect(() => tool.build({ name: '' } as unknown as { name: string })).toThrow();
   });
 });

@@ -12,8 +12,7 @@ import * as fs from 'node:fs';
 import * as fsPromises from 'node:fs/promises';
 
 vi.mock('@google/gemini-cli-core', async (importOriginal) => {
-  const original =
-    await importOriginal<typeof import('@google/gemini-cli-core')>();
+  const original = await importOriginal<typeof import('@google/gemini-cli-core')>();
   return {
     ...original,
     homedir: () => mockHomeDir,
@@ -25,8 +24,7 @@ vi.mock('@google/gemini-cli-core', async (importOriginal) => {
   };
 });
 
-const mockHomeDir =
-  process.platform === 'win32' ? 'C:\\Users\\testuser' : '/home/testuser';
+const mockHomeDir = process.platform === 'win32' ? 'C:\\Users\\testuser' : '/home/testuser';
 
 vi.mock('node:os', async (importOriginal) => {
   const original = await importOriginal<typeof osActual>();
@@ -119,7 +117,7 @@ describe('directoryUtils', () => {
           { name: 'docs', isDirectory: () => true },
           { name: 'src', isDirectory: () => true },
           { name: 'file.txt', isDirectory: () => false },
-        ]) as unknown as fs.Dir,
+        ]) as unknown as fs.Dir
       );
 
       const suggestions = await getDirectorySuggestions('');
@@ -135,7 +133,7 @@ describe('directoryUtils', () => {
         createMockDir([
           { name: 'docs', isDirectory: () => true },
           { name: 'src', isDirectory: () => true },
-        ]) as unknown as fs.Dir,
+        ]) as unknown as fs.Dir
       );
 
       const suggestions = await getDirectorySuggestions('d');
@@ -148,9 +146,7 @@ describe('directoryUtils', () => {
         isDirectory: () => true,
       } as fs.Stats);
       vi.mocked(fsPromises.opendir).mockResolvedValue(
-        createMockDir([
-          { name: 'sub', isDirectory: () => true },
-        ]) as unknown as fs.Dir,
+        createMockDir([{ name: 'sub', isDirectory: () => true }]) as unknown as fs.Dir
       );
 
       const suggestions = await getDirectorySuggestions('docs/');
@@ -163,9 +159,7 @@ describe('directoryUtils', () => {
         isDirectory: () => true,
       } as fs.Stats);
       vi.mocked(fsPromises.opendir).mockResolvedValue(
-        createMockDir([
-          { name: 'Downloads', isDirectory: () => true },
-        ]) as unknown as fs.Dir,
+        createMockDir([{ name: 'Downloads', isDirectory: () => true }]) as unknown as fs.Dir
       );
 
       const suggestions = await getDirectorySuggestions('~/');
@@ -178,9 +172,7 @@ describe('directoryUtils', () => {
         isDirectory: () => true,
       } as fs.Stats);
       vi.mocked(fsPromises.opendir).mockResolvedValue(
-        createMockDir([
-          { name: 'Downloads', isDirectory: () => true },
-        ]) as unknown as fs.Dir,
+        createMockDir([{ name: 'Downloads', isDirectory: () => true }]) as unknown as fs.Dir
       );
 
       const suggestions = await getDirectorySuggestions('~/Down');
@@ -193,9 +185,7 @@ describe('directoryUtils', () => {
         isDirectory: () => true,
       } as fs.Stats);
       vi.mocked(fsPromises.opendir).mockResolvedValue(
-        createMockDir([
-          { name: 'other-project', isDirectory: () => true },
-        ]) as unknown as fs.Dir,
+        createMockDir([{ name: 'other-project', isDirectory: () => true }]) as unknown as fs.Dir
       );
 
       const suggestions = await getDirectorySuggestions('../');
@@ -211,7 +201,7 @@ describe('directoryUtils', () => {
         createMockDir([
           { name: '.git', isDirectory: () => true },
           { name: 'src', isDirectory: () => true },
-        ]) as unknown as fs.Dir,
+        ]) as unknown as fs.Dir
       );
 
       const suggestions = await getDirectorySuggestions('');
@@ -229,7 +219,7 @@ describe('directoryUtils', () => {
           { name: '.github', isDirectory: () => true },
           { name: '.vscode', isDirectory: () => true },
           { name: 'src', isDirectory: () => true },
-        ]) as unknown as fs.Dir,
+        ]) as unknown as fs.Dir
       );
 
       const suggestions = await getDirectorySuggestions('.g');
@@ -254,9 +244,7 @@ describe('directoryUtils', () => {
         isDirectory: () => true,
       }));
 
-      vi.mocked(fsPromises.opendir).mockResolvedValue(
-        createMockDir(manyDirs) as unknown as fs.Dir,
-      );
+      vi.mocked(fsPromises.opendir).mockResolvedValue(createMockDir(manyDirs) as unknown as fs.Dir);
 
       const suggestions = await getDirectorySuggestions('');
       expect(suggestions).toHaveLength(50);
@@ -275,9 +263,7 @@ describe('directoryUtils', () => {
       }));
 
       const mockDir = createMockDir(manyDirs);
-      vi.mocked(fsPromises.opendir).mockResolvedValue(
-        mockDir as unknown as fs.Dir,
-      );
+      vi.mocked(fsPromises.opendir).mockResolvedValue(mockDir as unknown as fs.Dir);
 
       await getDirectorySuggestions('');
 
@@ -286,37 +272,32 @@ describe('directoryUtils', () => {
     });
   });
 
-  describe.skipIf(process.platform !== 'win32')(
-    'getDirectorySuggestions (Windows)',
-    () => {
-      it('should handle %userprofile% expansion', async () => {
-        vi.mocked(fs.existsSync).mockReturnValue(true);
-        vi.mocked(fs.statSync).mockReturnValue({
-          isDirectory: () => true,
-        } as fs.Stats);
-        vi.mocked(fsPromises.opendir).mockResolvedValue(
-          createMockDir([
-            { name: 'Documents', isDirectory: () => true },
-            { name: 'Downloads', isDirectory: () => true },
-          ]) as unknown as fs.Dir,
-        );
+  describe.skipIf(process.platform !== 'win32')('getDirectorySuggestions (Windows)', () => {
+    it('should handle %userprofile% expansion', async () => {
+      vi.mocked(fs.existsSync).mockReturnValue(true);
+      vi.mocked(fs.statSync).mockReturnValue({
+        isDirectory: () => true,
+      } as fs.Stats);
+      vi.mocked(fsPromises.opendir).mockResolvedValue(
+        createMockDir([
+          { name: 'Documents', isDirectory: () => true },
+          { name: 'Downloads', isDirectory: () => true },
+        ]) as unknown as fs.Dir
+      );
 
-        expect(await getDirectorySuggestions('%userprofile%\\')).toEqual([
-          `%userprofile%\\Documents${path.sep}`,
-          `%userprofile%\\Downloads${path.sep}`,
-        ]);
+      expect(await getDirectorySuggestions('%userprofile%\\')).toEqual([
+        `%userprofile%\\Documents${path.sep}`,
+        `%userprofile%\\Downloads${path.sep}`,
+      ]);
 
-        vi.mocked(fsPromises.opendir).mockResolvedValue(
-          createMockDir([
-            { name: 'Documents', isDirectory: () => true },
-            { name: 'Downloads', isDirectory: () => true },
-          ]) as unknown as fs.Dir,
-        );
+      vi.mocked(fsPromises.opendir).mockResolvedValue(
+        createMockDir([
+          { name: 'Documents', isDirectory: () => true },
+          { name: 'Downloads', isDirectory: () => true },
+        ]) as unknown as fs.Dir
+      );
 
-        expect(await getDirectorySuggestions('%userprofile%\\Doc')).toEqual([
-          `%userprofile%\\Documents${path.sep}`,
-        ]);
-      });
-    },
-  );
+      expect(await getDirectorySuggestions('%userprofile%\\Doc')).toEqual([`%userprofile%\\Documents${path.sep}`]);
+    });
+  });
 });

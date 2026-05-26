@@ -8,17 +8,9 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { CoderAgentEvent, type AgentSettings } from '../types.js';
 import { performInit } from '@google/gemini-cli-core';
-import type {
-  Command,
-  CommandContext,
-  CommandExecutionResponse,
-} from './types.js';
+import type { Command, CommandContext, CommandExecutionResponse } from './types.js';
 import type { CoderAgentExecutor } from '../agent/executor.js';
-import type {
-  ExecutionEventBus,
-  RequestContext,
-  AgentExecutionEvent,
-} from '@a2a-js/sdk/server';
+import type { ExecutionEventBus, RequestContext, AgentExecutionEvent } from '@a2a-js/sdk/server';
 import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../utils/logger.js';
 
@@ -33,13 +25,11 @@ export class InitCommand implements Command {
     context: CommandContext,
     eventBus: ExecutionEventBus,
     taskId: string,
-    contextId: string,
+    contextId: string
   ): CommandExecutionResponse {
     const statusState = result.messageType === 'error' ? 'failed' : 'completed';
     const eventType =
-      result.messageType === 'error'
-        ? CoderAgentEvent.StateChangeEvent
-        : CoderAgentEvent.TextContentEvent;
+      result.messageType === 'error' ? CoderAgentEvent.StateChangeEvent : CoderAgentEvent.TextContentEvent;
 
     const event: AgentExecutionEvent = {
       kind: 'status-update',
@@ -78,7 +68,7 @@ export class InitCommand implements Command {
     geminiMdPath: string,
     eventBus: ExecutionEventBus,
     taskId: string,
-    contextId: string,
+    contextId: string
   ): Promise<CommandExecutionResponse> {
     fs.writeFileSync(geminiMdPath, '', 'utf8');
 
@@ -124,10 +114,7 @@ export class InitCommand implements Command {
     };
   }
 
-  async execute(
-    context: CommandContext,
-    _args: string[] = [],
-  ): Promise<CommandExecutionResponse> {
+  async execute(context: CommandContext, _args: string[] = []): Promise<CommandExecutionResponse> {
     if (!context.eventBus) {
       return {
         name: this.name,
@@ -135,10 +122,7 @@ export class InitCommand implements Command {
       };
     }
 
-    const geminiMdPath = path.join(
-      process.env['CODER_AGENT_WORKSPACE_PATH']!,
-      'GEMINI.md',
-    );
+    const geminiMdPath = path.join(process.env['CODER_AGENT_WORKSPACE_PATH']!, 'GEMINI.md');
     const result = performInit(fs.existsSync(geminiMdPath));
 
     const taskId = uuidv4();
@@ -146,22 +130,9 @@ export class InitCommand implements Command {
 
     switch (result.type) {
       case 'message':
-        return this.handleMessageResult(
-          result,
-          context,
-          context.eventBus,
-          taskId,
-          contextId,
-        );
+        return this.handleMessageResult(result, context, context.eventBus, taskId, contextId);
       case 'submit_prompt':
-        return this.handleSubmitPromptResult(
-          result,
-          context,
-          geminiMdPath,
-          context.eventBus,
-          taskId,
-          contextId,
-        );
+        return this.handleSubmitPromptResult(result, context, geminiMdPath, context.eventBus, taskId, contextId);
       default:
         throw new Error('Unknown result type from performInit');
     }

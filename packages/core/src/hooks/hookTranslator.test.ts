@@ -12,12 +12,7 @@ import {
   type LLMResponse,
   type HookToolConfig,
 } from './hookTranslator.js';
-import type {
-  GenerateContentParameters,
-  GenerateContentResponse,
-  ToolConfig,
-  ContentListUnion,
-} from '@google/genai';
+import type { GenerateContentParameters, GenerateContentResponse, ToolConfig, ContentListUnion } from '@google/genai';
 
 describe('HookTranslator', () => {
   let translator: HookTranslatorGenAIv1;
@@ -185,9 +180,7 @@ describe('HookTranslator', () => {
 
       expect(sdkResponse.text).toBe('Hello response');
       expect(sdkResponse.candidates).toHaveLength(1);
-      expect(sdkResponse.candidates?.[0]?.content?.parts?.[0]?.text).toBe(
-        'Hello response',
-      );
+      expect(sdkResponse.candidates?.[0]?.content?.parts?.[0]?.text).toBe('Hello response');
     });
   });
 

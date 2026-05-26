@@ -59,10 +59,7 @@ describe('experiments with GEMINI_EXP', () => {
     const { getExperiments } = await import('./experiments.js');
     const experiments = await getExperiments(mockServer);
 
-    expect(fs.promises.readFile).toHaveBeenCalledWith(
-      '/tmp/experiments.json',
-      'utf8',
-    );
+    expect(fs.promises.readFile).toHaveBeenCalledWith('/tmp/experiments.json', 'utf8');
     expect(experiments.flags[111]).toEqual({
       flagId: 111,
       boolValue: true,
@@ -73,22 +70,16 @@ describe('experiments with GEMINI_EXP', () => {
 
   it('should fall back to server if reading file fails', async () => {
     process.env['GEMINI_EXP'] = '/tmp/missing.json';
-    vi.mocked(fs.promises.readFile).mockRejectedValue(
-      new Error('File not found'),
-    );
+    vi.mocked(fs.promises.readFile).mockRejectedValue(new Error('File not found'));
 
     // Mock server response
     const mockApiResponse = {
       flags: [{ flagId: 222, boolValue: true }],
       experimentIds: [111],
     };
-    vi.mocked(mockServer.listExperiments).mockResolvedValue(
-      mockApiResponse as ListExperimentsResponse,
-    );
+    vi.mocked(mockServer.listExperiments).mockResolvedValue(mockApiResponse as ListExperimentsResponse);
     const { getClientMetadata } = await import('./client_metadata.js');
-    vi.mocked(getClientMetadata).mockResolvedValue(
-      {} as unknown as ClientMetadata,
-    );
+    vi.mocked(getClientMetadata).mockResolvedValue({} as unknown as ClientMetadata);
 
     const { getExperiments } = await import('./experiments.js');
     const experiments = await getExperiments(mockServer);
@@ -134,13 +125,9 @@ describe('experiments with GEMINI_EXP', () => {
       flags: [{ flagId: 444, boolValue: true }],
       experimentIds: [555],
     };
-    vi.mocked(mockServer.listExperiments).mockResolvedValue(
-      mockApiResponse as ListExperimentsResponse,
-    );
+    vi.mocked(mockServer.listExperiments).mockResolvedValue(mockApiResponse as ListExperimentsResponse);
     const { getClientMetadata } = await import('./client_metadata.js');
-    vi.mocked(getClientMetadata).mockResolvedValue(
-      {} as unknown as ClientMetadata,
-    );
+    vi.mocked(getClientMetadata).mockResolvedValue({} as unknown as ClientMetadata);
 
     const { getExperiments } = await import('./experiments.js');
     const experiments = await getExperiments(mockServer);

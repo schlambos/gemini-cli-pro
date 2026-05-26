@@ -7,11 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { applyModelSelection } from './policyHelpers.js';
 import type { Config } from '../config/config.js';
-import {
-  PREVIEW_GEMINI_MODEL,
-  PREVIEW_GEMINI_FLASH_MODEL,
-  PREVIEW_GEMINI_MODEL_AUTO,
-} from '../config/models.js';
+import { PREVIEW_GEMINI_MODEL, PREVIEW_GEMINI_FLASH_MODEL, PREVIEW_GEMINI_MODEL_AUTO } from '../config/models.js';
 import { ModelAvailabilityService } from './modelAvailabilityService.js';
 import { ModelConfigService } from '../services/modelConfigService.js';
 import { DEFAULT_MODEL_CONFIGS } from '../config/defaultModelConfigs.js';
@@ -53,9 +49,7 @@ describe('Fallback Integration', () => {
     expect(result.model).toBe(PREVIEW_GEMINI_FLASH_MODEL);
 
     // 5. Expect active model to be updated
-    expect(config.setActiveModel).toHaveBeenCalledWith(
-      PREVIEW_GEMINI_FLASH_MODEL,
-    );
+    expect(config.setActiveModel).toHaveBeenCalledWith(PREVIEW_GEMINI_FLASH_MODEL);
   });
 
   it('should fallback for Gemini 3 models even if config is NOT in AUTO mode', () => {
